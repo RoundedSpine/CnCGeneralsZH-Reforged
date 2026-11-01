@@ -190,7 +190,12 @@ void SdlMouse::update( void )
 		}
 
 		// Win32Mouse::update: ask where the pointer is rather than trust the last event, until one comes
+#if defined(ZH_PLATFORM_IOS)
+		// Touch uses the game's queue directly; SDL's mouse focus is a hardware-mouse state.
+		m_cursorInWindow = hasFocus && (SdlInput_hasIOSTouch() || SDL_GetMouseFocus() == window);
+#else
 		m_cursorInWindow = SDL_GetMouseFocus() == window;
+#endif
 		if (!m_positionReported && m_cursorInWindow)
 		{
 			float wx = 0, wy = 0;
@@ -212,6 +217,7 @@ void SdlMouse::update( void )
 				&& width >= bounds.w && height >= bounds.h;
 		}
 		const Bool focused = (flags & SDL_WINDOW_INPUT_FOCUS) != 0;
+#if !defined(ZH_PLATFORM_IOS)
 		if (wantsConfinement( coversScreen, focused, m_cursorInWindow ))
 		{
 			if (!m_cursorConfined)
@@ -222,6 +228,7 @@ void SdlMouse::update( void )
 			SDL_SetWindowMouseGrab( window, false );
 			m_cursorConfined = FALSE;
 		}
+#endif
 	}
 	else if (SDL_GetHintBoolean( "ZH_OFFSCREEN_FRAMES", false ))
 	{

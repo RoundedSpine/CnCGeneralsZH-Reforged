@@ -1778,6 +1778,7 @@ GameEngineDevice/Include/SdlDevice/Common/SdlGameEngine.h
 GameEngineDevice/Include/SdlDevice/Common/SdlMessageBox.h
 GameEngineDevice/Include/SdlDevice/Common/SdlPanel.h
 GameEngineDevice/Include/SdlDevice/GameClient/AniCursor.h
+GameEngineDevice/Include/SdlDevice/GameClient/IOSTouch.h
 GameEngineDevice/Include/SdlDevice/GameClient/SdlInput.h
 GameEngineDevice/Include/SdlDevice/GameClient/SdlKeyTable.h
 GameEngineDevice/Include/SdlDevice/GameClient/SdlKeyboard.h
@@ -1933,6 +1934,7 @@ GameEngineDevice/Source/SdlDevice/Common/SdlGameEngine.cpp
 GameEngineDevice/Source/SdlDevice/Common/SdlMessageBox.cpp
 GameEngineDevice/Source/SdlDevice/Common/SdlPanel.cpp
 GameEngineDevice/Source/SdlDevice/GameClient/AniCursor.cpp
+GameEngineDevice/Source/SdlDevice/GameClient/SdlIOSTouch.cpp
 GameEngineDevice/Source/SdlDevice/GameClient/SdlInput.cpp
 GameEngineDevice/Source/SdlDevice/GameClient/SdlKeyTable.cpp
 GameEngineDevice/Source/SdlDevice/GameClient/SdlKeyboard.cpp
@@ -3141,6 +3143,10 @@ Main/RTS.RC
 Main/WinMain.cpp
 Main/WinMain.h
 Main/resource.h
+Platform/iOS/IOSBootstrap.mm
+Platform/iOS/Info.plist.in
+Platform/iOS/README.md
+Platform/iOS/Reforged.entitlements
 RTS.dsp
 RTS.dsw
 Stubs/NullAudioManager.h
@@ -3243,6 +3249,7 @@ Tests/test_hostile_map.inc
 Tests/test_install_guard.sh
 Tests/test_install_root.cpp
 Tests/test_install_textures.cpp
+Tests/test_ios_touch.cpp
 Tests/test_lan_broadcast.cpp
 Tests/test_linux_portable.sh
 Tests/test_macos_app.sh
@@ -3255,6 +3262,7 @@ Tests/test_minimap_input.inc
 Tests/test_modern_water_config.cpp
 Tests/test_msvc_float_casts.cpp
 Tests/test_observer_camera.inc
+Tests/test_package_link_libraries.py
 Tests/test_pixelcentre.cpp
 Tests/test_posix_draw_resolve.cpp
 Tests/test_posix_gpu_draw.cpp
@@ -4099,6 +4107,7 @@ Tools/assetcull/assetcull.cpp
 Tools/assetcull/assetcull.dsp
 Tools/aura_rings.py
 Tools/bigfile.py
+Tools/build-ios.sh
 Tools/build-posix.sh
 Tools/buildVersionUpdate/buildVersionUpdate.cpp
 Tools/buildVersionUpdate/buildVersionUpdate.dsp
@@ -4138,6 +4147,7 @@ Tools/lobbysettings_layout.py
 Tools/lod-first-run-check.sh
 Tools/macos-app-licenses.txt
 Tools/mainmenu_layout.py
+Tools/make-ios-ipa.sh
 Tools/make-macos-app.sh
 Tools/mangler/Makefile
 Tools/mangler/crc.cpp
@@ -4262,6 +4272,7 @@ Tools/package-common.sh
 Tools/packaging-resolution-check.sh
 Tools/peacetime_layout.py
 Tools/pink_laser.py
+Tools/publish-ios-report.py
 Tools/rank_insignia.py
 Tools/rank_insignia_cells.py
 Tools/rank_insignia_china.py
@@ -4271,7 +4282,9 @@ Tools/rank_insignia_usa.py
 Tools/record-dx11-shaders.ps1
 Tools/replay-check.sh
 Tools/root-readonly-check.sh
+Tools/sdl-shadercross-ios.patch
 Tools/signal_marks.py
+Tools/stage-ios-fonts.sh
 Tools/stage-overlay.sh
 Tools/sun-shadow-check.py
 Tools/syntax_sweep.py

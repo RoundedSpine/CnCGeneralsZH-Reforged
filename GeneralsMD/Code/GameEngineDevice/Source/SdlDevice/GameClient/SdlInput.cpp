@@ -133,6 +133,10 @@ void SdlInput_resetWheel( void )
 Bool SdlInput_dispatch( const SDL_Event &event )
 {
 	SdlInput_install();
+#if defined(ZH_PLATFORM_IOS)
+	if (SdlInput_dispatchIOSTouch( event ))
+		return TRUE;
+#endif
 	switch (event.type)
 	{
 		case SDL_EVENT_KEY_DOWN:

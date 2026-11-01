@@ -26,6 +26,14 @@ jobs:
           echo "sdk=$(xcrun --sdk iphoneos --show-sdk-version)" >> "$GITHUB_OUTPUT"
           cmake --version
           if ! command -v ninja >/dev/null; then brew install ninja; fi
+      - name: Test gestures and packaging helpers
+        run: |
+          c++ -std=c++17 -Wall -Wextra -fsanitize=address,undefined \
+            -IGeneralsMD/Code/GameEngineDevice/Include \
+            GeneralsMD/Code/Tests/test_ios_touch.cpp -o "$RUNNER_TEMP/test-ios-touch"
+          "$RUNNER_TEMP/test-ios-touch"
+          python3 GeneralsMD/Code/Tests/test_package_link_libraries.py
+          GeneralsMD/Code/Tools/fingerprint-manifest.sh --check
       - name: Restore compiled objects
         uses: actions/cache/restore@v4
         with:

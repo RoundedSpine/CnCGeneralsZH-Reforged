@@ -1122,7 +1122,26 @@ endif()
 # the files BuildFingerprint.manifest lists (the tracked sources: Tools/fingerprint-manifest.sh writes it,
 # build_fingerprint_manifest checks it), line endings normalised.  The header is rewritten only when the
 # value changes, so a rebuild with nothing changed runs nothing and recompiles nothing.
-add_executable(build_fingerprint ${CMAKE_CURRENT_SOURCE_DIR}/Tools/fingerprint/build_fingerprint.cpp)
+if(ZH_PLATFORM_IOS)
+  # A generator runs on the build Mac, never on the phone. Do not cross-compile
+  # this executable with the engine or inherit the device SDK in its environment.
+  execute_process(COMMAND xcrun --sdk macosx --show-sdk-path
+    OUTPUT_VARIABLE ZH_HOST_SDK OUTPUT_STRIP_TRAILING_WHITESPACE COMMAND_ERROR_IS_FATAL ANY)
+  execute_process(COMMAND xcrun --sdk macosx --find clang++
+    OUTPUT_VARIABLE ZH_HOST_CXX OUTPUT_STRIP_TRAILING_WHITESPACE COMMAND_ERROR_IS_FATAL ANY)
+  set(ZH_HOST_FINGERPRINT ${CMAKE_CURRENT_BINARY_DIR}/host-tools/build_fingerprint)
+  add_custom_command(OUTPUT ${ZH_HOST_FINGERPRINT}
+    COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/host-tools
+    COMMAND ${ZH_HOST_CXX} -std=c++17 -isysroot ${ZH_HOST_SDK}
+      ${CMAKE_CURRENT_SOURCE_DIR}/Tools/fingerprint/build_fingerprint.cpp -o ${ZH_HOST_FINGERPRINT}
+    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/Tools/fingerprint/build_fingerprint.cpp VERBATIM)
+  add_custom_target(build_fingerprint_host DEPENDS ${ZH_HOST_FINGERPRINT})
+  add_executable(build_fingerprint IMPORTED GLOBAL)
+  set_target_properties(build_fingerprint PROPERTIES IMPORTED_LOCATION ${ZH_HOST_FINGERPRINT})
+  add_dependencies(build_fingerprint build_fingerprint_host)
+else()
+  add_executable(build_fingerprint ${CMAKE_CURRENT_SOURCE_DIR}/Tools/fingerprint/build_fingerprint.cpp)
+endif()
 set(ZH_FINGERPRINT_MANIFEST ${CMAKE_CURRENT_SOURCE_DIR}/BuildFingerprint.manifest)
 set(ZH_FINGERPRINT_DIR ${CMAKE_CURRENT_BINARY_DIR}/generated/fingerprint)
 set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS ${ZH_FINGERPRINT_MANIFEST})
@@ -1132,7 +1151,7 @@ add_custom_command(
   OUTPUT ${ZH_FINGERPRINT_DIR}/BuildFingerprint.stamp
   BYPRODUCTS ${ZH_FINGERPRINT_DIR}/BuildFingerprint.h
   COMMAND ${CMAKE_COMMAND} -E make_directory ${ZH_FINGERPRINT_DIR}
-  COMMAND build_fingerprint ${CMAKE_CURRENT_SOURCE_DIR} ${ZH_FINGERPRINT_MANIFEST} ${ZH_FINGERPRINT_DIR}/BuildFingerprint.h
+  COMMAND $<TARGET_FILE:build_fingerprint> ${CMAKE_CURRENT_SOURCE_DIR} ${ZH_FINGERPRINT_MANIFEST} ${ZH_FINGERPRINT_DIR}/BuildFingerprint.h
   COMMAND ${CMAKE_COMMAND} -E touch ${ZH_FINGERPRINT_DIR}/BuildFingerprint.stamp
   DEPENDS build_fingerprint ${ZH_FINGERPRINT_MANIFEST} ${ZH_FINGERPRINT_FILES}
   COMMENT "Build fingerprint over the tracked sources (N1)" VERBATIM)
@@ -1966,7 +1985,7 @@ if(ZH_PLATFORM_POSIX)
     target_compile_definitions(generals PRIVATE ZH_IOS_REVISION="${ZH_IOS_REVISION}")
     target_link_libraries(generals PRIVATE "-framework UIKit" "-framework Foundation"
       "-framework Metal" "-framework QuartzCore" "-framework AVFoundation" "-framework AudioToolbox")
-    set_target_properties(generals PROPERTIES MACOSX_BUNDLE TRUE
+    set_target_properties(generals PROPERTIES MACOSX_BUNDLE TRUE OBJCXX_STANDARD 17
       MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/Platform/iOS/Info.plist.in"
       XCODE_ATTRIBUTE_CODE_SIGNING_ALLOWED NO
       XCODE_ATTRIBUTE_TARGETED_DEVICE_FAMILY "1,2")

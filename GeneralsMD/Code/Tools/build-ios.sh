@@ -16,5 +16,5 @@ cmake -S "$code" -B "$build" -G Ninja \
   -DCMAKE_C_COMPILER="$(xcrun --sdk iphoneos --find clang)" \
   -DCMAKE_CXX_COMPILER="$(xcrun --sdk iphoneos --find clang++)" \
   -DCMAKE_XCODE_ATTRIBUTE_CODE_SIGNING_ALLOWED=NO
-cmake --build "$build" --target generals zh_overlay --parallel "${ZH_BUILD_JOBS:-3}"
+cmake --build "$build" --target generals zh_overlay --parallel "${ZH_BUILD_JOBS:-3}" -- -k 0
 "$code/Tools/make-ios-ipa.sh" "$build"

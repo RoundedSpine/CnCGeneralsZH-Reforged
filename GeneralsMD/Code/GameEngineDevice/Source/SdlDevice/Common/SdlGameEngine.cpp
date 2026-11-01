@@ -354,6 +354,9 @@ void SdlGameEngine::serviceWindowsOS( void )
 				break;
 
 			case SDL_EVENT_WINDOW_FOCUS_LOST:
+#if defined(ZH_PLATFORM_IOS)
+				SdlInput_cancelIOSTouch();
+#endif
 				// WinMain's WM_ACTIVATE rule: silent behind another window unless MuteInBackground is
 				// off, and never in a -wav run.  Once a loss, since loseFocus keeps one set of volumes.
 				if (TheAudio && isActive() && TheGlobalData->m_wavEndFrame <= 0 && TheGlobalData->m_muteInBackground)

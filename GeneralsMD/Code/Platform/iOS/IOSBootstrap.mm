@@ -42,8 +42,9 @@ extern "C" bool ZH_IOS_Bootstrap()
                encoding:NSUTF8StringEncoding error:nil];
         SDL_SetAppMetadata("Zero Hour Reforged", "0.1", "io.github.roundedspine.reforged.ios");
         SDL_SetHint(SDL_HINT_ORIENTATIONS, "LandscapeLeft LandscapeRight");
-        // SDL provides single-finger mouse emulation. A hardware mouse and keyboard also work.
-        SDL_SetHint(SDL_HINT_TOUCH_MOUSE_EVENTS, "1");
+        // The RTS gesture adapter delivers mouse events directly; avoid duplicate emulated clicks.
+        SDL_SetHint(SDL_HINT_TOUCH_MOUSE_EVENTS, "0");
+        SDL_SetHint(SDL_HINT_MOUSE_TOUCH_EVENTS, "0");
         fprintf(stderr, "[IOS_STARTUP] game_data=%s user_data=%s fonts=%s\n",
                 getenv("ZH_IOS_GAME_DATA"), getenv("ZH_USER_DATA_DIR"), getenv("ZH_IOS_FONTS"));
         fprintf(stderr, "[IOS_BUILD] revision=%s renderer=SDL_GPU_Metal\n", ZH_IOS_REVISION);

@@ -29,9 +29,12 @@ Reforged overlay, bundled Liberation fonts and dependency licenses. It contains
 no original game data or bulk Reforged art download. Keep your existing working
 game installation and saves separate while testing.
 
-Initial input uses SDL's single-finger mouse emulation, plus hardware mouse and
-keyboard support. A complete touch control scheme and background/resume behavior
-still need implementation and device validation. Windows-only Direct3D 11 effects
+Initial touch controls: tap to left click, drag to select, hold a stationary finger
+for at least 0.55 seconds then release to right click, or tap with two fingers
+(the first finger sets the target). Pinch zooms. A three-finger tap sends Escape
+for the menu. Hardware mouse and keyboard input remain available. Use the minimap
+or screen edges to move the camera; a dedicated touch camera-pan gesture is not
+implemented. Touch controls and background/resume behavior still need device validation. Windows-only Direct3D 11 effects
 remain outside the SDL renderer's capabilities, as on desktop POSIX.
 
 The build publishes a bounded compiler report to `ci/ios-port-logs` in addition
