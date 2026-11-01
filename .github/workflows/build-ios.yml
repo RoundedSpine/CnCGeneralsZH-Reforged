@@ -1,0 +1,60 @@
+name: Build iOS unsigned IPA
+on:
+  push:
+    branches: [experiment/ios-port]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: ios-port-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  build-ipa:
+    runs-on: macos-15
+    timeout-minutes: 90
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - name: Select Xcode and build tools
+        run: |
+          xcodebuild -version
+          xcrun --sdk iphoneos --show-sdk-version
+          cmake --version
+          if ! command -v ninja >/dev/null; then brew install ninja; fi
+      - name: Build device IPA
+        shell: bash
+        run: |
+          mkdir -p build/ios
+          set -o pipefail
+          GeneralsMD/Code/Tools/build-ios.sh "$PWD/build/ios" 2>&1 | tee build/ios/build.log
+      - name: Upload unsigned IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: Reforged-iOS-unsigned-${{ github.sha }}
+          path: |
+            build/ios/Reforged-iOS-unsigned.ipa
+            build/ios/Reforged.entitlements
+          if-no-files-found: error
+      - name: Upload build diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Reforged-iOS-build-logs-${{ github.run_id }}
+          path: |
+            build/ios/build.log
+            build/ios/CMakeFiles/CMakeConfigureLog.yaml
+            build/ios/ffmpeg-work/build/configure.log
+            build/ios/ffmpeg-work/build/ffbuild/config.log
+            build/ios/ios-load-commands.txt
+            build/ios/signed-entitlements.plist
+          if-no-files-found: warn
+      # Keep compiler diagnostics readable through Git for environments with no Actions API access.
+      # Only named build logs are published; never the environment or credentials.
+      - name: Publish compiler report
+        if: always()
+        env:
+          IOS_JOB_STATUS: ${{ job.status }}
+        run: python3 GeneralsMD/Code/Tools/publish-ios-report.py

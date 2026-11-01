@@ -27,6 +27,7 @@
 # is in place costs one directory check per library and nothing else.
 #
 #   --force   re-fetch even what is already there
+#   --skip-art   fetch build dependencies without the separately installed art archives
 #
 # What it cannot get is the game itself: the .big files from a Zero Hour install go next to the
 # executable in GeneralsMD/Run, and the base game's in Run/ZH_Generals. The game says so on startup
@@ -35,10 +36,12 @@
 set -euo pipefail
 
 force=
+skip_art=
 
 while [ $# -gt 0 ]; do
   case "$1" in
     --force|-f) force=1 ;;
+    --skip-art) skip_art=1 ;;
     -h|--help) sed -n '3,$p' "$0" | sed -n '/^[^#]/q; s/^#\{1\} \{0,1\}//p'; exit 0 ;;
     *) echo "[vendor] ERROR: unknown argument '$1' (try --force)" >&2; exit 1 ;;
   esac
@@ -726,7 +729,10 @@ install_miniaudio
 install_glslang
 install_spirv_cross
 install_shadercross
+if ! grep -q 'SPVC_MSL_PLATFORM_IOS' "$libraries/Source/SDL_shadercross/src/SDL_shadercross.c"; then
+  patch -d "$libraries/Source/SDL_shadercross" -p1 < "$tools_dir/sdl-shadercross-ios.patch"
+fi
 install_freetype
 install_ffmpeg
-install_art
+if [ -z "$skip_art" ]; then install_art; fi
 step 'everything the build needs is in place'

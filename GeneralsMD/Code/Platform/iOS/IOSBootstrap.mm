@@ -1,0 +1,52 @@
+// iOS sandbox setup. Keep this translation unit free of engine headers: UIKit's BOOL
+// and the game's Bool declarations must not meet.
+#import <Foundation/Foundation.h>
+#include <SDL3/SDL.h>
+#include <cstdio>
+#include <cstdlib>
+
+extern "C" bool ZH_IOS_Bootstrap()
+{
+    @autoreleasepool {
+        NSFileManager *files = NSFileManager.defaultManager;
+        NSURL *documents = [files URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask].firstObject;
+        if (!documents)
+            return false;
+        NSURL *game = [documents URLByAppendingPathComponent:@"GameData" isDirectory:YES];
+        NSURL *user = [documents URLByAppendingPathComponent:@"UserData" isDirectory:YES];
+        for (NSURL *directory in @[game, [game URLByAppendingPathComponent:@"ZH_Generals" isDirectory:YES],
+                                   user, [user URLByAppendingPathComponent:@"ReforgedArt" isDirectory:YES]]) {
+            NSError *error = nil;
+            if (![files createDirectoryAtURL:directory withIntermediateDirectories:YES attributes:nil error:&error]) {
+                fprintf(stderr, "iOS: cannot create data folder: %s\n", error.description.UTF8String);
+                return false;
+            }
+        }
+        NSString *log = [documents.path stringByAppendingPathComponent:@"generals-stderr.log"];
+        NSString *previous = [documents.path stringByAppendingPathComponent:@"generals-stderr-prev.log"];
+        [files removeItemAtPath:previous error:nil];
+        [files moveItemAtPath:log toPath:previous error:nil];
+        if (!freopen(log.fileSystemRepresentation, "w", stderr))
+            return false;
+        setvbuf(stderr, nullptr, _IOLBF, 0);
+        NSString *fonts = [[NSBundle.mainBundle.bundlePath stringByAppendingPathComponent:@"Fonts"] stringByAppendingString:@"/"];
+        setenv("ZH_IOS_GAME_DATA", game.path.fileSystemRepresentation, 1);
+        setenv("ZH_USER_DATA_DIR", user.path.fileSystemRepresentation, 1);
+        setenv("ZH_IOS_FONTS", fonts.fileSystemRepresentation, 1);
+        NSString *guide = @"Zero Hour Reforged for iOS\n\n"
+            "Copy Zero Hour files into GameData. Copy original Generals files into GameData/ZH_Generals.\n"
+            "Both games are required. Keep .big files directly in those folders.\n"
+            "Optional Reforged*.big art archives belong in UserData/ReforgedArt.\n"
+            "Saves, options and logs are in UserData. Startup output is in generals-stderr.log.\n";
+        [guide writeToURL:[documents URLByAppendingPathComponent:@"READ-ME.txt"] atomically:YES
+               encoding:NSUTF8StringEncoding error:nil];
+        SDL_SetAppMetadata("Zero Hour Reforged", "0.1", "io.github.roundedspine.reforged.ios");
+        SDL_SetHint(SDL_HINT_ORIENTATIONS, "LandscapeLeft LandscapeRight");
+        // SDL provides single-finger mouse emulation. A hardware mouse and keyboard also work.
+        SDL_SetHint(SDL_HINT_TOUCH_MOUSE_EVENTS, "1");
+        fprintf(stderr, "[IOS_STARTUP] game_data=%s user_data=%s fonts=%s\n",
+                getenv("ZH_IOS_GAME_DATA"), getenv("ZH_USER_DATA_DIR"), getenv("ZH_IOS_FONTS"));
+        fprintf(stderr, "[IOS_BUILD] revision=%s renderer=SDL_GPU_Metal\n", ZH_IOS_REVISION);
+        return true;
+    }
+}

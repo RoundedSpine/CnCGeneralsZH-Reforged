@@ -22,7 +22,7 @@
 
 #include <math.h>
 
-#if defined(__APPLE__)
+#if defined(__APPLE__) && !defined(ZH_PLATFORM_IOS)
 #include <CoreGraphics/CoreGraphics.h>
 #include <IOKit/graphics/IOGraphicsTypes.h>
 

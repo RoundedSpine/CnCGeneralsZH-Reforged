@@ -1,4 +1,4 @@
-﻿# Command and Conquer: Generals: Zero Hour: Reforged
+# Command and Conquer: Generals: Zero Hour: Reforged
 
 EA opened the source of Generals and Zero Hour, the game that is still on sale and still runs on
 Steam. This build is that source with the bugs the game shipped with fixed and everything below added.
@@ -7,6 +7,13 @@ Steam. This build is that source with the bugs the game shipped with fixed and e
 found and fixed, EA's own, not port damage.**
 
 ---
+
+## Experimental iOS build
+
+- An arm64 iPhone/iPad app target and unsigned IPA workflow are being brought up.
+  The port uses SDL GPU's native Metal renderer, shared Documents folders and
+  bundled Liberation fonts. Original Generals and Zero Hour data stay separate.
+  Device compilation and gameplay validation are still in progress.
 
 ## Missions keep the time their script wrote
 

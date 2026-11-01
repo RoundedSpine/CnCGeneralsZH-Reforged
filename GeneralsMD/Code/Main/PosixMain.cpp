@@ -84,7 +84,11 @@
 
 #include "posixpath.h"
 
-#include <SDL3/SDL.h>		// the folder dialog and the message box, before the engine exists (P1 step 4)
+#include <SDL3/SDL.h>
+#if defined(ZH_PLATFORM_IOS)
+#include <SDL3/SDL_main.h>
+extern "C" bool ZH_IOS_Bootstrap();
+#endif		// the folder dialog and the message box, before the engine exists (P1 step 4)
 #include <atomic>
 #include <mutex>
 
@@ -139,7 +143,7 @@ static void SDLCALL onFolderChosen( void *userdata, const char * const *filelist
 	}
 }
 
-#if defined(__APPLE__)
+#if defined(__APPLE__) && !defined(ZH_PLATFORM_IOS)
 /** Brings this app to the front.  The chooser runs before any window exists, and without one nothing
 	* activates the app (SDL does it when it shows a window, and not at launch on macOS 14 and later), so
 	* its message box and its folder panel - modal, owned by no window - would open behind whatever app
@@ -280,6 +284,10 @@ static bool chooseFolderFromScript( PosixInstallQuestion question, const std::st
 static Bool chooseInstallRoot( int argc, char *argv[], const std::vector<std::string> &overlays, char *out, size_t outSize )
 {
 	PosixInstallRequest request;
+#if defined(ZH_PLATFORM_IOS)
+	request.arguments.push_back( "-root" );
+	request.arguments.push_back( getenv( "ZH_IOS_GAME_DATA" ) );
+#endif
 	Bool unattended = FALSE;
 	for (int i = 1; i < argc; ++i)
 	{
@@ -296,14 +304,22 @@ static Bool chooseInstallRoot( int argc, char *argv[], const std::vector<std::st
 	request.insideAppBundle = isExecutablePackaged() != FALSE;		// a macOS app, or a Linux package (P3)
 	request.home = findHomeDirectory( buffer, sizeof( buffer ) ) ? buffer : "";
 	if (isExecutableInAppBundle())
-		request.forbidden.push_back( request.executableDirectory + "/../.." );	// the bundle
+#if defined(ZH_PLATFORM_IOS)
+		request.forbidden.push_back( request.executableDirectory );
+#else
+		request.forbidden.push_back( request.executableDirectory + "/../.." );
+#endif	// the bundle
 	else if (request.insideAppBundle)
 		request.forbidden.push_back( request.executableDirectory + "/.." );		// the Linux package
 	request.forbidden.insert( request.forbidden.end(), overlays.begin(), overlays.end() );
 	request.registryFile = findRegistryFile( buffer, sizeof( buffer ) ) ? buffer : "";
 	std::string dialogFailure;
 	const bool gameMode = inSteamGameMode();
+#if defined(ZH_PLATFORM_IOS)
+	request.chooser = NULL;
+#else
 	request.chooser = unattended || gameMode ? NULL : chooseFolderWithSdl;
+#endif
 	request.chooserContext = &dialogFailure;
 	ScriptedAnswers script;
 	const char *answers = getenv( "ZH_TEST_CHOOSER_ANSWERS" );
@@ -396,7 +412,11 @@ static Bool chooseOverlays( int argc, char *argv[], std::vector<std::string> &ov
 
 	char exe[ 4096 ];
 	getExecutableDirectory( exe, sizeof( exe ), FALSE );
-	static const char *const packaged[] = { "/../Resources/Overlay", "/../share/zero-hour-reforged/overlay" };
+	static const char *const packaged[] = {
+#if defined(ZH_PLATFORM_IOS)
+		"/Overlay",
+#endif
+		"/../Resources/Overlay", "/../share/zero-hour-reforged/overlay" };
 	for (size_t i = 0; exe[0] != 0 && i < sizeof( packaged ) / sizeof( packaged[0] ); ++i)
 	{
 		const std::string candidate = std::string( exe ) + packaged[i];
@@ -460,6 +480,10 @@ int main( int argc, char *argv[] )
 		TheDmaCriticalSection = &critSec3;
 		TheMemoryPoolCriticalSection = &critSec4;
 		TheDebugLogCriticalSection = &critSec5;
+#if defined(ZH_PLATFORM_IOS)
+		if (!ZH_IOS_Bootstrap())
+			return 1;
+#endif
 
 		std::vector<std::string> overlays;
 		if (!chooseOverlays( argc, argv, overlays ))

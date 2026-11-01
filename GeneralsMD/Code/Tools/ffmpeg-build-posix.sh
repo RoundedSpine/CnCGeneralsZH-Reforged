@@ -60,6 +60,10 @@ cross=()
 if [ -n "$target_arch" ]; then
   cross=(--arch="$target_arch" --enable-cross-compile)
 fi
+if [ -n "${ZH_FFMPEG_TARGET_OS:-}" ]; then
+  cross+=(--target-os="$ZH_FFMPEG_TARGET_OS" --host-cc=/usr/bin/cc
+    --host-cflags="${ZH_FFMPEG_HOST_CFLAGS:-}" --host-ldflags="${ZH_FFMPEG_HOST_CFLAGS:-}")
+fi
 version=8.1.2
 
 rm -rf "$work" "$prefix"

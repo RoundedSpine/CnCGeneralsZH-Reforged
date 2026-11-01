@@ -7,7 +7,11 @@ cmake_minimum_required(VERSION 3.20)
 # silicon Mac and Intel Macs from 2017 on run it, and nothing in the tree needs a newer one.  An explicit -DCMAKE_OSX_DEPLOYMENT_TARGET wins;
 # an empty one (as every earlier build cache holds) takes the default.
 if(CMAKE_HOST_APPLE AND "${CMAKE_OSX_DEPLOYMENT_TARGET}" STREQUAL "")
-  set(CMAKE_OSX_DEPLOYMENT_TARGET "13.0" CACHE STRING "The oldest macOS the build runs on (P2)" FORCE)
+  if(CMAKE_SYSTEM_NAME STREQUAL "iOS")
+    set(CMAKE_OSX_DEPLOYMENT_TARGET "16.0" CACHE STRING "Minimum iOS version" FORCE)
+  else()
+    set(CMAKE_OSX_DEPLOYMENT_TARGET "13.0" CACHE STRING "The oldest macOS the build runs on (P2)" FORCE)
+  endif()
 endif()
 
 project(GeneralsMD CXX C)
@@ -30,6 +34,10 @@ else()
   set(ZH_PLATFORM_POSIX TRUE)
   if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     set(ZH_PLATFORM_MACOS TRUE)
+  elseif(CMAKE_SYSTEM_NAME STREQUAL "iOS")
+    set(ZH_PLATFORM_IOS TRUE)
+    add_compile_definitions(ZH_PLATFORM_IOS=1)
+    enable_language(OBJCXX)
   elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     set(ZH_PLATFORM_LINUX TRUE)
   endif()
@@ -885,6 +893,9 @@ if(ZH_PLATFORM_POSIX)
   foreach(_sdl_on SDL_STATIC SDL_VIDEO SDL_GPU SDL_DIALOG)
     set(${_sdl_on} ON CACHE BOOL "" FORCE)
   endforeach()
+  if(ZH_PLATFORM_IOS)
+    set(SDL_DIALOG OFF CACHE BOOL "iOS uses its shared Documents folder" FORCE)
+  endif()
   add_subdirectory(${LIBSRC}/SDL3 ${CMAKE_CURRENT_BINARY_DIR}/SDL3)
 
   # miniaudio: one C file.  Its own CMakeLists builds extras and examples this does not want.
@@ -1559,7 +1570,7 @@ if(ZH_PLATFORM_POSIX)
   set(FFMPEG_POSIX_LIBS ${FFMPEG_POSIX}/lib/libavformat.a ${FFMPEG_POSIX}/lib/libavcodec.a
     ${FFMPEG_POSIX}/lib/libswscale.a ${FFMPEG_POSIX}/lib/libswresample.a ${FFMPEG_POSIX}/lib/libavutil.a)
   set(FFMPEG_POSIX_CFLAGS "")
-  if(APPLE AND CMAKE_OSX_DEPLOYMENT_TARGET)
+  if(ZH_PLATFORM_MACOS AND CMAKE_OSX_DEPLOYMENT_TARGET)
     set(FFMPEG_POSIX_CFLAGS "-mmacosx-version-min=${CMAKE_OSX_DEPLOYMENT_TARGET}")
   endif()
   # The SDK CMake gives our own targets.  Only /usr/bin/cc, the xcrun shim, finds one by itself; CMake may
@@ -1585,6 +1596,14 @@ if(ZH_PLATFORM_POSIX)
     else()
       set(FFMPEG_POSIX_ARCH ${CMAKE_OSX_ARCHITECTURES})
     endif()
+  endif()
+  if(ZH_PLATFORM_IOS)
+    # configure runs on macOS; only FFmpeg's target objects use the device SDK.
+    execute_process(COMMAND xcrun --sdk macosx --show-sdk-path
+      OUTPUT_VARIABLE FFMPEG_HOST_SDK OUTPUT_STRIP_TRAILING_WHITESPACE COMMAND_ERROR_IS_FATAL ANY)
+    set(FFMPEG_POSIX_CFLAGS "-target arm64-apple-ios${CMAKE_OSX_DEPLOYMENT_TARGET} -isysroot ${CMAKE_OSX_SYSROOT}")
+    list(APPEND FFMPEG_POSIX_ENV "ZH_FFMPEG_TARGET_OS=darwin"
+      "ZH_FFMPEG_HOST_CFLAGS=-isysroot ${FFMPEG_HOST_SDK}")
   endif()
   add_custom_command(
     OUTPUT ${FFMPEG_POSIX_LIBS} ${FFMPEG_POSIX}/include/libavcodec/avcodec.h
@@ -1936,6 +1955,18 @@ if(ZH_PLATFORM_POSIX)
   endif()
 
   add_executable(generals ${CMAKE_CURRENT_SOURCE_DIR}/Main/PosixMain.cpp)
+  if(ZH_PLATFORM_IOS)
+    target_sources(generals PRIVATE Platform/iOS/IOSBootstrap.mm)
+    execute_process(COMMAND git rev-parse --short=12 HEAD WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+      OUTPUT_VARIABLE ZH_IOS_REVISION OUTPUT_STRIP_TRAILING_WHITESPACE)
+    target_compile_definitions(generals PRIVATE ZH_IOS_REVISION="${ZH_IOS_REVISION}")
+    target_link_libraries(generals PRIVATE "-framework UIKit" "-framework Foundation"
+      "-framework Metal" "-framework QuartzCore" "-framework AVFoundation" "-framework AudioToolbox")
+    set_target_properties(generals PROPERTIES MACOSX_BUNDLE TRUE
+      MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/Platform/iOS/Info.plist.in"
+      XCODE_ATTRIBUTE_CODE_SIGNING_ALLOWED NO
+      XCODE_ATTRIBUTE_TARGETED_DEVICE_FAMILY "1,2")
+  endif()
   target_include_directories(generals PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/Main ${GENERATED})
   set_target_properties(generals PROPERTIES CXX_STANDARD 17)
   target_link_libraries(generals PRIVATE sdldevice installroot)
@@ -2051,7 +2082,7 @@ if(ZH_PLATFORM_POSIX)
   # the user data folder's ReforgedArt when something has put it there, the licences checked against generals'
   # link line, the HUD directive, an ad-hoc signature, verified).  Outside ALL: build it with `ninja macos_app`.
   # The bundle id belongs to whoever ships; the default is the project's home (the README's).
-  if(APPLE)
+  if(ZH_PLATFORM_MACOS)
     set(ZH_APP_BUNDLE_ID "io.github.olcayseygan.zero-hour-reforged" CACHE STRING "CFBundleIdentifier of the macOS app")
     set(ZH_APP_ARGS --generals $<TARGET_FILE:generals> --overlay ${CMAKE_BINARY_DIR}/overlay
         --build ${CMAKE_BINARY_DIR} --out "${CMAKE_BINARY_DIR}/Zero Hour Reforged.app" --bundle-id ${ZH_APP_BUNDLE_ID}
