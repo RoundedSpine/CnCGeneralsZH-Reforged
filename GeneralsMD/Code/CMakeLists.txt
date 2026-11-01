@@ -1129,16 +1129,8 @@ if(ZH_PLATFORM_IOS)
     OUTPUT_VARIABLE ZH_HOST_SDK OUTPUT_STRIP_TRAILING_WHITESPACE COMMAND_ERROR_IS_FATAL ANY)
   execute_process(COMMAND xcrun --sdk macosx --find clang++
     OUTPUT_VARIABLE ZH_HOST_CXX OUTPUT_STRIP_TRAILING_WHITESPACE COMMAND_ERROR_IS_FATAL ANY)
-  set(ZH_HOST_FINGERPRINT ${CMAKE_CURRENT_BINARY_DIR}/host-tools/build_fingerprint)
-  add_custom_command(OUTPUT ${ZH_HOST_FINGERPRINT}
-    COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/host-tools
-    COMMAND ${ZH_HOST_CXX} -std=c++17 -isysroot ${ZH_HOST_SDK}
-      ${CMAKE_CURRENT_SOURCE_DIR}/Tools/fingerprint/build_fingerprint.cpp -o ${ZH_HOST_FINGERPRINT}
-    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/Tools/fingerprint/build_fingerprint.cpp VERBATIM)
-  add_custom_target(build_fingerprint_host DEPENDS ${ZH_HOST_FINGERPRINT})
-  add_executable(build_fingerprint IMPORTED GLOBAL)
-  set_target_properties(build_fingerprint PROPERTIES IMPORTED_LOCATION ${ZH_HOST_FINGERPRINT})
-  add_dependencies(build_fingerprint build_fingerprint_host)
+  include(${CMAKE_CURRENT_SOURCE_DIR}/CMake/HostTools.cmake)
+  zh_add_host_executable(build_fingerprint ${CMAKE_CURRENT_SOURCE_DIR}/Tools/fingerprint/build_fingerprint.cpp)
 else()
   add_executable(build_fingerprint ${CMAKE_CURRENT_SOURCE_DIR}/Tools/fingerprint/build_fingerprint.cpp)
 endif()

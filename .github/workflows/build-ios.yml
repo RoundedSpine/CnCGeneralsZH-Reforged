@@ -33,6 +33,7 @@ jobs:
             GeneralsMD/Code/Tests/test_ios_touch.cpp -o "$RUNNER_TEMP/test-ios-touch"
           "$RUNNER_TEMP/test-ios-touch"
           python3 GeneralsMD/Code/Tests/test_package_link_libraries.py
+          python3 GeneralsMD/Code/Tests/test_host_tools.py
           GeneralsMD/Code/Tools/fingerprint-manifest.sh --check
       - name: Restore compiled objects
         uses: actions/cache/restore@v4

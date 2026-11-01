@@ -1,3 +1,4 @@
+CMake/HostTools.cmake
 CMakeLists.txt
 Data/Art/Textures/ReforgedAuraGuard.tga
 Data/Art/Textures/ReforgedAuraRally.tga
@@ -3245,6 +3246,7 @@ Tests/test_glyph_rasteriser.cpp
 Tests/test_ground_marks.cpp
 Tests/test_harness.h
 Tests/test_hazard_cloud_policy.cpp
+Tests/test_host_tools.py
 Tests/test_hostile_map.inc
 Tests/test_install_guard.sh
 Tests/test_install_root.cpp
