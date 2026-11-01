@@ -2,6 +2,7 @@
 """Publish a bounded build report to a separate, generated Git branch."""
 import json
 import os
+import re
 from pathlib import Path
 import subprocess
 
@@ -31,7 +32,15 @@ def main():
         ('cmake-configure.log', build / 'CMakeFiles/CMakeConfigureLog.yaml'),
     ):
         if source.is_file():
-            files[name] = '\n'.join(source.read_text(errors='replace').splitlines()[-6000:]) + '\n'
+            lines = source.read_text(errors='replace').splitlines()
+            files[name] = '\n'.join(lines[-6000:]) + '\n'
+            if name == 'build.log':
+                # Keep early compiler failures even if later independent targets emit many warnings.
+                context = set()
+                for at, line in enumerate(lines):
+                    if re.search(r'FAILED:|(?:fatal )?error:|CMake Error|ninja: .*error', line):
+                        context.update(range(max(0, at - 3), min(len(lines), at + 16)))
+                files['errors.log'] = '\n'.join(lines[at] for at in sorted(context))[-500000:] + '\n'
     entries = []
     for name, content in files.items():
         blob = git('hash-object', '-w', '--stdin', data=content).stdout.strip()

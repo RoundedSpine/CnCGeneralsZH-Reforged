@@ -24,8 +24,8 @@ extern "C" bool ZH_IOS_Bootstrap()
         }
         NSString *log = [documents.path stringByAppendingPathComponent:@"generals-stderr.log"];
         NSString *previous = [documents.path stringByAppendingPathComponent:@"generals-stderr-prev.log"];
-        [files removeItemAtPath:previous error:nil];
-        [files moveItemAtPath:log toPath:previous error:nil];
+        [files removeItemAtPath:previous error:nullptr];
+        [files moveItemAtPath:log toPath:previous error:nullptr];
         if (!freopen(log.fileSystemRepresentation, "w", stderr))
             return false;
         setvbuf(stderr, nullptr, _IOLBF, 0);
@@ -37,9 +37,14 @@ extern "C" bool ZH_IOS_Bootstrap()
             "Copy Zero Hour files into GameData. Copy original Generals files into GameData/ZH_Generals.\n"
             "Both games are required. Keep .big files directly in those folders.\n"
             "Optional Reforged*.big art archives belong in UserData/ReforgedArt.\n"
-            "Saves, options and logs are in UserData. Startup output is in generals-stderr.log.\n";
+            "Saves, options and logs are in UserData. Startup output is in generals-stderr.log.\n\n"
+            "Controls: tap = left click; drag = selection.\n"
+            "Hold still for 0.55 seconds and release, or tap with two fingers = right click.\n"
+            "With two fingers, the first finger sets the click target.\n"
+            "Pinch = zoom; three-finger tap = Escape/menu.\n"
+            "Use the minimap or hold at a screen edge to move the camera.\n";
         [guide writeToURL:[documents URLByAppendingPathComponent:@"READ-ME.txt"] atomically:YES
-               encoding:NSUTF8StringEncoding error:nil];
+               encoding:NSUTF8StringEncoding error:nullptr];
         SDL_SetAppMetadata("Zero Hour Reforged", "0.1", "io.github.roundedspine.reforged.ios");
         SDL_SetHint(SDL_HINT_ORIENTATIONS, "LandscapeLeft LandscapeRight");
         // The RTS gesture adapter delivers mouse events directly; avoid duplicate emulated clicks.

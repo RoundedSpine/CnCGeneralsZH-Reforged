@@ -205,6 +205,7 @@ void SdlMouse::update( void )
 			setPosition( x, y );
 		}
 
+#if !defined(ZH_PLATFORM_IOS)
 		// ...and hold the pointer in a window that covers its screen, which edge scrolling needs
 		const SDL_WindowFlags flags = SDL_GetWindowFlags( window );
 		Bool coversScreen = (flags & SDL_WINDOW_FULLSCREEN) != 0;
@@ -217,7 +218,6 @@ void SdlMouse::update( void )
 				&& width >= bounds.w && height >= bounds.h;
 		}
 		const Bool focused = (flags & SDL_WINDOW_INPUT_FOCUS) != 0;
-#if !defined(ZH_PLATFORM_IOS)
 		if (wantsConfinement( coversScreen, focused, m_cursorInWindow ))
 		{
 			if (!m_cursorConfined)

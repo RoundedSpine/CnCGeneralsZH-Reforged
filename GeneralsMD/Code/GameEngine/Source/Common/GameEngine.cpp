@@ -3663,6 +3663,11 @@ Bool GameEngine::isMultiplayerSession( void )
 
 void updateTGAtoDDS()
 {
+#if defined(ZH_PLATFORM_IOS)
+	// nvdxt is an offline Windows executable. UIKit apps cannot spawn tools;
+	// the renderer already loads TGA/DDS data without this development step.
+	DEBUG_LOG(("Offline texture conversion is unavailable on iOS.\n"));
+#else
 	// Here's the scoop. We're going to traverse through all of the files in the Art\Textures folder
 	// and determine if there are any .tga files that are newer than associated .dds files. If there 
 	// are, then we will re-run the compression tool on them.
@@ -3723,6 +3728,7 @@ void updateTGAtoDDS()
 	fp->close();
 
 	system(CONVERT_EXEC1);
+#endif
 }
 
 //-------------------------------------------------------------------------------------------------

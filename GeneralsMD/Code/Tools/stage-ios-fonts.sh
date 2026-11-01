@@ -6,7 +6,11 @@ work=$(mktemp -d)
 trap 'rm -rf "$work"' EXIT
 mkdir -p "$out"
 url=https://github.com/liberationfonts/liberation-fonts/files/7261482/liberation-fonts-ttf-2.1.5.tar.gz
-curl --fail --location --retry 3 "$url" -o "$work/fonts.tar.gz"
+if ! curl --fail --location --retry 3 "$url" -o "$work/fonts.tar.gz"; then
+  curl --fail --location --retry 3 \
+    https://github.com/liberationfonts/liberation-fonts/releases/download/2.1.5/liberation-fonts-ttf-2.1.5.tar.gz \
+    -o "$work/fonts.tar.gz"
+fi
 echo "7191c669bf38899f73a2094ed00f7b800553364f90e2637010a69c0e268f25d0  $work/fonts.tar.gz" | shasum -a 256 -c -
 tar -xzf "$work/fonts.tar.gz" -C "$work"
 source="$work/liberation-fonts-ttf-2.1.5"

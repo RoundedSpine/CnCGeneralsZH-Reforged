@@ -14,6 +14,9 @@ found and fixed, EA's own, not port damage.**
   The port uses SDL GPU's native Metal renderer, shared Documents folders and
   bundled Liberation fonts. Original Generals and Zero Hour data stay separate.
   Device compilation and gameplay validation are still in progress.
+- Initial iOS touch controls support tapping, selection drags, a held or two-finger
+  secondary click, pinch zoom and a three-finger tap for the menu. Instructions
+  appear alongside the game-data folders in Files.
 
 ## Missions keep the time their script wrote
 
