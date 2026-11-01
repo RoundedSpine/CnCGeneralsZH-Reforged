@@ -88,7 +88,7 @@
 #if defined(ZH_PLATFORM_IOS)
 #include <SDL3/SDL_main.h>
 extern "C" bool ZH_IOS_Bootstrap();
-#endif		// the folder dialog and the message box, before the engine exists (P1 step 4)
+#endif
 #include <atomic>
 #include <mutex>
 
@@ -457,6 +457,15 @@ static Bool takeOneCopyLock( void )
 //=============================================================================
 int main( int argc, char *argv[] )
 {
+	TheUnicodeStringCriticalSection = &critSec2;
+	TheDmaCriticalSection = &critSec3;
+	TheMemoryPoolCriticalSection = &critSec4;
+	TheDebugLogCriticalSection = &critSec5;
+#if defined(ZH_PLATFORM_IOS)
+	// installCrashHandlers caches findUserDataDirectory: choose the sandbox first.
+	if (!ZH_IOS_Bootstrap())
+		return 1;
+#endif
 	// Before anything else, and before another thread exists: a crash from here on leaves
 	// ReleaseCrashInfo.txt, as WinMain's _set_se_translator and SetUnhandledExceptionFilter make it on Windows.
 	installCrashHandlers();
@@ -476,14 +485,6 @@ int main( int argc, char *argv[] )
 
 	try {
 
-		TheUnicodeStringCriticalSection = &critSec2;
-		TheDmaCriticalSection = &critSec3;
-		TheMemoryPoolCriticalSection = &critSec4;
-		TheDebugLogCriticalSection = &critSec5;
-#if defined(ZH_PLATFORM_IOS)
-		if (!ZH_IOS_Bootstrap())
-			return 1;
-#endif
 
 		std::vector<std::string> overlays;
 		if (!chooseOverlays( argc, argv, overlays ))

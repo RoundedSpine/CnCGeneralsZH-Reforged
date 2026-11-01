@@ -19,17 +19,31 @@ jobs:
         with:
           fetch-depth: 1
       - name: Select Xcode and build tools
+        id: tools
         run: |
           xcodebuild -version
           xcrun --sdk iphoneos --show-sdk-version
+          echo "sdk=$(xcrun --sdk iphoneos --show-sdk-version)" >> "$GITHUB_OUTPUT"
           cmake --version
           if ! command -v ninja >/dev/null; then brew install ninja; fi
+      - name: Restore compiled objects
+        uses: actions/cache/restore@v4
+        with:
+          path: build/ios
+          key: ios-${{ runner.arch }}-${{ steps.tools.outputs.sdk }}-${{ github.sha }}
+          restore-keys: ios-${{ runner.arch }}-${{ steps.tools.outputs.sdk }}-
       - name: Build device IPA
         shell: bash
         run: |
           mkdir -p build/ios
           set -o pipefail
           GeneralsMD/Code/Tools/build-ios.sh "$PWD/build/ios" 2>&1 | tee build/ios/build.log
+      - name: Save compiled objects
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: build/ios
+          key: ios-${{ runner.arch }}-${{ steps.tools.outputs.sdk }}-${{ github.sha }}
       - name: Upload unsigned IPA
         uses: actions/upload-artifact@v4
         with:

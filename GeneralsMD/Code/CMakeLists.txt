@@ -37,7 +37,7 @@ else()
   elseif(CMAKE_SYSTEM_NAME STREQUAL "iOS")
     set(ZH_PLATFORM_IOS TRUE)
     add_compile_definitions(ZH_PLATFORM_IOS=1)
-    enable_language(OBJCXX)
+    enable_language(OBJC OBJCXX)
   elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     set(ZH_PLATFORM_LINUX TRUE)
   endif()
@@ -902,6 +902,10 @@ if(ZH_PLATFORM_POSIX)
   # It opens the platform's audio libraries at run time by default, so the static library needs
   # nothing at link beyond threads, libm and libdl, which are its consumers' to carry.
   find_package(Threads REQUIRED)
+  if(ZH_PLATFORM_IOS)
+    # miniaudio's AVAudioSession integration imports Objective-C framework headers.
+    set_source_files_properties(${LIBSRC}/miniaudio/miniaudio.c PROPERTIES LANGUAGE OBJC)
+  endif()
   add_library(miniaudio STATIC ${LIBSRC}/miniaudio/miniaudio.c)
   target_include_directories(miniaudio PUBLIC ${LIBSRC}/miniaudio)
   # libm on every POSIX system: separate from libc on Linux and the BSDs, part of libSystem on macOS,
