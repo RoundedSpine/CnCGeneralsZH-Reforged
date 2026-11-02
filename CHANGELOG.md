@@ -38,6 +38,12 @@ found and fixed, EA's own, not port damage.**
   Lift both fingers to switch between the two gestures. Camera panning does not
   issue unit orders and stops when a finger lifts or the app loses focus.
 
+## Identify the skipped rendering pass
+
+- The first draw skipped for reading its own render target now records its shader,
+  texture binding, target size and caller stack in the log. The renderer continues
+  to reject that invalid operation; this build gathers evidence for the fix.
+
 ## Missions keep the time their script wrote
 
 - EA's cinematics slow the game on purpose, so the radio lines fit and the camera lands where the next shot starts. This build had stopped honouring that on 18 October. Every mission's cutscenes now run at the pace their script asks for. China's parade had 16 seconds of radio talking over itself, and has 11 now: what is left is EA's own script, which starts the tank crews' lines two thirds of a second apart.

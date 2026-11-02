@@ -1894,6 +1894,7 @@ GameEngineDevice/Source/PosixDevice/Common/PosixLocalFile.cpp
 GameEngineDevice/Source/PosixDevice/Common/PosixLocalFileSystem.cpp
 GameEngineDevice/Source/PosixDevice/Install/PosixInstallRoot.cpp
 GameEngineDevice/Source/PosixDevice/Render/DrawCapture.h
+GameEngineDevice/Source/PosixDevice/Render/FeedbackDiagnostic.h
 GameEngineDevice/Source/PosixDevice/Render/PosixD3D9Caps.cpp
 GameEngineDevice/Source/PosixDevice/Render/PosixD3D9Caps.h
 GameEngineDevice/Source/PosixDevice/Render/PosixDevice9.cpp
@@ -3227,6 +3228,7 @@ Tests/test_dx11texture.cpp
 Tests/test_dx11twin.cpp
 Tests/test_early_command_line.cpp
 Tests/test_engineshader.cpp
+Tests/test_feedback_diagnostic.cpp
 Tests/test_ffprogram.cpp
 Tests/test_ffref_capture.cpp
 Tests/test_ffref_gpu.cpp
@@ -3260,6 +3262,7 @@ Tests/test_ios_global_new.py
 Tests/test_ios_main_exit.py
 Tests/test_ios_report.py
 Tests/test_ios_startup_pump.cpp
+Tests/test_ios_symbols.py
 Tests/test_ios_touch.cpp
 Tests/test_lan_broadcast.cpp
 Tests/test_linux_portable.sh
@@ -4142,6 +4145,7 @@ Tools/gentrigtables.py
 Tools/guard_marker.py
 Tools/include_case_check.py
 Tools/install-guard.sh
+Tools/ios-symbols.py
 Tools/license-headers.py
 Tools/linux-check.sh
 Tools/linux-menu-entry.sh

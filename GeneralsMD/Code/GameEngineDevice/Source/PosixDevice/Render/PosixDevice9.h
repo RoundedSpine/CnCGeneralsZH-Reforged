@@ -46,6 +46,7 @@
 
 #include "Platform/RenderTypes.h"
 #include "Platform/D3D9Posix.h"
+#include "FeedbackDiagnostic.h"
 #include "Platform/WaterShoreOverlay.h"
 #include "Platform/WaterHullVisualLayout.h"
 #include <memory>
@@ -421,6 +422,10 @@ protected:
 	/// what can still change staged.  Headless, nothing.
 	RenderResult Gpu_Draw(const DrawCall &call);
 	void Refuse_Draw(const std::string &reason);
+	void Log_Feedback_Conflict(const DrawCall &call, const struct SdlTarget &target,
+		unsigned slot, int textureStage, int samplerStage, bool depth,
+		const std::string &vertexKey, const std::string &pixelKey);
+	FeedbackDiagnostic::Once FeedbackReport;
 	/// The current render target and depth-stencil as the frame's target (A3d).  False, with the reason,
 	/// for what cannot be drawn into.
 	bool Resolve_Target(struct SdlTarget &target, std::string &refusal);

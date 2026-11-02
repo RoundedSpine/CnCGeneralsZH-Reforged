@@ -56,3 +56,12 @@ The iOS entry adapter explicitly exits after the engine function and its local
 cleanup have returned. SDL's UIKit delegate intentionally stays alive when
 `SDL_main` returns; a desktop-style return alone leaves this game showing a black
 window. This adapter preserves the return status and runs normal exit handlers.
+
+The first render-target feedback rejection per graphics device writes
+`[GPU_FEEDBACK]` context and up to 20 `[GPU_FEEDBACK_STACK]` frames. Logical texture
+identity helps distinguish a real engine feedback pass from a GPU mirror alias.
+No bindings are changed or pixels read back by the diagnostic. The rejection and
+its count remain in place. `Reforged-symbols.tsv` in build diagnostics maps the
+exact binary's image-relative code offsets when runtime symbol names are missing.
+It is also published with the final compiler report. This is diagnostic evidence,
+not yet a rendering fix.

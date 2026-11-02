@@ -41,6 +41,11 @@
 #include <SDL3/SDL.h>
 
 #include <math.h>
+#include <execinfo.h>
+#include <dlfcn.h>
+#include <cxxabi.h>
+#include <cstdlib>
+#include <cstring>
 #include <cmath>
 #include <set>
 #include <stdio.h>
@@ -628,6 +633,76 @@ void PosixDevice9::Refuse_Draw(const std::string &reason)
 	}
 }
 
+// Only the first actual conflict per device: gather no pixels, flush no GPU
+// work, and preserve every binding. Logical identity distinguishes an engine
+// feedback draw from a stale/aliased GPU mirror.
+void PosixDevice9::Log_Feedback_Conflict(const DrawCall &call, const SdlTarget &target,
+	unsigned slot, int textureStage, int samplerStage, bool depth,
+	const std::string &vertexKey, const std::string &pixelKey)
+{
+	if (!FeedbackReport.claim()) return;
+	FeedbackDiagnostic::Record r;
+	r.elapsedMs=SDL_GetTicksNS()/1000000.0;
+	r.presents=PresentCount; r.draws=DrawsRecorded;
+	r.slot=slot; r.textureStage=(unsigned)textureStage; r.samplerStage=(unsigned)samplerStage;
+	r.depth=depth; r.backBuffer=RenderTargets[0]==BackBuffer; r.sun=SunActive;
+	r.width=target.Width; r.height=target.Height;
+	r.colourGPU=target.Colour; r.depthGPU=target.Depth;
+	r.sampleGPU=depth?target.Depth:target.Colour;
+	IDirect3DSurface9 *surface=depth?DepthStencil:RenderTargets[0];
+	r.surface=surface;
+	IDirect3DTexture9 *container=NULL;
+	D3DSURFACE_DESC desc={};
+	if (surface) {
+		if (surface->GetDesc(&desc)==D3D_OK) r.targetFormat=(unsigned)desc.Format;
+		surface->GetContainer(IID_IDirect3DTexture9,(void**)&container);
+	}
+	r.container=container;
+	IDirect3DBaseTexture9 *texture=Textures[textureStage];
+	r.texture=texture;
+	r.sameLogicalTexture=texture && texture==container;
+	if (texture && texture->GetType()==D3DRTYPE_TEXTURE &&
+		static_cast<IDirect3DTexture9*>(texture)->GetLevelDesc(0,&desc)==D3D_OK) {
+		r.sampleWidth=desc.Width; r.sampleHeight=desc.Height; r.sampleFormat=(unsigned)desc.Format;
+	}
+	const std::string vertex=Engine_Name_Of(VertexShader), pixel=Engine_Name_Of(PixelShader);
+	r.vertexName=vertex.empty()?"fixed-function":vertex.c_str();
+	r.pixelName=pixel.empty()?"fixed-function":pixel.c_str();
+	r.vertexKey=vertexKey.c_str(); r.pixelKey=pixelKey.c_str();
+	r.primitiveType=(unsigned)call.Type; r.primitives=call.PrimitiveCount; r.fvf=(unsigned)FVF;
+	r.colourWrite=(unsigned)RenderStates[D3DRS_COLORWRITEENABLE];
+	r.zEnable=(unsigned)RenderStates[D3DRS_ZENABLE]; r.zWrite=(unsigned)RenderStates[D3DRS_ZWRITEENABLE];
+	r.blend=(unsigned)RenderStates[D3DRS_ALPHABLENDENABLE];
+	if (textureStage < TEXTURE_STAGE_COUNT) {
+		const RenderUInt32 *stage=TextureStageStates[textureStage];
+		r.colourOp=(unsigned)stage[D3DTSS_COLOROP]; r.colourArg1=(unsigned)stage[D3DTSS_COLORARG1]; r.colourArg2=(unsigned)stage[D3DTSS_COLORARG2];
+		r.alphaOp=(unsigned)stage[D3DTSS_ALPHAOP]; r.alphaArg1=(unsigned)stage[D3DTSS_ALPHAARG1]; r.alphaArg2=(unsigned)stage[D3DTSS_ALPHAARG2];
+	}
+	FeedbackDiagnostic::write(stderr,r);
+	if (container) container->Release(); // Balance GetContainer before unwinding/symbol lookup.
+
+	void *frames[20];
+	const int count=backtrace(frames,20);
+	for (int i=0;i<count;++i) {
+		Dl_info info={};
+		const bool found=dladdr(frames[i],&info)!=0;
+		const char *image=found && info.dli_fname?info.dli_fname:"unknown";
+		const char *slash=strrchr(image,'/'); if(slash) image=slash+1;
+		const char *name=found && info.dli_sname?info.dli_sname:"unknown";
+		int status=-1;
+		const char *mangled=name;
+		if (name[0]=='_' && name[1]=='_' && name[2]=='Z') ++mangled; // Mach-O's C symbol prefix.
+		char *demangled=abi::__cxa_demangle(mangled,NULL,NULL,&status);
+		const uintptr_t pc=(uintptr_t)frames[i], base=found?(uintptr_t)info.dli_fbase:0;
+		const uintptr_t symbol=found?(uintptr_t)info.dli_saddr:0;
+		fprintf(stderr,"[GPU_FEEDBACK_STACK] frame=%d image=%.100s offset=0x%llx symbol=%.240s symbol_offset=0x%llx\n",
+			i,image,(unsigned long long)(base && pc>=base?pc-base:pc),
+			status==0 && demangled?demangled:name,(unsigned long long)(symbol && pc>=symbol?pc-symbol:0));
+		free(demangled);
+	}
+	fflush(stderr);
+}
+
 // A development aid until A3d's capture: ZH_GPU_TRACE="1024x1024" prints the state of each draw whose
 // stage-0 texture is that size, once per distinct program pair and texture, with its first vertices.
 void PosixDevice9::Trace_Draw_If_Asked(const DrawCall &call, const std::string &programs,
@@ -1193,6 +1268,8 @@ RenderResult PosixDevice9::Gpu_Draw(const DrawCall &call)
 			}
 			if (draw.Textures[slot] != NULL && (draw.Textures[slot] == target.Colour || draw.Textures[slot] == target.Depth)) {
 				// Undefined in D3D9, and an error on SDL3 GPU: the pass would read what it writes.
+				Log_Feedback_Conflict(call,target,slot,texture_stage,sampler_stage,
+					draw.Textures[slot]==target.Depth,vertex_program.Key,pixel_program->Key);
 				Refuse_Draw("sampling the render target it draws into");
 				return D3D_OK;
 			}

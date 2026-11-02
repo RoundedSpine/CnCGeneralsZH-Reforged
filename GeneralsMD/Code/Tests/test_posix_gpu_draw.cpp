@@ -483,9 +483,16 @@ static void check_render_targets(PosixDevice9 *device)
 	// A draw into the target that samples it is refused, and leaves the target as it was.
 	const unsigned int recorded = device->Draws_Recorded();
 	CHECK(device->SetRenderTarget(0, target) == D3D_OK);
+	const unsigned beforeTextureRefs=target_texture->AddRef(); target_texture->Release();
+	const unsigned beforeSurfaceRefs=target->AddRef(); target->Release();
+	device->DrawPrimitiveUP(D3DPT_TRIANGLELIST, 2, v, sizeof(ScreenVertex));
 	device->DrawPrimitiveUP(D3DPT_TRIANGLELIST, 2, v, sizeof(ScreenVertex));
 	CHECK(device->Draws_Recorded() == recorded);
 	CHECK(device->Draw_Refusals().count("sampling the render target it draws into") == 1);
+	CHECK(device->Draw_Refusals().at("sampling the render target it draws into") == 2);
+	const unsigned afterTextureRefs=target_texture->AddRef(); target_texture->Release();
+	const unsigned afterSurfaceRefs=target->AddRef(); target->Release();
+	CHECK(beforeTextureRefs==afterTextureRefs && beforeSurfaceRefs==afterSurfaceRefs);
 
 	// The target read back through GetRenderTargetData into a system-memory surface: the GPU's pixels,
 	// green on the left and red on the right, not the CPU image's zeroes.

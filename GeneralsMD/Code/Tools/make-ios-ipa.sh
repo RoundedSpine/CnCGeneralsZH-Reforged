@@ -5,6 +5,7 @@ CODE=$(cd "$(dirname "$0")/.." && pwd)
 REPO=$(cd "$CODE/../.." && pwd)
 source_app="$BUILD/generals.app"
 [ -x "$source_app/generals" ] || { echo 'Missing device app bundle' >&2; exit 1; }
+python3 "$CODE/Tools/ios-symbols.py" "$source_app/generals" "$BUILD/Reforged-symbols.tsv"
 mkdir -p "$BUILD/ipa/Payload"
 app="$BUILD/ipa/Payload/Reforged.app"
 rm -rf "$app"

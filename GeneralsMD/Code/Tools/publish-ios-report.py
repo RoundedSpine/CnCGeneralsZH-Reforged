@@ -59,6 +59,8 @@ def publish():
             files[name] = tail
             if name == 'build.log' and not progress:
                 files['errors.log'] = errors
+    if not progress and (build / 'Reforged-symbols.tsv').is_file():
+        files['Reforged-symbols.tsv'] = (build / 'Reforged-symbols.tsv').read_text()
     entries = []
     for name, content in files.items():
         blob = git('hash-object', '-w', '--stdin', data=content).stdout.strip()

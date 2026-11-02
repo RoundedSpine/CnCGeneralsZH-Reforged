@@ -47,6 +47,11 @@ jobs:
           python3 GeneralsMD/Code/Tests/test_ios_global_new.py
           python3 GeneralsMD/Code/Tests/test_ios_report.py
           python3 GeneralsMD/Code/Tests/test_ios_main_exit.py
+          python3 GeneralsMD/Code/Tests/test_ios_symbols.py
+          c++ -std=c++17 -Wall -Wextra -fsanitize=address,undefined \
+            -IGeneralsMD/Code/GameEngineDevice/Source/PosixDevice/Render \
+            GeneralsMD/Code/Tests/test_feedback_diagnostic.cpp -o "$RUNNER_TEMP/test-feedback-diagnostic"
+          "$RUNNER_TEMP/test-feedback-diagnostic"
           c++ -std=c++17 -Wall -Wextra -fsanitize=address,undefined \
             -IGeneralsMD/Code/Libraries/Include \
             GeneralsMD/Code/Tests/test_ios_startup_pump.cpp -o "$RUNNER_TEMP/test-ios-startup"
@@ -103,6 +108,7 @@ jobs:
             build/ios/ffmpeg-work/build/ffbuild/config.log
             build/ios/ios-load-commands.txt
             build/ios/signed-entitlements.plist
+            build/ios/Reforged-symbols.tsv
           if-no-files-found: warn
       # Keep compiler diagnostics readable through Git for environments with no Actions API access.
       # Only named build logs are published; never the environment or credentials.
