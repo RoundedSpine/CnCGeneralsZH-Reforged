@@ -3471,7 +3471,9 @@ void STLSpecialAlloc::deallocate(void* __p, size_t)
 	Pardus 23 (Debian 12, Mesa 22.3), or ran, depending on where the blocks happened to land.  glibc's
 	calloc gives 16.  See Tests/test_global_new_alignment.cpp.
 */
-#if defined(ZH_SANITIZER_BUILD) || defined(__linux__)
+// iOS arm64 needs 16-byte alignment from global new as well. Reuse the
+// zero-initialized system allocation path; explicit engine pools stay unchanged.
+#if defined(ZH_SANITIZER_BUILD) || defined(__linux__) || defined(ZH_PLATFORM_IOS)
 #define ZH_SYSTEM_GLOBAL_NEW
 #endif
 #ifndef ZH_SYSTEM_GLOBAL_NEW

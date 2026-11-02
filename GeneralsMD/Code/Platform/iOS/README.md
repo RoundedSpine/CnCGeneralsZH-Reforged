@@ -22,7 +22,10 @@ Launch once to create folders under **Files > On My iPhone/iPad > Reforged**:
 - `GameData/ZH_Generals/`: the original Generals archives and loose game data.
 - `UserData/ReforgedArt/`: optional upstream `Reforged*.big` art archives.
 - `UserData/`: saves, options, registry and engine logs.
-- `generals-stderr.log`: startup output, rotated to `generals-stderr-prev.log`.
+- `generals-stderr.log`: startup stages, elapsed times and memory snapshots,
+  rotated to `generals-stderr-prev.log`. Signal crash reports are mirrored here.
+- `UserData/ReleaseCrashInfo.txt`: the separate signal/fatal-error report, when
+  the process can produce one. An iOS watchdog or memory kill may leave no report.
 
 Both original games are required. The IPA contains the engine's source-controlled
 Reforged overlay, bundled Liberation fonts and dependency licenses. It contains
@@ -40,3 +43,10 @@ remain outside the SDL renderer's capabilities, as on desktop POSIX.
 The build publishes a bounded compiler report to `ci/ios-port-logs` in addition
 to the Actions artifacts, allowing debugging through Git without Actions API
 access. This generated branch contains only build diagnostics and run metadata.
+
+Startup services UIKit at most once per 50 ms during archive loading without
+polling or dispatching game input. The startup pump stops after engine initialization.
+Global C++ allocations use the existing zeroed system allocator path to meet
+arm64's 16-byte alignment contract; the game's explicit memory pools retain their layout.
+These changes address porting defects but do not establish the cause of the first
+device's early exit without a follow-up log.

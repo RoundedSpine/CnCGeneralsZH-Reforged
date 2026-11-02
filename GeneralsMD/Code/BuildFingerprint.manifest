@@ -2087,6 +2087,8 @@ Libraries/Include/Platform/HazardCloud.h
 Libraries/Include/Platform/HazardCloudCore.h
 Libraries/Include/Platform/HazardCloudFlow.h
 Libraries/Include/Platform/HazardCloudPolicy.h
+Libraries/Include/Platform/IOSStartup.h
+Libraries/Include/Platform/IOSStartupPump.h
 Libraries/Include/Platform/IsWindows9x.h
 Libraries/Include/Platform/LoadTiming.h
 Libraries/Include/Platform/MSVCCompat.h
@@ -3145,6 +3147,7 @@ Main/WinMain.cpp
 Main/WinMain.h
 Main/resource.h
 Platform/iOS/IOSBootstrap.mm
+Platform/iOS/IOSStartup.cpp
 Platform/iOS/Info.plist.in
 Platform/iOS/README.md
 Platform/iOS/Reforged.entitlements
@@ -3251,6 +3254,9 @@ Tests/test_hostile_map.inc
 Tests/test_install_guard.sh
 Tests/test_install_root.cpp
 Tests/test_install_textures.cpp
+Tests/test_ios_global_new.py
+Tests/test_ios_report.py
+Tests/test_ios_startup_pump.cpp
 Tests/test_ios_touch.cpp
 Tests/test_lan_broadcast.cpp
 Tests/test_linux_portable.sh

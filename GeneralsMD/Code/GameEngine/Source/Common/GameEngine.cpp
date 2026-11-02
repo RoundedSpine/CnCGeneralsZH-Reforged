@@ -29,6 +29,7 @@
 // Author: Michael S. Booth, April 2001
 
 #include "PreRTS.h"	// This must go first in EVERY cpp file in the GameEngine
+#include "Platform/IOSStartup.h"
 #include "zhio.h"
 #include "Common/MessageBoxFlags.h"	// MessageBoxWrapper and its flags
 #include "Platform/SleepMilliseconds.h"
@@ -201,7 +202,10 @@ void initSubsystem(SUBSYSTEM*& sysref, AsciiString name, SUBSYSTEM* sys, Xfer *p
 									 const char* path2 = NULL, const char* dirpath = NULL)
 {
 	sysref = sys;
+	ZH_IOS_StartupTrace( "subsystem.begin", name.str() );
 	TheSubsystemList->initSubsystem(sys, path1, path2, dirpath, pXfer, name);
+	ZH_IOS_StartupTrace( "subsystem.ready", name.str() );
+	ZH_IOS_ServiceStartup();
 }
 
 //-------------------------------------------------------------------------------------------------

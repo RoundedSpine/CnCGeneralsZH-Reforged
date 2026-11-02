@@ -50,6 +50,7 @@
 #include "Common/EarlyOptions.h"
 #include "Common/EarlyCommandLine.h"
 #include <stdio.h>
+#include "Platform/IOSStartup.h"
 #include <stdlib.h>
 
 #ifdef _INTERNAL
@@ -267,6 +268,7 @@ ArchiveFile * Win32BIGFileSystem::openArchiveFile(const Char *filename) {
 	// Allocated after the checks above, not before them: both of those returns used to walk away
 	// from a Win32BIGFile that had just been made. A directory of files that are not archives -
 	// which is what a mod folder handed to -mod can be - leaked one per file.
+	ZH_IOS_StartupTrace( "archive.begin", archiveFileName.str() );
 	ArchiveFile *archiveFile = NEW Win32BIGFile;
 
 	// read in the file size.
@@ -294,6 +296,8 @@ ArchiveFile * Win32BIGFileSystem::openArchiveFile(const Char *filename) {
 	ArchivedFileInfo *fileInfo = NEW ArchivedFileInfo;
 
 	for (Int i = 0; i < numLittleFiles; ++i) {
+		if ((i & 255) == 0)
+			ZH_IOS_ServiceStartup();
 		Int filesize = 0;
 		Int fileOffset = 0;
 		fp->read(&fileOffset, 4);
@@ -335,6 +339,7 @@ ArchiveFile * Win32BIGFileSystem::openArchiveFile(const Char *filename) {
 	}
 
 	archiveFile->attachFile(fp);
+	ZH_IOS_StartupTrace( "archive.ready", archiveFileName.str() );
 
 	delete fileInfo;
 	fileInfo = NULL;

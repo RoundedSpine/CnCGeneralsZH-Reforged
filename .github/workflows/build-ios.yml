@@ -19,6 +19,8 @@ jobs:
         with:
           fetch-depth: 1
       - name: Select Xcode and build tools
+        env:
+          CCACHE_DIR: ${{ github.workspace }}/build/ios/compiler-cache
         id: tools
         run: |
           xcodebuild -version
@@ -26,6 +28,10 @@ jobs:
           echo "sdk=$(xcrun --sdk iphoneos --show-sdk-version)" >> "$GITHUB_OUTPUT"
           cmake --version
           if ! command -v ninja >/dev/null; then brew install ninja; fi
+          if ! command -v ccache >/dev/null; then
+            brew install ccache || echo "Compiler cache unavailable; building directly."
+          fi
+          if command -v ccache >/dev/null; then ccache --max-size 2G; fi
       - name: Test gestures and packaging helpers
         run: |
           c++ -std=c++17 -Wall -Wextra -fsanitize=address,undefined \
@@ -34,21 +40,40 @@ jobs:
           "$RUNNER_TEMP/test-ios-touch"
           python3 GeneralsMD/Code/Tests/test_package_link_libraries.py
           python3 GeneralsMD/Code/Tests/test_host_tools.py
+          python3 GeneralsMD/Code/Tests/test_ios_global_new.py
+          python3 GeneralsMD/Code/Tests/test_ios_report.py
+          c++ -std=c++17 -Wall -Wextra -fsanitize=address,undefined \
+            -IGeneralsMD/Code/Libraries/Include \
+            GeneralsMD/Code/Tests/test_ios_startup_pump.cpp -o "$RUNNER_TEMP/test-ios-startup"
+          "$RUNNER_TEMP/test-ios-startup"
           GeneralsMD/Code/Tools/fingerprint-manifest.sh --check
       - name: Restore compiled objects
+        continue-on-error: true
         uses: actions/cache/restore@v4
         with:
           path: build/ios
           key: ios-${{ runner.arch }}-${{ steps.tools.outputs.sdk }}-${{ github.sha }}
           restore-keys: ios-${{ runner.arch }}-${{ steps.tools.outputs.sdk }}-
       - name: Build device IPA
+        env:
+          CCACHE_DIR: ${{ github.workspace }}/build/ios/compiler-cache
         shell: bash
         run: |
           mkdir -p build/ios
           set -o pipefail
+          : > build/ios/build.log
+          (
+            while sleep 60; do
+              IOS_JOB_STATUS=in_progress python3 GeneralsMD/Code/Tools/publish-ios-report.py \
+                > build/ios/report-progress.log 2>&1 || true
+            done
+          ) &
+          report_pid=$!
+          trap 'kill "$report_pid" 2>/dev/null || true; wait "$report_pid" 2>/dev/null || true' EXIT
           GeneralsMD/Code/Tools/build-ios.sh "$PWD/build/ios" 2>&1 | tee build/ios/build.log
       - name: Save compiled objects
         if: always()
+        continue-on-error: true
         uses: actions/cache/save@v4
         with:
           path: build/ios

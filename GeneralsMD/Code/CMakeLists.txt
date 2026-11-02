@@ -906,6 +906,11 @@ if(ZH_PLATFORM_POSIX)
     # miniaudio's AVAudioSession integration imports Objective-C framework headers.
     set_source_files_properties(${LIBSRC}/miniaudio/miniaudio.c PROPERTIES LANGUAGE OBJC)
   endif()
+  if(ZH_PLATFORM_IOS)
+    add_library(iosstartup STATIC Platform/iOS/IOSStartup.cpp)
+    target_link_libraries(iosstartup PUBLIC SDL3::SDL3-static)
+    set_target_properties(iosstartup PROPERTIES CXX_STANDARD 17)
+  endif()
   add_library(miniaudio STATIC ${LIBSRC}/miniaudio/miniaudio.c)
   target_include_directories(miniaudio PUBLIC ${LIBSRC}/miniaudio)
   # libm on every POSIX system: separate from libc on Linux and the BSDs, part of libSystem on macOS,
@@ -1117,6 +1122,10 @@ if(MSVC)
   set_target_properties(gameengine PROPERTIES OUTPUT_NAME_DEBUG GameEngineDebug)
 endif()
 
+if(ZH_PLATFORM_IOS)
+  target_link_libraries(gameengine PRIVATE iosstartup)
+endif()
+
 # N1 (decision 5): the build fingerprint GlobalData.cpp folds into m_exeCRC in place of the executable's
 # own bytes, on every platform, so two builds of the same source agree whatever compiled them.  CRC-32 over
 # the files BuildFingerprint.manifest lists (the tracked sources: Tools/fingerprint-manifest.sh writes it,
@@ -1322,7 +1331,7 @@ endif()
 set_tests_properties(gametext_csf PROPERTIES SKIP_RETURN_CODE 77)
 # The global operator new against the alignment the ABI promises for it, on Linux, where it is also the
 # one Mesa's libLLVM gets.  See Tests/test_global_new_alignment.cpp.
-if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux" OR ZH_PLATFORM_IOS)
   add_executable(test_global_new_alignment ${CMAKE_CURRENT_SOURCE_DIR}/Tests/test_global_new_alignment.cpp
     ${GE}/Source/Common/System/GameMemory.cpp ${GE}/Source/Common/System/MemoryInit.cpp
     ${GE}/Source/Common/System/UnicodeString.cpp ${GE}/Source/Common/System/AsciiString.cpp

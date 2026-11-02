@@ -4,6 +4,20 @@
 #include <SDL3/SDL.h>
 #include <cstdio>
 #include <cstdlib>
+#include "Platform/IOSStartup.h"
+
+static void uncaughtIOSException(NSException *exception)
+{
+    fprintf(stderr, "[IOS_EXCEPTION] name=%s reason=%s\n", exception.name.UTF8String,
+        exception.reason ? exception.reason.UTF8String : "");
+    fflush(stderr);
+}
+
+static void normalIOSExit()
+{
+    fprintf(stderr, "[IOS_EXIT] normal process exit\n");
+    fflush(stderr);
+}
 
 extern "C" bool ZH_IOS_Bootstrap()
 {
@@ -29,6 +43,8 @@ extern "C" bool ZH_IOS_Bootstrap()
         if (!freopen(log.fileSystemRepresentation, "w", stderr))
             return false;
         setvbuf(stderr, nullptr, _IOLBF, 0);
+        NSSetUncaughtExceptionHandler(uncaughtIOSException);
+        atexit(normalIOSExit);
         NSString *fonts = [[NSBundle.mainBundle.bundlePath stringByAppendingPathComponent:@"Fonts"] stringByAppendingString:@"/"];
         setenv("ZH_IOS_GAME_DATA", game.path.fileSystemRepresentation, 1);
         setenv("ZH_USER_DATA_DIR", user.path.fileSystemRepresentation, 1);
@@ -53,6 +69,7 @@ extern "C" bool ZH_IOS_Bootstrap()
         fprintf(stderr, "[IOS_STARTUP] game_data=%s user_data=%s fonts=%s\n",
                 getenv("ZH_IOS_GAME_DATA"), getenv("ZH_USER_DATA_DIR"), getenv("ZH_IOS_FONTS"));
         fprintf(stderr, "[IOS_BUILD] revision=%s renderer=SDL_GPU_Metal\n", ZH_IOS_REVISION);
+        ZH_IOS_StartupTrace("bootstrap.ready", "Documents and stderr configured");
         return true;
     }
 }

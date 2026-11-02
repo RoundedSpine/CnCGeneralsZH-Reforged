@@ -18,6 +18,7 @@ ffvertex              game
 gameengine            game
 glyphrasteriser       game
 installroot           game
+iosstartup            game
 milesaudio            game
 milesaudiomanager     game
 posixd3d9             game

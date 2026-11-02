@@ -87,6 +87,7 @@
 #include <SDL3/SDL.h>
 #if defined(ZH_PLATFORM_IOS)
 #include <SDL3/SDL_main.h>
+#include "Platform/IOSStartup.h"
 extern "C" bool ZH_IOS_Bootstrap();
 #endif
 #include <atomic>
@@ -465,6 +466,7 @@ int main( int argc, char *argv[] )
 	// installCrashHandlers caches findUserDataDirectory: choose the sandbox first.
 	if (!ZH_IOS_Bootstrap())
 		return 1;
+	setCrashLogDescriptor( STDERR_FILENO );
 #endif
 	// Before anything else, and before another thread exists: a crash from here on leaves
 	// ReleaseCrashInfo.txt, as WinMain's _set_se_translator and SetUnhandledExceptionFilter make it on Windows.
@@ -580,7 +582,14 @@ int main( int argc, char *argv[] )
 
 		// start the log
 		DEBUG_INIT(DEBUG_FLAGS_DEFAULT);
+#if defined(ZH_PLATFORM_IOS)
+		setCrashLogDescriptor( STDERR_FILENO );
+		ZH_IOS_StartupTrace( "memory.begin", "engine allocator initialization" );
+#endif
 		initMemoryManager();
+#if defined(ZH_PLATFORM_IOS)
+		ZH_IOS_StartupTrace( "memory.ready", "engine allocator initialized" );
+#endif
 
 		// Set up version info
 		TheVersion = NEW Version;

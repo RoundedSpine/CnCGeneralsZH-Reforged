@@ -19,6 +19,7 @@
 // SdlGameEngine.cpp: see SdlGameEngine.h.
 
 #include "PreRTS.h"
+#include "Platform/IOSStartup.h"
 
 #include "Common/MessageStream.h"
 #include "Common/PlayerList.h"
@@ -154,8 +155,12 @@ SdlGameEngine::~SdlGameEngine()
 // GameMain calls init( argc, argv ); the argument-less init is empty in GameEngine and nothing calls it.
 void SdlGameEngine::init( int argc, char *argv[] )
 {
+	ZH_IOS_StartupTrace( "window.begin", "SDL UIKit window" );
 	createWindow();
+	ZH_IOS_StartupTrace( "window.ready", "SDL window initialized" );
+	ZH_IOS_ServiceStartup();
 	GameEngine::init( argc, argv );
+	ZH_IOS_StartupFinished();
 
 	// P1 step 3: "-dumpFileResolution <file>" writes where every path resolves, then ends the run
 	// (test_packaging_resolution compares two layouts' dumps).  A test switch, never a player's.

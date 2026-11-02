@@ -18,6 +18,14 @@ found and fixed, EA's own, not port damage.**
   secondary click, pinch zoom and a three-finger tap for the menu. Instructions
   appear alongside the game-data folders in Files.
 
+## iOS startup investigation
+
+- iOS now uses aligned, zeroed system allocations for global C++ objects, as the
+  Linux port already does. Explicit game memory pools keep their existing layout.
+- The app services UIKit while mounting archives, and records startup stages,
+  memory usage, uncaught Objective-C exceptions and signal crash details in its
+  startup log. This helps distinguish loading failures from system termination.
+
 ## Missions keep the time their script wrote
 
 - EA's cinematics slow the game on purpose, so the radio lines fit and the camera lands where the next shot starts. This build had stopped honouring that on 18 October. Every mission's cutscenes now run at the pace their script asks for. China's parade had 16 seconds of radio talking over itself, and has 11 now: what is left is EA's own script, which starts the tank crews' lines two thirds of a second apart.
