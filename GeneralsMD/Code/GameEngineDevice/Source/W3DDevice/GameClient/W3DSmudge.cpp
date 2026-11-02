@@ -239,7 +239,7 @@ Bool W3DSmudgeManager::testHardwareSupport(void)
 	if (m_hardwareSupportStatus == SMUDGE_SUPPORT_UNKNOWN)
 	{	//we have not done the test yet.
 
-#if defined(__linux__)
+#if defined(__linux__) || defined(ZH_PLATFORM_IOS)
 		// The probe's second quad, like every smudge after it, samples the render texture it draws
 		// into.  SDL3 GPU cannot read a pass's own target, so the device refuses that draw; the
 		// untouched block then matched the first quad and the probe answered yes, and each smudge

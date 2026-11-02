@@ -44,6 +44,12 @@ found and fixed, EA's own, not port damage.**
   texture binding, target size and caller stack in the log. The renderer continues
   to reject that invalid operation; this build gathers evidence for the fix.
 
+## Skip the unsupported heat-haze test on iOS
+
+- iOS now skips the old heat-haze compatibility test, as Linux already does.
+  This avoids its invalid draw and GPU readbacks. Heat-haze distortion remains
+  unavailable on iOS; supporting it requires a separate rendering pass.
+
 ## Missions keep the time their script wrote
 
 - EA's cinematics slow the game on purpose, so the radio lines fit and the camera lands where the next shot starts. This build had stopped honouring that on 18 October. Every mission's cutscenes now run at the pace their script asks for. China's parade had 16 seconds of radio talking over itself, and has 11 now: what is left is EA's own script, which starts the tank crews' lines two thirds of a second apart.
