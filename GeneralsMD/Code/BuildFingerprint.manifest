@@ -769,6 +769,7 @@ GameEngine/Include/GameClient/ProcessAnimateWindow.h
 GameEngine/Include/GameClient/RadiusDecal.h
 GameEngine/Include/GameClient/RayEffect.h
 GameEngine/Include/GameClient/ReachOverlay.h
+GameEngine/Include/GameClient/ScreenPan.h
 GameEngine/Include/GameClient/SelectionInfo.h
 GameEngine/Include/GameClient/SelectionPriority.h
 GameEngine/Include/GameClient/SelectionXlat.h
@@ -3254,6 +3255,7 @@ Tests/test_hostile_map.inc
 Tests/test_install_guard.sh
 Tests/test_install_root.cpp
 Tests/test_install_textures.cpp
+Tests/test_ios_camera_pan.cpp
 Tests/test_ios_global_new.py
 Tests/test_ios_main_exit.py
 Tests/test_ios_report.py

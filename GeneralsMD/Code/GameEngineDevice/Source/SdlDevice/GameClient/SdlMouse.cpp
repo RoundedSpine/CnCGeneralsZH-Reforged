@@ -192,7 +192,8 @@ void SdlMouse::update( void )
 		// Win32Mouse::update: ask where the pointer is rather than trust the last event, until one comes
 #if defined(ZH_PLATFORM_IOS)
 		// Touch uses the game's queue directly; SDL's mouse focus is a hardware-mouse state.
-		m_cursorInWindow = hasFocus && (SdlInput_hasIOSTouch() || SDL_GetMouseFocus() == window);
+		m_cursorInWindow = hasFocus && !SdlInput_hasIOSMultiTouch()
+			&& (SdlInput_hasIOSTouch() || SDL_GetMouseFocus() == window);
 #else
 		m_cursorInWindow = SDL_GetMouseFocus() == window;
 #endif

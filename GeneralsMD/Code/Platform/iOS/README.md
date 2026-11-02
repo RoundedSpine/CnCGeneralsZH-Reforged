@@ -34,10 +34,11 @@ game installation and saves separate while testing.
 
 Initial touch controls: tap to left click, drag to select, hold a stationary finger
 for at least 0.55 seconds then release to right click, or tap with two fingers
-(the first finger sets the target). Pinch zooms. A three-finger tap sends Escape
-for the menu. Hardware mouse and keyboard input remain available. Use the minimap
-or screen edges to move the camera; a dedicated touch camera-pan gesture is not
-implemented. Touch controls and background/resume behavior still need device validation. Windows-only Direct3D 11 effects
+(the first finger sets the target). **Drag two fingers together to pan the camera**;
+pinch to zoom. Lift both fingers before switching between panning and pinching.
+The gesture begins over the map; menus and command-bar panels do not initiate a
+camera pan. A three-finger tap sends Escape for the menu. Hardware mouse and keyboard
+input and the minimap remain available. Touch controls and background/resume behavior still need device validation. Windows-only Direct3D 11 effects
 remain outside the SDL renderer's capabilities, as on desktop POSIX.
 
 The build publishes a bounded compiler report to `ci/ios-port-logs` in addition

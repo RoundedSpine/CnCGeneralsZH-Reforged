@@ -168,6 +168,9 @@ public:
 	virtual void setHeight( Int height );
 	virtual void setOrigin( Int x, Int y);			///< Sets location of top-left view corner on display 
 
+#if defined(ZH_PLATFORM_IOS)
+	virtual void panByScreenPoints(Real fromX, Real fromY, Real toX, Real toY) override;
+#endif
 	virtual void scrollBy( Coord2D *delta );  ///< Shift the view by the given delta
 
 	virtual void forceRedraw();

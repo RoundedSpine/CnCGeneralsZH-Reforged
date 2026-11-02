@@ -38,6 +38,10 @@ jobs:
             -IGeneralsMD/Code/GameEngineDevice/Include \
             GeneralsMD/Code/Tests/test_ios_touch.cpp -o "$RUNNER_TEMP/test-ios-touch"
           "$RUNNER_TEMP/test-ios-touch"
+          c++ -std=c++17 -Wall -Wextra -fsanitize=address,undefined \
+            -IGeneralsMD/Code/GameEngineDevice/Include -IGeneralsMD/Code/GameEngine/Include \
+            GeneralsMD/Code/Tests/test_ios_camera_pan.cpp -o "$RUNNER_TEMP/test-ios-camera-pan"
+          "$RUNNER_TEMP/test-ios-camera-pan"
           python3 GeneralsMD/Code/Tests/test_package_link_libraries.py
           python3 GeneralsMD/Code/Tests/test_host_tools.py
           python3 GeneralsMD/Code/Tests/test_ios_global_new.py

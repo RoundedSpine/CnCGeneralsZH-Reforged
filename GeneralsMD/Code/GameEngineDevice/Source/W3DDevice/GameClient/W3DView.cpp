@@ -36,6 +36,9 @@
 
 // SYSTEM INCLUDES ////////////////////////////////////////////////////////////////////////////////
 #include <stdlib.h>
+#if defined(ZH_PLATFORM_IOS)
+#include "GameClient/ScreenPan.h"
+#endif
 #include "Lib/Clock.h"
 #if defined(_WIN32)
 #include <windows.h>
@@ -2804,6 +2807,27 @@ void W3DView::setSnapMode( CameraLockType lockType, Real lockDist )
 /** Scroll the view by the given delta in SCREEN COORDINATES, this interface 
 	* assumes we will be scrolling along the X,Y plane */
 //-------------------------------------------------------------------------------------------------
+#if defined(ZH_PLATFORM_IOS)
+void W3DView::panByScreenPoints(Real fromX, Real fromY, Real toX, Real toY)
+{
+	if (!m_3DCamera || getWidth() <= 0 || getHeight() <= 0) return;
+	ScreenPan::Point delta;
+	const auto project = [this](ScreenPan::Point point) {
+		ICoord2D pixel = { (Int)floorf(point.x + .5f), (Int)floorf(point.y + .5f) };
+		Coord3D world;
+		screenToWorldAtZ(&pixel, &world, getPosition()->z);
+		return ScreenPan::Point{world.x, world.y};
+	};
+	if (!ScreenPan::worldDelta({{fromX, fromY}, {toX, toY}}, project, delta)) return;
+	Coord3D pos = *getPosition();
+	pos.x += delta.x; pos.y += delta.y;
+	setPosition(&pos);
+	m_zoomAnchorValid = false;
+	m_doingRotateCamera = false;
+	m_recalcCamera = true;
+}
+#endif
+
 void W3DView::scrollBy( Coord2D *delta )
 {
 	// Sample every render tick, including zero movement. Measuring only nonzero scrolls

@@ -222,6 +222,28 @@ LookAtTranslator::LookAtTranslator() :
 	TheLookAtTranslator = this;
 }
 
+#if defined(ZH_PLATFORM_IOS)
+void LookAtTranslator::beginTouchPan( ScreenPan::Point at )
+{
+	cancelTouchPan();
+	if (!TheTacticalView || !TheInGameUI || !TheInGameUI->getInputEnabled()
+			|| (TheShell && TheShell->isShellActive())) return;
+	Int x, y;
+	TheTacticalView->getOrigin( &x, &y );
+	if (at.x < x || at.y < y || at.x >= x + TheTacticalView->getWidth()
+			|| at.y >= y + TheTacticalView->getHeight()) return;
+	ICoord2D pixel = { (Int)floorf(at.x), (Int)floorf(at.y) };
+	if (isOverWindow(pixel)) return;
+	m_touchPanArmed = TRUE;
+	m_touchPanFirst = TRUE;
+}
+
+void LookAtTranslator::queueTouchPan( ScreenPan::Point from, ScreenPan::Point to )
+{
+	if (m_touchPanArmed) m_touchPan.add(from, to);
+}
+#endif
+
 //-----------------------------------------------------------------------------
 /* One step of the scroll the keys, the screen's edges or the right drag are holding, every client
 	 frame (MSG_FRAME_TICK), and on every picture W3DDisplay::draw shows again while a tick runs on
@@ -230,6 +252,38 @@ LookAtTranslator::LookAtTranslator() :
 void LookAtTranslator::scrollView( void )
 {
 	Coord2D offset = {0, 0};
+#if defined(ZH_PLATFORM_IOS)
+	// SDL only queues this client input. Apply it here with the other camera
+	// changes, including on render passes beside a logic tick. No terrain query.
+	if (m_touchPanArmed || m_touchPan.hasMotion())
+	{
+		ScreenPan::Segment segment;
+		const Bool moved = m_touchPan.take(segment);
+		if (TheTacticalView && TheInGameUI && TheInGameUI->getInputEnabled()
+				&& !TheInGameUI->isSelecting() && !(TheShell && TheShell->isShellActive())
+				&& !TheTacticalView->isTimeFrozen())
+		{
+			if (m_isScrolling) stopScrolling();
+			m_rightPanArmed = FALSE;
+			if (moved)
+			{
+				if (m_touchPanFirst)
+				{
+					TheTacticalView->setCameraLock(INVALID_ID);
+					TheTacticalView->setCameraLockDrawable(NULL);
+					if (TheGlobalData->m_useCameraConstraints && TheGlobalData->m_cameraBoundaryMargin > 0)
+						TheTacticalView->forceCameraConstraintRecalc();
+					m_touchPanFirst = FALSE;
+				}
+				TheTacticalView->panByScreenPoints(segment.from.x, segment.from.y, segment.to.x, segment.to.y);
+			}
+		}
+		else cancelTouchPan();
+		if (TheInGameUI) TheInGameUI->setScrollAmount(offset);
+		if (TheTacticalView) TheTacticalView->scrollBy(&offset);
+		return;
+	}
+#endif
 
 	// If we've been forced to stop scrolling (script action?) then stop
 	if (m_isScrolling && !TheInGameUI->isScrolling())
@@ -938,6 +992,9 @@ GameMessageDisposition LookAtTranslator::translateGameMessage(const GameMessage 
 
 void LookAtTranslator::resetModes()
 {
+#if defined(ZH_PLATFORM_IOS)
+	cancelTouchPan();
+#endif
 	//
 	// A key or a mouse button held at the moment the window loses focus never sends its release:
 	// alt-tab away with an arrow key down and the view keeps sliding that way when you come back,

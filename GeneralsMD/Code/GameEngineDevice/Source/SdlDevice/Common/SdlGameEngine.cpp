@@ -374,6 +374,9 @@ void SdlGameEngine::serviceWindowsOS( void )
 				break;
 		}
 	}
+#if defined(ZH_PLATFORM_IOS)
+	SdlInput_flushIOSTouch();
+#endif
 }
 
 // Win32GameEngine's factories, the same W3D classes (decision 8); the radar too: W3DRadar, and

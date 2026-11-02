@@ -150,6 +150,9 @@ public:
 
 	virtual void lookAt( const Coord3D *o );														///< Center the view on the given coordinate
 	virtual void initHeightForMap( void ) {};														///<  Init the camera height for the map at the current position.
+#if defined(ZH_PLATFORM_IOS)
+	virtual void panByScreenPoints(Real, Real, Real, Real) {}
+#endif
 	virtual void scrollBy( Coord2D *delta );														///< Shift the view by the given delta
 
 	virtual void moveCameraTo(const Coord3D *o, Int frames, Int shutter, Bool orient, Real easeIn, Real easeOut) { lookAt( o ); }

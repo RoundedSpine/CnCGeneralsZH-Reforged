@@ -31,6 +31,13 @@ found and fixed, EA's own, not port damage.**
 - Choosing Quit used to destroy the game window and leave a black app that had
   to be closed manually. The iOS app now exits after game cleanup finishes.
 
+## Drag the map with two fingers on iOS
+
+- Dragging two fingers together now moves the camera with the map under them.
+  One-finger dragging keeps its selection box, and pinching keeps its zoom.
+  Lift both fingers to switch between the two gestures. Camera panning does not
+  issue unit orders and stops when a finger lifts or the app loses focus.
+
 ## Missions keep the time their script wrote
 
 - EA's cinematics slow the game on purpose, so the radio lines fit and the camera lands where the next shot starts. This build had stopped honouring that on 18 October. Every mission's cutscenes now run at the pace their script asks for. China's parade had 16 seconds of radio talking over itself, and has 11 now: what is left is EA's own script, which starts the tank crews' lines two thirds of a second apart.

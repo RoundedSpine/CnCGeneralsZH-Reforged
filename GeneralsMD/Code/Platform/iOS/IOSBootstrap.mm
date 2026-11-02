@@ -57,8 +57,9 @@ extern "C" bool ZH_IOS_Bootstrap()
             "Controls: tap = left click; drag = selection.\n"
             "Hold still for 0.55 seconds and release, or tap with two fingers = right click.\n"
             "With two fingers, the first finger sets the click target.\n"
-            "Pinch = zoom; three-finger tap = Escape/menu.\n"
-            "Use the minimap or hold at a screen edge to move the camera.\n";
+            "Two-finger drag = camera pan; pinch = zoom.\n"
+            "Lift both fingers before switching between panning and pinching.\n"
+            "Three-finger tap = Escape/menu. The minimap also moves the camera.\n";
         [guide writeToURL:[documents URLByAppendingPathComponent:@"READ-ME.txt"] atomically:YES
                encoding:NSUTF8StringEncoding error:nullptr];
         SDL_SetAppMetadata("Zero Hour Reforged", "0.1", "io.github.roundedspine.reforged.ios");

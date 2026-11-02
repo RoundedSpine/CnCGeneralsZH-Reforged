@@ -2,6 +2,8 @@
 #if defined(ZH_PLATFORM_IOS)
 #include "SdlDevice/GameClient/IOSTouch.h"
 #include "SdlDevice/GameClient/SdlInput.h"
+#include "GameClient/Display.h"
+#include "GameClient/LookAtXlat.h"
 #include <SDL3/SDL.h>
 
 namespace {
@@ -12,7 +14,19 @@ void dispatchAction(IOSTouch::Action action, Uint64 timestamp, SDL_WindowID wind
     SDL_zero(event);
     event.common.timestamp = timestamp;
     using IOSTouch::ActionKind;
-    if (action.kind == ActionKind::Escape) {
+    if (action.kind == ActionKind::PanStart || action.kind == ActionKind::PanMove || action.kind == ActionKind::PanEnd) {
+        if (!TheLookAtTranslator) return;
+        if (action.kind == ActionKind::PanEnd) { TheLookAtTranslator->endTouchPan(); return; }
+        SDL_Window *window = SDL_GetWindowFromID(windowID);
+        int width = 0, height = 0;
+        if (!window || !TheDisplay || !SDL_GetWindowSize(window,&width,&height) || width <= 0 || height <= 0) return;
+        const float sx = (float)TheDisplay->getWidth() / width;
+        const float sy = (float)TheDisplay->getHeight() / height;
+        ScreenPan::Point from{action.x * sx, action.y * sy};
+        if (action.kind == ActionKind::PanStart) TheLookAtTranslator->beginTouchPan(from);
+        else TheLookAtTranslator->queueTouchPan(from, {(action.x + action.dx) * sx, (action.y + action.dy) * sy});
+        return;
+    } else if (action.kind == ActionKind::Escape) {
         event.type = SDL_EVENT_KEY_DOWN;
         event.key.windowID = windowID;
         event.key.scancode = SDL_SCANCODE_ESCAPE;
@@ -51,6 +65,16 @@ void dispatchAction(IOSTouch::Action action, Uint64 timestamp, SDL_WindowID wind
 }
 
 Bool SdlInput_hasIOSTouch() { return gestures.isActive(); }
+Bool SdlInput_hasIOSMultiTouch() { return gestures.isMultiTouch(); }
+
+void SdlInput_flushIOSTouch()
+{
+    SDL_Window *window = SdlInput_gameWindow();
+    if (!window) return;
+    const SDL_WindowID id = SDL_GetWindowID(window);
+    const Uint64 now = SDL_GetTicksNS();
+    gestures.flush([=](IOSTouch::Action action) { dispatchAction(action, now, id); });
+}
 
 void SdlInput_cancelIOSTouch()
 {
@@ -58,6 +82,7 @@ void SdlInput_cancelIOSTouch()
     const SDL_WindowID id = window ? SDL_GetWindowID(window) : 0;
     const Uint64 now = SDL_GetTicksNS();
     gestures.cancel([=](IOSTouch::Action action) { dispatchAction(action, now, id); });
+    if (TheLookAtTranslator) TheLookAtTranslator->cancelTouchPan();
 }
 
 Bool SdlInput_dispatchIOSTouch(const SDL_Event &event)
