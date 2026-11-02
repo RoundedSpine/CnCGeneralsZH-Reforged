@@ -34,3 +34,5 @@ patching file 'src/SDL_shadercross.c'
 [vendor] unpacking freetype
 [vendor] FreeType 2.14.3 -> Libraries/Source/freetype
 [vendor] downloading ffmpeg-8.1.2.tar.xz
+curl: (28) Failed to connect to ffmpeg.org:443 after 75017 ms: Could not connect to server
+[vendor] ERROR: could not download https://ffmpeg.org/releases/ffmpeg-8.1.2.tar.xz
