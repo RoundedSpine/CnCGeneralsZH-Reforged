@@ -86,7 +86,7 @@
 
 #include <SDL3/SDL.h>
 #if defined(ZH_PLATFORM_IOS)
-#include <SDL3/SDL_main.h>
+#include <cstdlib>
 #include "Platform/IOSStartup.h"
 extern "C" bool ZH_IOS_Bootstrap();
 #endif
@@ -456,7 +456,11 @@ static Bool takeOneCopyLock( void )
 // main =======================================================================
 /** Application entry point */
 //=============================================================================
+#if defined(ZH_PLATFORM_IOS)
+static int runIOSGameMain( int argc, char *argv[] )
+#else
 int main( int argc, char *argv[] )
+#endif
 {
 	TheUnicodeStringCriticalSection = &critSec2;
 	TheDmaCriticalSection = &critSec3;
@@ -654,6 +658,22 @@ int main( int argc, char *argv[] )
 	return 0;
 
 }  // end main
+
+#if defined(ZH_PLATFORM_IOS)
+// IOS_MAIN_EXIT_BEGIN
+// SDL's UIKit delegate deliberately continues its event loop after SDL_main
+// returns. Reforged has already destroyed its window then, leaving a black app.
+// Exit only after the whole game function, including its local destructors,
+// has completed, so Quit returns to Home and releases the one-copy lock.
+int main( int argc, char *argv[] )
+{
+	const int status = runIOSGameMain( argc, argv );
+	fprintf( stderr, "[IOS_EXIT] engine cleanup completed status=%d; exiting UIKit process\n", status );
+	fflush( stderr );
+	std::exit( status );
+}
+// IOS_MAIN_EXIT_END
+#endif
 
 // CreateGameEngine ===========================================================
 /** Create the game engine we're going to use: SDL3's, over C1's POSIX one */

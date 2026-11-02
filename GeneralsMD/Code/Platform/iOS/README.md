@@ -50,3 +50,8 @@ Global C++ allocations use the existing zeroed system allocator path to meet
 arm64's 16-byte alignment contract; the game's explicit memory pools retain their layout.
 These changes address porting defects but do not establish the cause of the first
 device's early exit without a follow-up log.
+
+The iOS entry adapter explicitly exits after the engine function and its local
+cleanup have returned. SDL's UIKit delegate intentionally stays alive when
+`SDL_main` returns; a desktop-style return alone leaves this game showing a black
+window. This adapter preserves the return status and runs normal exit handlers.

@@ -42,6 +42,7 @@ jobs:
           python3 GeneralsMD/Code/Tests/test_host_tools.py
           python3 GeneralsMD/Code/Tests/test_ios_global_new.py
           python3 GeneralsMD/Code/Tests/test_ios_report.py
+          python3 GeneralsMD/Code/Tests/test_ios_main_exit.py
           c++ -std=c++17 -Wall -Wextra -fsanitize=address,undefined \
             -IGeneralsMD/Code/Libraries/Include \
             GeneralsMD/Code/Tests/test_ios_startup_pump.cpp -o "$RUNNER_TEMP/test-ios-startup"

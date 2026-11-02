@@ -26,6 +26,11 @@ found and fixed, EA's own, not port damage.**
   memory usage, uncaught Objective-C exceptions and signal crash details in its
   startup log. This helps distinguish loading failures from system termination.
 
+## Quit returns to Home on iOS
+
+- Choosing Quit used to destroy the game window and leave a black app that had
+  to be closed manually. The iOS app now exits after game cleanup finishes.
+
 ## Missions keep the time their script wrote
 
 - EA's cinematics slow the game on purpose, so the radio lines fit and the camera lands where the next shot starts. This build had stopped honouring that on 18 October. Every mission's cutscenes now run at the pace their script asks for. China's parade had 16 seconds of radio talking over itself, and has 11 now: what is left is EA's own script, which starts the tank crews' lines two thirds of a second apart.

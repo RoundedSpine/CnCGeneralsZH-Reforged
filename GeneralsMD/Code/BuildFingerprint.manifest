@@ -3255,6 +3255,7 @@ Tests/test_install_guard.sh
 Tests/test_install_root.cpp
 Tests/test_install_textures.cpp
 Tests/test_ios_global_new.py
+Tests/test_ios_main_exit.py
 Tests/test_ios_report.py
 Tests/test_ios_startup_pump.cpp
 Tests/test_ios_touch.cpp
