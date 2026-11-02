@@ -20,6 +20,7 @@
 
 #include "PreRTS.h"
 #include "Platform/IOSStartup.h"
+#include "Platform/IOSLifecycle.h"
 
 #include "Common/MessageStream.h"
 #include "Common/PlayerList.h"
@@ -333,6 +334,7 @@ void SdlGameEngine_releaseWindow( void )
 	 Headless there is no SDL and nothing to pump. */
 void SdlGameEngine::serviceWindowsOS( void )
 {
+	ZH_IOS_WaitForForeground();
 	if (!m_sdlVideoStarted)
 		return;
 
@@ -377,6 +379,7 @@ void SdlGameEngine::serviceWindowsOS( void )
 #if defined(ZH_PLATFORM_IOS)
 	SdlInput_flushIOSTouch();
 #endif
+	ZH_IOS_WaitForForeground();
 }
 
 // Win32GameEngine's factories, the same W3D classes (decision 8); the radar too: W3DRadar, and

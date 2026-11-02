@@ -5,6 +5,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include "Platform/IOSStartup.h"
+#include "Platform/IOSLifecycle.h"
 
 static void uncaughtIOSException(NSException *exception)
 {
@@ -71,6 +72,10 @@ extern "C" bool ZH_IOS_Bootstrap()
                 getenv("ZH_IOS_GAME_DATA"), getenv("ZH_USER_DATA_DIR"), getenv("ZH_IOS_FONTS"));
         fprintf(stderr, "[IOS_BUILD] revision=%s renderer=SDL_GPU_Metal\n", ZH_IOS_REVISION);
         ZH_IOS_StartupTrace("bootstrap.ready", "Documents and stderr configured");
+        if (!ZH_IOS_InstallLifecycle()) {
+            fprintf(stderr, "iOS: cannot install application lifecycle watch: %s\n", SDL_GetError());
+            return false;
+        }
         return true;
     }
 }

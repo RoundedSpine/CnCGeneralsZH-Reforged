@@ -16,6 +16,13 @@ the IPA's ad-hoc signature is not an installation signature. Increased-memory-li
 and extended-virtual-addressing entitlements are requested. Their grant depends
 on the signing tool and provisioning profile.
 
+The local-network permission prompt explains LAN multiplayer access. Broadcast
+discovery additionally requires Apple's multicast entitlement in the final
+provisioning profile. Set `ZH_IOS_LAN_ENTITLEMENT=1` when packaging, or select
+`lan_multicast` in the Actions dispatch form, to request it. The default IPA
+does not request multicast access. An ad-hoc signature cannot grant this
+permission; device validation with the chosen signing profile is still required.
+
 Launch once to create folders under **Files > On My iPhone/iPad > Reforged**:
 
 - `GameData/`: your Zero Hour archives and loose game data.
@@ -65,3 +72,13 @@ its count remain in place. `Reforged-symbols.tsv` in build diagnostics maps the
 exact binary's image-relative code offsets when runtime symbol names are missing.
 It is also published with the final compiler report. This is diagnostic evidence,
 not yet a rendering fix.
+
+Application lifecycle events are watched immediately, including during startup.
+Background transitions drain already submitted GPU work. The main loop, startup
+pump and GPU submission paths wait for foreground activation before continuing.
+The wait services UIKit without dispatching game input into incomplete subsystems.
+Low-memory callbacks write `[IOS_LIFECYCLE] event=low-memory`; they do not free
+engine-owned resources reentrantly. OS termination is logged and exits at the
+next safe lifecycle check without running game teardown inside the callback.
+Hardware tests should cover lock/unlock, app switching, interruptions and memory
+pressure; host lifecycle tests do not validate iOS suspension or memory grants.

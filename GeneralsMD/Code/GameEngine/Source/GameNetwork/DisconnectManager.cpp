@@ -155,26 +155,30 @@ void DisconnectManager::update(ConnectionManager *conMgr) {
 				m_pingsRecieved = 0;
 
 				// Send the pings
-				if (ThePinger)
+				if (ThePinger && TheGameSpyConfig)
 				{
-					//use next ping server
-					static int serverIndex = 0;
-					serverIndex++;
-					if( serverIndex >= TheGameSpyConfig->getPingServers().size() )
-						serverIndex = 0;  //wrap back to first ping server
+					// Keep the returned list alive until the request has copied its hostname.
+					const std::list<AsciiString> pingServers = TheGameSpyConfig->getPingServers();
+					if (!pingServers.empty())
+					{
+						static size_t serverIndex = 0;
+						serverIndex++;
+						if( serverIndex >= pingServers.size() )
+							serverIndex = 0;  //wrap back to first ping server
 
-					std::list<AsciiString>::iterator it = TheGameSpyConfig->getPingServers().begin();
-					for( int i = 0;  i < serverIndex;  i++ )
-						it++;
+						std::list<AsciiString>::const_iterator it = pingServers.begin();
+						for( size_t i = 0;  i < serverIndex;  i++ )
+							it++;
 
-					PingRequest req;
-					req.hostname = it->str();
-					req.repetitions = 5;
-					req.timeout = 2000;
-					m_pingsSent = req.repetitions;
-					ThePinger->addRequest(req);
-					DEBUG_LOG(("DisconnectManager::update() - requesting %d pings of %d from %s\n",
-						req.repetitions, req.timeout, req.hostname.c_str()));
+						PingRequest req;
+						req.hostname = it->str();
+						req.repetitions = 5;
+						req.timeout = 2000;
+						m_pingsSent = req.repetitions;
+						ThePinger->addRequest(req);
+						DEBUG_LOG(("DisconnectManager::update() - requesting %d pings of %d from %s\n",
+							req.repetitions, req.timeout, req.hostname.c_str()));
+					}
 				}
 			}
 		}

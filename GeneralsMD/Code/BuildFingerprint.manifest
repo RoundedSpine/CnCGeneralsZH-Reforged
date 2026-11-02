@@ -2089,6 +2089,7 @@ Libraries/Include/Platform/HazardCloud.h
 Libraries/Include/Platform/HazardCloudCore.h
 Libraries/Include/Platform/HazardCloudFlow.h
 Libraries/Include/Platform/HazardCloudPolicy.h
+Libraries/Include/Platform/IOSLifecycle.h
 Libraries/Include/Platform/IOSStartup.h
 Libraries/Include/Platform/IOSStartupPump.h
 Libraries/Include/Platform/IsWindows9x.h
@@ -3149,6 +3150,7 @@ Main/WinMain.cpp
 Main/WinMain.h
 Main/resource.h
 Platform/iOS/IOSBootstrap.mm
+Platform/iOS/IOSLifecycle.cpp
 Platform/iOS/IOSStartup.cpp
 Platform/iOS/Info.plist.in
 Platform/iOS/README.md
@@ -3217,6 +3219,7 @@ Tests/test_d3dx_assemble_stub.cpp
 Tests/test_d3dxportable.cpp
 Tests/test_debug.cpp
 Tests/test_detround.cpp
+Tests/test_disconnect_ping.py
 Tests/test_dx11backend.cpp
 Tests/test_dx11device.cpp
 Tests/test_dx11layout.cpp
@@ -3259,7 +3262,9 @@ Tests/test_install_root.cpp
 Tests/test_install_textures.cpp
 Tests/test_ios_camera_pan.cpp
 Tests/test_ios_global_new.py
+Tests/test_ios_lifecycle.py
 Tests/test_ios_main_exit.py
+Tests/test_ios_network_permissions.py
 Tests/test_ios_report.py
 Tests/test_ios_startup_pump.cpp
 Tests/test_ios_symbols.py

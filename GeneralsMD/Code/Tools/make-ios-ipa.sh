@@ -20,6 +20,20 @@ entries=$(package_license_entries "$CODE/Tools/macos-app-licenses.txt" $linked)
 for entry in $entries; do license_entry "$entry" "$app/Licenses"; done
 cp "$REPO/NOTICE.md" "$app/Licenses/NOTICE.md"
 cp "$CODE/Platform/iOS/Reforged.entitlements" "$BUILD/Reforged.entitlements"
+# LAN discovery broadcasts need Apple's multicast entitlement in the final
+# provisioning profile. Keep this opt-in for ordinary sideloading profiles.
+# IOS_NETWORK_ENTITLEMENTS_BEGIN
+python3 - "$BUILD/Reforged.entitlements" "${ZH_IOS_LAN_ENTITLEMENT:-0}" <<'PY'
+import plistlib, sys
+path, enabled = sys.argv[1:]
+if enabled not in ('0', '1'):
+    raise SystemExit('ZH_IOS_LAN_ENTITLEMENT must be 0 or 1')
+if enabled == '1':
+    with open(path, 'rb') as f: entitlements = plistlib.load(f)
+    entitlements['com.apple.developer.networking.multicast'] = True
+    with open(path, 'wb') as f: plistlib.dump(entitlements, f)
+PY
+# IOS_NETWORK_ENTITLEMENTS_END
 python3 "$CODE/Tools/generals-icon.py" png "$CODE/Main/Generals.ico" "$app/AppIcon120.png" 120
 python3 "$CODE/Tools/generals-icon.py" png "$CODE/Main/Generals.ico" "$app/AppIcon152.png" 152
 python3 - "$app/Info.plist" <<'PY'

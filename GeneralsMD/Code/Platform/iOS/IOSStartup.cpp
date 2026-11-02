@@ -1,5 +1,6 @@
 // Kept separate from engine headers so Mach and SDL use their native types.
 #include "Platform/IOSStartup.h"
+#include "Platform/IOSLifecycle.h"
 #include "Platform/IOSStartupPump.h"
 #include <SDL3/SDL.h>
 #include <mach/mach.h>
@@ -34,6 +35,7 @@ extern "C" void ZH_IOS_ServiceStartup()
     // Let UIKit finish its launch, layout and lifecycle callbacks while archives
     // load. Polling/dispatching game input here would re-enter incomplete subsystems.
     SDL_PumpEvents();
+    ZH_IOS_WaitForForeground();
     pump.end();
 }
 

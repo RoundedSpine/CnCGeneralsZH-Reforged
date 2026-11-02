@@ -907,7 +907,7 @@ if(ZH_PLATFORM_POSIX)
     set_source_files_properties(${LIBSRC}/miniaudio/miniaudio.c PROPERTIES LANGUAGE OBJC)
   endif()
   if(ZH_PLATFORM_IOS)
-    add_library(iosstartup STATIC Platform/iOS/IOSStartup.cpp)
+    add_library(iosstartup STATIC Platform/iOS/IOSStartup.cpp Platform/iOS/IOSLifecycle.cpp)
     target_link_libraries(iosstartup PUBLIC SDL3::SDL3-static)
     set_target_properties(iosstartup PROPERTIES CXX_STANDARD 17)
   endif()
@@ -2829,6 +2829,12 @@ endif()  # ZH_PLATFORM_POSIX - shader generator checks
 # data - but it does need an interpreter, so it is only registered when one is present.
 find_package(Python3 COMPONENTS Interpreter QUIET)
 if(Python3_Interpreter_FOUND)
+  if(ZH_PLATFORM_POSIX)
+    foreach(_regression disconnect_ping ios_lifecycle ios_network_permissions)
+      add_test(NAME ${_regression}_selfcheck
+               COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/Tests/test_${_regression}.py)
+    endforeach()
+  endif()
   # Every #include in the POSIX build must name its file in the file's own case.  Windows and a
   # default macOS volume fold case and Linux does not, so a miscased include builds on the first two
   # and is a missing header on the third; the first Linux build found 298.  This catches them on a

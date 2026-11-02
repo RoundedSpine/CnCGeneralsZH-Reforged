@@ -1,4 +1,5 @@
 // Native smoke moments. The scene's colour/depth attachments and CPU state are untouched.
+#include "Platform/IOSLifecycle.h"
 #include "SdlGpuFrame.h"
 #include "SdlSunShadowDebug.h"
 #include "Platform/SunSmoke.h"
@@ -171,6 +172,7 @@ bool SdlGpuFrame::Read_Sun_Smoke(std::vector<float> &moments)
     target.pixels_per_row = target.rows_per_layer = SunSmoke::Texels;
     SDL_DownloadFromGPUTexture(copy,&region,&target);
     SDL_EndGPUCopyPass(copy);
+    ZH_IOS_WaitForForeground();
     SDL_GPUFence *fence = SDL_SubmitGPUCommandBufferAndAcquireFence(commands);
     bool ok = fence && SDL_WaitForGPUFences(GpuDevice,true,&fence,1);
     if (fence) SDL_ReleaseGPUFence(GpuDevice,fence);

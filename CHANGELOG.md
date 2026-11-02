@@ -18,6 +18,18 @@ found and fixed, EA's own, not port damage.**
   secondary click, pinch zoom and a three-finger tap for the menu. Instructions
   appear alongside the game-data folders in Files.
 
+## iOS interruptions and multiplayer stability
+
+- The iOS app stops submitting graphics work while it is in the background and
+  waits for activation before continuing. Low-memory and lifecycle notifications
+  are recorded in the startup log for device troubleshooting.
+- The local-network permission prompt now explains nearby multiplayer access.
+  LAN discovery also needs multicast permission from the profile used to sign
+  the app; IPA builds can request that permission explicitly.
+- A stalled online match could crash while selecting a server for connection
+  checks. Server names now stay valid until copied, and an empty server list
+  safely skips the checks.
+
 ## iOS startup investigation
 
 - iOS now uses aligned, zeroed system allocations for global C++ objects, as the
