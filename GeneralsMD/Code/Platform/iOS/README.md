@@ -23,6 +23,10 @@ provisioning profile. Set `ZH_IOS_LAN_ENTITLEMENT=1` when packaging, or select
 does not request multicast access. An ad-hoc signature cannot grant this
 permission; device validation with the chosen signing profile is still required.
 
+If hosted arm64 runners have no capacity, a manual Actions dispatch can select
+`host_runner: macos-15-intel`. This changes the host tools' architecture; the
+device target remains arm64 and packaging still checks the Mach-O platform.
+
 Launch once to create folders under **Files > On My iPhone/iPad > Reforged**:
 
 - `GameData/`: your Zero Hour archives and loose game data.

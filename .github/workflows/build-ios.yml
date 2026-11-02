@@ -4,6 +4,11 @@ on:
     branches: [experiment/ios-port]
   workflow_dispatch:
     inputs:
+      host_runner:
+        description: macOS host (Intel is a fallback when arm64 runners are unavailable)
+        type: choice
+        options: [macos-15, macos-15-intel]
+        default: macos-15
       lan_multicast:
         description: Request LAN discovery entitlement (requires a matching signing profile)
         type: boolean
@@ -15,7 +20,7 @@ concurrency:
   cancel-in-progress: true
 jobs:
   build-ipa:
-    runs-on: macos-15
+    runs-on: ${{ inputs.host_runner || 'macos-15' }}
     timeout-minutes: 90
     permissions:
       contents: write

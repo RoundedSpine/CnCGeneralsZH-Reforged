@@ -44,7 +44,7 @@ bool SDLCALL applicationEvent(void *, SDL_Event *event)
         fprintf(stderr, "[IOS_LIFECYCLE] event=%s\n", name);
         fflush(stderr);
     }
-    return true; // A watch observes events; the normal queue still receives them.
+    return true; // SDL delivers these app events directly to watchers, without queuing.
 }
 }
 
