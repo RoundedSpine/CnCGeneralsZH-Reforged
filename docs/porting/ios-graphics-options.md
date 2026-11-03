@@ -166,3 +166,14 @@ Synthetic fire-light checks cover zero lights, range, surface direction, twelve
 strong lights, sky, black shroud, alpha, cropped viewports and viewport depth range.
 SPIR-V/MSL compilation and host GPU evidence do not establish game-map appearance
 or iPhone frame time; those still require device validation.
+
+
+GitHub Actions run [41596199431](https://github.com/RoundedSpine/CnCGeneralsZH-Reforged/actions/runs/41596199431)
+validated source `ce612d518d22af05efea77b4c574d33269f10b62` on image
+`macos-15-arm64`. Production SPIR-V/MSL compilation and Metal AO, atmosphere,
+Firelight, hemisphere/team-glow and heat-capture readback all passed with zero
+failures; the user-folder suite passed four tests and 44 checks. Sanitizer helper
+checks and iOS device compilation/unsigned IPA packaging also passed.
+[Unsigned IPA](https://github.com/RoundedSpine/CnCGeneralsZH-Reforged/actions/runs/41596199431/artifacts/13211918801)
+and [build diagnostics](https://github.com/RoundedSpine/CnCGeneralsZH-Reforged/actions/runs/41596199431/artifacts/13211873810).
+The new iPhone/iPad appearance and inferred-mode startup still need a device run.
