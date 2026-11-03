@@ -47,20 +47,57 @@ for activation timing and scene/hardware conditions.
 - Audio interruption/session recovery is worker-owned and permission-gated.
   Media-service resets invalidate a generation and rebuild device/context while
   retaining voice/stream/decoder state. Stale callbacks cannot change a new session.
+- The saved VSync request now reaches SDL swapchain configuration at device creation
+  and successful reset. Off prefers immediate presentation, then mailbox where
+  supported; otherwise synchronized presentation remains active. `[SDL_PRESENT]`
+  reports the request, actual mode, capability fallback and driver failure. Failed
+  changes keep the previous mode; offscreen test pacing is independent.
+- Shader-constant cache validity now includes iOS. Previously only Linux checked
+  the invalid bits, so an unchanged value could be skipped after a native pass or
+  reset invalidated the cache. Vertex/pixel setters now resend invalid ranges and
+  still skip redundant valid writes.
+
+## Remaining implementation gaps
+
+- Windows' configurable `bloom,ao,fxaa,sharpen` post chain is refused by
+  `Direct3D11_Post_Chain` in `dx11runtime_posix.cpp`. Native tone mapping/colour
+  grading, shared bloom and native AO have separate connected paths. FXAA and the
+  Windows sharpening stage have no SDL equivalents yet. Their absence can affect
+  single-sample edge quality and texture sharpness; supported MSAA is available,
+  with a memory/geometry cost. Do not treat the default chain string as evidence
+  these stages run on iOS.
+- `SdlInput_dispatch` handles keyboard, text/IME, mouse and iOS touch, but there is
+  no gamepad event adapter. Controller input requires additional implementation.
+- GPU particle acceleration uses the CPU fallback. This is a performance gap,
+  not evidence that particle visuals are missing.
+- The app currently requests full-screen landscape. No game HUD safe-area inset
+  handling was found. Notch/home-indicator overlap, software keyboard placement
+  and external-input behavior require device checks before changing layouts.
+
+Source checks alone do not establish additional visible bugs in these areas.
+Normal-map removal is an upstream renderer change, not an omitted iOS feature.
 
 ## Evidence and limits
 
-The latest supplied `ce612d51` stderr confirms Reforged lighting/smoke, stencil,
-shadows, AO, atmosphere, Firelight and heat resources initialized, then exited
-normally. The November 2 audio SIGBUS report and older DebugLogFile describe
-different sessions. ModelChecksums is a normal asset manifest. The logs do not
-exercise backgrounding, audio-service reset or measured memory pressure.
+The latest supplied `33b49198` stderr confirms Reforged lighting/smoke, stencil,
+shadows, AO, atmosphere, Firelight and heat resources initialized. Its highest
+recorded startup footprint was 230.3 MiB, with no later gameplay footprint samples.
+It then recorded the low-memory warnings described above and ended abruptly; the
+user confirmed the app closed itself. The older `ce612d51` run exited normally.
+The November 2 audio SIGBUS report and older DebugLogFile describe different
+sessions. ModelChecksums is a normal asset manifest. These logs do not establish
+background/resume or audio-service-reset correctness.
 
 ARM64 Actions run 41596199431 passed the prior batch's Metal readback, sanitizer
 helpers, iOS compilation and unsigned IPA packaging. The newer native-effects
 batch found mixed sampled/integer-load Metal bindings; the shader generator now
-uses explicit same-slot samplers for integer texel-centre reads. Seventeen
+uses explicit same-slot samplers for integer texel-centre reads. Twenty-three
 production variants compile to SPIR-V/MSL with unique bindings locally.
+
+New sanitizer fixtures exercise 28 presentation capability/failure/offscreen cases
+and the actual shader-constant setters with Linux disabled and iOS enabled. The
+native renderer library compiles locally. Physical-device presentation pacing and
+shader output still require the ARM64 workflow and a signed device run.
 
 Current HDR/MSAA and native-effects GPU checks must pass on GitHub before the
 new batch is considered validated. Local GPU checks explicitly skip when no

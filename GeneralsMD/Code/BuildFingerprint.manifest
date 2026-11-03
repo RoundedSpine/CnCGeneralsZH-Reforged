@@ -3295,6 +3295,7 @@ Tests/test_ios_main_exit.py
 Tests/test_ios_memory_pressure.py
 Tests/test_ios_network_permissions.py
 Tests/test_ios_report.py
+Tests/test_ios_shader_constants.py
 Tests/test_ios_shadow_path.py
 Tests/test_ios_startup_pump.cpp
 Tests/test_ios_symbols.py
@@ -3338,6 +3339,7 @@ Tests/test_sdl_msaa.cpp
 Tests/test_sdl_native_effects.cpp
 Tests/test_sdl_pipeline_state.cpp
 Tests/test_sdl_platform.cpp
+Tests/test_sdl_present_mode.py
 Tests/test_sdl_program_cache.cpp
 Tests/test_selection_priority.inc
 Tests/test_shader_sdl.cpp

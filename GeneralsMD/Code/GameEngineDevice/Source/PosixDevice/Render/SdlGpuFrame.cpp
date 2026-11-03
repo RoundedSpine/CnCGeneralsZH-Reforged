@@ -221,6 +221,32 @@ SdlGpuFrame * SdlGpuFrame::Create(RenderWindow window, unsigned int width, unsig
 	return frame;
 }
 
+bool SdlGpuFrame::Configure_VSync(bool enabled)
+{
+	if (Window == NULL) return true;
+	SDL_GPUPresentMode requested = SDL_GPU_PRESENTMODE_VSYNC;
+	if (!enabled) {
+		if (SDL_WindowSupportsGPUPresentMode(GpuDevice, Window, SDL_GPU_PRESENTMODE_IMMEDIATE))
+			requested = SDL_GPU_PRESENTMODE_IMMEDIATE;
+		else if (SDL_WindowSupportsGPUPresentMode(GpuDevice, Window, SDL_GPU_PRESENTMODE_MAILBOX))
+			requested = SDL_GPU_PRESENTMODE_MAILBOX;
+	}
+	// Reset/Create call this outside Present, with no acquired swapchain image. Submit pending
+	// readers and finish outstanding GPU work before SDL replaces the swapchain.
+	bool applied = true;
+	if (PresentMode != uint32_t(requested)) {
+		applied = Flush() && SDL_WaitForGPUIdle(GpuDevice)
+			&& SDL_SetGPUSwapchainParameters(GpuDevice, Window, SDL_GPU_SWAPCHAINCOMPOSITION_SDR, requested);
+		if (applied) PresentMode = uint32_t(requested);
+	}
+	const char *mode = PresentMode == SDL_GPU_PRESENTMODE_IMMEDIATE ? "immediate"
+		: PresentMode == SDL_GPU_PRESENTMODE_MAILBOX ? "mailbox" : "vsync";
+	fprintf(stderr, "[SDL_PRESENT] vsync_requested=%d mode=%s fallback=%d applied=%d%s%s\n",
+		int(enabled), mode, int(!enabled && requested == SDL_GPU_PRESENTMODE_VSYNC), int(applied),
+		applied ? "" : " error=", applied ? "" : SDL_GetError());
+	return applied;
+}
+
 SdlGpuFrame::~SdlGpuFrame()
 {
 	ZH_IOS_UnregisterGPU(GpuDevice);

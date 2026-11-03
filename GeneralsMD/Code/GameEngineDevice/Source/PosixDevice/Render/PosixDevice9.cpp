@@ -227,6 +227,7 @@ RenderResult PosixDevice9::Create_Gpu_Frame(bool offscreen)
 		return D3DERR_NOTAVAILABLE;
 	}
 	Set_Renderer_Name(SDL_GetGPUDeviceDriver(Gpu->Device()));
+	Gpu->Configure_VSync(Parameters.PresentationInterval != D3DPRESENT_INTERVAL_IMMEDIATE);
 	Programs = new SdlProgramCache(Gpu->Device());
 	Pipelines = new SdlPipelineCache(Gpu->Device());
 	Pipelines->Describe_Shader = [this](const SDL_GPUShader *shader) { return Programs->Key_Of(shader); };
@@ -569,6 +570,7 @@ RenderResult PosixDevice9::Reset(D3DPRESENT_PARAMETERS *parameters)
 	Posix_Bind(RenderTargets[0], BackBuffer);
 	DepthSurface = depth;
 	Posix_Bind(DepthStencil, DepthSurface);
+	if (Gpu != NULL) Gpu->Configure_VSync(Parameters.PresentationInterval != D3DPRESENT_INTERVAL_IMMEDIATE);
 	return D3D_OK;
 }
 

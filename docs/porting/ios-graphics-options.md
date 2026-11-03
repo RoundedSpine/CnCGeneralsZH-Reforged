@@ -116,6 +116,13 @@ Source anchors, relative to `GeneralsMD/Code`:
 - Particle template, cap and shadow consumers: `GameEngine/Source/GameClient/System/ParticleSys.cpp`; CPU smoke lighting and native cloud selection: `GameEngineDevice/Source/W3DDevice/GameClient/W3DParticleSys.cpp`.
 - Map trees: `GameEngine/Source/GameLogic/System/GameLogic.cpp`; module selection: `GameEngine/Source/GameClient/Drawable.cpp`; occlusion markers: `W3DScene.cpp` in the W3D game-client directory.
 
+Additional renderer settings outside these 44 generated controls: the saved VSync
+request now configures the SDL swapchain during creation/reset. Uncapped mode is
+capability-dependent; `[SDL_PRESENT]` reports the actual mode and fallback. The
+Windows configurable post-chain string is still refused on SDL: FXAA/sharpen are
+not implemented, although shared bloom, native AO and native tone/colour grading
+have independent paths. See [remaining port gaps](ios-feature-audit.md).
+
 ## Validation limits and device checks
 
 `test_graphics_preferences.py` exercises the actual save logic, both platform

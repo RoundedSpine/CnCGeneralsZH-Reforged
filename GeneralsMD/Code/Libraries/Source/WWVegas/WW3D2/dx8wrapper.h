@@ -1120,7 +1120,7 @@ WWINLINE void DX8Wrapper::Set_Vertex_Shader_Constant(int reg, const void* data, 
 	// The mirrored backend owns its own cache and must see every requested update.
 	Direct3D11_Mirror_Vertex_Shader_Constant((unsigned)reg, (const float*)data, (unsigned)count);
 
-#if defined(__linux__)
+#if defined(__linux__) || defined(ZH_PLATFORM_IOS)
 	bool valid = true;
 	for (int i = reg; i < reg + count; ++i)
 		valid = valid && Vertex_Shader_Constants_Valid[i];
@@ -1131,7 +1131,7 @@ WWINLINE void DX8Wrapper::Set_Vertex_Shader_Constant(int reg, const void* data, 
 
 	memcpy(&Vertex_Shader_Constants[reg],data,memsize);
 	DX8CALL(SetVertexShaderConstantF(reg,(const float*)data,count));
-#if defined(__linux__)
+#if defined(__linux__) || defined(ZH_PLATFORM_IOS)
 	for (int i = reg; i < reg + count; ++i)
 		Vertex_Shader_Constants_Valid[i] = true;
 #endif
@@ -1141,7 +1141,7 @@ WWINLINE void DX8Wrapper::Set_Pixel_Shader_Constant(int reg, const void* data, i
 {
 	int memsize=sizeof(Vector4)*count;
 
-#if defined(__linux__)
+#if defined(__linux__) || defined(ZH_PLATFORM_IOS)
 	bool valid = true;
 	for (int i = reg; i < reg + count; ++i)
 		valid = valid && Pixel_Shader_Constants_Valid[i];
@@ -1152,7 +1152,7 @@ WWINLINE void DX8Wrapper::Set_Pixel_Shader_Constant(int reg, const void* data, i
 
 	memcpy(&Pixel_Shader_Constants[reg],data,memsize);
 	DX8CALL(SetPixelShaderConstantF(reg,(const float*)data,count));
-#if defined(__linux__)
+#if defined(__linux__) || defined(ZH_PLATFORM_IOS)
 	for (int i = reg; i < reg + count; ++i)
 		Pixel_Shader_Constants_Valid[i] = true;
 #endif

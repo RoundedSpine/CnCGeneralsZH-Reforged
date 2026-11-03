@@ -128,6 +128,9 @@ public:
 	/// Recording/submission failures still have Flush's batch-consumption semantics.
 	enum ResizeFailure { RESIZE_NONE, RESIZE_INVALID_SIZE, RESIZE_FLUSH_FAILED, RESIZE_ALLOCATION_FAILED };
 	bool Resize(unsigned int width, unsigned int height, ResizeFailure *failure = NULL);
+	/// Apply presentation pacing to the claimed window; unsupported uncapped modes retain VSync.
+	/// A failed change leaves the existing swapchain usable. Offscreen pacing is independent.
+	bool Configure_VSync(bool enabled);
 
 	/// Where the clears and draws recorded from now on go (A3d); the back buffer until told otherwise.
 	void Set_Target(const SdlTarget & target);
@@ -373,6 +376,7 @@ private:
 
 	SDL_GPUDevice * GpuDevice;
 	SDL_Window * Window;				///< C2's, claimed; null for an offscreen frame
+	uint32_t PresentMode = 0;         ///< SDL's initial swapchain mode is VSYNC.
 	SDL_GPUTexture * BackBuffer;
 	SDL_GPUTexture * DepthStencil;
 	SDL_GPUTexture * FrontCopy;			///< the last presented picture
