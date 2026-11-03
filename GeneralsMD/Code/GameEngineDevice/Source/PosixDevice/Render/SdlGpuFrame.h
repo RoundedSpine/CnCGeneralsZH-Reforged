@@ -192,6 +192,7 @@ public:
 	unsigned int Depth_Usage() const;
 	/// Device capability selected at frame creation, including the R32F resolve target.
 	bool Trim_Transient_Memory();
+    size_t Retained_Staging_Bytes() const;
     // A real OS warning lowers this device session's optional cache budget.
     // Generic cache trimming remains reusable and does not change quality.
     bool Handle_Memory_Pressure();

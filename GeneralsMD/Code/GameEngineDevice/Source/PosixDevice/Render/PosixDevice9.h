@@ -477,6 +477,7 @@ protected:
 		unsigned int stride);
 	/// ZH_GPU_DUMP_FRAMES' frames to ZH_GPU_DUMP_DIR, a development aid until A3d's capture.
 	void Dump_Frame_If_Asked();
+    void Trace_Memory_Caches(const char *stage);
 	/// ZH_GPU_CAPTURE (DrawCapture.h, PosixDevice9Capture.cpp): whether it is set, the first draw of each
 	/// signature written there, and at teardown what was written and what was not, and why.
 	static bool Capture_Is_Asked();

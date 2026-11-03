@@ -320,13 +320,24 @@ bool SdlGpuFrame::Handle_Memory_Pressure()
 bool SdlGpuFrame::Trim_Transient_Memory()
 {
     if(!Flush()||!SDL_WaitForGPUIdle(GpuDevice))return false;
+    const size_t cpuStaging=Retained_Staging_Bytes();
+    const uint64_t gpuStaging=uint64_t(StreamBufferSize)+TransferSize;
+    // End_Batch clears sizes but keeps peak capacity. Under pressure, discard
+    // that retained CPU allocation and the idle GPU upload/stream buffers too.
+    decltype(StreamBytes)().swap(StreamBytes);decltype(UploadBytes)().swap(UploadBytes);
+    decltype(ConstantBytes)().swap(ConstantBytes);decltype(Draws)().swap(Draws);
+    decltype(Commands)().swap(Commands);decltype(Targets)().swap(Targets);decltype(Uploads)().swap(Uploads);
+    if(StreamBuffer)SDL_ReleaseGPUBuffer(GpuDevice,StreamBuffer);
+    if(Transfer)SDL_ReleaseGPUTransferBuffer(GpuDevice,Transfer);
+    StreamBuffer=nullptr;Transfer=nullptr;StreamBufferSize=TransferSize=0;
     Release_Ambient_Occlusion();Release_Atmosphere();Release_Heat_Background();Release_Ocean();Release_Multisampling(false);
     for(auto &snapshot:WaterSnapshots) {
         if(snapshot.Colour)Release_Texture(snapshot.Colour);
         if(snapshot.Depth)Release_Texture(snapshot.Depth);
     }
     WaterSnapshots.clear();
-    fprintf(stderr,"[SDL_MEMORY] released transient AO/atmosphere/effect/ocean/scene-copy caches\n");
+    fprintf(stderr,"[SDL_MEMORY] released transient AO/atmosphere/effect/ocean/scene-copy caches cpu_staging_released_mib=%.1f gpu_staging_nominal_mib=%.1f\n",
+        cpuStaging/1048576.0,gpuStaging/1048576.0);
     return true;
 }
 

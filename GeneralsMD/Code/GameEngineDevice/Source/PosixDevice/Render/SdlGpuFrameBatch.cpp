@@ -661,3 +661,10 @@ bool SdlGpuFrame::Record_Passes(SDL_GPUCommandBuffer * commands, SDL_GPUBuffer *
 	}
 	return true;
 }
+
+size_t SdlGpuFrame::Retained_Staging_Bytes() const
+{
+    return StreamBytes.capacity()+UploadBytes.capacity()+ConstantBytes.capacity()
+        +Draws.capacity()*sizeof(SdlRecordedDraw)+Commands.capacity()*sizeof(Command)
+        +Targets.capacity()*sizeof(SdlTarget)+Uploads.capacity()*sizeof(Upload);
+}

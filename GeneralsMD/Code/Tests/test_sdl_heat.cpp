@@ -38,7 +38,11 @@ int main(){
     if(snapshot)verify(snapshot,17,11,0x21,0x43,0x65);
     CHECK(!frame->Capture_Heat_Background({nullptr,nullptr,17,11},error));
     CHECK(frame->Supports_Heat_Haze());CHECK(SDL_WaitForGPUIdle(frame->Device()));
+    // Unused staging capacity survives ordinary batch completion but is disposable.
+    uint32_t stagedOffset=0;CHECK(frame->Stage(8*1024*1024,stagedOffset));
+    CHECK(frame->Flush());CHECK(frame->Retained_Staging_Bytes()>=8*1024*1024);
     CHECK(frame->Handle_Memory_Pressure());CHECK(frame->Memory_Constrained());
+    CHECK(frame->Retained_Staging_Bytes()==0);
     CHECK(!frame->Supports_Ambient_Occlusion()&&!frame->Supports_Atmosphere()&&!frame->Supports_Firelight());
     CHECK(!frame->Prepare_Ocean(1));
     // Required scene copies can return once, but a warning burst must retain them.

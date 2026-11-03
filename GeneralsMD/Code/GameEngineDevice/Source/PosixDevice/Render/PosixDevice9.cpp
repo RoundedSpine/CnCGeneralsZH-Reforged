@@ -600,14 +600,14 @@ RenderResult PosixDevice9::Present(const RenderRect *, const RenderRect *, Rende
 	const bool timing = Timing_Is_Asked();
 	const Uint64 present_start = timing ? SDL_GetTicksNS() : 0;
 	const bool presented = Gpu->Present(reinterpret_cast<const uint16_t (*)[256]>(&GammaRamp));
-    if(presented)ZH_IOS_MemoryFrame(PresentCount);
+    if(presented&&ZH_IOS_MemoryFrame(PresentCount))Trace_Memory_Caches("periodic");
     if(presented&&ZH_IOS_TakeMemoryPressure()) {
-        ZH_IOS_TraceMemory("eviction.before",PresentCount);
+        ZH_IOS_TraceMemory("eviction.before",PresentCount);Trace_Memory_Caches("eviction.before");
         End_Heat_Haze();ParticleDepth=ParticleDepthSource=CloakSnapshot=CloakSource=nullptr;
         CloakFrame=~uint64_t(0);
         if(!Gpu->Handle_Memory_Pressure())fprintf(stderr,"[SDL_MEMORY] deferred eviction failed; live scene retained\n");
         Mirrors->Collect_Dead();
-        ZH_IOS_TraceMemory("eviction.after",PresentCount);
+        ZH_IOS_TraceMemory("eviction.after",PresentCount);Trace_Memory_Caches("eviction.after");
     }
 	if (timing) {
 		Timing_Present((double)(SDL_GetTicksNS() - present_start) / 1.0e6, DrawsRecorded - TimingDrawsAtPresent);
@@ -1031,4 +1031,15 @@ RenderResult PosixDevice9::SetPixelShaderConstantF(unsigned int start, const flo
 	}
 	memcpy(PixelShaderConstants[start], data, count * sizeof(PixelShaderConstants[0]));
 	return D3D_OK;
+}
+
+void PosixDevice9::Trace_Memory_Caches(const char *stage)
+{
+    if(!Gpu||!Mirrors)return;const auto memory=Mirrors->Memory_Usage();
+    fprintf(stderr,"[SDL_MEMORY_CACHE] stage=%s frame=%u textures=%zu texture_nominal_mib=%.1f source_image_nominal_mib=%.1f expanded_textures=%zu expanded_texture_nominal_mib=%.1f buffers=%zu buffer_nominal_mib=%.1f pending_retirements=%zu cpu_staging_mib=%.1f programs=%u pipelines=%u msaa=%u hdr=%d constrained=%d\n",
+        stage,PresentCount,memory.Textures,memory.GpuTextureBytes/1048576.0,memory.SourceImageBytes/1048576.0,
+        memory.ExpandedTextures,memory.ExpandedTextureBytes/1048576.0,memory.Buffers,memory.GpuBufferBytes/1048576.0,
+        memory.PendingRetirements,Gpu->Retained_Staging_Bytes()/1048576.0,
+        Programs?Programs->Programs_Built():0,Pipelines?Pipelines->Pipelines_Built():0,
+        Gpu->Sample_Count(),int(Gpu->Hdr_Active()),int(Gpu->Memory_Constrained()));
 }

@@ -69,7 +69,7 @@ int main(){
         if(!pixels.empty()&&!expected.empty()){CHECK(pixels[0]==255&&pixels[1]==255&&pixels[2]==255);const unsigned at=(14*64+12)*4;CHECK(pixels[at]==expected[at]&&pixels[at+2]==expected[at+2]);}
         D3DRECT small={0,0,6,6};CHECK(d->Clear(1,&small,D3DCLEAR_ZBUFFER,0,.9f,0)==D3D_OK);
         CHECK(frame->Read_Depth(frame->Back_Buffer_Target().Depth,64,48,depth));if(!depth.empty())CHECK(std::abs(depth[0]-.9f)<.001f);
-        CHECK(frame->Trim_Transient_Memory());state();d->Clear(0,nullptr,D3DCLEAR_TARGET|D3DCLEAR_ZBUFFER,0xff000000,1,0);triangle(0xffff0000);
+        CHECK(frame->Retained_Staging_Bytes()>0);CHECK(frame->Trim_Transient_Memory());CHECK(frame->Retained_Staging_Bytes()==0);state();d->Clear(0,nullptr,D3DCLEAR_TARGET|D3DCLEAR_ZBUFFER,0xff000000,1,0);triangle(0xffff0000);
         CHECK(frame->Read_Back(frame->Back_Buffer(),64,48,pixels));CHECK(edgePixels(pixels,2)>10);
         CHECK(frame->Handle_Memory_Pressure());CHECK(frame->Sample_Count()==1&&frame->Max_Samples()==1);
         state();d->Clear(0,nullptr,D3DCLEAR_TARGET|D3DCLEAR_ZBUFFER,0xff000000,1,0);triangle(0xffff0000);

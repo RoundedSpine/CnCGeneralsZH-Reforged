@@ -79,10 +79,10 @@ int task_info(int,int,task_info_t out,mach_msg_type_number_t*){
 }
 unsigned long long os_proc_available_memory(){return 128ULL*1048576;}
 int main(){
-    ZH_IOS_MemoryFrame(1);assert(samples==1);
-    now=29ULL*1000*1000*1000;ZH_IOS_MemoryFrame(2);assert(samples==1);
+    assert(ZH_IOS_MemoryFrame(1));assert(samples==1);
+    now=29ULL*1000*1000*1000;assert(!ZH_IOS_MemoryFrame(2));assert(samples==1);
     ZH_IOS_TraceMemory("warning");assert(samples==2);
-    now=30ULL*1000*1000*1000;ZH_IOS_MemoryFrame(3);assert(samples==3);
+    now=30ULL*1000*1000*1000;assert(ZH_IOS_MemoryFrame(3));assert(samples==3);
     readable=false;ZH_IOS_TraceMemory("unavailable");assert(samples==4);
 }
 ''', native=True)

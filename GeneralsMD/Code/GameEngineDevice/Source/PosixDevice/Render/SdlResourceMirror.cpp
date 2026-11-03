@@ -266,6 +266,7 @@ SDL_GPUTexture * SdlResourceMirrors::Texture(IDirect3DBaseTexture9 * base, std::
 					SDL_GPU_TEXTUREUSAGE_SAMPLER)
 				&& SDL_GPUTextureSupportsFormat(device, SDL_GPU_TEXTUREFORMAT_BC3_RGBA_UNORM, SDL_GPU_TEXTURETYPE_2D,
 					SDL_GPU_TEXTUREUSAGE_SAMPLER) ? 1 : 0;
+            fprintf(stderr,"[SDL_TEXTURE] block_compression=%d unsupported_fallback=BGRA8\n",BcSupported);
 		}
 		const PosixImage & base_level = texture->level(0);
 		unsigned int format = 0;
@@ -297,7 +298,13 @@ SDL_GPUTexture * SdlResourceMirrors::Texture(IDirect3DBaseTexture9 * base, std::
 		Copy copy;
 		copy.Texture = SDL_CreateGPUTexture(Frame->Device(), &info);
 		copy.Buffer = NULL;
-		copy.Size = 0;
+        copy.Size = 0;
+        for(unsigned level=0;level<levels;++level) {
+            const auto &image=texture->level(level);
+            copy.TextureBytes+=SDL_CalculateGPUTextureFormatSize(info.format,image.width(),image.height(),1);
+            copy.SourceImageBytes+=image.slicePitch();
+        }
+        copy.ExpandedCompression=!render_target&&!native&&base_level.layout().blockWidth>1;
 		copy.Native = native;
 		copy.UsedBatch = 0;
 		if (copy.Texture == NULL) {
@@ -378,7 +385,8 @@ SDL_GPUTexture * SdlResourceMirrors::Surface(IDirect3DSurface9 * surface, bool d
 	Copy copy;
 	copy.Texture = SDL_CreateGPUTexture(Frame->Device(), &info);
 	copy.Buffer = NULL;
-	copy.Size = 0;
+    copy.Size = 0;
+    copy.TextureBytes=SDL_CalculateGPUTextureFormatSize(info.format,info.width,info.height,1);
 	copy.Native = true;
 	copy.UsedBatch = 0;
 	if (copy.Texture == NULL) {
@@ -461,4 +469,20 @@ SDL_GPUTexture * SdlResourceMirrors::White()
 		}
 	}
 	return WhiteTexture;
+}
+
+SdlMirrorMemory SdlResourceMirrors::Memory_Usage() const
+{
+    std::lock_guard<std::mutex> guard(Lock);SdlMirrorMemory result;
+    // Nominal level sizes, excluding driver padding/cycling and engine assets
+    // without a GPU mirror. These totals are not the process footprint.
+    for(const auto &entry:Copies) {
+        const Copy &copy=entry.second;
+        if(copy.Texture) {
+            ++result.Textures;result.GpuTextureBytes+=copy.TextureBytes;
+            result.SourceImageBytes+=copy.SourceImageBytes;
+            if(copy.ExpandedCompression){++result.ExpandedTextures;result.ExpandedTextureBytes+=copy.TextureBytes;}
+        } else if(copy.Buffer){++result.Buffers;result.GpuBufferBytes+=copy.Size;}
+    }
+    result.PendingRetirements=Dead.size();return result;
 }

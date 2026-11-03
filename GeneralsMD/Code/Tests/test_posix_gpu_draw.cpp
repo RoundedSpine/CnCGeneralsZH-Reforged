@@ -231,11 +231,22 @@ static void check_textures(PosixDevice9 *device)
 
 	// The copies go with their textures.
 	const size_t live = device->Get_Mirrors()->Live_Copies();
+    const auto memory=device->Get_Mirrors()->Memory_Usage();
+    CHECK(memory.Textures>=3&&memory.SourceImageBytes>=16+8+4);
+    CHECK(memory.GpuTextureBytes>=16+8+4);
+    const bool bc=SDL_GPUTextureSupportsFormat(device->Get_Gpu()->Device(),SDL_GPU_TEXTUREFORMAT_BC1_RGBA_UNORM,SDL_GPU_TEXTURETYPE_2D,SDL_GPU_TEXTUREUSAGE_SAMPLER)
+        &&SDL_GPUTextureSupportsFormat(device->Get_Gpu()->Device(),SDL_GPU_TEXTUREFORMAT_BC2_RGBA_UNORM,SDL_GPU_TEXTURETYPE_2D,SDL_GPU_TEXTUREUSAGE_SAMPLER)
+        &&SDL_GPUTextureSupportsFormat(device->Get_Gpu()->Device(),SDL_GPU_TEXTUREFORMAT_BC3_RGBA_UNORM,SDL_GPU_TEXTURETYPE_2D,SDL_GPU_TEXTUREUSAGE_SAMPLER);
+    if(!bc)CHECK(memory.ExpandedTextures>=1&&memory.ExpandedTextureBytes>=64);
 	device->SetTexture(0, NULL);
 	argb->Release();
 	dxt->Release();
 	xrgb->Release();
 	CHECK(device->Get_Mirrors()->Live_Copies() == live - 3);
+    const auto freed=device->Get_Mirrors()->Memory_Usage();
+    CHECK(freed.Textures==memory.Textures-3);
+    CHECK(freed.SourceImageBytes==memory.SourceImageBytes-(16+8+4));
+    CHECK(freed.GpuTextureBytes==memory.GpuTextureBytes-(16+(bc?8:64)+4));
 }
 
 static void check_fans_and_buffers(PosixDevice9 *device)

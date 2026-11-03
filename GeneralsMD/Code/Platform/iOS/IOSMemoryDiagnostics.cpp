@@ -21,10 +21,10 @@ void ZH_IOS_TraceMemory(const char *stage,std::uint64_t frame)
         valid?memory.phys_footprint/1048576.0:-1,os_proc_available_memory()/1048576.0,peak/1048576.0);
     fflush(stderr);
 }
-void ZH_IOS_MemoryFrame(std::uint64_t frame)
+bool ZH_IOS_MemoryFrame(std::uint64_t frame)
 {
     static Uint64 nextTrace=0;const Uint64 now=SDL_GetTicksNS();
-    if(now<nextTrace)return;
+    if(now<nextTrace)return false;
     nextTrace=now+30ULL*1000*1000*1000;
-    ZH_IOS_TraceMemory("periodic",frame);
+    ZH_IOS_TraceMemory("periodic",frame);return true;
 }

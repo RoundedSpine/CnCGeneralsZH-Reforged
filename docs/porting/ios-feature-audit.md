@@ -35,8 +35,14 @@ for activation timing and scene/hardware conditions.
   now keeps AO/atmosphere/per-pixel lights/FFT paused and MSAA off until device
   recreation. Repeat warnings do not re-evict mandatory scene copies. Saved
   choices stay intact; vertex lights and analytic water retain their fallbacks.
+  Peak CPU staging arenas and idle GPU stream/upload buffers are also released;
+  ordinary batch clearing had retained their allocated capacity. Nominal freed
+  staging sizes are logged separately from measured process footprint.
   Runtime footprint/headroom samples are logged every 30 seconds and at warning/
-  eviction boundaries. No Jetsam report was supplied, so OS memory termination is
+  eviction boundaries. GPU mirror counts/nominal level bytes, compressed-texture
+  expansion, staging capacity and shader/pipeline counts distinguish cache trends.
+  These estimates exclude driver overhead and other engine allocations.
+  No Jetsam report was supplied, so OS memory termination is
   suspected rather than confirmed.
 - Audio interruption/session recovery is worker-owned and permission-gated.
   Media-service resets invalidate a generation and rebuild device/context while

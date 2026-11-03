@@ -68,6 +68,11 @@ uint32_t Sdl_Level_Upload_Size(const PosixImage & image, bool native);
 /// Writes one level's upload bytes: a copy when native, else B8G8R8A8 rows, top first.
 bool Sdl_Convert_Level(const PosixImage & image, bool native, uint8_t * out);
 
+struct SdlMirrorMemory {
+    uint64_t GpuTextureBytes=0,SourceImageBytes=0,GpuBufferBytes=0,ExpandedTextureBytes=0;
+    size_t Textures=0,Buffers=0,ExpandedTextures=0,PendingRetirements=0;
+};
+
 class SdlResourceMirrors
 {
 public:
@@ -96,6 +101,7 @@ public:
 	unsigned int Textures_Uploaded() const { return TexturesUploaded; }
 	unsigned int Buffers_Uploaded() const { return BuffersUploaded; }
 	size_t Live_Copies() const;
+    SdlMirrorMemory Memory_Usage() const;
 
 private:
 	struct Copy
@@ -103,6 +109,8 @@ private:
 		SDL_GPUTexture * Texture;
 		SDL_GPUBuffer * Buffer;
 		uint32_t Size;						///< a buffer's
+        uint64_t TextureBytes=0,SourceImageBytes=0;
+        bool ExpandedCompression=false;
 		bool Native;						///< a texture's levels go up as they are
 		std::vector<uint32_t> Versions;		///< what the copy holds, one per level (one for a buffer)
 		uint64_t UsedBatch;					///< the last batch a draw recorded it in
