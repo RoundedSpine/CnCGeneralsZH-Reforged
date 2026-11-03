@@ -604,6 +604,7 @@ struct Engine
 	std::thread serviceThread;
 	std::atomic<bool> serviceRunning;
 	AudioRecoveryStatus recovery;
+	unsigned long long servicesGeneration=0;
 	std::chrono::steady_clock::time_point nextRecoveryAttempt;
 	std::vector<Sample *> samples;
 	std::vector<Stream *> streams;
@@ -1047,11 +1048,50 @@ void deviceNotification(const ma_device_notification *notification)
 	g_engine.recovery.store(desired);
 }
 
+bool useNullBackend();
+void dataCallback(ma_device *,void *,const void *,ma_uint32);
+// Rebuild invalidated Core Audio objects on the worker, retaining voices, decoder
+// positions and the mix rate. The OS observer only advances a generation.
+bool rebuildAudioServices(unsigned long long generation)
+{
+    const auto now=std::chrono::steady_clock::now();
+    if(now<g_engine.nextRecoveryAttempt||!ZH_IOS_AudioCanResume())return false;
+    g_engine.nextRecoveryAttempt=now+std::chrono::seconds(1);
+    if(!ZH_IOS_ActivateAudioSession()||!g_engine.serviceRunning.load())return false;
+    ma_result result=MA_SUCCESS;
+    {
+        std::lock_guard<std::recursive_mutex> guard(g_engine.lock);
+        if(g_engine.deviceReady){ma_device_uninit(&g_engine.device);g_engine.deviceReady=false;}
+        if(g_engine.contextReady){ma_context_uninit(&g_engine.context);g_engine.contextReady=false;}
+        ma_context_config contextConfig=ma_context_config_init();
+#if defined(ZH_PLATFORM_IOS)
+        contextConfig.coreaudio.sessionCategory=ma_ios_session_category_playback;
+#endif
+        const ma_backend nullBackend[]={ma_backend_null};
+        result=ma_context_init(useNullBackend()?nullBackend:nullptr,useNullBackend()?1:0,&contextConfig,&g_engine.context);
+        if(result==MA_SUCCESS) {
+            g_engine.contextReady=true;
+            ma_device_config config=ma_device_config_init(ma_device_type_playback);
+            config.playback.format=ma_format_f32;config.playback.channels=OUTPUT_CHANNELS;
+            config.sampleRate=g_engine.deviceRate;config.dataCallback=dataCallback;config.notificationCallback=deviceNotification;
+            result=ma_device_init(&g_engine.context,&config,&g_engine.device);
+            if(result==MA_SUCCESS){g_engine.deviceReady=true;g_engine.servicesGeneration=generation;}
+        }
+    }
+    if(result==MA_SUCCESS){g_engine.recovery.store(AudioRecovery::Pending);g_engine.nextRecoveryAttempt={};}
+    fprintf(stderr,"[AUDIO_RECOVERY] media_services_rebuild=%d generation=%llu voices_preserved=1\n",int(result),generation);
+    return result==MA_SUCCESS;
+}
+
 // Only the service thread controls recovery. Shutdown joins it before uninitializing
 // the device. No engine/mixer lock may be held while starting the audio callback.
 void serviceAudioRecovery()
 {
 	if (g_engine.offline) return;
+    const auto generation=ZH_IOS_AudioServicesGeneration();
+    if(generation!=g_engine.servicesGeneration) {
+        if(!rebuildAudioServices(generation)||generation!=ZH_IOS_AudioServicesGeneration())return;
+    }
 	const auto ticket = g_engine.recovery.snapshot();
 	auto state = (AudioRecovery)(ticket & 3);
 	if (state == AudioRecovery::Interrupted) {
@@ -1293,6 +1333,7 @@ S32 AILCALL AIL_quick_startup(S32 use_digital, S32, U32, S32, S32)
 	}
 
 	g_engine.recovery.reset();
+	g_engine.servicesGeneration=ZH_IOS_AudioServicesGeneration();
 	g_engine.nextRecoveryAttempt = {};
 	const ma_backend nullBackend[] = { ma_backend_null };
 	ma_context_config contextConfig = ma_context_config_init();

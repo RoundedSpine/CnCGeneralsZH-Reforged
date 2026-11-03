@@ -1928,6 +1928,9 @@ void DX8TextureCategoryClass::Render(void)
 		// with its triangles (SortingRendererClass::Insert_Triangles), and on Linux its sun shadow
 		// coverage too.
 		const unsigned draw_effect = mesh->Get_Draw_Effect();
+#if !defined(_WIN32)
+        Direct3D11_Set_Draw_Effect(draw_effect,mesh->Get_Draw_Effect_Parameters());
+#endif
 		if (draw_effect != 0) {
 			SunShadow::SetCasterEffect(DX8Wrapper::_Get_D3D_Device(),draw_effect, mesh->Get_Draw_Effect_Parameters());
 		}
@@ -1996,6 +1999,9 @@ void DX8TextureCategoryClass::Render(void)
 			else
 				renderer->Render(mesh->Get_Base_Vertex_Offset());
 		}
+#if !defined(_WIN32)
+        const float no_effect[4]={};Direct3D11_Set_Draw_Effect(0,no_effect);
+#endif
 		if (draw_effect != 0) {
 			static const float no_effect[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 			SunShadow::SetCasterEffect(DX8Wrapper::_Get_D3D_Device(),0, no_effect);

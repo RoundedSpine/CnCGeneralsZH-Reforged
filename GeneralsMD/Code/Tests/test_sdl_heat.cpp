@@ -33,6 +33,9 @@ int main(){
     CHECK(frame->Resize(17,11));frame->Clear_Back_Buffer(true,true,false,0xff654321,1,0);
     auto resized=frame->Back_Buffer_Target();snapshot=frame->Capture_Heat_Background(resized,error);
     CHECK(snapshot&&snapshot!=resized.Colour);if(snapshot)verify(snapshot,17,11,0x21,0x43,0x65);
+    CHECK(frame->Trim_Transient_Memory());
+    snapshot=frame->Capture_Heat_Background(resized,error);CHECK(snapshot);
+    if(snapshot)verify(snapshot,17,11,0x21,0x43,0x65);
     CHECK(!frame->Capture_Heat_Background({nullptr,nullptr,17,11},error));
     CHECK(frame->Supports_Heat_Haze());CHECK(SDL_WaitForGPUIdle(frame->Device()));
     std::printf("HEAT: failures=%u backend=%s\n",failures,SDL_GetGPUDeviceDriver(frame->Device()));

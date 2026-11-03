@@ -1013,7 +1013,11 @@ void RTS3DScene::renderOneObject(RenderInfoClass &rinfo, RenderObjClass *robj, I
 
     // On the Direct3D 11 frame the dynamic lights reach every pixel instead (handBlastLights), and
     // added here as well they would light the model twice.
-    if( draw && draw->getReceivesDynamicLights() && !Direct3D11_Lights_Per_Pixel() )
+    if( draw && draw->getReceivesDynamicLights() && (!Direct3D11_Lights_Per_Pixel()
+#if !defined(_WIN32)
+        ||theTranslucentPass
+#endif
+        ) )
     {
 		  // dynamic lights
 		  RefRenderObjListIterator dynaLightIt(&m_dynamicLightList);	
@@ -1123,7 +1127,10 @@ void RTS3DScene::Flush(RenderInfoClass & rinfo)
 		DoShadows(rinfo, true);	//draw all stencil shadows
 
 #if !defined(_WIN32)
-	if(TheGlobalData->m_firelight&&!TheGlobalData->m_classicGraphics&&m_customPassMode==SCENE_PASS_DEFAULT
+    // Stencil/mesh passes may have left a camera-space view in the wrapper.
+    // The fullscreen scene effects reconstruct the original world camera.
+    rinfo.Camera.Apply();DX8Wrapper::Apply_Render_State_Changes();
+	if((TheGlobalData->m_firelight||Direct3D11_Lights_Per_Pixel())&&!TheGlobalData->m_classicGraphics&&m_customPassMode==SCENE_PASS_DEFAULT
 		&&Get_Extra_Pass_Polygon_Mode()==EXTRA_PASS_DISABLE&&!ShaderClass::Is_Backface_Culling_Inverted()) {
 		Int count=0;const FireLights::Light *fires=getFirelights(&count);
 		SceneEffects::PointLight lights[SceneEffects::MaxFirelights]={};
@@ -1138,7 +1145,7 @@ void RTS3DScene::Flush(RenderInfoClass & rinfo)
 			light.Diffuse[0]=fire.red/base[0];light.Diffuse[1]=fire.green/base[1];light.Diffuse[2]=fire.blue/base[2];light.Diffuse[3]=fire.inner;
 			for(unsigned c=0;c<3;++c)light.Ambient[c]=light.Diffuse[c]*FireLights::AMBIENT_SHARE;
 		}
-		if(count>0){DX8Wrapper::Flush_Deferred_D3D9_State();SceneEffects::Firelight(DX8Wrapper::_Get_D3D_Device(),lights,unsigned(count));}
+		if(count>0||Direct3D11_Lights_Per_Pixel()){DX8Wrapper::Flush_Deferred_D3D9_State();SceneEffects::Firelight(DX8Wrapper::_Get_D3D_Device(),lights,unsigned(count));}
 	}
 #endif
 	// The Ambient Occlusion option goes on under the water and every translucent draw, none of which
@@ -1585,6 +1592,7 @@ void RTS3DScene::Customized_Render( RenderInfoClass &rinfo )
 #if defined(_WIN32)
 	Direct3D11_Set_Hemi_Ambient(TheGlobalData->m_hemiAmbient);
 #else
+    rinfo.Camera.Apply();DX8Wrapper::Apply_Render_State_Changes();
 	SceneEffects::SetLightingMode(DX8Wrapper::_Get_D3D_Device(),!TheGlobalData->m_classicGraphics,TheGlobalData->m_hemiAmbient);
 #endif
 

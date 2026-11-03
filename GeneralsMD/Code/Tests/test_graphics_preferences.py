@@ -165,7 +165,7 @@ int main() {
 #if !defined(_WIN32)
     SceneEffects::firelight=true;assert(rendererSupportsOption({"Firelight"}));
     SceneEffects::lighting=SceneEffects::atmosphere=true;
-    for(auto key:{"MapLight","Atmosphere","TeamGlow","HemiAmbient","GroundMarks","WaterSplashes","Weather"})assert(rendererSupportsOption({key}));
+    for(auto key:{"MapLight","Atmosphere","TeamGlow","HemiAmbient","GroundMarks","WaterSplashes","Weather","StructureCollapse","WaterFoam"})assert(rendererSupportsOption({key}));
     SceneEffects::atmosphere=false;
     assert(!rendererSupportsOption({"MapLight"})&&!rendererSupportsOption({"Atmosphere"}));
     assert(!rendererSupportsOption({"Weather"}));

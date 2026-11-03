@@ -24,6 +24,8 @@
 // shadow map) are not A3's.  And D3D9's documented initial states, which the draw is the first to read.
 
 #include "PosixDevice9.h"
+#include "Platform/SceneEffects.h"
+#include "SdlRenderMatrix.h"
 #include "PosixResources9.h"
 #include "SdlConstants.h"
 #include "SdlCreationLog.h"
@@ -345,19 +347,6 @@ bool PosixDevice9::Build_Vertex_Description(VertexPipelineDescription &descripti
 //-------------------------------------------------------------------------------------------------
 // The constants.  Row major, D3D9's order, which is how the programs declare their matrices.
 //-------------------------------------------------------------------------------------------------
-
-static void multiply(const float left[16], const float right[16], float result[16])
-{
-	for (unsigned row = 0; row < 4; ++row) {
-		for (unsigned column = 0; column < 4; ++column) {
-			float sum = 0.0f;
-			for (unsigned index = 0; index < 4; ++index) {
-				sum += left[row * 4 + index] * right[index * 4 + column];
-			}
-			result[row * 4 + column] = sum;
-		}
-	}
-}
 
 // A light is set in world space and lit in camera space: its position and direction go through the
 // view matrix once per light, as the fixed-function pipeline carries them.
@@ -1027,6 +1016,13 @@ RenderResult PosixDevice9::Gpu_Draw(const DrawCall &call)
 		return D3D_OK;
 	}
 
+
+    // A missing depth snapshot retains the original-water program rather than
+    // selecting foam that cannot be drawn. This is independent of sun-map setup.
+    if(EngineShader_Reads_Scene_Depth(static_cast<EngineShaderProgram>(pixel_engine))
+        &&(!ParticleDepth||ParticleDepthSource!=target.Depth))
+        pixel_engine=pixel_engine==ENGINE_SHADER_WATER_TRAPEZOID_FOAM?ENGINE_SHADER_WATER_CLASSIC_TRAPEZOID:ENGINE_SHADER_WATER_CLASSIC_RIVER;
+    const bool water_foam=EngineShader_Reads_Scene_Depth(static_cast<EngineShaderProgram>(pixel_engine));
 	// The programs and the pipeline.
 	std::string refusal;
 	SdlVertexLayout layout;
@@ -1037,15 +1033,36 @@ RenderResult PosixDevice9::Gpu_Draw(const DrawCall &call)
 	CombinerDescription combiner;
 	VertexPipelineDescription vertex;
 	Build_Combiner_Description(combiner);
-	combiner.ShadowReceiving = Sun_Receiving(vertex_engine, pixel_engine, target);
-	combiner.DrawEffect = SunActive ? SunCasterEffect : DRAW_EFFECT_NONE;
+	combiner.ShadowReceiving = !(ParticleFlags&SceneEffects::EmissiveParticles)&&Sun_Receiving(vertex_engine, pixel_engine, target);
+	// Capture after opaque rendering, at the first actual cloak draw, not while
+    // visible objects are merely being enqueued into the sorting pool.
+    if(RequestedEffect==DRAW_EFFECT_CLOAK&&Supports_Object_Effects()
+        &&(CloakFrame!=PresentCount||CloakSource!=target.Colour)) {
+        CloakSnapshot=Gpu->Capture_Heat_Background(target,refusal);
+        CloakSource=target.Colour;CloakFrame=PresentCount;
+    }
+    combiner.DrawEffect = SunActive ? SunCasterEffect : Object_Effect();
+    const bool particle=Supports_Object_Effects()&&vertex_engine==ENGINE_SHADER_NONE&&pixel_engine==ENGINE_SHADER_NONE
+        &&!(FVF&D3DFVF_XYZRHW)&&(FVF&D3DFVF_TEXCOUNT_MASK)>=D3DFVF_TEX2
+        &&RenderStates[D3DRS_ALPHABLENDENABLE]&&Sun_Camera_Space();
+    const auto blendSource=RenderStates[D3DRS_SRCBLEND],blendDestination=RenderStates[D3DRS_DESTBLEND];
+    const bool fadeBlend=blendSource!=D3DBLEND_ZERO&&blendSource!=D3DBLEND_DESTCOLOR&&blendDestination!=D3DBLEND_SRCCOLOR;
+    if(particle&&fadeBlend) {
+        if((ParticleFlags&SceneEffects::SoftParticles)&&ParticleDepth&&ParticleDepthSource==target.Depth
+            &&ParticleWidth==target.Width&&ParticleHeight==target.Height&&Viewport.MinZ==0&&Viewport.MaxZ==1)
+            combiner.SoftParticle=blendSource==D3DBLEND_ONE?SOFT_PARTICLE_COLOUR:SOFT_PARTICLE_ALPHA;
+        if((ParticleFlags&SceneEffects::FireParticles)&&combiner.StageCount<=1)
+            combiner.FireLook=blendSource==D3DBLEND_ONE?FIRE_LOOK_COLOUR:FIRE_LOOK_ALPHA;
+    }
 	combiner.SmokeGlow = SmokeGlow && vertex_engine == ENGINE_SHADER_NONE && pixel_engine == ENGINE_SHADER_NONE
 		&& !RenderStates[D3DRS_LIGHTING] && (FVF & D3DFVF_NORMAL) && !(FVF & D3DFVF_XYZRHW);
 	if (vertex_engine == ENGINE_SHADER_NONE && !Build_Vertex_Description(vertex, &refusal)) {
 		Refuse_Draw(refusal);
 		return D3D_OK;
 	}
-	if (vertex_engine == ENGINE_SHADER_NONE) vertex.SmokeGlow = combiner.SmokeGlow;
+	if (vertex_engine == ENGINE_SHADER_NONE) {
+        vertex.SmokeGlow=combiner.SmokeGlow;vertex.SoftParticle=combiner.SoftParticle!=0;vertex.FireLook=combiner.FireLook!=0;
+    }
 	// The dedicated generated water vertex path deliberately avoids arbitrary engine-program
 	// pairing. Only this path may bind native FFT textures to the vertex stage. A sun caster
 	// pass keeps the ordinary vertex program its depth-only pixel variant was made against.
@@ -1218,7 +1235,14 @@ RenderResult PosixDevice9::Gpu_Draw(const DrawCall &call)
 			// Ground programs declare these slots even when their receiving strength is zero.
 			// Bind neutral textures then, never material textures or the active attachment.
 			const bool ground = EngineShader_Paints_Ground(static_cast<EngineShaderProgram>(pixel_engine));
-			if (texture_stage == 5 && (combiner.ShadowReceiving || ground)) {
+
+            if((texture_stage==7&&(combiner.SoftParticle||water_foam))||(texture_stage==8&&combiner.DrawEffect)) {
+                draw.Textures[slot]=texture_stage==7?ParticleDepth:(combiner.DrawEffect==DRAW_EFFECT_CLOAK?CloakSnapshot:Mirrors->White());
+                draw.Samplers[slot]=Samplers->Sampler(SamplerStates[0]);
+                if(!draw.Textures[slot]||!draw.Samplers[slot]){Refuse_Draw("scene effect snapshot unavailable");return D3D_OK;}
+                continue;
+            }
+			if (texture_stage == 5 && (combiner.ShadowReceiving || ground || water_foam)) {
 				draw.Textures[slot] = combiner.ShadowReceiving ? Sun_Texture() : Mirrors->White();
 				draw.Samplers[slot] = combiner.ShadowReceiving ? Sun_Sampler() : Samplers->Sampler(SamplerStates[0]);
 				if (!draw.Textures[slot] || !draw.Samplers[slot]) {
@@ -1231,7 +1255,7 @@ RenderResult PosixDevice9::Gpu_Draw(const DrawCall &call)
 				}
 				continue;
 			}
-			if (texture_stage == 6 && (combiner.ShadowReceiving || ground)) {
+			if (texture_stage == 6 && (combiner.ShadowReceiving || ground || water_foam)) {
 				const bool smoke = combiner.ShadowReceiving && Gpu->Sun_Smoke_Texture();
 				draw.Textures[slot] = smoke ? Gpu->Sun_Smoke_Texture() : Mirrors->White();
 				draw.Samplers[slot] = smoke ? Gpu->Sun_Smoke_Sampler() : Samplers->Sampler(SamplerStates[0]);
@@ -1546,12 +1570,24 @@ RenderResult PosixDevice9::Gpu_Draw(const DrawCall &call)
 		draw.PixelConstants=Gpu->Constants(1,&shore,sizeof(shore));draw.PixelConstantsSize=sizeof(shore);
 	}
 	else if (pixel_program->UniformBuffers != 0
-		&& (pixel_engine != ENGINE_SHADER_NONE || combiner.ShadowReceiving || combiner.DrawEffect)) {
+		&& (pixel_engine != ENGINE_SHADER_NONE || combiner.ShadowReceiving || combiner.DrawEffect || combiner.SoftParticle)) {
 		SdlEnginePixelConstants engine_constants;
 		memset(&engine_constants, 0, sizeof(engine_constants));
 		engine_constants.Combiner = pixel_constants;
 		if (combiner.ShadowReceiving) Build_Sun_Constants(engine_constants);
-		if (combiner.DrawEffect) engine_constants.DrawEffectParameters[3] = SunCasterOpacity;
+		if(combiner.DrawEffect||combiner.SoftParticle||water_foam) {
+            float clip[16];const float *view=Sun_Camera_Space()?EffectSceneView:&Transforms[D3DTS_VIEW]._11;
+            multiply(view,&Transforms[D3DTS_PROJECTION]._11,clip);
+            if(!render_inverse(clip,engine_constants.WorldFromClip)){Refuse_Draw("singular effect view");return D3D_OK;}
+            engine_constants.ShadowViewport[0]=1.0f/Viewport.Width;engine_constants.ShadowViewport[1]=1.0f/Viewport.Height;
+            engine_constants.ShadowViewport[2]=Viewport.X+0.5f;engine_constants.ShadowViewport[3]=Viewport.Y+0.5f;
+            std::memcpy(engine_constants.DrawEffectParameters,EffectParameters,sizeof(EffectParameters));
+            if(SunActive)engine_constants.DrawEffectParameters[3]=SunCasterOpacity;
+            const auto &projection=Transforms[D3DTS_PROJECTION];
+            engine_constants.SoftParticleDepth[0]=projection._34*projection._43;
+            engine_constants.SoftParticleDepth[1]=projection._34;engine_constants.SoftParticleDepth[2]=projection._33;
+            engine_constants.SoftParticleDepth[3]=1.0f/12.0f;
+        }
 		draw.PixelConstants = Gpu->Constants(1, &engine_constants, sizeof(engine_constants));
 		draw.PixelConstantsSize = sizeof(engine_constants);
 	}

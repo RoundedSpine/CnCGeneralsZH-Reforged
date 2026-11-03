@@ -184,6 +184,7 @@ public:
 	/// Sampling is optional on older devices. The selected depth format supports this complete usage.
 	unsigned int Depth_Usage() const;
 	/// Device capability selected at frame creation, including the R32F resolve target.
+	bool Trim_Transient_Memory();
 	bool Supports_Scene_Depth() const { return DepthSampleable; }
 	bool Supports_Ambient_Occlusion() const;
 	bool Supports_Atmosphere() const;

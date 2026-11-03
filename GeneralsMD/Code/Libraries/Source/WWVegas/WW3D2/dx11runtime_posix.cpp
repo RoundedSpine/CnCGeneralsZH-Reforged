@@ -27,6 +27,8 @@
 
 #include "dx11runtime.h"
 #include "dx11twin.h"
+#include "dx8wrapper.h"
+#include "Platform/SceneEffects.h"
 #include "Platform/EngineShaderName.h"
 
 #include <stddef.h>
@@ -64,12 +66,12 @@ void Direct3D11_Set_Haze_Shroud(struct IDirect3DBaseTexture9 *, const float [4])
 void Direct3D11_Set_Atmosphere(const float [3], const float [3], float, float, float, float, float, float, struct IDirect3DBaseTexture9 *) {}
 void Direct3D11_Atmosphere_Sky() {}
 
-void Direct3D11_Set_Headlights(const float *, unsigned, const float [3]) {}
-void Direct3D11_Set_Blast_Lights(const float *, unsigned) {}
-bool Direct3D11_Lights_Per_Pixel() { return false; }
-void Direct3D11_Set_Soft_Particles(bool) {}
-void Direct3D11_Take_Scene_Depth() {}
-void Direct3D11_Allow_Soft_Particles(bool) {}
+void Direct3D11_Set_Headlights(const float *p,unsigned n,const float gain[3]) { SceneEffects::SetHeadlights(DX8Wrapper::_Get_D3D_Device(),p,n,gain); }
+void Direct3D11_Set_Blast_Lights(const float *p,unsigned n) { SceneEffects::SetBlastLights(DX8Wrapper::_Get_D3D_Device(),p,n); }
+bool Direct3D11_Lights_Per_Pixel() { return SceneEffects::LightsPerPixel(DX8Wrapper::_Get_D3D_Device()); }
+void Direct3D11_Set_Soft_Particles(bool value) { SceneEffects::SetParticleFlag(DX8Wrapper::_Get_D3D_Device(),SceneEffects::SoftParticles,value); }
+void Direct3D11_Take_Scene_Depth() { SceneEffects::TakeParticleDepth(DX8Wrapper::_Get_D3D_Device()); }
+void Direct3D11_Allow_Soft_Particles(bool value) { SceneEffects::AllowEffects(DX8Wrapper::_Get_D3D_Device(),value); }
 
 bool Direct3D11_Begin_Shadow_Map(unsigned) { return false; }
 void Direct3D11_End_Shadow_Map() {}
@@ -84,18 +86,17 @@ bool Direct3D11_Upload_Shadow_Skin(const DX11ShadowSkinVertex *, unsigned, unsig
 unsigned Direct3D11_Shadow_Skin_Generation() { return 0; }
 void Direct3D11_Set_Scene_View(const float [16]) {}
 void Direct3D11_Set_Smoke_Glow(bool) {}
-void Direct3D11_Set_Fire_Look(bool) {}
-void Direct3D11_Set_Emissive(bool) {}
+void Direct3D11_Set_Fire_Look(bool value) { SceneEffects::SetParticleFlag(DX8Wrapper::_Get_D3D_Device(),SceneEffects::FireParticles,value); }
+void Direct3D11_Set_Emissive(bool value) { SceneEffects::SetParticleFlag(DX8Wrapper::_Get_D3D_Device(),SceneEffects::EmissiveParticles,value); }
 void Direct3D11_Set_Team_Glow(bool) {}
 void Direct3D11_Set_Hemi_Ambient(bool) {}
-void Direct3D11_Set_Draw_Effect(unsigned, const float [4]) {}
-bool Direct3D11_Draw_Effects() { return false; }
-void Direct3D11_Allow_Draw_Effects(bool) {}
-bool Direct3D11_Takes_Draw_Effect(unsigned) { return false; }
+void Direct3D11_Set_Draw_Effect(unsigned effect,const float parameters[4]) { SceneEffects::SetObjectEffect(DX8Wrapper::_Get_D3D_Device(),effect,parameters); }
+bool Direct3D11_Draw_Effects() { return SceneEffects::SupportsObjectEffects(DX8Wrapper::_Get_D3D_Device()); }
+void Direct3D11_Allow_Draw_Effects(bool value) { SceneEffects::AllowEffects(DX8Wrapper::_Get_D3D_Device(),value); }
+bool Direct3D11_Takes_Draw_Effect(unsigned effect) { return SceneEffects::TakesObjectEffect(DX8Wrapper::_Get_D3D_Device(),effect); }
 unsigned Direct3D11_Requested_Draw_Effect(float parameters[4])
 {
-	parameters[0] = parameters[1] = parameters[2] = parameters[3] = 0.0f;
-	return 0;
+	return SceneEffects::RequestedObjectEffect(DX8Wrapper::_Get_D3D_Device(),parameters);
 }
 void Direct3D11_Occlude_Scene() {}
 void Direct3D11_Ambient_Occlusion() {}

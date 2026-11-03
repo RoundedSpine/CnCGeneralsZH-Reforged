@@ -10,6 +10,7 @@ std::atomic<Phase> phase{Phase::Foreground};
 // Device creation/destruction and UIKit's callbacks run on the main thread.
 SDL_GPUDevice *gpu = nullptr;
 bool installed = false;
+std::atomic<bool> memoryPressure{false};
 
 bool SDLCALL applicationEvent(void *, SDL_Event *event)
 {
@@ -30,7 +31,8 @@ bool SDLCALL applicationEvent(void *, SDL_Event *event)
             name = "foreground";
             break;
         case SDL_EVENT_LOW_MEMORY:
-            // Do not free engine resources reentrantly, especially during startup.
+            // Coalesce requests; the renderer evicts disposable caches after a frame.
+            memoryPressure.store(true);
             name = "low-memory";
             break;
         case SDL_EVENT_TERMINATING:
@@ -87,3 +89,5 @@ void ZH_IOS_UnregisterGPU(void *device)
 {
     if (gpu == device) gpu = nullptr;
 }
+
+bool ZH_IOS_TakeMemoryPressure() { return memoryPressure.exchange(false); }

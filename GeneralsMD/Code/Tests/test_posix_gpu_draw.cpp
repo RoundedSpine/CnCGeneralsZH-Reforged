@@ -1381,6 +1381,9 @@ static void check_quad_derivatives(PosixDevice9 *device)
 
 int main()
 {
+#if defined(__APPLE__)
+    SDL_SetHint(SDL_HINT_VIDEO_DRIVER,"dummy");SDL_SetHint("ZH_SDL_GPU_METAL_WINDOWLESS","1");
+#endif
 	IDirect3D9 *d3d = Direct3DCreate9(D3D_SDK_VERSION);
 	D3DPRESENT_PARAMETERS parameters;
 	memset(&parameters, 0, sizeof(parameters));

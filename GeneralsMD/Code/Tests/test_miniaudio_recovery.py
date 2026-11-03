@@ -22,6 +22,8 @@ PROGRAM = r'''
 FILE *zh_fopen(const char *path, const char *mode) { return fopen(path, mode); }
 std::atomic<bool> allowed{true}, activationWorks{true}, watched{false}, beginInActivation{false};
 std::atomic<int> activations{0};
+std::atomic<unsigned long long> servicesGeneration{0};
+unsigned long long ZH_IOS_AudioServicesGeneration(){return servicesGeneration.load();}
 void ZH_IOS_AudioSessionWatch(bool enable) { watched=enable; }
 bool ZH_IOS_AudioCanResume() { return allowed; }
 void emit(ma_device_notification_type type) {
@@ -102,6 +104,14 @@ int main() {
     assert(g_engine.recovery.load()==AudioRecovery::Pending);
     allowed=true; g_engine.device.onNotification=deviceNotification;
     tryRecovery(); assert(ma_device_is_started(&g_engine.device));
+    // A media-service reset rebuilds the actual null device/context while keeping
+    // the adapter's output rate and mixer-owned voices. A denied activation retries.
+    const auto rate=g_engine.deviceRate;
+    ++servicesGeneration;activationWorks=false;tryRecovery();
+    assert(g_engine.servicesGeneration!=servicesGeneration);
+    activationWorks=true;tryRecovery();
+    assert(g_engine.servicesGeneration==servicesGeneration&&g_engine.deviceRate==rate);
+    assert(g_engine.deviceReady&&ma_device_is_started(&g_engine.device));
     // A real worker must also recover, without another startup call.
     g_engine.serviceThread=std::thread(serviceThreadMain);
     stoppedForInterruption(); emit(ma_device_notification_type_interruption_ended);
@@ -136,6 +146,7 @@ class AudioRecovery(unittest.TestCase):
 void ZH_IOS_AudioSessionWatch(bool);
 bool ZH_IOS_AudioCanResume();
 bool ZH_IOS_ActivateAudioSession();
+unsigned long long ZH_IOS_AudioServicesGeneration();
 ''')
             adapter = CODE / 'Libraries/Source/WWVegas/Miles6/miniaudio/miles_miniaudio.cpp'
             (root / 'test.cpp').write_text(PROGRAM.replace('ADAPTER_SOURCE', adapter.as_posix()))

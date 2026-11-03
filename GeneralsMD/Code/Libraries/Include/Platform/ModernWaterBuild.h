@@ -3,7 +3,7 @@
 // Distributed under the repository's GPL-3.0 terms; see LICENSE.md.
 #pragma once
 
-#if defined(__linux__) || defined(_WIN32)
+#if defined(__linux__) || defined(_WIN32) || defined(ZH_PLATFORM_IOS)
 #define ZH_MODERN_WATER 1
 #else
 #define ZH_MODERN_WATER 0

@@ -63,7 +63,7 @@ public:
 
 protected:
 	void waveForDraw(Vector2 &waveTailOrigin,Vector2 &waveFrontOrigin,Real &waveAlpha,Real &widthFrac);
-#if defined(__linux__)
+#if defined(__linux__) || defined(ZH_PLATFORM_IOS)
 	Vector2 m_drawnWaveTail,m_drawnWaveFront;
 	Real m_drawnWaveAlpha=0,m_drawnWaveWidth=0,m_drawnWaterHeight=0;
 	Bool m_drawnHasWater=FALSE,m_drawnWaveReady=FALSE;
@@ -130,7 +130,7 @@ public:
 
 	void flush (RenderInfoClass & rinfo);	///<draw all tracks that were requested for rendering.
 	void update(void);	///<update the state of all edges (fade alpha, remove old, etc.)
-#if defined(__linux__)
+#if defined(__linux__) || defined(ZH_PLATFORM_IOS)
 	void takeReadsForRender(void);
 #endif
 

@@ -7,7 +7,9 @@
 namespace {
 std::atomic<bool> watching{false};
 std::atomic<unsigned long long> permission{0};
-id observer = nil;
+id observer = nil, lostObserver = nil, resetObserver = nil;
+std::atomic<unsigned long long> servicesGeneration{0};
+std::atomic<unsigned long long> interruptionState{0};
 }
 
 void ZH_IOS_AudioSessionWatch(bool enable)
@@ -17,8 +19,12 @@ void ZH_IOS_AudioSessionWatch(bool enable)
         [NSNotificationCenter.defaultCenter removeObserver:observer];
         observer = nil;
     }
-    const auto epoch = (permission.fetch_add(2) + 2) & ~1ULL;
+    for(id token in @[lostObserver ?: NSNull.null,resetObserver ?: NSNull.null])
+        if(token!=NSNull.null)[NSNotificationCenter.defaultCenter removeObserver:token];
+    lostObserver=resetObserver=nil;
+    const auto epoch = (permission.fetch_add(4) + 4) & ~3ULL;
     permission.store(epoch);
+    interruptionState.store(epoch);
     if (!enable) return;
     watching.store(true);
     observer = [NSNotificationCenter.defaultCenter
@@ -31,11 +37,32 @@ void ZH_IOS_AudioSessionWatch(bool enable)
                 (options & AVAudioSessionInterruptionOptionShouldResume) != 0;
             auto previous = permission.load();
             do {
-                if ((previous & ~1ULL) != epoch) return;
+                if ((previous & ~3ULL) != epoch) return;
             } while (!permission.compare_exchange_weak(previous, epoch | (allowed ? 1ULL : 0ULL)));
+            auto status=interruptionState.load();
+            const auto bits=type==AVAudioSessionInterruptionTypeBegan?1ULL:(allowed?0ULL:2ULL);
+            while((status&~3ULL)==epoch)
+                if(interruptionState.compare_exchange_weak(status,epoch|bits))break;
             fprintf(stderr, "[IOS_AUDIO_SESSION] interruption=%s should_resume=%d foreground=%d\n",
                 type == AVAudioSessionInterruptionTypeBegan ? "began" : "ended",
                 allowed, ZH_IOS_IsForeground());
+        }];
+    lostObserver=[NSNotificationCenter.defaultCenter addObserverForName:AVAudioSessionMediaServicesWereLostNotification
+        object:nil queue:nil usingBlock:^(NSNotification*) {
+            auto previous=permission.load();
+            while(watching.load()&&(previous&~3ULL)==epoch)
+                if(permission.compare_exchange_weak(previous,epoch))break;
+            fprintf(stderr,"[IOS_AUDIO_SESSION] media_services=lost\n");
+        }];
+    resetObserver=[NSNotificationCenter.defaultCenter addObserverForName:AVAudioSessionMediaServicesWereResetNotification
+        object:nil queue:nil usingBlock:^(NSNotification*) {
+            if(!watching.load())return;
+            auto previous=permission.load();bool accepted=false;
+            while((previous&~3ULL)==epoch) {
+                const bool allowed=interruptionState.load()==epoch;
+                if(permission.compare_exchange_weak(previous,epoch|(allowed?1ULL:0ULL))){accepted=true;break;}
+            }
+            if(accepted){servicesGeneration.fetch_add(1);fprintf(stderr,"[IOS_AUDIO_SESSION] media_services=reset rebuild_pending=1\n");}
         }];
 }
 
@@ -57,3 +84,5 @@ bool ZH_IOS_ActivateAudioSession()
     }
     return ZH_IOS_AudioCanResume();
 }
+
+unsigned long long ZH_IOS_AudioServicesGeneration(){return servicesGeneration.load();}

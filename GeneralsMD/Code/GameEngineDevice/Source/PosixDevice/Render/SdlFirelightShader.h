@@ -22,9 +22,10 @@ namespace SdlFirelight {
 struct Constants {
     float WorldFromClip[16];
     float Viewport[4],DepthInfo[4],Count[4];
-    SceneEffects::PointLight Lights[SceneEffects::MaxFirelights];
+    SceneEffects::PointLight Lights[SceneEffects::MaxPointLights];
+    float HeadlightGain[4],HeadlightPosition[16][4],HeadlightDirection[16][4];
 };
-static_assert(sizeof(Constants)==688,"firelight uniform packing");
+static_assert(sizeof(Constants)==2176,"firelight uniform packing");
 inline const char *PixelShader(){return R"(
 Texture2D<float> Depth:register(t0,space2);
 SamplerState DepthSampler:register(s0,space2);
@@ -32,7 +33,8 @@ struct PointLight {float4 Position,Diffuse,Ambient;};
 cbuffer FirelightConstants:register(b0,space3) {
     row_major float4x4 WorldFromClip;
     float4 Viewport,DepthInfo,Count;
-    PointLight Lights[12];
+    PointLight Lights[32];
+    float4 HeadlightGain,HeadlightPosition[16],HeadlightDirection[16];
 };
 float3 world_at(float2 ndc,float raw) {
     float4 world=mul(float4(ndc,raw,1),WorldFromClip);return world.xyz/world.w;
@@ -47,7 +49,7 @@ float4 main(float4 position:SV_Position):SV_Target {
     if(dot(normal,eye-here)<0)normal=-normal;
     if(raw>=1||any(position.xy<Viewport.xy)||any(position.xy>=Viewport.xy+Viewport.zw))return 0;
     float3 light=0;
-    [loop]for(int i=0;i<min((int)Count.x,12);++i) {
+    [loop]for(int i=0;i<min((int)Count.x,32);++i) {
         float3 to=Lights[i].Position.xyz-here;float distance=length(to);
         float reach=Lights[i].Position.w;if(distance>=reach)continue;
         float inner=Lights[i].Diffuse.w;
@@ -58,6 +60,15 @@ float4 main(float4 position:SV_Position):SV_Target {
     float peak=max(light.r,max(light.g,light.b)),over=max(peak-0.5,0);
     float knee=min(peak,0.5)+0.25*over/(over+0.25);
     light*=knee/max(peak,0.0001);
+    float lamps=0;
+    [loop]for(int h=0;h<min((int)Count.y,16);++h) {
+        float3 to=here-HeadlightPosition[h].xyz;float dist=length(to),reach=HeadlightPosition[h].w;
+        if(dist>=reach)continue;
+        float3 way=to/max(dist,0.001);float edge=HeadlightDirection[h].w;
+        float cone=smoothstep(edge,lerp(edge,1.0,0.6),dot(way,HeadlightDirection[h].xyz));
+        float fraction=dist/reach;lamps+=cone*(1-fraction*fraction)*(0.4+0.6*abs(dot(normal,way)));
+    }
+    light+=(2*lamps/(2+lamps))*HeadlightGain.xyz;
     return float4(light,0); // dst + dst*gain preserves black shroud and source alpha.
 }
 )";}

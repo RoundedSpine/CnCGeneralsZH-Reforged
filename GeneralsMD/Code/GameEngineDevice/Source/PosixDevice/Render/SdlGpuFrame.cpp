@@ -286,6 +286,19 @@ bool SdlGpuFrame::Create_Targets(unsigned int width, unsigned int height)
 	return true;
 }
 
+bool SdlGpuFrame::Trim_Transient_Memory()
+{
+    if(!Flush()||!SDL_WaitForGPUIdle(GpuDevice))return false;
+    Release_Ambient_Occlusion();Release_Atmosphere();Release_Heat_Background();Release_Ocean();
+    for(auto &snapshot:WaterSnapshots) {
+        if(snapshot.Colour)SDL_ReleaseGPUTexture(GpuDevice,snapshot.Colour);
+        if(snapshot.Depth)SDL_ReleaseGPUTexture(GpuDevice,snapshot.Depth);
+    }
+    WaterSnapshots.clear();
+    fprintf(stderr,"[SDL_MEMORY] released transient AO/atmosphere/effect/ocean/scene-copy caches\n");
+    return true;
+}
+
 void SdlGpuFrame::Release_Targets()
 {
 	for (size_t i = 0; i < WaterSnapshots.size(); ++i) {

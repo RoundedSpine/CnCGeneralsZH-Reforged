@@ -1125,9 +1125,9 @@ static Bool rendererSupportsOption( const OptionDef& def )
 	if( strcmp( def.iniKey, "MSAA" ) == 0 ) return FALSE;
 	if( strcmp( def.iniKey, "Firelight" ) == 0 ) return SceneEffects::SupportsFirelight();
 	if( strcmp( def.iniKey, "TeamGlow" ) == 0 || strcmp( def.iniKey, "HemiAmbient" ) == 0
-		|| strcmp( def.iniKey, "GroundMarks" ) == 0 || strcmp( def.iniKey, "WaterSplashes" ) == 0 )
+		|| strcmp( def.iniKey, "GroundMarks" ) == 0 || strcmp( def.iniKey, "WaterSplashes" ) == 0 || strcmp(def.iniKey,"StructureCollapse")==0 )
 		return SceneEffects::SupportsLighting();
-	if( strcmp( def.iniKey, "MapLight" ) == 0 || strcmp( def.iniKey, "Atmosphere" ) == 0 || strcmp( def.iniKey, "Weather" ) == 0 )
+	if( strcmp( def.iniKey, "MapLight" ) == 0 || strcmp( def.iniKey, "Atmosphere" ) == 0 || strcmp( def.iniKey, "Weather" ) == 0 || strcmp(def.iniKey,"WaterFoam")==0 )
 		return SceneEffects::SupportsAtmosphere();
 #endif
 	if( strcmp( def.iniKey, "WaterStyle" ) == 0 ) return ModernWater::Supported();

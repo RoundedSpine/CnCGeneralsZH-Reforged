@@ -175,6 +175,12 @@ static void testFirelight(SDL_GPUDevice *device)
     c.Viewport[0]=c.Viewport[1]=0;c.Viewport[2]=w;c.Viewport[3]=h;
     c.DepthInfo[2]=0.2f;c.DepthInfo[3]=1/0.6f;std::fill(depth.begin(),depth.end(),0.5f);
     auto ranged=draw();CHECK(!ranged.empty()&&ranged[(96*w+128)*4]>100);
+    c.DepthInfo[2]=0;c.DepthInfo[3]=1;c.Count[0]=0;c.Count[1]=1;
+    c.HeadlightPosition[0][3]=2;c.HeadlightDirection[0][2]=1;c.HeadlightDirection[0][3]=0.5f;
+    c.HeadlightGain[0]=1;c.HeadlightGain[1]=0.5f;c.HeadlightGain[2]=0.2f;
+    auto lamps=draw();CHECK(lamps.size()==w*h*4);
+    if(!lamps.empty()){auto at=(96*w+128)*4;CHECK(lamps[at]>100&&lamps[at]>lamps[at+1]&&lamps[at+1]>lamps[at+2]);}
+    c.HeadlightDirection[0][2]=-1;neutral(); // A backward beam cannot illuminate the surface.
     CHECK(renderer.PrepareFirelight(17,11,SDL_GPU_TEXTUREFORMAT_R8G8B8A8_UNORM,error));
     CHECK(!renderer.PrepareFirelight(0,11,SDL_GPU_TEXTUREFORMAT_R8G8B8A8_UNORM,error));
     SDL_ReleaseGPUTexture(device,colour);CHECK(SDL_WaitForGPUIdle(device));

@@ -21,6 +21,7 @@
 // PosixD3D9Caps.cpp.  See PosixDevice9.h for which file holds what and how a device without a window behaves.
 
 #include "PosixDevice9.h"
+#include "Platform/IOSLifecycle.h"
 #include "PosixD3D9Caps.h"
 #include "SdlCreationLog.h"
 #include "Platform/EngineShaderName.h"
@@ -597,6 +598,12 @@ RenderResult PosixDevice9::Present(const RenderRect *, const RenderRect *, Rende
 	const bool timing = Timing_Is_Asked();
 	const Uint64 present_start = timing ? SDL_GetTicksNS() : 0;
 	const bool presented = Gpu->Present(reinterpret_cast<const uint16_t (*)[256]>(&GammaRamp));
+    if(presented&&ZH_IOS_TakeMemoryPressure()) {
+        End_Heat_Haze();ParticleDepth=ParticleDepthSource=CloakSnapshot=CloakSource=nullptr;
+        CloakFrame=~uint64_t(0);
+        if(!Gpu->Trim_Transient_Memory())fprintf(stderr,"[SDL_MEMORY] deferred eviction failed; live scene retained\n");
+        Mirrors->Collect_Dead();
+    }
 	if (timing) {
 		Timing_Present((double)(SDL_GetTicksNS() - present_start) / 1.0e6, DrawsRecorded - TimingDrawsAtPresent);
 		TimingDrawsAtPresent = DrawsRecorded;

@@ -6,10 +6,12 @@ bool ZH_IOS_IsForeground();
 void ZH_IOS_WaitForForeground();
 void ZH_IOS_RegisterGPU(void *device);
 void ZH_IOS_UnregisterGPU(void *device);
+bool ZH_IOS_TakeMemoryPressure();
 #else
 inline bool ZH_IOS_InstallLifecycle() { return true; }
 inline bool ZH_IOS_IsForeground() { return true; }
 inline void ZH_IOS_WaitForForeground() {}
 inline void ZH_IOS_RegisterGPU(void *) {}
 inline void ZH_IOS_UnregisterGPU(void *) {}
+inline bool ZH_IOS_TakeMemoryPressure() { return false; }
 #endif

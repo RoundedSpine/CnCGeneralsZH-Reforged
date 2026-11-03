@@ -127,3 +127,27 @@ Legacy iOS preferences with saved Reforged lighting/smoke but no mode entry now
 resolve consistently before archive mounting and during option loading. An explicit
 Classic setting remains authoritative. Remaining graphics gaps include MSAA,
 Modern water, water foam, HDR and Windows post-process grading.
+
+## Native effects follow-up
+
+The next porting group connects sorted particle depth fading and flame treatment,
+per-object cloak/reveal/EMP/outage shaders, client-only building collapse, the
+portable Modern water/wake path and original-water depth-aware foam. A native
+opaque lighting pass accepts the shared sixteen-headlight/thirty-two-point-light
+lists; translucent objects retain vertex lights. It restores the world camera
+before fullscreen scene effects rather than inheriting a stencil/mesh camera.
+
+Low-memory callbacks now defer eviction of disposable effect/ocean/scene-copy
+caches until a completed frame. Media-service reset notifications advance an
+atomic generation; the audio worker reconstructs the device/context at the
+existing mix rate while retaining voices and decoder positions. Native session
+permission still gates recovery.
+
+The new production-shader tests cover seventeen SPIR-V/MSL variants and actual
+POSIX device drawing for soft particles, flames, object effects and Classic
+fallback. The ARM64 workflow also runs the existing complete POSIX GPU draw
+selfcheck, including Modern-water paths. GPU results are pending for this group;
+local GPU tests report an explicit skip. The supplied `ce612d51` device stderr
+confirms Reforged lighting/smoke/shadows and all prior native effects initialized,
+then exited normally. The separately supplied November 2 audio crash and older
+DebugLogFile are different sessions.

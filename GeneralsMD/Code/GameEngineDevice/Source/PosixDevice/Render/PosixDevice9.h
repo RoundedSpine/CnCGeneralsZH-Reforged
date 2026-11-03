@@ -191,6 +191,17 @@ public:
 	bool Atmosphere(const SceneEffects::AtmosphereParameters &parameters, IDirect3DBaseTexture9 *sky,
 		IDirect3DBaseTexture9 *shroud, const float rect[4]);
 	void Set_Lighting_Mode(bool modern, bool hemisphere);
+    void Set_Particle_Flag(unsigned flag,bool enabled);
+    bool Lights_Per_Pixel() const;
+    void Set_Blast_Lights(const float*,unsigned);
+    void Set_Headlights(const float*,unsigned,const float*);
+    void Allow_Effects(bool enabled);
+    void Take_Particle_Depth();
+    bool Supports_Object_Effects() const;
+    bool Takes_Object_Effect(unsigned effect);
+    void Set_Object_Effect(unsigned effect,const float *parameters);
+    unsigned Requested_Object_Effect(float *parameters) const;
+    unsigned Object_Effect() const;
 	void Set_Team_Glow(bool enabled) { TeamGlow = enabled; }
 	bool Begin_Sun_Shadow(unsigned size);
 	// Optional submission status is independent of whether the shadow image can be used.
@@ -381,7 +392,14 @@ protected:
 	struct SunCapture;
 	std::shared_ptr<SunCapture> Sun;
 	bool SunActive = false, SunFailed = false, SunReady = false, SunReported = false;
-	bool ModernLighting = false, HemisphereAmbient = false, TeamGlow = false;
+	unsigned ParticleFlags=0,RequestedEffect=0,BlastCount=0,HeadlightCount=0;
+    float BlastLights[32][12]={},Headlights[16][8]={},HeadlightGain[4]={};
+    bool EffectsAllowed=true;
+    float EffectParameters[4]={},EffectSceneView[16]={};
+    SDL_GPUTexture *ParticleDepth=nullptr,*ParticleDepthSource=nullptr,*CloakSnapshot=nullptr,*CloakSource=nullptr;
+    unsigned ParticleWidth=0,ParticleHeight=0;
+    uint64_t CloakFrame=~uint64_t(0);
+    bool ModernLighting = false, HemisphereAmbient = false, TeamGlow = false;
 	SDL_GPUTexture *HeatSourceTexture = nullptr, *HeatSnapshot = nullptr;
 	bool SmokeGlow = false;
 	unsigned SunCasterEffect = 0;

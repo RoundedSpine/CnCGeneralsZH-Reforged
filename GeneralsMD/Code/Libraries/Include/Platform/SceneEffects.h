@@ -10,7 +10,18 @@ struct AtmosphereParameters {
     float Fade[4] = {0,1,0,0}; // start, scale, strength, ground height
     float Horizon[4] = {}, Tint[4] = {}, MapSize[4] = {};
 };
-constexpr unsigned MaxFirelights=12;
+enum ParticleFlag { SoftParticles=1, FireParticles=2, EmissiveParticles=4 };
+void SetParticleFlag(IDirect3DDevice9*,unsigned,bool);
+void AllowEffects(IDirect3DDevice9*,bool);
+void TakeParticleDepth(IDirect3DDevice9*);
+bool SupportsObjectEffects(IDirect3DDevice9*);
+bool TakesObjectEffect(IDirect3DDevice9*,unsigned);
+void SetObjectEffect(IDirect3DDevice9*,unsigned,const float*);
+unsigned RequestedObjectEffect(IDirect3DDevice9*,float*);
+bool LightsPerPixel(IDirect3DDevice9*);
+void SetBlastLights(IDirect3DDevice9*,const float*,unsigned);
+void SetHeadlights(IDirect3DDevice9*,const float*,unsigned,const float*);
+constexpr unsigned MaxFirelights=12,MaxPointLights=32;
 struct PointLight {float Position[4],Diffuse[4],Ambient[4];};
 bool SupportsFirelight();
 bool SupportsFirelight(IDirect3DDevice9 *device);

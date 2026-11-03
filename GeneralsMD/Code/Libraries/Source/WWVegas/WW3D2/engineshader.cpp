@@ -1471,15 +1471,13 @@ bool EngineShader_Pixel_Program(EngineShaderProgram program,
 	}
 	const bool modern_water = EngineShader_Is_Modern_Water(program);
 	if (target == COMBINER_SHADER_TARGET_SDL3_GPU) {
-#if defined(__linux__)
 		if (modern_water) {
 			write_modern_water(hlsl, program == ENGINE_SHADER_WATER_RIVER);
 			if (!CombinerShader_Append_Pixel_Pipeline(pipeline, hlsl)) return false;
 			hlsl += "    return current;\n}\n";
 			return SDL3_Shader_Retarget(hlsl, false);
 		}
-#endif // __linux__
-		return write_engine_pixel_program(program, pipeline, hlsl, EngineShader_Paints_Ground(program))
+		return write_engine_pixel_program(program, pipeline, hlsl, EngineShader_Paints_Ground(program)||EngineShader_Reads_Scene_Depth(program))
 			&& SDL3_Shader_Retarget(hlsl, false);
 	}
 	// Direct3D 11 draws the Modern water from the same text, bound by dx11water.cpp.  The Classic

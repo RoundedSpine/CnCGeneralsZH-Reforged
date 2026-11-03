@@ -18,6 +18,8 @@
 // Modified 2026 by İlyas Akın for the macOS/Linux port; see NOTICE.md and the git history.
 
 #include "ffshader.h"
+#include <utility>
+#include <cstring>
 #include "ffvertex.h"
 #include "sdl3target.h"
 
@@ -250,13 +252,13 @@ bool CombinerShader_Generate(const CombinerDescription & description, CombinerSh
 	// Its cloak caster needs only ordered coverage, without cosmetic scene resources.
 	if (target == COMBINER_SHADER_TARGET_SDL3_GPU) {
 		CombinerDescription supported = description;
-		// Scene-depth fading and cosmetic refraction still have separate SDL integration work.
-		supported.SoftParticle = SOFT_PARTICLE_NONE;
-		// The fire look's coordinates come out of the Direct3D 11 vertex half, which SDL does not run.
-		supported.FireLook = FIRE_LOOK_NONE;
-		if (supported.DrawEffect != DRAW_EFFECT_CLOAK_SHADOW) supported.DrawEffect = DRAW_EFFECT_NONE;
-		return generate_combiners(supported, target, hlsl, true)
-			&& SDL3_Shader_Retarget(hlsl, false);
+
+		if(!generate_combiners(supported,target,hlsl,true))return false;
+        for(const auto &pair:{std::pair<const char*,const char*>("position.x * ShadowViewport.x","(position.x - ShadowViewport.z) * ShadowViewport.x"),
+            {"position.y * ShadowViewport.y","(position.y - ShadowViewport.w) * ShadowViewport.y"}}) {
+            size_t at=0;while((at=hlsl.find(pair.first,at))!=std::string::npos){hlsl.replace(at,strlen(pair.first),pair.second);at+=strlen(pair.second);}
+        }
+        return SDL3_Shader_Retarget(hlsl,false);
 	}
 	return generate_combiners(description, target, hlsl, target == COMBINER_SHADER_TARGET_D3D11);
 }
@@ -427,7 +429,7 @@ static bool generate_combiners(const CombinerDescription & description,
 		if (effect != DRAW_EFFECT_NONE) {
 			// SDL admits only the cloak caster. The complete cosmetic helper declares
 			// SceneColour at t8 even when unused, exceeding its eight-slot draw layout.
-			hlsl += sdl ? CLOAK_SHADOW_SAMPLING : DRAW_EFFECT_SAMPLING;
+			hlsl += effect==DRAW_EFFECT_CLOAK_SHADOW ? CLOAK_SHADOW_SAMPLING : DRAW_EFFECT_SAMPLING;
 		}
 		if (fire != FIRE_LOOK_NONE) {
 			hlsl += FIRE_LOOK_SAMPLING;

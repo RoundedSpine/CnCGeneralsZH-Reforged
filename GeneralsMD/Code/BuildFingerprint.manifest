@@ -3326,6 +3326,7 @@ Tests/test_sdl_gpu_depth_format.cpp
 Tests/test_sdl_gpu_frame.cpp
 Tests/test_sdl_heat.cpp
 Tests/test_sdl_input.cpp
+Tests/test_sdl_native_effects.cpp
 Tests/test_sdl_pipeline_state.cpp
 Tests/test_sdl_platform.cpp
 Tests/test_sdl_program_cache.cpp

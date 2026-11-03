@@ -39,6 +39,7 @@
 #include "Platform/ModernWaterMaterial.h"
 #include "Platform/WaterShoreOverlay.h"
 #include "Platform/WaterFoamWindow.h"
+#include "Platform/SceneEffects.h"
 #include "Platform/WaterFoamParticlePolicy.h"
 #include "Platform/WaterHullContact.h"
 #include "Platform/WaterBedMaterial.h"
@@ -251,7 +252,12 @@ static Bool wireframeForDebug = 0;
 static Bool waterFoam(void)
 {
 	return TheGlobalData->m_waterFoam && !TheGlobalData->m_classicGraphics
-		&& TheGlobalData->m_waterStyle == 0 && Direct3D11_Present_Is_Enabled();
+		&& TheGlobalData->m_waterStyle == 0 &&
+#if defined(_WIN32)
+        Direct3D11_Present_Is_Enabled();
+#else
+        SceneEffects::SupportsAtmosphere();
+#endif
 }
 
 // What the foam programs read out of the texture factor: green is the swell's phase, alpha the
@@ -533,7 +539,7 @@ void WaterRenderObjClass::takeReadsForRender(void)
 	m_modernObjectsForDraw.clear();m_modernObstacles.clear();m_modernObstacleObjectIDs.clear();
 	m_modernReadsReady=m_useModernWater && TheGameLogic && TheTerrainLogic &&
 		TheTerrainRenderObject && TheTerrainRenderObject->getMap();
-#if defined(__linux__)
+#if defined(__linux__) || defined(ZH_PLATFORM_IOS)
 	// Windows' wave tracks still update in their own flush, as they always have.
 	if (m_waterTrackSystem) m_waterTrackSystem->takeReadsForRender();
 #endif
@@ -937,7 +943,7 @@ bool Supported()
 #if defined(_WIN32)
 	return Direct3D11_Is_Active() && Direct3D11_Present_Is_Enabled();
 #else
-	return ZH_MODERN_WATER;
+	return ZH_MODERN_WATER && SceneEffects::SupportsAtmosphere();
 #endif
 }
 

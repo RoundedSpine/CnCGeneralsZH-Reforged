@@ -65,7 +65,7 @@
 #include "assetmgr.h"
 #include "WW3D2/dx8wrapper.h"
 #include "Platform/RenderTypes.h"
-#if defined(__linux__)
+#if defined(__linux__) || defined(ZH_PLATFORM_IOS)
 #include "Platform/WaterShoreOverlay.h"
 #endif
 #include <cstring>
@@ -443,7 +443,7 @@ void WaterTracksObj::waveForDraw(Vector2 &waveTailOrigin,Vector2 &waveFrontOrigi
 
 Int WaterTracksObj::render(DX8VertexBufferClass	*vertexBuffer, Int batchStart)
 {
-#if defined(__linux__)
+#if defined(__linux__) || defined(ZH_PLATFORM_IOS)
 	if (!m_drawnWaveReady) return batchStart;
 #endif
 	VertexFormatXYZDUV1 *vb;
@@ -489,7 +489,7 @@ Int WaterTracksObj::render(DX8VertexBufferClass	*vertexBuffer, Int batchStart)
 	if (mirror)
 		vb = (VertexFormatXYZDUV1 *)mirror;
 
-#if defined(__linux__)
+#if defined(__linux__) || defined(ZH_PLATFORM_IOS)
 	waveTailOrigin=m_drawnWaveTail;waveFrontOrigin=m_drawnWaveFront;
 	waveAlpha=m_drawnWaveAlpha;widthFrac=m_drawnWaveWidth;
 	waterHeight=m_drawnWaterHeight;
@@ -499,7 +499,7 @@ Int WaterTracksObj::render(DX8VertexBufferClass	*vertexBuffer, Int batchStart)
 
 	//First insert tail of wave:
 	Vector2 testPoint(waveTailOrigin);
-#if defined(__linux__)
+#if defined(__linux__) || defined(ZH_PLATFORM_IOS)
 	const Bool hasWaterLevel=m_drawnHasWater;
 #else
 	TheTerrainLogic->isUnderwater(testPoint.X,testPoint.Y,&waterHeight);
@@ -555,7 +555,7 @@ Int WaterTracksObj::render(DX8VertexBufferClass	*vertexBuffer, Int batchStart)
 	Int idxCount=(m_y-1)*(m_x*2+2) - 2;	//index count
 
 	DX8Wrapper::Set_Index_Buffer(TheWaterTracksRenderSystem->m_indexBuffer,batchStart);
-	#if defined(__linux__)
+	#if defined(__linux__) || defined(ZH_PLATFORM_IOS)
 	WaterShoreOverlay::Quad shoreTrack;shoreTrack.level=waterHeight;
 	const Vector2 corners[4]={waveTailOrigin,waveTailOrigin+m_perpDir*m_waveFinalWidth*widthFrac,
 		waveFrontOrigin+m_perpDir*m_waveFinalWidth*widthFrac,waveFrontOrigin};
@@ -564,7 +564,7 @@ Int WaterTracksObj::render(DX8VertexBufferClass	*vertexBuffer, Int batchStart)
 		!TheGlobalData->m_isWorldBuilder && !TheGlobalData->m_usingWaterTrackEditor?&shoreTrack:NULL);
 #endif
 	DX8Wrapper::Draw_Strip(0,idxCount-2,0,m_x*m_y);	//there are always n-2 primitives for n index strip.
-#if defined(__linux__)
+#if defined(__linux__) || defined(ZH_PLATFORM_IOS)
 	PosixWaterShoreTrack(DX8Wrapper::_Get_D3D_Device(),NULL);
 #endif
 
@@ -625,7 +625,7 @@ WaterTracksObj *WaterTracksRenderSystem::bindTrack(waveType type)
 		}
 	
 		mod->m_bound=true;
-#if defined(__linux__)
+#if defined(__linux__) || defined(ZH_PLATFORM_IOS)
 		mod->m_drawnWaveReady=FALSE;
 #endif
 	}  // end if
@@ -966,7 +966,7 @@ void WaterTracksRenderSystem::update()
 static void TestWaterUpdate(void);	// static, as its definition is
 void setFPMode( void );
 
-#if defined(__linux__)
+#if defined(__linux__) || defined(ZH_PLATFORM_IOS)
 void WaterTracksRenderSystem::takeReadsForRender(void)
 {
 	if (!TheGlobalData->m_showSoftWaterEdge || TheWaterTransparency->m_transparentWaterDepth==0) return;
@@ -998,7 +998,7 @@ Try improving the fit to vertical surfaces like cliffs.
 	if (!TheGlobalData->m_showSoftWaterEdge || TheWaterTransparency->m_transparentWaterDepth ==0 )
 		return;
 
-#if !defined(__linux__)
+#if !defined(__linux__) && !defined(ZH_PLATFORM_IOS)
 	if (TheGlobalData->m_usingWaterTrackEditor)
 		TestWaterUpdate();
 
