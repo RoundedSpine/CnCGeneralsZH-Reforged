@@ -1445,9 +1445,10 @@ if(ZH_PLATFORM_POSIX)
   # D3D compatibility library so low-level device tests stay independent.
   list(FILTER POSIXD3D9_SOURCES EXCLUDE REGEX "/SdlHazardCloud[^/]*\\.cpp$")
   add_executable(test_sdl_ao Tests/test_sdl_ao.cpp
-    GameEngineDevice/Source/PosixDevice/Render/SdlAmbientOcclusion.cpp)
-  target_include_directories(test_sdl_ao PRIVATE GameEngineDevice/Source/PosixDevice/Render)
-  target_link_libraries(test_sdl_ao PRIVATE SDL3::SDL3-static sdl3shadercompile)
+    GameEngineDevice/Source/PosixDevice/Render/SdlAmbientOcclusion.cpp
+    GameEngineDevice/Source/PosixDevice/Render/SdlAtmosphere.cpp)
+  target_include_directories(test_sdl_ao PRIVATE GameEngineDevice/Source/PosixDevice/Render Libraries/Include)
+  target_link_libraries(test_sdl_ao PRIVATE SDL3::SDL3-static sdl3shadercompile ffvertex ffshader)
   set_target_properties(test_sdl_ao PROPERTIES CXX_STANDARD 17)
   add_test(NAME test_sdl_ao COMMAND test_sdl_ao)
   set_tests_properties(test_sdl_ao PROPERTIES SKIP_RETURN_CODE 77)

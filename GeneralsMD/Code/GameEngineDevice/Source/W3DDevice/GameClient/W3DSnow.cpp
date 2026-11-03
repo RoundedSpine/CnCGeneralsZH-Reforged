@@ -23,6 +23,7 @@
 #include "W3DDevice/GameClient/W3DSnow.h"
 #include "W3DDevice/GameClient/HeightMap.h"
 #include "Common/GlobalData.h"
+#include "Platform/SceneEffects.h"
 #include "GameClient/View.h"
 #include "GameLogic/ScriptEngine.h"
 #include "WW3D2/dx8wrapper.h"
@@ -84,7 +85,7 @@ static Bool snowWantsPointSprites(void)
 
 static Bool snowUsesPointSprites(void)
 {
-#if defined(__linux__)
+#if defined(__linux__) || defined(ZH_PLATFORM_IOS)
 	return FALSE;
 #else
 	return !Direct3D11_Present_Is_Enabled() && snowWantsPointSprites();
@@ -207,7 +208,12 @@ void W3DSnowManager::update(void)
 	//find current time offset, adjusting for overflow
 	m_time=fmod(m_time,m_fullTimePeriod);
 
-	m_weatherOn = TheGlobalData->m_weatherEffects && !TheGlobalData->m_classicGraphics && Direct3D11_Present_Is_Enabled();
+	m_weatherOn = TheGlobalData->m_weatherEffects && !TheGlobalData->m_classicGraphics &&
+		(Direct3D11_Present_Is_Enabled()
+#if !defined(_WIN32)
+		|| SceneEffects::SupportsAtmosphere()
+#endif
+		);
 	if (m_weatherOn)
 		updateWeather();
 	else

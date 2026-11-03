@@ -217,6 +217,9 @@ void PosixDevice9::Build_Combiner_Description(CombinerDescription &description) 
 	}
 	description.PixelPipeline.FogEnabled = RenderStates[D3DRS_FOGENABLE] != 0;
 	description.SpecularAdd = RenderStates[D3DRS_SPECULARENABLE] != 0;
+	description.TeamGlow = ModernLighting && TeamGlow && !SunActive && !Sun_Scene_Excluded()
+		&& !VertexShader && !PixelShader && (FVF & D3DFVF_POSITION_MASK) != D3DFVF_XYZRHW
+		&& !RenderStates[D3DRS_ALPHABLENDENABLE];
 
 	if (Stage_Ends_Cascade(0)) {
 		// No texturing: D3D9 draws the diffuse colour and its alpha.  The generator ends its chain at a
@@ -278,6 +281,8 @@ bool PosixDevice9::Build_Vertex_Description(VertexPipelineDescription &descripti
 	// Pretransformed vertices skip transform and lighting altogether.
 	description.LightingEnabled = RenderStates[D3DRS_LIGHTING] != 0 && (FVF & D3DFVF_POSITION_MASK) != D3DFVF_XYZRHW;
 	description.SpecularEnabled = RenderStates[D3DRS_SPECULARENABLE] != 0;
+	description.HemiAmbient = ModernLighting && HemisphereAmbient && !SunActive
+		&& description.LightingEnabled;
 	description.LocalViewer = RenderStates[D3DRS_LOCALVIEWER] != 0;
 	description.ColourVertexEnabled = RenderStates[D3DRS_COLORVERTEX] != 0;
 	const bool colour_vertex = description.ColourVertexEnabled;
@@ -463,6 +468,8 @@ void PosixDevice9::Build_Constants(SdlVertexConstants &vertex, SdlPixelConstants
 	colour_value(Material.Specular, vertex.MaterialSpecular);
 	colour_value(Material.Emissive, vertex.MaterialEmissive);
 	vertex.MaterialPower[0] = Material.Power;
+	if (ModernLighting && HemisphereAmbient)
+		memcpy(&vertex.MaterialPower[1], &view[8], 3 * sizeof(float));
 	colour_of(RenderStates[D3DRS_AMBIENT], vertex.GlobalAmbient);
 
 	// Fog start, end and density are floats carried in DWORD states.

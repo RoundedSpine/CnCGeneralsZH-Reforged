@@ -64,6 +64,7 @@
 #include "W3DDevice/GameClient/W3DStatusCircle.h"
 #include "W3DDevice/GameClient/W3DCustomScene.h"
 #include "W3DDevice/GameClient/W3DShroud.h"
+#include "W3DDevice/GameClient/W3DShaderManager.h"
 #include "WW3D2/camera.h"
 #include "WW3D2/dx8renderer.h"
 #include "WW3D2/sortingrenderer.h"
@@ -115,6 +116,14 @@ extern void DoParticles(RenderInfoClass & rinfo);
 bool SceneEffects::SupportsAmbientOcclusion()
 {
 	return SupportsAmbientOcclusion(DX8Wrapper::_Get_D3D_Device());
+}
+bool SceneEffects::SupportsAtmosphere()
+{
+	return SupportsAtmosphere(DX8Wrapper::_Get_D3D_Device());
+}
+bool SceneEffects::SupportsLighting()
+{
+	return SupportsLighting(DX8Wrapper::_Get_D3D_Device());
 }
 #endif
 
@@ -1135,6 +1144,10 @@ void RTS3DScene::Flush(RenderInfoClass & rinfo)
 #endif
 	}
 
+#if !defined(_WIN32)
+	if(m_customPassMode==SCENE_PASS_DEFAULT&&Get_Extra_Pass_Polygon_Mode()==EXTRA_PASS_DISABLE
+		&&!ShaderClass::Is_Backface_Culling_Inverted())W3DShaderManager::renderNativeAtmosphere();
+#endif
 	WW3D::Render_And_Clear_Static_Sort_Lists(rinfo);	//draws things like water
 
 	if (m_customPassMode == SCENE_PASS_DEFAULT && Get_Extra_Pass_Polygon_Mode() == EXTRA_PASS_DISABLE)
@@ -1478,11 +1491,17 @@ void RTS3DScene::Customized_Render( RenderInfoClass &rinfo )
 	const unsigned graphics = unsigned(TheGlobalData->m_classicGraphics) | (unsigned(TheGlobalData->m_shadowMap) << 1)
 		| (unsigned(TheGlobalData->m_useShadowVolumes) << 2) | (unsigned(TheGlobalData->m_useShadowDecals) << 3)
 		| (unsigned(TheGlobalData->m_ambientOcclusion) << 4) | (unsigned(TheGlobalData->m_shadowQuality) << 5)
-		| (unsigned(DX8Wrapper::Has_Stencil()) << 10);
+		| (unsigned(DX8Wrapper::Has_Stencil()) << 10) | (unsigned(TheGlobalData->m_lightingStyle) << 11)
+		| (unsigned(TheGlobalData->m_hemiAmbient) << 12) | (unsigned(TheGlobalData->m_teamGlow) << 13)
+		| (unsigned(TheGlobalData->m_mapLight) << 14) | (unsigned(TheGlobalData->m_atmosphere) << 15)
+		| (unsigned(TheGlobalData->m_weatherEffects) << 16) | (unsigned(TheGlobalData->m_groundMarks) << 17)
+		| (unsigned(TheGlobalData->m_waterSplashes) << 18) | (unsigned(TheGlobalData->m_volumetricSmokeShadows) << 19);
 	if (graphics != reportedGraphics) {
-		fprintf(stderr,"[IOS_GRAPHICS] classic=%d shadow_map=%d volumes=%d decals=%d ao=%d shadow_quality=%d stencil_available=%d\n",
+		fprintf(stderr,"[IOS_GRAPHICS] classic=%d shadow_map=%d volumes=%d decals=%d ao=%d shadow_quality=%d stencil_available=%d lighting=%d hemisphere=%d team_glow=%d warm_light=%d atmosphere=%d weather=%d ground_marks=%d water_splashes=%d volumetric_smoke=%d\n",
 			int(TheGlobalData->m_classicGraphics),int(TheGlobalData->m_shadowMap),int(TheGlobalData->m_useShadowVolumes),
-			int(TheGlobalData->m_useShadowDecals),int(TheGlobalData->m_ambientOcclusion),TheGlobalData->m_shadowQuality,int(DX8Wrapper::Has_Stencil()));
+			int(TheGlobalData->m_useShadowDecals),int(TheGlobalData->m_ambientOcclusion),TheGlobalData->m_shadowQuality,int(DX8Wrapper::Has_Stencil()),
+			TheGlobalData->m_lightingStyle,int(TheGlobalData->m_hemiAmbient),int(TheGlobalData->m_teamGlow),int(TheGlobalData->m_mapLight),
+			int(TheGlobalData->m_atmosphere),int(TheGlobalData->m_weatherEffects),int(TheGlobalData->m_groundMarks),int(TheGlobalData->m_waterSplashes),int(TheGlobalData->m_volumetricSmokeShadows));
 		reportedGraphics = graphics;
 	}
 #endif
@@ -1542,7 +1561,11 @@ void RTS3DScene::Customized_Render( RenderInfoClass &rinfo )
 		}
 	}
 
+#if defined(_WIN32)
 	Direct3D11_Set_Hemi_Ambient(TheGlobalData->m_hemiAmbient);
+#else
+	SceneEffects::SetLightingMode(DX8Wrapper::_Get_D3D_Device(),!TheGlobalData->m_classicGraphics,TheGlobalData->m_hemiAmbient);
+#endif
 
 	// After the lights' fade has stepped and before the terrain and the models are lit.
 	if (m_customPassMode == SCENE_PASS_DEFAULT && !ShaderClass::Is_Backface_Culling_Inverted())

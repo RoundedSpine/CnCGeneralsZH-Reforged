@@ -22,9 +22,9 @@ the menu disables or hides the control and preserves its saved choice.
 | MSAA (`ComboBoxMSAA`) | Unavailable | POSIX capability checks reject every multisample type except NONE; SDL scene targets are single-sample. Now disabled. |
 | Texture filter (`ComboBoxTextureFilter`) | Connected | Requires restart. Display initialization configures the filter table and SDL sampler state. |
 | Anisotropy (`SliderAnisotropy`) | Conditional | Requires restart and anisotropic texture filtering. SDL sampler clamps the request to 1–16. |
-| Warm light (`CheckMapLight`) | Unavailable | The combined Windows light/haze look has no complete SDL implementation. |
-| Team glow (`CheckTeamGlow`) | Unavailable | POSIX team-glow state setter is empty. |
-| Atmosphere (`CheckAtmosphere`) | Unavailable | POSIX atmosphere/sky hooks are empty; ordinary engine fog is separate. |
+| Warm light (`CheckMapLight`) | Conditional | Native warm map-light rebalance and depth-aware ground haze. Reforged mode and sampleable depth required; load a new map for the sun changes. |
+| Team glow (`CheckTeamGlow`) | Conditional | Native generated shader applies glow to flagged, immediate opaque team-colour meshes. Reforged mode; new map for asset marking. Sorted/translucent draws and reflected/custom views are excluded. |
+| Atmosphere (`CheckAtmosphere`) | Conditional | Native shroud-aware distance fade and time-of-day sky before water/particles. Needs sampleable depth, a sky texture, Reforged mode, no explicit skybox and a non-isometric camera. |
 | Lighting (`ComboBoxLightingStyle`) | Conditional / partial | Reforged map-light rebalance and deeper sun shadows exist; load a new map. Classic Graphics must be off after restart. Windows colour grading is absent. |
 | Glow (`ComboBoxBloom`) | Conditional / partial | Accept changes fixed-function LDR bloom; it is not the Windows HDR bloom. Needs scene render targets. AO now accepts this redirected scene target too. |
 | Ground pattern (`CheckGroundLighting`) | Connected | Accept changes terrain lightmap selection; dynamic terrain LOD can also change lightmap/cloud use. |
@@ -48,8 +48,8 @@ the menu disables or hides the control and preserves its saved choice.
 | Trees and bushes (`CheckShowProps`) | Conditional | Applied during map object creation; network/replay rules force trees on for simulation consistency. Memory suitability can limit the preset. |
 | Soft shorelines (`CheckSmoothWater`) | Conditional | Original terrain/water alpha path; requires map water transparency settings. Use a new map. |
 | Water foam (`CheckWaterFoam`) | Unavailable | The Windows foam look is not wired into the iOS original-water path. |
-| Ground marks (`CheckGroundMarks`) | Unavailable | `groundMarksOn()` requires Direct3D 11 presentation, which is false on POSIX. Original scorch effects are separate. |
-| Hemisphere ambient (`CheckHemiAmbient`) | Unavailable | POSIX setter does nothing; shared sky/ambient constants are not populated. |
+| Ground marks (`CheckGroundMarks`) | Conditional | Shared scorch/mark buffers now accept the native renderer. Reforged mode and eligible dry terrain required. |
+| Hemisphere ambient (`CheckHemiAmbient`) | Conditional | Native vertex shader receives hemisphere state and view-space world-up. Reforged mode; unlit/pretransformed draws and shadow capture are excluded. |
 | Ambient occlusion (`CheckAmbientOcclusion`) | Conditional | Native SDL implementation, format/depth checks, Reforged main opaque view only. Metal synthetic pixel test passed. Now works through the redirected target used by Glow. |
 | Internal HDR (`CheckInternalHdr`) | Unavailable | Requires the Windows half-float scene/post-process path. |
 | Building scaffolding (`CheckExtraAnimations`) | Connected | Inverts `m_useDrawModuleLOD`; draw modules are selected at drawable creation, so use a new map. |
@@ -61,14 +61,39 @@ the menu disables or hides the control and preserves its saved choice.
 | Smoke lit by fire (`CheckSmokeFireLighting`) | Connected | CPU smoke lighting reads the option per frame; separate from modern per-pixel Firelight. |
 | Firelight (`CheckFirelight`) | Unavailable | POSIX blast-light setter is empty and per-pixel lighting reports false; legacy dynamic lights remain. |
 | Explosion debris trails (`CheckDebrisTrails`) | Connected | Particle-system creation rejects marked trail systems while off. Requires applicable Reforged particle templates; existing systems may finish. |
-| Weather (`CheckWeather`) | Unavailable | Modern weather initialization requires Direct3D 11 presentation; original map snow is separate. |
-| Water splashes (`CheckWaterSplashes`) | Unavailable | The fork's splash feature requires Direct3D 11 presentation; original water effects are separate. |
+| Weather (`CheckWeather`) | Conditional | Native capability now enables the shared weather particles/wind and native haze. iOS uses quads, not unsupported sized point sprites. Requires Reforged mode and a matching map/weather setting. |
+| Water splashes (`CheckWaterSplashes`) | Conditional | Shared splash particles now accept the native renderer. Requires Reforged mode, actual original water, eligible impacts and clear shroud. A saved unsupported Modern style no longer blocks the original-water fallback. |
 
 ## Fixes and evidence
 
+The next implementation connects seven previously unavailable controls:
+Warm Light and Haze, Team Color Glow, Atmosphere, Battle Marks, Sky And Ground
+Light, Weather and Water Splashes. The audit now contains 17 connected, 21
+conditional and six unavailable controls. MSAA, heat haze, Modern water, water
+foam, modern Firelight and internal HDR still require separate rendering work.
+
+The new device log from `31177f8d` supplied two additional concrete failures:
+
+- Bootstrap selected `Documents/UserData`, but the engine used the desktop
+  `Library/Application Support` directory. Startup now resets the early directory
+  cache after UIKit configuration and migrates missing legacy entries to Documents
+  using same-container renames. Existing Documents files win; conflicting legacy
+  files and symlinks are retained. `[IOS_USER_DATA]` reports migration and selection.
+- The fullscreen desktop-mode path left an unknown colour format and requested
+  unsupported D32 depth, then retried without stencil. iOS now selects formats
+  through its UIKit-owned window, allowing the existing D24S8-first probe. This
+  addresses the logged `stencil_available=0` and the destination-alpha format
+  required by original water effects. A device run must confirm the chosen formats.
+
+That log also shows saved Reforged lighting/smoke values alongside active Classic
+mode and `classic_selected=1` on every Accept. Choosing a Reforged-only control now
+unticks Classic for the next start, without applying a preset to other settings.
+The Graphics page displays a restart notice; the current runtime mode stays fixed.
+
 - Saved lighting/smoke choices now drive both display and change detection during
   a Classic run. This fixes menu reopen and changing back to the forced values.
-  It does not yet prove the user's post-restart symptom is resolved.
+  The additional startup/mode fixes above address the concrete device-log evidence;
+  the resulting on-device behavior still needs validation.
 - `[IOS_OPTIONS]` records selected, saved, loaded and active values for those
   choices, including the file path and I/O errors. `[GRAPHICS_CAPS]` records the
   renderer's supported subset. A requested flag is not evidence of rendered pixels.
@@ -98,7 +123,12 @@ capability branches and the actual AO device/frame dispatch with mocked GPU
 boundaries. The dispatch regression uses a scene texture different from the back
 buffer, checks shroud forwarding, and retains excluded-view/failure behavior.
 `test_sdl_ao` separately compiles production shaders and checks actual Metal pixel
-results. These do not validate every real map, asset or option combination.
+results for AO, haze, atmosphere, hemisphere lighting and team glow. It checks
+transparent disabled passes, near/far ground, shroud, submerged ground, viewport
+origin/depth range, sky, alpha preservation and target resizing.
+`test_ios_graphics_startup.py` checks migration conflicts, repeatability and the
+iOS window/stencil selection branch; `test_userfolders` checks cache reselection.
+These do not validate every real map, asset or option combination.
 
 On the new IPA, use one map and camera, change one supported setting at a time,
 Accept, then reopen Options to check persistence. Restart for Classic Graphics,

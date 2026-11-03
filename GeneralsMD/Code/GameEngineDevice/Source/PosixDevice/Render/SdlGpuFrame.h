@@ -49,6 +49,7 @@ struct SDL_GPUShader;
 struct SDL_GPUTexture;
 struct SDL_Window;
 namespace SdlAo { struct Constants; class Renderer; }
+namespace SdlAtmosphere { struct Constants; class Renderer; }
 
 /// Where a pass draws: a colour texture of Target_Format() and a depth-stencil of Depth_Format(), the
 /// same size.  The back buffer is one; a render-target surface's GPU texture is another (A3d).  Either
@@ -184,6 +185,9 @@ public:
 	/// Device capability selected at frame creation, including the R32F resolve target.
 	bool Supports_Scene_Depth() const { return DepthSampleable; }
 	bool Supports_Ambient_Occlusion() const;
+	bool Supports_Atmosphere() const;
+	bool Atmosphere(const SdlTarget &target,const SdlAtmosphere::Constants &constants,
+		SDL_GPUTexture *sky,SDL_GPUTexture *shroud);
 
 	/// Flush, then the back buffer to the window through the gamma ramp (null: none, a straight blit).
 	bool Present(const uint16_t (*ramp)[256]);
@@ -317,6 +321,9 @@ private:
 	SdlAo::Renderer *Ao = nullptr;
 	bool AoFailed = false;
 	void Release_Ambient_Occlusion();
+	SdlAtmosphere::Renderer *AtmosphereRenderer = nullptr;
+	bool AtmosphereFailed = false;
+	void Release_Atmosphere();
 	SDL_GPUTexture *SunShadowTexture = NULL;
 	unsigned SunShadowSize = 0;
 	struct SmokeResources;

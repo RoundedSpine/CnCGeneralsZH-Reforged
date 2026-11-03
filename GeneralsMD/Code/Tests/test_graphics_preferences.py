@@ -30,6 +30,7 @@ class GraphicsPreferences(unittest.TestCase):
 
         methods = extract(source, 'static Int catalogMenuValue( const OptionDef& def )')
         methods += extract(source, 'static void readCatalogWidgets( OptionPreferences &out )')
+        methods += extract(source, 'static void requestReforgedModeForControl( GameWindow *control )')
         program = r'''
 #include <cassert>
 #include <cstring>
@@ -57,7 +58,7 @@ OptionDef TheOptionCatalog[] = {
     {"VolumetricSmokeShadows", OPTION_BOOL, APPLY_LIVE, []()->int{return data.m_volumetricSmokeShadows;}, [](int v){data.m_volumetricSmokeShadows=v;}}
 };
 constexpr int TheOptionCatalogCount=3;
-struct GameWindow {int value=0;} widgets[3];
+struct GameWindow {int value=0;bool enabled=true;bool winGetEnabled(){return enabled;}} widgets[3];
 GameWindow *findOptionWidget(const OptionDef &def) {return widgets+(&def-TheOptionCatalog);}
 bool smokeSupported=true, defaultsPressed=false, pendingShellRebuild=false;
 bool rendererSupportsOption(const OptionDef &def) {return smokeSupported || strcmp(def.iniKey,"VolumetricSmokeShadows")!=0;}
@@ -65,6 +66,11 @@ int optionDefaultValue(const OptionDef &def) {return strcmp(def.iniKey,"ClassicG
 std::string formatOptionValue(const OptionDef &def,int value) {return def.kind==OPTION_BOOL?(value?"yes":"no"):std::to_string(value);}
 int clampOptionValue(const OptionDef &,int value) {return value;}
 bool GadgetCheckBoxIsChecked(GameWindow *w) {return w->value!=0;}
+void GadgetCheckBoxSetChecked(GameWindow *w,bool v){w->value=v;}
+GameWindow *classicGraphicsCheckBox(){return widgets;}
+int graphicsQualityShownValue(GameWindow *w){return w->value;}
+bool ignoreSelected=false;unsigned notices=0;
+void updateDetailNote(){++notices;}
 void GadgetComboBoxGetSelectedPos(GameWindow *w,int *v) {*v=w->value;}
 int GadgetSliderGetPosition(GameWindow *w) {return w->value;}
 // METHODS
@@ -72,7 +78,9 @@ void reopen() {for(int i=0;i<3;++i)widgets[i].value=i==0?pref->getBool("ClassicG
 int main() {
     // A Classic run can save a Reforged next start without changing live fields.
     preferences["ClassicGraphics"]="yes";preferences["LightingStyle"]="0";preferences["VolumetricSmokeShadows"]="no";
-    reopen(); widgets[0].value=0;widgets[1].value=widgets[2].value=1;
+    reopen();widgets[1].value=widgets[2].value=1;
+    requestReforgedModeForControl(widgets+1);
+    assert(widgets[0].value==0 && notices==1 && !ignoreSelected);
     readCatalogWidgets(preferences);
     assert(preferences["ClassicGraphics"]=="no" && preferences["LightingStyle"]=="1" && preferences["VolumetricSmokeShadows"]=="yes");
     assert(data.m_classicGraphics && data.m_lightingStyle==0 && !data.m_volumetricSmokeShadows);
@@ -95,6 +103,13 @@ int main() {
     preferences["ClassicGraphics"]="no";reopen();
     widgets[1].value=widgets[2].value=0;readCatalogWidgets(preferences);
     assert(data.m_lightingStyle==0 && !data.m_volumetricSmokeShadows);
+    // Enabling smoke alone also requests Reforged mode; disabled controls and
+    // unrelated buttons must not alter it or be read as sliders.
+    widgets[0].value=1;widgets[2].value=1;widgets[2].enabled=false;
+    requestReforgedModeForControl(widgets+2);assert(widgets[0].value==1);
+    widgets[2].enabled=true;GameWindow unrelated;
+    requestReforgedModeForControl(&unrelated);assert(widgets[0].value==1);
+    requestReforgedModeForControl(widgets+2);assert(widgets[0].value==0);
 }
 '''
         compile_run(program.replace('// METHODS', methods))
@@ -112,7 +127,12 @@ struct Data {bool m_direct3D11=false;} data;
 Data *TheGlobalData=&data;
 namespace ModernWater {bool supported=false;bool Supported(){return supported;}}
 namespace HazardCloud {bool supported=false;bool Supported(){return supported;}}
-namespace SceneEffects {bool supported=false;bool SupportsAmbientOcclusion(){return supported;}}
+namespace SceneEffects {
+bool supported=false,lighting=false,atmosphere=false;
+bool SupportsAmbientOcclusion(){return supported;}
+bool SupportsLighting(){return lighting;}
+bool SupportsAtmosphere(){return atmosphere;}
+}
 // PLATFORM
 // METHOD
 int main() {
@@ -141,6 +161,14 @@ int main() {
     assert(!rendererSupportsOption({"WaterStyle"}) && !rendererSupportsOption({"CloudStyle"}));
     ModernWater::supported=HazardCloud::supported=true;
     assert(rendererSupportsOption({"WaterStyle"}) && rendererSupportsOption({"CloudStyle"}));
+#if !defined(_WIN32)
+    SceneEffects::lighting=SceneEffects::atmosphere=true;
+    for(auto key:{"MapLight","Atmosphere","TeamGlow","HemiAmbient","GroundMarks","WaterSplashes","Weather"})assert(rendererSupportsOption({key}));
+    SceneEffects::atmosphere=false;
+    assert(!rendererSupportsOption({"MapLight"})&&!rendererSupportsOption({"Atmosphere"}));
+    assert(!rendererSupportsOption({"Weather"}));
+    assert(rendererSupportsOption({"TeamGlow"})&&rendererSupportsOption({"HemiAmbient"}));
+#endif
 }
 '''
         # Define Windows after standard headers so host libc retains its real ABI.
@@ -233,6 +261,52 @@ int main() {
 }
 '''
         compile_run(program.replace('// METHODS', frame + device))
+
+    def test_native_shared_effects_keep_mode_and_client_boundary_guards(self):
+        base = (CODE / 'GameEngineDevice/Source/W3DDevice/GameClient/BaseHeightMap.cpp').read_text()
+        marks = extract(base, 'Bool BaseHeightMapRenderObjClass::groundMarksOn(void)')
+        source = (CODE / 'GameEngineDevice/Source/W3DDevice/GameClient/W3DGameClient.cpp').read_text()
+        signature = 'void W3DGameClient::splashInWater(const Coord3D *pos, Real radius)'
+        splash = signature + source.split(signature, 1)[1].split('\n\t// any higher', 1)[0] + '\n    ++splashes;\n}\n'
+        snow = (CODE / 'GameEngineDevice/Source/W3DDevice/GameClient/W3DSnow.cpp').read_text()
+        quads = extract(snow, 'static Bool snowUsesPointSprites(void)')
+        program = r'''
+#include <cassert>
+#include <functional>
+using Bool=bool;using Real=float;
+#undef __linux__
+#define ZH_PLATFORM_IOS 1
+constexpr bool FALSE=false;
+struct Coord3D{float x,y,z;};
+struct Data{bool m_groundMarks=true,m_classicGraphics=false,m_waterSplashes=true;int m_waterStyle=1;} data;
+Data *TheGlobalData=&data;
+bool presenting=false,gpu=true,modernWater=false,deferred=false;
+unsigned queries=0,splashes=0;std::function<void()> pending;
+bool Direct3D11_Present_Is_Enabled(){return presenting;}
+bool snowWantsPointSprites(){return true;}
+namespace SceneEffects{bool SupportsLighting(){++queries;return gpu;}}
+namespace ModernWater{bool Supported(){return modernWater;}}
+#define LOGIC_AFTER_TICK(...) if(deferred){pending=__VA_ARGS__;return;}
+struct BaseHeightMapRenderObjClass{Bool groundMarksOn();};
+struct W3DGameClient{void splashInWater(const Coord3D*,Real);};
+// METHODS
+int main(){
+    BaseHeightMapRenderObjClass terrain;
+    assert(terrain.groundMarksOn());
+    data.m_classicGraphics=true;assert(!terrain.groundMarksOn());
+    data.m_classicGraphics=false;gpu=false;assert(!terrain.groundMarksOn());gpu=true;
+    data.m_groundMarks=false;assert(!terrain.groundMarksOn());
+    W3DGameClient client;Coord3D point{1,2,3};queries=0;deferred=true;
+    client.splashInWater(&point,10);assert(pending&&queries==0&&splashes==0);
+    deferred=false;pending();assert(splashes==1); // Saved Modern style, actual original-water fallback.
+    modernWater=true;client.splashInWater(&point,10);assert(splashes==1);
+    modernWater=false;gpu=false;client.splashInWater(&point,10);assert(splashes==1);
+    gpu=true;data.m_classicGraphics=true;client.splashInWater(&point,10);assert(splashes==1);
+    data.m_classicGraphics=false;data.m_waterSplashes=false;client.splashInWater(&point,10);assert(splashes==1);
+    assert(!snowUsesPointSprites()); // iOS must use the supported quad path.
+}
+'''
+        compile_run(program.replace('// METHODS', marks + splash + quads))
 
 
 if __name__ == '__main__':

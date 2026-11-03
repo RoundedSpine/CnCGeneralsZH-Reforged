@@ -7,6 +7,7 @@
 #include "Platform/IOSStartup.h"
 #include "Platform/IOSLifecycle.h"
 #include "Platform/IOSWindowDiagnostics.h"
+#include "IOSUserDataMigration.h"
 
 static void uncaughtIOSException(NSException *exception)
 {
@@ -45,6 +46,17 @@ extern "C" bool ZH_IOS_Bootstrap()
         if (!freopen(log.fileSystemRepresentation, "w", stderr))
             return false;
         setvbuf(stderr, nullptr, _IOLBF, 0);
+        // Older starts could cache the desktop directory before UIKit bootstrap.
+        // Move only missing entries; existing Documents choices are preserved.
+        NSURL *support = [files URLsForDirectory:NSApplicationSupportDirectory inDomains:NSUserDomainMask].firstObject;
+        if (support) {
+            NSURL *legacy = [support URLByAppendingPathComponent:@"Command and Conquer Generals Zero Hour Data" isDirectory:YES];
+            IOSUserData::Migration migration;std::string error;
+            const bool migrated = IOSUserData::migrate(legacy.path.fileSystemRepresentation,user.path.fileSystemRepresentation,migration,error);
+            fprintf(stderr,"[IOS_USER_DATA] migration_ok=%d moved_entries=%u kept_legacy_conflicts=%u skipped_links=%u\n",
+                int(migrated),migration.moved,migration.kept,migration.links);
+            if(!migrated) {fprintf(stderr,"[IOS_USER_DATA] migration failed; originals retained where not moved: %s\n",error.c_str());return false;}
+        }
         NSSetUncaughtExceptionHandler(uncaughtIOSException);
         atexit(normalIOSExit);
         NSString *fonts = [[NSBundle.mainBundle.bundlePath stringByAppendingPathComponent:@"Fonts"] stringByAppendingString:@"/"];

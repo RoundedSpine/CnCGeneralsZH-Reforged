@@ -22,4 +22,6 @@ bool Supported() { return false; }
 
 namespace SceneEffects {
 bool SupportsAmbientOcclusion() { return false; }
+bool SupportsAtmosphere() { return false; }
+bool SupportsLighting() { return false; }
 }

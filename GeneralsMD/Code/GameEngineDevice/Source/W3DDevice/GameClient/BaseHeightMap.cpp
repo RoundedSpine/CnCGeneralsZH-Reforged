@@ -60,6 +60,7 @@
 #include <camera.h>
 #include "d3dx9runtime.h"
 #include "Common/GlobalData.h"
+#include "Platform/SceneEffects.h"
 #include "Common/PerfTimer.h"
 
 #include "GameClient/TerrainVisual.h"
@@ -1821,7 +1822,12 @@ void BaseHeightMapRenderObjClass::clearAllScorches(void)
 //=============================================================================
 Bool BaseHeightMapRenderObjClass::groundMarksOn(void)
 {
-	return TheGlobalData->m_groundMarks && !TheGlobalData->m_classicGraphics && Direct3D11_Present_Is_Enabled();
+	return TheGlobalData->m_groundMarks && !TheGlobalData->m_classicGraphics &&
+		(Direct3D11_Present_Is_Enabled()
+#if !defined(_WIN32)
+		|| SceneEffects::SupportsLighting()
+#endif
+		);
 }
 
 //=============================================================================

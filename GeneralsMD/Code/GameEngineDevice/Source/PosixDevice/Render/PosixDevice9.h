@@ -43,6 +43,7 @@
 
 #ifndef POSIXDEVICE9_H
 #define POSIXDEVICE9_H
+namespace SceneEffects { struct AtmosphereParameters; }
 
 #include "Platform/RenderTypes.h"
 #include "Platform/D3D9Posix.h"
@@ -179,6 +180,11 @@ public:
 	void Set_Smoke_Glow(bool glow) { SmokeGlow = glow; }
 	bool Ambient_Occlusion(IDirect3DBaseTexture9 *shroud, const float shroudRect[4]);
 	bool Supports_Ambient_Occlusion() const;
+	bool Supports_Atmosphere() const;
+	bool Atmosphere(const SceneEffects::AtmosphereParameters &parameters, IDirect3DBaseTexture9 *sky,
+		IDirect3DBaseTexture9 *shroud, const float rect[4]);
+	void Set_Lighting_Mode(bool modern, bool hemisphere);
+	void Set_Team_Glow(bool enabled) { TeamGlow = enabled; }
 	bool Begin_Sun_Shadow(unsigned size);
 	// Optional submission status is independent of whether the shadow image can be used.
 	bool End_Sun_Shadow(bool *submission_ok = NULL);
@@ -368,6 +374,7 @@ protected:
 	struct SunCapture;
 	std::shared_ptr<SunCapture> Sun;
 	bool SunActive = false, SunFailed = false, SunReady = false, SunReported = false;
+	bool ModernLighting = false, HemisphereAmbient = false, TeamGlow = false;
 	bool SmokeGlow = false;
 	unsigned SunCasterEffect = 0;
 	float SunCasterOpacity = 1;

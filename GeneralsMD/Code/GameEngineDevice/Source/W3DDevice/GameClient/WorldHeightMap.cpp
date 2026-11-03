@@ -40,6 +40,7 @@
 //#include "Common/GameFileSystem.h"
 #include "Common/FileSystem.h" // for LOAD_TEST_ASSETS
 #include "Common/GlobalData.h"
+#include "Platform/SceneEffects.h"
 #include "Common/MapReaderWriterInfo.h"
 #include "Common/TerrainTypes.h"
 #include "Common/ThingFactory.h"
@@ -524,7 +525,12 @@ Bool WorldHeightMap::ParseLightingDataChunk(DataChunkInput &file, DataChunkInfo 
 				after.diffuse.red, after.diffuse.green, after.diffuse.blue));
 		}
 		// a Direct3D 11 look like the haze that goes with it, so -d3d9 keeps the map's own sun
-		if (TheGlobalData->m_mapLight && TheGlobalData->m_direct3D11) {
+		if (TheGlobalData->m_mapLight && !TheGlobalData->m_classicGraphics &&
+			(TheGlobalData->m_direct3D11
+#if !defined(_WIN32)
+			|| SceneEffects::SupportsAtmosphere()
+#endif
+			)) {
 			for (i=TIME_OF_DAY_FIRST; i<TIME_OF_DAY_COUNT; i++) {
 				mapLightSun(TheWritableGlobalData->m_terrainLighting[i][0]);
 				mapLightSun(TheWritableGlobalData->m_terrainObjectsLighting[i][0]);

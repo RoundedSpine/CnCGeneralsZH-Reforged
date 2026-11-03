@@ -1525,7 +1525,7 @@ bool DX8Wrapper::Set_Render_Device(int dev, int width, int height, int bits, int
 	// Apply_Fullscreen_Display).  A windowed device's Present stretches its back buffer to the window.
 	// A player who alt-tabbed away during the splash is not handed a topmost window over whatever he
 	// went to.  The game's activation applies the display when he comes back.
-#if defined(_WIN32)
+#if defined(_WIN32) || defined(ZH_PLATFORM_IOS)
 	const bool device_windowed = true;
 #else
 	const bool device_windowed = IsWindowed || Direct3D11_Present_Is_Enabled();

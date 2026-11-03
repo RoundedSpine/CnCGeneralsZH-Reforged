@@ -1903,6 +1903,7 @@ GameEngineDevice/Source/PosixDevice/Render/PosixDevice9AmbientOcclusion.cpp
 GameEngineDevice/Source/PosixDevice/Render/PosixDevice9Capture.cpp
 GameEngineDevice/Source/PosixDevice/Render/PosixDevice9Draw.cpp
 GameEngineDevice/Source/PosixDevice/Render/PosixDevice9Resources.cpp
+GameEngineDevice/Source/PosixDevice/Render/PosixDevice9SceneEffects.cpp
 GameEngineDevice/Source/PosixDevice/Render/PosixDevice9SunShadow.cpp
 GameEngineDevice/Source/PosixDevice/Render/PosixDevice9Timing.cpp
 GameEngineDevice/Source/PosixDevice/Render/PosixDirect3D9.cpp
@@ -1917,12 +1918,16 @@ GameEngineDevice/Source/PosixDevice/Render/PosixResources9.h
 GameEngineDevice/Source/PosixDevice/Render/SdlAmbientOcclusion.cpp
 GameEngineDevice/Source/PosixDevice/Render/SdlAmbientOcclusion.h
 GameEngineDevice/Source/PosixDevice/Render/SdlAoShader.h
+GameEngineDevice/Source/PosixDevice/Render/SdlAtmosphere.cpp
+GameEngineDevice/Source/PosixDevice/Render/SdlAtmosphere.h
+GameEngineDevice/Source/PosixDevice/Render/SdlAtmosphereShader.h
 GameEngineDevice/Source/PosixDevice/Render/SdlConstants.h
 GameEngineDevice/Source/PosixDevice/Render/SdlCreationLog.h
 GameEngineDevice/Source/PosixDevice/Render/SdlGpuDepthFormat.h
 GameEngineDevice/Source/PosixDevice/Render/SdlGpuFrame.cpp
 GameEngineDevice/Source/PosixDevice/Render/SdlGpuFrame.h
 GameEngineDevice/Source/PosixDevice/Render/SdlGpuFrameAmbientOcclusion.cpp
+GameEngineDevice/Source/PosixDevice/Render/SdlGpuFrameAtmosphere.cpp
 GameEngineDevice/Source/PosixDevice/Render/SdlGpuFrameBatch.cpp
 GameEngineDevice/Source/PosixDevice/Render/SdlGpuFrameSmoke.cpp
 GameEngineDevice/Source/PosixDevice/Render/SdlGpuFrameSunShadow.cpp
@@ -3161,6 +3166,7 @@ Platform/iOS/IOSAudioSession.mm
 Platform/iOS/IOSBootstrap.mm
 Platform/iOS/IOSLifecycle.cpp
 Platform/iOS/IOSStartup.cpp
+Platform/iOS/IOSUserDataMigration.h
 Platform/iOS/IOSWindowDiagnostics.mm
 Platform/iOS/Info.plist.in
 Platform/iOS/README.md
@@ -3274,6 +3280,7 @@ Tests/test_install_root.cpp
 Tests/test_install_textures.cpp
 Tests/test_ios_camera_pan.cpp
 Tests/test_ios_global_new.py
+Tests/test_ios_graphics_startup.py
 Tests/test_ios_lifecycle.py
 Tests/test_ios_main_exit.py
 Tests/test_ios_network_permissions.py

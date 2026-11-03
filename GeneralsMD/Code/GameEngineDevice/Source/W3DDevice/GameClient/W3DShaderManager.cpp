@@ -79,6 +79,7 @@
 #include "Common/GameLOD.h"
 #include "d3dx9runtime.h"
 #include "WW3D2/dx11runtime.h"
+#include "Platform/SceneEffects.h"
 #if defined(_WIN32)
 #include "dx11post.h"	//DX11Post_Set_Bloom; the library is not built off Windows
 #endif
@@ -264,7 +265,6 @@ static GlowTuning glowTuning(void)
 	return tuning;
 }
 
-#if defined(_WIN32)
 /* The Warm Light option's ground haze (MapLight, DX11Post_Set_Haze).  It lies in the ground below the level most
 	of the map stands on: full at the lowest ground, thinning to nothing PROTO_HAZE_ABOVE_MIDDLE over
 	the median height of the playable cells, never thinner than PROTO_HAZE_MIN_RISE.  The median and
@@ -325,7 +325,7 @@ static Real s_hazeLevelTop = 0.0f;
 static Real s_hazeLevelRise = PROTO_HAZE_MIN_RISE;
 static Real s_hazeLevelWater = -1.0e6f;
 
-static void pushProtoHazeFrame(void)
+static void buildProtoHazeFrame(SceneEffects::AtmosphereParameters &parameters)
 {
 	Real strength = 0.0f;
 	Real top = 0.0f;
@@ -372,20 +372,23 @@ static void pushProtoHazeFrame(void)
 
 		// Toward the sun the haze looks warmer, the more so the brighter the sun.
 		const GlobalData::TerrainLighting &objectSun = TheGlobalData->m_terrainObjectsLighting[TheGlobalData->m_timeOfDay][0];
-		const Real length = (Real)sqrt(objectSun.lightPos.x * objectSun.lightPos.x + objectSun.lightPos.y * objectSun.lightPos.y
-			+ objectSun.lightPos.z * objectSun.lightPos.z);
+		const Real length = max((Real)sqrt(objectSun.lightPos.x * objectSun.lightPos.x + objectSun.lightPos.y * objectSun.lightPos.y
+			+ objectSun.lightPos.z * objectSun.lightPos.z), 0.0001f);
 		towardSun[0] = -objectSun.lightPos.x / length;
 		towardSun[1] = -objectSun.lightPos.y / length;
 		towardSun[2] = -objectSun.lightPos.z / length;
 		const Real daylight = (0.299f * objectSun.diffuse.red + 0.587f * objectSun.diffuse.green + 0.114f * objectSun.diffuse.blue - 0.25f) / 0.5f;
 		warmth = max(min(daylight, 1.0f), 0.0f);
 	}
-	DX11Post_Set_Haze(colour, top, rise, strength, PROTO_HAZE_REACH, water, towardSun, warmth);
+	parameters.Haze[0]=top;parameters.Haze[1]=rise;parameters.Haze[2]=strength;parameters.Haze[3]=PROTO_HAZE_REACH;
+	memcpy(parameters.HazeColour,colour,sizeof(colour));parameters.HazeColour[3]=water;
+	memcpy(parameters.HazeSun,towardSun,sizeof(towardSun));parameters.HazeSun[3]=warmth;
 }
 
 // The fog the terrain draws, through the terrain's own mapping (ShroudTextureShader::set): the
 // texture starts a cell before the draw origin, a texel to a cell.  The haze and the Ambient Occlusion
 // option read it.
+#if defined(_WIN32)
 static void pushShroudFrame(void)
 {
 	W3DShroud *shroud = (TheTerrainRenderObject != NULL) ? TheTerrainRenderObject->getShroud() : NULL;
@@ -401,15 +404,16 @@ static void pushShroudFrame(void)
 		Direct3D11_Set_Haze_Shroud(NULL, wholeRect);
 	}
 }
+#endif
 
 // The Weather option's haze: the same still layer, over all the ground, in the kind's colour.
-static void pushWeatherHaze(void)
+static void buildWeatherHaze(SceneEffects::AtmosphereParameters &parameters)
 {
 	float colour[3];
 	Real strength;
 	TheSnowManager->getWeatherHaze(colour, &strength);
-	const float up[3] = { 0.0f, 0.0f, 1.0f };
-	DX11Post_Set_Haze(colour, 1.0e5f, 1.0f, strength, PROTO_HAZE_REACH, -1.0e6f, up, 0.0f);
+	memcpy(parameters.HazeColour,colour,sizeof(colour));parameters.HazeColour[3]=-1.0e6f;
+	parameters.Haze[0]=1.0e5f;parameters.Haze[1]=1;parameters.Haze[2]=strength;parameters.Haze[3]=PROTO_HAZE_REACH;
 }
 
 /* The Atmosphere option (DX11Post_Set_Atmosphere).  The horizon's colour goes by the time of day, scaled by
@@ -427,10 +431,9 @@ static const float ATMOSPHERE_HORIZON[TIME_OF_DAY_COUNT][3] = {
 	{ 0.80f, 0.58f, 0.44f },	// evening
 	{ 0.07f, 0.10f, 0.18f } };	// night
 
-static void pushAtmosphere(Bool weatherHaze)
+static IDirect3DBaseTexture9 *buildAtmosphere(SceneEffects::AtmosphereParameters &parameters,Bool weatherHaze,Bool available)
 {
-	static Bool s_on = FALSE;
-	const Bool on = TheGlobalData->m_atmosphere && !TheGlobalData->m_classicGraphics && Direct3D11_Present_Is_Enabled()
+	const Bool on = TheGlobalData->m_atmosphere && !TheGlobalData->m_classicGraphics && available
 		&& !TheGlobalData->m_drawSkyBox && !TheGlobalData->m_isometricCamera
 		&& TheTerrainRenderObject != NULL && TheTerrainRenderObject->getMap() != NULL
 		&& TheWaterRenderObj != NULL && TheWaterRenderObj->getSkyTexture() != NULL;
@@ -458,19 +461,15 @@ static void pushAtmosphere(Bool weatherHaze)
 		// The ground under the focus, at the map's lowest: a height at the focus would pulse the fade as
 		// the camera scrolled over a ridge, and reading the logic's is a read inside the overlap window.
 		WorldHeightMap *map = TheTerrainRenderObject->getMap();
-		Direct3D11_Set_Atmosphere(horizon, tint, ATMOSPHERE_START, ATMOSPHERE_SCALE, ATMOSPHERE_STRENGTH,
-			TheTerrainRenderObject->getMinHeight(),
-			(map->getXExtent() - 1 - map->getBorderSizeInline() * 2) * MAP_XY_FACTOR,
-			(map->getYExtent() - 1 - map->getBorderSizeInline() * 2) * MAP_XY_FACTOR, sky->Peek_D3D_Base_Texture());
+		memcpy(parameters.Horizon,horizon,sizeof(horizon));memcpy(parameters.Tint,tint,sizeof(tint));
+		parameters.Fade[0]=ATMOSPHERE_START;parameters.Fade[1]=ATMOSPHERE_SCALE;
+		parameters.Fade[2]=ATMOSPHERE_STRENGTH;parameters.Fade[3]=TheTerrainRenderObject->getMinHeight();
+		parameters.MapSize[0]=(map->getXExtent()-1-map->getBorderSizeInline()*2)*MAP_XY_FACTOR;
+		parameters.MapSize[1]=(map->getYExtent()-1-map->getBorderSizeInline()*2)*MAP_XY_FACTOR;
+		return sky->Peek_D3D_Base_Texture();
 	}
-	else if (s_on)
-	{
-		const float none[3] = { 0.0f, 0.0f, 0.0f };
-		DX11Post_Set_Atmosphere(none, none, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, NULL);
-	}
-	s_on = on;
+	return NULL;
 }
-#endif
 
 void W3DShaderManager::pushProtoHaze(void)
 {
@@ -480,20 +479,40 @@ void W3DShaderManager::pushProtoHaze(void)
 	// last handed.
 	const Bool weatherHaze = TheSnowManager != NULL && TheSnowManager->getWeatherKind() != WEATHER_KIND_NONE
 		&& TheSnowManager->isVisible();
-	static Bool s_hazed = FALSE;
+	SceneEffects::AtmosphereParameters parameters;
 	if (weatherHaze)
-		pushWeatherHaze();
-	else if (TheGlobalData->m_mapLight && Direct3D11_Is_Active())
-		pushProtoHazeFrame();
-	else if (s_hazed)
-	{
-		const float none[3] = { 0.0f, 0.0f, 0.0f };
-		DX11Post_Set_Haze(none, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, none, 0.0f);
-	}
-	s_hazed = weatherHaze || TheGlobalData->m_mapLight;
-	pushAtmosphere(weatherHaze);
+		buildWeatherHaze(parameters);
+	else if (TheGlobalData->m_mapLight && !TheGlobalData->m_classicGraphics && Direct3D11_Is_Active())
+		buildProtoHazeFrame(parameters);
+	DX11Post_Set_Haze(parameters.HazeColour,parameters.Haze[0],parameters.Haze[1],parameters.Haze[2],
+		parameters.Haze[3],parameters.HazeColour[3],parameters.HazeSun,parameters.HazeSun[3]);
+	IDirect3DBaseTexture9 *sky=buildAtmosphere(parameters,weatherHaze,Direct3D11_Present_Is_Enabled());
+	Direct3D11_Set_Atmosphere(parameters.Horizon,parameters.Tint,parameters.Fade[0],parameters.Fade[1],parameters.Fade[2],
+		parameters.Fade[3],parameters.MapSize[0],parameters.MapSize[1],sky);
 	if ((TheGlobalData->m_mapLight || TheGlobalData->m_ambientOcclusion || TheGlobalData->m_atmosphere || weatherHaze) && Direct3D11_Is_Active())
 		pushShroudFrame();
+#endif
+}
+
+void W3DShaderManager::renderNativeAtmosphere(void)
+{
+#if !defined(_WIN32)
+	if(TheGlobalData->m_classicGraphics||!SceneEffects::SupportsAtmosphere())return;
+	const Bool weatherHaze=TheSnowManager&&TheSnowManager->getWeatherKind()!=WEATHER_KIND_NONE&&TheSnowManager->isVisible();
+	if(!TheGlobalData->m_mapLight&&!TheGlobalData->m_atmosphere&&!weatherHaze)return;
+	SceneEffects::AtmosphereParameters parameters;
+	if(weatherHaze)buildWeatherHaze(parameters);
+	else if(TheGlobalData->m_mapLight)buildProtoHazeFrame(parameters);
+	IDirect3DBaseTexture9 *sky=buildAtmosphere(parameters,weatherHaze,TRUE);
+	W3DShroud *shroud=TheTerrainRenderObject?TheTerrainRenderObject->getShroud():NULL;
+	IDirect3DBaseTexture9 *shroudTexture=NULL;float rect[4]={};
+	if(shroud&&shroud->getShroudTexture()) {
+		shroudTexture=shroud->getShroudTexture()->Peek_D3D_Base_Texture();
+		rect[0]=shroud->getDrawOriginX()-shroud->getCellWidth();rect[1]=shroud->getDrawOriginY()-shroud->getCellHeight();
+		rect[2]=1.0f/(shroud->getCellWidth()*shroud->getTextureWidth());rect[3]=1.0f/(shroud->getCellHeight()*shroud->getTextureHeight());
+	}
+	DX8Wrapper::Flush_Deferred_D3D9_State();
+	SceneEffects::Atmosphere(DX8Wrapper::_Get_D3D_Device(),parameters,sky,shroudTexture,rect);
 #endif
 }
 

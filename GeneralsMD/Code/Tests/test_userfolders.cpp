@@ -140,6 +140,13 @@ TEST(user_data_directory_is_made_and_ends_as_windows_does)
 	CHECK_STR(registry, (wanted + "\\Registry.ini").c_str());
 	CHECK(!findRegistryFile(small, sizeof(small)));
 
+	// UIKit bootstrap runs after C++ static initialization. Reset the earlier
+	// desktop answer so every subsequent consumer uses its sandbox override.
+	resetUserDataDirectoryForStartup();
+	CHECK(findUserDataDirectory(out,sizeof(out)));
+	CHECK_STR(out,(root+"/other\\").c_str());
+	CHECK(is_directory(root+"/other"));
+
 	unsetenv("ZH_USER_DATA_DIR");
 	const std::string command = "rm -rf '" + root + "'";
 	if (system(command.c_str()) != 0) printf("  could not remove %s\n", root.c_str());

@@ -16,6 +16,14 @@ for all 44 controls, supported paths, unavailable effects and activation timing.
   boundary now calls a native SDL GPU implementation. It uses independent depth,
   half-resolution occlusion, bilateral filtering and RGB-only multiplication.
   Classic graphics, AO preferences and main-view eligibility remain respected.
+- Native ground haze, atmosphere distance fade and time-of-day sky now use shared
+  map/light parameters and independent scene depth. Hemisphere ambient and opaque
+  team-colour glow now feed the existing generated shaders. Weather, ground marks
+  and original-water splashes now use native capability checks.
+- The latest device log exposed a user-directory mismatch and a depth-format
+  fallback without stencil. Startup now reselects the configured sandbox, migrates
+  missing legacy data without overwriting Documents entries, and uses the UIKit
+  window's D24S8-first format-selection path.
 
 The options menu now queries SDL AO capability instead of disabling it with the
 Windows-only effects. Unsupported effects retain their saved preferences when
@@ -49,31 +57,29 @@ use synthetic geometry; actual maps and Metal device performance need validation
 | Feature | Source evidence | Consequence / next work |
 | --- | --- | --- |
 | Windows post-process chains | `dx11runtime_posix.cpp`: `Direct3D11_Post_Chain` returns false and finish hooks do nothing | Port desired chain stages to SDL; verify options do not imply unsupported effects are active. |
-| Modern atmosphere/ground haze | The POSIX atmosphere, haze-shroud and sky hooks are empty | The dedicated Windows effects are absent; ordinary engine fog is a separate path. |
 | Modern per-pixel lights | POSIX headlights/blast-light setters are empty; `Direct3D11_Lights_Per_Pixel` returns false | Audit these lighting options and add SDL bindings/shaders. This does not mean ordinary engine lighting is absent. |
 | General soft-particle hooks | POSIX `Set_Soft_Particles`, `Take_Scene_Depth`, `Allow_Soft_Particles` are empty | Port the ordinary particle intersection fade. SDL water/hazard-cloud depth paths are separate and already exist. |
 | GPU particle acceleration | `GpuParticlesUnsupported.cpp`: `Supported` returns false; CMake selects it for POSIX | Particles retain the CPU implementation. Check large-battle performance before choosing this as a port priority. |
 
 Do not classify every empty Direct3D 11 hook as a missing feature: native SDL water,
 hazard-cloud rendering, capture and ordinary fixed-function lighting have separate
-implementations. The new AO scene hook likewise bypasses the old empty DX11 hook.
+implementations. Native AO and atmosphere likewise bypass their old empty DX11 hooks.
 
 ## Lighting and atmosphere review
 
-Lighting and atmosphere are the next visual priority. The shared shader layout
+Lighting and atmosphere were the first visual priority. The shared shader layout
 already contains headlight, blast-light and sky fields, and the generated shader
 text includes their calculations. However, SDL's draw path zeroes those fields
 and the POSIX setters are empty. Merely enabling the menu options would therefore
 have no effect. Returning true from `Direct3D11_Lights_Per_Pixel` before wiring the
 complete path would also remove the existing vertex-light fallback.
 
-Port lighting state, draw eligibility and world reconstruction together, and
+Further per-pixel lighting work must port state, draw eligibility and world reconstruction together, and
 validate fire/explosion lights with ordinary geometry, particles and water
-reflections. Atmosphere additionally needs a native depth-aware pass and sky
-integration; `W3DShaderManager` currently builds the haze/atmosphere parameters
-inside Windows-only code. Keep these controls unavailable until their native
-paths are implemented and tested. Ordinary fixed-function lights and engine fog
-continue to work independently.
+reflections. The implemented atmosphere now has native depth/sky integration and
+shared parameter builders in `W3DShaderManager`; hemisphere/team glow have native
+state and constants. Modern Firelight/headlight/blast bindings remain unported.
+Ordinary fixed-function lights and engine fog continue to work independently.
 
 ## Lifecycle, audio and input follow-up
 

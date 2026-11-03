@@ -156,6 +156,15 @@ and reads back synthetic flat ground and a raised object when a GPU is available
 No GPU is an explicit skip, not evidence of correct pixels. Actual map appearance,
 shadow quality and frame time still require device validation.
 
+The native atmosphere pass adds ground haze, distance fade and the time-of-day sky
+at the opaque-scene boundary. It shares Windows' map/light parameter calculations,
+uses shroud attenuation, excludes reflected/custom views and preserves alpha for
+water. `[SDL_ATMOSPHERE] ready` confirms resource setup; failures disable that path
+with a reason. Hemisphere ambient and opaque team-colour glow use the existing
+generated lighting shaders. `[SDL_LIGHTING]` records the modern/hemisphere mode.
+Weather, ground marks and original-water splashes now accept native capabilities
+instead of requiring Direct3D 11; iOS snow/weather uses quads.
+
 AO accepts the main scene texture used by Glow as well as the back buffer;
 reflection/custom views remain excluded. MSAA and heat haze are unavailable in
 this renderer and their controls are disabled. See
@@ -169,3 +178,13 @@ its Windows post-process grade is not yet ported. If these choices revert after 
 restart, `[IOS_OPTIONS]` records the selected, written, loaded and active values,
 the preferences path, and any write failure. Volumetric Smoke is the sun-shadow
 smoke path; it is separate from atmosphere and the hazard-cloud style.
+Choosing a Reforged-only effect now unticks Classic for the next start without
+changing the rest of the custom settings. Accept, restart, and load a new map for
+map lighting and team-colour asset changes.
+
+Startup resets the early user-directory cache after UIKit sets its sandbox.
+Missing legacy Application Support entries move to `Documents/UserData` within
+the same container; existing Documents entries win, and legacy conflicts/links
+remain untouched. `[IOS_USER_DATA]` records migration and the selected directory.
+iOS also uses the UIKit-owned window's format-selection path, allowing D24S8-first
+selection instead of falling back from an unsupported desktop D32 request.

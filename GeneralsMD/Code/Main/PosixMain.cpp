@@ -470,6 +470,10 @@ int main( int argc, char *argv[] )
 	// installCrashHandlers caches findUserDataDirectory: choose the sandbox first.
 	if (!ZH_IOS_Bootstrap())
 		return 1;
+	resetUserDataDirectoryForStartup();
+	char sandboxData[4096];
+	if(!findUserDataDirectory(sandboxData,sizeof(sandboxData)))return 1;
+	fprintf(stderr,"[IOS_USER_DATA] selected=%s\n",sandboxData);
 	setCrashLogDescriptor( STDERR_FILENO );
 #endif
 	// Before anything else, and before another thread exists: a crash from here on leaves

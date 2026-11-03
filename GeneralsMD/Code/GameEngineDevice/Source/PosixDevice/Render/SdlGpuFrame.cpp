@@ -231,6 +231,7 @@ SdlGpuFrame::~SdlGpuFrame()
 	Release_Sun_Smoke();
 	Release_Sun_Shadow();
 	Release_Ambient_Occlusion();
+	Release_Atmosphere();
 	if (StreamBuffer != NULL) SDL_ReleaseGPUBuffer(GpuDevice, StreamBuffer);
 	for (int i = 0; i < 8; ++i) if (ClearPipelines[i] != NULL) SDL_ReleaseGPUGraphicsPipeline(GpuDevice, ClearPipelines[i]);
 	if (ClearVertex != NULL) SDL_ReleaseGPUShader(GpuDevice, ClearVertex);

@@ -117,6 +117,7 @@ public:
 	/// The Warm Light haze for this frame (levels, sun, shroud), once a frame from
 	/// W3DDisplay::draw before the views render, whatever screen filter is running.
 	static void pushProtoHaze(void);
+	static void renderNativeAtmosphere(void);
 
 	// Support routines for filter methods.
 	static Bool canRenderToTexture(void) { return (m_oldRenderSurface && m_newRenderSurface);}

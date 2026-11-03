@@ -1123,6 +1123,11 @@ static Bool rendererSupportsOption( const OptionDef& def )
 #if !defined(_WIN32)
 	// The SDL device refuses every multisample type except NONE.
 	if( strcmp( def.iniKey, "MSAA" ) == 0 ) return FALSE;
+	if( strcmp( def.iniKey, "TeamGlow" ) == 0 || strcmp( def.iniKey, "HemiAmbient" ) == 0
+		|| strcmp( def.iniKey, "GroundMarks" ) == 0 || strcmp( def.iniKey, "WaterSplashes" ) == 0 )
+		return SceneEffects::SupportsLighting();
+	if( strcmp( def.iniKey, "MapLight" ) == 0 || strcmp( def.iniKey, "Atmosphere" ) == 0 || strcmp( def.iniKey, "Weather" ) == 0 )
+		return SceneEffects::SupportsAtmosphere();
 #endif
 	if( strcmp( def.iniKey, "WaterStyle" ) == 0 ) return ModernWater::Supported();
 	if( strcmp( def.iniKey, "CloudStyle" ) == 0 ) return HazardCloud::Supported();
@@ -2579,6 +2584,11 @@ static void updateDetailNote( void )
 	// a stale Run/Window layout without the line still opens; it just says nothing
 	if( note == NULL )
 		return;
+	if( GadgetCheckBoxIsChecked(classicGraphicsCheckBox()) != TheGlobalData->m_classicGraphics )
+	{
+		GadgetStaticTextSetText(note,TheGameText->fetch("GUI:GraphicsModeRestart"));
+		return;
+	}
 
 	Int index = CUSTOMDETAIL;
 	GadgetComboBoxGetSelectedPos( comboBoxDetail, &index );
@@ -2588,6 +2598,27 @@ static void updateDetailNote( void )
 	AsciiString key;
 	key.format( "GUI:DetailNote%d", index );
 	GadgetStaticTextSetText( note, TheGameText->fetch( key ) );
+}
+
+// Choosing a Reforged-only effect requests that mode for the next start. Do not
+// apply the whole High preset: the player's other custom choices stay intact.
+static void requestReforgedModeForControl( GameWindow *control )
+{
+	GameWindow *classic=classicGraphicsCheckBox();
+	if(!control||!classic||!control->winGetEnabled()||!classic->winGetEnabled()
+		||!GadgetCheckBoxIsChecked(classic))return;
+	static const char *keys[]={"LightingStyle","VolumetricSmokeShadows","MapLight","TeamGlow","HemiAmbient",
+		"Atmosphere","AmbientOcclusion","Weather","GroundMarks","WaterSplashes","WaterStyle","CloudStyle","Firelight","InternalHdr","WaterFoam"};
+	for(Int i=0;i<TheOptionCatalogCount;++i) {
+		const OptionDef &def=TheOptionCatalog[i];
+		if(findOptionWidget(def)!=control||!rendererSupportsOption(def))continue;
+		for(const char *key:keys)if(strcmp(def.iniKey,key)==0) {
+			if(graphicsQualityShownValue(control)<=0)return;
+			const Bool previous=ignoreSelected;ignoreSelected=TRUE;
+			GadgetCheckBoxSetChecked(classic,FALSE);ignoreSelected=previous;
+			updateDetailNote();return;
+		}
+	}
 }
 
 /** A detail control was touched, so what the page shows is nobody's preset any more.  In a match the
@@ -3129,8 +3160,8 @@ void OptionsMenuInit( WindowLayout *layout, void *userData )
 	// W3DSmudgeManager explicitly refuses the feedback sampling needed by heat.
 	checkHeatEffects->winEnable(FALSE);
 	checkHeatEffects->winSetTooltip(TheGameText->fetch("TOOLTIP:GraphicsUnavailable"));
-	fprintf(stderr,"[GRAPHICS_CAPS] msaa=0 heat=0 ao=%d modern_lighting=0 atmosphere=0\n",
-		int(rendererSupportsOption(*findOptionDef("AmbientOcclusion"))));
+	fprintf(stderr,"[GRAPHICS_CAPS] msaa=0 heat=0 ao=%d model_lighting=%d atmosphere=%d\n",
+		int(rendererSupportsOption(*findOptionDef("AmbientOcclusion"))),int(SceneEffects::SupportsLighting()),int(SceneEffects::SupportsAtmosphere()));
 #endif
 
 	// A preset is its own step on the quality slider, whatever step Options.ini kept from a Custom mix,
@@ -3304,6 +3335,7 @@ WindowMsgHandledType OptionsMenuSystem( GameWindow *window, UnsignedInt msg,
 				Int controlID = control->winGetWindowId();
 				if( OptionsHotkeysSystem( msg, control, mData2 ) )
 					break;
+				requestReforgedModeForControl(control);
 
 				if (controlID == comboBoxDetailID)
 				{
@@ -3374,6 +3406,7 @@ WindowMsgHandledType OptionsMenuSystem( GameWindow *window, UnsignedInt msg,
 				}
 			if( OptionsHotkeysSystem( msg, control, mData2 ) )
 				return MSG_HANDLED;
+			requestReforgedModeForControl(control);
 
 			if( controlID == buttonBack )
 			{

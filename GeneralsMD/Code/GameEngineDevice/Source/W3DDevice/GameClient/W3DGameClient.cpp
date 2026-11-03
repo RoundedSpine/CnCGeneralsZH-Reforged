@@ -44,6 +44,8 @@
 #include "Common/ModuleFactory.h"
 #include "Common/RandomValue.h"
 #include "Common/GlobalData.h"
+#include "Platform/SceneEffects.h"
+#include "Platform/ModernWaterBuild.h"
 #include "Common/GameLOD.h"
 #include "GameClient/Drawable.h"
 #include "GameClient/GameClient.h"
@@ -205,10 +207,18 @@ void W3DGameClient::structureFell(const Coord3D *pos, Real radius)
 //-------------------------------------------------------------------------------------------------
 void W3DGameClient::splashInWater(const Coord3D *pos, Real radius)
 {
-	if (!TheGlobalData->m_waterSplashes || TheGlobalData->m_classicGraphics || TheGlobalData->m_waterStyle != 0 || !Direct3D11_Present_Is_Enabled())
+	if (!TheGlobalData->m_waterSplashes || TheGlobalData->m_classicGraphics)
 		return;
 	const Coord3D at = *pos;
 	LOGIC_AFTER_TICK( [=]() { splashInWater( &at, radius ); } );
+	// Query the render device only after entering the client boundary. An unsupported
+	// saved Modern style still renders original water and must not suppress splashes.
+	if ((TheGlobalData->m_waterStyle != 0 && ModernWater::Supported()) ||
+		!(Direct3D11_Present_Is_Enabled()
+#if !defined(_WIN32)
+		|| SceneEffects::SupportsLighting()
+#endif
+		)) return;
 
 	// any higher is a blast in the air; at or under the surface is what lands, since a shell comes down on
 	// the bed.  The surface, not the bed, is where the water shows.
