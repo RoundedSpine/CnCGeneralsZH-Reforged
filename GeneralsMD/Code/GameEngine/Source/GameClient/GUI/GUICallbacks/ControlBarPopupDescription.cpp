@@ -91,6 +91,7 @@
 #include "GameClient/MetaEvent.h"
 #include "GameClient/ControlBar.h"
 #include "GameClient/DisplayStringManager.h"
+#include "GameLogic/AI.h"
 #include "GameLogic/GameLogic.h"
 #include "GameLogic/Damage.h"
 #include "GameLogic/Module/FireWeaponWhenDeadBehavior.h"
@@ -786,6 +787,11 @@ void ControlBar::populateBuildTooltipLayout( const CommandButton *commandButton,
 			Object *selectedObject = draw ? draw->getObject() : NULL;
 			if( selectedObject )
 			{
+				// a vehicle transport's Evacuate asks where, and Alt empties it on the spot
+				// (ControlBar::processCommandUI); buildings keep EA's text
+				if( commandButton->getCommandType() == GUI_COMMAND_EVACUATE && AIGroup::unloadsWhereSent( selectedObject ) )
+					descrip = TheGameText->fetch( "CONTROLBAR:ToolTipEvacuateAt" );
+
 				//Special case: Append status of overcharge on China power plant.
 				if( commandButton->getCommandType() == GUI_COMMAND_TOGGLE_OVERCHARGE )
 				{
@@ -1153,6 +1159,12 @@ void ControlBar::populateBuildTooltipLayout( const CommandButton *commandButton,
 	{
 		if( commandButton && commandButton->getName() == "NonCommand_IdleWorker" )
 			name.concat( metaKeySuffix( GameMessage::MSG_META_SELECT_NEXT_IDLE_WORKER ) );
+		else if( commandButton && commandButton->getName() == "NonCommand_IdleInfantry" )
+			name.concat( metaKeySuffix( GameMessage::MSG_META_SELECT_NEXT_IDLE_INFANTRY ) );
+		else if( commandButton && commandButton->getName() == "NonCommand_IdleVehicle" )
+			name.concat( metaKeySuffix( GameMessage::MSG_META_SELECT_NEXT_IDLE_VEHICLE ) );
+		else if( commandButton && commandButton->getName() == "NonCommand_IdleAircraft" )
+			name.concat( metaKeySuffix( GameMessage::MSG_META_SELECT_NEXT_IDLE_AIRCRAFT ) );
 		GadgetStaticTextSetText(win, name);
 	}
 

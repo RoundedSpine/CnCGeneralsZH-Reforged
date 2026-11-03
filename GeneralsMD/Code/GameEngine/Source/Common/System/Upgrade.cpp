@@ -170,6 +170,9 @@ Int UpgradeTemplate::calcTimeToBuild( Player *player ) const
 	}
 
 	///@todo modify this by power state of player
+	const Real handicap = player->getHandicap()->getGenericHandicap( Handicap::BUILDTIME );
+	if( handicap != 1.0f )
+		return m_buildTime * LOGICFRAMES_PER_SECOND * handicap;
 	return m_buildTime * LOGICFRAMES_PER_SECOND;
 
 }  // end calcTimeToBuild
@@ -396,6 +399,19 @@ const UpgradeTemplate *UpgradeCenter::findUpgrade( const AsciiString& name ) con
 	return findUpgradeByKey( TheNameKeyGenerator->nameToKey( name ) );
 
 }  // end findUpgrade
+
+//-------------------------------------------------------------------------------------------------
+const UpgradeTemplate *UpgradeCenter::requireUpgrade( const AsciiString &name, const AsciiString &who ) const
+{
+	const UpgradeTemplate *upgrade = findUpgrade( name );
+	if( !upgrade )
+	{
+		AsciiString reason;
+		reason.format( "No upgrade named '%s' (%s)", name.str(), who.str() );
+		RELEASE_CRASH( reason.str() );
+	}
+	return upgrade;
+}
 
 //-------------------------------------------------------------------------------------------------
 /** Allocate a new upgrade template */

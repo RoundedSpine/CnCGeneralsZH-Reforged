@@ -909,8 +909,9 @@ Object *AI::findClosestEnemy( const Object *me, Real range, UnsignedInt qualifie
 	// (optional) only stuff that is significant
 	PartitionFilterInsignificantBuildings filterInsignificant(true, false);
 	
-	// (optional) only stuff clear of fog
-	PartitionFilterFreeOfFog filterFogged(me->getControllingPlayer()->getPlayerIndex());
+	// (optional) only stuff clear of fog, or for a beyond-vision shooter, tracked by its player's radar
+	PartitionFilterFreeOfFog filterFogged(me->getControllingPlayer()->getPlayerIndex(),
+		me->getTemplate()->acquiresBeyondVision() ? me->getControllingPlayer() : NULL);
 
 	PartitionFilter *filters[16];
 	Int numFilters = 0;
@@ -1382,12 +1383,26 @@ Real AI::getAdjustedVisionRangeForObject(const Object *object, Int factorsToCons
 	* with the odds at a known defence's edge.  fireMem is how long a gun it has lost sight of stays on its
 	* map, and with it the ground it covers.
 	*
-	*                      scoutS maxSc decis  cntr  mass   ttk  indiv team infl focus save harv expand guard hoard econ micro  gate  answer massU  bankS  floor payoff upgr    nonc  share backlog push   minPow  siege  beam  strikeE strikeT swDef                     stall  lost retry  stage  spot arty    inflS fireLook word   odds   fireMem  watch watchOdds dodge */
+	* 2ndS, 2nd and reach, 2026-11-02.  The owner: "botlar expanding yapabilsinler, haritanin her yerine
+	* bina kurmakta ozgurler, ikinci ussu falan atabilirler".  The AI kept one base and took docks within
+	* 2,000 of it on its own side of the map.  2ndS is how far into the match it founds a base away from
+	* home, a war factory on a start position nobody started on that then gets power, guns and a supply
+	* centre of its own (AIPlayer::doSecondBase); 2nd is how many empty starts it claims, nearest first.
+	* reach is how far a dock may be from home, or from one of those bases, for a supply centre of its own
+	* choosing, and a dock beside one of those bases is not held to the side-of-map test.  Easy founds one
+	* late, at twenty minutes, so it is rare; Medium two from twelve; Hard every empty start from seven.
+	*
+	* inc%, 2026-11-02.  The owner: 1.5x on everything a skirmish AI earns by playing, the same on every
+	* rung, in place of the flat double it had, and up to 150 points more while it falls behind its
+	* strongest enemy (AIPlayer::stepIncomeBonus).  Player::earnMoney and earnIncome bank it; the score
+	* screen and its charts count the money before the bonus.
+	*
+	*                      scoutS maxSc decis  cntr  mass   ttk  indiv team infl focus save harv expand guard hoard econ micro  gate  answer massU  bankS  floor payoff upgr    nonc  share backlog push   minPow  siege  beam  strikeE strikeT swDef                     stall  lost retry  stage  spot arty    inflS fireLook word   odds   fireMem  watch watchOdds dodge  2ndS  2nd  reach    inc% */
 static const AIDifficultyProfile s_defaultSkillLadder[ AISKILL_COUNT ] =
 {
-	/* Easy      */ { 75.0f, 1,  7.0f,  0.00f, FALSE, 0.00f, FALSE, FALSE, FALSE, FALSE, FALSE, TRUE,  FALSE, FALSE,     0, FALSE, FALSE, FALSE, FALSE, FALSE, 120.0f, 6000, 4.0f, 720.0f, 0.05f, 0.05f,  90.0f, 360.0f, 1500.0f,  80.0f, 0.00f, 0.0f, 2.0f, 3,                        300.0f, 3, 300.0f, FALSE, 1, 1.00f, 4.0f, 3.00f,   0.0f, 0.60f, 10.0f, 16.0f, 1.0f, 3.25f },
-	/* Medium    */ { 45.0f, 1,  3.0f,  0.50f, FALSE, 0.35f, TRUE,  FALSE, FALSE, TRUE,  TRUE,  TRUE,  TRUE,  FALSE,  6000, FALSE, FALSE, FALSE, FALSE, FALSE,  60.0f, 5000, 2.5f, 420.0f, 0.05f, 0.25f,  75.0f, 300.0f, 2000.0f, 120.0f, 1.00f, 2.0f, 1.0f, 6,                        240.0f, 2, 240.0f, TRUE,  1, 0.50f, 2.0f, 1.00f, 150.0f, 0.80f, 20.0f,  6.0f, 1.5f, 1.50f },
-	/* Hard      */ { 25.0f, 2,  1.5f,  1.00f, TRUE,  0.50f, TRUE,  TRUE,  TRUE,  TRUE,  TRUE,  TRUE,  TRUE,  TRUE,   4000, TRUE,  TRUE,  TRUE,  TRUE,  FALSE,  30.0f, 4000, 1.5f, 180.0f, 0.05f, 1.00f,  45.0f, 240.0f, 4500.0f, 160.0f, 0.25f, 3.0f, 0.0f, DEFENSES_PER_SUPERWEAPON, 180.0f, 2, 180.0f, TRUE,  2, 0.25f, 1.0f, 0.33f, 300.0f, 1.00f, 40.0f,  2.0f, 2.0f, 0.33f }
+	/* Easy      */ { 75.0f, 1,  7.0f,  0.00f, FALSE, 0.00f, FALSE, FALSE, FALSE, FALSE, FALSE, TRUE,  FALSE, FALSE,     0, FALSE, FALSE, FALSE, FALSE, FALSE, 120.0f, 6000, 4.0f, 720.0f, 0.05f, 0.05f,  90.0f, 360.0f, 1500.0f,  80.0f, 0.00f, 0.0f, 2.0f, 3,                        300.0f, 3, 300.0f, FALSE, 1, 1.00f, 4.0f, 3.00f,   0.0f, 0.60f, 10.0f, 16.0f, 1.0f, 3.25f, 1200.0f, 1, 2000.0f, 150 },
+	/* Medium    */ { 45.0f, 1,  3.0f,  0.50f, FALSE, 0.35f, TRUE,  FALSE, FALSE, TRUE,  TRUE,  TRUE,  TRUE,  FALSE,  6000, FALSE, FALSE, FALSE, FALSE, FALSE,  60.0f, 5000, 2.5f, 420.0f, 0.05f, 0.25f,  75.0f, 300.0f, 2000.0f, 120.0f, 1.00f, 2.0f, 1.0f, 6,                        240.0f, 2, 240.0f, TRUE,  1, 0.50f, 2.0f, 1.00f, 150.0f, 0.80f, 20.0f,  6.0f, 1.5f, 1.50f,  720.0f, 2, 2500.0f, 150 },
+	/* Hard      */ { 25.0f, 2,  1.5f,  1.00f, TRUE,  0.50f, TRUE,  TRUE,  TRUE,  TRUE,  TRUE,  TRUE,  TRUE,  TRUE,   4000, TRUE,  TRUE,  TRUE,  TRUE,  FALSE,  30.0f, 4000, 1.5f, 180.0f, 0.05f, 1.00f,  45.0f, 240.0f, 4500.0f, 160.0f, 0.25f, 3.0f, 0.0f, DEFENSES_PER_SUPERWEAPON, 180.0f, 2, 180.0f, TRUE,  2, 0.25f, 1.0f, 0.33f, 300.0f, 1.00f, 40.0f,  2.0f, 2.0f, 0.33f,  420.0f, MAX_PLAYER_COUNT, 4000.0f, 150 }
 };
 
 //-------------------------------------------------------------------------------------------------
@@ -2488,6 +2503,10 @@ void AI::parseSkillLevel(INI *ini, void *instance, void* /*store*/, const void* 
 		{ "BaseWatchSeconds",					INI::parseReal, NULL, offsetof( AIDifficultyProfile, m_baseWatchSeconds ) },
 		{ "BaseWatchOdds",						INI::parseReal, NULL, offsetof( AIDifficultyProfile, m_baseWatchOdds ) },
 		{ "StrikeDodgeSeconds",				INI::parseReal, NULL, offsetof( AIDifficultyProfile, m_strikeDodgeSeconds ) },
+		{ "SecondBaseSeconds",				INI::parseReal, NULL, offsetof( AIDifficultyProfile, m_secondBaseSeconds ) },
+		{ "SecondBases",							INI::parseInt,  NULL, offsetof( AIDifficultyProfile, m_secondBases ) },
+		{ "ExpansionReach",						INI::parseReal, NULL, offsetof( AIDifficultyProfile, m_expansionReach ) },
+		{ "IncomePercent",						INI::parseInt,  NULL, offsetof( AIDifficultyProfile, m_incomePercent ) },
 		{ NULL, NULL, NULL, 0 }
 	};
 

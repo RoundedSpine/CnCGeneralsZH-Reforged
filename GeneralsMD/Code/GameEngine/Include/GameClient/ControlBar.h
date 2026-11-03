@@ -525,22 +525,10 @@ enum
 	* only one of Zero Hour's with a slot past 14, is laid out on its own screen and never counts. */
 Bool ControlBar_needsWideCommandGrid( const Int *types, Int count );
 
-/** Slot 12 (0-based 11) when the set already has Attack Move and that hole is empty: left of Stop,
-	* under Attack Move. An object ControlBar_forceFires names takes 12 too, or 11 above it when 12 is
-	* taken (Gattling Cannon's mines, Stinger Site's camo net, Fire Base's Sell). -1 when neither
-	* applies, or the place is used (China CC mines, a Tunnel Network's full bar). */
-Int ControlBar_forceAttackSlot( const Int *types, Int count, Bool forceFires );
-
-/** Whether Force Attack belongs on a bar without Attack Move. A base defence (FS_BASE_DEFENSE) with its
-	* own gun (CAN_ATTACK: Patriot, Gattling Cannon, Fire Base, Tunnel Network), soldiers for a gun
-	* (SPAWNS_ARE_THE_WEAPONS: Stinger Site) or a garrison that shoots out (GARRISONABLE_UNTIL_DESTROYED:
-	* Bunker), and a transport whose riders shoot (TRANSPORT with CAN_ATTACK: Combat Chinook; the
-	* plain Chinook lacks CAN_ATTACK). A Speaker Tower is none of them. The launcher's Hotkeys page
-	* reads KindOf the same way. */
-Bool ControlBar_forceFires( const Object *obj );
-/// The same asked of a template, for the options menu's Hotkeys page, which has no object to ask.
-Bool ControlBar_forceFires( const ThingTemplate *thing );
-
+/** Whether the bar uses its window for `slot`.  spareWindows: our layout's 15 to 18 stand hidden past
+	* the plate, which a mod's own ControlBar.wnd does not do; wide: ControlBar::isCommandGridWide.  Our
+	* narrow bar is the only one that leaves windows out. */
+Bool ControlBar_usesCommandWindow( Int slot, Bool spareWindows, Bool wide );
 
 /** The page's keys past attack, hold position and move, which no command set has a button for either. */
 enum OrderKeyExtra
@@ -1016,9 +1004,11 @@ public:
 	const Image *getStarImage( void );
 
 	Color getBorderColor( void ){return m_commandBarBorderColor;}
-	/// the two button border colours the bar itself uses, so anything drawn outside it can match
+	/// the button border colours the bar itself uses, so anything drawn outside it can match
 	Color getBuildBorderColor( void ){return m_commandButtonBorderBuildColor;}
 	Color getUpgradeBorderColor( void ){return m_commandButtonBorderUpgradeColor;}
+	Color getActionBorderColor( void ){return m_commandButtonBorderActionColor;}
+	Color getSystemBorderColor( void ){return m_commandButtonBorderSystemColor;}
 	void updateBorderColor( Color color) {m_commandBarBorderColor = color;	}
 
 	/// set the command data into the button
@@ -1072,6 +1062,9 @@ public:
 		* is the layout: the grid is then nine columns, one more at each end of the plate, and the
 		* scheme draws its painting's <name>Wide copy.  Fixed when the windows are looked up. */
 	Bool isCommandGridWide( void ) const { return m_commandGridWide; }
+
+	/// Whether command set slot `slot` has a window on this bar, for what lays a set out without an object.
+	Bool hasCommandWindow( Int slot ) const { return m_commandWindows[ slot ] != NULL; }
 
 	/// top edge of the highest visible window the bar owns, and where MoneyDisplay is; see -uidrill
 	void forEachPlacedWindow( Int *topOut, Int *moneyOut );
@@ -1204,6 +1197,29 @@ protected:
 	void updateSpecialPowerShortcut( void );
 	void arrangeSpecialPowerShortcutGrid( void );	///< re-lay the layout's single column as rows of SPECIAL_POWER_SHORTCUT_COLS
 	Int countVisibleSpecialPowerShortcuts( void );	///< how many slots carry a power right now, which is not the command set's size
+	UnsignedInt visibleSpecialPowerShortcutMask( void );	///< the slots showing a power, one bit a slot
+	void rearrangeSpecialPowerShortcutGrid( void );	///< arrangeSpecialPowerShortcutGrid when the slots shown or the scheme's pieces changed
+	static const UnsignedInt TRAY_NOT_LAID_OUT = 0xFFFFFFFFu;	///< no mask of MAX_SPECIAL_POWER_SHORTCUTS bits is this
+	UnsignedInt m_trayLaidOutMask;								///< the slots arrangeSpecialPowerShortcutGrid stepped the tray for
+	const Image *const *m_trayLaidOutFor;				///< and the scheme pieces it used, NULL for the shipped column
+	Bool m_trayFramePlaced;												///< the frame stands at the stepped tray's box for this layout
+	enum { POWER_TRAY_FOOT_Y = 790 };							///< at 1080, where the tray stands: the top of the general's tab
+	void powerTrayMetrics( const Image *const *tray, ICoord2D *origin, ICoord2D *cell,
+												 Int *left, Int *top, Int *foot, Int *bottom );	///< see arrangeSpecialPowerShortcutGrid
+
+	void fitRadarToMap( Bool fromLayout );				///< the radar window, its frame and its blocker take the map's shape; see layoutPanels
+	Real m_radarFitWidth, m_radarFitHeight;				///< the map extent fitRadarToMap last fitted to
+	/// the observer's player column (its list, the watched player's panel, Options and Chat) stands
+	/// against the frame's right edge, so it is fitted with the radar
+	enum { RADAR_FIT_RADAR, RADAR_FIT_BLOCK, RADAR_FIT_LAMP, RADAR_FIT_LIST, RADAR_FIT_INFO, RADAR_FIT_OPTIONS,
+				 RADAR_FIT_CHAT, RADAR_FIT_COUNT, RADAR_FIT_COLUMN_FIRST = RADAR_FIT_LIST };
+	IRegion2D m_radarFitBox[ RADAR_FIT_COUNT ];		///< where layoutPanels put each, against the bar's frame
+	Int m_radarColumnShift;												///< how far the column stands left of where the square map has it
+public:
+	/// drawPainting moves the left piece of the painting, the column's plate, by as much
+	Int getRadarColumnShift( void ) const { return m_radarColumnShift; }
+protected:
+	void showIdleButtons( Bool show );						///< the idle worker, infantry, vehicle and aircraft buttons, hidden while watching
 
 	/** Where a key lands: the command slot at grid place `place`, or SLOT_NOTHING; and the tray slot
 		a shortcut key reaches with its row as it stands.  The press calls and the peek calls both go
@@ -1293,7 +1309,22 @@ protected:
 	WindowLayout *m_specialPowerLayout;
 	GameWindow *m_specialPowerShortcutParent;
 
+public:
+	/** Where one slot of the stepped tray draws its plate, in its own window's pixels: the cell
+		* under the power, and the thickness of each edge the tray's outline runs along it (0 where a
+		* neighbour stands).  stepRight is how much of the top edge the step above takes off its outer
+		* end; stepBelow how much of the left edge the step at its foot takes. */
+	struct TraySlot
+	{
+		IRegion2D cell;
+		Int edgeLeft, edgeTop, edgeBottom;
+		Int stepRight, stepBelow;
+	};
+protected:
+	TraySlot m_traySlot[ MAX_SPECIAL_POWER_SHORTCUTS ];
+
 	GameWindow *m_commandWindows[ MAX_COMMANDS_PER_SET ];			///< command window controls for easy access
+	Int m_commandUpgradeRank[ MAX_COMMANDS_PER_SET ];					///< each window's upgradeRank on the bar populateCommand last filled (HotKeyManager::playerButtonKey)
 
 
 	/** A player upgrade is researched once, so it goes to exactly one of the selected buildings -

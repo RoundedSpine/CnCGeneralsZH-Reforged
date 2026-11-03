@@ -141,6 +141,7 @@
 #include "GameNetwork/LANAPICallbacks.h"
 #include "GameNetwork/NetworkUtil.h"
 #include "GameNetwork/GameSpy/GameResultsThread.h"
+#include "GameNetwork/GeneralsOnline/OnlineBridge.h"
 
 #include "Common/version.h"
 
@@ -783,6 +784,7 @@ static void startAutoSkirmish( Int numPlayersWanted )
 		if (TheGlobalData->m_autoSkirmishTeam[ i ] != AUTO_SKIRMISH_TEAM_UNSET)
 			teamNumber = TheGlobalData->m_autoSkirmishTeam[ i ];
 		slot.setTeamNumber( teamNumber );
+		slot.setHandicap( TheGlobalData->m_autoSkirmishHandicap[ i ] );
 		TheSkirmishGameInfo->setSlot( i, slot );
 	}
 	TheSkirmishGameInfo->setLocalIP( TheSkirmishGameInfo->getSlot(0)->getIP() );
@@ -1151,6 +1153,8 @@ void GameEngine::init( int argc, char *argv[] )
 		// New sciences only: a name EA already defined stops the load
 		ini.load( AsciiString( "Data\\INI\\ScienceReforged.ini" ), INI_LOAD_MULTIFILE, &xferCRC );
 		initSubsystem(TheMultiplayerSettings,"TheMultiplayerSettings", MSGNEW("GameEngineSubsystem") MultiplayerSettings(), &xferCRC, "Data\\INI\\Default\\Multiplayer.ini", "Data\\INI\\Multiplayer.ini");
+		// The fork's player colours, after EA's eight (or a mod's own list)
+		ini.load( AsciiString( "Data\\INI\\MultiplayerReforged.ini" ), INI_LOAD_OVERWRITE, &xferCRC );
 		initSubsystem(TheTerrainTypes,"TheTerrainTypes", MSGNEW("GameEngineSubsystem") TerrainTypeCollection(), &xferCRC, "Data\\INI\\Default\\Terrain.ini", "Data\\INI\\Terrain.ini");
 		initSubsystem(TheTerrainRoads,"TheTerrainRoads", MSGNEW("GameEngineSubsystem") TerrainRoadCollection(), &xferCRC, "Data\\INI\\Default\\Roads.ini", "Data\\INI\\Roads.ini");
 		initSubsystem(TheGlobalLanguageData,"TheGlobalLanguageData",MSGNEW("GameEngineSubsystem") GlobalLanguage, NULL); // must be before the game text
@@ -3206,6 +3210,10 @@ void GameEngine::update( void )
 			// planOverlappedTick ran these two in front of the draw on a pass that may overlap
 			if (!s_passPlanned)
 				TheMessageStream->propagateMessages();
+
+#ifdef ZH_ONLINE
+			OnlineBridge_Tick();
+#endif
 
 			if (TheNetwork != NULL && !s_passPlanned)
 			{

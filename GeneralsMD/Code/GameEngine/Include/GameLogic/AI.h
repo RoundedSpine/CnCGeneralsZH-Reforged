@@ -144,9 +144,11 @@ public:
 /** Three rungs of how well the AI plays.  Deliberately NOT GameDifficulty, which carries the same
 	* three values for a different reason: that enum answers "which scripts run" and is baked into
 	* every shipped map and .scb, into the campaign's stat bonus tables and into network messages.
-	* This one answers "how well does it play", and every rung of it plays by the player's rules - no
-	* income, build-rate, vision or stat handicap at any level, in either direction.  Keeping it a
-	* separate enum is what lets a rung be tuned in AI.ini without touching what a map's scripts do.
+	* This one answers "how well does it play".  No rung has a build-rate, vision or stat handicap, in
+	* either direction.  Income is the one bonus: a skirmish AI banks its rung's IncomePercent of what it
+	* earns by playing (Player::earnMoney), 150 on every rung and up to 300 while it falls behind its
+	* strongest enemy (AIPlayer::stepIncomeBonus).  Keeping it a separate enum is what lets a rung be
+	* tuned in AI.ini without touching what a map's scripts do.
 	* See AI-ROADMAP.md sections D6, D7 and D10.
 	*/
 //-------------------------------------------------------------------------------------------------
@@ -215,9 +217,10 @@ AIPersonality aiPersonalityFromName( const char *name );
 /** One rung of the ladder.  Every new AI behaviour adds a field here rather than a
 	* switch(difficulty) somewhere, so the whole ladder can be read, tuned and measured in one place.
 	*
-	* Nothing in here may exceed the AI's honest baseline - the top rung IS the baseline and the
-	* lower rungs are handicaps on its *decisions*.  If a field ever appears that multiplies income,
-	* build rate, vision or unit stats, the design has drifted. */
+	* Nothing in here may exceed the AI's baseline - the top rung IS the baseline and the lower rungs
+	* are handicaps on its *decisions*.  m_incomePercent is the one exception, the owner's call of
+	* 2026-11-02.  If another field ever appears that multiplies income, build rate, vision or unit
+	* stats per rung, the design has drifted. */
 //-------------------------------------------------------------------------------------------------
 struct AIDifficultyProfile
 {
@@ -295,6 +298,14 @@ struct AIDifficultyProfile
 
 	// A superweapon going up, the word every seat hears (AIPlayer::dodgeStrike)
 	Real	m_strikeDodgeSeconds;						///< how long after that word its helicopters leave where they stand; 0 = they stay
+
+	// Taking more of the map (AIPlayer::doSecondBase, AIPlayer::findSupplyCenter)
+	Real	m_secondBaseSeconds;						///< no base away from home before this far into the match; 0 = never
+	Int		m_secondBases;									///< how many empty start positions it founds a base on, nearest first
+	Real	m_expansionReach;								///< how far from home, or from one of those bases, a supply center of its own choosing may go
+
+	// Income: the one bonus on the ladder (Player::incomePercent)
+	Int		m_incomePercent;								///< what a skirmish AI banks of what it earns by playing, in percent, before the falling-behind bonus; the score screen counts the 100
 };
 
 //-------------------------------------------------------------------------------------------------
@@ -334,6 +345,7 @@ struct AIKnownGun
 	Real m_y;
 	Real m_reach;
 	Real m_airReach;		///< 0 for a gun that cannot aim at a helicopter
+	ObjectID m_id;
 };
 
 //-------------------------------------------------------------------------------------------------
@@ -835,6 +847,14 @@ static const UnsignedInt AI_COOP_JOIN_FRAMES = 120 * LOGICFRAMES_PER_SECOND;
 void aiPostTeamRequest( Player *from, AITeamRequestKind kind, Int enemy, const Coord3D *pos );
 /** The enemy of this player's who owns what stands nearest pos, -1 for none within reach. */
 Int aiEnemyNear( const Player *of, const Coord3D *pos );
+/** The nearest of this player's own buildings that mends this unit, a repair pad for a vehicle, an
+	* airfield for an aircraft, a heal pad for infantry, or NULL.  A unit at full health has none. */
+Object *aiFindMender( Player *player, Object *unit, CommandSourceType cmdSource );
+/** The building within radius of center a soldier goes for next, or NULL: the one nearest center that
+	* is not in tried, that a player's order may enter, and that has a seat left after the owner's other
+	* men walking to it.  A building its owner has neither in sight nor remembers is left out, so nothing
+	* he has not seen decides the search. */
+Object *aiFindFreeGarrison( Object *unit, const Coord3D *center, Real radius, const std::vector<ObjectID> &tried );
 
 /** A skirmish AI's purchase queue, on every rung with a bank target.  Every spender asks it before it pays, with a stable key (a
 	* template id), the price, its score and whether the thing could start right now (an idle factory,
@@ -884,6 +904,12 @@ const UnsignedInt AI_PURCHASE_HOLD_FRAMES = 40 * LOGICFRAMES_PER_SECOND;
 
 /** How long a stretch of income is measured over before the rate is taken again. */
 const UnsignedInt AI_INCOME_WINDOW_FRAMES = 30 * LOGICFRAMES_PER_SECOND;
+
+/** The falling-behind income bonus (AIPlayer::stepIncomeBonus): how often it is weighed again, how far
+	* it moves at one weighing, and its ceiling over the rung's IncomePercent, in percentage points. */
+const UnsignedInt AI_INCOME_BONUS_FRAMES = 30 * LOGICFRAMES_PER_SECOND;
+const Int AI_INCOME_BONUS_STEP = 25;
+const Int AI_INCOME_BONUS_MAX = 150;
 
 /** The bank a computer player keeps: seconds of its income, and never under the floor. */
 Int aiBankTarget( Real incomePerSecond, Real seconds, Int floor );
@@ -1791,7 +1817,8 @@ public:
 	void groupEnter( Object *obj, CommandSourceType cmdSource );							///< enter the given object
 	void groupDock( Object *obj, CommandSourceType cmdSource );							///< get near given object and wait for enter clearance
 	void groupExit( Object *objectToExit, CommandSourceType cmdSource );			///< get out of this Object
-	void groupEvacuate( CommandSourceType cmdSource );												///< empty its contents
+	void groupEvacuate( CommandSourceType cmdSource, const Coord3D *at = NULL );			///< empty its contents; vehicle transports go to at first
+	static Bool unloadsWhereSent( const Object *obj );												///< a vehicle transport: Evacuate asks for a spot
 	void groupExecuteRailedTransport( CommandSourceType cmdSource );					///< execute railed transport events
 	void groupGoProne( const DamageInfo *damageInfo, CommandSourceType cmdSource );												///< life altering state change, if this AI can do it
 	void groupGuardPosition( const Coord3D *pos, GuardMode guardMode, CommandSourceType cmdSource );						///< guard the given spot

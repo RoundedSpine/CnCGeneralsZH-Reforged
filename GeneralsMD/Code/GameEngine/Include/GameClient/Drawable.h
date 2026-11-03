@@ -942,14 +942,6 @@ private:
 	//Perhaps we can move this out of Drawable???
 public:
 	static void killStaticImages();
-	/// one rank insignia of the thing's side (RankLadder::insigniaIndex), at `scale` times its health bar
-	/// size; FALSE when there is none. `centred` puts its middle on `x`.
-	static Bool drawRankInsignia( const ThingTemplate *thing, Int insignia, Int x, Int top, Bool centred, Real scale, Color color );
-	static const Image *getRankInsignia( const ThingTemplate *thing, Int insignia );	///< NULL: none drawn
-	static const Image *getRankInsignia( const Object *obj );	///< what obj wears now; NULL at grade 0 and for anything that cannot climb
-	/// its health bar size: DisplayHeight high (12 when unset), width following up to 1.5 times the height, all times `scale`
-	static void rankInsigniaSize( const Image *image, Real scale, Int *width, Int *height );
-
 #ifdef DIRTY_CONDITION_FLAGS
 	// only for StDrawableDirtyStuffLocker!
 	static void friend_lockDirtyStuffForIteration();
@@ -972,6 +964,7 @@ private:
 	void drawEmoticon( const IRegion2D* healthBarRegion );
 	void drawHealthBar( const IRegion2D* healthBarRegion );					///< draw heath bar
 	void drawCaptureProgress( void );																///< the clock under the health bar of the building this one is taking
+	void drawAltitudeLine( void );																	///< the line from an aircraft in the air down to the ground under it
 	void drawHealing( const IRegion2D* healthBarRegion );						///< draw icons
 	void drawEnthusiastic( const IRegion2D* healthBarRegin );				///< draw icons
 #ifdef ALLOW_DEMORALIZE

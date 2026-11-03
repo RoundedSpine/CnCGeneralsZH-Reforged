@@ -64,6 +64,7 @@
 #include "GameClient/GameWindowManager.h"
 #include "GameClient/GameText.h"
 #include "GameClient/ParticleSys.h"
+#include "GameClient/RadarContactMarks.h"
 #include "GameClient/GUICallbacks.h"
 #include "GameClient/KeyDefs.h"
 #include "GameClient/ObserverCamera.h"
@@ -562,7 +563,16 @@ void pickAndPlayUnitVoiceResponse( const DrawableList *list, GameMessage::Type m
 				objectWithSound = obj;
 				skip = true;
 				break;
-			
+
+			case GameMessage::MSG_DO_AUTO_GARRISON:
+				if( obj->isKindOf( KINDOF_INFANTRY ) )
+				{
+					soundToPlayPtr = templ->getPerUnitSound( "VoiceGarrison" );
+					objectWithSound = obj;
+					skip = true;
+				}
+				break;
+
 			case GameMessage::MSG_DO_MOVETO:
 			case GameMessage::MSG_DO_ATTACKMOVETO:
 			case GameMessage::MSG_GET_REPAIRED:
@@ -1207,9 +1217,13 @@ GameMessage::Type CommandTranslator::issueAttackCommand( Drawable *target,
 	// only make sounds if the command was for real
 	if( commandType == DO_COMMAND )
 	{
+		// a target in the fog, a radar contact, gets the ground line from whoever answers first: the air
+		// line, or the pick of a unit that can reach it, would say what the radar has not shown.  The
+		// drawable's own flag, set by the client's shroud pass, not a shroud read beside a tick
+		const Bool hidden = target->getFullyObscuredByShroud();
 		PickAndPlayInfo info;
-		info.m_air = targetObj->isUsingAirborneLocomotor();
-		info.m_drawTarget = target;
+		info.m_air = !hidden && targetObj->isUsingAirborneLocomotor();
+		info.m_drawTarget = hidden ? NULL : target;
 		pickAndPlayUnitVoiceResponse( TheInGameUI->getAllSelectedDrawables(), msgType, &info );
 	}  // end if
 
@@ -1597,10 +1611,37 @@ void CommandTranslator::finishFormationDrag( const ICoord2D& lift )
 		pickAndPlayUnitVoiceResponse( selected, GameMessage::MSG_DO_MOVETO );
 }
 
+//-------------------------------------------------------------------------------------------------
+/** The radar contact whose ring a click at pos lands on, or NULL.  The contact is hidden in the fog,
+	* so whether it can be attacked is decided from the selection alone: anything selected that can
+	* shoot at all gets the same attack on every ring.  Asking about the contact itself - in range, air
+	* or ground, hijackable - would tell the player what they cannot see.  A unit that cannot hit it
+	* takes the order and holds its fire, as in retail. */
+//-------------------------------------------------------------------------------------------------
+static Object *pickRadarContact( const Coord3D *pos )
+{
+	if( TheInGameUI->getGUICommand() || TheInGameUI->isInForceMoveToMode() || TheInGameUI->isLineOrderArmed()
+			|| !TheInGameUI->areSelectedObjectsControllable() )
+		return NULL;
 
+	const DrawableList *selected = TheInGameUI->getAllSelectedDrawables();
+	for( DrawableListCIt it = selected->begin(); it != selected->end(); ++it )
+	{
+		const Object *obj = (*it)->getObject();
+		// a dozer's only weapon clears mines, and a contact is never one
+		if( obj->isKindOf( KINDOF_DOZER ) || !obj->isAbleToAttack() )
+			continue;
+		for( Int i = 0; i < WEAPONSLOT_COUNT; i++ )
+		{
+			if( obj->getWeaponInWeaponSlotCommandSourceMask( (WeaponSlotType)i ) )
+				return TheGameLogic->findObjectByID( RadarContactMarks_pick( *pos ) );
+		}
+	}
+	return NULL;
+}
 
 //-------------------------------------------------------------------------------------------------
-GameMessage::Type CommandTranslator::evaluateForceAttack( Drawable *draw, const Coord3D *pos, CommandEvaluateType type )
+GameMessage::Type CommandTranslator::evaluateForceAttack(Drawable *draw, const Coord3D *pos, CommandEvaluateType type )
 {
 	// evaluateForceAttack is used to determine whether or not we can force attack the 
 	// given target, and if we can, to issue the appropriate command.
@@ -1613,15 +1654,27 @@ GameMessage::Type CommandTranslator::evaluateForceAttack( Drawable *draw, const 
 
 	const DrawableList *allSelected = TheInGameUI->getAllSelectedDrawables();
 
-	if( draw ) 
+	// the attack key over a radar contact's ring fires on the contact, decided as a plain click on it is
+	Bool ringPick = FALSE;
+	if( !draw )
+	{
+		Object *contact = pickRadarContact( pos );
+		if( contact )
+		{
+			draw = contact->getDrawable();
+			ringPick = TRUE;
+		}
+	}
+
+	if( draw )
 	{
 		Object *obj = draw ? draw->getObject() : NULL;
-		if( !obj ) 
+		if( !obj )
 		{
 			return retVal;
 		}
 
-		CanAttackResult result = canAnyForceAttack( allSelected, obj, pos );
+		CanAttackResult result = ringPick ? ATTACKRESULT_POSSIBLE : canAnyForceAttack( allSelected, obj, pos );
 
 		if( result == ATTACKRESULT_POSSIBLE || result == ATTACKRESULT_POSSIBLE_AFTER_MOVING )
 		{
@@ -1732,7 +1785,26 @@ GameMessage::Type CommandTranslator::evaluateContextCommand( Drawable *draw,
 		// if there is a location to which we should attack.
 		drawableInWay = draw;
 	}
-	
+
+	// A plain click on a radar contact's ring is an attack on the unit the radar painted, hidden in the
+	// fog as it is.  It skips every branch below, since each of them reads the target; the hint carries
+	// no id and the cursor reads the drawable under the mouse, never this one.
+	if( obj == NULL )
+	{
+		Object *contact = pickRadarContact( pos );
+		if( contact )
+		{
+			if( type == DO_HINT )
+			{
+				TheMessageStream->appendMessage( GameMessage::MSG_DO_ATTACK_OBJECT_HINT );
+				return GameMessage::MSG_DO_ATTACK_OBJECT_HINT;
+			}
+			if( TheInGameUI->isInWaypointMode() && type == DO_COMMAND )
+				TheInGameUI->markNextOrderQueued( ORDER_QUEUE_APPEND );
+			return issueAttackCommand( contact->getDrawable(), type );
+		}
+	}
+
 	GameMessage::Type msgType = GameMessage::MSG_INVALID;
 
 	// Then we should determine if the game currently prefers selection events. If it does, then return
@@ -1816,6 +1888,15 @@ GameMessage::Type CommandTranslator::evaluateContextCommand( Drawable *draw,
 						}	
 						break;
 				}
+			}
+
+			// Combat Drop ropes down onto any ground: a unit, or a building nobody can rope into, under
+			// the cursor leaves the drop on the ground there instead of refusing the click
+			if( obj && command->getCommandType() == GUI_COMMAND_COMBATDROP && BitTest( command->getOptions(), NEED_TARGET_POS )
+					&& !TheInGameUI->canSelectedObjectsDoAction( InGameUI::ACTIONTYPE_COMBATDROP_INTO, obj, InGameUI::SELECTION_ANY ) )
+			{
+				draw = NULL;
+				obj = NULL;
 			}
 
 			Bool currentlyValid = FALSE;
@@ -2933,8 +3014,8 @@ GameMessageDisposition CommandTranslator::translateGameMessage(const GameMessage
 		//-----------------------------------------------------------------------------------------
 		case GameMessage::MSG_META_SELECT_NEXT_IDLE_WORKER:
 		{
-			// same list the control bar's idle-worker button cycles; when every dozer and worker
-			// has a job the list is empty and selectNextIdleWorker returns without doing anything.
+			// the same walk the control bar's idle-worker button lights from and cycles; when every
+			// dozer and worker has a job selectNextIdleWorker finds none and does nothing.
 			TheInGameUI->selectNextIdleWorker();
 
 			disp = DESTROY_MESSAGE;
@@ -2951,15 +3032,7 @@ GameMessageDisposition CommandTranslator::translateGameMessage(const GameMessage
 			// mass-selectable or off-map test.
 			KindOfMaskType mustBeSet;
 			KindOfMaskType mustBeClear;
-			if( t == GameMessage::MSG_META_SELECT_NEXT_IDLE_AIRCRAFT )
-				mustBeSet.set( KINDOF_AIRCRAFT );
-			else if( t == GameMessage::MSG_META_SELECT_NEXT_IDLE_VEHICLE )
-			{
-				mustBeSet.set( KINDOF_VEHICLE );
-				mustBeClear.set( KINDOF_AIRCRAFT );
-			}
-			else if( t == GameMessage::MSG_META_SELECT_NEXT_IDLE_INFANTRY )
-				mustBeSet.set( KINDOF_INFANTRY );
+			InGameUI::idleUnitKinds( t, &mustBeSet, &mustBeClear );
 
 			TheInGameUI->selectNextIdleUnit( mustBeSet, mustBeClear );
 
@@ -2986,7 +3059,11 @@ GameMessageDisposition CommandTranslator::translateGameMessage(const GameMessage
 		case GameMessage::MSG_META_COMMAND_SLOT17:
 		case GameMessage::MSG_META_COMMAND_SLOT18:
 		{
-			TheControlBar->pressCommandButton( t - GameMessage::MSG_META_COMMAND_SLOT01 );
+			// a watcher has no commands to press, and the first keys pick the rack's stat instead, the
+			// keys Dota's spectator uses for the same list
+			const Int slot = t - GameMessage::MSG_META_COMMAND_SLOT01;
+			if( !TheInGameUI->pickSpectatorStat( slot ) )
+				TheControlBar->pressCommandButton( slot );
 			disp = DESTROY_MESSAGE;
 			break;
 		}		// end command bar grid slots
@@ -3766,6 +3843,32 @@ GameMessageDisposition CommandTranslator::translateGameMessage(const GameMessage
 			{
 				GameMessage *holdMsg = TheMessageStream->appendMessage( GameMessage::MSG_DO_HOLD_POSITION );
 				holdMsg->appendIntegerArgument( GUARDMODE_GUARD_WITHOUT_PURSUIT );
+				disp = DESTROY_MESSAGE;
+			}
+			break;
+		}
+
+		//
+		// Auto garrison and auto repair: each unit picks its own building on the logic side, from what
+		// its owner has seen, so all these carry is the key.
+		//
+		case GameMessage::MSG_META_AUTO_GARRISON:
+		{
+			if( TheInGameUI->getSelectCount() > 0 )
+			{
+				TheMessageStream->appendMessage( GameMessage::MSG_DO_AUTO_GARRISON );
+				pickAndPlayUnitVoiceResponse( TheInGameUI->getAllSelectedDrawables(), GameMessage::MSG_DO_AUTO_GARRISON );
+				disp = DESTROY_MESSAGE;
+			}
+			break;
+		}
+
+		case GameMessage::MSG_META_AUTO_REPAIR:
+		{
+			if( TheInGameUI->getSelectCount() > 0 )
+			{
+				TheMessageStream->appendMessage( GameMessage::MSG_DO_AUTO_REPAIR );
+				pickAndPlayUnitVoiceResponse( TheInGameUI->getAllSelectedDrawables(), GameMessage::MSG_GET_REPAIRED );
 				disp = DESTROY_MESSAGE;
 			}
 			break;

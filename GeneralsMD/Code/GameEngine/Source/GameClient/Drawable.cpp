@@ -309,15 +309,6 @@ const Int MAX_ENABLED_MODULES								= 16;
 /*static*/ Int							Drawable::s_modelLockCount = 0;
 #endif
 
-/// Each ladder grade's insignia, Rank<Side>_<n> in ReforgedRanks<Side>.ini; NULL for a grade drawn bare
-/// (America's E-1)
-static const Image* s_rankInsignia[VETERANCY_SIDE_COUNT][RANK_GRADES_MAX + 1];
-
-/// An insignia drawn beside a health bar holds its DisplayHeight (12 unless its cell says otherwise)
-/// and lets its width follow, up to half again that height: wider marks made the bar look heavy
-static const Int RANK_INSIGNIA_DEFAULT_HEIGHT = 12;
-static const Real RANK_INSIGNIA_MAX_ASPECT = 1.5f;
-
 // ------------------------------------------------------------------------------------------------
 /*static*/ void Drawable::initStaticImages()
 {
@@ -328,15 +319,6 @@ static const Real RANK_INSIGNIA_MAX_ASPECT = 1.5f;
  	s_veterancyImage[1] = TheMappedImageCollection->findImageByName("SCVeter1");
 	s_veterancyImage[2] = TheMappedImageCollection->findImageByName("SCVeter2");
 	s_veterancyImage[3] = TheMappedImageCollection->findImageByName("SCVeter3");
-	for( Int side = 0; side < VETERANCY_SIDE_COUNT; ++side )
-	{
-		for( Int insignia = 0; insignia <= RANK_GRADES_MAX; ++insignia )
-		{
-			AsciiString name;
-			name.format( "Rank%s_%d", TheVeterancySideNames[ side ], insignia );
-			s_rankInsignia[ side ][ insignia ] = TheMappedImageCollection->findImageByName( name );
-		}
-	}
 
 	s_fullAmmo	= TheMappedImageCollection->findImageByName("SCPAmmoFull");
 	s_emptyAmmo	= TheMappedImageCollection->findImageByName("SCPAmmoEmpty");
@@ -3603,6 +3585,78 @@ Bool Drawable::drawsAnyUIText( void )
 
 
 // ------------------------------------------------------------------------------------------------
+/** A thin line from an aircraft in the air straight down to the ground under it, because a plane
+	* over a ridge and a plane over your base can sit on the same pixel.  drawablePostDraw has already
+	* turned away what the local player may not see. */
+// ------------------------------------------------------------------------------------------------
+void Drawable::drawAltitudeLine( void )
+{
+	if( !TheGlobalData->m_aircraftAltitudeLine )
+		return;
+
+	const Object *obj = getObject();
+	if( obj == NULL || obj->isEffectivelyDead() )
+		return;
+
+	// The shell map and a mission's cutscene have no interface up.  Asked of the script and not of
+	// getInputEnabled, which setGamePaused also turns off: a paused match keeps its lines.
+	if( TheGameLogic->isInShellGame() || TheScriptEngine->isInputHeldByScript() )
+		return;
+
+	// The height over terrain says nothing on a carrier's deck, which stands far above the sea bed.  The
+	// airborne flag does: a taxi locomotor has no AirborneTargetingHeight, so nothing parked ever sets
+	// it.  KINDOF_AIRCRAFT stays, because boats over deep water, drones, flares and missiles set it too.
+	if( !obj->isKindOf( KINDOF_AIRCRAFT ) || !obj->isAirborneTarget() )
+		return;
+
+	// China's artillery barrage flies a plane with no draw module at all
+	if( *getDrawModulesNonDirty() == NULL )
+		return;
+
+	const Color LINE_COLOR = GameMakeColor( 255, 255, 255, 120 );
+
+	Coord3D top = *obj->getPosition();
+	Coord3D bottom = top;
+	bottom.z = TheTerrainLogic->getLayerHeight( top.x, top.y, obj->getLayer() );
+	Real waterZ;
+	if( TheTerrainLogic->isUnderwater( top.x, top.y, &waterZ ) )
+		bottom.z = MAX( bottom.z, waterZ );		// the surface and not the sea bed; a bridge deck over it stays
+
+	ICoord2D topScreen, bottomScreen;
+	const Bool topOn = TheTacticalView->worldToScreen( &top, &topScreen );
+	const Bool bottomOn = TheTacticalView->worldToScreen( &bottom, &bottomScreen );
+	// ponytail: both ends off draws nothing, so a line taller than the screen goes at full zoom; sample along it if that shows
+	if( !topOn && !bottomOn )
+		return;
+
+	// An end off the screen has no position worth clipping: past the clip planes it projects to (0,0),
+	// and just in front of the near plane far enough to overflow ClipLine2D's Int products.  The frustum
+	// is convex and the line crosses its edge once, so halve the way there.
+	if( topOn != bottomOn )
+	{
+		Real insideZ = topOn ? top.z : bottom.z;
+		Real outsideZ = topOn ? bottom.z : top.z;
+		ICoord2D &edge = topOn ? bottomScreen : topScreen;
+		edge = topOn ? topScreen : bottomScreen;
+		for( Int i = 0; i < 10; ++i )
+		{
+			Coord3D middle = top;
+			middle.z = ( insideZ + outsideZ ) * 0.5f;
+			ICoord2D middleScreen;
+			if( TheTacticalView->worldToScreen( &middle, &middleScreen ) )
+			{
+				insideZ = middle.z;
+				edge = middleScreen;
+			}
+			else
+				outsideZ = middle.z;
+		}
+	}
+
+	TheDisplay->drawLine( topScreen.x, topScreen.y, bottomScreen.x, bottomScreen.y, 1.0f, LINE_COLOR );
+}
+
+// ------------------------------------------------------------------------------------------------
 /** This is called as part of the "post draw" phase when drawable a drawable.  It is there
 	* that we should overlay on the screen any 2D elements for purposes of user interface
 	* information (such as a heatlh bar, veterency levels, etc.) */
@@ -3640,6 +3694,8 @@ void Drawable::drawIconUI( void )
 		drawCaption( healthBarRegion );
 		drawConstructPercent( healthBarRegion );
 		drawSupplyCash( healthBarRegion );
+
+		drawAltitudeLine();		// ahead of the bail: the planes a general's power sends over are IGNORED_IN_GUI
 
 		//All Icons Below only draw on ALIVE things, so  bail here -------------------------
 		if( obj->isEffectivelyDead() || obj->isKindOf( KINDOF_IGNORED_IN_GUI )) // object explicitly wants nothing to do with these icons, so...
@@ -4803,11 +4859,8 @@ void Drawable::drawVeterancy( const IRegion2D *healthBarRegion )
 		return;
 	}
 
-	// a unit on a rank ladder wears its grade's insignia, a grade with no insignia nothing; anyone else
-	// EA's chevron for the level
-	const RankLadder *ladder = TheGlobalData->getRankLadder( obj->getTemplate() );
 	VeterancyLevel level = obj->getVeterancyLevel();
-	const Image* image = ( ladder && !TheGlobalData->m_classicGraphics ) ? getRankInsignia( obj ) : s_veterancyImage[level];
+	const Image* image = s_veterancyImage[level];
 	if (!image)
 		return;
 
@@ -4839,85 +4892,10 @@ void Drawable::drawVeterancy( const IRegion2D *healthBarRegion )
 
 	screenCenter.x += healthBoxWidth * scale * 0.5f;
 
-	// the insignia in line with the bar, just past its right end and centred on it: the ammo and
-	// passenger pips start from the left end, and hanging under the bar it read as part of the unit
-	if( ladder && !TheGlobalData->m_classicGraphics )
-	{
-		Int left = screenCenter.x + 2;
-		Int middle = screenCenter.y;
-		if( healthBarRegion )
-		{
-			left = healthBarRegion->hi.x + 2;
-			middle = ( healthBarRegion->lo.y + healthBarRegion->hi.y ) / 2;
-		}
-		// image is the grade's insignia already (getRankInsignia), so it is drawn as drawRankInsignia would
-		Int width, height;
-		rankInsigniaSize( image, 1.0f, &width, &height );
-		const Int top = middle - height / 2;
-		TheDisplay->drawImage( image, left, top, left + width, top + height, GameMakeColor( 255, 255, 255, 255 ) );
-		return;
-	}
-
 	// draw the image
 	TheDisplay->drawImage(image, screenCenter.x + 1, screenCenter.y + 1, screenCenter.x + 1 + vetBoxWidth, screenCenter.y + 1 + vetBoxHeight);
 
 }  // end drawVeterancy
-
-// ------------------------------------------------------------------------------------------------
-/*static*/ const Image *Drawable::getRankInsignia( const ThingTemplate *thing, Int insignia )
-{
-	const VeterancySide side = GlobalData::veterancySideOf( thing );
-	if( side == VETERANCY_SIDE_NONE || insignia < 0 || insignia > RANK_GRADES_MAX )
-		return NULL;
-	return s_rankInsignia[ side ][ insignia ];
-}
-
-// ------------------------------------------------------------------------------------------------
-/** The insignia an object wears now, NULL for none: every unit starts unranked and bare, so grade 0
-	* draws nothing on any side, and neither does anything that cannot climb (a structure, or an object
-	* without a trainable tracker). The bar, the portrait and the promotion float all ask here. */
-// ------------------------------------------------------------------------------------------------
-/*static*/ const Image *Drawable::getRankInsignia( const Object *obj )
-{
-	const RankLadder *ladder = TheGlobalData->getRankLadder( obj->getTemplate() );
-	const ExperienceTracker *tracker = obj->getExperienceTracker();
-	if( ladder == NULL || tracker == NULL || !tracker->isTrainable() || obj->isKindOf( KINDOF_STRUCTURE ) || obj->getRankGrade() <= 0 )
-		return NULL;
-	return getRankInsignia( obj->getTemplate(), ladder->insigniaIndex( obj->getRankGrade(), obj->isKindOf( KINDOF_HERO ) ) );
-}
-
-// ------------------------------------------------------------------------------------------------
-/*static*/ void Drawable::rankInsigniaSize( const Image *image, Real scale, Int *width, Int *height )
-{
-	const Real high = ( image->getDisplayHeight() > 0 ? image->getDisplayHeight() : RANK_INSIGNIA_DEFAULT_HEIGHT ) * scale;
-	Real wide = high * image->getImageWidth() / image->getImageHeight();
-	Real tall = high;
-	if( wide > high * RANK_INSIGNIA_MAX_ASPECT )
-	{
-		tall = high * high * RANK_INSIGNIA_MAX_ASPECT / wide;
-		wide = high * RANK_INSIGNIA_MAX_ASPECT;
-	}
-	*width = REAL_TO_INT( wide );
-	*height = REAL_TO_INT( tall );
-}
-
-// ------------------------------------------------------------------------------------------------
-/** One grade's insignia, cropped to its ink in the atlas: drawn beside the health bar and floating up
-	* over a unit the moment it gains the grade. */
-// ------------------------------------------------------------------------------------------------
-/*static*/ Bool Drawable::drawRankInsignia( const ThingTemplate *thing, Int insignia, Int x, Int top, Bool centred, Real scale, Color color )
-{
-	const Image *image = getRankInsignia( thing, insignia );
-	if( image == NULL )
-		return FALSE;
-
-	Int width, height;
-	rankInsigniaSize( image, scale, &width, &height );
-	if( centred )
-		x -= width / 2;
-	TheDisplay->drawImage( image, x, top, x + width, top + height, color );
-	return TRUE;
-}
 
 // ------------------------------------------------------------------------------------------------
 /** The capture clock, drawn under the health bar of the building being taken.
@@ -5391,7 +5369,7 @@ void Drawable::drawHealthBar(const IRegion2D* healthBarRegion)
 				if( needed != SCIENCE_INVALID && (owner == NULL || !owner->hasScience( needed )) )
 					continue;
 
-				Real full = INT_TO_REAL( tmpl->getReloadTime() );
+				Real full = INT_TO_REAL( owner ? owner->getSpecialPowerReloadTime( tmpl ) : tmpl->getReloadTime() );
 				if( full <= 0.0f )
 					continue;
 

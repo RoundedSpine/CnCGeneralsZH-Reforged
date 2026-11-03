@@ -49,6 +49,7 @@
 #include "Common/Player.h"
 #include "Common/ThingFactory.h"
 #include "Common/ThingTemplate.h"
+#include "Common/Upgrade.h"
 #include "Common/Xfer.h"
  
 #include "GameClient/Drawable.h"
@@ -77,6 +78,7 @@
 #include "GameLogic/Locomotor.h"
 #include "GameLogic/Module/AssistedTargetingUpdate.h"
 #include "GameLogic/Module/ProjectileStreamUpdate.h"
+#include "GameLogic/Module/RadarCoverageBehavior.h"
 #include "GameLogic/Module/PhysicsUpdate.h"
 #include "GameLogic/TerrainLogic.h"
 
@@ -238,7 +240,9 @@ const FieldParse WeaponTemplate::TheWeaponTemplateFieldParseTable[] =
 	{ "RequestAssistRange",				INI::parseReal,													NULL,							offsetof(WeaponTemplate, m_requestAssistRange) },		
 	{ "AcceptableAimDelta",				INI::parseAngleReal,										NULL,							offsetof(WeaponTemplate, m_aimDelta) },		
 	{ "ScatterRadius",						INI::parseReal,													NULL,							offsetof(WeaponTemplate, m_scatterRadius) },		
-	{ "BlindScatterRadius",				INI::parseReal,													NULL,							offsetof(WeaponTemplate, m_blindScatterRadius) },
+	{ "RadarBlindHitChance",			INI::parsePercentToReal,								NULL,							offsetof(WeaponTemplate, m_radarBlindHitChance) },
+	{ "RadarBlindHitUpgrade",			INI::parseAsciiString,									NULL,							offsetof(WeaponTemplate, m_radarBlindHitUpgrade) },
+	{ "RadarBlindHitUpgradeChance",	INI::parsePercentToReal,								NULL,							offsetof(WeaponTemplate, m_radarBlindHitUpgradeChance) },
 	{ "SeeksMostValuable",				INI::parseBool,													NULL,							offsetof(WeaponTemplate, m_seeksMostValuable) },
 	{ "ScatterTargetScalar",			INI::parseReal,													NULL,							offsetof(WeaponTemplate, m_scatterTargetScalar) },		
 	{ "ScatterRadiusVsInfantry",	INI::parseReal,													NULL,							offsetof( WeaponTemplate, m_infantryInaccuracyDist ) },
@@ -329,7 +333,8 @@ WeaponTemplate::WeaponTemplate() : m_nextTemplate(NULL)
 	m_requestAssistRange						= 0.0f;
 	m_aimDelta											= 0.0f;
 	m_scatterRadius									= 0.0f;
-	m_blindScatterRadius						= 0.0f;
+	m_radarBlindHitChance						= 1.0f;
+	m_radarBlindHitUpgradeChance		= 1.0f;
 	m_seeksMostValuable							= FALSE;
 	m_scatterTargetScalar						= 0.0f;
 	m_shockWaveAmount								= 0.0f;
@@ -1075,18 +1080,35 @@ UnsignedInt WeaponTemplate::fireWeaponTemplate
 
 	Coord3D projectileDestination = *victimPos; //Need to copy this, as we have a pointer to their actual position
 	Real scatterRadius = 0.0f;
-	/* Turkiye's artillery fires past its own sight and leans on a spotter.  A shot at ground its
-		 player does not see (a force fire into the fog, a target the spotter lost) spreads by
-		 BlindScatterRadius on top.  The shroud is logic state, the same every machine reads. */
-	Real blindScatter = 0.0f;
-	if( m_blindScatterRadius > 0.0f && sourceObj && sourceObj->getControllingPlayer() &&
-			ThePartitionManager->getShroudStatusForPlayer( sourceObj->getControllingPlayer()->getPlayerIndex(), victimPos ) != CELLSHROUD_CLEAR )
-		blindScatter = m_blindScatterRadius;
-	if( m_scatterRadius > 0.0f || blindScatter > 0.0f || m_infantryInaccuracyDist > 0.0f && victimObj && victimObj->isKindOf( KINDOF_INFANTRY ) )
+	/* Turkiye's rockets fly on radar.  Aimed where no radar of the firer's player or an ally's reaches
+		 (RadarCoverageBehavior), a shot keeps its target only RadarBlindHitChance of the time, or
+		 RadarBlindHitUpgradeChance once the player has RadarBlindHitUpgrade.  The rest come down on the
+		 ground beside the target, past its edge and the blast, so they miss.  The radars, the upgrade and
+		 the roll are all logic state and the logic stream. */
+	Bool radarMiss = FALSE;
+	if( m_radarBlindHitChance < 1.0f && !isProjectileDetonation && sourceObj &&
+			!RadarCoverageBehavior::isCovered( sourceObj->getControllingPlayer(), victimPos ) )
+	{
+		Real hitChance = m_radarBlindHitChance;
+		if( m_radarBlindHitUpgrade.isNotEmpty() &&
+				sourceObj->getControllingPlayer()->hasUpgradeComplete( TheUpgradeCenter->findUpgrade( m_radarBlindHitUpgrade ) ) )
+			hitChance = m_radarBlindHitUpgradeChance;
+		radarMiss = GameLogicRandomValueReal( 0.0f, 1.0f ) >= hitChance;
+	}
+	if( radarMiss || m_scatterRadius > 0.0f || m_infantryInaccuracyDist > 0.0f && victimObj && victimObj->isKindOf( KINDOF_INFANTRY ) )
 	{
 		// This weapon scatters, so clear the victimObj, as we are no longer shooting it directly,
 		// and find a random point within the radius to shoot at as victimPos
-		scatterRadius = m_scatterRadius + blindScatter;
+		scatterRadius = m_scatterRadius;
+		Real minScatterRadius = 0.0f;
+		if( radarMiss )
+		{
+			// clear of the target's edge and of the blast, and out to as far again
+			minScatterRadius = max( getPrimaryDamageRadius( bonus ), getSecondaryDamageRadius( bonus ) );
+			if( victimObj )
+				minScatterRadius += victimObj->getGeometryInfo().getBoundingCircleRadius();
+			scatterRadius = 2.0f * minScatterRadius;
+		}
 
 		// if it's an object, aim at the center, not the ground part (srj)
 		PathfindLayerEnum targetLayer = LAYER_GROUND;
@@ -1107,12 +1129,8 @@ UnsignedInt WeaponTemplate::fireWeaponTemplate
 
 		//victimObj = NULL; // his position is already in victimPos, if he existed
 
-		// a rank's steadier hand on the guns
-		if( sourceObj )
-			scatterRadius *= 1.0f - sourceObj->getRankPerk( RANK_PERK_SCATTER );
-
 		//Randomize the scatter radius (sometimes it can be more accurate than others)
-		scatterRadius = GameLogicRandomValueReal( 0, scatterRadius );
+		scatterRadius = GameLogicRandomValueReal( minScatterRadius, scatterRadius );
 		Real scatterAngleRadian = GameLogicRandomValueReal( 0, 2*PI );
 
 		Coord3D firingOffset;
@@ -2101,6 +2119,38 @@ Weapon::~Weapon()
 }
 
 //-------------------------------------------------------------------------------------------------
+// Damage that takes health off. The rest read the amount as a count or a yes, or end something outright:
+// a Kill Garrisoned of 1 at half is nobody, and healing scales on the one healed.  Sniper is here because
+// its one shot, one man is the unit; a suicide's own death is HUGE_DAMAGE_AMOUNT, past any bonus.
+static Bool lobbyHandicapScalesDamage( DamageType type )
+{
+	switch( type )
+	{
+		case DAMAGE_SNIPER:
+		case DAMAGE_HEALING:
+		case DAMAGE_UNRESISTABLE:
+		case DAMAGE_WATER:
+		case DAMAGE_DEPLOY:
+		case DAMAGE_SURRENDER:
+		case DAMAGE_HACK:
+		case DAMAGE_KILLPILOT:
+		case DAMAGE_PENALTY:
+		case DAMAGE_FALLING:
+		case DAMAGE_DISARM:
+		case DAMAGE_HAZARD_CLEANUP:
+		case DAMAGE_TOPPLING:
+		case DAMAGE_SUBDUAL_MISSILE:
+		case DAMAGE_SUBDUAL_VEHICLE:
+		case DAMAGE_SUBDUAL_BUILDING:
+		case DAMAGE_SUBDUAL_UNRESISTABLE:
+		case DAMAGE_KILL_GARRISONED:
+		case DAMAGE_STATUS:
+			return FALSE;
+		default:
+			return TRUE;
+	}
+}
+
 void Weapon::computeBonus(const Object *source, WeaponBonusConditionFlags extraBonusFlags, WeaponBonus& bonus) const
 {
 	bonus.clear();
@@ -2116,54 +2166,23 @@ void Weapon::computeBonus(const Object *source, WeaponBonusConditionFlags extraB
 			flags |= theirContain->getWeaponBonusPassedToPassengers();
 	}
 
-	// a unit on a rank ladder takes its grade's rate of fire, damage and range instead of the global
-	// VETERAN, ELITE and HERO lines, and from the Veteran pin its side's own lines (China's horde)
-	const ThingTemplate* sourceTemplate = source->getTemplate();
-	const RankLadder* ladder = TheGlobalData->getRankLadder(sourceTemplate);
-	if (ladder)
-	{
-		const WeaponBonusConditionFlags RANK_FLAGS = (1 << WEAPONBONUSCONDITION_VETERAN)
-			| (1 << WEAPONBONUSCONDITION_ELITE) | (1 << WEAPONBONUSCONDITION_HERO);
-		TheGlobalData->m_weaponBonusSet->appendBonuses(flags & ~RANK_FLAGS, bonus);
-		const WeaponBonusSet* sideSet = TheGlobalData->getVeterancyWeaponBonus(sourceTemplate, source->getVeterancyLevel());
-		if (sideSet)
-			sideSet->appendBonuses(flags, bonus);
-		const Int grade = source->getRankGrade();
-		const Real* stat = ladder->m_stat[MIN(grade, ladder->m_grades)];
-		// and its own perks on top: a steadier rate of fire and reach, a faster one when it is nearly dead
-		Real rateOfFire = stat[RANK_STAT_RATE_OF_FIRE] - 1.0f + ladder->perk(grade, RANK_PERK_RATE_OF_FIRE);
-		const Real lastStand = ladder->perk(grade, RANK_PERK_LAST_STAND);
-		const BodyModuleInterface* body = source->getBodyModule();
-		if (lastStand > 0.0f && body->getHealth() < RANK_LAST_STAND_HEALTH * body->getMaxHealth())
-			rateOfFire += lastStand;
-		bonus.setField(WeaponBonus::RATE_OF_FIRE, bonus.getField(WeaponBonus::RATE_OF_FIRE) + rateOfFire);
-		bonus.setField(WeaponBonus::DAMAGE, bonus.getField(WeaponBonus::DAMAGE) + stat[RANK_STAT_DAMAGE] - 1.0f);
-		bonus.setField(WeaponBonus::RANGE, bonus.getField(WeaponBonus::RANGE) + stat[RANK_STAT_RANGE] - 1.0f
-			+ ladder->perk(grade, RANK_PERK_RANGE));
-	}
-	else if (TheGlobalData->m_weaponBonusSet)
+	if (TheGlobalData->m_weaponBonusSet)
 		TheGlobalData->m_weaponBonusSet->appendBonuses(flags, bonus);
-
-	// a leader's auras reach any friendly unit, on a ladder or not; range only an artillery piece's.
-	// The rate-of-fire aura and a Propaganda Tower's enthusiasm give the larger of the two, not both.
-	Real auraRateOfFire = MIN(source->getRankAura(RANK_AURA_RATE_OF_FIRE), TheGlobalData->m_rankAuraRateOfFireCap);
-	const WeaponBonusConditionFlags ENTHUSIASM = (1 << WEAPONBONUSCONDITION_ENTHUSIASTIC) | (1 << WEAPONBONUSCONDITION_SUBLIMINAL);
-	if (auraRateOfFire > 0.0f && (flags & ENTHUSIASM) && TheGlobalData->m_weaponBonusSet)
-	{
-		WeaponBonus enthusiasm;
-		enthusiasm.clear();
-		TheGlobalData->m_weaponBonusSet->appendBonuses(flags & ENTHUSIASM, enthusiasm);
-		auraRateOfFire -= MIN(auraRateOfFire, enthusiasm.getField(WeaponBonus::RATE_OF_FIRE) - 1.0f);
-	}
-	if (auraRateOfFire > 0.0f)
-		bonus.setField(WeaponBonus::RATE_OF_FIRE, bonus.getField(WeaponBonus::RATE_OF_FIRE) + auraRateOfFire);
-	const Real auraRange = source->getRankAura(RANK_AURA_RANGE);
-	if (auraRange > 0.0f && (sourceTemplate->acquiresBeyondVision() || m_template->getMinimumAttackRange() > 0.0f))
-		bonus.setField(WeaponBonus::RANGE, bonus.getField(WeaponBonus::RANGE) + auraRange);
-
 	const WeaponBonusSet* extra = m_template->getExtraBonus();
 	if (extra)
 		extra->appendBonuses(flags, bonus);
+
+	// The lobby's handicap. In the bonus, so a shell or a delayed hit carries it past its firer's death.
+	// A point defense laser stays whole: a Tomahawk has 200 health and deals 150, the laser's two hits of 100
+	// stop one, and at half they stop none.  AntiSmallMissile is the mark of those lasers alone; the mask cannot
+	// be asked for missiles only, since no laser clears the AntiGround every weapon starts with, and a Patriot's
+	// AntiBallisticMissile is on a gun that also shoots aircraft.
+	if (lobbyHandicapScalesDamage(m_template->getDamageType()) && (m_template->getAntiMask() & WEAPON_ANTI_SMALL_MISSILE) == 0)
+	{
+		const Real handicap = source->getOwnerHandicap();
+		if (handicap != 1.0f)
+			bonus.setField(WeaponBonus::DAMAGE, bonus.getField(WeaponBonus::DAMAGE) * handicap);
+	}
 }
 
 //-------------------------------------------------------------------------------------------------

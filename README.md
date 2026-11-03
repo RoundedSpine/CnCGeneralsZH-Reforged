@@ -2,7 +2,7 @@
 
 EA published the source of Command & Conquer: Generals and Zero Hour in February 2025. Zero Hour
 Reforged is that source worked on as a game: around sixty bugs EA shipped in 2003 fixed, a computer
-opponent that builds a base and plays without cheating, a Direct3D 11 renderer, a new interface and
+opponent that builds a base (1.5x income, more when it falls behind, no other edge), a Direct3D 11 renderer, a new interface and
 mods that load side by side. Windows x64 players install it through a free launcher; macOS and Linux
 build it from this repository.
 
@@ -50,7 +50,6 @@ to the same checksum, and a Mac and a Linux PC have played a LAN match without o
 | A tank shell on a soldier | 6 damage, 30 hits to kill a Ranger | 60 damage, three hits | 3.2.0 |
 | A Raptor's half circle at cruise | `1.7 s`, sliding sideways | `3.2 s`, banked | 3.2.0 |
 | A kill's veterancy | all of it to the last shot | a quarter to the last shot, the rest shared by damage done in the last ten seconds | 2.4.0 |
-| Ranks | three chevrons on every side | USA 28 grades, China 19, GLA 20 | `main` |
 | Maps a network room lists | 100, and 300 in skirmish | 4,096 | `main` |
 | First toxin cloud on a fresh install | a `3.5 s` freeze | no freeze, its shaders ship with the game | `main` |
 | First superweapon strike on a fresh install | a `110` to `130 ms` hitch each | none | `main` |
@@ -104,21 +103,21 @@ yet. [CHANGELOG.md](CHANGELOG.md) has the measurements behind every line.
 | A jet shot down hits for 80 where it lands, 160 for a B-52 or a cargo plane, and leaves fire for about six seconds; its owner and allies are spared | 3.2.0 |
 | A tank shell that hits a soldier does the 60 it does to a tank, where it did 6 | 3.2.0 |
 | Missiles weave a few degrees in flight, the weave fading as they close in | 3.2.0 |
-| A rank ladder for every army: 28 American grades from E-1 Private to General of the Army, 19 Chinese, 20 GLA, each with its insignia beside the health bar; the top is 120 kills of a unit like your own | `main` |
 | A hacker left without orders for ten seconds walks into an Internet Center with a free seat or opens its laptop where it stands | `main` |
 
 ### The computer opponent
 
 One wrong value kept EA's skirmish AI building only what its script marked urgent, plus a single
 power plant. It builds a base now, scouts with one cheap unit and counts only what it has seen. Easy,
-Medium and Hard differ in what the computer may decide. No level gets extra money, cheaper units,
-faster building or longer sight. In 0.0.1-alpha, over 32 headless matches with the seats swapped
-both ways, Hard beat Easy 15-0.
+Medium and Hard differ in what the computer may decide. On `main` every computer seat earns
+double the money it makes by playing, whatever its level. Prices, building speed, sight and unit
+stats are the same on every level. Measured after the doubling, over 32 headless matches on generated
+maps with the seats swapped both ways, Hard won 17, Easy 5, and 10 reached the frame cap undecided.
 
 Since 3.2.0 each computer seat in the lobby also takes a personality, which says how it plays while
 the difficulty says how well. Normal is the computer you know. The others are Attacker, Turtle,
 Economist, Air Force, Rusher, Raider, Tech, Infantry, Armor, Sneaky, Opportunist, Supporter, Counter
-and Random. No personality gets extra money, faster building or tougher units. Allies with one answer their team: an Air
+and Random. No personality earns more than another, builds faster or has tougher units. Allies with one answer their team: an Air
 Force strikes whoever hits your base, an Economist sends money to an ally who runs dry, and a beacon
 or `help`, `attack` or `money` typed in chat asks them for it.
 
@@ -302,6 +301,20 @@ FixedOrderKeys
 End
 ```
 
+Another block keys the command bar by place. Every button takes the letter of the cell it sits in,
+Q W E R T Y U over A S D F G H J down the columns (I O over K L on the nine-column bar), and the bar's
+upgrades take X C V B N in order. The fixed keys are off on the bar while it is on.
+
+```ini
+CommandBarGrid
+  Enabled = Yes
+End
+```
+
+A button's own letter still beats its cell's. `CommandButtonHotKey Command_TransportExit@3` with
+`Key = M` keys that button only while it stands in the third cell, so the passenger buttons of one
+transport can each have their own key.
+
 </details>
 
 ## Build it
@@ -465,7 +478,7 @@ them, and any source change separates them.
 - The Windows ARM64 build has not run on an ARM64 machine, and the macOS and Linux packages carry no
   upscaled art. A match between Windows and a Mac has not been played.
 - Replays and mid-match saves from before 3.0.0's 60-step battle do not load. Replays recorded before
-  the rank ladder and the other `main` changes to the battle play out differently.
+  the `main` changes to the battle play out differently.
 - SafeDisc stays stubbed.
 
 ## Help out

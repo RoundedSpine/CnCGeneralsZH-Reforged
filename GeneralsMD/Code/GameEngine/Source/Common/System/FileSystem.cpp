@@ -567,6 +567,16 @@ Bool FileSystem::isForkOwnedPath(const AsciiString& filename)
 		// Mehmetcik's own model and animations; the texture keeps EA's ZHCA_ prefix, which is what takes
 		// the house colour
 		|| starts("art\\w3d\\trmehm_") || p == "art\\textures\\zhca_trmehmet.tga"
+		// the engineer's own model, on the GLA Worker's skeleton and animations
+		|| p == "art\\w3d\\trengr_skn.w3d" || p == "art\\textures\\zhca_trengr.tga"
+		// the Command Center's own barracks and its damaged, burning and rubble states
+		|| starts("art\\w3d\\trcmdhq") || starts("art\\textures\\trcmdhq_") || p == "art\\textures\\zhca_trcmdhq.tga"
+		// the Altay's own model, its damaged state and the hulk, turret and gun it leaves
+		|| starts("art\\w3d\\traltay") || starts("art\\textures\\traltay_") || starts("art\\textures\\zhca_traltay")
+		// the Airfield's own fortress field, its four shelter doors and its scaffold
+		|| starts("art\\w3d\\trairfld") || starts("art\\textures\\trairfld") || starts("art\\textures\\zhca_trairfld")
+		// the Kizilelma's own model, its damaged and falling states, the hulk and the pieces it throws
+		|| starts("art\\w3d\\trkizilelma") || starts("art\\textures\\trkizilelma") || starts("art\\textures\\zhca_trkizilelma")
 		|| starts("window\\")
 		|| p == "install_final.bmp";
 }
