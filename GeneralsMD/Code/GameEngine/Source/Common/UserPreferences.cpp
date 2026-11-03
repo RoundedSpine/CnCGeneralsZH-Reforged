@@ -35,6 +35,7 @@
 //-----------------------------------------------------------------------------
 #include "PreRTS.h"	// This must go first in EVERY cpp file int the GameEngine
 #include "zhio.h"
+#include <cerrno>
 
 //-----------------------------------------------------------------------------
 // USER INCLUDES //////////////////////////////////////////////////////////////
@@ -106,6 +107,19 @@ static AsciiString realAsStr(Real val)
 	return ret;
 }
 
+#if defined(ZH_PLATFORM_IOS)
+static void traceIOSOptions(const char *phase, const UserPreferences &prefs, const AsciiString &filename, bool ok, int error)
+{
+	const size_t length = strlen(filename.str());
+	if (length < 11 || strcasecmp(filename.str() + length - 11, "Options.ini") != 0) return;
+	fprintf(stderr, "[IOS_OPTIONS] phase=%s ok=%d errno=%d path=%s classic=%s lighting=%s volumetric_smoke=%s\n",
+		phase, int(ok), error, filename.str(),
+		prefs.getAsciiString("ClassicGraphics", "unset").str(),
+		prefs.getAsciiString("LightingStyle", "unset").str(),
+		prefs.getAsciiString("VolumetricSmokeShadows", "unset").str());
+}
+#endif
+
 //-----------------------------------------------------------------------------
 // PUBLIC FUNCTIONS ///////////////////////////////////////////////////////////
 //-----------------------------------------------------------------------------
@@ -153,9 +167,19 @@ Bool UserPreferences::load(AsciiString fname)
 
 			(*this)[key] = val;
 		}  // end while
-		fclose(fp);
-		return true;
+		const bool read = !ferror(fp);
+		const int readError = read ? 0 : errno;
+		const bool closed = fclose(fp) == 0;
+#if defined(ZH_PLATFORM_IOS)
+		traceIOSOptions("load", *this, m_filename, read && closed, read ? (closed ? 0 : errno) : readError);
+#else
+		(void)readError;
+#endif
+		return read && closed;
 	}
+#if defined(ZH_PLATFORM_IOS)
+	traceIOSOptions("load", *this, m_filename, false, errno);
+#endif
 	return false;
 }
 
@@ -173,9 +197,19 @@ Bool UserPreferences::write( void )
 			fprintf(fp, "%s = %s\n", it->first.str(), it->second.str());
 			++it;
 		}
-		fclose(fp);
-		return true;
+		const bool written = !ferror(fp);
+		const int writeError = written ? 0 : errno;
+		const bool closed = fclose(fp) == 0;
+#if defined(ZH_PLATFORM_IOS)
+		traceIOSOptions("write", *this, m_filename, written && closed, written ? (closed ? 0 : errno) : writeError);
+#else
+		(void)writeError;
+#endif
+		return written && closed;
 	}
+#if defined(ZH_PLATFORM_IOS)
+	traceIOSOptions("write", *this, m_filename, false, errno);
+#endif
 	return false;
 }
 

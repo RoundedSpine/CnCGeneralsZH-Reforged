@@ -19,6 +19,15 @@ Windows-only effects. Unsupported effects retain their saved preferences when
 accepting other changes or applying defaults. Capability checks only disable
 controls, preserving the menu's existing restrictions during a match.
 
+The menu also uses saved lighting/smoke values for both display and change
+detection when Classic mode has forced their runtime fields off. This fixes
+accepted choices disappearing on reopen and changing back to Classic/off failing
+to update their saved opt-ins. The user's report that choices still revert after
+restarting is not yet reproduced on device. iOS preference diagnostics now record
+the selected values, actual load/write path and result, and startup overrides.
+Preference writes return failure for stream or close errors rather than reporting
+success unconditionally.
+
 ARM64 GitHub Actions run 41575499514 (`5d337512`) passed the Metal readback test:
 5,233 contact pixels darkened, zero failed checks, followed by successful IPA
 packaging. The previous failure came from padded uploads in the test fixture:

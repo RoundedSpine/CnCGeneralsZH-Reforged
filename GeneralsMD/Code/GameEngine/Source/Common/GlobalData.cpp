@@ -2088,6 +2088,10 @@ void GlobalData::parseGameDataDefinition( INI* ini )
 		TheWritableGlobalData->m_lightingStyle = LIGHTING_STYLE_CLASSIC;
 		TheWritableGlobalData->m_direct3D11PostChain = "off";
 	}
+#if defined(ZH_PLATFORM_IOS)
+	fprintf(stderr, "[IOS_OPTIONS] phase=active classic=%d lighting=%d volumetric_smoke=%d\n",
+		int(TheGlobalData->m_classicGraphics), TheGlobalData->m_lightingStyle, int(TheGlobalData->m_volumetricSmokeShadows));
+#endif
 
 	applyWindowMode();
 }

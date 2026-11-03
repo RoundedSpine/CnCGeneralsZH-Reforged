@@ -1141,6 +1141,20 @@ static Bool rendererSupportsOption( const OptionDef& def )
 	return TRUE;
 }
 
+// Classic mode forces these runtime fields. The menu edits the saved choices
+// for the next Reforged start, so both display and change detection use the file.
+static Int catalogMenuValue( const OptionDef& def )
+{
+	if( TheGlobalData->m_classicGraphics )
+	{
+		if( strcmp( def.iniKey, "LightingStyle" ) == 0 )
+			return clampOptionValue( def, pref->getInt( def.iniKey, optionDefaultValue( def ) ) );
+		if( strcmp( def.iniKey, "VolumetricSmokeShadows" ) == 0 )
+			return pref->getBool( def.iniKey, optionDefaultValue( def ) != 0 );
+	}
+	return def.get();
+}
+
 //-------------------------------------------------------------------------------------------------
 /** GlobalData -> the controls, for every catalog row that has one.
 	*
@@ -1182,7 +1196,7 @@ static void fillCatalogWidgets( void )
 			if (!supported) continue;
 		}
 
-		const Int value = clampOptionValue( def, def.get() );
+		const Int value = clampOptionValue( def, catalogMenuValue( def ) );
 
 		switch( def.kind )
 		{
@@ -1210,17 +1224,8 @@ static void fillCatalogWidgets( void )
 	}
 
 	// the choice for the next start, which is the file's: GlobalData holds what this run started with
-	const Bool classicNextStart = getEarlyOptionBool( "ClassicGraphics", true );
+	const Bool classicNextStart = pref->getBool( "ClassicGraphics", true );
 	GadgetCheckBoxSetChecked( findOptionWidget( *findOptionDef( "ClassicGraphics" ) ), classicNextStart );
-
-	// A Classic run holds these two forced in memory, and a Reforged next start reads them from the
-	// file.  Shown as forced they read Custom beside the High the player just saved, and Accept saves that.
-	if( TheGlobalData->m_classicGraphics && !classicNextStart )
-	{
-		GadgetComboBoxSetSelectedPos( findOptionWidget( *findOptionDef( "LightingStyle" ) ),
-			getEarlyOptionInt( "LightingStyle", LIGHTING_STYLE_CLASSIC, LIGHTING_STYLE_CLASSIC, LIGHTING_STYLE_REFORGED ) );
-		GadgetCheckBoxSetChecked( findOptionWidget( *findOptionDef( "VolumetricSmokeShadows" ) ), getEarlyOptionBool( "VolumetricSmokeShadows", false ) );
-	}
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -1278,12 +1283,12 @@ static void readCatalogWidgets( OptionPreferences &out )
 		// and everything that asks GlobalData has to go on agreeing with them until the next start.
 		if( strcmp( def.iniKey, "ClassicGraphics" ) == 0 )
 		{
-			if( ( value != 0 ) != getEarlyOptionBool( def.iniKey, true ) )
+			if( ( value != 0 ) != pref->getBool( def.iniKey, true ) )
 				out[ AsciiString( def.iniKey ) ] = formatOptionValue( def, value );
 			continue;
 		}
 
-		if( value == def.get() )
+		if( value == catalogMenuValue( def ) )
 			continue;
 
 		// a layout read as the menus were built shows only once they are built again
@@ -1580,6 +1585,16 @@ static void saveOptions( void )
 	//-------------------------------------------------------------------------------------------------
 	// The catalog's controls, read back into GlobalData and onto Options.ini where the player changed
 	// them.  The monitor goes in with them, because a borderless window takes its size from it.
+#if defined(ZH_PLATFORM_IOS)
+	Int selectedLighting = -1;
+	GameWindow *lightingControl = findOptionWidget(*findOptionDef("LightingStyle"));
+	GameWindow *smokeControl = findOptionWidget(*findOptionDef("VolumetricSmokeShadows"));
+	GameWindow *classicControl = findOptionWidget(*findOptionDef("ClassicGraphics"));
+	if (lightingControl) GadgetComboBoxGetSelectedPos(lightingControl, &selectedLighting);
+	fprintf(stderr, "[IOS_OPTIONS] phase=accept classic_active=%d classic_selected=%d lighting_selected=%d volumetric_smoke_selected=%d\n",
+		int(TheGlobalData->m_classicGraphics), classicControl ? int(GadgetCheckBoxIsChecked(classicControl)) : -1,
+		selectedLighting, smokeControl ? int(GadgetCheckBoxIsChecked(smokeControl)) : -1);
+#endif
 	readCatalogWidgets( *pref );
 	const MonitorEntry monitor = selectedMonitor();
 	TheWritableGlobalData->m_monitor = monitor.device;

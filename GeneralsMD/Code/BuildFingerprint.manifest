@@ -3263,6 +3263,7 @@ Tests/test_gameengine_stubs.cpp
 Tests/test_gametext_csf.cpp
 Tests/test_global_new_alignment.cpp
 Tests/test_glyph_rasteriser.cpp
+Tests/test_graphics_preferences.py
 Tests/test_ground_marks.cpp
 Tests/test_harness.h
 Tests/test_hazard_cloud_policy.cpp

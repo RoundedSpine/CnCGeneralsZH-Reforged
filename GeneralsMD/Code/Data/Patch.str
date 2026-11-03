@@ -1441,7 +1441,7 @@ GUI:VolumetricSmoke
 END
 
 TOOLTIP:VolumetricSmoke
-"Smoke and dust shade the ground, the units and the smoke behind them by how thick they are. Direct3D 11 only, with a small cost in big fights. Applies when you press Accept."
+"Smoke and dust shade the ground, the units and the smoke behind them by how thick they are. Requires Classic Graphics off and a supported renderer. If you changed Classic Graphics, Accept and restart the app first. Otherwise applies when you press Accept."
 END
 
 GUI:LightingStyle
@@ -1457,7 +1457,7 @@ GUI:LightingStyle1
 END
 
 TOOLTIP:LightingStyle
-"Reforged gives each map a stronger, warmer sun, darker shade and deeper shadows, keeping its time of day. Classic is the flat light of 2003, and Classic Graphics always uses it. Applies from the next map."
+"Reforged gives each map a stronger, warmer sun, darker shade and deeper shadows, keeping its time of day. Classic Graphics always uses Classic lighting. Turn Classic Graphics off, Accept and restart the app to use Reforged lighting. Lighting changes apply from the next map."
 END
 
 GUI:SmokeFireLighting
