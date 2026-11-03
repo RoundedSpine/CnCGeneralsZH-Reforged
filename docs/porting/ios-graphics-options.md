@@ -221,3 +221,8 @@ LUT on initial use and settings changes. Bounded IOS_PROJECTILE_MODEL,
 IOS_PROJECTILE_PARTICLES and IOS_SHORELINE diagnostics distinguish model
 submission, particle count and shoreline availability on the next device run.
 Actual map appearance still needs device evidence.
+
+The expanded audit also found that headlight collection still required
+Direct3D11_Is_Active, which always returns false on iOS. It now uses the native
+per-pixel-light capability, allowing the previously ported lighting pass to
+receive eligible vehicle beams. Memory-pressure fallback still omits that pass.

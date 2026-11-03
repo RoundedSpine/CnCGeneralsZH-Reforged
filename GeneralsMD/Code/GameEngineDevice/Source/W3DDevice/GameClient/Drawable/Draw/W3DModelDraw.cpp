@@ -44,6 +44,7 @@
 #include "Common/PerfTimer.h"
 #include "Common/RandomValue.h"
 #include "Common/ThingTemplate.h"
+#include "Platform/SceneEffects.h"
 #include "Common/GameLOD.h"
 #include "Common/Xfer.h"
 #include "Common/GameState.h"
@@ -2478,8 +2479,13 @@ void W3DModelDraw::doDrawModule(const Matrix3D* transformMtx)
 	// already returned for anything hidden, stealthed or under the shroud, so an enemy's lamps never
 	// show where the enemy does not.  Rooftop lamps on buildings and aircraft lights stay beams only.
 	s_headlightDrawn = TRUE;
+#if defined(_WIN32)
+    const Bool perPixelLights=Direct3D11_Is_Active();
+#else
+    const Bool perPixelLights=SceneEffects::SupportsFirelight();
+#endif
 	if (m_hasHeadlights && !m_hideHeadlights && m_renderObject && !m_renderObject->Is_Hidden()
-		&& Direct3D11_Is_Active() && !TheGlobalData->m_classicGraphics)
+		&& perPixelLights && !TheGlobalData->m_classicGraphics)
 	{
 		const Drawable* draw = getDrawable();
 		const Object* obj = draw->getObject();
