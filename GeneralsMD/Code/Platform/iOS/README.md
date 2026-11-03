@@ -122,3 +122,11 @@ records. These observations do not change the view controller or patch SDL.
 For appearance warnings, retain the entire startup log so warnings can be placed
 between the surrounding claim/release and window records. These diagnostics
 narrow the cause but do not establish that a UIKit transition completed correctly.
+
+Device creation prepares the CPU back buffer and depth surface before claiming
+an SDL GPU window. A rejected surface format or allocation therefore does not
+attach and remove a UIKit Metal view during an engine fallback attempt.
+`[DEVICE_CREATE]` records the attempted formats, dimensions, multisampling and
+result stage; `[DEVICE_SURFACE]` identifies the rejected surface and reason.
+A new device log is needed to establish whether avoiding the failed attempt's
+view replacement removes the appearance-transition warnings.

@@ -52,6 +52,7 @@ jobs:
             -o "$RUNNER_TEMP/test-refpack"
           "$RUNNER_TEMP/test-refpack"
           python3 GeneralsMD/Code/Tests/test_disconnect_ping.py
+          python3 GeneralsMD/Code/Tests/test_device_creation.py
           python3 GeneralsMD/Code/Tests/test_ios_lifecycle.py
           python3 GeneralsMD/Code/Tests/test_ios_network_permissions.py
           c++ -std=c++17 -Wall -Wextra -fsanitize=address,undefined \

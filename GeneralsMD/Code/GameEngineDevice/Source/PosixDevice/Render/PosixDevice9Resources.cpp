@@ -30,6 +30,7 @@
 #include "SdlCreationLog.h"
 
 #include <string.h>
+#include <stdio.h>
 
 namespace {
 
@@ -124,24 +125,32 @@ RenderResult PosixDevice9::Create_Implicit_Surfaces()
 {
 	// A windowed back buffer of UNKNOWN format takes the display's, which here is always X8R8G8B8.
 	const D3DFORMAT format = (Parameters.BackBufferFormat == D3DFMT_UNKNOWN) ? D3DFMT_X8R8G8B8 : Parameters.BackBufferFormat;
+	const auto failure = [this](const char *role, const char *reason, D3DFORMAT rejected, RenderResult result) {
+		fprintf(stderr, "[DEVICE_SURFACE] role=%s reason=%s format=%u size=%ux%u samples=%u quality=%u result=0x%08x\n",
+			role, reason, (unsigned)rejected, Parameters.BackBufferWidth, Parameters.BackBufferHeight,
+			(unsigned)Parameters.MultiSampleType, (unsigned)Parameters.MultiSampleQuality, (unsigned)result);
+		return result;
+	};
 	if (!posixFormatSupported( D3DUSAGE_RENDERTARGET, D3DRTYPE_SURFACE, format ))
-		return D3DERR_INVALIDCALL;
+		return failure("back-buffer", "unsupported-format", format, D3DERR_INVALIDCALL);
+	// Validate both formats before allocating either surface.
+	if (Parameters.EnableAutoDepthStencil && !posixFormatSupported( D3DUSAGE_DEPTHSTENCIL,
+		D3DRTYPE_SURFACE, Parameters.AutoDepthStencilFormat ))
+		return failure("depth-stencil", "unsupported-format", Parameters.AutoDepthStencilFormat, D3DERR_INVALIDCALL);
 	PosixSurface9 *back = PosixSurface9::createStandalone( Parameters.BackBufferWidth, Parameters.BackBufferHeight, format,
 		D3DUSAGE_RENDERTARGET, D3DPOOL_DEFAULT, Parameters.MultiSampleType, Parameters.MultiSampleQuality );
 	if (back == NULL)
-		return D3DERR_OUTOFVIDEOMEMORY;
+		return failure("back-buffer", "image-allocation-or-layout", format, D3DERR_OUTOFVIDEOMEMORY);
 	BackBuffer = back;							// the device's own reference, from creation
 	Posix_Bind( RenderTargets[0], BackBuffer );
 
 	if (Parameters.EnableAutoDepthStencil)
 	{
-		if (!posixFormatSupported( D3DUSAGE_DEPTHSTENCIL, D3DRTYPE_SURFACE, Parameters.AutoDepthStencilFormat ))
-			return D3DERR_INVALIDCALL;
 		PosixSurface9 *depth = PosixSurface9::createStandalone( Parameters.BackBufferWidth, Parameters.BackBufferHeight,
 			Parameters.AutoDepthStencilFormat, D3DUSAGE_DEPTHSTENCIL, D3DPOOL_DEFAULT, Parameters.MultiSampleType,
 			Parameters.MultiSampleQuality );
 		if (depth == NULL)
-			return D3DERR_OUTOFVIDEOMEMORY;
+			return failure("depth-stencil", "image-allocation-or-layout", Parameters.AutoDepthStencilFormat, D3DERR_OUTOFVIDEOMEMORY);
 		DepthSurface = depth;
 		Posix_Bind( DepthStencil, DepthSurface );
 	}

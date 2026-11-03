@@ -126,17 +126,28 @@ RenderResult PosixDirect3D9::CreateDevice(unsigned int adapter, D3DDEVTYPE type,
 	// -offscreen (SdlGameEngine::startOffscreen): no window, and still a GPU frame, drawn into its own target
 	// and "presented" into a texture of its own.  Without the hint no window is -headless: no GPU device.
 	const bool offscreen = window == NULL && SDL_GetHintBoolean("ZH_OFFSCREEN_FRAMES", false);
-	RenderResult result = created->Create_Gpu_Frame(offscreen);
-	if (Render_Succeeded(result) && offscreen) {
-		const char *hz = SDL_GetHint("ZH_OFFSCREEN_HZ");
-		created->Present_Offscreen(hz != NULL ? (unsigned int)strtoul(hz, NULL, 10) : 0);
-	}
+	// CPU surfaces can reject a format or allocation without a GPU. Finish
+	// them before claiming the window: a failed attempt must not replace its
+	// UIKit view, only to remove it again when the engine retries a format.
+	const char *stage = "implicit-surfaces";
+	RenderResult result = created->Create_Implicit_Surfaces();
 	if (Render_Succeeded(result)) {
-		result = created->Create_Implicit_Surfaces();
+		stage = "gpu-frame";
+		result = created->Create_Gpu_Frame(offscreen);
 	}
+	fprintf(stderr, "[DEVICE_CREATE] stage=%s result=0x%08x size=%ux%u color=%u depth=%u "
+		"auto_depth=%d samples=%u quality=%u window=%p offscreen=%d\n",
+		stage, (unsigned)result, parameters->BackBufferWidth, parameters->BackBufferHeight,
+		(unsigned)parameters->BackBufferFormat, (unsigned)parameters->AutoDepthStencilFormat,
+		(int)parameters->EnableAutoDepthStencil, (unsigned)parameters->MultiSampleType,
+		(unsigned)parameters->MultiSampleQuality, (void *)window, (int)offscreen);
 	if (Render_Failed(result)) {
 		created->Release();
 		return result;
+	}
+	if (offscreen) {
+		const char *hz = SDL_GetHint("ZH_OFFSCREEN_HZ");
+		created->Present_Offscreen(hz != NULL ? (unsigned int)strtoul(hz, NULL, 10) : 0);
 	}
 	*device = created;
 	return D3D_OK;
