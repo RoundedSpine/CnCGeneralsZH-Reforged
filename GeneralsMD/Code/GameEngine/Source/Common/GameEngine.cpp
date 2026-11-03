@@ -1006,7 +1006,9 @@ void GameEngine::init( int argc, char *argv[] )
 		//We need to toast the latter in order for the game to patch properly.
 		// (C1: moved here from just after createFileSystem, to go through TheLocalFileSystem; nothing
 		// between the two places touched the file, and the archives still mount after it is gone.)
+#if !defined(ZH_PLATFORM_IOS)
 		TheLocalFileSystem->deleteFile( "Data\\INI\\INIZH.big" );
+#endif
 
 
     	#ifdef DUMP_PERF_STATS///////////////////////////////////////////////////////////////////////////

@@ -86,3 +86,17 @@ engine-owned resources reentrantly. OS termination is logged and exits at the
 next safe lifecycle check without running game teardown inside the callback.
 Hardware tests should cover lock/unlock, app switching, interruptions and memory
 pressure; host lifecycle tests do not validate iOS suspension or memory grants.
+
+On iOS the desktop fixed-function rendering probe and D3D9 combiner compiler are
+disabled. Metal builds its own stage programs; the D3D9 compiler stub cannot
+produce bytecode. This also avoids sampling draw states for an `ffprobe.txt` dump
+that cannot be written to the read-only install. The legacy Windows patch cleanup
+of `Data/INI/INIZH.big` is skipped on iOS.
+
+A device log from revision `1c0f0bb2218a` recorded five UIKit appearance-transition
+warnings during game-client initialization, followed by successful rendering and
+normal shutdown. SDL replaces rendering views by detaching and reattaching its
+root view controller; this is a possible source, not a confirmed cause. A device
+trace of view replacement and appearance callbacks is needed before changing
+window setup. The log does not demonstrate background/resume behavior or rule
+out rendering defects.

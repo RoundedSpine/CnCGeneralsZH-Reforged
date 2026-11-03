@@ -1158,10 +1158,16 @@ void W3DDisplay::init( void )
 	DX8Wrapper::Set_Requested_Monitor( chosenMonitor().device );
 	DX8Wrapper::Set_Requested_Fullscreen_Keep_Aspect( TheGlobalData->m_fullscreenScaling == FULLSCREEN_SCALING_KEEP_ASPECT );
 
-	// Same reason: WW3D2 cannot see GlobalData, so the backend choice is pushed in from here.  The
-	// fixed-function probe and the generated combiner shaders are always on.
+	// WW3D2 cannot see GlobalData, so the backend choice is pushed in from here.
+#if defined(ZH_PLATFORM_IOS)
+	// Metal compiles its own stage programs. D3D9 combiner compilation is unavailable,
+	// and the desktop probe would collect states for a dump into the read-only install.
+	FixedFunctionProbe_Enable( false );
+	CombinerShaders_Enable( false );
+#else
 	FixedFunctionProbe_Enable( true );
 	CombinerShaders_Enable( true );
+#endif
 	Direct3D11_Enable( TheGlobalData->m_direct3D11 != FALSE );
 	Direct3D11_Present_Enable( TheGlobalData->m_direct3D11 != FALSE );
 	Direct3D11_Dump_Programs_To( TheGlobalData->m_direct3D11DumpPath.str() );
