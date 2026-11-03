@@ -34,5 +34,4 @@ patching file 'src/SDL_shadercross.c'
 [vendor] unpacking freetype
 [vendor] FreeType 2.14.3 -> Libraries/Source/freetype
 [vendor] downloading ffmpeg-8.1.2.tar.xz
-curl: (35) Recv failure: Connection reset by peer
-[vendor] ERROR: could not download https://ffmpeg.org/releases/ffmpeg-8.1.2.tar.xz
+curl: (28) Failed to connect to ffmpeg.org port 443 after 30017 ms: Timeout was reached
