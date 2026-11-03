@@ -66,16 +66,19 @@ for activation timing and scene/hardware conditions.
   single-sample edge quality and texture sharpness; supported MSAA is available,
   with a memory/geometry cost. Do not treat the default chain string as evidence
   these stages run on iOS.
-- `SdlInput_dispatch` handles keyboard, text/IME, mouse and iOS touch, but there is
-  no gamepad event adapter. Controller input requires additional implementation.
 - GPU particle acceleration uses the CPU fallback. This is a performance gap,
-  not evidence that particle visuals are missing.
+  not evidence that particle visuals are missing. The desktop backend adds
+  overflow particles above the CPU cap; it does not offload ordinary particles.
 - The app currently requests full-screen landscape. No game HUD safe-area inset
   handling was found. Notch/home-indicator overlap, software keyboard placement
   and external-input behavior require device checks before changing layouts.
 
 Source checks alone do not establish additional visible bugs in these areas.
 Normal-map removal is an upstream renderer change, not an omitted iOS feature.
+Controller input is outside the current work; touch controls are the priority.
+See the [FXAA/sharpen and GPU particle investigation](ios-post-particle-gaps.md)
+for translation probes, the confirmed 80/96-byte spawn-stride mismatch, memory
+estimates and recommended validation/implementation order.
 
 ## Evidence and limits
 
