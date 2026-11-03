@@ -3341,6 +3341,7 @@ Tests/test_sdl_platform.cpp
 Tests/test_sdl_program_cache.cpp
 Tests/test_selection_priority.inc
 Tests/test_shader_sdl.cpp
+Tests/test_shoreline_refresh.py
 Tests/test_smooth_motion.cpp
 Tests/test_smudge_support.py
 Tests/test_sun_shadow_sorting.cpp

@@ -150,6 +150,7 @@ public:
 	unsigned short polygon_count;			// Polygon count to process (3 indices = one polygon)
 	unsigned short min_vertex_index;		// First index used in the vb
 	unsigned short vertex_count;			// Number of vertices used in vb
+	bool contactFade;					// contact fade is independent of the quad geometry
 	bool quads;									// four vertices a quad, in order from min_vertex_index; the ib is not read
 	bool glow;									// the normals hold a fire's glow (Insert_Quads)
 	bool fire;									// a fire system's quads, age and seed in v2 (Insert_Quads)
@@ -258,6 +259,7 @@ void SortingRendererClass::Insert_Triangles(
 	state->min_vertex_index=min_vertex_index;
 	state->vertex_count=vertex_count;
 	state->quads=false;
+	state->contactFade=false;
 	state->glow=false;
 	state->fire=false;
 	state->emissive=false;
@@ -350,7 +352,8 @@ void SortingRendererClass::Insert_Quads(
 	unsigned short vertex_count,
 	bool glow,
 	bool fire,
-	bool emissive)
+	bool emissive,
+	bool contactFade)
 {
 	const unsigned short polygon_count=quad_count*2;
 	if (!WW3D::Is_Sorting_Enabled()) {
@@ -376,6 +379,7 @@ void SortingRendererClass::Insert_Quads(
 	state->min_vertex_index=min_vertex_index;
 	state->vertex_count=vertex_count;
 	state->quads=true;
+	state->contactFade=contactFade;
 	state->glow=glow;
 	state->fire=fire;
 	state->emissive=emissive;
@@ -573,10 +577,10 @@ static bool Same_Draw_State(const RenderStateStruct& a, const RenderStateStruct&
 }
 
 // Whether two nodes draw in one run: the device state above and every look the flush sets per run.
-// A billboard run fades into the depth behind it and a mesh run does not, so the two never share one.
+// Contact-faded billboards, authored weapon trails and meshes retain separate runs.
 static bool Same_Run_State(const SortingNodeStruct* a,const SortingNodeStruct* b)
 {
-	return a->glow==b->glow && a->fire==b->fire && a->emissive==b->emissive && a->quads==b->quads
+	return a->contactFade==b->contactFade && a->glow==b->glow && a->fire==b->fire && a->emissive==b->emissive && a->quads==b->quads
 		&& Same_Draw_Effect(a,b) && a->excludeSunReceivers==b->excludeSunReceivers
 		&& a->casterEffect==b->casterEffect && Same_Draw_State(a->sorting_state,b->sorting_state);
 }
@@ -608,7 +612,7 @@ static unsigned Run_State_Hash(const SortingNodeStruct* node,int textures)
 	const unsigned fields[3]={
 		state.shader.Get_Bits(),
 		node->draw_effect,
-		(node->glow?1u:0u)|(node->fire?2u:0u)|(node->emissive?4u:0u)|(node->quads?8u:0u)|(node->excludeSunReceivers?16u:0u) };
+		(node->glow?1u:0u)|(node->fire?2u:0u)|(node->emissive?4u:0u)|(node->quads?8u:0u)|(node->excludeSunReceivers?16u:0u)|(node->contactFade?32u:0u) };
 	unsigned hash=Hash_Words(2166136261u,fields,sizeof(fields));
 	hash=Hash_Words(hash,&state.material,sizeof(state.material));
 	hash=Hash_Words(hash,state.Textures,sizeof(state.Textures[0])*textures);
@@ -978,7 +982,7 @@ static void Draw_Run(SortingNodeStruct* state,unsigned first_index,unsigned tria
 	SunShadow::SetSmokeGlow(DX8Wrapper::_Get_D3D_Device(),state->glow);
 	Direct3D11_Set_Fire_Look(state->fire);
 	Direct3D11_Set_Emissive(state->emissive);
-	Direct3D11_Set_Soft_Particles(state->quads);
+	Direct3D11_Set_Soft_Particles(state->contactFade);
 	Direct3D11_Set_Draw_Effect(state->draw_effect,state->draw_effect_parameters);
 	SunShadow::ReceiverExclusion sunReceivers(DX8Wrapper::_Get_D3D_Device(), state->excludeSunReceivers);
 	SunShadow::CasterEffectScope casterEffect(DX8Wrapper::_Get_D3D_Device(), state->casterEffect);
@@ -1095,9 +1099,9 @@ void SortingRendererClass::Flush_Sorting_Pool()
 
 	// Before any run resolves its program: the soft particles fade into this copy of the depth, and
 	// a sorted mesh writing depth between two of their runs costs no second one.  A pool with no
-	// billboards in it takes none.
+	// contact-faded billboards in it takes none.
 	for (unsigned node=0;node<overlapping_node_count;++node) {
-		if (overlapping_nodes[node]->quads) {
+		if (overlapping_nodes[node]->contactFade) {
 			Direct3D11_Take_Scene_Depth();
 			break;
 		}
@@ -1409,6 +1413,7 @@ void SortingRendererClass::Insert_VolumeParticle(
 	state->polygon_count=polygon_count * layerCount;//THIS IS VOLUME_PARTICLE SPECIFIC
 	state->vertex_count=vertex_count * layerCount;//THIS IS VOLUME_PARTICLE SPECIFIC
 	state->quads=false;
+	state->contactFade=false;
 	state->glow=false;
 	state->fire=false;
 	state->emissive=false;

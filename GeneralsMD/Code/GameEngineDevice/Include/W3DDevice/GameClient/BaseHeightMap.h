@@ -423,7 +423,10 @@ protected:
 	Int m_numShoreLineTiles;		///<number of tiles in m_shoreLineTilePositions.
 	Int m_numVisibleShoreLineTiles;	///<number of visible tiles.
 	Int m_shoreLineTilePositionsSize;	///<total size of array including unused memory.
-	Real m_currentMinWaterOpacity;		///<current value inside the gradient lookup texture.
+	Bool m_shorelineStateValid=false,m_shorelineStateEnabled=false;
+    Real m_shorelineStateDepth=0,m_shorelineStateOpacity=0;
+    void refreshShorelineState();
+    Real m_currentMinWaterOpacity;		///<current value inside the gradient lookup texture.
 	shoreLineTileSortInfo *m_shoreLineSortInfos;
 	Int m_shoreLineSortInfosSize;
 	Int m_shoreLineSortInfosXMajor;

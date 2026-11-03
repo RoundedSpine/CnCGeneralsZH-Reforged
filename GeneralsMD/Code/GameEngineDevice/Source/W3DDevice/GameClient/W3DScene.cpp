@@ -42,6 +42,7 @@
 // USER INCLUDES //////////////////////////////////////////////////////////////
 #include "Lib/BaseType.h"
 #include "Common/GlobalData.h"
+#include "Common/ThingTemplate.h"
 #include "Common/PerfTimer.h"
 #include "Common/Player.h"
 #include "Common/PlayerList.h"
@@ -900,6 +901,14 @@ void RTS3DScene::renderOneObject(RenderInfoClass &rinfo, RenderObjClass *robj, I
 		// have one.  The two that replace the disabled tint skip it: the dark grey under them only
 		// muddied the cold grey they draw.
 		rinfo.drawEffect = chooseDrawEffect( draw, theTranslucentPass, rinfo.drawEffectParameters );
+#if defined(ZH_PLATFORM_IOS)
+        if(draw->isKindOf(KINDOF_PROJECTILE)) {
+            static unsigned reports=0;
+            if(reports<32) {++reports;fprintf(stderr,"[IOS_PROJECTILE_MODEL] template=%s model=%s hidden=%d opacity=%.3f effect=%u translucent=%d\n",
+                draw->getTemplate()->getName().str(),robj->Get_Name()?robj->Get_Name():"",int(robj->Is_Hidden()),draw->getEffectiveOpacity(),rinfo.drawEffect,int(theTranslucentPass));}
+        }
+#endif
+
 
 		// HANDLE THE SPECIAL DRAWABLE-LEVEL COLORING SETTINGS FIRST
 
@@ -1525,13 +1534,15 @@ void RTS3DScene::Customized_Render( RenderInfoClass &rinfo )
 		| (unsigned(TheGlobalData->m_hemiAmbient) << 12) | (unsigned(TheGlobalData->m_teamGlow) << 13)
 		| (unsigned(TheGlobalData->m_mapLight) << 14) | (unsigned(TheGlobalData->m_atmosphere) << 15)
 		| (unsigned(TheGlobalData->m_weatherEffects) << 16) | (unsigned(TheGlobalData->m_groundMarks) << 17)
-		| (unsigned(TheGlobalData->m_waterSplashes) << 18) | (unsigned(TheGlobalData->m_volumetricSmokeShadows) << 19);
+		| (unsigned(TheGlobalData->m_waterSplashes) << 18) | (unsigned(TheGlobalData->m_volumetricSmokeShadows) << 19)
+        |(unsigned(TheGlobalData->m_waterStyle)<<20)|(unsigned(TheGlobalData->m_showSoftWaterEdge)<<22)|(unsigned(TheGlobalData->m_waterFoam)<<23);
 	if (graphics != reportedGraphics) {
-		fprintf(stderr,"[IOS_GRAPHICS] classic=%d shadow_map=%d volumes=%d decals=%d ao=%d shadow_quality=%d stencil_available=%d lighting=%d hemisphere=%d team_glow=%d warm_light=%d atmosphere=%d weather=%d ground_marks=%d water_splashes=%d volumetric_smoke=%d\n",
+		fprintf(stderr,"[IOS_GRAPHICS] classic=%d shadow_map=%d volumes=%d decals=%d ao=%d shadow_quality=%d stencil_available=%d lighting=%d hemisphere=%d team_glow=%d warm_light=%d atmosphere=%d weather=%d ground_marks=%d water_splashes=%d volumetric_smoke=%d water_style=%d smooth_water=%d water_foam=%d\n",
 			int(TheGlobalData->m_classicGraphics),int(TheGlobalData->m_shadowMap),int(TheGlobalData->m_useShadowVolumes),
 			int(TheGlobalData->m_useShadowDecals),int(TheGlobalData->m_ambientOcclusion),TheGlobalData->m_shadowQuality,int(DX8Wrapper::Has_Stencil()),
 			TheGlobalData->m_lightingStyle,int(TheGlobalData->m_hemiAmbient),int(TheGlobalData->m_teamGlow),int(TheGlobalData->m_mapLight),
-			int(TheGlobalData->m_atmosphere),int(TheGlobalData->m_weatherEffects),int(TheGlobalData->m_groundMarks),int(TheGlobalData->m_waterSplashes),int(TheGlobalData->m_volumetricSmokeShadows));
+			int(TheGlobalData->m_atmosphere),int(TheGlobalData->m_weatherEffects),int(TheGlobalData->m_groundMarks),int(TheGlobalData->m_waterSplashes),int(TheGlobalData->m_volumetricSmokeShadows),
+            TheGlobalData->m_waterStyle,int(TheGlobalData->m_showSoftWaterEdge),int(TheGlobalData->m_waterFoam));
 		reportedGraphics = graphics;
 	}
 #endif

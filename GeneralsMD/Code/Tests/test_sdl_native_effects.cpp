@@ -102,6 +102,17 @@ int main(){
         if(pixels.size()>at+3) {CHECK(pixels[at+2]>100&&pixels[at+1]>80&&pixels[at]>50);
             printf("TRACER: soft=%d sky=%d rgb=%u,%u,%u alpha=%u\n",int(fade),int(sky),pixels[at+2],pixels[at+1],pixels[at],pixels[at+3]);}
     }
+    // A glow attached to its opaque shell can be only millimetres in front
+    // of the captured surface. Contact fading erases it; authored trail policy
+    // must keep that glow out of the fade while retaining its ordinary depth test.
+    const float shellDepth=100.0f/99-100.0f/(99*10.001f);
+    for(bool fade:{true,false}) {
+        d->Clear(0,nullptr,D3DCLEAR_TARGET|D3DCLEAR_ZBUFFER,0xff000000,shellDepth,0);
+        d->Set_Particle_Flag(SceneEffects::SoftParticles,fade);d->Take_Particle_Depth();
+        CHECK(d->DrawPrimitiveUP(D3DPT_TRIANGLELIST,1,tracer,sizeof(Billboard))==D3D_OK);
+        std::vector<uint8_t> pixels;CHECK(d->Get_Gpu()->Read_Back(d->Get_Gpu()->Back_Buffer(),64,48,pixels));
+        if(pixels.size()>at+3){if(fade)CHECK(pixels[at+2]<2);else CHECK(pixels[at+2]>200);}
+    }
     d->Set_Object_Effect(0,nullptr);d->Set_Particle_Flag(SceneEffects::SoftParticles,false);d->Set_Particle_Flag(SceneEffects::FireParticles,false);
     texture->Release();CHECK(SDL_WaitForGPUIdle(d->Get_Gpu()->Device()));
     printf("NATIVE_EFFECTS: failures=%u backend=%s\n",failures,SDL_GetGPUDeviceDriver(d->Get_Gpu()->Device()));

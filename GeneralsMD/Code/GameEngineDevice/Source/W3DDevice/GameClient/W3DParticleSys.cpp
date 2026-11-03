@@ -2296,8 +2296,20 @@ void W3DParticleSystemManager::doParticles(RenderInfoClass &rinfo)
 		if (nextFill < m_billboardFills.size() && m_billboardFills[ nextFill ].system == sys)
 		{
 			BillboardFill &fill = m_billboardFills[ nextFill++ ];
+            Bool contactFade=TRUE;
+#if defined(ZH_PLATFORM_IOS)
+            // An attached weapon tracer sits on the shell whose opaque depth was
+            // captured. A contact fade there erases the authored in-flight glow.
+            contactFade=sys->getPriority()!=WEAPON_TRAIL;
+            if(!contactFade) {
+                static unsigned reports=0;
+                if(reports<12) {++reports;fprintf(stderr,"[IOS_PROJECTILE_PARTICLES] template=%s particles=%u drawn=%d shader=%d fire=%d contact_fade=0 texture=%s\n",
+                    sys->getTemplate()->getName().str(),unsigned(sys->getParticleCount()),fill.drawn,int(sys->getShaderType()),int(fill.fire),sys->getParticleTypeName().str());}
+            }
+#endif
+
 			PointGroupClass::Insert_Sorted_Billboards( &fill.range, fill.drawn, fill.texture, fill.shader, fill.glow != FALSE, fill.fire != FALSE,
-				sys->getTemplate()->isEmissive() != FALSE );
+				sys->getTemplate()->isEmissive() != FALSE,contactFade != FALSE );
 			fill.texture->Release_Ref();	// the draw state took its own reference
 			m_fieldParticleCount += fill.fieldIncrement * fill.drawn;
 			m_onScreenParticleCount += fill.drawn;

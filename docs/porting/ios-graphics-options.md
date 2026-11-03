@@ -46,7 +46,7 @@ the menu disables or hides the control and preserves its saved choice.
 | Smoke shadows (`CheckParticleShadows`) | Connected | CPU particle shadow collection reads the option each frame. Separate from volumetric smoke. |
 | Volumetric smoke (`CheckVolumetricSmoke`) | Conditional | Native sun smoke capture exists on iOS. Requires Classic Graphics off after restart, sampleable depth/shadow setup and eligible smoke/dust. This is not atmosphere fog. |
 | Trees and bushes (`CheckShowProps`) | Conditional | Applied during map object creation; network/replay rules force trees on for simulation consistency. Memory suitability can limit the preset. |
-| Soft shorelines (`CheckSmoothWater`) | Conditional | Original terrain/water alpha path; requires map water transparency settings. Use a new map. |
+| Soft shorelines (`CheckSmoothWater`) | Conditional | Classic terrain/water alpha path, separate from Modern water. Requires map transparency settings. Shoreline tiles/LUT now refresh on first render and option/depth/opacity changes. |
 | Water foam (`CheckWaterFoam`) | Conditional | Native original-water shaders consume an independent scene-depth snapshot for shoreline foam. Missing depth falls back to the original non-foam shader. |
 | Ground marks (`CheckGroundMarks`) | Conditional | Shared scorch/mark buffers now accept the native renderer. Reforged mode and eligible dry terrain required. |
 | Hemisphere ambient (`CheckHemiAmbient`) | Conditional | Native vertex shader receives hemisphere state and view-space world-up. Reforged mode; unlit/pretransformed draws and shadow capture are excluded. |
@@ -204,3 +204,20 @@ the renderer session. Repeated warnings retain required scene copies instead of
 releasing/rebuilding them. Preferences stay saved for the next device creation.
 Runtime memory samples report footprint, headroom and sampled peak; they do not
 establish the actual peak or prove a Jetsam termination.
+
+## Projectile and Classic shoreline regression follow-up
+
+The user reports artillery/tank visuals disappeared after the new particle batch,
+while Modern water blends but Classic water cuts off. Native sorted billboards
+previously enabled contact fading for every quad. Weapon trails attached to an
+opaque shell can sample that shell's own depth and lose their glow. The sorting
+metadata now carries contact-fade eligibility independently of quad geometry;
+iOS WEAPON_TRAIL systems retain their authored contribution. Smoke and other
+eligible billboards keep contact fades. Batching compares/hashes the new flag.
+
+Classic shoreline tiles were not regenerated when smoothing was enabled after
+map preparation. A render-boundary refresh now rebuilds the tile list and alpha
+LUT on initial use and settings changes. Bounded IOS_PROJECTILE_MODEL,
+IOS_PROJECTILE_PARTICLES and IOS_SHORELINE diagnostics distinguish model
+submission, particle count and shoreline availability on the next device run.
+Actual map appearance still needs device evidence.

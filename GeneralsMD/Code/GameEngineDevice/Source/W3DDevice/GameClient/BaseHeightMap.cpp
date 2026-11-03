@@ -1504,6 +1504,7 @@ Int BaseHeightMapRenderObjClass::initHeightData(Int x, Int y, WorldHeightMap *pM
 {	
 
 	REF_PTR_SET(m_map, pMap);	//update our heightmap pointer in case it changed since last call.
+    m_shorelineStateValid=false;
 	// a device reset re-inits the same map from inside the overlap window, beside a tick that may be
 	// flattening cells the drawn map takes only after it
 	if (pMap && !LogicThread::isInsideWindow())
@@ -2523,8 +2524,33 @@ void BaseHeightMapRenderObjClass::Render(RenderInfoClass & rinfo)
 /**Render parts of terrain that are along the coast line and have vertices directly under the
 water plane.  Applying a custom render to these polygons allows for a smoother land->water
 transition*/
+// Shoreline tiles may have been prepared while the option was off, or before
+// the map's water was ready. Refresh once at rendering and whenever its inputs
+// change; changing an option during a match must not require another map load.
+void BaseHeightMapRenderObjClass::refreshShorelineState()
+{
+    if(!m_map||!TheGlobalData||!TheWaterTransparency||!TheWaterRenderObj)return;
+    const Bool enabled=TheGlobalData->m_showSoftWaterEdge;
+    const Real depth=TheWaterTransparency->m_transparentWaterDepth;
+    const Real opacity=TheWaterTransparency->m_minWaterOpacity;
+    if(m_shorelineStateValid&&m_shorelineStateEnabled==enabled
+        &&m_shorelineStateDepth==depth&&m_shorelineStateOpacity==opacity)return;
+    m_shorelineStateValid=true;m_shorelineStateEnabled=enabled;
+    m_shorelineStateDepth=depth;m_shorelineStateOpacity=opacity;
+    if(enabled&&depth>0&&opacity>0) {
+        m_numShoreLineTiles=0;
+        updateShorelineTiles(0,0,m_map->getXExtent()-1,m_map->getYExtent()-1,m_map);
+        if(m_currentMinWaterOpacity!=opacity)initDestAlphaLUT();
+    }
+#if defined(ZH_PLATFORM_IOS)
+    fprintf(stderr,"[IOS_SHORELINE] enabled=%d format=%u tiles=%d depth=%.3f min_opacity=%.3f\n",
+        int(enabled),unsigned(DX8Wrapper::getBackBufferFormat()),m_numShoreLineTiles,depth,opacity);
+#endif
+}
+
 void BaseHeightMapRenderObjClass::renderShoreLines(CameraClass *pCamera)
 {
+    refreshShorelineState();
 	if (!TheGlobalData->m_isWorldBuilder)	//use faster version optimized for game and not world builder?
 	{	renderShoreLinesSorted(pCamera);
 		return;
