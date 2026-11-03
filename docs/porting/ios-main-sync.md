@@ -37,4 +37,20 @@ rows), the regenerated 4,506-file manifest and the port's graphics-preference,
 startup, lifecycle, memory-pressure, shoreline and particle-admission helpers.
 Native renderer/test executables compile, including the updated water-foam code.
 Their GPU execution explicitly skips on this host because no backend is present.
-The shared engine runtime suite and actual Metal readbacks await the workflow.
+At merge time, shared engine runtime coverage and Metal readbacks were pending
+the workflow.
+
+The first merged ARM64 attempt at `f6291691` stopped while compiling the macOS
+host engine tests. The uploaded `logs_112962533253.zip` records six diagnostics
+from two test-only portability issues: the map-dump helper used Windows timing
+types, and a fallback check cast 99 outside `AIPersonality`'s representable range.
+The helper now uses `std::chrono::steady_clock` and portable output separators;
+the fallback check uses the defined count sentinel, which has no table entry.
+Local GCC validation also exposed `<fstream>` being parsed after the engine's
+legacy `min` macro. Standard C++ headers now precede the engine headers, and the
+complete shared engine test executable builds locally.
+This failure occurred before engine-test execution, Metal readbacks or device
+IPA compilation; their status must come from the subsequent workflow.
+After the portability fixes, the complete shared engine target built locally and
+its CTest entry passed: 705 cases, 623,883 checks, zero failures. Apple Clang,
+Metal readback and device packaging still require the ARM64 workflow.

@@ -12,10 +12,16 @@
  */
 /* crc.h pulls winsock2.h, so it has to come before anything that drags in
    windows.h (and with it winsock.h) - otherwise ws2def.h redefines sockaddr.
-   <filesystem> goes first again: GCC 15's pulls <locale>, which BaseType.h's min/max macros break. */
+   Parse standard C++ headers first: BaseType.h's min/max macros break libstdc++ internals. */
 #include <filesystem>
+#include <algorithm>
+#include <atomic>
+#include <chrono>
+#include <fstream>
 #include <limits>
+#include <sstream>
 #include <string>
+#include <thread>
 
 #include "Common/crc.h"
 
@@ -53,8 +59,6 @@
 #include "GameClient/ChallengeGenerals.h"
 #include "GameClient/FactionPicker.h"
 #include "GameClient/UIStyle.h"
-#include <fstream>
-#include <sstream>
 #include "GameNetwork/FrameResendPolicy.h"
 #include "GameLogic/FPUControl.h"
 #include "GameNetwork/StallJudgement.h"
@@ -201,10 +205,6 @@ static int GetSystemMetrics( int which )
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
-#include <atomic>
-#include <chrono>
-#include <filesystem>
-#include <thread>
 
 //////////////////////////////////////////////////////////////////////////////
 // Boot scaffolding
@@ -2671,7 +2671,6 @@ TEST(drawn_path_orders_units_by_where_they_already_stand)
 /* DrawnPath.cpp: the attack circle stands both sides around its centre and deals the shots so the
    counts differ by one at most. 10 guns on 3 targets is 3, 4, 3. 3 guns on 10 targets queue
    3, 4, 3. */
-#include <algorithm>
 
 static AttackAssignSlot attackSlot( Int id, Real x, Real y )
 {
@@ -14847,17 +14846,15 @@ TEST(write_the_maps_RMG_TEMPLATE_DUMP_names)
 		RandomMapGenerator::clampSettings( settings );
 		std::vector<char> map, preview;
 		RMGTemplateReport report;
-		LARGE_INTEGER frequency, before, after;
-		QueryPerformanceFrequency( &frequency );
-		QueryPerformanceCounter( &before );
+		const auto before = std::chrono::steady_clock::now();
 		Bool built = rmgSynthesise( settings, exemplar, civilians ? isListedCivilian : NULL, map, &preview, &report );
-		QueryPerformanceCounter( &after );
+		const auto after = std::chrono::steady_clock::now();
 		CHECK( built );
 		if( !built )
 			continue;
 
 		char name[MAX_PATH];
-		snprintf( name, sizeof(name), "%s\\synth_%d_%dp_%dc", dir, settings.m_seed, settings.m_numPlayers, settings.m_playableCells );
+		snprintf( name, sizeof(name), "%s/synth_%d_%dp_%dc", dir, settings.m_seed, settings.m_numPlayers, settings.m_playableCells );
 		AsciiString file;
 		file.format( "%s.map", name );
 		FILE *out = fopen( file.str(), "wb" );
@@ -14871,7 +14868,7 @@ TEST(write_the_maps_RMG_TEMPLATE_DUMP_names)
 		fclose( out );
 		printf( "  wrote %s.map (%d bytes) in %.2f s: %d pads, %d ramps cut, %d patches, %d bridges, %d rivers, %d towns, %d tech, %d road "
 			"segments, %d trees, %d scenery; cut off %d starts, %d sites, %d tech\n%s",
-			name, (Int)map.size(), (double)( after.QuadPart - before.QuadPart ) / (double)frequency.QuadPart,
+			name, (Int)map.size(), std::chrono::duration<double>( after - before ).count(),
 			report.m_pads, report.m_ramps, report.m_patches, report.m_bridges, report.m_rivers, report.m_towns, report.m_tech,
 			report.m_roads, report.m_trees, report.m_scenery, report.m_cutOffStarts, report.m_cutOffSites, report.m_cutOffTech,
 			report.m_notes.str() );
@@ -16916,8 +16913,9 @@ TEST(ai_persona_normal_row_is_neutral)
 	for( Int k = 0; k < AIBUY_KIND_COUNT; ++k )
 		CHECK_EQ( normal.m_buy[ k ], 0 );
 	CHECK_EQ( aiPersonaEnemyCost( AIPERSONA_NORMAL, 12345.0f, 0.7f, TRUE ), 12345.0f );
-	// an unknown value plays Normal rather than reading past the table
-	CHECK( &aiPersonaWeights( (AIPersonality)99 ) == &normal );
+	// The count sentinel has no table entry and must fall back to Normal. Unlike
+	// casting 99, it is a representable enum value on compilers that check the range.
+	CHECK( &aiPersonaWeights( AIPERSONA_COUNT ) == &normal );
 }
 
 TEST(ai_persona_names_round_trip)
