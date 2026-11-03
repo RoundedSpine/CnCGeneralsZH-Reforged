@@ -187,6 +187,43 @@ inline bool parse_declaration(const std::string & line, const char * type, char 
 	return true;
 }
 
+// The pinned shadercross reflection assumes sampled images precede samplerless
+// images. Mixed Sample/Load programs can otherwise assign two Metal textures to
+// slot zero. Read integer texels through a matching sampler at exact texel centres.
+inline bool pair_integer_loads(std::string &hlsl)
+{
+    struct Texture {std::string name;int slot;};std::vector<Texture> textures;
+    std::vector<Texture> samplers;size_t last=0;
+    for(size_t line=0;line<hlsl.size();) {
+        size_t end=hlsl.find('\n',line);if(end==std::string::npos)end=hlsl.size();
+        const auto text=hlsl.substr(line,end-line);Texture item;
+        if(parse_declaration(text,"Texture2D",'t',item.name,item.slot)){textures.push_back(item);last=end;}
+        else if(parse_declaration(text,"SamplerState",'s',item.name,item.slot)){samplers.push_back(item);last=end;}
+        line=end+1;
+    }
+    std::string added;
+    // Insert declarations before rewriting calls, so offsets stay valid.
+    for(const auto &texture:textures) {
+        if(hlsl.find(texture.name+".Load(")==std::string::npos)continue;
+        std::string sampler;
+        for(const auto &known:samplers)if(known.slot==texture.slot)sampler=known.name;
+        if(sampler.empty()) {
+            sampler="SDLLoadSampler_"+texture.name;
+            added+="SamplerState "+sampler+" : register(s"+std::to_string(texture.slot)+");\n";
+        }
+        added+="float4 SDLLoad_"+texture.name+"(int3 p) { uint w,h,levels; "+texture.name+
+            ".GetDimensions(p.z,w,h,levels); return "+texture.name+".SampleLevel("+sampler+
+            ", (float2(p.xy)+0.5)/float2(w,h),p.z); }\n";
+    }
+    if(added.empty())return true;
+    hlsl.insert(last+1,added);
+    for(const auto &texture:textures) {
+        const auto from=texture.name+".Load(";const auto to="SDLLoad_"+texture.name+"(";size_t at=0;
+        while((at=hlsl.find(from,at))!=std::string::npos){hlsl.replace(at,from.size(),to);at+=to.size();}
+    }
+    return true;
+}
+
 inline bool pair_samplers(std::string & hlsl)
 {
 	struct Declared { std::string name; int slot; size_t line_end; };
@@ -282,7 +319,7 @@ inline bool pair_samplers(std::string & hlsl)
 inline bool SDL3_Shader_Retarget(std::string & hlsl, bool vertex_stage)
 {
 	using namespace sdl3target_detail;
-	if (!pair_samplers(hlsl) || !place_registers(hlsl, vertex_stage)) {
+	if (!pair_integer_loads(hlsl) || !pair_samplers(hlsl) || !place_registers(hlsl, vertex_stage)) {
 		return false;
 	}
 	std::string attribute_colours[2], varying_colours[2];

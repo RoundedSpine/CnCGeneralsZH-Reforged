@@ -11,9 +11,15 @@
 #include <cmath>
 #include <cstring>
 #include <vector>
+#include <regex>
+#include <set>
 static unsigned failures=0;
 #define CHECK(x) do{if(!(x)){++failures;fprintf(stderr,"FAIL %d: %s\n",__LINE__,#x);}}while(0)
 struct Vertex {float x,y,z;uint32_t colour;float u,v,halfWidth,age;};
+static void uniqueMetalTextures(const std::string &msl) {
+    std::set<std::string> bindings;std::regex attribute(R"(\[\[texture\(([0-9]+)\)\]\])");
+    for(std::sregex_iterator it(msl.begin(),msl.end(),attribute),end;it!=end;++it)CHECK(bindings.insert((*it)[1]).second);
+}
 static void variants(){
     CombinerDescription base={};base.StageCount=1;auto &s=base.Stages[0];s.TextureBound=true;
     s.ColourOperation=FF_TOP_MODULATE;s.ColourArgument1=FF_TA_TEXTURE;s.ColourArgument2=FF_TA_DIFFUSE;
@@ -22,21 +28,21 @@ static void variants(){
         std::string source,error,msl;std::vector<unsigned char> spirv;
         CHECK(CombinerShader_Generate(d,COMBINER_SHADER_TARGET_SDL3_GPU,source));
         bool ok=SDL3_Compile_HLSL_To_SPIRV(source,false,spirv,error)&&SDL3_Translate_SPIRV_To_MSL(spirv,false,msl,error);
-        CHECK(ok);if(!ok)fprintf(stderr,"variant %u: %s\n",i,error.c_str());
+        CHECK(ok);if(ok)uniqueMetalTextures(msl);if(!ok)fprintf(stderr,"variant %u: %s\n",i,error.c_str());
     }
     for(unsigned i=0;i<4;++i){VertexPipelineDescription d={};d.FVF=FF_FVF_XYZ|FF_FVF_DIFFUSE|FF_FVF_TEX2;
         d.StageCount=1;d.SoftParticle=i&1;d.FireLook=i&2;
         std::string source,error,msl;std::vector<unsigned char> spirv;
         CHECK(VertexShader_Generate(d,VERTEX_SHADER_TARGET_SDL3_GPU,source));
         bool ok=SDL3_Compile_HLSL_To_SPIRV(source,true,spirv,error)&&SDL3_Translate_SPIRV_To_MSL(spirv,true,msl,error);
-        CHECK(ok);if(!ok)fprintf(stderr,"vertex variant %u: %s\n",i,error.c_str());
+        CHECK(ok);if(ok)uniqueMetalTextures(msl);if(!ok)fprintf(stderr,"vertex variant %u: %s\n",i,error.c_str());
     }
     for(auto program:{ENGINE_SHADER_WATER_TRAPEZOID,ENGINE_SHADER_WATER_RIVER,
         ENGINE_SHADER_WATER_TRAPEZOID_FOAM,ENGINE_SHADER_WATER_RIVER_FOAM}) {
         std::string source,error,msl;std::vector<unsigned char> spirv;PixelPipelineDescription pipeline={};
         CHECK(EngineShader_Pixel_Program(program,pipeline,source,COMBINER_SHADER_TARGET_SDL3_GPU));
         bool ok=SDL3_Compile_HLSL_To_SPIRV(source,false,spirv,error)&&SDL3_Translate_SPIRV_To_MSL(spirv,false,msl,error);
-        CHECK(ok);if(!ok)fprintf(stderr,"water variant %u: %s\n",unsigned(program),error.c_str());
+        CHECK(ok);if(ok)uniqueMetalTextures(msl);if(!ok)fprintf(stderr,"water variant %u: %s\n",unsigned(program),error.c_str());
     }
     printf("NATIVE_EFFECTS: seventeen production variants compiled SPIR-V/MSL failures=%u\n",failures);
 }
