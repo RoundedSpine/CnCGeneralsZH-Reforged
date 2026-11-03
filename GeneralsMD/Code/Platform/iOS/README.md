@@ -143,7 +143,9 @@ depth, uses 14 taps at a 22-world-unit radius at half resolution, filters with
 depth-aware horizontal/vertical passes, and multiplies scene RGB while preserving
 alpha. Reflection/custom views are excluded; unsupported formats or failed shader
 setup disable AO with a diagnostic. The pass respects the AO option and Classic
-graphics. `[IOS_GRAPHICS]` logs the requested settings; `[SDL_AO] ready` identifies
+graphics. The AO control queries device capability; unavailable effects keep their
+saved preferences. `[GRAPHICS_CAPS]` reports AO support when opening Options.
+`[IOS_GRAPHICS]` logs the requested settings; `[SDL_AO] ready` identifies
 successful resource setup. The shroud texture attenuates AO with the same cubic visibility factor as the
 Windows pass; missing GPU shroud data skips AO instead of ignoring the fog.
 

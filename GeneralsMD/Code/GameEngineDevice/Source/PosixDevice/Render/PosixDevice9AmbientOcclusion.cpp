@@ -6,6 +6,11 @@
 #include "SdlRenderMatrix.h"
 #include "Platform/SceneEffects.h"
 #include <cmath>
+bool PosixDevice9::Supports_Ambient_Occlusion() const
+{
+    return Gpu && Gpu->Supports_Ambient_Occlusion();
+}
+
 bool PosixDevice9::Ambient_Occlusion(IDirect3DBaseTexture9 *shroud,const float shroudRect[4])
 {
     if(!Gpu||SunActive||Sun_Scene_Excluded()||RenderTargets[0]!=BackBuffer||!Viewport.Width||!Viewport.Height) return false;
@@ -36,6 +41,9 @@ bool PosixDevice9::Ambient_Occlusion(IDirect3DBaseTexture9 *shroud,const float s
     return Gpu->Ambient_Occlusion(target,constants,shroudTexture);
 }
 namespace SceneEffects {
+bool SupportsAmbientOcclusion(IDirect3DDevice9 *device) {
+    return device&&static_cast<PosixDevice9*>(device)->Supports_Ambient_Occlusion();
+}
 bool AmbientOcclusion(IDirect3DDevice9 *device,IDirect3DBaseTexture9 *shroud,const float rect[4]) {
     return device&&static_cast<PosixDevice9*>(device)->Ambient_Occlusion(shroud,rect);
 }

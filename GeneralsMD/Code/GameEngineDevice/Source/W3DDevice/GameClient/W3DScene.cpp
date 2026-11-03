@@ -111,6 +111,13 @@ extern void DoTrees(RenderInfoClass & rinfo);
 extern void DoShadows(RenderInfoClass & rinfo, Bool stencilPass);
 extern void DoParticles(RenderInfoClass & rinfo);
 
+#if !defined(_WIN32)
+bool SceneEffects::SupportsAmbientOcclusion()
+{
+	return SupportsAmbientOcclusion(DX8Wrapper::_Get_D3D_Device());
+}
+#endif
+
 // The Direct3D 11 cloak goes by the stealthed state, not by the opacity, which a friendly stealth
 // unit swings between about a half and one: drawn by the opacity it blinked on and off.  Such a
 // unit always goes in the translucent pass, after the opaque world, because the cloak bends a copy

@@ -13,6 +13,18 @@ or audio-interruption exercise.
   boundary now calls a native SDL GPU implementation. It uses independent depth,
   half-resolution occlusion, bilateral filtering and RGB-only multiplication.
   Classic graphics, AO preferences and main-view eligibility remain respected.
+
+The options menu now queries SDL AO capability instead of disabling it with the
+Windows-only effects. Unsupported effects retain their saved preferences when
+accepting other changes or applying defaults. Capability checks only disable
+controls, preserving the menu's existing restrictions during a match.
+
+ARM64 GitHub Actions run 41575499514 (`5d337512`) passed the Metal readback test:
+5,233 contact pixels darkened, zero failed checks, followed by successful IPA
+packaging. The previous failure came from padded uploads in the test fixture:
+the pinned SDL Metal backend ignores upload row pitch. The fixture now uploads
+packed rows and still checks padded readback. This validates synthetic GPU
+results, while map appearance and performance still need device testing.
 - Graphics settings and successful resource setup are logged on device. This
   distinguishes a disabled preference from unsupported hardware or shader failure.
 
@@ -33,6 +45,23 @@ use synthetic geometry; actual maps and Metal device performance need validation
 Do not classify every empty Direct3D 11 hook as a missing feature: native SDL water,
 hazard-cloud rendering, capture and ordinary fixed-function lighting have separate
 implementations. The new AO scene hook likewise bypasses the old empty DX11 hook.
+
+## Lighting and atmosphere review
+
+Lighting and atmosphere are the next visual priority. The shared shader layout
+already contains headlight, blast-light and sky fields, and the generated shader
+text includes their calculations. However, SDL's draw path zeroes those fields
+and the POSIX setters are empty. Merely enabling the menu options would therefore
+have no effect. Returning true from `Direct3D11_Lights_Per_Pixel` before wiring the
+complete path would also remove the existing vertex-light fallback.
+
+Port lighting state, draw eligibility and world reconstruction together, and
+validate fire/explosion lights with ordinary geometry, particles and water
+reflections. Atmosphere additionally needs a native depth-aware pass and sky
+integration; `W3DShaderManager` currently builds the haze/atmosphere parameters
+inside Windows-only code. Keep these controls unavailable until their native
+paths are implemented and tested. Ordinary fixed-function lights and engine fog
+continue to work independently.
 
 ## Lifecycle, audio and input follow-up
 

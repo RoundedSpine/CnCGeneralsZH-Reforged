@@ -183,6 +183,7 @@ public:
 	unsigned int Depth_Usage() const;
 	/// Device capability selected at frame creation, including the R32F resolve target.
 	bool Supports_Scene_Depth() const { return DepthSampleable; }
+	bool Supports_Ambient_Occlusion() const;
 
 	/// Flush, then the back buffer to the window through the gamma ramp (null: none, a straight blit).
 	bool Present(const uint16_t (*ramp)[256]);

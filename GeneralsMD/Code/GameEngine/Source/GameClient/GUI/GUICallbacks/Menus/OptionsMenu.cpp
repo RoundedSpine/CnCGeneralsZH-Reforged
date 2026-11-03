@@ -76,6 +76,9 @@
 #include "WWDownload/Registry.h"
 #include "Platform/HazardCloud.h"
 #include "Platform/ModernWaterBuild.h"
+#if !defined(_WIN32)
+#include "Platform/SceneEffects.h"
+#endif
 //added by saad
 //used to access a messagebox that does "ok" and "cancel"
 #include "GameClient/MessageBox.h"
@@ -1115,6 +1118,29 @@ static GameWindow *findOptionWidget( const OptionDef& def )
 		NULL, TheNameKeyGenerator->nameToKey( AsciiString( def.widgetName ) ) );
 }
 
+static Bool rendererSupportsOption( const OptionDef& def )
+{
+	if( strcmp( def.iniKey, "WaterStyle" ) == 0 ) return ModernWater::Supported();
+	if( strcmp( def.iniKey, "CloudStyle" ) == 0 ) return HazardCloud::Supported();
+	if( strcmp( def.iniKey, "AmbientOcclusion" ) == 0 )
+	{
+#if defined(_WIN32)
+		return TheGlobalData->m_direct3D11;
+#else
+		return SceneEffects::SupportsAmbientOcclusion();
+#endif
+	}
+#if defined(_WIN32)
+	if( TheGlobalData->m_direct3D11 ) return TRUE;
+#endif
+	// These effects still require the Windows renderer. Ordinary engine lighting,
+	// fog and particles have separate paths and remain available.
+	static const char *const windowsEffects[] = { "MapLight", "TeamGlow", "WaterFoam", "GroundMarks", "Firelight", "HemiAmbient", "InternalHdr", "Weather", "WaterSplashes", "Atmosphere", "StructureCollapse" };
+	for( const char *key : windowsEffects )
+		if( strcmp( def.iniKey, key ) == 0 ) return FALSE;
+	return TRUE;
+}
+
 //-------------------------------------------------------------------------------------------------
 /** GlobalData -> the controls, for every catalog row that has one.
 	*
@@ -1210,6 +1236,9 @@ static void readCatalogWidgets( OptionPreferences &out )
 	for( Int i = 0; i < TheOptionCatalogCount; ++i )
 	{
 		const OptionDef& def = TheOptionCatalog[ i ];
+		// A disabled effect keeps its saved preference, including when Defaults or
+		// a preset changes the other settings. Capability is not a preference.
+		if( !rendererSupportsOption( def ) ) continue;
 		GameWindow *widget = findOptionWidget( def );
 		if( widget == NULL )
 		{
@@ -1221,12 +1250,6 @@ static void readCatalogWidgets( OptionPreferences &out )
 			}
 			continue;
 		}
-
-		// A hidden, unfilled combo must not overwrite the player's opt-in.
-		if (strcmp(def.iniKey, "CloudStyle") == 0 && !HazardCloud::Supported())
-			continue;
-		if (strcmp(def.iniKey, "WaterStyle") == 0 && !ModernWater::Supported())
-			continue;
 
 		Int value;
 		switch( def.kind )
@@ -3069,13 +3092,17 @@ void OptionsMenuInit( WindowLayout *layout, void *userData )
 //			checkAudioHardware->winEnable(FALSE);
 	}
 
-	// three looks only the Direct3D 11 picture draws; under -d3d9 their boxes keep the saved value, greyed
-	if( !TheGlobalData->m_direct3D11 )
+	// Only remove capability here: match restrictions above must remain in force.
+	for( Int i = 0; i < TheOptionCatalogCount; ++i )
 	{
-		static const char *const direct3D11Only[] = { "MapLight", "TeamGlow", "WaterFoam", "GroundMarks", "Firelight", "HemiAmbient", "AmbientOcclusion", "InternalHdr", "Weather", "WaterSplashes", "Atmosphere", "StructureCollapse" };
-		for( Int i = 0; i < (Int)( sizeof( direct3D11Only ) / sizeof( direct3D11Only[ 0 ] ) ); ++i )
-			findOptionWidget( *findOptionDef( direct3D11Only[ i ] ) )->winEnable( FALSE );
+		const OptionDef& def = TheOptionCatalog[ i ];
+		GameWindow *widget = findOptionWidget( def );
+		if( widget && !rendererSupportsOption( def ) ) widget->winEnable( FALSE );
 	}
+#if !defined(_WIN32)
+	fprintf(stderr,"[GRAPHICS_CAPS] ao=%d modern_lighting=0 atmosphere=0\n",
+		int(rendererSupportsOption(*findOptionDef("AmbientOcclusion"))));
+#endif
 
 	// A preset is its own step on the quality slider, whatever step Options.ini kept from a Custom mix,
 	// as long as the boxes show that step.  An Options.ini from before the slider can hold a preset
