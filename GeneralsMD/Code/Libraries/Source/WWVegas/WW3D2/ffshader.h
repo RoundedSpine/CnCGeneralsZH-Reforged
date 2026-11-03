@@ -482,7 +482,7 @@ const unsigned NORMAL_MAPPED_LIGHTS = 4;
 	"    float scene = SceneDepth.Load(int3(position.xy, 0)).r;\n" \
 	"    float behind = SoftParticleDepth.x / (scene * SoftParticleDepth.y - SoftParticleDepth.z);\n" \
 	"    float here = SoftParticleDepth.x / (position.z * SoftParticleDepth.y - SoftParticleDepth.z);\n" \
-	"    float fade = saturate((behind - here) * max(SoftParticleDepth.w, 1.0 / half_width));\n" \
+	"    float fade = saturate((behind - here) * max(SoftParticleDepth.w, 1.0 / max(half_width, 1.0e-3)));\n" \
 	"    return fade * fade * (3.0 - 2.0 * fade);\n" \
 	"}\n" \
 	"\n"

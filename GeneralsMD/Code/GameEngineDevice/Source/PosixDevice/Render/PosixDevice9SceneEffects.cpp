@@ -207,6 +207,7 @@ void RequestDisplay(bool hdr,unsigned samples){requestedHdr=hdr;requestedSamples
 bool RequestedHdr(){return requestedHdr;}
 unsigned RequestedSamples(){return requestedSamples;}
 unsigned MaxSamples(IDirect3DDevice9*d){auto *gpu=d?static_cast<PosixDevice9*>(d)->Get_Gpu():nullptr;return gpu?gpu->Max_Samples():1;}
+bool SupportsSamples(IDirect3DDevice9*d,unsigned count){auto *gpu=d?static_cast<PosixDevice9*>(d)->Get_Gpu():nullptr;return count<=1||(gpu&&gpu->Supports_Samples(count));}
 unsigned ActiveSamples(IDirect3DDevice9*d){auto *gpu=d?static_cast<PosixDevice9*>(d)->Get_Gpu():nullptr;return gpu&&gpu->Sample_Count()>1?gpu->Sample_Count():0;}
 bool SupportsHdr(IDirect3DDevice9*d){auto *gpu=d?static_cast<PosixDevice9*>(d)->Get_Gpu():nullptr;return gpu&&gpu->Supports_Hdr();}
 void SetPostGrade(IDirect3DDevice9*d,float amount){if(d)static_cast<PosixDevice9*>(d)->Set_Post_Grade(amount);}

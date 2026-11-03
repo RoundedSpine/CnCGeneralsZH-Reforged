@@ -127,6 +127,7 @@ bool SceneEffects::SupportsLighting()
 	return SupportsLighting(DX8Wrapper::_Get_D3D_Device());
 }
 unsigned SceneEffects::MaxSamples(){return MaxSamples(DX8Wrapper::_Get_D3D_Device());}
+bool SceneEffects::SupportsSamples(unsigned count){return SupportsSamples(DX8Wrapper::_Get_D3D_Device(),count);}
 bool SceneEffects::SupportsHdr(){return SupportsHdr(DX8Wrapper::_Get_D3D_Device());}
 bool SceneEffects::SupportsFirelight(){return SupportsFirelight(DX8Wrapper::_Get_D3D_Device());}
 bool SceneEffects::SupportsHeatHaze(){return SupportsHeatHaze(DX8Wrapper::_Get_D3D_Device());}

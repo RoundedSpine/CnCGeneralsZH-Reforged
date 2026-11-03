@@ -25,6 +25,104 @@ def compile_run(program):
 
 
 class GraphicsPreferences(unittest.TestCase):
+    def test_sparse_msaa_capabilities_and_menu_round_trip(self):
+        source = (CODE / 'GameEngine/Source/GameClient/GUI/GUICallbacks/Menus/OptionsMenu.cpp').read_text()
+        catalog = (CODE / 'GameEngine/Source/Common/OptionsCatalog.cpp').read_text()
+        frame = (RENDER / 'SdlGpuFrameMsaa.cpp').read_text()
+        methods = extract(catalog, 'unsigned msaaSamplesForLevel( Int level )')
+        for signature in ('static Int rendererOptionHigh(const OptionDef &def)',
+                          'static Bool rendererOptionEntrySupported(const OptionDef &def,Int value)',
+                          'static Int clampRendererOptionValue(const OptionDef &def,Int value)',
+                          'static Int rendererOptionListIndex(const OptionDef &def,Int value)',
+                          'static Int rendererOptionListValue(const OptionDef &def,Int index)',
+                          'static Int graphicsQualityShownValue( GameWindow *control )',
+                          'static Bool graphicsQualityStepShown( Int step )',
+                          'static void setGraphicsQualityControl( GameWindow *control, Int value )'):
+            methods += extract(source, signature)
+        capabilities = extract(frame, 'bool SdlGpuFrame::Supports_Samples(unsigned count) const')
+        capabilities += extract(frame, 'unsigned SdlGpuFrame::Max_Samples() const')
+        program = r'''
+#include <algorithm>
+#include <cassert>
+#include <cstring>
+#include <initializer_list>
+using Int=int;using Bool=bool;using std::min;
+constexpr bool TRUE=true,FALSE=false;
+constexpr int OPTION_MSAA_LEVEL_COUNT=5;
+static const unsigned TheMsaaSamples[OPTION_MSAA_LEVEL_COUNT]={0,2,4,8,16};
+using SDL_GPUTextureFormat=unsigned;using SDL_GPUSampleCount=unsigned;
+unsigned colourMask=0,depthMask=0;
+static unsigned sampleIndex(unsigned count){return count==8?3:count==4?2:count==2?1:0;}
+bool SDL_GPUTextureSupportsSampleCount(void*,unsigned format,unsigned sample){return ((format==1?colourMask:depthMask)&(1u<<sample))!=0;}
+struct SdlGpuFrame {
+    void *GpuDevice=this;bool MsaaFailed=false,MemoryConstrained=false;unsigned DepthFormat=2;
+    unsigned Scene_Format()const{return 1;}
+    bool Supports_Samples(unsigned)const;unsigned Max_Samples()const;
+} gpu;
+// CAPABILITIES
+namespace SceneEffects {
+unsigned MaxSamples(){return gpu.Max_Samples();}
+bool SupportsSamples(unsigned count){return gpu.Supports_Samples(count);}
+}
+struct OptionDef {const char *iniKey;int lo,hi;} msaa={"MSAA",0,3},other={"Other",0,3};
+int clampOptionValue(const OptionDef &def,int value){return std::clamp(value,def.lo,def.hi);}
+enum {GWS_CHECK_BOX=1,GWS_COMBO_BOX=2};
+struct GameWindow {int style=GWS_COMBO_BOX,value=0;int winGetStyle(){return style;}} combo,unrelated;
+bool BitTest(int bits,int bit){return (bits&bit)!=0;}
+const OptionDef *findOptionDef(const char*){return &msaa;}
+GameWindow *findOptionWidget(const OptionDef&){return &combo;}
+bool GadgetCheckBoxIsChecked(GameWindow*w){return w->value!=0;}
+void GadgetCheckBoxSetChecked(GameWindow*w,bool v){w->value=v;}
+void GadgetComboBoxGetSelectedPos(GameWindow*w,int*v){*v=w->value;}
+void GadgetComboBoxSetSelectedPos(GameWindow*w,int v){w->value=v;}
+int GadgetSliderGetPosition(GameWindow*w){return w->value;}
+void GadgetSliderSetPosition(GameWindow*w,int v){w->value=v;}
+struct GraphicsQualityRow {int values[4];} TheGraphicsQualityTable[]={{{0,1,2,3}}};
+constexpr int TheGraphicsQualityTableCount=1;
+GameWindow *graphicsQualityDrivenWidget(const GraphicsQualityRow&){return &combo;}
+// PLATFORM
+// METHODS
+int main(){
+    // All intersections, including devices with 4x but no 2x, and mismatched
+    // colour/depth support. The renderer must not infer intermediate counts.
+    for(colourMask=0;colourMask<16;++colourMask)for(depthMask=0;depthMask<16;++depthMask){
+        unsigned highest=1;
+        for(unsigned n:{2u,4u,8u}){
+            const bool supported=(colourMask&depthMask&(1u<<sampleIndex(n)))!=0;
+            assert(gpu.Supports_Samples(n)==supported);if(supported)highest=n;
+        }
+        assert(gpu.Max_Samples()==highest && gpu.Supports_Samples(1) && !gpu.Supports_Samples(3));
+        for(int requested=0;requested<=3;++requested){
+            int expected=requested;
+#if !defined(_WIN32)
+            while(expected>0&&!gpu.Supports_Samples(msaaSamplesForLevel(expected)))--expected;
+#endif
+            assert(clampRendererOptionValue(msaa,requested)==expected);
+            const int index=rendererOptionListIndex(msaa,requested);
+            assert(rendererOptionListValue(msaa,index)==expected);
+            setGraphicsQualityControl(&combo,requested);
+            assert(combo.value==index && graphicsQualityShownValue(&combo)==expected);
+            assert(graphicsQualityStepShown(requested));
+        }
+    }
+    // A sparse Off/4x list must save logical 4x (2), never row one (2x).
+    colourMask=depthMask=1u<<sampleIndex(4);
+#if !defined(_WIN32)
+    assert(rendererOptionListValue(msaa,1)==2 && rendererOptionListIndex(msaa,2)==1);
+    assert(clampRendererOptionValue(msaa,1)==0);
+#endif
+    assert(rendererOptionListValue(other,2)==2);
+    setGraphicsQualityControl(&unrelated,3);assert(graphicsQualityShownValue(&unrelated)==3);
+    for(int failure=0;failure<3;++failure){
+        gpu.MemoryConstrained=failure==0;gpu.MsaaFailed=failure==1;gpu.GpuDevice=failure==2?nullptr:&gpu;
+        assert(gpu.Max_Samples()==1&&!gpu.Supports_Samples(4)&&gpu.Supports_Samples(1));
+    }
+}
+'''
+        program = program.replace('// CAPABILITIES', capabilities).replace('// METHODS', methods)
+        for platform in ('#undef _WIN32', '#define _WIN32 1'):
+            compile_run(program.replace('// PLATFORM', platform))
+
     def test_saved_choices_survive_forced_runtime_and_can_be_changed_back(self):
         source = (CODE / 'GameEngine/Source/GameClient/GUI/GUICallbacks/Menus/OptionsMenu.cpp').read_text()
 
@@ -65,6 +163,7 @@ bool rendererSupportsOption(const OptionDef &def) {return smokeSupported || strc
 int optionDefaultValue(const OptionDef &def) {return strcmp(def.iniKey,"ClassicGraphics")==0?1:0;}
 std::string formatOptionValue(const OptionDef &def,int value) {return def.kind==OPTION_BOOL?(value?"yes":"no"):std::to_string(value);}
 int clampRendererOptionValue(const OptionDef &,int value) {return value;}
+int rendererOptionListValue(const OptionDef &def,int index) {return def.lo+index;}
 bool GadgetCheckBoxIsChecked(GameWindow *w) {return w->value!=0;}
 void GadgetCheckBoxSetChecked(GameWindow *w,bool v){w->value=v;}
 GameWindow *classicGraphicsCheckBox(){return widgets;}

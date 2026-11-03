@@ -88,7 +88,12 @@ int main(){
     auto plain=draw(0,0,0),soft=draw(1,0,0),fire=draw(0,1,0),outage=draw(0,0,DRAW_EFFECT_OUTAGE),emp=draw(0,0,DRAW_EFFECT_EMP);
     CHECK(plain.size()==64*48*4&&soft.size()==plain.size()&&fire.size()==plain.size());
     const unsigned at=(24*64+32)*4;
-    if(soft.size()>at+3){CHECK(soft[at+2]<plain[at+2]);CHECK(soft[at]>plain[at]);}
+    if(soft.size()>at+3){
+        // At 12 units behind a sprite at 10, half-width four gives a fade of 0.5.
+        // A wholly erased sprite must not pass this partial-intersection check.
+        CHECK(std::abs(int(soft[at+2])-96)<=3);CHECK(std::abs(int(soft[at+1])-64)<=3);
+        CHECK(std::abs(int(soft[at])-96)<=3);
+    }
     CHECK(fire!=plain&&outage!=plain&&emp!=plain);
     auto revealed=draw(0,0,DRAW_EFFECT_REVEALED),cloak=draw(0,0,DRAW_EFFECT_CLOAK);CHECK(revealed!=plain&&cloak!=plain);
     d->Allow_Effects(false);CHECK(draw(1,1,DRAW_EFFECT_EMP)==plain);d->Allow_Effects(true);
@@ -105,10 +110,22 @@ int main(){
     for(bool fade:{false,true})for(bool sky:{false,true}) {
         d->Clear(0,nullptr,D3DCLEAR_TARGET|D3DCLEAR_ZBUFFER,0xff000000,sky?1:ground,0);
         d->Set_Particle_Flag(SceneEffects::SoftParticles,fade);d->Take_Particle_Depth();
+        uint64_t serial=0;auto *snapshot=d->Get_Gpu()->Ready_Scene_Depth(d->Get_Gpu()->Back_Buffer_Target(),serial);
+        CHECK(snapshot!=nullptr);
         const auto before=d->Draws_Recorded();CHECK(d->DrawPrimitiveUP(D3DPT_TRIANGLELIST,1,tracer,sizeof(Billboard))==D3D_OK);CHECK(d->Draws_Recorded()==before+1);
         std::vector<uint8_t> pixels;CHECK(d->Get_Gpu()->Read_Back(d->Get_Gpu()->Back_Buffer(),64,48,pixels));
-        if(pixels.size()>at+3) {CHECK(pixels[at+2]>100&&pixels[at+1]>80&&pixels[at]>50);
-            printf("TRACER: soft=%d sky=%d rgb=%u,%u,%u alpha=%u\n",int(fade),int(sky),pixels[at+2],pixels[at+1],pixels[at],pixels[at+3]);}
+        std::vector<uint8_t> raw;float captured=-1,sourceDepth=-1;
+        if(snapshot){CHECK(d->Get_Gpu()->Read_Back(snapshot,64,48,raw));if(raw.size()>at+3)std::memcpy(&captured,raw.data()+at,4);}
+        std::vector<float> live;CHECK(d->Get_Gpu()->Read_Depth(d->Get_Gpu()->Back_Buffer_Target().Depth,64,48,live));
+        if(live.size()==64*48)sourceDepth=live[24*64+32];
+        CHECK(std::abs(captured-(sky?1.0f:ground))<0.0001f);CHECK(std::abs(sourceDepth-(sky?1.0f:ground))<0.0001f);
+        if(pixels.size()>at+3) {
+            const float weight=fade&&!sky?0.896f:1.0f;
+            CHECK(std::abs(int(pixels[at+2])-int(std::lround(255*weight)))<=3);
+            CHECK(std::abs(int(pixels[at+1])-int(std::lround(225*weight)))<=3);
+            CHECK(std::abs(int(pixels[at])-int(std::lround(160*weight)))<=3);
+            printf("TRACER: soft=%d sky=%d rgb=%u,%u,%u alpha=%u captured_depth=%.7f live_depth=%.7f\n",int(fade),int(sky),pixels[at+2],pixels[at+1],pixels[at],pixels[at+3],captured,sourceDepth);
+        }
     }
     // A glow attached to its opaque shell can be only millimetres in front
     // of the captured surface. Contact fading erases it; authored trail policy

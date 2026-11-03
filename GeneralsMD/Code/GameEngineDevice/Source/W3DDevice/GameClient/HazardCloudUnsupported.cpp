@@ -31,3 +31,4 @@ bool SupportsHeatHaze() { return false; }
 namespace SceneEffects { bool SupportsHdr(){return false;} }
 
 namespace SceneEffects {unsigned MaxSamples(){return 1;}}
+namespace SceneEffects {bool SupportsSamples(unsigned count){return count<=1;}}

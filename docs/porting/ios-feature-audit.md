@@ -115,6 +115,47 @@ backend is available. Run 41623320860 initially failed to acquire a hosted ARM64
 passed native effects, all prior Metal pixel checks, complete POSIX GPU draws and
 unsigned IPA packaging at `33b49198`. Continue using macOS 15 ARM64.
 
+### Uploaded Actions log `logs_113067769101.zip`
+
+Run 41724204987 at `c1ed173c` used macOS 15 ARM64 and Xcode 16.4. The merged
+engine suite and AO/atmosphere/firelight/heat Metal checks passed. Native-effects
+compilation passed all 23 SPIR-V/MSL variants, but both additive soft-particle
+checks produced black RGB (ground and sky), while their non-fading counterparts
+were visible. The workflow stopped before HDR/MSAA/post/particle GPU checks and
+device compilation; this run did not produce a new IPA.
+
+Depth capture now submits its resolve before recording consumers, with queue
+ordering rather than a GPU-idle wait. This addresses a suspected capture/store
+dependency; Metal confirmation is still required. Readbacks performed after the
+particle draw print both captured R32 depth and independently resolved live depth
+to distinguish capture failure from fade arithmetic. Alpha and additive checks
+now require the expected partial fade, so total erasure cannot count as success.
+The shared fade also bounds its width divisor away from zero.
+
+A prebuilt Mesa software Vulkan driver made local GPU execution possible. Before
+these changes, native effects, HDR, AO, heat, FXAA/sharpen and GPU particle checks
+passed there, while MSAA incorrectly selected 1x. The capability query had stopped
+at unsupported 2x, hiding available 4x. Queries and attachment selection now check
+each count independently against both colour and depth formats. The Options
+list, saved enum values and quality presets map sparse choices consistently.
+Sanitizer fixtures cover all colour/depth capability intersections and both
+native and Windows menu policies. Software Vulkan results do not establish
+Metal or physical-device correctness.
+
+After the changes, all seven focused Vulkan suites (native effects, AO, heat,
+HDR, MSAA, post and particles) passed, as did the complete POSIX device draw
+self-check (746 draws). The shader suite passed 32 tests / 392,152 checks,
+including SPIR-V validation and MSL translation. Five graphics-preference and two
+memory-pressure sanitizer fixtures passed; the changed menu, scene bridge and
+no-renderer stub passed iOS-defined syntax checks.
+
+The larger frame/water self-check remains unresolved on this software driver:
+FFT mip assertions fail and the run later crashes during tiled foam-history
+checks. A separate unit binary using the original capture method reproduced the
+same 1,270 failed assertions and crash. Its scene-depth snapshot checks passed
+with both implementations. This comparison separates that failure from the new
+capture ordering; it does not establish its cause or an iOS rendering defect.
+
 ## Device validation still needed
 
 Compare individual options on the same map/camera, reopen Options to verify
@@ -126,6 +167,6 @@ service reset, background/foreground and actual low-memory pressure.
 
 The IPA requires the user's signing profile. LAN multicast requires a profile
 that grants the entitlement and physical-device discovery checks after local
-network permission. GPU particle acceleration remains a CPU fallback; controller
-input is additional work. Safe areas, software keyboard and external input need
+network permission. GPU particle overflow remains opt-in; controller input is
+outside this work. Safe areas, software keyboard and external input need
 device checks. Empty DX11 entry points alone do not prove missing SDL behavior.

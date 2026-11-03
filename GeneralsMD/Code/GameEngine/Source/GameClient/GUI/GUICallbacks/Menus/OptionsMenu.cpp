@@ -1162,9 +1162,30 @@ static Int rendererOptionHigh(const OptionDef &def)
 #endif
     return def.hi;
 }
+static Bool rendererOptionEntrySupported(const OptionDef &def,Int value)
+{
+#if !defined(_WIN32)
+    if(strcmp(def.iniKey,"MSAA")==0)return SceneEffects::SupportsSamples(msaaSamplesForLevel(value));
+#endif
+    return TRUE;
+}
 static Int clampRendererOptionValue(const OptionDef &def,Int value)
 {
-    return min(clampOptionValue(def,value),rendererOptionHigh(def));
+    value=min(clampOptionValue(def,value),rendererOptionHigh(def));
+    while(value>def.lo&&!rendererOptionEntrySupported(def,value))--value;
+    return value;
+}
+static Int rendererOptionListIndex(const OptionDef &def,Int value)
+{
+    value=clampRendererOptionValue(def,value);Int index=0;
+    for(Int entry=def.lo;entry<value;++entry)if(rendererOptionEntrySupported(def,entry))++index;
+    return index;
+}
+static Int rendererOptionListValue(const OptionDef &def,Int index)
+{
+    for(Int entry=def.lo;entry<=rendererOptionHigh(def);++entry)
+        if(rendererOptionEntrySupported(def,entry)&&index--==0)return entry;
+    return def.lo;
 }
 
 // Classic mode forces these runtime fields. The menu edits the saved choices
@@ -1235,11 +1256,12 @@ static void fillCatalogWidgets( void )
 				GadgetComboBoxReset( widget );
 				for( Int entry = def.lo; entry <= rendererOptionHigh(def); ++entry )
 				{
+					if(!rendererOptionEntrySupported(def,entry))continue;
 					AsciiString key;
 					key.format( "%s%d", def.labelKey, entry );
 					GadgetComboBoxAddEntry( widget, TheGameText->fetch( key ), entryColor );
 				}
-				GadgetComboBoxSetSelectedPos( widget, value - def.lo );
+				GadgetComboBoxSetSelectedPos( widget, rendererOptionListIndex(def,value) );
 				break;
 			}
 
@@ -1296,7 +1318,7 @@ static void readCatalogWidgets( OptionPreferences &out )
 				// -1 is a combo box with nothing picked, which is not a value to write anywhere
 				if( selected < 0 )
 					continue;
-				value = clampRendererOptionValue( def, def.lo + selected );
+				value = rendererOptionListValue( def, selected );
 				break;
 			}
 
@@ -2371,6 +2393,8 @@ static Int graphicsQualityShownValue( GameWindow *control )
 	{
 		Int entry = -1;
 		GadgetComboBoxGetSelectedPos( control, &entry );
+		const OptionDef *msaa=findOptionDef("MSAA");
+		if(msaa&&findOptionWidget(*msaa)==control)return rendererOptionListValue(*msaa,entry);
 		return entry;
 	}
 
@@ -2383,7 +2407,10 @@ static Bool graphicsQualityStepShown( Int step )
 	for( Int row = 0; row < TheGraphicsQualityTableCount; ++row )
 	{
 		GameWindow *control = graphicsQualityDrivenWidget( TheGraphicsQualityTable[ row ] );
-		if( control && graphicsQualityShownValue( control ) != TheGraphicsQualityTable[ row ].values[ step ] )
+		Int expected=TheGraphicsQualityTable[ row ].values[ step ];
+		const OptionDef *msaa=findOptionDef("MSAA");
+		if(msaa&&findOptionWidget(*msaa)==control)expected=clampRendererOptionValue(*msaa,expected);
+		if( control && graphicsQualityShownValue( control ) != expected )
 			return FALSE;
 	}
 
@@ -2487,7 +2514,7 @@ static void updateDetailNote( void );
 static void setGraphicsQualityControl( GameWindow *control, Int value )
 {
     const OptionDef *msaa=findOptionDef("MSAA");
-    if(msaa&&findOptionWidget(*msaa)==control)value=clampRendererOptionValue(*msaa,value);
+    if(msaa&&findOptionWidget(*msaa)==control)value=rendererOptionListIndex(*msaa,value);
 	if( BitTest( control->winGetStyle(), GWS_CHECK_BOX ) )
 		GadgetCheckBoxSetChecked( control, value != 0 );
 	else if( BitTest( control->winGetStyle(), GWS_COMBO_BOX ) )

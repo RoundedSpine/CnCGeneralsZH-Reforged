@@ -208,7 +208,7 @@ SdlGpuFrame * SdlGpuFrame::Create(RenderWindow window, unsigned int width, unsig
     }
     fprintf(stderr,"[SDL_SCENE] hdr_requested=%d hdr_active=%d format=%u\n",int(hdr),int(frame->HdrActive),frame->SceneFormat);
 
-    for(unsigned candidate:{8u,4u,2u})if(candidate<=samples&&candidate<=frame->Max_Samples()) {
+    for(unsigned candidate:{8u,4u,2u})if(candidate<=samples&&frame->Supports_Samples(candidate)) {
         frame->SampleCount=candidate;break;
     }
     if(frame->SampleCount>1&&!frame->Prepare_Multisampling()){frame->MsaaFailed=true;frame->SampleCount=1;}
@@ -674,7 +674,15 @@ SDL_GPUTexture *SdlGpuFrame::Water_Background(const SdlTarget &source)
 SDL_GPUTexture *SdlGpuFrame::Scene_Depth(const SdlTarget &source)
 {
 	WaterSnapshot *snapshot = Water_Snapshot(source);
-	return snapshot ? snapshot->Depth : NULL;
+	if (!snapshot || !snapshot->Depth) return NULL;
+	// Submit the capture before recording its consumers. Keep the depth-to-colour
+	// store in an earlier submission so Metal sees a published image at sampling
+	// time. Queue ordering retains the dependency without waiting for GPU idle.
+	if (!Flush()) {
+		snapshot->Ready = false;
+		return NULL;
+	}
+	return snapshot->Depth;
 }
 
 SDL_GPUTexture *SdlGpuFrame::Ready_Scene_Depth(const SdlTarget &source, uint64_t &serial) const

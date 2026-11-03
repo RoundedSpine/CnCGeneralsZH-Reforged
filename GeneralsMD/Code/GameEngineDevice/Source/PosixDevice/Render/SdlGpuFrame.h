@@ -203,6 +203,7 @@ public:
     bool Handle_Memory_Pressure();
     bool Memory_Constrained() const {return MemoryConstrained;}
     unsigned Max_Samples() const;
+    bool Supports_Samples(unsigned count) const;
     unsigned Sample_Count() const {return SampleCount;}
     unsigned Target_Sample_Index(const SdlTarget&) const;
     bool Prepare_Multisample_Target(const SdlTarget&);

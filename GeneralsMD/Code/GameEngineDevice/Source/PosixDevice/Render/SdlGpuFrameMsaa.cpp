@@ -8,13 +8,17 @@
 #include <cstdio>
 #include <algorithm>
 static SDL_GPUSampleCount sampleIndex(unsigned count){return count>=8?SDL_GPU_SAMPLECOUNT_8:count>=4?SDL_GPU_SAMPLECOUNT_4:count>=2?SDL_GPU_SAMPLECOUNT_2:SDL_GPU_SAMPLECOUNT_1;}
+bool SdlGpuFrame::Supports_Samples(unsigned count) const {
+    if(count<=1)return true;
+    if(!GpuDevice||MsaaFailed||MemoryConstrained||(count!=2&&count!=4&&count!=8))return false;
+    return SDL_GPUTextureSupportsSampleCount(GpuDevice,(SDL_GPUTextureFormat)Scene_Format(),sampleIndex(count))
+        &&SDL_GPUTextureSupportsSampleCount(GpuDevice,(SDL_GPUTextureFormat)DepthFormat,sampleIndex(count));
+}
 unsigned SdlGpuFrame::Max_Samples() const {
     if(!GpuDevice||MsaaFailed||MemoryConstrained)return 1;
     unsigned highest=1;
     for(unsigned count:{2u,4u,8u}) {
-        if(!SDL_GPUTextureSupportsSampleCount(GpuDevice,(SDL_GPUTextureFormat)Scene_Format(),sampleIndex(count))
-            ||!SDL_GPUTextureSupportsSampleCount(GpuDevice,(SDL_GPUTextureFormat)DepthFormat,sampleIndex(count)))break;
-        highest=count;
+        if(Supports_Samples(count))highest=count;
     }
     return highest;
 }
