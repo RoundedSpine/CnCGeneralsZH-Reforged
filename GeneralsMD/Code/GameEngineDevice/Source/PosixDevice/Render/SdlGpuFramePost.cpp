@@ -38,7 +38,7 @@ bool SdlGpuFrame::Prepare_Post(){
     fprintf(stderr,"[SDL_POST] ready hdr=%d\n",int(HdrActive));return true;
 }
 bool SdlGpuFrame::Post_Process(const SdlTarget &target,const float rect[4],float grade){
-    if((!HdrActive&&grade<=0)||!rect||rect[2]<=0||rect[3]<=0)return true;
+    if((!HdrActive&&(grade<=0||MemoryConstrained))||!rect||rect[2]<=0||rect[3]<=0)return true;
     if(!Prepare_Post())return false;
     std::string error;auto *source=Capture_Heat_Background(target,error);if(!source)return false;
     ZH_IOS_WaitForForeground();auto *commands=SDL_AcquireGPUCommandBuffer(GpuDevice);if(!commands)return false;

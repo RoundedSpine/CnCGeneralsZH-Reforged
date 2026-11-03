@@ -2107,6 +2107,7 @@ Libraries/Include/Platform/HazardCloudFlow.h
 Libraries/Include/Platform/HazardCloudPolicy.h
 Libraries/Include/Platform/IOSAudioSession.h
 Libraries/Include/Platform/IOSLifecycle.h
+Libraries/Include/Platform/IOSMemoryDiagnostics.h
 Libraries/Include/Platform/IOSStartup.h
 Libraries/Include/Platform/IOSStartupPump.h
 Libraries/Include/Platform/IOSWindowDiagnostics.h
@@ -3171,6 +3172,7 @@ Main/resource.h
 Platform/iOS/IOSAudioSession.mm
 Platform/iOS/IOSBootstrap.mm
 Platform/iOS/IOSLifecycle.cpp
+Platform/iOS/IOSMemoryDiagnostics.cpp
 Platform/iOS/IOSStartup.cpp
 Platform/iOS/IOSUserDataMigration.h
 Platform/iOS/IOSWindowDiagnostics.mm
@@ -3290,6 +3292,7 @@ Tests/test_ios_global_new.py
 Tests/test_ios_graphics_startup.py
 Tests/test_ios_lifecycle.py
 Tests/test_ios_main_exit.py
+Tests/test_ios_memory_pressure.py
 Tests/test_ios_network_permissions.py
 Tests/test_ios_report.py
 Tests/test_ios_shadow_path.py

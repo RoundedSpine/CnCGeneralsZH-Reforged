@@ -22,6 +22,7 @@
 
 #include "PosixDevice9.h"
 #include "Platform/IOSLifecycle.h"
+#include "Platform/IOSMemoryDiagnostics.h"
 #include "Platform/SceneEffects.h"
 #include "PosixD3D9Caps.h"
 #include "SdlCreationLog.h"
@@ -599,11 +600,14 @@ RenderResult PosixDevice9::Present(const RenderRect *, const RenderRect *, Rende
 	const bool timing = Timing_Is_Asked();
 	const Uint64 present_start = timing ? SDL_GetTicksNS() : 0;
 	const bool presented = Gpu->Present(reinterpret_cast<const uint16_t (*)[256]>(&GammaRamp));
+    if(presented)ZH_IOS_MemoryFrame(PresentCount);
     if(presented&&ZH_IOS_TakeMemoryPressure()) {
+        ZH_IOS_TraceMemory("eviction.before",PresentCount);
         End_Heat_Haze();ParticleDepth=ParticleDepthSource=CloakSnapshot=CloakSource=nullptr;
         CloakFrame=~uint64_t(0);
-        if(!Gpu->Trim_Transient_Memory())fprintf(stderr,"[SDL_MEMORY] deferred eviction failed; live scene retained\n");
+        if(!Gpu->Handle_Memory_Pressure())fprintf(stderr,"[SDL_MEMORY] deferred eviction failed; live scene retained\n");
         Mirrors->Collect_Dead();
+        ZH_IOS_TraceMemory("eviction.after",PresentCount);
     }
 	if (timing) {
 		Timing_Present((double)(SDL_GetTicksNS() - present_start) / 1.0e6, DrawsRecorded - TimingDrawsAtPresent);

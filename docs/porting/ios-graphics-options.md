@@ -189,10 +189,18 @@ composition, partial depth clears and transient-cache recreation.
 The prior batch's Metal run exposed mixed integer-load/sampled-texture binding
 collisions. Native shader generation now pairs integer reads with explicit same-
 slot samplers at texel centres. Seventeen production variants compile to SPIR-V
-and MSL with unique texture bindings locally. Actual GPU results and a new IPA
-remain pending until the ARM64 workflow completes. Run 41623320860 ended without
-a runner: GitHub reported hosted ARM64 capacity constraints.
+and MSL with unique texture bindings locally. The rerun of ARM64 workflow 41623320860 passed these native effects and full
+POSIX GPU draw checks and packaged an IPA at `33b49198`. HDR/MSAA and the newer
+memory-pressure response still need their own ARM64 validation.
 
 MSAA increases memory and depth geometry work; HDR doubles scene-colour storage.
 Measure both on the target iPhone/iPad before increasing defaults. Neither feature
 changes the default request. Building collapse is a separate Display-page control.
+
+The supplied `33b49198` device run initialized Reforged effects and persisted
+choices but ended after three low-memory warnings. A real warning now pauses
+AO, atmosphere, per-pixel lighting and FFT caches, and turns off active MSAA for
+the renderer session. Repeated warnings retain required scene copies instead of
+releasing/rebuilding them. Preferences stay saved for the next device creation.
+Runtime memory samples report footprint, headroom and sampled peak; they do not
+establish the actual peak or prove a Jetsam termination.

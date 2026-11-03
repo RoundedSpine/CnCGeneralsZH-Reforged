@@ -9,7 +9,7 @@
 #include <algorithm>
 static SDL_GPUSampleCount sampleIndex(unsigned count){return count>=8?SDL_GPU_SAMPLECOUNT_8:count>=4?SDL_GPU_SAMPLECOUNT_4:count>=2?SDL_GPU_SAMPLECOUNT_2:SDL_GPU_SAMPLECOUNT_1;}
 unsigned SdlGpuFrame::Max_Samples() const {
-    if(!GpuDevice||MsaaFailed)return 1;
+    if(!GpuDevice||MsaaFailed||MemoryConstrained)return 1;
     unsigned highest=1;
     for(unsigned count:{2u,4u,8u}) {
         if(!SDL_GPUTextureSupportsSampleCount(GpuDevice,(SDL_GPUTextureFormat)Scene_Format(),sampleIndex(count))

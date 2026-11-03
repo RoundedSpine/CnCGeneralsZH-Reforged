@@ -303,6 +303,20 @@ bool SdlGpuFrame::Create_Targets(unsigned int width, unsigned int height)
 	return true;
 }
 
+bool SdlGpuFrame::Handle_Memory_Pressure()
+{
+    // Keep the lower budget until this device is recreated. A timer alone can
+    // rebuild the same caches while iOS is still under pressure. Repeated warnings
+    // must not cycle a mandatory scene-copy cache through release/reallocation.
+    MemoryConstrained=true;
+    if(SampleCount>1&&!Disable_Multisampling("iOS memory pressure"))return false;
+    if(MemoryTrimmed)return true;
+    if(!Trim_Transient_Memory())return false;
+    MemoryTrimmed=true;
+    fprintf(stderr,"[SDL_MEMORY] constrained=1 paused=ao,atmosphere,firelight,fft msaa=off recovery=device-recreation preferences=retained\n");
+    return true;
+}
+
 bool SdlGpuFrame::Trim_Transient_Memory()
 {
     if(!Flush()||!SDL_WaitForGPUIdle(GpuDevice))return false;
@@ -483,7 +497,7 @@ bool SdlGpuFrame::Create_Ocean()
 
 bool SdlGpuFrame::Prepare_Ocean(float time)
 {
-	if(!std::isfinite(time) || OceanFailed) return false;
+	if(MemoryConstrained || !std::isfinite(time) || OceanFailed) return false;
 	if(OceanReady && time==OceanTime) return true;
 	// Do not mutate a field referenced by draws still sitting in the CPU batch. Ordering submissions
 	// is sufficient; waiting or reading the texture back would unnecessarily serialize every frame.

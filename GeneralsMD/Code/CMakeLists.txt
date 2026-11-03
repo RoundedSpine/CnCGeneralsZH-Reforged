@@ -907,7 +907,7 @@ if(ZH_PLATFORM_POSIX)
     set_source_files_properties(${LIBSRC}/miniaudio/miniaudio.c PROPERTIES LANGUAGE OBJC)
   endif()
   if(ZH_PLATFORM_IOS)
-    add_library(iosstartup STATIC Platform/iOS/IOSStartup.cpp Platform/iOS/IOSLifecycle.cpp
+    add_library(iosstartup STATIC Platform/iOS/IOSStartup.cpp Platform/iOS/IOSLifecycle.cpp Platform/iOS/IOSMemoryDiagnostics.cpp
       Platform/iOS/IOSAudioSession.mm Platform/iOS/IOSWindowDiagnostics.mm)
     target_link_libraries(iosstartup PUBLIC SDL3::SDL3-static)
     target_include_directories(iosstartup PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/Libraries/Include)

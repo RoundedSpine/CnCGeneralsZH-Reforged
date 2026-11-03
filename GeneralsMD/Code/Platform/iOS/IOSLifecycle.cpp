@@ -1,4 +1,5 @@
 #include "Platform/IOSLifecycle.h"
+#include "Platform/IOSMemoryDiagnostics.h"
 #include <SDL3/SDL.h>
 #include <atomic>
 #include <cstdio>
@@ -33,6 +34,7 @@ bool SDLCALL applicationEvent(void *, SDL_Event *event)
         case SDL_EVENT_LOW_MEMORY:
             // Coalesce requests; the renderer evicts disposable caches after a frame.
             memoryPressure.store(true);
+            ZH_IOS_TraceMemory("warning");
             name = "low-memory";
             break;
         case SDL_EVENT_TERMINATING:

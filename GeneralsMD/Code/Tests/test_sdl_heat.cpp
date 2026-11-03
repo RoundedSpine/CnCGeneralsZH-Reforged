@@ -38,6 +38,15 @@ int main(){
     if(snapshot)verify(snapshot,17,11,0x21,0x43,0x65);
     CHECK(!frame->Capture_Heat_Background({nullptr,nullptr,17,11},error));
     CHECK(frame->Supports_Heat_Haze());CHECK(SDL_WaitForGPUIdle(frame->Device()));
+    CHECK(frame->Handle_Memory_Pressure());CHECK(frame->Memory_Constrained());
+    CHECK(!frame->Supports_Ambient_Occlusion()&&!frame->Supports_Atmosphere()&&!frame->Supports_Firelight());
+    CHECK(!frame->Prepare_Ocean(1));
+    // Required scene copies can return once, but a warning burst must retain them.
+    snapshot=frame->Capture_Heat_Background(resized,error);CHECK(snapshot);
+    frame->Clear_Back_Buffer(true,false,false,0xffabcdef,1,0);
+    CHECK(frame->Handle_Memory_Pressure());
+    if(snapshot)verify(snapshot,17,11,0x21,0x43,0x65);
+    verify(resized.Colour,17,11,0xef,0xcd,0xab);
     std::printf("HEAT: failures=%u backend=%s\n",failures,SDL_GetGPUDeviceDriver(frame->Device()));
     frame.reset();SDL_Quit();return failures?1:0;
 }

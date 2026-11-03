@@ -192,6 +192,10 @@ public:
 	unsigned int Depth_Usage() const;
 	/// Device capability selected at frame creation, including the R32F resolve target.
 	bool Trim_Transient_Memory();
+    // A real OS warning lowers this device session's optional cache budget.
+    // Generic cache trimming remains reusable and does not change quality.
+    bool Handle_Memory_Pressure();
+    bool Memory_Constrained() const {return MemoryConstrained;}
     unsigned Max_Samples() const;
     unsigned Sample_Count() const {return SampleCount;}
     unsigned Target_Sample_Index(const SdlTarget&) const;
@@ -333,6 +337,7 @@ private:
 	void Release_Targets();
     struct SampleTexture {SDL_GPUTexture *Texture=nullptr;unsigned Width=0,Height=0;bool Current=false;};
     unsigned SampleCount=1;
+    bool MemoryConstrained=false,MemoryTrimmed=false;
     bool MsaaFailed=false;
     std::unordered_map<SDL_GPUTexture*,SampleTexture> SampleColours,SampleDepths;
     SDL_GPUShader *SampleVertex=nullptr,*SamplePixel=nullptr,*DepthClearPixel=nullptr;

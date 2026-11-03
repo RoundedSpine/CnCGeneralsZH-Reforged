@@ -9,14 +9,14 @@ void SdlGpuFrame::Release_Ambient_Occlusion() { delete Ao; Ao=nullptr; }
 bool SdlGpuFrame::Supports_Ambient_Occlusion() const
 {
     const auto usage=SDL_GPU_TEXTUREUSAGE_COLOR_TARGET|SDL_GPU_TEXTUREUSAGE_SAMPLER;
-    return GpuDevice && !AoFailed && Supports_Scene_Depth()
+    return GpuDevice && !Memory_Constrained() && !AoFailed && Supports_Scene_Depth()
         && SDL_GPUTextureSupportsFormat(GpuDevice,SDL_GPU_TEXTUREFORMAT_R32_FLOAT,SDL_GPU_TEXTURETYPE_2D,usage)
         && SDL_GPUTextureSupportsFormat(GpuDevice,SDL_GPU_TEXTUREFORMAT_R32G32_FLOAT,SDL_GPU_TEXTURETYPE_2D,usage);
 }
 
 bool SdlGpuFrame::Ambient_Occlusion(const SdlTarget &target,const SdlAo::Constants &constants,SDL_GPUTexture *shroud)
 {
-    if(AoFailed) return false;
+    if(Memory_Constrained()||AoFailed) return false;
     std::string error;
     const auto fail=[&](const char *reason) {
         AoFailed=true;

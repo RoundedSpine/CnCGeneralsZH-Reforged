@@ -33,13 +33,15 @@ Uint64 SDL_GetTicksNS();
 '''
 PROGRAM = r'''
 #include "Platform/IOSLifecycle.h"
+#include "Platform/IOSMemoryDiagnostics.h"
 #include <SDL3/SDL.h>
 #include <cassert>
 #include <cstdio>
 #include <cstring>
 #include <initializer_list>
 SDL_EventFilter watch = nullptr;
-int installs=0, drains=0, pumps=0, waits=0;
+int installs=0, drains=0, pumps=0, waits=0, memorySamples=0;
+void ZH_IOS_TraceMemory(const char *,std::uint64_t) {++memorySamples;}
 bool addWorks=true, background=false;
 int submits=0;
 struct SdlGpuFrame {
@@ -94,7 +96,11 @@ int main(int argc,char **argv) {
     ZH_IOS_WaitForForeground(); assert(pumps==2 && waits==2);
     pumps=waits=0;
     emit(SDL_EVENT_LOW_MEMORY); ZH_IOS_WaitForForeground();
-    assert(pumps==0 && drains==1);
+    assert(pumps==0 && drains==1 && memorySamples==1);
+    assert(ZH_IOS_TakeMemoryPressure());assert(!ZH_IOS_TakeMemoryPressure());
+    emit(SDL_EVENT_LOW_MEMORY);emit(SDL_EVENT_LOW_MEMORY);
+    assert(ZH_IOS_TakeMemoryPressure());assert(!ZH_IOS_TakeMemoryPressure());
+    assert(memorySamples==3 && drains==1);
     // Exercise the renderer's actual Submit method in both modes. Submission
     // must wait until the real lifecycle callback has received activation.
     SdlGpuFrame frame; SDL_GPUCommandBuffer commands;

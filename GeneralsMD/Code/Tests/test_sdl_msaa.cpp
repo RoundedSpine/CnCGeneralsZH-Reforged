@@ -71,8 +71,12 @@ int main(){
         CHECK(frame->Read_Depth(frame->Back_Buffer_Target().Depth,64,48,depth));if(!depth.empty())CHECK(std::abs(depth[0]-.9f)<.001f);
         CHECK(frame->Trim_Transient_Memory());state();d->Clear(0,nullptr,D3DCLEAR_TARGET|D3DCLEAR_ZBUFFER,0xff000000,1,0);triangle(0xffff0000);
         CHECK(frame->Read_Back(frame->Back_Buffer(),64,48,pixels));CHECK(edgePixels(pixels,2)>10);
+        CHECK(frame->Handle_Memory_Pressure());CHECK(frame->Sample_Count()==1&&frame->Max_Samples()==1);
+        state();d->Clear(0,nullptr,D3DCLEAR_TARGET|D3DCLEAR_ZBUFFER,0xff000000,1,0);triangle(0xffff0000);
+        CHECK(frame->Read_Back(frame->Back_Buffer(),64,48,pixels));CHECK(edgePixels(pixels,2)==0);
+        CHECK(frame->Handle_Memory_Pressure());
         cpu->Release();surface->Release();scene->Release();back->Release();alpha->Release();
-        CHECK(frame->Sample_Count()>1);printf("MSAA: hdr=%d samples=%u edges=%u failures=%u backend=%s\n",int(hdr),frame->Sample_Count(),edges,failures,SDL_GetGPUDeviceDriver(frame->Device()));
+        printf("MSAA: hdr=%d samples=%u edges=%u failures=%u backend=%s\n",int(hdr),frame->Sample_Count(),edges,failures,SDL_GetGPUDeviceDriver(frame->Device()));
         d->Release();adapter->Release();SceneEffects::RequestDisplay(false,0);
     }
     SDL_Quit();return failures?1:0;

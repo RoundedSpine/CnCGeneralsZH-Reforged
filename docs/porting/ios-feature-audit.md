@@ -29,7 +29,15 @@ for activation timing and scene/hardware conditions.
   depth/stencil into the sampleable attachment. The menu offers only supported
   2×/4×/8× counts. This adds memory and depth geometry work.
 - Lifecycle watchers cover SDL events delivered outside the polled queue. Memory
-  warnings defer disposable cache eviction until a completed frame.
+  warnings defer disposable cache eviction until a completed frame. The `33b49198`
+  device log exposed three warnings within 0.18 seconds, immediate AO/atmosphere
+  cache recreation and an unexpected close reported by the user. A real warning
+  now keeps AO/atmosphere/per-pixel lights/FFT paused and MSAA off until device
+  recreation. Repeat warnings do not re-evict mandatory scene copies. Saved
+  choices stay intact; vertex lights and analytic water retain their fallbacks.
+  Runtime footprint/headroom samples are logged every 30 seconds and at warning/
+  eviction boundaries. No Jetsam report was supplied, so OS memory termination is
+  suspected rather than confirmed.
 - Audio interruption/session recovery is worker-owned and permission-gated.
   Media-service resets invalidate a generation and rebuild device/context while
   retaining voice/stream/decoder state. Stale callbacks cannot change a new session.
@@ -50,8 +58,9 @@ production variants compile to SPIR-V/MSL with unique bindings locally.
 
 Current HDR/MSAA and native-effects GPU checks must pass on GitHub before the
 new batch is considered validated. Local GPU checks explicitly skip when no
-backend is available. Run 41623320860 ended before any steps: GitHub could not
-allocate a hosted ARM64 runner. Continue using macOS 15 ARM64.
+backend is available. Run 41623320860 initially failed to acquire a hosted ARM64 runner, then its rerun
+passed native effects, all prior Metal pixel checks, complete POSIX GPU draws and
+unsigned IPA packaging at `33b49198`. Continue using macOS 15 ARM64.
 
 ## Device validation still needed
 

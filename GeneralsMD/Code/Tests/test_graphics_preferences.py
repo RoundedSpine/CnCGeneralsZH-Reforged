@@ -220,6 +220,7 @@ struct SdlGpuFrame {
     SDL_GPUTexture *BackBuffer=&back;unsigned flushes=0,submits=0,invalidations=0;
     ~SdlGpuFrame(){delete Ao;}
     bool Supports_Scene_Depth(){return true;}
+    bool Memory_Constrained(){return false;}
     bool Flush(){++flushes;return true;}
     bool Create_Scene_Depth_Pipeline(){return true;}
     unsigned Scene_Format(){return 1;}
