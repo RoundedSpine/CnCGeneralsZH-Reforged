@@ -1,199 +1,300 @@
-[vendor] downloading zlib-1.1.4.tar.gz
-[vendor] unpacking zlib
-[vendor] unguarded zlib Byte typedef for Apple (see the comment in this script)
-[vendor] narrowed zlib Classic Mac branch to Classic Mac (see the comment in this script)
-[vendor] zlib 1.1.4 -> Libraries/Source/Compression/ZLib
-[vendor] downloading lzhl.zip
-[vendor] unpacking lzhl
-[vendor] LZH-Light 1.0 -> Libraries/Source/Compression/LZHCompress
-[vendor] lzhl-clear-history.patch -> Libraries/Source/Compression/LZHCompress
-[vendor] skipping the DirectX 8 SDK: Windows only, and vendor.ps1 is what fetches it
-[vendor] downloading gamespy.zip
-[vendor] unpacking gamespy
-[vendor] GamespySDK -> Libraries/Source/GameSpy
-[vendor] gamespy-strlwr-c-only.patch -> Libraries/Source/GameSpy
-[vendor] gamespy-gsi-unix.patch -> Libraries/Source/GameSpy
-[vendor] downloading SDL3-3.4.16.zip
-[vendor] unpacking SDL3
-[vendor] SDL3 3.4.16 -> Libraries/Source/SDL3
-[vendor] sdl3-metal-windowless.patch -> Libraries/Source/SDL3
-[vendor] downloading miniaudio-0.11.25.zip
-[vendor] unpacking miniaudio
-[vendor] miniaudio 0.11.25 -> Libraries/Source/miniaudio
-[vendor] downloading glslang-vulkan-sdk-1.4.357.0.zip
-[vendor] unpacking glslang
-[vendor] glslang vulkan-sdk-1.4.357.0 -> Libraries/Source/glslang
-[vendor] downloading SPIRV-Cross-1a616956.zip
-[vendor] unpacking SPIRV-Cross
-[vendor] SPIRV-Cross 1a616956 -> Libraries/Source/SPIRV-Cross
-[vendor] downloading SDL_shadercross-1ff05bec.zip
-[vendor] unpacking SDL_shadercross
-[vendor] SDL_shadercross 1ff05bec -> Libraries/Source/SDL_shadercross
-patching file 'src/SDL_shadercross.c'
-[vendor] downloading freetype-2.14.3.zip
-[vendor] unpacking freetype
-[vendor] FreeType 2.14.3 -> Libraries/Source/freetype
-[vendor] downloading ffmpeg-8.1.2.tar.xz
-[vendor] FFmpeg 8.1.2 (source tarball) -> Libraries/Source/FFmpeg
-[vendor] everything the build needs is in place
-.
-----------------------------------------------------------------------
-Ran 1 test in 18.107s
-
-OK
--- 
--- SDL3 was configured with the following options:
--- 
--- Platform: iOS
--- 64-bit:   TRUE
--- Compiler: /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang
--- Revision: SDL-3.4.16-HEAD-HASH-NOTFOUND
--- Vendor:   
--- 
--- Subsystems:
---   Audio:    OFF
---   Video:    ON
---   GPU:      ON
---   Render:   OFF
---   Camera:   OFF
---   Joystick: OFF
---   Haptic:   OFF
---   Hidapi:   OFF
---   Power:    OFF
---   Sensor:   OFF
---   Dialog:   OFF
---   Tray:     OFF
--- 
--- Options:
---   SDL_ALSA                    (Wanted: OFF): OFF
---   SDL_ALSA_SHARED             (Wanted: OFF): OFF
---   SDL_ALTIVEC                 (Wanted: OFF): OFF
---   SDL_ARMNEON                 (Wanted: ON): ON
---   SDL_ASAN                    (Wanted: OFF): OFF
---   SDL_ASSEMBLY                (Wanted: ON): ON
---   SDL_ASSERTIONS              (Wanted: auto): auto
---   SDL_AVX                     (Wanted: OFF): OFF
---   SDL_AVX2                    (Wanted: OFF): OFF
---   SDL_AVX512F                 (Wanted: OFF): OFF
---   SDL_BACKGROUNDING_SIGNAL    (Wanted: OFF): OFF
---   SDL_CCACHE                  (Wanted: OFF): OFF
---   SDL_CLANG_TIDY              (Wanted: OFF): OFF
---   SDL_CLOCK_GETTIME           (Wanted: OFF): OFF
---   SDL_COCOA                   (Wanted: ON): OFF
---   SDL_DBUS                    (Wanted: OFF): OFF
---   SDL_DEPS_SHARED             (Wanted: ON): OFF
---   SDL_DIRECTX                 (Wanted: OFF): OFF
---   SDL_DISKAUDIO               (Wanted: OFF): OFF
---   SDL_DLOPEN_NOTES            (Wanted: OFF): OFF
---   SDL_DUMMYAUDIO              (Wanted: OFF): OFF
---   SDL_DUMMYCAMERA             (Wanted: OFF): OFF
---   SDL_DUMMYVIDEO              (Wanted: ON): ON
---   SDL_EXAMPLES                (Wanted: OFF): OFF
---   SDL_EXAMPLES_LINK_SHARED    (Wanted: OFF): OFF
---   SDL_FOREGROUNDING_SIGNAL    (Wanted: OFF): OFF
---   SDL_FRIBIDI                 (Wanted: OFF): OFF
---   SDL_FRIBIDI_SHARED          (Wanted: OFF): OFF
---   SDL_GCC_ATOMICS             (Wanted: ON): ON
---   SDL_HIDAPI                  (Wanted: OFF): OFF
---   SDL_HIDAPI_JOYSTICK         (Wanted: OFF): OFF
---   SDL_HIDAPI_LIBUSB           (Wanted: OFF): OFF
---   SDL_HIDAPI_LIBUSB_SHARED    (Wanted: OFF): OFF
---   SDL_IBUS                    (Wanted: OFF): OFF
---   SDL_INSTALL                 (Wanted: OFF): OFF
---   SDL_INSTALL_TESTS           (Wanted: OFF): OFF
---   SDL_JACK                    (Wanted: OFF): OFF
---   SDL_JACK_SHARED             (Wanted: OFF): OFF
---   SDL_KMSDRM                  (Wanted: OFF): OFF
---   SDL_KMSDRM_SHARED           (Wanted: OFF): OFF
---   SDL_LASX                    (Wanted: OFF): OFF
---   SDL_LIBC                    (Wanted: ON): ON
---   SDL_LIBICONV                (Wanted: OFF): OFF
---   SDL_LIBTHAI                 (Wanted: OFF): OFF
---   SDL_LIBTHAI_SHARED          (Wanted: OFF): OFF
---   SDL_LIBUDEV                 (Wanted: ON): OFF
---   SDL_LIBURING                (Wanted: OFF): OFF
---   SDL_LSX                     (Wanted: OFF): OFF
---   SDL_METAL                   (Wanted: ON): ON
---   SDL_MMX                     (Wanted: OFF): OFF
---   SDL_OFFSCREEN               (Wanted: ON): ON
---   SDL_OPENGL                  (Wanted: OFF): OFF
---   SDL_OPENGLES                (Wanted: OFF): OFF
---   SDL_OPENVR                  (Wanted: OFF): OFF
---   SDL_OSS                     (Wanted: OFF): OFF
---   SDL_PIPEWIRE                (Wanted: OFF): OFF
---   SDL_PIPEWIRE_SHARED         (Wanted: OFF): OFF
---   SDL_PTHREADS                (Wanted: ON): ON
---   SDL_PTHREADS_SEM            (Wanted: ON): ON
---   SDL_PULSEAUDIO              (Wanted: OFF): OFF
---   SDL_PULSEAUDIO_SHARED       (Wanted: OFF): OFF
---   SDL_RENDER_D3D              (Wanted: OFF): OFF
---   SDL_RENDER_D3D11            (Wanted: OFF): OFF
---   SDL_RENDER_D3D12            (Wanted: OFF): OFF
---   SDL_RENDER_GPU              (Wanted: OFF): OFF
---   SDL_RENDER_METAL            (Wanted: OFF): OFF
---   SDL_RENDER_VULKAN           (Wanted: OFF): OFF
---   SDL_ROCKCHIP                (Wanted: OFF): OFF
---   SDL_RPATH                   (Wanted: ON): OFF
---   SDL_RPI                     (Wanted: OFF): OFF
---   SDL_SNDIO                   (Wanted: OFF): OFF
---   SDL_SNDIO_SHARED            (Wanted: OFF): OFF
---   SDL_SSE                     (Wanted: OFF): OFF
---   SDL_SSE2                    (Wanted: OFF): OFF
---   SDL_SSE3                    (Wanted: OFF): OFF
---   SDL_SSE4_1                  (Wanted: OFF): OFF
---   SDL_SSE4_2                  (Wanted: OFF): OFF
---   SDL_SYSTEM_ICONV            (Wanted: OFF): OFF
---   SDL_TESTS                   (Wanted: OFF): OFF
---   SDL_TESTS_LINK_SHARED       (Wanted: OFF): OFF
---   SDL_UNINSTALL               (Wanted: OFF): OFF
---   SDL_VIRTUAL_JOYSTICK        (Wanted: OFF): OFF
---   SDL_VIVANTE                 (Wanted: OFF): OFF
---   SDL_VULKAN                  (Wanted: ON): ON
---   SDL_WASAPI                  (Wanted: OFF): OFF
---   SDL_WAYLAND                 (Wanted: OFF): OFF
---   SDL_WAYLAND_LIBDECOR        (Wanted: OFF): OFF
---   SDL_WAYLAND_LIBDECOR_SHARED (Wanted: OFF): OFF
---   SDL_WAYLAND_SHARED          (Wanted: OFF): OFF
---   SDL_X11                     (Wanted: OFF): OFF
---   SDL_X11_SHARED              (Wanted: OFF): OFF
---   SDL_X11_XCURSOR             (Wanted: OFF): OFF
---   SDL_X11_XDBE                (Wanted: OFF): OFF
---   SDL_X11_XFIXES              (Wanted: OFF): OFF
---   SDL_X11_XINPUT              (Wanted: OFF): OFF
---   SDL_X11_XRANDR              (Wanted: OFF): OFF
---   SDL_X11_XSCRNSAVER          (Wanted: OFF): OFF
---   SDL_X11_XSHAPE              (Wanted: OFF): OFF
---   SDL_X11_XSYNC               (Wanted: OFF): OFF
---   SDL_X11_XTEST               (Wanted: OFF): OFF
---   SDL_XINPUT                  (Wanted: OFF): OFF
--- 
---  Build Shared Library: OFF
---  Build Static Library: ON
---  Build libraries as Apple Framework: OFF
--- 
--- Enabled backends:
---   Video drivers: dummy offscreen uikit
---   Render drivers: 
---   GPU drivers: metal vulkan
---   Audio drivers: dummy
---   Joystick drivers: disabled dummy
---   Camera drivers: dummy
--- 
--- If something was not detected, although the libraries
--- were installed, then make sure you have set the
--- CMAKE_C_FLAGS and CMAKE_PREFIX_PATH CMake variables correctly.
--- 
-CMake Warning (deprecated) at Libraries/Source/glslang/CMakeLists.txt:111 (message):
-  ENABLE_HLSL is deprecated.  The HLSL front-end will be removed in a future
-  major release of glslang.  See
-  https://github.com/KhronosGroup/glslang/issues/4210 for details.
-This warning is for project developers.  Use -Wno-author or -Wno-deprecated
-to suppress it.
-
--- spirv-tools not linked - illegal SPIRV may be generated for HLSL
--- SPIRV-Cross: Finding Git version for SPIRV-Cross.
--- SPIRV-Cross: Git hash: 5f1c78f
--- Configuring done (7.7s)
--- Generating done (2.0s)
--- Build files have been written to: /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/build/ios
-[0/2] Re-checking globbed directories...
+  713 |                 return 0; \
+      |                 ^
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/OptionsCatalog.cpp:36:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/GameLogic.h:47:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/UpdateModule.h:40:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/BehaviorModule.h:150:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
+  150 |         MEMORY_POOL_GLUE_ABC( BehaviorModule )
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:700:3: note: expanded from macro 'MEMORY_POOL_GLUE_ABC'
+  700 |                 return 0; \
+      |                 ^
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/OptionsCatalog.cpp:36:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/GameLogic.h:47:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/UpdateModule.h:40:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/BehaviorModule.h:150:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:713:3: note: expanded from macro 'MEMORY_POOL_GLUE_ABC'
+  713 |                 return 0; \
+      |                 ^
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/OptionsCatalog.cpp:36:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/GameLogic.h:47:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/UpdateModule.h:138:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
+  138 |         MEMORY_POOL_GLUE_ABC( UpdateModule )
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:700:3: note: expanded from macro 'MEMORY_POOL_GLUE_ABC'
+  700 |                 return 0; \
+      |                 ^
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/OptionsCatalog.cpp:36:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/GameLogic.h:47:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/UpdateModule.h:138:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:713:3: note: expanded from macro 'MEMORY_POOL_GLUE_ABC'
+  713 |                 return 0; \
+      |                 ^
+24 warnings generated.
+[676/1492] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/PartitionSolver.cpp.o
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/PartitionSolver.cpp:52:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Precompiled/PreRTS.h:139:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/STLTypedefs.h:62:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:755:84: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
+  755 |         inline void *operator new(size_t s) { DEBUG_CRASH(("This should be impossible")); return 0; }
+      |                                                                                           ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:766:7: warning: 'this' pointer cannot be null in well-defined C++ code; pointer may be assumed to always convert to true [-Wundefined-bool-conversion]
+  766 |                 if (this)
+      |                 ~~  ^~~~
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/PartitionSolver.cpp:52:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Precompiled/PreRTS.h:153:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/KindOf.h:40:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BitFlagsIO.h:39:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Xfer.h:41:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Science.h:38:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Overridable.h:44:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
+   44 |         MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE( Overridable, "Overridable"  )
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:684:2: note: expanded from macro 'MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE'
+  684 |         MEMORY_POOL_GLUE_WITHOUT_GCMP(ARGCLASS) \
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:658:3: note: expanded from macro 'MEMORY_POOL_GLUE_WITHOUT_GCMP'
+  658 |                 return 0; \
+      |                 ^
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/PartitionSolver.cpp:52:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Precompiled/PreRTS.h:153:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/KindOf.h:40:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BitFlagsIO.h:39:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Xfer.h:41:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Science.h:39:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/NameKeyGenerator.h:67:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
+   67 |         MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE( Bucket, "NameKeyBucketPool" );
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:684:2: note: expanded from macro 'MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE'
+  684 |         MEMORY_POOL_GLUE_WITHOUT_GCMP(ARGCLASS) \
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:658:3: note: expanded from macro 'MEMORY_POOL_GLUE_WITHOUT_GCMP'
+  658 |                 return 0; \
+      |                 ^
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/PartitionSolver.cpp:52:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Precompiled/PreRTS.h:153:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/KindOf.h:40:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BitFlagsIO.h:39:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Xfer.h:41:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Science.h:56:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
+   56 |         MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE( ScienceInfo, "ScienceInfo"  )
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:684:2: note: expanded from macro 'MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE'
+  684 |         MEMORY_POOL_GLUE_WITHOUT_GCMP(ARGCLASS) \
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:658:3: note: expanded from macro 'MEMORY_POOL_GLUE_WITHOUT_GCMP'
+  658 |                 return 0; \
+      |                 ^
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/PartitionSolver.cpp:52:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Precompiled/PreRTS.h:153:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/KindOf.h:40:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BitFlagsIO.h:39:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Xfer.h:42:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Upgrade.h:38:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/AudioEventRTS.h:223:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
+  223 |         MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE(DynamicAudioEventRTS, "DynamicAudioEventRTS" )          
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:684:2: note: expanded from macro 'MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE'
+  684 |         MEMORY_POOL_GLUE_WITHOUT_GCMP(ARGCLASS) \
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:658:3: note: expanded from macro 'MEMORY_POOL_GLUE_WITHOUT_GCMP'
+  658 |                 return 0; \
+      |                 ^
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/PartitionSolver.cpp:52:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Precompiled/PreRTS.h:153:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/KindOf.h:40:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BitFlagsIO.h:39:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Xfer.h:42:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Upgrade.h:118:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
+  118 |         MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE( Upgrade, "Upgrade" )
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:684:2: note: expanded from macro 'MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE'
+  684 |         MEMORY_POOL_GLUE_WITHOUT_GCMP(ARGCLASS) \
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:658:3: note: expanded from macro 'MEMORY_POOL_GLUE_WITHOUT_GCMP'
+  658 |                 return 0; \
+      |                 ^
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/PartitionSolver.cpp:52:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Precompiled/PreRTS.h:153:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/KindOf.h:40:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BitFlagsIO.h:39:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Xfer.h:42:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Upgrade.h:169:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
+  169 |         MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE( UpgradeTemplate, "UpgradeTemplate" )
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:684:2: note: expanded from macro 'MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE'
+  684 |         MEMORY_POOL_GLUE_WITHOUT_GCMP(ARGCLASS) \
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:658:3: note: expanded from macro 'MEMORY_POOL_GLUE_WITHOUT_GCMP'
+  658 |                 return 0; \
+      |                 ^
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/PartitionSolver.cpp:52:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Precompiled/PreRTS.h:160:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Thing.h:65:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWMath/matrix3d.h:95:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWMath/vector2.h:60:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWMath/wwmath.h:552:35: warning: logical not is only applied to the left hand side of this bitwise operator [-Wlogical-not-parentheses]
+  552 |         r = ((r & expsign) ^ (sign)) + ((!((mantissa<<8)&imask)&(expsign^((a-1)>>31)))&sign);   // if (fabs(value)<1.0) value = 0; copy sign; if (value < 0 && value==(int)(value)) value++;
+      |                                          ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWMath/wwmath.h:552:35: note: add parentheses after the '!' to evaluate the bitwise operator first
+  552 |         r = ((r & expsign) ^ (sign)) + ((!((mantissa<<8)&imask)&(expsign^((a-1)>>31)))&sign);   // if (fabs(value)<1.0) value = 0; copy sign; if (value < 0 && value==(int)(value)) value++;
+      |                                          ^                                           
+      |                                           (                                          )
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWMath/wwmath.h:552:35: note: add parentheses around left hand side expression to silence this warning
+  552 |         r = ((r & expsign) ^ (sign)) + ((!((mantissa<<8)&imask)&(expsign^((a-1)>>31)))&sign);   // if (fabs(value)<1.0) value = 0; copy sign; if (value < 0 && value==(int)(value)) value++;
+      |                                          ^                     
+      |                                          (                     )
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/PartitionSolver.cpp:52:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Precompiled/PreRTS.h:160:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Thing.h:98:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
+   98 |         MEMORY_POOL_GLUE_ABC(Thing)
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:700:3: note: expanded from macro 'MEMORY_POOL_GLUE_ABC'
+  700 |                 return 0; \
+      |                 ^
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/PartitionSolver.cpp:52:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Precompiled/PreRTS.h:160:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Thing.h:98:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:713:3: note: expanded from macro 'MEMORY_POOL_GLUE_ABC'
+  713 |                 return 0; \
+      |                 ^
+11 warnings generated.
+[677/1492] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/PerfTimer.cpp.o
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/PerfTimer.cpp:31:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Precompiled/PreRTS.h:139:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/STLTypedefs.h:62:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:755:84: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
+  755 |         inline void *operator new(size_t s) { DEBUG_CRASH(("This should be impossible")); return 0; }
+      |                                                                                           ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:766:7: warning: 'this' pointer cannot be null in well-defined C++ code; pointer may be assumed to always convert to true [-Wundefined-bool-conversion]
+  766 |                 if (this)
+      |                 ~~  ^~~~
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/PerfTimer.cpp:31:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Precompiled/PreRTS.h:153:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/KindOf.h:40:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BitFlagsIO.h:39:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Xfer.h:41:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Science.h:38:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Overridable.h:44:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
+   44 |         MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE( Overridable, "Overridable"  )
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:684:2: note: expanded from macro 'MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE'
+  684 |         MEMORY_POOL_GLUE_WITHOUT_GCMP(ARGCLASS) \
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:658:3: note: expanded from macro 'MEMORY_POOL_GLUE_WITHOUT_GCMP'
+  658 |                 return 0; \
+      |                 ^
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/PerfTimer.cpp:31:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Precompiled/PreRTS.h:153:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/KindOf.h:40:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BitFlagsIO.h:39:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Xfer.h:41:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Science.h:39:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/NameKeyGenerator.h:67:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
+   67 |         MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE( Bucket, "NameKeyBucketPool" );
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:684:2: note: expanded from macro 'MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE'
+  684 |         MEMORY_POOL_GLUE_WITHOUT_GCMP(ARGCLASS) \
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:658:3: note: expanded from macro 'MEMORY_POOL_GLUE_WITHOUT_GCMP'
+  658 |                 return 0; \
+      |                 ^
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/PerfTimer.cpp:31:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Precompiled/PreRTS.h:153:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/KindOf.h:40:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BitFlagsIO.h:39:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Xfer.h:41:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Science.h:56:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
+   56 |         MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE( ScienceInfo, "ScienceInfo"  )
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:684:2: note: expanded from macro 'MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE'
+  684 |         MEMORY_POOL_GLUE_WITHOUT_GCMP(ARGCLASS) \
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:658:3: note: expanded from macro 'MEMORY_POOL_GLUE_WITHOUT_GCMP'
+  658 |                 return 0; \
+      |                 ^
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/PerfTimer.cpp:31:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Precompiled/PreRTS.h:153:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/KindOf.h:40:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BitFlagsIO.h:39:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Xfer.h:42:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Upgrade.h:38:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/AudioEventRTS.h:223:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
+  223 |         MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE(DynamicAudioEventRTS, "DynamicAudioEventRTS" )          
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:684:2: note: expanded from macro 'MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE'
+  684 |         MEMORY_POOL_GLUE_WITHOUT_GCMP(ARGCLASS) \
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:658:3: note: expanded from macro 'MEMORY_POOL_GLUE_WITHOUT_GCMP'
+  658 |                 return 0; \
+      |                 ^
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/PerfTimer.cpp:31:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Precompiled/PreRTS.h:153:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/KindOf.h:40:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BitFlagsIO.h:39:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Xfer.h:42:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Upgrade.h:118:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
+  118 |         MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE( Upgrade, "Upgrade" )
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:684:2: note: expanded from macro 'MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE'
+  684 |         MEMORY_POOL_GLUE_WITHOUT_GCMP(ARGCLASS) \
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:658:3: note: expanded from macro 'MEMORY_POOL_GLUE_WITHOUT_GCMP'
+  658 |                 return 0; \
+      |                 ^
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/PerfTimer.cpp:31:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Precompiled/PreRTS.h:153:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/KindOf.h:40:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BitFlagsIO.h:39:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Xfer.h:42:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Upgrade.h:169:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
+  169 |         MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE( UpgradeTemplate, "UpgradeTemplate" )
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:684:2: note: expanded from macro 'MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE'
+  684 |         MEMORY_POOL_GLUE_WITHOUT_GCMP(ARGCLASS) \
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:658:3: note: expanded from macro 'MEMORY_POOL_GLUE_WITHOUT_GCMP'
+  658 |                 return 0; \
+      |                 ^
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/PerfTimer.cpp:31:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Precompiled/PreRTS.h:160:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Thing.h:65:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWMath/matrix3d.h:95:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWMath/vector2.h:60:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWMath/wwmath.h:552:35: warning: logical not is only applied to the left hand side of this bitwise operator [-Wlogical-not-parentheses]
+  552 |         r = ((r & expsign) ^ (sign)) + ((!((mantissa<<8)&imask)&(expsign^((a-1)>>31)))&sign);   // if (fabs(value)<1.0) value = 0; copy sign; if (value < 0 && value==(int)(value)) value++;
+      |                                          ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWMath/wwmath.h:552:35: note: add parentheses after the '!' to evaluate the bitwise operator first
+  552 |         r = ((r & expsign) ^ (sign)) + ((!((mantissa<<8)&imask)&(expsign^((a-1)>>31)))&sign);   // if (fabs(value)<1.0) value = 0; copy sign; if (value < 0 && value==(int)(value)) value++;
+      |                                          ^                                           
+      |                                           (                                          )
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWMath/wwmath.h:552:35: note: add parentheses around left hand side expression to silence this warning
+  552 |         r = ((r & expsign) ^ (sign)) + ((!((mantissa<<8)&imask)&(expsign^((a-1)>>31)))&sign);   // if (fabs(value)<1.0) value = 0; copy sign; if (value < 0 && value==(int)(value)) value++;
+      |                                          ^                     
+      |                                          (                     )
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/PerfTimer.cpp:31:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Precompiled/PreRTS.h:160:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Thing.h:98:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
+   98 |         MEMORY_POOL_GLUE_ABC(Thing)
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:700:3: note: expanded from macro 'MEMORY_POOL_GLUE_ABC'
+  700 |                 return 0; \
+      |                 ^
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/PerfTimer.cpp:31:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Precompiled/PreRTS.h:160:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Thing.h:98:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:713:3: note: expanded from macro 'MEMORY_POOL_GLUE_ABC'
+  713 |                 return 0; \
+      |                 ^
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/PerfTimer.cpp:39:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameClient/Display.h:42:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameClient/GameFont.h:45:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
+   45 |         MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE(GameFont, "GameFont")           
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:684:2: note: expanded from macro 'MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE'
+  684 |         MEMORY_POOL_GLUE_WITHOUT_GCMP(ARGCLASS) \
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:658:3: note: expanded from macro 'MEMORY_POOL_GLUE_WITHOUT_GCMP'
+  658 |                 return 0; \
+      |                 ^
+12 warnings generated.
