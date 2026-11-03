@@ -9,21 +9,22 @@
 #include <cmath>
 
 static int failures=0;
-#define CHECK(x) do {if(!(x)) {std::fprintf(stderr,"FAIL line %d: %s\n",__LINE__,#x);++failures;}} while(0)
+#define CHECK(x) do {if(!(x)) {if(++failures<=20)std::fprintf(stderr,"FAIL line %d: %s\n",__LINE__,#x);}} while(0)
 
 static bool upload(SDL_GPUDevice *device,SDL_GPUCommandBuffer *commands,SDL_GPUTexture *texture,
     unsigned width,unsigned height,const void *data)
 {
-    const unsigned pitch=(width+63)&~63u;
-    SDL_GPUTransferBufferCreateInfo info={};info.usage=SDL_GPU_TRANSFERBUFFERUSAGE_UPLOAD;info.size=pitch*height*4;
+    // The pinned Metal upload path uses destination width as its row stride.
+    // Match the production uploader: tightly packed rows, implicit transfer pitch.
+    SDL_GPUTransferBufferCreateInfo info={};info.usage=SDL_GPU_TRANSFERBUFFERUSAGE_UPLOAD;info.size=width*height*4;
     auto *transfer=SDL_CreateGPUTransferBuffer(device,&info);if(!transfer)return false;
     auto *mapped=(unsigned char*)SDL_MapGPUTransferBuffer(device,transfer,false);
     if(!mapped) {SDL_ReleaseGPUTransferBuffer(device,transfer);return false;}
-    for(unsigned y=0;y<height;++y)std::memcpy(mapped+y*pitch*4,(const unsigned char*)data+y*width*4,width*4);
+    std::memcpy(mapped,data,width*height*4);
     SDL_UnmapGPUTransferBuffer(device,transfer);
     auto *pass=SDL_BeginGPUCopyPass(commands);
     if(!pass) {SDL_ReleaseGPUTransferBuffer(device,transfer);return false;}
-    SDL_GPUTextureTransferInfo source={};source.transfer_buffer=transfer;source.pixels_per_row=pitch;source.rows_per_layer=height;
+    SDL_GPUTextureTransferInfo source={};source.transfer_buffer=transfer;
     SDL_GPUTextureRegion region={};region.texture=texture;region.w=width;region.h=height;region.d=1;
     SDL_UploadToGPUTexture(pass,&source,&region,false);SDL_EndGPUCopyPass(pass);
     SDL_ReleaseGPUTransferBuffer(device,transfer);return true;
