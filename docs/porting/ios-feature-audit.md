@@ -56,19 +56,27 @@ for activation timing and scene/hardware conditions.
   the invalid bits, so an unchanged value could be skipped after a native pass or
   reset invalidated the cache. Vertex/pixel setters now resend invalid ranges and
   still skip redundant valid writes.
+- Native FXAA/sharpen filters now run after tone/grade and before health bars/HUD,
+  using a reusable snapshot, bilinear sampling and RGB-only writes. Neighbour reads
+  clamp to the active viewport. Hardware MSAA skips FXAA and uses the desktop
+  sharpening pass's `-0.25` softening instead of its single-sample `0.35` amount.
+- Native GPU particle overflow has an opt-in backend (`-gpuparticles <slots>` or
+  `ZH_GPU_PARTICLES=1`), capped at 8,192 records, 1,024 system slots and 32 atlas
+  layers. The shared compute shader uses scalar alpha-key words to retain its
+  80-byte array stride. Initial native eligibility is non-emissive additive
+  particles; alpha systems, weapon trails and advanced CPU effects retain their
+  existing path. This adds optional overflow rather than offloading the normal
+  CPU particle population. Pressure/refusal closes admission for cached eligible
+  systems and keeps CPU fallback; pools are released after GPU work is submitted.
 
 ## Remaining implementation gaps
 
-- Windows' configurable `bloom,ao,fxaa,sharpen` post chain is refused by
-  `Direct3D11_Post_Chain` in `dx11runtime_posix.cpp`. Native tone mapping/colour
-  grading, shared bloom and native AO have separate connected paths. FXAA and the
-  Windows sharpening stage have no SDL equivalents yet. Their absence can affect
-  single-sample edge quality and texture sharpness; supported MSAA is available,
-  with a memory/geometry cost. Do not treat the default chain string as evidence
-  these stages run on iOS.
-- GPU particle acceleration uses the CPU fallback. This is a performance gap,
-  not evidence that particle visuals are missing. The desktop backend adds
-  overflow particles above the CPU cap; it does not offload ordinary particles.
+- Native post-chain requests select FXAA/sharpen in order; bloom/AO remain in
+  their independent scene phases and are reported as separately routed. This is
+  not an arbitrary reordering of the complete Windows post-processing graph.
+- GPU particle overflow remains opt-in pending device measurements. Most particles
+  still use the CPU. Moving the ordinary CPU population or alpha particles into
+  a GPU budget requires further admission, ordering and visual validation work.
 - The app currently requests full-screen landscape. No game HUD safe-area inset
   handling was found. Notch/home-indicator overlap, software keyboard placement
   and external-input behavior require device checks before changing layouts.
@@ -77,8 +85,7 @@ Source checks alone do not establish additional visible bugs in these areas.
 Normal-map removal is an upstream renderer change, not an omitted iOS feature.
 Controller input is outside the current work; touch controls are the priority.
 See the [FXAA/sharpen and GPU particle investigation](ios-post-particle-gaps.md)
-for translation probes, the confirmed 80/96-byte spawn-stride mismatch, memory
-estimates and recommended validation/implementation order.
+for the original evidence and the implementation/validation status.
 
 ## Evidence and limits
 

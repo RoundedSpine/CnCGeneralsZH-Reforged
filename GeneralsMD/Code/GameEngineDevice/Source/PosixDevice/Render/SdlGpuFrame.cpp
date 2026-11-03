@@ -272,7 +272,8 @@ SdlGpuFrame::~SdlGpuFrame()
 	Release_Sun_Shadow();
 	Release_Ambient_Occlusion();
 	Release_Atmosphere();
-    Release_Post();
+	Release_Post();
+    Release_Particles();
 	Release_Heat_Background();
 	if (StreamBuffer != NULL) SDL_ReleaseGPUBuffer(GpuDevice, StreamBuffer);
 	for (int i = 0; i < 64; ++i) if (ClearPipelines[i] != NULL) SDL_ReleaseGPUGraphicsPipeline(GpuDevice, ClearPipelines[i]);
@@ -339,7 +340,7 @@ bool SdlGpuFrame::Handle_Memory_Pressure()
     if(MemoryTrimmed)return true;
     if(!Trim_Transient_Memory())return false;
     MemoryTrimmed=true;
-    fprintf(stderr,"[SDL_MEMORY] constrained=1 paused=ao,atmosphere,firelight,fft msaa=off recovery=device-recreation preferences=retained\n");
+    fprintf(stderr,"[SDL_MEMORY] constrained=1 paused=ao,atmosphere,firelight,fft,post-filters,particle-overflow msaa=off recovery=device-recreation preferences=retained\n");
     return true;
 }
 
@@ -356,7 +357,7 @@ bool SdlGpuFrame::Trim_Transient_Memory()
     if(StreamBuffer)SDL_ReleaseGPUBuffer(GpuDevice,StreamBuffer);
     if(Transfer)SDL_ReleaseGPUTransferBuffer(GpuDevice,Transfer);
     StreamBuffer=nullptr;Transfer=nullptr;StreamBufferSize=TransferSize=0;
-    Release_Ambient_Occlusion();Release_Atmosphere();Release_Heat_Background();Release_Ocean();Release_Multisampling(false);
+    Release_Ambient_Occlusion();Release_Atmosphere();Release_Heat_Background();Release_Ocean();Release_Multisampling(false);Release_Particles();
     for(auto &snapshot:WaterSnapshots) {
         if(snapshot.Colour)Release_Texture(snapshot.Colour);
         if(snapshot.Depth)Release_Texture(snapshot.Depth);

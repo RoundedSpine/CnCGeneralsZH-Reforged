@@ -1,4 +1,5 @@
 #pragma once
+#include "Platform/ScenePost.h"
 struct IDirect3DDevice9;
 struct IDirect3DBaseTexture9;
 namespace SceneEffects {
@@ -20,6 +21,9 @@ bool SupportsHdr();
 bool SupportsHdr(IDirect3DDevice9*);
 void SetPostGrade(IDirect3DDevice9*,float);
 void FinishScene(IDirect3DDevice9*);
+bool SetPostChain(const char*);
+const ScenePost::Chain &RequestedPostChain();
+const char *PostDiagnostic();
 bool CopyScene(IDirect3DDevice9*,IDirect3DBaseTexture9*,int,int,int,int);
 enum ParticleFlag { SoftParticles=1, FireParticles=2, EmissiveParticles=4 };
 void SetParticleFlag(IDirect3DDevice9*,unsigned,bool);

@@ -4,6 +4,55 @@ Scope: source at `316988fb`, plus local shader-translation probes. Controller
 input is outside this work; touch remains the input priority. This investigation
 does not enable either feature or establish Metal runtime/performance correctness.
 
+## Implementation after the investigation
+
+The follow-up changes add native world FXAA/sharpen, using the existing scene
+finish hook and snapshot. Filters use bilinear sampling, viewport-clamped reads,
+RGB-only writes and Windows' MSAA policy. The chain parser preserves filter order
+and reports bloom/AO as separately routed. Optional filters pause under memory
+pressure while required HDR tone mapping remains active.
+
+The native particle backend is opt-in: `-gpuparticles <slots>` overrides capacity
+and enables it, or `ZH_GPU_PARTICLES=1` enables the preset request with native
+limits. `-gpuparticles 0` disables it. Requests are capped **before CPU bookkeeping
+allocation** at 8,192 records; system/atlas budgets are 1,024 and 32. Initial
+eligibility is finite, non-emissive additive overflow, excluding weapon trails and
+the advanced effects already excluded by the shared eligibility rule. Alpha
+particles stay on CPU to preserve their combined sorting/lighting behavior.
+
+The original CPU cap is unchanged. Baseline GPU buffers/atlas nominally total
+3.78 MiB at maximum native capacity, plus up to 4 MiB for terrain, bounded transfer
+storage, shared source-texture mirrors and driver overhead. A pending CPU ring holds at most 1.25 MiB of logical
+records at that capacity. Desktop presets cannot allocate the original million
+record pool on this backend. Terrain beyond 1,024×1,024 refuses the optional pool
+and retains CPU fallback. Terrain deformation is still not continuously uploaded.
+
+Compute and vertex shader bodies are shared with Windows. Scalar alpha-key words
+restore the 80-byte spawn stride. The compiler now handles compute stages and
+graphics storage-buffer reflection. SDL owns compute/draw ordering, atlas copies,
+depth-tested additive blending and scene-depth fades. Failure and pressure close
+manager admission even for systems that cached eligibility; GPU resources are
+released through SDL after submitted readers, and pressure prevents recreation.
+Refusal also frees pending CPU-record capacity. A new map clears native atlas
+source identities before retired texture addresses can be reused.
+
+Added validation covers production admission failure, multi-record ABI/compute
+readback against the CPU closed form, ring wrap, ground/visibility/lifetime,
+zero-alpha additive GPU draws, reset and pressure. Post tests cover flat fields,
+edges, sharpening bounds, alpha, viewport borders, HDR, MSAA, UI and pressure.
+The admission/eligibility sanitizer checks pass, as do the existing lifecycle,
+memory-pressure and graphics-preference helpers. The native renderer and new
+test executables compile, and changed game sources pass iOS syntax checks. The
+new post shader and all three particle stages translate to SPIR-V/MSL; reflected
+record strides match CPU structures. The existing 23 native-effects variants
+also translate without failures. The wider shared shader suite passed 32 tests
+and 392,141 checks (46 reference and 23 additional programs translated). GPU execution explicitly skips because this
+environment has no supported backend. No build was started while the fixes were
+being implemented, as requested. Metal pixel/compute readback and device
+performance remain pending the ARM64 workflow and a signed device run.
+
+The findings below describe the original implementation at the audit revision.
+
 ## FXAA and sharpening
 
 `dx11runtime_posix.cpp` refuses every `Direct3D11_Post_Chain` request. The native

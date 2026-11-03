@@ -22,10 +22,10 @@ if [ "${ZH_IOS_GRAPHICS_TESTS:-0}" = 1 ]; then
     -DCMAKE_C_COMPILER="$(xcrun --sdk macosx --find clang)" \
     -DCMAKE_CXX_COMPILER="$(xcrun --sdk macosx --find clang++)" \
     -DCMAKE_C_COMPILER_LAUNCHER="$host_launcher" -DCMAKE_CXX_COMPILER_LAUNCHER="$host_launcher"
-  cmake --build "$host" --target test_sdl_ao test_sdl_heat test_sdl_native_effects test_sdl_hdr test_sdl_msaa posix_gpu_draw_selfcheck test_userfolders --parallel "${ZH_BUILD_JOBS:-3}"
+  cmake --build "$host" --target test_sdl_ao test_sdl_heat test_sdl_native_effects test_sdl_hdr test_sdl_msaa test_sdl_post test_sdl_particles posix_gpu_draw_selfcheck test_userfolders --parallel "${ZH_BUILD_JOBS:-3}"
   mkdir -p "$host/userfolders-scratch"
   ZH_USER_DATA_DIR="$host/userfolders-scratch" "$host/test_userfolders"
-  for graphics_test in test_sdl_ao test_sdl_heat test_sdl_native_effects test_sdl_hdr test_sdl_msaa posix_gpu_draw_selfcheck; do
+  for graphics_test in test_sdl_ao test_sdl_heat test_sdl_native_effects test_sdl_hdr test_sdl_msaa test_sdl_post test_sdl_particles posix_gpu_draw_selfcheck; do
     if "$host/$graphics_test"; then
       echo "Graphics shader/GPU readback checks passed: $graphics_test."
     else

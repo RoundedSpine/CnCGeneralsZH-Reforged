@@ -119,10 +119,8 @@ bool Direct3D11_Can_Tear() { return false; }
 bool Direct3D11_Take_Present_Failure(long &) { return false; }
 long Direct3D11_Device_Removed_Reason() { return 0; }
 void Direct3D11_Set_VSync(bool) {}
-// Windows answers whether it understood the chain's text.  There is no post-process here to
-// understand it for, so every chain is refused.
-bool Direct3D11_Post_Chain(const char *) { return false; }
-const char * Direct3D11_Post_Diagnostic() { return "post-process off"; }
+bool Direct3D11_Post_Chain(const char *text) { return SceneEffects::SetPostChain(text); }
+const char * Direct3D11_Post_Diagnostic() { return SceneEffects::PostDiagnostic(); }
 void Direct3D11_Finish_Scene() { DX8Wrapper::Flush_Deferred_D3D9_State();SceneEffects::FinishScene(DX8Wrapper::_Get_D3D_Device()); }
 void Direct3D11_Finish_Frame() {}
 

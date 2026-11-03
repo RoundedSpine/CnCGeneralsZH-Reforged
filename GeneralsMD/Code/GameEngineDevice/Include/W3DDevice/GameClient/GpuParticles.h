@@ -23,14 +23,15 @@
 // (which slot a system has, where the ring's head and tail are, what died) is the particle
 // manager's, in W3DParticleSys.cpp; this only holds what the device holds.
 //
-// DX11GpuParticles.cpp is the Direct3D 11 answer.  GpuParticlesUnsupported.cpp answers for every
-// build without one, where Supported is false and the particle manager never asks for the rest.
+// DX11GpuParticles.cpp is the Direct3D 11 answer. SdlGpuParticles.cpp provides bounded, opt-in
+// native additive overflow. Other builds use GpuParticlesUnsupported.cpp.
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
 
 #ifndef GPU_PARTICLES_H
 #define GPU_PARTICLES_H
+#include "Platform/ParticleBudget.h"
 
 struct IDirect3DBaseTexture9;
 struct ParticleGpuSpawn;
@@ -40,11 +41,19 @@ namespace GpuParticles
 {
 
 /// System entry slots, the low 16 bits of a spawn record's m_systemSlotSeed.
-enum { SYSTEM_SLOTS = 16384 };
+#if defined(_WIN32)
+enum { SYSTEM_SLOTS = 16384, MAX_RECORDS=64*65535 };
+#else
+enum { SYSTEM_SLOTS = NativeParticleBudget::Systems, MAX_RECORDS=NativeParticleBudget::Records };
+#endif
 
 /// Particle texture slices: one 128 square RGBA8 layer with mips each.  Past this a system with a
 /// new texture stays on the CPU (W3DParticleSys.cpp says so once in the log).
+#if defined(_WIN32)
 enum { TEXTURE_SLICES = 256 };
+#else
+enum { TEXTURE_SLICES = NativeParticleBudget::Slices };
+#endif
 
 /// The frame's camera in the device's layout, row vectors: clip = world * view * projection.
 struct Camera
@@ -53,8 +62,7 @@ struct Camera
 	float projection[ 16 ];
 };
 
-/// Direct3D 11 presents on a feature level 11 device.  False under -d3d9, the SDL3 builds and
-/// -headless; the caller adds the Classic setting and the pool size.
+/// Device capability plus native opt-in/pressure state. The caller adds Classic and pool size.
 bool Supported();
 
 /** Make, or find still there, the ring of capacity records, the system table, the texture array and

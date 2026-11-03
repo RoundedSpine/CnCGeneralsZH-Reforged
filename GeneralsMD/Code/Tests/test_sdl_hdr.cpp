@@ -28,7 +28,8 @@ int main(){
         if(pass)SDL_EndGPURenderPass(pass);CHECK(SDL_SubmitGPUCommandBuffer(cmd));};
     clear();std::vector<float> raw;CHECK(frame->Read_Float_Colour(target.Colour,17,11,raw));
     if(!raw.empty()){CHECK(raw[0]>3.99f&&raw[1]>1.99f);CHECK(std::abs(raw[3]-0.6f)<0.001f);}
-    const float rectangle[4]={0,0,17,11};CHECK(frame->Post_Process(target,rectangle,0));
+    ScenePost::Chain filters;CHECK(ScenePost::Parse("fxaa,sharpen",filters));
+    const float rectangle[4]={0,0,17,11};CHECK(frame->Post_Process(target,rectangle,0,&filters));
     CHECK(frame->Read_Float_Colour(target.Colour,17,11,raw));
     if(!raw.empty()){CHECK(raw[0]>0.98f&&raw[0]<=1&&raw[0]>raw[1]&&raw[1]>raw[2]);CHECK(std::abs(raw[3]-0.6f)<0.001f);}
     // UI drawn after scene tone mapping retains its white, without a second tone pass.

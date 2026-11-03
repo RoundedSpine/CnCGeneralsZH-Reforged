@@ -36,6 +36,7 @@
 #define SDLGPUFRAME_H
 
 #include "Platform/RenderTypes.h"
+#include "Platform/ScenePost.h"
 
 #include <stdint.h>
 #include <string>
@@ -54,6 +55,7 @@ struct SDL_Window;
 namespace SdlAo { struct Constants; class Renderer; }
 namespace SdlAtmosphere { struct Constants; class Renderer; }
 namespace SdlFirelight { struct Constants; }
+struct SdlParticleState;
 
 /// Where a pass draws: a colour texture of Scene_Format() and a depth-stencil of Depth_Format(), the
 /// same size.  The back buffer is one; a render-target surface's GPU texture is another (A3d).  Either
@@ -293,7 +295,17 @@ public:
     bool Supports_Hdr() const;
     void Track_Colour(SDL_GPUTexture *texture){if(HdrActive&&texture)HdrTextures.insert(texture);}
     bool Is_Hdr_Texture(SDL_GPUTexture *texture) const{return HdrTextures.count(texture)!=0;}
-    bool Post_Process(const SdlTarget&,const float rect[4],float grade);
+    bool Post_Process(const SdlTarget&,const float rect[4],float grade,const ScenePost::Chain *chain=nullptr);
+    bool Particles_Available() const {return GpuDevice&&!MemoryConstrained&&!ParticlesFailed;}
+    bool Prepare_Particles(unsigned capacity,bool *fresh);
+    bool Write_Particles(unsigned kind,unsigned first,const void *data,unsigned count);
+    bool Particle_Ground(const float*,unsigned,unsigned,const float[4]);
+    bool Particle_Slice(unsigned,SDL_GPUTexture*,unsigned,unsigned);
+    bool Evaluate_Particles(unsigned first,unsigned count,unsigned now,float smooth);
+    bool Draw_Particles(const SdlTarget&,const float viewport[6],const float view[16],const float projection[16],unsigned shader,bool soft,float gain);
+    bool Read_Particles(std::vector<unsigned char>&); // diagnostic compute readback
+    void Release_Particles();
+    void Refuse_Particles(const char *why){Particle_Failure(why);}
     bool Read_Float_Colour(SDL_GPUTexture*,unsigned,unsigned,std::vector<float>&);
     void Convert_Colour_Upload(SDL_GPUTexture*,unsigned,unsigned,uint32_t&);
 
@@ -358,7 +370,12 @@ private:
     SDL_GPUShader *PostVertex=nullptr,*PostPixel=nullptr;
     SDL_GPUGraphicsPipeline *PostPipeline=nullptr;
     SDL_GPUSampler *PostSampler=nullptr;
+    unsigned PostStatus=~0u;
     bool Prepare_Post();
+    bool Run_Post_Pass(const SdlTarget&,const float rect[4],float grade,unsigned filter,float amount);
+    SdlParticleState *Particles=nullptr;
+    bool ParticlesFailed=false;
+    bool Particle_Failure(const char*);
     void Release_Post();
     void Release_Texture(SDL_GPUTexture*);
     bool Read_Bytes(SDL_GPUTexture*,unsigned,unsigned,unsigned,std::vector<uint8_t>&);

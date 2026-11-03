@@ -96,7 +96,7 @@ static_assert( GpuParticles::SYSTEM_SLOTS <= 0x10000, "a spawn record holds its 
 static_assert( MAX_KEYFRAMES == 8, "DX11GpuParticles.cpp's SystemEntry holds eight segments of each" );
 
 /// The ring's largest size: Evaluate dispatches a group of 64 a record, and a dispatch takes 65535.
-static const UnsignedInt GPU_PARTICLE_MOST_RECORDS = 64u * 65535u;
+static const UnsignedInt GPU_PARTICLE_MOST_RECORDS = GpuParticles::MAX_RECORDS;
 
 /// The ring the detail preset or -gpuparticles asks for, held to what one dispatch can age.
 static UnsignedInt gpuCapacityAsked( void )
@@ -2737,7 +2737,7 @@ void W3DParticleSystemManager::drainGpuDeaths( UnsignedInt now )
 Bool W3DParticleSystemManager::spawnGpuParticle( ParticleSystem *system, const ParticleInfo *info )
 {
 	// Classic can come on mid-match, after the system was made eligible; its spawns go to the CPU
-	if (m_gpuRefused || TheGlobalData->m_classicGraphics)
+	if (!m_gpuSupported || m_gpuRefused || m_gpuCapacity==0 || TheGlobalData->m_classicGraphics)
 		return FALSE;
 	const UnsignedInt slot = gpuSlotFor( system );
 	if (slot == GPU_NO_SLOT)
@@ -2833,6 +2833,11 @@ void W3DParticleSystemManager::refreshGpuSystems( void )
 	* for the GPU path is made here, so the match's first frames pay none of it. */
 void W3DParticleSystemManager::preloadAssets( TimeOfDay timeOfDay )
 {
+#if !defined(_WIN32)
+    // A new map retired its texture owners. Clear cached SDL slice identities before
+    // allocator address reuse can mistake a new picture for a previously copied one.
+    if(m_gpuTextures.empty())GpuParticles::ReleaseDevice();
+#endif
 	ParticleSystemManager::preloadAssets( timeOfDay );
 	// a detail preset changed since the last match asks for another ring: made again here, between
 	// matches, never in one, and a size the device refused before may be one it takes now
@@ -2863,6 +2868,7 @@ void W3DParticleSystemManager::preloadAssets( TimeOfDay timeOfDay )
 		GpuParticles::Set_Slice_Texture( slice, m_gpuTextures[ slice ]->Peek_D3D_Base_Texture() );
 	}
 	GpuParticles::Evaluate( 0, 0, getParticleFrame(), 0.0f );		// draws the slices asked; ages nothing
+    if(!GpuParticles::Supported()){m_gpuSupported=FALSE;m_gpuRefused=TRUE;return;}
 	DEBUG_LOG(( "GPUPARTICLES: %u texture slices drawn at load\n", (UnsignedInt)m_gpuTextures.size() ));
 }
 
@@ -2872,7 +2878,12 @@ void W3DParticleSystemManager::preloadAssets( TimeOfDay timeOfDay )
 Bool W3DParticleSystemManager::prepareGpu( void )
 {
 	m_gpuSupported = GpuParticles::Supported();
-	if (!m_gpuSupported || m_gpuRefused || TheGlobalData->getEffectiveGpuParticleCapacity() <= 0)
+	if (!m_gpuSupported) {
+        // A device/pressure refusal also closes admission for already eligible systems.
+        if(m_gpuCapacity){m_gpuRefused=TRUE;decltype(m_gpuPending)().swap(m_gpuPending);m_gpuPendingFirst=m_gpuWritten;m_gpuTail=m_gpuWritten;}
+        return FALSE;
+    }
+	if (m_gpuRefused || TheGlobalData->getEffectiveGpuParticleCapacity() <= 0)
 		return FALSE;
 	if (m_gpuCapacity == 0)
 	{
@@ -2885,7 +2896,7 @@ Bool W3DParticleSystemManager::prepareGpu( void )
 	if (!GpuParticles::Prepare( m_gpuCapacity, &fresh ))
 	{
 		m_gpuRefused = TRUE;
-		m_gpuPending.clear();
+		decltype(m_gpuPending)().swap(m_gpuPending);
 		m_gpuPendingFirst = m_gpuWritten;
 		m_gpuTail = m_gpuWritten;
 		return FALSE;
@@ -2901,6 +2912,7 @@ Bool W3DParticleSystemManager::prepareGpu( void )
 		for (UnsignedInt slice = 0; slice < (UnsignedInt)m_gpuTextures.size(); ++slice)
 			m_gpuSliceQueue.push_back( slice );
 		sendGpuGround();
+		if(!GpuParticles::Supported()){m_gpuSupported=FALSE;m_gpuRefused=TRUE;return FALSE;}
 	}
 	return TRUE;
 }
@@ -3002,6 +3014,11 @@ void W3DParticleSystemManager::drawGpuParticles( RenderInfoClass &rinfo )
 	memcpy( camera.projection, cloud.projection, sizeof( camera.projection ) );
 	GpuParticles::Draw( ParticleSystemInfo::ADDITIVE, camera );
 	GpuParticles::Draw( ParticleSystemInfo::ALPHA, camera );
+    if(!GpuParticles::Supported()) {
+        m_gpuSupported=FALSE;m_gpuRefused=TRUE;decltype(m_gpuPending)().swap(m_gpuPending);
+        m_gpuPendingFirst=m_gpuWritten;m_gpuTail=m_gpuWritten;
+        fprintf(stderr,"[SDL_PARTICLES] GPU admission closed; CPU fallback retained\n");
+    }
 
 #ifdef DEBUG_LOGGING
 	// GPU-PARTICLES.md's measurement line, beside PARTICLES every 100 particle updates: the records

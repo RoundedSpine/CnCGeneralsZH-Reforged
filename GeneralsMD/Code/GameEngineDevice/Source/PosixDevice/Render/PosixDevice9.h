@@ -239,6 +239,8 @@ public:
 	void Present_Offscreen(unsigned int hz);
 	SdlGpuFrame * Get_Gpu() const { return Gpu; }
 	SdlResourceMirrors * Get_Mirrors() const { return Mirrors; }
+    bool Draw_Native_Particles(unsigned,const float[16],const float[16]);
+    bool Native_Particle_Slice(unsigned,IDirect3DBaseTexture9*);
 	/// Draws recorded on the GPU, and the draws refused, by reason.
 	unsigned int Draws_Recorded() const { return DrawsRecorded; }
 	const std::map<std::string, unsigned int> & Draw_Refusals() const { return DrawRefusals; }

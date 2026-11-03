@@ -6,6 +6,7 @@
 #include "Platform/IOSLifecycle.h"
 #include <SDL3/SDL.h>
 #include <cstdio>
+#include <cmath>
 bool SdlGpuFrame::Supports_Hdr() const {
     return GpuDevice&&!PostFailed&&SDL_GPUTextureSupportsFormat(GpuDevice,SDL_GPU_TEXTUREFORMAT_R16G16B16A16_FLOAT,
         SDL_GPU_TEXTURETYPE_2D,SDL_GPU_TEXTUREUSAGE_COLOR_TARGET|SDL_GPU_TEXTUREUSAGE_SAMPLER);
@@ -26,6 +27,7 @@ bool SdlGpuFrame::Prepare_Post(){
     if(!PostPixel&&(!SDL3_Compile_HLSL_To_SPIRV(SdlPost::Pixel(),false,spirv,error)
         ||!(PostPixel=SDL3_Create_Shader(GpuDevice,spirv,false,error))))return fail(error.c_str());
     SDL_GPUSamplerCreateInfo sampler={};sampler.address_mode_u=sampler.address_mode_v=sampler.address_mode_w=SDL_GPU_SAMPLERADDRESSMODE_CLAMP_TO_EDGE;
+    sampler.min_filter=sampler.mag_filter=SDL_GPU_FILTER_LINEAR;
     if(!PostSampler)PostSampler=SDL_CreateGPUSampler(GpuDevice,&sampler);
     if(!PostSampler)return fail(SDL_GetError());
     SDL_GPUColorTargetDescription colour={};colour.format=(SDL_GPUTextureFormat)Scene_Format();
@@ -37,15 +39,33 @@ bool SdlGpuFrame::Prepare_Post(){
     PostPipeline=SDL_CreateGPUGraphicsPipeline(GpuDevice,&pipeline);if(!PostPipeline)return fail(SDL_GetError());
     fprintf(stderr,"[SDL_POST] ready hdr=%d\n",int(HdrActive));return true;
 }
-bool SdlGpuFrame::Post_Process(const SdlTarget &target,const float rect[4],float grade){
-    if((!HdrActive&&(grade<=0||MemoryConstrained))||!rect||rect[2]<=0||rect[3]<=0)return true;
+bool SdlGpuFrame::Post_Process(const SdlTarget &target,const float rect[4],float grade,const ScenePost::Chain *chain){
+    if(!rect)return false;
+    for(unsigned i=0;i<4;++i)if(!std::isfinite(rect[i]))return false;
+    if(rect[0]<0||rect[1]<0||rect[2]<=0||rect[3]<=0||rect[0]+rect[2]>target.Width||rect[1]+rect[3]>target.Height)return false;
+    if(MemoryConstrained)grade=0;
+    unsigned active=0,status=unsigned(HdrActive)|(unsigned(MemoryConstrained)<<1)|(SampleCount<<2);
+    if(chain)for(unsigned i=0;i<chain->Count;++i){
+        const auto effect=chain->Effects[i];status=status*31+unsigned(effect)+1;
+        if(ScenePost::Active(effect,SampleCount,MemoryConstrained))++active;
+    }
+    if(status!=PostStatus){PostStatus=status;fprintf(stderr,"[SDL_POST] selected_filters=%u samples=%u hdr=%d constrained=%d\n",active,SampleCount,int(HdrActive),int(MemoryConstrained));}
+    if(HdrActive||grade>0)if(!Run_Post_Pass(target,rect,grade,0,0))return false;
+    if(chain)for(unsigned i=0;i<chain->Count;++i){
+        const auto effect=chain->Effects[i];
+        if(!ScenePost::Active(effect,SampleCount,MemoryConstrained))continue;
+        if(!Run_Post_Pass(target,rect,0,effect==ScenePost::FXAA?1:2,SampleCount>1?-0.25f:0.35f))return false;
+    }
+    return true;
+}
+bool SdlGpuFrame::Run_Post_Pass(const SdlTarget &target,const float rect[4],float grade,unsigned filter,float amount){
     if(!Prepare_Post())return false;
     std::string error;auto *source=Capture_Heat_Background(target,error);if(!source)return false;
     ZH_IOS_WaitForForeground();auto *commands=SDL_AcquireGPUCommandBuffer(GpuDevice);if(!commands)return false;
     SDL_GPUColorTargetInfo colour={};colour.texture=target.Colour;colour.load_op=SDL_GPU_LOADOP_LOAD;colour.store_op=SDL_GPU_STOREOP_STORE;
     auto *pass=SDL_BeginGPURenderPass(commands,&colour,1,nullptr);if(!pass){SDL_CancelGPUCommandBuffer(commands);return false;}
     SDL_BindGPUGraphicsPipeline(pass,PostPipeline);SDL_GPUTextureSamplerBinding binding={source,PostSampler};SDL_BindGPUFragmentSamplers(pass,0,&binding,1);
-    const float constants[8]={rect[0],rect[1],rect[2],rect[3],HdrActive?1.0f:0.0f,grade,1.0f/target.Width,1.0f/target.Height};
+    const float constants[12]={rect[0],rect[1],rect[2],rect[3],HdrActive?1.0f:0.0f,grade,1.0f/target.Width,1.0f/target.Height,float(filter),amount,0,0};
     SDL_PushGPUFragmentUniformData(commands,0,constants,sizeof(constants));
     const SDL_GPUViewport viewport={0,0,float(target.Width),float(target.Height),0,1};SDL_SetGPUViewport(pass,&viewport);
     SDL_DrawGPUPrimitives(pass,3,1,0,0);SDL_EndGPURenderPass(pass);

@@ -37,7 +37,7 @@ void PosixDevice9::Finish_Scene(){
     if(!Gpu||FinishedSceneSerial==SceneSerial||!ModernLighting||!EffectsAllowed||SunActive||Sun_Scene_Excluded())return;
     SdlTarget target;std::string error;if(!Resolve_Target(target,error))return;
     FinishedSceneSerial=SceneSerial;
-    if(!Gpu->Post_Process(target,PostRect,PostGrade))fprintf(stderr,"[SDL_POST] scene finish failed\n");
+    if(!Gpu->Post_Process(target,PostRect,PostGrade,&SceneEffects::RequestedPostChain()))fprintf(stderr,"[SDL_POST] scene finish failed\n");
 }
 bool PosixDevice9::Lights_Per_Pixel() const
 {
@@ -193,7 +193,16 @@ bool PosixDevice9::Atmosphere(const SceneEffects::AtmosphereParameters &paramete
     return Gpu->Atmosphere(target,constants,skyTexture,shroudTexture);
 }
 namespace SceneEffects {
-namespace {bool requestedHdr=false;unsigned requestedSamples=0;}
+namespace {bool requestedHdr=false;unsigned requestedSamples=0;ScenePost::Chain postChain;std::string postDiagnostic="native world filters off; bloom/AO routed separately";}
+bool SetPostChain(const char *text){
+    const bool ok=ScenePost::Parse(text,postChain);
+    postDiagnostic=ok?"native world filters requested; bloom/AO routed separately":"native world filter chain rejected";
+    if(ok&&postChain.Count==0)postDiagnostic="native world filters off; bloom/AO routed separately";
+    fprintf(stderr,"[SDL_POST] requested=%s accepted=%d entries=%u bloom_ao=separate\n",text?text:"(null)",int(ok),postChain.Count);
+    return ok;
+}
+const ScenePost::Chain &RequestedPostChain(){return postChain;}
+const char *PostDiagnostic(){return postDiagnostic.c_str();}
 void RequestDisplay(bool hdr,unsigned samples){requestedHdr=hdr;requestedSamples=samples;}
 bool RequestedHdr(){return requestedHdr;}
 unsigned RequestedSamples(){return requestedSamples;}

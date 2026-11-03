@@ -39,14 +39,15 @@ void start_shadercross()
 	std::call_once(shadercross_ready, []() { shadercross_ok = SDL_ShaderCross_Init(); });
 }
 
-SDL_ShaderCross_SPIRV_Info spirv_info(const std::vector<unsigned char> & spirv, bool vertex_stage)
+SDL_ShaderCross_SPIRV_Info spirv_info(const std::vector<unsigned char> & spirv, SdlShaderStage stage)
 {
 	SDL_ShaderCross_SPIRV_Info info;
 	SDL_zero(info);
 	info.bytecode = spirv.empty() ? NULL : &spirv[0];
 	info.bytecode_size = spirv.size();
 	info.entrypoint = "main";
-	info.shader_stage = vertex_stage ? SDL_SHADERCROSS_SHADERSTAGE_VERTEX : SDL_SHADERCROSS_SHADERSTAGE_FRAGMENT;
+	info.shader_stage = stage==SdlShaderStage::Vertex ? SDL_SHADERCROSS_SHADERSTAGE_VERTEX
+        : stage==SdlShaderStage::Compute ? SDL_SHADERCROSS_SHADERSTAGE_COMPUTE : SDL_SHADERCROSS_SHADERSTAGE_FRAGMENT;
 	return info;
 }
 
@@ -56,12 +57,16 @@ SDL_ShaderCross_SPIRV_Info spirv_info(const std::vector<unsigned char> & spirv, 
 // D-spike measured all 49 of the game's programs through: Vulkan 1.0, SPIR-V 1.0, default limits.
 bool SDL3_Compile_HLSL_To_SPIRV(const std::string & hlsl, bool vertex_stage, std::vector<unsigned char> & spirv,
 	std::string & log)
+{return SDL3_Compile_HLSL(hlsl,vertex_stage?SdlShaderStage::Vertex:SdlShaderStage::Fragment,spirv,log);}
+
+bool SDL3_Compile_HLSL(const std::string &hlsl,SdlShaderStage shaderStage,std::vector<unsigned char> &spirv,std::string &log)
 {
 	std::call_once(glslang_ready, []() { glslang_initialize_process(); });
 	spirv.clear();
 	log.clear();
 
-	const glslang_stage_t stage = vertex_stage ? GLSLANG_STAGE_VERTEX : GLSLANG_STAGE_FRAGMENT;
+	const glslang_stage_t stage = shaderStage==SdlShaderStage::Vertex ? GLSLANG_STAGE_VERTEX
+        : shaderStage==SdlShaderStage::Compute ? GLSLANG_STAGE_COMPUTE : GLSLANG_STAGE_FRAGMENT;
 	glslang_input_t input;
 	memset(&input, 0, sizeof(input));
 	input.language = GLSLANG_SOURCE_HLSL;
@@ -107,6 +112,9 @@ bool SDL3_Compile_HLSL_To_SPIRV(const std::string & hlsl, bool vertex_stage, std
 
 bool SDL3_Translate_SPIRV_To_MSL(const std::vector<unsigned char> & spirv, bool vertex_stage, std::string & msl,
 	std::string & log)
+{return SDL3_Translate_MSL(spirv,vertex_stage?SdlShaderStage::Vertex:SdlShaderStage::Fragment,msl,log);}
+
+bool SDL3_Translate_MSL(const std::vector<unsigned char> &spirv,SdlShaderStage stage,std::string &msl,std::string &log)
 {
 	start_shadercross();
 	msl.clear();
@@ -115,7 +123,7 @@ bool SDL3_Translate_SPIRV_To_MSL(const std::vector<unsigned char> & spirv, bool 
 		log = SDL_GetError();
 		return false;
 	}
-	const SDL_ShaderCross_SPIRV_Info info = spirv_info(spirv, vertex_stage);
+	const SDL_ShaderCross_SPIRV_Info info = spirv_info(spirv, stage);
 	char * text = static_cast<char *>(SDL_ShaderCross_TranspileMSLFromSPIRV(&info));
 	if (text == NULL) {
 		log = SDL_GetError();
@@ -175,10 +183,18 @@ SDL_GPUShader * SDL3_Create_Shader(SDL_GPUDevice * device, const std::vector<uns
 		log = SDL_GetError();
 		return NULL;
 	}
-	const SDL_ShaderCross_SPIRV_Info info = spirv_info(spirv, vertex_stage);
+	const SDL_ShaderCross_SPIRV_Info info = spirv_info(spirv, vertex_stage?SdlShaderStage::Vertex:SdlShaderStage::Fragment);
 	SDL_ShaderCross_GraphicsShaderResourceInfo resources;
 	SDL_zero(resources);
 	SDL3_Shader_Slots(spirv, vertex_stage, resources.num_samplers, resources.num_uniform_buffers);
+	// Storage buffers follow sampled textures in SDL's binding order. The native particle
+	// vertex stage has one storage buffer and no textures; use reflected storage counts too.
+	if(auto *reflected=SDL_ShaderCross_ReflectGraphicsSPIRV(spirv.data(),spirv.size(),0)) {
+		resources.num_storage_buffers=reflected->resource_info.num_storage_buffers;
+		resources.num_storage_textures=reflected->resource_info.num_storage_textures;
+		if(resources.num_storage_buffers||resources.num_storage_textures)resources.num_samplers=reflected->resource_info.num_samplers;
+		SDL_free(reflected);
+	}
 	// shadercross leaves an error from its start-up (it looks for libraries it may not need) where a
 	// later failure that sets none would report it.  Cleared, so a refusal says its own reason.
 	SDL_ClearError();
@@ -188,4 +204,14 @@ SDL_GPUShader * SDL3_Create_Shader(SDL_GPUDevice * device, const std::vector<uns
 		if (log.empty()) log = "refused, and neither SDL nor SDL_shadercross said why";
 	}
 	return shader;
+}
+
+SDL_GPUComputePipeline *SDL3_Create_Compute(SDL_GPUDevice *device,const std::vector<unsigned char> &spirv,std::string &log)
+{
+    start_shadercross();log.clear();if(!shadercross_ok){log=SDL_GetError();return nullptr;}
+    const auto info=spirv_info(spirv,SdlShaderStage::Compute);
+    auto *resources=SDL_ShaderCross_ReflectComputeSPIRV(spirv.data(),spirv.size(),0);
+    if(!resources){log=SDL_GetError();return nullptr;}
+    auto *pipeline=SDL_ShaderCross_CompileComputePipelineFromSPIRV(device,&info,resources,0);
+    SDL_free(resources);if(!pipeline)log=SDL_GetError();return pipeline;
 }

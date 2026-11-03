@@ -61,6 +61,7 @@ jobs:
           python3 GeneralsMD/Code/Tests/test_shoreline_refresh.py
           python3 GeneralsMD/Code/Tests/test_sdl_present_mode.py
           python3 GeneralsMD/Code/Tests/test_ios_shader_constants.py
+          python3 GeneralsMD/Code/Tests/test_native_particle_admission.py
           python3 GeneralsMD/Code/Tests/test_ios_network_permissions.py
           c++ -std=c++17 -Wall -Wextra -fsanitize=address,undefined \
             -IGeneralsMD/Code/GameEngineDevice/Include \

@@ -3813,6 +3813,10 @@ void ParticleSystemTemplate::forceSmokeBoost( const SmokeBoost &boost )
 Bool ParticleSystemTemplate::isGpuEligible( void ) const
 {
 	return m_particleType == PARTICLE
+#if !defined(_WIN32)
+        // Keep shell glows, emissive shading and smoke/fire lighting in their validated CPU path.
+        && m_priority != WEAPON_TRAIL && !m_emissive && m_shaderType == ADDITIVE
+#endif
 		&& !m_particleTypeName.startsWith( "SMUD" )
 		&& !m_isGroundAligned
 		&& m_windMotion == WIND_MOTION_NOT_USED

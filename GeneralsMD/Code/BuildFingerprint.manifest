@@ -1902,6 +1902,7 @@ GameEngineDevice/Source/PosixDevice/Render/PosixDevice9.h
 GameEngineDevice/Source/PosixDevice/Render/PosixDevice9AmbientOcclusion.cpp
 GameEngineDevice/Source/PosixDevice/Render/PosixDevice9Capture.cpp
 GameEngineDevice/Source/PosixDevice/Render/PosixDevice9Draw.cpp
+GameEngineDevice/Source/PosixDevice/Render/PosixDevice9Particles.cpp
 GameEngineDevice/Source/PosixDevice/Render/PosixDevice9Resources.cpp
 GameEngineDevice/Source/PosixDevice/Render/PosixDevice9SceneEffects.cpp
 GameEngineDevice/Source/PosixDevice/Render/PosixDevice9SunShadow.cpp
@@ -1933,6 +1934,7 @@ GameEngineDevice/Source/PosixDevice/Render/SdlGpuFrameAtmosphere.cpp
 GameEngineDevice/Source/PosixDevice/Render/SdlGpuFrameBatch.cpp
 GameEngineDevice/Source/PosixDevice/Render/SdlGpuFrameHeat.cpp
 GameEngineDevice/Source/PosixDevice/Render/SdlGpuFrameMsaa.cpp
+GameEngineDevice/Source/PosixDevice/Render/SdlGpuFrameParticles.cpp
 GameEngineDevice/Source/PosixDevice/Render/SdlGpuFramePost.cpp
 GameEngineDevice/Source/PosixDevice/Render/SdlGpuFrameSmoke.cpp
 GameEngineDevice/Source/PosixDevice/Render/SdlGpuFrameSunShadow.cpp
@@ -2012,6 +2014,7 @@ GameEngineDevice/Source/W3DDevice/GameClient/HazardCloudFlow.cpp
 GameEngineDevice/Source/W3DDevice/GameClient/HazardCloudShader.cpp
 GameEngineDevice/Source/W3DDevice/GameClient/HazardCloudUnsupported.cpp
 GameEngineDevice/Source/W3DDevice/GameClient/HeightMap.cpp
+GameEngineDevice/Source/W3DDevice/GameClient/SdlGpuParticles.cpp
 GameEngineDevice/Source/W3DDevice/GameClient/Shaders/MotionBlur.nvv
 GameEngineDevice/Source/W3DDevice/GameClient/Shaders/Trees.nvp
 GameEngineDevice/Source/W3DDevice/GameClient/Shaders/Trees.nvv
@@ -2118,12 +2121,15 @@ Libraries/Include/Platform/ModernWaterBuild.h
 Libraries/Include/Platform/ModernWaterConfig.h
 Libraries/Include/Platform/ModernWaterMaterial.h
 Libraries/Include/Platform/MsvcFloatCasts.h
+Libraries/Include/Platform/ParticleBudget.h
+Libraries/Include/Platform/ParticleShaders.h
 Libraries/Include/Platform/PosixD3D9/d3d9.h
 Libraries/Include/Platform/PosixD3D9/d3d9caps.h
 Libraries/Include/Platform/PosixD3D9/d3d9types.h
 Libraries/Include/Platform/RenderTypes.h
 Libraries/Include/Platform/RendererName.h
 Libraries/Include/Platform/SceneEffects.h
+Libraries/Include/Platform/ScenePost.h
 Libraries/Include/Platform/SleepMilliseconds.h
 Libraries/Include/Platform/StrdupAsWindows.h
 Libraries/Include/Platform/SunShadow.h
@@ -3312,6 +3318,7 @@ Tests/test_miniaudio_recovery.py
 Tests/test_minimap_input.inc
 Tests/test_modern_water_config.cpp
 Tests/test_msvc_float_casts.cpp
+Tests/test_native_particle_admission.py
 Tests/test_observer_camera.inc
 Tests/test_package_link_libraries.py
 Tests/test_pixelcentre.cpp
@@ -3337,8 +3344,10 @@ Tests/test_sdl_heat.cpp
 Tests/test_sdl_input.cpp
 Tests/test_sdl_msaa.cpp
 Tests/test_sdl_native_effects.cpp
+Tests/test_sdl_particles.cpp
 Tests/test_sdl_pipeline_state.cpp
 Tests/test_sdl_platform.cpp
+Tests/test_sdl_post.cpp
 Tests/test_sdl_present_mode.py
 Tests/test_sdl_program_cache.cpp
 Tests/test_selection_priority.inc

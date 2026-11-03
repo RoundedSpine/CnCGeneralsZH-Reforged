@@ -45,6 +45,11 @@
 
 struct SDL_GPUDevice;
 struct SDL_GPUShader;
+struct SDL_GPUComputePipeline;
+enum class SdlShaderStage { Vertex, Fragment, Compute };
+bool SDL3_Compile_HLSL(const std::string&,SdlShaderStage,std::vector<unsigned char>&,std::string&);
+bool SDL3_Translate_MSL(const std::vector<unsigned char>&,SdlShaderStage,std::string&,std::string&);
+SDL_GPUComputePipeline *SDL3_Create_Compute(SDL_GPUDevice*,const std::vector<unsigned char>&,std::string&);
 
 // False with the compiler's log when glslang refuses the text.  The entry point is main, which is
 // what every generator writes.

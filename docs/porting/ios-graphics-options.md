@@ -55,7 +55,7 @@ the menu disables or hides the control and preserves its saved choice.
 | Building scaffolding (`CheckExtraAnimations`) | Connected | Inverts `m_useDrawModuleLOD`; draw modules are selected at drawable creation, so use a new map. |
 | Tree sway (`CheckTreeSway`) | Connected | Controls creation of shrub sway update modules; use a new map. |
 | Units behind buildings (`CheckBehindBuilding`) | Conditional | Needs stencil support, the game visibility rule and eligible occluded units. |
-| Particle cap (`ParticleCapSlider`) | Connected | Accept changes the particle budget; smoke thickness also scales smoke particle limits. GPU acceleration is absent, with the CPU path retained. |
+| Particle cap (`ParticleCapSlider`) | Connected | Accept changes the CPU particle budget; smoke thickness also scales smoke particle limits. Optional native additive overflow is separately enabled and capped at 8,192 records; ordinary particles, alpha systems and weapon trails remain on CPU. |
 | Smoke thickness (`ComboBoxSmoke`) | Connected | Requires restart: particle templates are modified when initialized. |
 | Particle bounce (`CheckParticleBounce`) | Connected | Requires restart: terrain collision is enabled while loading particle templates. |
 | Smoke lit by fire (`CheckSmokeFireLighting`) | Connected | CPU smoke lighting reads the option per frame; separate from modern per-pixel Firelight. |
@@ -119,9 +119,11 @@ Source anchors, relative to `GeneralsMD/Code`:
 Additional renderer settings outside these 44 generated controls: the saved VSync
 request now configures the SDL swapchain during creation/reset. Uncapped mode is
 capability-dependent; `[SDL_PRESENT]` reports the actual mode and fallback. The
-Windows configurable post-chain string is still refused on SDL: FXAA/sharpen are
-not implemented, although shared bloom, native AO and native tone/colour grading
-have independent paths. See [remaining port gaps](ios-feature-audit.md).
+post-chain string now selects native FXAA/sharpen filters. Shared bloom, native AO
+and native tone/colour grading have independent paths. Filtering preserves alpha,
+clamps to the world viewport and precedes UI. MSAA skips FXAA and selects a mild
+softening amount; memory pressure pauses optional filters. `[SDL_POST]` reports
+requested and selected passes. See [port status](ios-feature-audit.md).
 
 ## Validation limits and device checks
 

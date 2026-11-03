@@ -1486,6 +1486,15 @@ if(ZH_PLATFORM_POSIX)
   set_target_properties(test_sdl_msaa PROPERTIES CXX_STANDARD 17)
   add_test(NAME test_sdl_msaa COMMAND test_sdl_msaa)
   set_tests_properties(test_sdl_msaa PROPERTIES SKIP_RETURN_CODE 77)
+  foreach(native_test IN ITEMS test_sdl_post test_sdl_particles)
+    add_executable(${native_test} Tests/${native_test}.cpp)
+    target_include_directories(${native_test} PRIVATE GameEngineDevice/Source/PosixDevice/Render Libraries/Include)
+    target_link_libraries(${native_test} PRIVATE posixd3d9 SDL3::SDL3-static sdl3shadercompile)
+    set_target_properties(${native_test} PROPERTIES CXX_STANDARD 17)
+    add_test(NAME ${native_test} COMMAND ${native_test})
+    set_tests_properties(${native_test} PROPERTIES SKIP_RETURN_CODE 77)
+  endforeach()
+  target_include_directories(test_sdl_particles PRIVATE $<TARGET_PROPERTY:gameengine,INTERFACE_INCLUDE_DIRECTORIES>)
 
   # Depth-format fallback follows the complete scene-depth capability, without requiring a GPU.
   add_executable(sdl_gpu_depth_format_selfcheck ${CMAKE_CURRENT_SOURCE_DIR}/Tests/test_sdl_gpu_depth_format.cpp)
@@ -1617,8 +1626,8 @@ if(ZH_PLATFORM_POSIX)
   # POSIX factory below; the no-backend factory is compiled only without it, and
   # the Direct3D 11 backend only on Windows.
   list(FILTER W3DDEVICE_SOURCES EXCLUDE REGEX "/(HazardCloudUnsupported|DX11HazardCloud)\\.cpp$")
-  # The GPU particles have only a Direct3D 11 backend; GpuParticlesUnsupported answers for SDL3.
-  list(FILTER W3DDEVICE_SOURCES EXCLUDE REGEX "/DX11GpuParticles\\.cpp$")
+  # Native overflow particles use SDL compute; controller/input work is independent.
+  list(FILTER W3DDEVICE_SOURCES EXCLUDE REGEX "/(DX11GpuParticles|GpuParticlesUnsupported)\\.cpp$")
   # The reach overlay's Direct3D 11 pass; W3DReachOverlay.cpp calls it only on Windows and draws the
   # fixed-function sheet without it.
   list(FILTER W3DDEVICE_SOURCES EXCLUDE REGEX "/DX11ReachOverlay\\.cpp$")
@@ -1702,6 +1711,7 @@ if(ZH_PLATFORM_POSIX)
   set_target_properties(w3ddevice PROPERTIES CXX_STANDARD 17)
   target_include_directories(w3ddevice PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/GameEngineDevice/Include
     PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/Stubs ${CMAKE_CURRENT_SOURCE_DIR}/Main
+            ${ZH_POSIX_RENDER_DIR}
             ${WW}/Miles6/include ${WW}/Bink/include)
   target_link_libraries(w3ddevice PUBLIC gameengine ww3d2 sdlinput binkvideo)
 
@@ -1806,7 +1816,7 @@ list(FILTER GAMEENGINEDEVICE_SOURCES EXCLUDE REGEX "/Source/SdlDevice/")
 # are for the tests that link no device.
 list(FILTER GAMEENGINEDEVICE_SOURCES EXCLUDE REGEX "/HazardCloudUnsupported\\.cpp$")
 # The same for the GPU particles (DX11GpuParticles.cpp here, GpuParticlesUnsupported.cpp elsewhere).
-list(FILTER GAMEENGINEDEVICE_SOURCES EXCLUDE REGEX "/GpuParticlesUnsupported\\.cpp$")
+list(FILTER GAMEENGINEDEVICE_SOURCES EXCLUDE REGEX "/(GpuParticlesUnsupported|SdlGpuParticles)\\.cpp$")
 # Sound and video are the game's own.  Miles and Bink were binary-only, and the DLLs the retail
 # game ships are 32-bit, so there is nothing for a 64-bit exe to bind to: what it links instead is
 # those two APIs written over XAudio2 and FFmpeg.  FFmpeg decodes binkvideo and binkaudio natively,
