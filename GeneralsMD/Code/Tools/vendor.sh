@@ -75,7 +75,12 @@ get_file() { # url destination -> prints destination
   if [ -e "$destination" ]; then printf '%s\n' "$destination"; return 0; fi
   mkdir -p "$(dirname "$destination")"
   step "downloading $(basename "$destination")"
-  if ! curl -fsSL "$url" -o "$destination.part.$$"; then
+  # Hosted runners occasionally lose an otherwise permitted TLS connection.
+  # Retry transient transport failures as well as HTTP failures; keep partial
+  # files isolated and preserve each dependency's existing integrity checks.
+  if ! curl -fsSL --retry 3 --retry-all-errors --retry-delay 2 \
+      --retry-max-time 180 --connect-timeout 30 --max-time 300 \
+      "$url" -o "$destination.part.$$"; then
     rm -f "$destination.part.$$"
     echo "[vendor] ERROR: could not download $url" >&2
     return 1
