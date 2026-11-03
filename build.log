@@ -1,85 +1,3 @@
---   SDL_FOREGROUNDING_SIGNAL    (Wanted: OFF): OFF
---   SDL_FRIBIDI                 (Wanted: OFF): OFF
---   SDL_FRIBIDI_SHARED          (Wanted: OFF): OFF
---   SDL_GCC_ATOMICS             (Wanted: ON): ON
---   SDL_HIDAPI                  (Wanted: OFF): OFF
---   SDL_HIDAPI_JOYSTICK         (Wanted: OFF): OFF
---   SDL_HIDAPI_LIBUSB           (Wanted: OFF): OFF
---   SDL_HIDAPI_LIBUSB_SHARED    (Wanted: OFF): OFF
---   SDL_IBUS                    (Wanted: OFF): OFF
---   SDL_INSTALL                 (Wanted: OFF): OFF
---   SDL_INSTALL_TESTS           (Wanted: OFF): OFF
---   SDL_JACK                    (Wanted: OFF): OFF
---   SDL_JACK_SHARED             (Wanted: OFF): OFF
---   SDL_KMSDRM                  (Wanted: OFF): OFF
---   SDL_KMSDRM_SHARED           (Wanted: OFF): OFF
---   SDL_LASX                    (Wanted: OFF): OFF
---   SDL_LIBC                    (Wanted: ON): ON
---   SDL_LIBICONV                (Wanted: OFF): OFF
---   SDL_LIBTHAI                 (Wanted: OFF): OFF
---   SDL_LIBTHAI_SHARED          (Wanted: OFF): OFF
---   SDL_LIBUDEV                 (Wanted: ON): OFF
---   SDL_LIBURING                (Wanted: OFF): OFF
---   SDL_LSX                     (Wanted: OFF): OFF
---   SDL_METAL                   (Wanted: ON): ON
---   SDL_MMX                     (Wanted: OFF): OFF
---   SDL_OFFSCREEN               (Wanted: ON): ON
---   SDL_OPENGL                  (Wanted: OFF): OFF
---   SDL_OPENGLES                (Wanted: OFF): OFF
---   SDL_OPENVR                  (Wanted: OFF): OFF
---   SDL_OSS                     (Wanted: OFF): OFF
---   SDL_PIPEWIRE                (Wanted: OFF): OFF
---   SDL_PIPEWIRE_SHARED         (Wanted: OFF): OFF
---   SDL_PTHREADS                (Wanted: ON): ON
---   SDL_PTHREADS_SEM            (Wanted: ON): ON
---   SDL_PULSEAUDIO              (Wanted: OFF): OFF
---   SDL_PULSEAUDIO_SHARED       (Wanted: OFF): OFF
---   SDL_RENDER_D3D              (Wanted: OFF): OFF
---   SDL_RENDER_D3D11            (Wanted: OFF): OFF
---   SDL_RENDER_D3D12            (Wanted: OFF): OFF
---   SDL_RENDER_GPU              (Wanted: OFF): OFF
---   SDL_RENDER_METAL            (Wanted: OFF): OFF
---   SDL_RENDER_VULKAN           (Wanted: OFF): OFF
---   SDL_ROCKCHIP                (Wanted: OFF): OFF
---   SDL_RPATH                   (Wanted: ON): OFF
---   SDL_RPI                     (Wanted: OFF): OFF
---   SDL_SNDIO                   (Wanted: OFF): OFF
---   SDL_SNDIO_SHARED            (Wanted: OFF): OFF
---   SDL_SSE                     (Wanted: OFF): OFF
---   SDL_SSE2                    (Wanted: OFF): OFF
---   SDL_SSE3                    (Wanted: OFF): OFF
---   SDL_SSE4_1                  (Wanted: OFF): OFF
---   SDL_SSE4_2                  (Wanted: OFF): OFF
---   SDL_SYSTEM_ICONV            (Wanted: OFF): OFF
---   SDL_TESTS                   (Wanted: OFF): OFF
---   SDL_TESTS_LINK_SHARED       (Wanted: OFF): OFF
---   SDL_UNINSTALL               (Wanted: OFF): OFF
---   SDL_VIRTUAL_JOYSTICK        (Wanted: OFF): OFF
---   SDL_VIVANTE                 (Wanted: OFF): OFF
---   SDL_VULKAN                  (Wanted: ON): ON
---   SDL_WASAPI                  (Wanted: OFF): OFF
---   SDL_WAYLAND                 (Wanted: OFF): OFF
---   SDL_WAYLAND_LIBDECOR        (Wanted: OFF): OFF
---   SDL_WAYLAND_LIBDECOR_SHARED (Wanted: OFF): OFF
---   SDL_WAYLAND_SHARED          (Wanted: OFF): OFF
---   SDL_X11                     (Wanted: OFF): OFF
---   SDL_X11_SHARED              (Wanted: OFF): OFF
---   SDL_X11_XCURSOR             (Wanted: OFF): OFF
---   SDL_X11_XDBE                (Wanted: OFF): OFF
---   SDL_X11_XFIXES              (Wanted: OFF): OFF
---   SDL_X11_XINPUT              (Wanted: OFF): OFF
---   SDL_X11_XRANDR              (Wanted: OFF): OFF
---   SDL_X11_XSCRNSAVER          (Wanted: OFF): OFF
---   SDL_X11_XSHAPE              (Wanted: OFF): OFF
---   SDL_X11_XSYNC               (Wanted: OFF): OFF
---   SDL_X11_XTEST               (Wanted: OFF): OFF
---   SDL_XINPUT                  (Wanted: OFF): OFF
--- 
---  Build Shared Library: OFF
---  Build Static Library: ON
---  Build libraries as Apple Framework: OFF
--- 
--- Enabled backends:
 --   Video drivers: dummy offscreen uikit
 --   Render drivers: 
 --   GPU drivers: metal vulkan
@@ -298,3 +216,85 @@ CMake Warning (unused-cli):
 [180/1490] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/filesystem/posix/SDL_sysfsops.c.o
 [181/1490] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/video/uikit/SDL_uikitclipboard.m.o
 [182/1490] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/video/uikit/SDL_uikitappdelegate.m.o
+[183/1490] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/video/uikit/SDL_uikitmessagebox.m.o
+[184/1490] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/video/uikit/SDL_uikitevents.m.o
+[185/1490] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/video/uikit/SDL_uikitmetalview.m.o
+[186/1490] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/video/uikit/SDL_uikitmodes.m.o
+[187/1490] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/video/uikit/SDL_uikitopengles.m.o
+[188/1490] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/video/uikit/SDL_uikitopenglview.m.o
+[189/1490] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/video/uikit/SDL_uikitpen.m.o
+[190/1490] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/video/uikit/SDL_uikitvideo.m.o
+[191/1490] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/video/uikit/SDL_uikitview.m.o
+[192/1490] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/video/uikit/SDL_uikitviewcontroller.m.o
+[193/1490] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/video/uikit/SDL_uikitvulkan.m.o
+[194/1490] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/thread/pthread/SDL_systhread.c.o
+[195/1490] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/thread/pthread/SDL_sysmutex.c.o
+[196/1490] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/thread/pthread/SDL_syscond.c.o
+[197/1490] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/thread/pthread/SDL_sysrwlock.c.o
+[198/1490] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/thread/pthread/SDL_systls.c.o
+[199/1490] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/thread/pthread/SDL_syssem.c.o
+[200/1490] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/dialog/SDL_dialog.c.o
+[201/1490] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/process/SDL_process.c.o
+[202/1490] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/process/posix/SDL_posixprocess.c.o
+[203/1490] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/video/uikit/SDL_uikitwindow.m.o
+[204/1490] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/offscreen/SDL_offscreenevents.c.o
+[205/1490] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/offscreen/SDL_offscreenopengles.c.o
+[206/1490] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/offscreen/SDL_offscreenframebuffer.c.o
+[207/1490] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/offscreen/SDL_offscreenvideo.c.o
+[208/1490] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/offscreen/SDL_offscreenwindow.c.o
+[209/1490] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/offscreen/SDL_offscreenvulkan.c.o
+[210/1490] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/tray/SDL_tray_utils.c.o
+[211/1490] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/gpu/metal/SDL_gpu_metal.m.o
+[212/1490] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/audio/dummy/SDL_dummyaudio.c.o
+[213/1490] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/joystick/dummy/SDL_sysjoystick.c.o
+[214/1490] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/haptic/dummy/SDL_syshaptic.c.o
+[215/1490] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/sensor/dummy/SDL_dummysensor.c.o
+[216/1490] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/dialog/dummy/SDL_dummydialog.c.o
+[217/1490] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/tray/dummy/SDL_tray.c.o
+[218/1490] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/camera/dummy/SDL_camera_dummy.c.o
+[219/1490] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/gpu/vulkan/SDL_gpu_vulkan.c.o
+[220/1490] Building CXX object CMakeFiles/wwdebug.dir/Libraries/Source/WWVegas/WWDebug/wwdebug.cpp.o
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWDebug/wwdebug.cpp:226:3: warning: 'vsprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use vsnprintf(3) instead. [-Wdeprecated-declarations]
+  226 |                 vsprintf(buffer, format, va);
+      |                 ^
+/Applications/Xcode_16.4.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.5.sdk/usr/include/_stdio.h:298:1: note: 'vsprintf' has been explicitly marked deprecated here
+  298 | __deprecated_msg("This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use vsnprintf(3) instead.")
+      | ^
+/Applications/Xcode_16.4.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.5.sdk/usr/include/sys/cdefs.h:218:48: note: expanded from macro '__deprecated_msg'
+  218 |         #define __deprecated_msg(_msg) __attribute__((__deprecated__(_msg)))
+      |                                                       ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWDebug/wwdebug.cpp:256:3: warning: 'vsprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use vsnprintf(3) instead. [-Wdeprecated-declarations]
+  256 |                 vsprintf(buffer, format, va);
+      |                 ^
+/Applications/Xcode_16.4.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.5.sdk/usr/include/_stdio.h:298:1: note: 'vsprintf' has been explicitly marked deprecated here
+  298 | __deprecated_msg("This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use vsnprintf(3) instead.")
+      | ^
+/Applications/Xcode_16.4.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.5.sdk/usr/include/sys/cdefs.h:218:48: note: expanded from macro '__deprecated_msg'
+  218 |         #define __deprecated_msg(_msg) __attribute__((__deprecated__(_msg)))
+      |                                                       ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWDebug/wwdebug.cpp:286:3: warning: 'vsprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use vsnprintf(3) instead. [-Wdeprecated-declarations]
+  286 |                 vsprintf(buffer, format, va);
+      |                 ^
+/Applications/Xcode_16.4.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.5.sdk/usr/include/_stdio.h:298:1: note: 'vsprintf' has been explicitly marked deprecated here
+  298 | __deprecated_msg("This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use vsnprintf(3) instead.")
+      | ^
+/Applications/Xcode_16.4.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.5.sdk/usr/include/sys/cdefs.h:218:48: note: expanded from macro '__deprecated_msg'
+  218 |         #define __deprecated_msg(_msg) __attribute__((__deprecated__(_msg)))
+      |                                                       ^
+3 warnings generated.
+[221/1490] Building CXX object SPIRV-Cross/CMakeFiles/spirv-cross-msl.dir/spirv_msl.cpp.o
+[222/1490] Linking CXX static library SPIRV-Cross/libspirv-cross-msl.a
+[223/1490] Building CXX object CMakeFiles/wwdebug.dir/Libraries/Source/WWVegas/WWDebug/wwmemlog.cpp.o
+[224/1490] Building CXX object CMakeFiles/wwdebug.dir/Libraries/Source/WWVegas/WWDebug/wwprofile.cpp.o
+[225/1490] Building CXX object CMakeFiles/ffshader.dir/Libraries/Source/WWVegas/WW3D2/ffshader.cpp.o
+[226/1490] Building C object CMakeFiles/sdl3_shadercross.dir/Libraries/Source/SDL_shadercross/src/SDL_shadercross.c.o
+[227/1490] Linking C static library SDL3/libSDL3.a
+[228/1490] Building CXX object SPIRV-Cross/CMakeFiles/spirv-cross-c.dir/spirv_cross_c.cpp.o
+[229/1490] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/GenericCodeGen/CodeGen.cpp.o
+[230/1490] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/OSDependent/Unix/ossource.cpp.o
+[231/1490] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/GenericCodeGen/Link.cpp.o
+[232/1490] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/CInterface/glslang_c_interface.cpp.o
+[233/1490] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/attribute.cpp.o
+[234/1490] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/Constant.cpp.o
+[235/1490] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/glslang_tab.cpp.o
+[236/1490] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/InfoSink.cpp.o
