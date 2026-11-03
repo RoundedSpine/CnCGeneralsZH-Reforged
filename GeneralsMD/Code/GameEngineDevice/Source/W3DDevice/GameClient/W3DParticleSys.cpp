@@ -2265,7 +2265,7 @@ void W3DParticleSystemManager::doParticles(RenderInfoClass &rinfo)
 		fillJob.lightCount = gatherSmokeLights( fillJob.lights, bbox );
 	}
 	fillJob.glowAfterShade = Direct3D11_Present_Is_Enabled();
-#if defined(__linux__)
+#if defined(__linux__) || defined(ZH_PLATFORM_IOS)
 	fillJob.glowAfterShade = fillJob.glowAfterShade
 		|| SunShadow::OwnsSceneShadows(DX8Wrapper::_Get_D3D_Device());
 #endif

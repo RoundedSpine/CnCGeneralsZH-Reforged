@@ -30,12 +30,20 @@ static void variants(){
         bool ok=SDL3_Compile_HLSL_To_SPIRV(source,false,spirv,error)&&SDL3_Translate_SPIRV_To_MSL(spirv,false,msl,error);
         CHECK(ok);if(ok)uniqueMetalTextures(msl);if(!ok)fprintf(stderr,"variant %u: %s\n",i,error.c_str());
     }
-    for(unsigned i=0;i<4;++i){VertexPipelineDescription d={};d.FVF=FF_FVF_XYZ|FF_FVF_DIFFUSE|FF_FVF_TEX2;
+    for(unsigned i=0;i<8;++i){VertexPipelineDescription d={};d.FVF=FF_FVF_XYZ|FF_FVF_DIFFUSE|FF_FVF_TEX2;
+        if(i&4){d.FVF|=FF_FVF_NORMAL;d.SmokeGlow=true;}
         d.StageCount=1;d.SoftParticle=i&1;d.FireLook=i&2;
         std::string source,error,msl;std::vector<unsigned char> spirv;
         CHECK(VertexShader_Generate(d,VERTEX_SHADER_TARGET_SDL3_GPU,source));
         bool ok=SDL3_Compile_HLSL_To_SPIRV(source,true,spirv,error)&&SDL3_Translate_SPIRV_To_MSL(spirv,true,msl,error);
         CHECK(ok);if(ok)uniqueMetalTextures(msl);if(!ok)fprintf(stderr,"vertex variant %u: %s\n",i,error.c_str());
+    }
+    for(unsigned fade:{SOFT_PARTICLE_NONE,SOFT_PARTICLE_ALPHA}) {
+        auto d=base;d.SmokeGlow=true;d.SoftParticle=fade;d.ShadowReceiving=true;
+        std::string source,error,msl;std::vector<unsigned char> spirv;
+        CHECK(CombinerShader_Generate(d,COMBINER_SHADER_TARGET_SDL3_GPU,source));
+        const bool ok=SDL3_Compile_HLSL_To_SPIRV(source,false,spirv,error)&&SDL3_Translate_SPIRV_To_MSL(spirv,false,msl,error);
+        CHECK(ok);if(ok)uniqueMetalTextures(msl);else fprintf(stderr,"smoke-glow variant: %s\n",error.c_str());
     }
     for(auto program:{ENGINE_SHADER_WATER_TRAPEZOID,ENGINE_SHADER_WATER_RIVER,
         ENGINE_SHADER_WATER_TRAPEZOID_FOAM,ENGINE_SHADER_WATER_RIVER_FOAM}) {
@@ -44,7 +52,7 @@ static void variants(){
         bool ok=SDL3_Compile_HLSL_To_SPIRV(source,false,spirv,error)&&SDL3_Translate_SPIRV_To_MSL(spirv,false,msl,error);
         CHECK(ok);if(ok)uniqueMetalTextures(msl);if(!ok)fprintf(stderr,"water variant %u: %s\n",unsigned(program),error.c_str());
     }
-    printf("NATIVE_EFFECTS: seventeen production variants compiled SPIR-V/MSL failures=%u\n",failures);
+    printf("NATIVE_EFFECTS: twenty-three production variants compiled SPIR-V/MSL failures=%u\n",failures);
 }
 int main(){
     variants();if(failures)return 1;

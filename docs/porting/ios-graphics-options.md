@@ -226,3 +226,7 @@ The expanded audit also found that headlight collection still required
 Direct3D11_Is_Active, which always returns false on iOS. It now uses the native
 per-pixel-light capability, allowing the previously ported lighting pass to
 receive eligible vehicle beams. Memory-pressure fallback still omits that pass.
+
+The smoke-lighting follow-up also enables iOS's native post-shadow glow path,
+which had retained a Linux-only guard. Additional combined smoke-glow/soft-depth
+vertex and pixel variants bring the production compilation check to 23 variants.
