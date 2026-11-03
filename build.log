@@ -1,300 +1,300 @@
-  278 | __deprecated_msg("This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead.")
-      | ^
-/Applications/Xcode_16.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk/usr/include/sys/cdefs.h:218:48: note: expanded from macro '__deprecated_msg'
-  218 |         #define __deprecated_msg(_msg) __attribute__((__deprecated__(_msg)))
-      |                                                       ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/ini.cpp:1375:2: warning: 'sprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead. [-Wdeprecated-declarations]
- 1375 |         sprintf(buffer, "%d,%d,%d,%d", value.X, value.Y, value.Width, value.Height);
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/Drawable/Draw/W3DScienceModelDraw.cpp:55:49: warning: offset of on non-standard-layout type 'W3DScienceModelDrawModuleData' [-Winvalid-offsetof]
+   55 |                 { "RequiredScience", INI::parseScience, NULL, offsetof(W3DScienceModelDrawModuleData, m_requiredScience) },
+      |                                                               ^                                       ~~~~~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+44 warnings generated.
+[1408/1499] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/Drawable/Draw/W3DSupplyDraw.cpp.o
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/Drawable/Draw/W3DSupplyDraw.cpp:34:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameClient/Drawable.h:35:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/AudioEventRTS.h:36:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameAudio.h:51:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/STLTypedefs.h:62:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:755:84: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
+  755 |         inline void *operator new(size_t s) { DEBUG_CRASH(("This should be impossible")); return 0; }
+      |                                                                                           ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:766:7: warning: 'this' pointer cannot be null in well-defined C++ code; pointer may be assumed to always convert to true [-Wundefined-bool-conversion]
+  766 |                 if (this)
+      |                 ~~  ^~~~
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/Drawable/Draw/W3DSupplyDraw.cpp:34:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameClient/Drawable.h:35:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/AudioEventRTS.h:223:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
+  223 |         MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE(DynamicAudioEventRTS, "DynamicAudioEventRTS" )          
       |         ^
-/Applications/Xcode_16.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk/usr/include/_stdio.h:278:1: note: 'sprintf' has been explicitly marked deprecated here
-  278 | __deprecated_msg("This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead.")
-      | ^
-/Applications/Xcode_16.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk/usr/include/sys/cdefs.h:218:48: note: expanded from macro '__deprecated_msg'
-  218 |         #define __deprecated_msg(_msg) __attribute__((__deprecated__(_msg)))
-      |                                                       ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/ini.cpp:1438:2: warning: 'sprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead. [-Wdeprecated-declarations]
- 1438 |         sprintf(buffer, "%X", number);
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:684:2: note: expanded from macro 'MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE'
+  684 |         MEMORY_POOL_GLUE_WITHOUT_GCMP(ARGCLASS) \
       |         ^
-/Applications/Xcode_16.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk/usr/include/_stdio.h:278:1: note: 'sprintf' has been explicitly marked deprecated here
-  278 | __deprecated_msg("This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead.")
-      | ^
-/Applications/Xcode_16.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk/usr/include/sys/cdefs.h:218:48: note: expanded from macro '__deprecated_msg'
-  218 |         #define __deprecated_msg(_msg) __attribute__((__deprecated__(_msg)))
-      |                                                       ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/ini.cpp:1541:2: warning: 'sprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead. [-Wdeprecated-declarations]
- 1541 |         sprintf(buffer, "%f", number);
-      |         ^
-/Applications/Xcode_16.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk/usr/include/_stdio.h:278:1: note: 'sprintf' has been explicitly marked deprecated here
-  278 | __deprecated_msg("This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead.")
-      | ^
-/Applications/Xcode_16.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk/usr/include/sys/cdefs.h:218:48: note: expanded from macro '__deprecated_msg'
-  218 |         #define __deprecated_msg(_msg) __attribute__((__deprecated__(_msg)))
-      |                                                       ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/ini.cpp:1575:34: warning: format specifies type 'double *' but the argument has type 'float *' [-Wformat]
- 1575 |                 sscanf(entryptr->Value, "%lf", &val);
-      |                                          ~~~   ^~~~
-      |                                          %f
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/ini.cpp:1608:2: warning: 'sprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead. [-Wdeprecated-declarations]
- 1608 |         sprintf(buffer, "%lf", number);
-      |         ^
-/Applications/Xcode_16.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk/usr/include/_stdio.h:278:1: note: 'sprintf' has been explicitly marked deprecated here
-  278 | __deprecated_msg("This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead.")
-      | ^
-/Applications/Xcode_16.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk/usr/include/sys/cdefs.h:218:48: note: expanded from macro '__deprecated_msg'
-  218 |         #define __deprecated_msg(_msg) __attribute__((__deprecated__(_msg)))
-      |                                                       ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/ini.cpp:2007:2: warning: 'sprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead. [-Wdeprecated-declarations]
- 2007 |         sprintf(buffer, "%d,%d", value.X, value.Y);
-      |         ^
-/Applications/Xcode_16.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk/usr/include/_stdio.h:278:1: note: 'sprintf' has been explicitly marked deprecated here
-  278 | __deprecated_msg("This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead.")
-      | ^
-/Applications/Xcode_16.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk/usr/include/sys/cdefs.h:218:48: note: expanded from macro '__deprecated_msg'
-  218 |         #define __deprecated_msg(_msg) __attribute__((__deprecated__(_msg)))
-      |                                                       ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/ini.cpp:2066:2: warning: 'sprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead. [-Wdeprecated-declarations]
- 2066 |         sprintf(buffer, "%d,%d,%d", value.X, value.Y, value.Z);
-      |         ^
-/Applications/Xcode_16.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk/usr/include/_stdio.h:278:1: note: 'sprintf' has been explicitly marked deprecated here
-  278 | __deprecated_msg("This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead.")
-      | ^
-/Applications/Xcode_16.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk/usr/include/sys/cdefs.h:218:48: note: expanded from macro '__deprecated_msg'
-  218 |         #define __deprecated_msg(_msg) __attribute__((__deprecated__(_msg)))
-      |                                                       ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/ini.cpp:2126:2: warning: 'sprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead. [-Wdeprecated-declarations]
- 2126 |         sprintf(buffer, "%f,%f,%f", (float)value.X, (float)value.Y, (float)value.Z);
-      |         ^
-/Applications/Xcode_16.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk/usr/include/_stdio.h:278:1: note: 'sprintf' has been explicitly marked deprecated here
-  278 | __deprecated_msg("This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead.")
-      | ^
-/Applications/Xcode_16.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk/usr/include/sys/cdefs.h:218:48: note: expanded from macro '__deprecated_msg'
-  218 |         #define __deprecated_msg(_msg) __attribute__((__deprecated__(_msg)))
-      |                                                       ^
-16 warnings generated.
-[314/403] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/lcw.cpp.o
-[315/403] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/load.cpp.o
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/load.cpp:74:27: warning: implicit conversion of NULL constant to 'unsigned long' [-Wnull-conversion]
-   74 |         if (!src || !dst) return(NULL);
-      |                           ~~~~~~ ^~~~
-      |                                  0
-1 warning generated.
-[316/403] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/mixfile.cpp.o
-[317/403] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/mpmath.cpp.o
-[318/403] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/multilist.cpp.o
-[319/403] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/nstrdup.cpp.o
-[320/403] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/mutex.cpp.o
-[321/403] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/palette.cpp.o
-[322/403] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/pcx.cpp.o
-[323/403] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/pipe.cpp.o
-[324/403] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/pk.cpp.o
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/pk.cpp:46:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/pk.h:48:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/int.h:130:55: warning: instantiation of variable 'Int<64>::Error' required here, but no definition is available [-Wundefined-var-template]
-  130 |                 Int operator * (unsigned short b) const {Int result;Error=XMP_Unsigned_Mult_Int(result, &reg[0], b, PRECISION);return(result);}
-      |                                                                     ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/int.h:280:9: note: in instantiation of member function 'Int<64>::operator*' requested here
-  280 |                 p = (q*2) + (unsigned short)1;
-      |                       ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/pk.cpp:219:14: note: in instantiation of function template specialization 'Generate_Prime<Int<64>>' requested here
-  219 |                 BigInt p = Generate_Prime(random, bits, &p);
-      |                            ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/int.h:188:14: note: forward declaration of template entity is here
-  188 |                 static int Error;
-      |                            ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/int.h:130:55: note: add an explicit instantiation declaration to suppress this warning if 'Int<64>::Error' is explicitly instantiated in another translation unit
-  130 |                 Int operator * (unsigned short b) const {Int result;Error=XMP_Unsigned_Mult_Int(result, &reg[0], b, PRECISION);return(result);}
-      |                                                                     ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/int.h:126:55: warning: instantiation of variable 'Int<64>::Carry' required here, but no definition is available [-Wundefined-var-template]
-  126 |                 Int operator + (unsigned short b) const {Int result;Carry=XMP_Add_Int(result, &reg[0], b, 0, PRECISION);return(result);}
-      |                                                                     ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/int.h:280:13: note: in instantiation of member function 'Int<64>::operator+' requested here
-  280 |                 p = (q*2) + (unsigned short)1;
-      |                           ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/pk.cpp:219:14: note: in instantiation of function template specialization 'Generate_Prime<Int<64>>' requested here
-  219 |                 BigInt p = Generate_Prime(random, bits, &p);
-      |                            ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/int.h:191:15: note: forward declaration of template entity is here
-  191 |                 static bool Carry;
-      |                             ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/int.h:126:55: note: add an explicit instantiation declaration to suppress this warning if 'Int<64>::Carry' is explicitly instantiated in another translation unit
-  126 |                 Int operator + (unsigned short b) const {Int result;Carry=XMP_Add_Int(result, &reg[0], b, 0, PRECISION);return(result);}
-      |                                                                     ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/int.h:136:89: warning: instantiation of variable 'Int<64>::Remainder' required here, but no definition is available [-Wundefined-var-template]
-  136 |                 unsigned short operator % (unsigned short divisor) const {return(XMP_Unsigned_Div_Int(Remainder, &reg[0], divisor, PRECISION));}
-      |                                                                                                       ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/int.h:212:17: note: in instantiation of member function 'Int<64>::operator%' requested here
-  212 |                         table[i] = p % primetable[i];
-      |                                      ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/int.h:282:21: note: in instantiation of member function 'RemainderTable<Int<64>>::RemainderTable' requested here
-  282 |                 RemainderTable<T> rtQ(q);
-      |                                   ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/pk.cpp:219:14: note: in instantiation of function template specialization 'Generate_Prime<Int<64>>' requested here
-  219 |                 BigInt p = Generate_Prime(random, bits, &p);
-      |                            ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/int.h:197:14: note: forward declaration of template entity is here
-  197 |                 static Int Remainder;
-      |                            ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/int.h:136:89: note: add an explicit instantiation declaration to suppress this warning if 'Int<64>::Remainder' is explicitly instantiated in another translation unit
-  136 |                 unsigned short operator % (unsigned short divisor) const {return(XMP_Unsigned_Div_Int(Remainder, &reg[0], divisor, PRECISION));}
-      |                                                                                                       ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/int.h:128:55: warning: instantiation of variable 'Int<64>::Borrow' required here, but no definition is available [-Wundefined-var-template]
-  128 |                 Int operator - (unsigned short b) const {Int result;Borrow = XMP_Sub_Int(result, &reg[0], b, 0, PRECISION);return(result);}
-      |                                                                     ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/pk.cpp:227:20: note: in instantiation of member function 'Int<64>::operator-' requested here
-  227 |                 BigInt pqmin = (p-(unsigned short)1)*(q-(unsigned short)1);
-      |                                  ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/int.h:194:15: note: forward declaration of template entity is here
-  194 |                 static bool Borrow;
-      |                             ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/int.h:128:55: note: add an explicit instantiation declaration to suppress this warning if 'Int<64>::Borrow' is explicitly instantiated in another translation unit
-  128 |                 Int operator - (unsigned short b) const {Int result;Borrow = XMP_Sub_Int(result, &reg[0], b, 0, PRECISION);return(result);}
-      |                                                                     ^
-4 warnings generated.
-[325/403] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/ramfile.cpp.o
-[326/403] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/random.cpp.o
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/random.cpp:124:45: warning: shifting a negative signed value is undefined [-Wshift-negative-value]
-  124 |         return((Seed >> THROW_AWAY_BITS) & (~((~0) << SIGNIFICANT_BITS)));
-      |                                               ~~~~ ^
-1 warning generated.
-[327/403] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/rc4.cpp.o
-[328/403] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/rawfile.cpp.o
-[329/403] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/readline.cpp.o
-[330/403] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/realcrc.cpp.o
-[331/403] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/refcount.cpp.o
-[332/403] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/rgb.cpp.o
-[333/403] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/rle.cpp.o
-[334/403] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/rndstrng.cpp.o
-[335/403] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/sampler.cpp.o
-[336/403] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/sha.cpp.o
-[337/403] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/stimer.cpp.o
-[338/403] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/slnode.cpp.o
-[339/403] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/straw.cpp.o
-[340/403] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/strtok_r.cpp.o
-[341/403] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/systimer.cpp.o
-[342/403] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/tagblock.cpp.o
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/tagblock.cpp:56:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/tagblock.h:46:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/slist.h:61:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/slnode.h:46:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/mempool.h:364:18: warning: instantiation of variable 'AutoPoolClass<GenericSLNode, 256>::Allocator' required here, but no definition is available [-Wundefined-var-template]
-  364 |         return (void *)(Allocator.Allocate_Object_Memory());
-      |                         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/slist.h:462:23: note: in instantiation of member function 'AutoPoolClass<GenericSLNode, 256>::operator new' requested here
-  462 |                 SLNode<T> *temp   = new SLNode<T>(cur->Data());
-      |                                     ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/slist.h:79:3: note: in instantiation of member function 'SList<TagBlockIndex>::Add_Head' requested here
-   79 |                 SList(void)
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:658:3: note: expanded from macro 'MEMORY_POOL_GLUE_WITHOUT_GCMP'
+  658 |                 return 0; \
       |                 ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/tagblock.cpp:129:2: note: in instantiation of member function 'SList<TagBlockIndex>::SList' requested here
-  129 |         IndexList()
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/Drawable/Draw/W3DSupplyDraw.cpp:34:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameClient/Drawable.h:36:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/DisabledTypes.h:39:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BitFlagsIO.h:39:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Xfer.h:41:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Science.h:38:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Overridable.h:44:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
+   44 |         MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE( Overridable, "Overridable"  )
       |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/mempool.h:156:39: note: forward declaration of template entity is here
-  156 |         static ObjectPoolClass<T,BLOCK_SIZE>    Allocator;
-      |                                                 ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/mempool.h:364:18: note: add an explicit instantiation declaration to suppress this warning if 'AutoPoolClass<GenericSLNode, 256>::Allocator' is explicitly instantiated in another translation unit
-  364 |         return (void *)(Allocator.Allocate_Object_Memory());
-      |                         ^
-1 warning generated.
-[343/403] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/TARGA.CPP.o
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/TARGA.CPP:367:31: warning: comparison between NULL and non-pointer ('long' and NULL) [-Wnull-arithmetic]
-  367 |         if (Open(name, TGA_READMODE) == NULL) {
-      |             ~~~~~~~~~~~~~~~~~~~~~~~~ ^  ~~~~
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/TARGA.CPP:429:34: warning: comparison between NULL and non-pointer ('long' and NULL) [-Wnull-arithmetic]
-  429 |                                         if ((error = DecodeImage()) == NULL) {
-      |                                             ~~~~~~~~~~~~~~~~~~~~~~~ ^  ~~~~
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/TARGA.CPP:605:32: warning: comparison between NULL and non-pointer ('long' and NULL) [-Wnull-arithmetic]
-  605 |         if (Open(name, TGA_WRITEMODE) == NULL)
-      |             ~~~~~~~~~~~~~~~~~~~~~~~~~ ^  ~~~~
-3 warnings generated.
-[344/403] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/textfile.cpp.o
-[345/403] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/tgatodxt.cpp.o
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/tgatodxt.cpp:38:9: warning: (gth) disabling TGAtoDXTClass temporarily so I can test the WW libs merge... [-W#pragma-messages]
-   38 | #pragma message ("(gth) disabling TGAtoDXTClass temporarily so I can test the WW libs merge...")
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:684:2: note: expanded from macro 'MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE'
+  684 |         MEMORY_POOL_GLUE_WITHOUT_GCMP(ARGCLASS) \
       |         ^
-1 warning generated.
-[346/403] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/trim.cpp.o
-[347/403] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/thread.cpp.o
-[348/403] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/vector.cpp.o
-[349/403] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/wwfile.cpp.o
-[350/403] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/wwfont.cpp.o
-[351/403] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/widestring.cpp.o
-[352/403] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/wwstring.cpp.o
-[353/403] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/xpipe.cpp.o
-[354/403] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/xstraw.cpp.o
-[355/403] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/xsurface.cpp.o
-[356/403] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/posixpath.cpp.o
-[357/403] Linking CXX static library libffvertex.a
-[358/403] Linking CXX static library libengineshader.a
-[359/403] Linking CXX static library libsdl3shadercompile.a
-[360/403] Building CXX object CMakeFiles/posixd3d9.dir/GameEngineDevice/Source/PosixDevice/Render/PosixD3D9Caps.cpp.o
-[361/403] Building CXX object CMakeFiles/posixd3d9.dir/GameEngineDevice/Source/PosixDevice/Render/PosixDevice9.cpp.o
-[362/403] Building CXX object CMakeFiles/posixd3d9.dir/GameEngineDevice/Source/PosixDevice/Render/PosixDevice9AmbientOcclusion.cpp.o
-[363/403] Building CXX object CMakeFiles/posixd3d9.dir/GameEngineDevice/Source/PosixDevice/Render/PosixDevice9Capture.cpp.o
-[364/403] Building CXX object CMakeFiles/posixd3d9.dir/GameEngineDevice/Source/PosixDevice/Render/PosixDevice9Draw.cpp.o
-[365/403] Building CXX object CMakeFiles/posixd3d9.dir/GameEngineDevice/Source/PosixDevice/Render/PosixDevice9Resources.cpp.o
-[366/403] Building CXX object CMakeFiles/posixd3d9.dir/GameEngineDevice/Source/PosixDevice/Render/PosixDevice9SceneEffects.cpp.o
-[367/403] Building CXX object CMakeFiles/posixd3d9.dir/GameEngineDevice/Source/PosixDevice/Render/PosixDevice9SunShadow.cpp.o
-[368/403] Building CXX object CMakeFiles/posixd3d9.dir/GameEngineDevice/Source/PosixDevice/Render/PosixDirect3D9.cpp.o
-[369/403] Building CXX object CMakeFiles/posixd3d9.dir/GameEngineDevice/Source/PosixDevice/Render/PosixDevice9Timing.cpp.o
-[370/403] Building CXX object CMakeFiles/posixd3d9.dir/GameEngineDevice/Source/PosixDevice/Render/PosixImage.cpp.o
-[371/403] Building CXX object CMakeFiles/posixd3d9.dir/GameEngineDevice/Source/PosixDevice/Render/PosixPixelCodec.cpp.o
-[372/403] Building CXX object CMakeFiles/posixd3d9.dir/GameEngineDevice/Source/PosixDevice/Render/PosixImageOps.cpp.o
-[373/403] Building CXX object CMakeFiles/posixd3d9.dir/GameEngineDevice/Source/PosixDevice/Render/PosixResources9.cpp.o
-[374/403] Building CXX object CMakeFiles/posixd3d9.dir/GameEngineDevice/Source/PosixDevice/Render/SdlAmbientOcclusion.cpp.o
-[375/403] Building CXX object CMakeFiles/posixd3d9.dir/GameEngineDevice/Source/PosixDevice/Render/SdlAtmosphere.cpp.o
-[376/403] Building CXX object CMakeFiles/posixd3d9.dir/GameEngineDevice/Source/PosixDevice/Render/SdlGpuFrame.cpp.o
-[377/403] Building CXX object CMakeFiles/posixd3d9.dir/GameEngineDevice/Source/PosixDevice/Render/SdlGpuFrameAmbientOcclusion.cpp.o
-[378/403] Building CXX object CMakeFiles/posixd3d9.dir/GameEngineDevice/Source/PosixDevice/Render/SdlGpuFrameAtmosphere.cpp.o
-[379/403] Building CXX object CMakeFiles/posixd3d9.dir/GameEngineDevice/Source/PosixDevice/Render/SdlGpuFrameBatch.cpp.o
-[380/403] Building CXX object CMakeFiles/posixd3d9.dir/GameEngineDevice/Source/PosixDevice/Render/SdlGpuFrameHeat.cpp.o
-[381/403] Building CXX object CMakeFiles/posixd3d9.dir/GameEngineDevice/Source/PosixDevice/Render/SdlGpuFrameSmoke.cpp.o
-[382/403] Building CXX object CMakeFiles/posixd3d9.dir/GameEngineDevice/Source/PosixDevice/Render/SdlGpuFrameSunShadow.cpp.o
-[383/403] Building CXX object CMakeFiles/posixd3d9.dir/GameEngineDevice/Source/PosixDevice/Render/SdlPipelineCache.cpp.o
-[384/403] Building CXX object CMakeFiles/posixd3d9.dir/GameEngineDevice/Source/PosixDevice/Render/SdlResourceMirror.cpp.o
-[385/403] Building CXX object CMakeFiles/test_harness.dir/Tests/test_main.cpp.o
-[386/403] Building CXX object CMakeFiles/test_sdl_ao.dir/Tests/test_sdl_ao.cpp.o
-[387/403] Building CXX object CMakeFiles/test_sdl_ao.dir/GameEngineDevice/Source/PosixDevice/Render/SdlAmbientOcclusion.cpp.o
-[388/403] Linking CXX static library libwwlib.a
-[389/403] Building CXX object CMakeFiles/test_sdl_ao.dir/GameEngineDevice/Source/PosixDevice/Render/SdlAtmosphere.cpp.o
-[390/403] Building CXX object CMakeFiles/test_sdl_heat.dir/Tests/test_sdl_heat.cpp.o
-[391/403] Building CXX object CMakeFiles/posix_gpu_draw_selfcheck.dir/Tests/test_posix_gpu_draw.cpp.o
-[392/403] Linking CXX static library libtest_harness.a
-[393/403] Building CXX object CMakeFiles/test_userfolders.dir/Tests/test_userfolders.cpp.o
-[394/403] Building CXX object CMakeFiles/test_userfolders.dir/Tests/test_user_data_guard.cpp.o
-[395/403] Linking CXX executable test_sdl_ao
-ld: warning: ignoring duplicate libraries: 'SDL3/libSDL3.a'
-[396/403] Linking CXX executable test_userfolders
-[397/403] Building CXX object CMakeFiles/posixd3d9.dir/GameEngineDevice/Source/PosixDevice/Render/SdlProgramCache.cpp.o
-[398/403] Linking CXX static library libposixd3d9.a
-[399/403] Linking CXX executable posix_gpu_draw_selfcheck
-ld: warning: ignoring duplicate libraries: 'SDL3/libSDL3.a'
-[400/403] Linking CXX executable test_sdl_heat
-ld: warning: ignoring duplicate libraries: 'SDL3/libSDL3.a'
-[401/403] Building CXX object CMakeFiles/test_sdl_native_effects.dir/Tests/test_sdl_native_effects.cpp.o
-[402/403] Linking CXX executable test_sdl_native_effects
-ld: warning: ignoring duplicate libraries: 'SDL3/libSDL3.a', 'libffshader.a'
-4 tests, 44 checks, 0 failed
-[SDL_AO] ready size=257x193 half=129x97
-[SDL_AO] ready size=32x24 half=16x12
-[SDL_ATMOSPHERE] ready size=257x193
-[SDL_ATMOSPHERE] ready size=17x11
-[SDL_ATMOSPHERE] ready size=257x193
-[SDL_FIRELIGHT] ready
-[SDL_ATMOSPHERE] ready size=17x11
-AO: four production shader stages compiled to SPIR-V and MSL
-ATMOSPHERE: production shaders compiled to SPIR-V and MSL
-FIRELIGHT: production shader compiled to SPIR-V and MSL
-LIGHTING: hemisphere and team-glow variants compiled to SPIR-V and MSL
-AO: contact pixels=5233 failures=0 backend=metal
-ATMOSPHERE: failures=0 backend=metal
-FIRELIGHT: failures=0 backend=metal
-LIGHTING: failures=0 backend=metal
-Graphics shader/GPU readback checks passed: test_sdl_ao.
-[SDL_HEAT] ready size=257x193
-[SDL_HEAT] ready size=17x11
-[SDL_MEMORY] released transient AO/atmosphere/effect/ocean/scene-copy caches
-[SDL_HEAT] ready size=17x11
-HEAT: failures=0 backend=metal
-Graphics shader/GPU readback checks passed: test_sdl_heat.
-[DEVICE_CREATE] stage=gpu-frame result=0x00000000 size=64x48 color=21 depth=75 auto_depth=1 samples=0 quality=0 window=0x0 offscreen=0
-[SDL_LIGHTING] modern=1 hemisphere=0
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:658:3: note: expanded from macro 'MEMORY_POOL_GLUE_WITHOUT_GCMP'
+  658 |                 return 0; \
+      |                 ^
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/Drawable/Draw/W3DSupplyDraw.cpp:34:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameClient/Drawable.h:36:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/DisabledTypes.h:39:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BitFlagsIO.h:39:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Xfer.h:41:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Science.h:39:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/NameKeyGenerator.h:67:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
+   67 |         MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE( Bucket, "NameKeyBucketPool" );
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:684:2: note: expanded from macro 'MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE'
+  684 |         MEMORY_POOL_GLUE_WITHOUT_GCMP(ARGCLASS) \
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:658:3: note: expanded from macro 'MEMORY_POOL_GLUE_WITHOUT_GCMP'
+  658 |                 return 0; \
+      |                 ^
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/Drawable/Draw/W3DSupplyDraw.cpp:34:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameClient/Drawable.h:36:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/DisabledTypes.h:39:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BitFlagsIO.h:39:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Xfer.h:41:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Science.h:56:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
+   56 |         MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE( ScienceInfo, "ScienceInfo"  )
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:684:2: note: expanded from macro 'MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE'
+  684 |         MEMORY_POOL_GLUE_WITHOUT_GCMP(ARGCLASS) \
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:658:3: note: expanded from macro 'MEMORY_POOL_GLUE_WITHOUT_GCMP'
+  658 |                 return 0; \
+      |                 ^
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/Drawable/Draw/W3DSupplyDraw.cpp:34:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameClient/Drawable.h:36:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/DisabledTypes.h:39:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BitFlagsIO.h:39:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Xfer.h:42:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Upgrade.h:118:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
+  118 |         MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE( Upgrade, "Upgrade" )
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:684:2: note: expanded from macro 'MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE'
+  684 |         MEMORY_POOL_GLUE_WITHOUT_GCMP(ARGCLASS) \
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:658:3: note: expanded from macro 'MEMORY_POOL_GLUE_WITHOUT_GCMP'
+  658 |                 return 0; \
+      |                 ^
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/Drawable/Draw/W3DSupplyDraw.cpp:34:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameClient/Drawable.h:36:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/DisabledTypes.h:39:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BitFlagsIO.h:39:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Xfer.h:42:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Upgrade.h:169:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
+  169 |         MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE( UpgradeTemplate, "UpgradeTemplate" )
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:684:2: note: expanded from macro 'MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE'
+  684 |         MEMORY_POOL_GLUE_WITHOUT_GCMP(ARGCLASS) \
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:658:3: note: expanded from macro 'MEMORY_POOL_GLUE_WITHOUT_GCMP'
+  658 |                 return 0; \
+      |                 ^
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/Drawable/Draw/W3DSupplyDraw.cpp:34:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameClient/Drawable.h:40:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/ModuleFactory.h:49:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Module.h:196:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
+  196 |         MEMORY_POOL_GLUE_ABC( Module )                                          ///< this abstract class needs memory pool hooks
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:700:3: note: expanded from macro 'MEMORY_POOL_GLUE_ABC'
+  700 |                 return 0; \
+      |                 ^
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/Drawable/Draw/W3DSupplyDraw.cpp:34:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameClient/Drawable.h:40:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/ModuleFactory.h:49:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Module.h:196:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:713:3: note: expanded from macro 'MEMORY_POOL_GLUE_ABC'
+  713 |                 return 0; \
+      |                 ^
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/Drawable/Draw/W3DSupplyDraw.cpp:34:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameClient/Drawable.h:40:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/ModuleFactory.h:49:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Module.h:257:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
+  257 |         MEMORY_POOL_GLUE_ABC( ObjectModule )                    ///< this abstract class needs memory pool hooks
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:700:3: note: expanded from macro 'MEMORY_POOL_GLUE_ABC'
+  700 |                 return 0; \
+      |                 ^
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/Drawable/Draw/W3DSupplyDraw.cpp:34:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameClient/Drawable.h:40:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/ModuleFactory.h:49:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Module.h:257:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:713:3: note: expanded from macro 'MEMORY_POOL_GLUE_ABC'
+  713 |                 return 0; \
+      |                 ^
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/Drawable/Draw/W3DSupplyDraw.cpp:34:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameClient/Drawable.h:40:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/ModuleFactory.h:49:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Module.h:306:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
+  306 |         MEMORY_POOL_GLUE_ABC( DrawableModule )          ///< this abstract class needs memory pool hooks
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:700:3: note: expanded from macro 'MEMORY_POOL_GLUE_ABC'
+  700 |                 return 0; \
+      |                 ^
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/Drawable/Draw/W3DSupplyDraw.cpp:34:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameClient/Drawable.h:40:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/ModuleFactory.h:49:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Module.h:306:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:713:3: note: expanded from macro 'MEMORY_POOL_GLUE_ABC'
+  713 |                 return 0; \
+      |                 ^
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/Drawable/Draw/W3DSupplyDraw.cpp:34:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameClient/Drawable.h:41:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Thing.h:65:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWMath/matrix3d.h:95:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWMath/vector2.h:60:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWMath/wwmath.h:552:35: warning: logical not is only applied to the left hand side of this bitwise operator [-Wlogical-not-parentheses]
+  552 |         r = ((r & expsign) ^ (sign)) + ((!((mantissa<<8)&imask)&(expsign^((a-1)>>31)))&sign);   // if (fabs(value)<1.0) value = 0; copy sign; if (value < 0 && value==(int)(value)) value++;
+      |                                          ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWMath/wwmath.h:552:35: note: add parentheses after the '!' to evaluate the bitwise operator first
+  552 |         r = ((r & expsign) ^ (sign)) + ((!((mantissa<<8)&imask)&(expsign^((a-1)>>31)))&sign);   // if (fabs(value)<1.0) value = 0; copy sign; if (value < 0 && value==(int)(value)) value++;
+      |                                          ^                                           
+      |                                           (                                          )
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWMath/wwmath.h:552:35: note: add parentheses around left hand side expression to silence this warning
+  552 |         r = ((r & expsign) ^ (sign)) + ((!((mantissa<<8)&imask)&(expsign^((a-1)>>31)))&sign);   // if (fabs(value)<1.0) value = 0; copy sign; if (value < 0 && value==(int)(value)) value++;
+      |                                          ^                     
+      |                                          (                     )
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/Drawable/Draw/W3DSupplyDraw.cpp:34:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameClient/Drawable.h:41:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Thing.h:98:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
+   98 |         MEMORY_POOL_GLUE_ABC(Thing)
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:700:3: note: expanded from macro 'MEMORY_POOL_GLUE_ABC'
+  700 |                 return 0; \
+      |                 ^
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/Drawable/Draw/W3DSupplyDraw.cpp:34:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameClient/Drawable.h:41:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Thing.h:98:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:713:3: note: expanded from macro 'MEMORY_POOL_GLUE_ABC'
+  713 |                 return 0; \
+      |                 ^
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/Drawable/Draw/W3DSupplyDraw.cpp:34:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameClient/Drawable.h:150:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
+  150 |         MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE(DrawableIconInfo, "DrawableIconInfo" )          
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:684:2: note: expanded from macro 'MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE'
+  684 |         MEMORY_POOL_GLUE_WITHOUT_GCMP(ARGCLASS) \
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:658:3: note: expanded from macro 'MEMORY_POOL_GLUE_WITHOUT_GCMP'
+  658 |                 return 0; \
+      |                 ^
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/Drawable/Draw/W3DSupplyDraw.cpp:34:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameClient/Drawable.h:178:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
+  178 |         MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE(DrawableLocoInfo, "DrawableLocoInfo" )          
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:684:2: note: expanded from macro 'MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE'
+  684 |         MEMORY_POOL_GLUE_WITHOUT_GCMP(ARGCLASS) \
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:658:3: note: expanded from macro 'MEMORY_POOL_GLUE_WITHOUT_GCMP'
+  658 |                 return 0; \
+      |                 ^
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/Drawable/Draw/W3DSupplyDraw.cpp:34:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameClient/Drawable.h:228:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
+  228 |         MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE(TintEnvelope, "TintEnvelope" )          
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:684:2: note: expanded from macro 'MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE'
+  684 |         MEMORY_POOL_GLUE_WITHOUT_GCMP(ARGCLASS) \
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:658:3: note: expanded from macro 'MEMORY_POOL_GLUE_WITHOUT_GCMP'
+  658 |                 return 0; \
+      |                 ^
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/Drawable/Draw/W3DSupplyDraw.cpp:34:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameClient/Drawable.h:350:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
+  350 |         MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE(Drawable, "Drawable" )          
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:684:2: note: expanded from macro 'MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE'
+  684 |         MEMORY_POOL_GLUE_WITHOUT_GCMP(ARGCLASS) \
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:658:3: note: expanded from macro 'MEMORY_POOL_GLUE_WITHOUT_GCMP'
+  658 |                 return 0; \
+      |                 ^
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/Drawable/Draw/W3DSupplyDraw.cpp:36:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Include/W3DDevice/GameClient/Module/W3DSupplyDraw.h:36:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Include/W3DDevice/GameClient/Module/W3DModelDraw.h:39:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/DrawModule.h:67:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
+   67 |         MEMORY_POOL_GLUE_ABC( DrawModule )
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:700:3: note: expanded from macro 'MEMORY_POOL_GLUE_ABC'
+  700 |                 return 0; \
+      |                 ^
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/Drawable/Draw/W3DSupplyDraw.cpp:36:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Include/W3DDevice/GameClient/Module/W3DSupplyDraw.h:36:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Include/W3DDevice/GameClient/Module/W3DModelDraw.h:39:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/DrawModule.h:67:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:713:3: note: expanded from macro 'MEMORY_POOL_GLUE_ABC'
+  713 |                 return 0; \
+      |                 ^
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/Drawable/Draw/W3DSupplyDraw.cpp:36:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Include/W3DDevice/GameClient/Module/W3DSupplyDraw.h:36:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Include/W3DDevice/GameClient/Module/W3DModelDraw.h:59:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameClient/ParticleSys.h:179:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
+  179 |         MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE( Particle, "ParticlePool" )             
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:684:2: note: expanded from macro 'MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE'
+  684 |         MEMORY_POOL_GLUE_WITHOUT_GCMP(ARGCLASS) \
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:658:3: note: expanded from macro 'MEMORY_POOL_GLUE_WITHOUT_GCMP'
+  658 |                 return 0; \
+      |                 ^
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/Drawable/Draw/W3DSupplyDraw.cpp:36:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Include/W3DDevice/GameClient/Module/W3DSupplyDraw.h:36:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Include/W3DDevice/GameClient/Module/W3DModelDraw.h:59:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameClient/ParticleSys.h:604:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
+  604 |         MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE( ParticleSystemTemplate, "ParticleSystemTemplatePool" )         
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:684:2: note: expanded from macro 'MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE'
+  684 |         MEMORY_POOL_GLUE_WITHOUT_GCMP(ARGCLASS) \
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:658:3: note: expanded from macro 'MEMORY_POOL_GLUE_WITHOUT_GCMP'
+  658 |                 return 0; \
+      |                 ^
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/Drawable/Draw/W3DSupplyDraw.cpp:36:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Include/W3DDevice/GameClient/Module/W3DSupplyDraw.h:36:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Include/W3DDevice/GameClient/Module/W3DModelDraw.h:59:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameClient/ParticleSys.h:708:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
+  708 |         MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE( ParticleSystem, "ParticleSystemPool" )         
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:684:2: note: expanded from macro 'MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE'
+  684 |         MEMORY_POOL_GLUE_WITHOUT_GCMP(ARGCLASS) \
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:658:3: note: expanded from macro 'MEMORY_POOL_GLUE_WITHOUT_GCMP'
+  658 |                 return 0; \
+      |                 ^
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/Drawable/Draw/W3DSupplyDraw.cpp:36:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Include/W3DDevice/GameClient/Module/W3DSupplyDraw.h:36:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Include/W3DDevice/GameClient/Module/W3DModelDraw.h:352:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
+  352 |         MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE( W3DModelDraw, "W3DModelDraw" )
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:684:2: note: expanded from macro 'MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE'
+  684 |         MEMORY_POOL_GLUE_WITHOUT_GCMP(ARGCLASS) \
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:658:3: note: expanded from macro 'MEMORY_POOL_GLUE_WITHOUT_GCMP'
+  658 |                 return 0; \
+      |                 ^
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/Drawable/Draw/W3DSupplyDraw.cpp:36:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Include/W3DDevice/GameClient/Module/W3DSupplyDraw.h:53:3: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
+   53 |         MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE( W3DSupplyDraw, "W3DSupplyDraw" )
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:684:2: note: expanded from macro 'MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE'
+  684 |         MEMORY_POOL_GLUE_WITHOUT_GCMP(ARGCLASS) \
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:658:3: note: expanded from macro 'MEMORY_POOL_GLUE_WITHOUT_GCMP'
+  658 |                 return 0; \
+      |                 ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/Drawable/Draw/W3DSupplyDraw.cpp:57:54: warning: offset of on non-standard-layout type 'W3DSupplyDrawModuleData' [-Winvalid-offsetof]
+   57 |                 { "SupplyBonePrefix", INI::parseAsciiString, NULL, offsetof(W3DSupplyDrawModuleData, m_supplyBonePrefix) },
+      |                                                                    ^                                 ~~~~~~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+29 warnings generated.
