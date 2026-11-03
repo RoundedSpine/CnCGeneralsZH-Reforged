@@ -3293,6 +3293,7 @@ Tests/test_posixpath.cpp
 Tests/test_premain_strings.cpp
 Tests/test_production_input.inc
 Tests/test_rank_ladder.cpp
+Tests/test_refpack.cpp
 Tests/test_registryfile.cpp
 Tests/test_render_hooks.cpp
 Tests/test_road_buffer.cpp

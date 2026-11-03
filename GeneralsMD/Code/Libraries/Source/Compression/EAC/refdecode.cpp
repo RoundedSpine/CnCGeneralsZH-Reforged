@@ -22,6 +22,7 @@
 #define __REFREAD 1
 
 #include <string.h>
+#include <limits.h>
 #include "codex.h"
 #include "refcodex.h"
 
@@ -70,117 +71,93 @@ int GCALL REF_size(const void *compresseddata)
 }
 
 
-int GCALL REF_decode(void *dest, const void *compresseddata, int *compressedsize)
+int GCALL REF_decode(void *dest, int destsize, const void *compresseddata, int sourcesize,
+    int *compressedsize)
 {
-    unsigned char *s;
-    unsigned char *ref;
-    unsigned char *d;
-    unsigned char first;
-    unsigned char second;
-    unsigned char third;
-    unsigned char forth;
-    unsigned int  run;
-    unsigned int  type;
-    int          ulen;
+    if (compressedsize) *compressedsize = 0;
+    if (!compresseddata || !dest || sourcesize < 2 || destsize < 0)
+        return 0;
 
-    s = (unsigned char *) compresseddata;
-    d = (unsigned char *) dest;
-    ulen = 0L;
+    const unsigned char *s = (const unsigned char *)compresseddata;
+    unsigned char *d = (unsigned char *)dest;
+    const unsigned int type = ((unsigned int)s[0] << 8) | s[1];
+    if (type != 0x10fb && type != 0x11fb && type != 0x90fb && type != 0x91fb)
+        return 0;
 
-    if (s)
+    const int sizebytes = (type & 0x8000) ? 4 : 3;
+    int input = 2 + ((type & 0x100) ? sizebytes : 0);
+    if (sourcesize - input < sizebytes)
+        return 0;
+    unsigned int declared = 0;
+    for (int i = 0; i < sizebytes; ++i)
+        declared = (declared << 8) | s[input++];
+    if (declared > (unsigned int)INT_MAX || declared > (unsigned int)destsize)
+        return 0;
+    const int limit = (int)declared;
+    int output = 0;
+
+    for (;;)
     {
-        type = *s++;
-        type = (type<<8) + *s++;
-
-        if (type&0x8000) /* 4 byte size field */
+        if (input == sourcesize)
+            return 0; // Every stream must end with an EOF command.
+        const unsigned int first = s[input++];
+        int literals = 0, match = 0, distance = 0;
+        bool eof = false;
+        if (!(first & 0x80))
         {
-            if (type&0x100)                       /* skip ulen */
-                s += 4;
-
-            ulen = *s++;
-            ulen = (ulen<<8) + *s++;
-            ulen = (ulen<<8) + *s++;
-            ulen = (ulen<<8) + *s++;
+            if (sourcesize - input < 1) return 0;
+            const unsigned int second = s[input++];
+            literals = first & 3;
+            distance = 1 + ((first & 0x60) << 3) + second;
+            match = ((first & 0x1c) >> 2) + 3;
+        }
+        else if (!(first & 0x40))
+        {
+            if (sourcesize - input < 2) return 0;
+            const unsigned int second = s[input++];
+            const unsigned int third = s[input++];
+            literals = second >> 6;
+            distance = 1 + ((second & 0x3f) << 8) + third;
+            match = (first & 0x3f) + 4;
+        }
+        else if (!(first & 0x20))
+        {
+            if (sourcesize - input < 3) return 0;
+            const unsigned int second = s[input++];
+            const unsigned int third = s[input++];
+            const unsigned int fourth = s[input++];
+            literals = first & 3;
+            distance = 1 + ((first & 0x10) << 12) + (second << 8) + third;
+            match = ((first & 0x0c) << 6) + fourth + 5;
+        }
+        else if (first < 0xfc)
+        {
+            literals = ((first & 0x1f) << 2) + 4;
         }
         else
         {
-            if (type&0x100)                       /* skip ulen */
-                s += 3;
-
-            ulen = *s++;
-            ulen = (ulen<<8) + *s++;
-            ulen = (ulen<<8) + *s++;
+            literals = first & 3;
+            eof = true;
         }
 
-        for (;;)
+        // Validate the entire command before copying. References may overlap the
+        // new output, but their initial byte must already have been produced.
+        if (literals > sourcesize - input || literals > limit - output)
+            return 0;
+        if (match > limit - output - literals || (match && distance > output + literals))
+            return 0;
+        if (literals) memcpy(d + output, s + input, literals);
+        input += literals;
+        output += literals;
+        for (int i = 0; i < match; ++i, ++output)
+            d[output] = d[output - distance];
+        if (eof)
         {
-            first = *s++;
-            if (!(first&0x80))          /* short form */
-            {
-                second = *s++;
-                run = first&3;
-                while (run--)
-                    *d++ = *s++;
-                ref = d-1 - (((first&0x60)<<3) + second);
-                run = ((first&0x1c)>>2)+3-1;
-                do
-                {
-                    *d++ = *ref++;
-                } while (run--);
-                continue;
-            }
-            if (!(first&0x40))          /* int form */
-            {
-                second = *s++;
-                third = *s++;
-                run = second>>6;
-                while (run--)
-                    *d++ = *s++;
-
-                ref = d-1 - (((second&0x3f)<<8) + third);
-
-                run = (first&0x3f)+4-1;
-                do
-                {
-                    *d++ = *ref++;
-                } while (run--);
-                continue;
-            }
-            if (!(first&0x20))          /* very int form */
-            {
-                second = *s++;
-                third = *s++;
-                forth = *s++;
-                run = first&3;
-                while (run--)
-                    *d++ = *s++;
-
-                ref = d-1 - (((first&0x10)>>4<<16) +  (second<<8) + third);
-
-                run = ((first&0x0c)>>2<<8) + forth + 5-1;
-                do
-                {
-                    *d++ = *ref++;
-                } while (run--);
-                continue;
-            }
-            run = ((first&0x1f)<<2)+4;  /* literal */
-            if (run<=112)
-            {
-                while (run--)
-                    *d++ = *s++;
-                continue;
-            }
-            run = first&3;              /* eof (+0..3 literal) */
-            while (run--)
-                *d++ = *s++;
-            break;
+            if (output != limit) return 0;
+            if (compressedsize) *compressedsize = input;
+            return output;
         }
     }
-    if (compressedsize)
-        *compressedsize = (int)((char *)s-(char *)compresseddata);
-    return(ulen);
 }
 
 #endif
-

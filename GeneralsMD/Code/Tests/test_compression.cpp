@@ -12,6 +12,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <vector>
 
 #if defined(_WIN32)
 #include <windows.h>
@@ -501,4 +502,30 @@ TEST(name_tables_stop_at_compression_max)
 
 	CHECK_STR(CompressionManager::getDecompressionNameByType(COMPRESSION_NONE), "d_None");
 	CHECK_STR(CompressionManager::getDecompressionNameByType(COMPRESSION_REFPACK), "d_RefPack");
+}
+
+TEST(refpack_outer_and_inner_sizes_must_agree)
+{
+    // Valid four-byte stream with the engine's outer envelope.
+    unsigned char packed[] = {'E', 'A', 'R', 0, 0, 0, 0, 0,
+        0x10, 0xfb, 0, 0, 4, 0xe0, 't', 'e', 's', 't', 0xfc};
+    char dest[4];
+    const int size = 4;
+    memcpy(packed + 4, &size, sizeof(size));
+    CHECK_EQ(CompressionManager::decompressData(packed, sizeof(packed), dest, sizeof(dest)), 4);
+    CHECK(memcmp(dest, "test", 4) == 0);
+    std::vector<char> tiny(1, 0x5a);
+    CHECK_EQ(CompressionManager::decompressData(packed, sizeof(packed), tiny.data(), 1), 0);
+    CHECK_EQ(tiny[0], 0x5a);
+    const int small = 1;
+    memcpy(packed + 4, &small, sizeof(small));
+    CHECK_EQ(CompressionManager::decompressData(packed, sizeof(packed), dest, sizeof(dest)), 0);
+    packed[12] = 1; // Both headers claim one byte, commands still produce four.
+    CHECK_EQ(CompressionManager::decompressData(packed, sizeof(packed), tiny.data(), 1), 0);
+    CHECK_EQ(tiny[0], 0x5a);
+    packed[12] = 4; // Valid inner stream, but outer size is larger.
+    const int larger = 5;
+    memcpy(packed + 4, &larger, sizeof(larger));
+    char roomy[8];
+    CHECK_EQ(CompressionManager::decompressData(packed, sizeof(packed), roomy, sizeof(roomy)), 0);
 }

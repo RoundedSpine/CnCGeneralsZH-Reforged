@@ -289,7 +289,7 @@ Int CompressionManager::compressData( CompressionType compType, void *srcVoid, I
 
 Int CompressionManager::decompressData( void *srcVoid, Int srcLen, void *destVoid, Int destLen )
 {
-	if (srcLen < 8)
+	if (!srcVoid || !destVoid || srcLen < 8 || destLen < 0)
 		return 0;
 
 	UnsignedByte *src = (UnsignedByte *)srcVoid;
@@ -317,12 +317,14 @@ Int CompressionManager::decompressData( void *srcVoid, Int srcLen, void *destVoi
 	}
 	if (compType == COMPRESSION_REFPACK)
 	{
-		Int slen = srcLen - 8;
-		Int ret = REF_decode(dest, src+8, &slen);
-		if (ret)
-			return ret;
-		else
+		// The outer envelope and RefPack header must agree. Use the outer
+		// size as an additional output bound even if the caller has more room.
+		UnsignedInt expected = 0;
+		memcpy(&expected, src + 4, sizeof(expected));
+		if (expected > (UnsignedInt)destLen)
 			return 0;
+		Int ret = REF_decode(dest, (Int)expected, src + 8, srcLen - 8);
+		return ret == (Int)expected ? ret : 0;
 	}
 
 	if (compType == COMPRESSION_NOXLZH)

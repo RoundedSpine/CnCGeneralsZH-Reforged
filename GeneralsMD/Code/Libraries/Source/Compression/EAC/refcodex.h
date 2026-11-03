@@ -40,11 +40,15 @@ bool        GCALL REF_is(const void *compresseddata);
 
 /* Decode Functions */
 
+/* REF_decode returns 0 on invalid/truncated input or insufficient output space.
+   compressedsize receives bytes consumed on success, and 0 on failure.
+   A failed decode may leave partial output; callers must discard it. */
+
 int        GCALL REF_size(const void *compresseddata);
 #ifdef __cplusplus
-int        GCALL REF_decode(void *dest, const void *compresseddata, int *compressedsize=0);
+int        GCALL REF_decode(void *dest, int destsize, const void *compresseddata, int sourcesize, int *compressedsize=0);
 #else
-int        GCALL REF_decode(void *dest, const void *compresseddata, int *compressedsize);
+int        GCALL REF_decode(void *dest, int destsize, const void *compresseddata, int sourcesize, int *compressedsize);
 #endif
 
 /* Encode Functions */

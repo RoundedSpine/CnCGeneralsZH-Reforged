@@ -2336,6 +2336,7 @@ if(ZH_PLATFORM_WINDOWS)
 endif()
 
 add_lib_test(test_compression compression)
+add_lib_test(test_refpack compression)
 
 # .w3d on-disk layout pins.  Deliberately OUTSIDE the ZH_PLATFORM_WINDOWS guard
 # below: it is header-only, asserts sizeof/offsetof and links nothing but the

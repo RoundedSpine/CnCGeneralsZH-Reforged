@@ -44,6 +44,13 @@ jobs:
           if command -v ccache >/dev/null; then ccache --max-size 2G; fi
       - name: Test gestures and packaging helpers
         run: |
+          c++ -std=c++17 -Wall -Wextra -fsanitize=address,undefined \
+            -IGeneralsMD/Code/Libraries/Source/Compression \
+            GeneralsMD/Code/Tests/test_refpack.cpp GeneralsMD/Code/Tests/test_main.cpp \
+            GeneralsMD/Code/Libraries/Source/Compression/EAC/refdecode.cpp \
+            GeneralsMD/Code/Libraries/Source/Compression/EAC/refencode.cpp \
+            -o "$RUNNER_TEMP/test-refpack"
+          "$RUNNER_TEMP/test-refpack"
           python3 GeneralsMD/Code/Tests/test_disconnect_ping.py
           python3 GeneralsMD/Code/Tests/test_ios_lifecycle.py
           python3 GeneralsMD/Code/Tests/test_ios_network_permissions.py
