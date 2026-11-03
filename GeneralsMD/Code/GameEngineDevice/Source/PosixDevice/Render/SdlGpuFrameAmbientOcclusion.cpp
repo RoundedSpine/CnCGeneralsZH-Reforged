@@ -24,7 +24,7 @@ bool SdlGpuFrame::Ambient_Occlusion(const SdlTarget &target,const SdlAo::Constan
         return false;
     };
     if(!Supports_Scene_Depth()) return fail("sampleable scene depth unsupported");
-    if(!target.Colour||!target.Depth||target.Colour!=BackBuffer) return false;
+    if(!target.Colour||!target.Depth) return false;
     if(!Flush()||!Create_Scene_Depth_Pipeline()) return fail("scene flush/depth resolve unavailable");
     if(!Ao) Ao=new (std::nothrow) SdlAo::Renderer(GpuDevice);
     if(!Ao) return fail("AO resource owner allocation failed");

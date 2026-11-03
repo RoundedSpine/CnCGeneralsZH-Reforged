@@ -144,7 +144,8 @@ depth-aware horizontal/vertical passes, and multiplies scene RGB while preservin
 alpha. Reflection/custom views are excluded; unsupported formats or failed shader
 setup disable AO with a diagnostic. The pass respects the AO option and Classic
 graphics. The AO control queries device capability; unavailable effects keep their
-saved preferences. `[GRAPHICS_CAPS]` reports AO support when opening Options.
+saved preferences. `[GRAPHICS_CAPS]` reports AO support and unavailable MSAA/heat
+paths when opening Options.
 `[IOS_GRAPHICS]` logs the requested settings; `[SDL_AO] ready` identifies
 successful resource setup. The shroud texture attenuates AO with the same cubic visibility factor as the
 Windows pass; missing GPU shroud data skips AO instead of ignoring the fog.
@@ -154,6 +155,12 @@ before cross-compilation. It compiles the production shaders to SPIR-V and MSL,
 and reads back synthetic flat ground and a raised object when a GPU is available.
 No GPU is an explicit skip, not evidence of correct pixels. Actual map appearance,
 shadow quality and frame time still require device validation.
+
+AO accepts the main scene texture used by Glow as well as the back buffer;
+reflection/custom views remain excluded. MSAA and heat haze are unavailable in
+this renderer and their controls are disabled. See
+[the 44-control graphics audit](../../../../docs/porting/ios-graphics-options.md)
+for the full supported subset and when each choice takes effect.
 
 Classic Graphics requires an app restart to change. While a Classic run forces
 lighting and volumetric smoke off, Options edits and displays their saved choices

@@ -13,7 +13,9 @@ bool PosixDevice9::Supports_Ambient_Occlusion() const
 
 bool PosixDevice9::Ambient_Occlusion(IDirect3DBaseTexture9 *shroud,const float shroudRect[4])
 {
-    if(!Gpu||SunActive||Sun_Scene_Excluded()||RenderTargets[0]!=BackBuffer||!Viewport.Width||!Viewport.Height) return false;
+    // The main view can be redirected to the scene texture by Glow/screen filters.
+    // Scene scope and caller eligibility exclude reflections and custom views.
+    if(!Gpu||SunActive||Sun_Scene_Excluded()||!Viewport.Width||!Viewport.Height) return false;
     SdlTarget target;
     std::string error;
     if(!Resolve_Target(target,error)) return false;

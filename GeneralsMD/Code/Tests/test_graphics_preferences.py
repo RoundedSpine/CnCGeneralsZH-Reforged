@@ -7,17 +7,29 @@ import tempfile
 import unittest
 
 CODE = Path(__file__).resolve().parents[1]
+RENDER = CODE / 'GameEngineDevice/Source/PosixDevice/Render'
+
+
+def extract(source, signature):
+    return signature + source.split(signature, 1)[1].split('\n}', 1)[0] + '\n}\n'
+
+
+def compile_run(program):
+    with tempfile.TemporaryDirectory() as folder:
+        path = Path(folder)
+        (path / 'test.cpp').write_text(program)
+        subprocess.run([os.environ.get('CXX', 'c++'), '-std=c++17', '-Wall', '-Wextra',
+                        '-fsanitize=address,undefined', '-I' + str(RENDER),
+                        str(path / 'test.cpp'), '-o', str(path / 'test')], check=True)
+        subprocess.run([str(path / 'test')], check=True)
 
 
 class GraphicsPreferences(unittest.TestCase):
     def test_saved_choices_survive_forced_runtime_and_can_be_changed_back(self):
         source = (CODE / 'GameEngine/Source/GameClient/GUI/GUICallbacks/Menus/OptionsMenu.cpp').read_text()
 
-        def method(signature):
-            return signature + source.split(signature, 1)[1].split('\n}', 1)[0] + '\n}\n'
-
-        methods = method('static Int catalogMenuValue( const OptionDef& def )')
-        methods += method('static void readCatalogWidgets( OptionPreferences &out )')
+        methods = extract(source, 'static Int catalogMenuValue( const OptionDef& def )')
+        methods += extract(source, 'static void readCatalogWidgets( OptionPreferences &out )')
         program = r'''
 #include <cassert>
 #include <cstring>
@@ -85,12 +97,142 @@ int main() {
     assert(data.m_lightingStyle==0 && !data.m_volumetricSmokeShadows);
 }
 '''
-        with tempfile.TemporaryDirectory() as folder:
-            path = Path(folder)
-            (path / 'test.cpp').write_text(program.replace('// METHODS', methods))
-            subprocess.run([os.environ.get('CXX', 'c++'), '-std=c++17', '-Wall', '-Wextra',
-                            '-fsanitize=address,undefined', str(path / 'test.cpp'), '-o', str(path / 'test')], check=True)
-            subprocess.run([str(path / 'test')], check=True)
+        compile_run(program.replace('// METHODS', methods))
+
+    def test_effect_capability_policy_on_both_renderers(self):
+        source = (CODE / 'GameEngine/Source/GameClient/GUI/GUICallbacks/Menus/OptionsMenu.cpp').read_text()
+        method = extract(source, 'static Bool rendererSupportsOption( const OptionDef& def )')
+        program = r'''
+#include <cassert>
+#include <cstring>
+using Bool=bool;
+constexpr bool TRUE=true,FALSE=false;
+struct OptionDef {const char *iniKey;};
+struct Data {bool m_direct3D11=false;} data;
+Data *TheGlobalData=&data;
+namespace ModernWater {bool supported=false;bool Supported(){return supported;}}
+namespace HazardCloud {bool supported=false;bool Supported(){return supported;}}
+namespace SceneEffects {bool supported=false;bool SupportsAmbientOcclusion(){return supported;}}
+// PLATFORM
+// METHOD
+int main() {
+    const char *effects[]={"MapLight","TeamGlow","WaterFoam","GroundMarks","Firelight","HemiAmbient","InternalHdr","Weather","WaterSplashes","Atmosphere","StructureCollapse"};
+    for(bool modern:{false,true}) {
+        data.m_direct3D11=modern;
+        for(auto key:effects) {
+#if defined(_WIN32)
+            assert(rendererSupportsOption({key})==modern);
+#else
+            assert(!rendererSupportsOption({key}));
+#endif
+        }
+#if defined(_WIN32)
+        assert(rendererSupportsOption({"MSAA"}));
+        assert(rendererSupportsOption({"AmbientOcclusion"})==modern);
+#else
+        assert(!rendererSupportsOption({"MSAA"}));
+        SceneEffects::supported=false;assert(!rendererSupportsOption({"AmbientOcclusion"}));
+        SceneEffects::supported=true;assert(rendererSupportsOption({"AmbientOcclusion"}));
+#endif
+        assert(rendererSupportsOption({"LightingStyle"}));
+        assert(rendererSupportsOption({"VolumetricSmokeShadows"}));
+        assert(rendererSupportsOption({"Bloom"}));
+    }
+    assert(!rendererSupportsOption({"WaterStyle"}) && !rendererSupportsOption({"CloudStyle"}));
+    ModernWater::supported=HazardCloud::supported=true;
+    assert(rendererSupportsOption({"WaterStyle"}) && rendererSupportsOption({"CloudStyle"}));
+}
+'''
+        # Define Windows after standard headers so host libc retains its real ABI.
+        program = program.replace('#include <cstring>', '#include <cstring>\n#include <initializer_list>')
+        for platform in ('#undef _WIN32', '#define _WIN32 1'):
+            compile_run(program.replace('// PLATFORM', platform).replace('// METHOD', method))
+
+    def test_ao_dispatch_accepts_the_main_scene_texture(self):
+        frame = extract((RENDER / 'SdlGpuFrameAmbientOcclusion.cpp').read_text(),
+                        'bool SdlGpuFrame::Ambient_Occlusion(const SdlTarget &target,const SdlAo::Constants &constants,SDL_GPUTexture *shroud)')
+        device = extract((RENDER / 'PosixDevice9AmbientOcclusion.cpp').read_text(),
+                         'bool PosixDevice9::Ambient_Occlusion(IDirect3DBaseTexture9 *shroud,const float shroudRect[4])')
+        program = r'''
+#include <cassert>
+#include <cmath>
+#include <cstdio>
+#include <cstring>
+#include <new>
+#include <string>
+#include "SdlAoShader.h"
+#include "SdlRenderMatrix.h"
+struct SDL_GPUTexture{};
+struct SDL_GPUCommandBuffer{} commands;
+struct IDirect3DBaseTexture9{};
+SDL_GPUTexture back, scene, depth, resolved, fog;
+SDL_GPUTexture *lastColour=nullptr,*lastShroud=nullptr;
+bool resolveOK=true;
+void ZH_IOS_WaitForForeground(){}
+SDL_GPUCommandBuffer *SDL_AcquireGPUCommandBuffer(void*){return &commands;}
+const char *SDL_GetError(){return "mock GPU error";}
+void SDL_CancelGPUCommandBuffer(SDL_GPUCommandBuffer*){}
+namespace SdlAo {
+struct Renderer {
+    explicit Renderer(void*){}
+    bool Prepare(unsigned,unsigned,unsigned,std::string&){return true;}
+    SDL_GPUTexture *Depth(){return &resolved;}
+    bool Render(SDL_GPUCommandBuffer*,SDL_GPUTexture *colour,const Constants&,SDL_GPUTexture *shroud){lastColour=colour;lastShroud=shroud;return true;}
+};
+}
+struct SdlTarget {SDL_GPUTexture *Colour,*Depth;unsigned Width,Height;};
+struct SdlGpuFrame {
+    void *GpuDevice=this;bool AoFailed=false,SerializeSubmits=false;SdlAo::Renderer *Ao=nullptr;
+    SDL_GPUTexture *BackBuffer=&back;unsigned flushes=0,submits=0,invalidations=0;
+    ~SdlGpuFrame(){delete Ao;}
+    bool Supports_Scene_Depth(){return true;}
+    bool Flush(){++flushes;return true;}
+    bool Create_Scene_Depth_Pipeline(){return true;}
+    unsigned Target_Format(){return 1;}
+    bool Resolve_Scene_Depth(SDL_GPUCommandBuffer*,SDL_GPUTexture *source,SDL_GPUTexture *dest,unsigned,unsigned){assert(source==&depth && dest==&resolved);return resolveOK;}
+    bool Submit(SDL_GPUCommandBuffer*){++submits;return true;}
+    bool Submit_Flush(SDL_GPUCommandBuffer *c){return Submit(c);}
+    void Invalidate_Water_Snapshots(SDL_GPUTexture *colour,void*){assert(colour==lastColour);++invalidations;}
+    bool Ambient_Occlusion(const SdlTarget&,const SdlAo::Constants&,SDL_GPUTexture*);
+};
+struct Matrix {float _11=1,_12=0,_13=0,_14=0,_21=0,_22=1,_23=0,_24=0,_31=0,_32=0,_33=1,_34=0,_41=0,_42=0,_43=0,_44=1;};
+enum {D3DTS_VIEW,D3DTS_PROJECTION};
+struct Mirror {SDL_GPUTexture *Texture(IDirect3DBaseTexture9*,std::string&){return &fog;}} mirror;
+struct PosixDevice9 {
+    SdlGpuFrame *Gpu;bool SunActive=false,excluded=false;
+    explicit PosixDevice9(SdlGpuFrame *frame):Gpu(frame){}
+    Matrix Transforms[2];
+    struct {unsigned X=0,Y=0,Width=257,Height=193;float MinZ=0,MaxZ=1;} Viewport;
+    Mirror *Mirrors=&mirror;
+    SdlTarget target{&scene,&depth,257,193};
+    bool Sun_Scene_Excluded(){return excluded;}
+    bool Resolve_Target(SdlTarget &out,std::string&){out=target;return true;}
+    bool Ambient_Occlusion(IDirect3DBaseTexture9*,const float[4]);
+};
+// METHODS
+int main() {
+    SdlGpuFrame frame;PosixDevice9 device{&frame};
+    // Glow redirects the main view to a texture that is not the back buffer.
+    assert(device.target.Colour!=frame.BackBuffer);
+    assert(device.Ambient_Occlusion(nullptr,nullptr));
+    assert(lastColour==&scene && frame.submits==1 && frame.invalidations==1);
+    // Reflection/custom-scene exclusion remains effective.
+    device.excluded=true;assert(!device.Ambient_Occlusion(nullptr,nullptr));
+    device.excluded=false;device.SunActive=true;assert(!device.Ambient_Occlusion(nullptr,nullptr));
+    assert(frame.submits==1);
+    device.SunActive=false;
+    IDirect3DBaseTexture9 shroud;const float rect[4]={0,0,1,1};
+    assert(device.Ambient_Occlusion(&shroud,rect) && lastShroud==&fog);
+    device.Viewport.MaxZ=0;assert(!device.Ambient_Occlusion(nullptr,nullptr));
+    device.Viewport.MaxZ=1;
+    device.target.Depth=nullptr;assert(!device.Ambient_Occlusion(nullptr,nullptr));
+    device.target.Depth=&depth;
+    resolveOK=false;assert(!device.Ambient_Occlusion(nullptr,nullptr));
+    assert(frame.AoFailed);const unsigned failedFlushes=frame.flushes;
+    assert(!device.Ambient_Occlusion(nullptr,nullptr) && frame.flushes==failedFlushes);
+}
+'''
+        compile_run(program.replace('// METHODS', frame + device))
 
 
 if __name__ == '__main__':

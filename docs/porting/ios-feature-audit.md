@@ -5,6 +5,9 @@ It does not establish full Windows feature parity. The uploaded diagnostic log f
 5f1c78fd demonstrates initialization, rendering and normal exit, but no background
 or audio-interruption exercise.
 
+See [the complete Graphics and Effects control audit](ios-graphics-options.md)
+for all 44 controls, supported paths, unavailable effects and activation timing.
+
 ## Addressed in this change
 
 - Sun-shadow capture was Linux-only. iOS now uses the same capability-checked SDL

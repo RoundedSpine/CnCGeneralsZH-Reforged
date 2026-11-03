@@ -1120,6 +1120,10 @@ static GameWindow *findOptionWidget( const OptionDef& def )
 
 static Bool rendererSupportsOption( const OptionDef& def )
 {
+#if !defined(_WIN32)
+	// The SDL device refuses every multisample type except NONE.
+	if( strcmp( def.iniKey, "MSAA" ) == 0 ) return FALSE;
+#endif
 	if( strcmp( def.iniKey, "WaterStyle" ) == 0 ) return ModernWater::Supported();
 	if( strcmp( def.iniKey, "CloudStyle" ) == 0 ) return HazardCloud::Supported();
 	if( strcmp( def.iniKey, "AmbientOcclusion" ) == 0 )
@@ -1695,8 +1699,11 @@ static void saveOptions( void )
 		TheWritableGlobalData->m_enableDynamicLOD = !GadgetCheckBoxIsChecked( checkNoDynamicLod );
 		(*pref)["DynamicLOD"] = TheGlobalData->m_enableDynamicLOD ? AsciiString("yes") : AsciiString("no");
 
-		TheWritableGlobalData->m_useHeatEffects = GadgetCheckBoxIsChecked( checkHeatEffects );
-		(*pref)["HeatEffects"] = TheGlobalData->m_useHeatEffects ? AsciiString("yes") : AsciiString("no");
+		if( checkHeatEffects->winGetEnabled() )
+		{
+			TheWritableGlobalData->m_useHeatEffects = GadgetCheckBoxIsChecked( checkHeatEffects );
+			(*pref)["HeatEffects"] = TheGlobalData->m_useHeatEffects ? AsciiString("yes") : AsciiString("no");
+		}
 
 		// Never write this out
 		//TheWritableGlobalData->m_useFpsLimit = !GadgetCheckBoxIsChecked( checkUnlockFps );
@@ -3112,10 +3119,17 @@ void OptionsMenuInit( WindowLayout *layout, void *userData )
 	{
 		const OptionDef& def = TheOptionCatalog[ i ];
 		GameWindow *widget = findOptionWidget( def );
-		if( widget && !rendererSupportsOption( def ) ) widget->winEnable( FALSE );
+		if( widget && !rendererSupportsOption( def ) )
+		{
+			widget->winEnable( FALSE );
+			widget->winSetTooltip( TheGameText->fetch("TOOLTIP:GraphicsUnavailable") );
+		}
 	}
 #if !defined(_WIN32)
-	fprintf(stderr,"[GRAPHICS_CAPS] ao=%d modern_lighting=0 atmosphere=0\n",
+	// W3DSmudgeManager explicitly refuses the feedback sampling needed by heat.
+	checkHeatEffects->winEnable(FALSE);
+	checkHeatEffects->winSetTooltip(TheGameText->fetch("TOOLTIP:GraphicsUnavailable"));
+	fprintf(stderr,"[GRAPHICS_CAPS] msaa=0 heat=0 ao=%d modern_lighting=0 atmosphere=0\n",
 		int(rendererSupportsOption(*findOptionDef("AmbientOcclusion"))));
 #endif
 

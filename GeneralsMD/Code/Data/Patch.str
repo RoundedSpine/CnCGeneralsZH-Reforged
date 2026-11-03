@@ -1440,6 +1440,10 @@ GUI:VolumetricSmoke
 "Volumetric Smoke"
 END
 
+TOOLTIP:GraphicsUnavailable
+"Unavailable with the current graphics mode. Your saved choice is kept."
+END
+
 TOOLTIP:VolumetricSmoke
 "Smoke and dust shade the ground, the units and the smoke behind them by how thick they are. Requires Classic Graphics off and a supported renderer. If you changed Classic Graphics, Accept and restart the app first. Otherwise applies when you press Accept."
 END
