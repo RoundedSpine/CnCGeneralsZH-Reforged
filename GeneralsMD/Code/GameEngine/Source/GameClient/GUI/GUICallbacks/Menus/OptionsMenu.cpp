@@ -1123,6 +1123,7 @@ static Bool rendererSupportsOption( const OptionDef& def )
 #if !defined(_WIN32)
 	// The SDL device refuses every multisample type except NONE.
 	if( strcmp( def.iniKey, "MSAA" ) == 0 ) return FALSE;
+	if( strcmp( def.iniKey, "Firelight" ) == 0 ) return SceneEffects::SupportsFirelight();
 	if( strcmp( def.iniKey, "TeamGlow" ) == 0 || strcmp( def.iniKey, "HemiAmbient" ) == 0
 		|| strcmp( def.iniKey, "GroundMarks" ) == 0 || strcmp( def.iniKey, "WaterSplashes" ) == 0 )
 		return SceneEffects::SupportsLighting();
@@ -1233,7 +1234,7 @@ static void fillCatalogWidgets( void )
 	}
 
 	// the choice for the next start, which is the file's: GlobalData holds what this run started with
-	const Bool classicNextStart = pref->getBool( "ClassicGraphics", true );
+	const Bool classicNextStart = pref->getBool( "ClassicGraphics", TheGlobalData->m_classicGraphics );
 	GadgetCheckBoxSetChecked( findOptionWidget( *findOptionDef( "ClassicGraphics" ) ), classicNextStart );
 }
 
@@ -1292,8 +1293,8 @@ static void readCatalogWidgets( OptionPreferences &out )
 		// and everything that asks GlobalData has to go on agreeing with them until the next start.
 		if( strcmp( def.iniKey, "ClassicGraphics" ) == 0 )
 		{
-			if( ( value != 0 ) != pref->getBool( def.iniKey, true ) )
-				out[ AsciiString( def.iniKey ) ] = formatOptionValue( def, value );
+			// Materialize the mode even for a legacy file with an inferred default.
+			out[ AsciiString( def.iniKey ) ] = formatOptionValue( def, value );
 			continue;
 		}
 
@@ -3157,10 +3158,13 @@ void OptionsMenuInit( WindowLayout *layout, void *userData )
 		}
 	}
 #if !defined(_WIN32)
-	// W3DSmudgeManager explicitly refuses the feedback sampling needed by heat.
-	checkHeatEffects->winEnable(FALSE);
-	checkHeatEffects->winSetTooltip(TheGameText->fetch("TOOLTIP:GraphicsUnavailable"));
-	fprintf(stderr,"[GRAPHICS_CAPS] msaa=0 heat=0 ao=%d model_lighting=%d atmosphere=%d\n",
+	// Heat requires a separate snapshot; preserve match restrictions above.
+	if(!SceneEffects::SupportsHeatHaze()) {
+		checkHeatEffects->winEnable(FALSE);
+		checkHeatEffects->winSetTooltip(TheGameText->fetch("TOOLTIP:GraphicsUnavailable"));
+	}
+	fprintf(stderr,"[GRAPHICS_CAPS] msaa=0 heat=%d firelight=%d ao=%d model_lighting=%d atmosphere=%d\n",
+		int(SceneEffects::SupportsHeatHaze()),int(SceneEffects::SupportsFirelight()),
 		int(rendererSupportsOption(*findOptionDef("AmbientOcclusion"))),int(SceneEffects::SupportsLighting()),int(SceneEffects::SupportsAtmosphere()));
 #endif
 

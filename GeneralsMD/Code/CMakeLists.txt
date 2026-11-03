@@ -1459,6 +1459,13 @@ if(ZH_PLATFORM_POSIX)
   # pass) the way the generated ones are compiled.
   target_link_libraries(posixd3d9 PRIVATE SDL3::SDL3-static sdl3shadercompile engineshader ffshader ffvertex)
 
+  add_executable(test_sdl_heat Tests/test_sdl_heat.cpp)
+  target_include_directories(test_sdl_heat PRIVATE GameEngineDevice/Source/PosixDevice/Render Libraries/Include)
+  target_link_libraries(test_sdl_heat PRIVATE posixd3d9 SDL3::SDL3-static)
+  set_target_properties(test_sdl_heat PROPERTIES CXX_STANDARD 17)
+  add_test(NAME test_sdl_heat COMMAND test_sdl_heat)
+  set_tests_properties(test_sdl_heat PROPERTIES SKIP_RETURN_CODE 77)
+
   # Depth-format fallback follows the complete scene-depth capability, without requiring a GPU.
   add_executable(sdl_gpu_depth_format_selfcheck ${CMAKE_CURRENT_SOURCE_DIR}/Tests/test_sdl_gpu_depth_format.cpp)
   set_target_properties(sdl_gpu_depth_format_selfcheck PROPERTIES CXX_STANDARD 17)

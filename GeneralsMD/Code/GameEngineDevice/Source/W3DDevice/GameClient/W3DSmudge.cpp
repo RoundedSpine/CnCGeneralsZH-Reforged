@@ -35,6 +35,7 @@
 #include "W3DDevice/GameClient/W3DShaderManager.h"
 #include "Common/GameMemory.h"
 #include "Common/GlobalData.h"
+#include "Platform/SceneEffects.h"
 #include "GameClient/View.h"
 #include "GameClient/Display.h"
 #include "WW3D2/texture.h"
@@ -236,18 +237,13 @@ error:
 
 Bool W3DSmudgeManager::testHardwareSupport(void)
 {
+#if !defined(_WIN32)
+	return SceneEffects::SupportsHeatHaze();
+#else
 	if (m_hardwareSupportStatus == SMUDGE_SUPPORT_UNKNOWN)
 	{	//we have not done the test yet.
 
-#if defined(__linux__) || defined(ZH_PLATFORM_IOS)
-		// The probe's second quad, like every smudge after it, samples the render texture it draws
-		// into.  SDL3 GPU cannot read a pass's own target, so the device refuses that draw; the
-		// untouched block then matched the first quad and the probe answered yes, and each smudge
-		// was refused in its turn.  Answer no without the feedback draw: smudge systems draw
-		// nothing either way.
-		m_hardwareSupportStatus = SMUDGE_SUPPORT_NO;
-		return FALSE;
-#endif
+
 
 		IDirect3DTexture9 *backTexture=W3DShaderManager::getRenderTexture();
 		if (!backTexture)
@@ -343,10 +339,12 @@ Bool W3DSmudgeManager::testHardwareSupport(void)
 	}
 
 	return (SMUDGE_SUPPORT_YES == m_hardwareSupportStatus);
+#endif
 }
 
 void W3DSmudgeManager::render(RenderInfoClass &rinfo)
 {
+	if(!TheGlobalData->m_useHeatEffects)return;
 	//Verify that the card supports the effect.
 	if (!testHardwareSupport())
 		return;
@@ -506,6 +504,10 @@ void W3DSmudgeManager::render(RenderInfoClass &rinfo)
 	REF_PTR_RELEASE(backBuffer);
 #endif
 
+#if !defined(_WIN32) && !defined(USE_COPY_RECTS)
+	SceneEffects::HeatHazeScope nativeHeat(DX8Wrapper::_Get_D3D_Device(),backTexture);
+	if(!nativeHeat)return;
+#endif
 	Matrix4x4 identity(true);
 	DX8Wrapper::Set_Transform(D3DTS_WORLD,identity);	
 	DX8Wrapper::Set_Transform(D3DTS_VIEW,identity);	

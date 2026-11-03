@@ -50,6 +50,7 @@ struct SDL_GPUTexture;
 struct SDL_Window;
 namespace SdlAo { struct Constants; class Renderer; }
 namespace SdlAtmosphere { struct Constants; class Renderer; }
+namespace SdlFirelight { struct Constants; }
 
 /// Where a pass draws: a colour texture of Target_Format() and a depth-stencil of Depth_Format(), the
 /// same size.  The back buffer is one; a render-target surface's GPU texture is another (A3d).  Either
@@ -186,6 +187,10 @@ public:
 	bool Supports_Scene_Depth() const { return DepthSampleable; }
 	bool Supports_Ambient_Occlusion() const;
 	bool Supports_Atmosphere() const;
+	bool Supports_Firelight() const;
+	bool Firelight(const SdlTarget &target,const SdlFirelight::Constants &constants);
+	bool Supports_Heat_Haze() const {return GpuDevice&&!HeatFailed;}
+	SDL_GPUTexture *Capture_Heat_Background(const SdlTarget &target,std::string &error);
 	bool Atmosphere(const SdlTarget &target,const SdlAtmosphere::Constants &constants,
 		SDL_GPUTexture *sky,SDL_GPUTexture *shroud);
 
@@ -323,6 +328,10 @@ private:
 	void Release_Ambient_Occlusion();
 	SdlAtmosphere::Renderer *AtmosphereRenderer = nullptr;
 	bool AtmosphereFailed = false;
+	bool FirelightFailed = false, HeatFailed = false;
+	SDL_GPUTexture *HeatBackground = nullptr;
+	unsigned HeatWidth = 0, HeatHeight = 0;
+	void Release_Heat_Background();
 	void Release_Atmosphere();
 	SDL_GPUTexture *SunShadowTexture = NULL;
 	unsigned SunShadowSize = 0;

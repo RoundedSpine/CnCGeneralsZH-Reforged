@@ -44,6 +44,8 @@
 #ifndef POSIXDEVICE9_H
 #define POSIXDEVICE9_H
 namespace SceneEffects { struct AtmosphereParameters; }
+namespace SceneEffects { struct PointLight; }
+struct SDL_GPUTexture;
 
 #include "Platform/RenderTypes.h"
 #include "Platform/D3D9Posix.h"
@@ -181,6 +183,11 @@ public:
 	bool Ambient_Occlusion(IDirect3DBaseTexture9 *shroud, const float shroudRect[4]);
 	bool Supports_Ambient_Occlusion() const;
 	bool Supports_Atmosphere() const;
+	bool Supports_Firelight() const;
+	bool Firelight(const SceneEffects::PointLight *lights,unsigned count);
+	bool Supports_Heat_Haze() const;
+	bool Begin_Heat_Haze(IDirect3DBaseTexture9 *source);
+	void End_Heat_Haze();
 	bool Atmosphere(const SceneEffects::AtmosphereParameters &parameters, IDirect3DBaseTexture9 *sky,
 		IDirect3DBaseTexture9 *shroud, const float rect[4]);
 	void Set_Lighting_Mode(bool modern, bool hemisphere);
@@ -375,6 +382,7 @@ protected:
 	std::shared_ptr<SunCapture> Sun;
 	bool SunActive = false, SunFailed = false, SunReady = false, SunReported = false;
 	bool ModernLighting = false, HemisphereAmbient = false, TeamGlow = false;
+	SDL_GPUTexture *HeatSourceTexture = nullptr, *HeatSnapshot = nullptr;
 	bool SmokeGlow = false;
 	unsigned SunCasterEffect = 0;
 	float SunCasterOpacity = 1;

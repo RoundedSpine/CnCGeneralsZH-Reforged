@@ -24,4 +24,6 @@ namespace SceneEffects {
 bool SupportsAmbientOcclusion() { return false; }
 bool SupportsAtmosphere() { return false; }
 bool SupportsLighting() { return false; }
+bool SupportsFirelight() { return false; }
+bool SupportsHeatHaze() { return false; }
 }

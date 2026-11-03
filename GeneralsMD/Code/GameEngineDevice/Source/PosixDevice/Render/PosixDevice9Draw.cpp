@@ -1273,6 +1273,11 @@ RenderResult PosixDevice9::Gpu_Draw(const DrawCall &call)
 				&& (!draw.Textures[slot]||draw.Textures[slot]==target.Colour||draw.Textures[slot]==target.Depth)) {
 				shore_overlay=false;draw.Textures[slot]=Mirrors->White();
 			}
+			// Only an explicit heat scope may replace its stage-0 feedback with the
+			// immutable copy. All other target aliases keep the existing refusal.
+			if(HeatSnapshot&&HeatSourceTexture==target.Colour&&slot==0&&texture_stage==0
+				&&pixel_engine==ENGINE_SHADER_NONE&&draw.Textures[slot]==HeatSourceTexture)
+				draw.Textures[slot]=HeatSnapshot;
 			if (draw.Textures[slot] != NULL && (draw.Textures[slot] == target.Colour || draw.Textures[slot] == target.Depth)) {
 				// Undefined in D3D9, and an error on SDL3 GPU: the pass would read what it writes.
 				Log_Feedback_Conflict(call,target,slot,texture_stage,sampler_stage,

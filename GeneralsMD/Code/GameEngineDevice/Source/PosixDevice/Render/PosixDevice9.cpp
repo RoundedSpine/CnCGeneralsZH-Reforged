@@ -168,6 +168,7 @@ PosixDevice9::PosixDevice9(PosixDirect3D9 *adapter, RenderWindow window, const D
 
 PosixDevice9::~PosixDevice9()
 {
+	End_Heat_Haze();
 	Clear_Sun_Shadow();
 	Sun.reset();
 	Shore_End();
@@ -546,6 +547,7 @@ RenderResult PosixDevice9::Reset(D3DPRESENT_PARAMETERS *parameters)
 	}
 	Shore_End();
 	Clear_Sun_Shadow();
+	End_Heat_Haze();
 	Sun.reset();
 	// A failed flush must never drop these bindings: a standalone target can have no other owner,
 	// while the retained batch still references its mirror. Resize has now submitted that batch.

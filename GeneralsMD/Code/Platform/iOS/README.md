@@ -144,8 +144,8 @@ depth-aware horizontal/vertical passes, and multiplies scene RGB while preservin
 alpha. Reflection/custom views are excluded; unsupported formats or failed shader
 setup disable AO with a diagnostic. The pass respects the AO option and Classic
 graphics. The AO control queries device capability; unavailable effects keep their
-saved preferences. `[GRAPHICS_CAPS]` reports AO support and unavailable MSAA/heat
-paths when opening Options.
+saved preferences. `[GRAPHICS_CAPS]` reports AO, Firelight, heat and other native
+capabilities when opening Options; MSAA remains unavailable.
 `[IOS_GRAPHICS]` logs the requested settings; `[SDL_AO] ready` identifies
 successful resource setup. The shroud texture attenuates AO with the same cubic visibility factor as the
 Windows pass; missing GPU shroud data skips AO instead of ignoring the fog.
@@ -166,8 +166,8 @@ Weather, ground marks and original-water splashes now accept native capabilities
 instead of requiring Direct3D 11; iOS snow/weather uses quads.
 
 AO accepts the main scene texture used by Glow as well as the back buffer;
-reflection/custom views remain excluded. MSAA and heat haze are unavailable in
-this renderer and their controls are disabled. See
+reflection/custom views remain excluded. MSAA remains unavailable and its control
+is disabled. Heat haze uses a scoped immutable scene copy. See
 [the 44-control graphics audit](../../../../docs/porting/ios-graphics-options.md)
 for the full supported subset and when each choice takes effect.
 
@@ -188,3 +188,21 @@ the same container; existing Documents entries win, and legacy conflicts/links
 remain untouched. `[IOS_USER_DATA]` records migration and the selected directory.
 iOS also uses the UIKit-owned window's format-selection path, allowing D24S8-first
 selection instead of falling back from an unsupported desktop D32 request.
+
+
+Native Firelight reconstructs opaque surfaces from depth and applies up to twelve
+flame lights before AO and atmosphere, preserving alpha and black shroud. The
+legacy dynamic-light fallback remains active. This is a partial port, excluding
+Windows headlights, HDR and translucent/reflected fire lighting.
+`[SDL_FIRELIGHT] ready` and `[SDL_HEAT] ready size=...` report resource setup;
+failures disable the corresponding capability with a reason. Heat requires the
+scene render texture and eligible smudge particles. Only its scoped stage-0
+binding substitutes the background copy; other target feedback remains refused.
+Actions runs the production fire shader pixel checks and `test_sdl_heat` capture
+readback on the ARM64 host when Metal is available.
+
+For older iOS settings without `ClassicGraphics`, explicitly saved Reforged
+lighting or volumetric smoke now selects Reforged before archives mount and
+preferences load. Explicit Classic selections retain priority. Accept writes the
+mode, and `[IOS_OPTIONS] phase=mode` reports whether it was explicit, default or
+inferred from legacy Reforged choices. A new/empty file retains the Classic default.

@@ -137,6 +137,49 @@ static void testAtmosphere(SDL_GPUDevice *device)
     CHECK(SDL_WaitForGPUIdle(device));
     std::printf("ATMOSPHERE: failures=%d backend=%s\n",failures,SDL_GetGPUDeviceDriver(device));
 }
+static void testFirelight(SDL_GPUDevice *device)
+{
+    const unsigned w=257,h=193;
+    SdlAtmosphere::Renderer renderer(device);std::string error;
+    CHECK(renderer.PrepareFirelight(w,h,SDL_GPU_TEXTUREFORMAT_R8G8B8A8_UNORM,error));
+    if(!renderer.Depth()){std::fprintf(stderr,"FIRELIGHT: %s\n",error.c_str());return;}
+    SDL_GPUTextureCreateInfo info={};info.type=SDL_GPU_TEXTURETYPE_2D;info.format=SDL_GPU_TEXTUREFORMAT_R8G8B8A8_UNORM;
+    info.usage=SDL_GPU_TEXTUREUSAGE_SAMPLER|SDL_GPU_TEXTUREUSAGE_COLOR_TARGET;
+    info.width=w;info.height=h;info.layer_count_or_depth=info.num_levels=1;
+    auto *colour=SDL_CreateGPUTexture(device,&info);CHECK(colour);if(!colour)return;
+    SdlFirelight::Constants c={};for(unsigned i=0;i<4;++i)c.WorldFromClip[i*5]=1;
+    c.Viewport[2]=w;c.Viewport[3]=h;c.DepthInfo[3]=1;
+    std::vector<float> depth(w*h,0.5f);
+    auto draw=[&](unsigned base=80){return renderPass(device,renderer.Depth(),colour,depth,w,h,
+        [&](SDL_GPUCommandBuffer *commands){return renderer.RenderFirelight(commands,colour,c);},nullptr,0,nullptr,base);};
+    auto neutral=[&](unsigned base=80){auto pixels=draw(base);CHECK(pixels.size()==w*h*4);
+        for(unsigned i=0;i<pixels.size();++i)CHECK(std::abs(int(pixels[i])-int(i%4==3?111:base))<=1);};
+    neutral();c.Count[0]=1;c.Lights[0].Position[3]=1.5f;c.Lights[0].Diffuse[0]=1;
+    c.Lights[0].Ambient[0]=0.05f;
+    auto lit=draw();CHECK(lit.size()==w*h*4);
+    if(!lit.empty()){auto at=(96*w+128)*4;CHECK(lit[at]>100&&lit[at]<=141);CHECK(lit[at+1]==80&&lit[at+2]==80);}
+    for(unsigned i=3;i<lit.size();i+=4)CHECK(lit[i]==111);
+    neutral(0); // Lighting cannot reveal fully black shroud.
+    c.Lights[0].Position[0]=100;neutral();c.Lights[0].Position[0]=0;
+    std::fill(depth.begin(),depth.end(),1.0f);neutral(); // Clear sky is not an opaque surface.
+    std::fill(depth.begin(),depth.end(),0.5f);
+    c.Lights[0].Position[2]=1;c.Lights[0].Ambient[0]=0;neutral(); // Light behind the ground normal.
+    c.Lights[0].Position[2]=0;c.Count[0]=12;
+    for(auto &light:c.Lights){light=c.Lights[0];light.Diffuse[0]=1000;}
+    auto many=draw();CHECK(many.size()==w*h*4);
+    for(unsigned i=0;i<many.size();i+=4)CHECK(many[i]<=141&&many[i+3]==111);
+    c.Viewport[0]=13;c.Viewport[1]=9;c.Viewport[2]=211;c.Viewport[3]=167;
+    auto crop=draw();CHECK(crop.size()==w*h*4);
+    for(unsigned y=0;y<h&&!crop.empty();++y)for(unsigned x=0;x<w;++x)
+        if(x<13||x>=224||y<9||y>=176)CHECK(crop[(y*w+x)*4]==80);
+    c.Viewport[0]=c.Viewport[1]=0;c.Viewport[2]=w;c.Viewport[3]=h;
+    c.DepthInfo[2]=0.2f;c.DepthInfo[3]=1/0.6f;std::fill(depth.begin(),depth.end(),0.5f);
+    auto ranged=draw();CHECK(!ranged.empty()&&ranged[(96*w+128)*4]>100);
+    CHECK(renderer.PrepareFirelight(17,11,SDL_GPU_TEXTUREFORMAT_R8G8B8A8_UNORM,error));
+    CHECK(!renderer.PrepareFirelight(0,11,SDL_GPU_TEXTUREFORMAT_R8G8B8A8_UNORM,error));
+    SDL_ReleaseGPUTexture(device,colour);CHECK(SDL_WaitForGPUIdle(device));
+    std::printf("FIRELIGHT: failures=%d backend=%s\n",failures,SDL_GetGPUDeviceDriver(device));
+}
 static void testLighting(SDL_GPUDevice *device)
 {
     static std::vector<unsigned char> programs[4];
@@ -259,6 +302,14 @@ int main()
     }
     if(failures)return 1;
     std::puts("ATMOSPHERE: production shaders compiled to SPIR-V and MSL");
+    {
+        std::vector<unsigned char> spirv;std::string error,msl;
+        CHECK(SDL3_Compile_HLSL_To_SPIRV(SdlFirelight::PixelShader(),false,spirv,error));
+        CHECK(SDL3_Translate_SPIRV_To_MSL(spirv,false,msl,error));
+        unsigned slots=0,uniforms=0;SDL3_Shader_Slots(spirv,false,slots,uniforms);
+        CHECK(slots==1&&uniforms==1);if(failures){std::fprintf(stderr,"%s\n",error.c_str());return 1;}
+        std::puts("FIRELIGHT: production shader compiled to SPIR-V and MSL");
+    }
     testLighting(nullptr);if(failures)return 1;
 #if defined(__APPLE__)
     SDL_SetHint(SDL_HINT_VIDEO_DRIVER,"dummy");SDL_SetHint("ZH_SDL_GPU_METAL_WINDOWLESS","1");
@@ -319,6 +370,7 @@ int main()
         std::printf("AO: contact pixels=%u failures=%d backend=%s\n",contact,failures,SDL_GetGPUDeviceDriver(device));
     }
     testAtmosphere(device);
+    testFirelight(device);
     testLighting(device);
     SDL_DestroyGPUDevice(device);SDL_Quit();return failures?1:0;
 }

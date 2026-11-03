@@ -125,6 +125,8 @@ bool SceneEffects::SupportsLighting()
 {
 	return SupportsLighting(DX8Wrapper::_Get_D3D_Device());
 }
+bool SceneEffects::SupportsFirelight(){return SupportsFirelight(DX8Wrapper::_Get_D3D_Device());}
+bool SceneEffects::SupportsHeatHaze(){return SupportsHeatHaze(DX8Wrapper::_Get_D3D_Device());}
 #endif
 
 // The Direct3D 11 cloak goes by the stealthed state, not by the opacity, which a friendly stealth
@@ -1120,6 +1122,25 @@ void RTS3DScene::Flush(RenderInfoClass & rinfo)
 	if (m_customPassMode == SCENE_PASS_DEFAULT && Get_Extra_Pass_Polygon_Mode() == EXTRA_PASS_DISABLE)
 		DoShadows(rinfo, true);	//draw all stencil shadows
 
+#if !defined(_WIN32)
+	if(TheGlobalData->m_firelight&&!TheGlobalData->m_classicGraphics&&m_customPassMode==SCENE_PASS_DEFAULT
+		&&Get_Extra_Pass_Polygon_Mode()==EXTRA_PASS_DISABLE&&!ShaderClass::Is_Backface_Culling_Inverted()) {
+		Int count=0;const FireLights::Light *fires=getFirelights(&count);
+		SceneEffects::PointLight lights[SceneEffects::MaxFirelights]={};
+		static_assert(FireLights::MAX_LIGHTS==SceneEffects::MaxFirelights,"native firelight capacity");
+		const RGBColor &ambient=TheGlobalData->m_terrainAmbient[0],&diffuse=TheGlobalData->m_terrainDiffuse[0];
+		const float map[3]={ambient.red+diffuse.red,ambient.green+diffuse.green,ambient.blue+diffuse.blue};
+		const float mean=(map[0]+map[1]+map[2])/3;float base[3];
+		for(unsigned c=0;c<3;++c)base[c]=sqrtf(max(map[c],0.15f)*max(mean,0.15f));
+		for(Int i=0;i<count&&i<int(SceneEffects::MaxFirelights);++i) {
+			const auto &fire=fires[i];auto &light=lights[i];
+			light.Position[0]=fire.x;light.Position[1]=fire.y;light.Position[2]=fire.z;light.Position[3]=fire.reach;
+			light.Diffuse[0]=fire.red/base[0];light.Diffuse[1]=fire.green/base[1];light.Diffuse[2]=fire.blue/base[2];light.Diffuse[3]=fire.inner;
+			for(unsigned c=0;c<3;++c)light.Ambient[c]=light.Diffuse[c]*FireLights::AMBIENT_SHARE;
+		}
+		if(count>0){DX8Wrapper::Flush_Deferred_D3D9_State();SceneEffects::Firelight(DX8Wrapper::_Get_D3D_Device(),lights,unsigned(count));}
+	}
+#endif
 	// The Ambient Occlusion option goes on under the water and every translucent draw, none of which
 	// writes depth: the water takes no corner's shade from its bed and only the bed's shows through it.
 	if (TheGlobalData->m_ambientOcclusion && !TheGlobalData->m_classicGraphics && m_customPassMode == SCENE_PASS_DEFAULT && Get_Extra_Pass_Polygon_Mode() == EXTRA_PASS_DISABLE)

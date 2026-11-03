@@ -128,10 +128,11 @@ Data *TheGlobalData=&data;
 namespace ModernWater {bool supported=false;bool Supported(){return supported;}}
 namespace HazardCloud {bool supported=false;bool Supported(){return supported;}}
 namespace SceneEffects {
-bool supported=false,lighting=false,atmosphere=false;
+bool supported=false,lighting=false,atmosphere=false,firelight=false;
 bool SupportsAmbientOcclusion(){return supported;}
 bool SupportsLighting(){return lighting;}
 bool SupportsAtmosphere(){return atmosphere;}
+bool SupportsFirelight(){return firelight;}
 }
 // PLATFORM
 // METHOD
@@ -162,6 +163,7 @@ int main() {
     ModernWater::supported=HazardCloud::supported=true;
     assert(rendererSupportsOption({"WaterStyle"}) && rendererSupportsOption({"CloudStyle"}));
 #if !defined(_WIN32)
+    SceneEffects::firelight=true;assert(rendererSupportsOption({"Firelight"}));
     SceneEffects::lighting=SceneEffects::atmosphere=true;
     for(auto key:{"MapLight","Atmosphere","TeamGlow","HemiAmbient","GroundMarks","WaterSplashes","Weather"})assert(rendererSupportsOption({key}));
     SceneEffects::atmosphere=false;

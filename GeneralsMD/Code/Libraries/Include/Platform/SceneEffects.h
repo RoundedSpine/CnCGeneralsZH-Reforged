@@ -10,6 +10,25 @@ struct AtmosphereParameters {
     float Fade[4] = {0,1,0,0}; // start, scale, strength, ground height
     float Horizon[4] = {}, Tint[4] = {}, MapSize[4] = {};
 };
+constexpr unsigned MaxFirelights=12;
+struct PointLight {float Position[4],Diffuse[4],Ambient[4];};
+bool SupportsFirelight();
+bool SupportsFirelight(IDirect3DDevice9 *device);
+bool Firelight(IDirect3DDevice9 *device,const PointLight *lights,unsigned count);
+bool SupportsHeatHaze();
+bool SupportsHeatHaze(IDirect3DDevice9 *device);
+bool BeginHeatHaze(IDirect3DDevice9 *device,IDirect3DBaseTexture9 *source);
+void EndHeatHaze(IDirect3DDevice9 *device);
+class HeatHazeScope {
+    IDirect3DDevice9 *Device;
+    bool Active;
+public:
+    HeatHazeScope(IDirect3DDevice9 *device,IDirect3DBaseTexture9 *source):Device(device),Active(BeginHeatHaze(device,source)){}
+    ~HeatHazeScope(){if(Active)EndHeatHaze(Device);}
+    explicit operator bool() const{return Active;}
+    HeatHazeScope(const HeatHazeScope&)=delete;
+    HeatHazeScope &operator=(const HeatHazeScope&)=delete;
+};
 bool SupportsLighting();
 bool SupportsLighting(IDirect3DDevice9 *device);
 bool SupportsAtmosphere();

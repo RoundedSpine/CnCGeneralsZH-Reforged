@@ -24,6 +24,7 @@
 #include "PreRTS.h"	// This must go first in EVERY cpp file in the GameEngine
 
 #include "Common/OptionsCatalog.h"
+#include "Common/EarlyOptions.h"
 #include "Common/AudioAffect.h"
 #include "Common/GameAudio.h"
 #include "Common/GameEngine.h"
@@ -943,6 +944,17 @@ void loadOptionsFromPreferences( UserPreferences& pref )
 		for( Int i = 0; i < TheOptionCatalogCount; ++i )
 			TheOptionDefaults[ i ] = TheOptionCatalog[ i ].get();
 	}
+
+#if defined(ZH_PLATFORM_IOS)
+    TheWritableGlobalData->m_classicGraphics = resolveClassicGraphics(
+        pref.getAsciiString("ClassicGraphics", "").str(),
+        pref.getAsciiString("LightingStyle", "").str(),
+        pref.getAsciiString("VolumetricSmokeShadows", "").str());
+    fprintf(stderr,"[IOS_OPTIONS] phase=mode classic=%d source=%s\n",
+        int(TheGlobalData->m_classicGraphics),
+        pref.find("ClassicGraphics")!=pref.end()?"explicit":
+        (TheGlobalData->m_classicGraphics?"default":"legacy-reforged-options"));
+#endif
 
 	for( Int i = 0; i < TheOptionCatalogCount; ++i )
 	{

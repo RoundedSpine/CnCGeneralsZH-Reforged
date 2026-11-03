@@ -6,6 +6,25 @@
 #include <new>
 void SdlGpuFrame::Release_Atmosphere() {delete AtmosphereRenderer;AtmosphereRenderer=nullptr;}
 bool SdlGpuFrame::Supports_Atmosphere() const {return GpuDevice&&!AtmosphereFailed&&Supports_Scene_Depth();}
+bool SdlGpuFrame::Supports_Firelight() const {return GpuDevice&&!FirelightFailed&&Supports_Scene_Depth();}
+bool SdlGpuFrame::Firelight(const SdlTarget &target,const SdlFirelight::Constants &constants)
+{
+    if(FirelightFailed||!target.Colour||!target.Depth)return false;
+    const auto fail=[&](const char *why){FirelightFailed=true;fprintf(stderr,"[SDL_FIRELIGHT] disabled reason=%s\n",why);return false;};
+    if(!Supports_Scene_Depth()||!Flush()||!Create_Scene_Depth_Pipeline())return fail("scene flush/depth resolve unavailable");
+    if(!AtmosphereRenderer)AtmosphereRenderer=new(std::nothrow) SdlAtmosphere::Renderer(GpuDevice);
+    if(!AtmosphereRenderer)return fail("resource owner allocation failed");
+    std::string error;
+    if(!AtmosphereRenderer->PrepareFirelight(target.Width,target.Height,Target_Format(),error))return fail(error.c_str());
+    ZH_IOS_WaitForForeground();
+    auto *commands=SDL_AcquireGPUCommandBuffer(GpuDevice);if(!commands)return fail(SDL_GetError());
+    if(!Resolve_Scene_Depth(commands,target.Depth,AtmosphereRenderer->Depth(),target.Width,target.Height)
+        ||!AtmosphereRenderer->RenderFirelight(commands,target.Colour,constants)) {
+        SDL_CancelGPUCommandBuffer(commands);return fail("could not record firelight pass");
+    }
+    if(!(SerializeSubmits?Submit(commands):Submit_Flush(commands)))return fail("submission failed");
+    Invalidate_Water_Snapshots(target.Colour,nullptr);return true;
+}
 bool SdlGpuFrame::Atmosphere(const SdlTarget &target,const SdlAtmosphere::Constants &constants,
     SDL_GPUTexture *sky,SDL_GPUTexture *shroud)
 {

@@ -78,7 +78,9 @@ Further per-pixel lighting work must port state, draw eligibility and world reco
 validate fire/explosion lights with ordinary geometry, particles and water
 reflections. The implemented atmosphere now has native depth/sky integration and
 shared parameter builders in `W3DShaderManager`; hemisphere/team glow have native
-state and constants. Modern Firelight/headlight/blast bindings remain unported.
+state and constants. Native opaque Firelight now uses gathered flame lights in a separate depth-aware
+pass. Headlight and Windows per-pixel blast bindings remain unported. Heat smudges
+now sample an immutable GPU scene copy within an explicit scope.
 Ordinary fixed-function lights and engine fog continue to work independently.
 
 ## Lifecycle, audio and input follow-up
@@ -118,3 +120,10 @@ Host shader compilation checks SPIR-V and MSL. The synthetic GPU readback test
 checks neutral flat ground, contact darkening near raised geometry, neutral sky
 and distant edges, preserved alpha, neutral fully shrouded geometry, odd dimensions and target resizing. A missing
 host GPU is reported as a skip; it does not validate those pixel results.
+
+
+The `a7035f1b` device log confirms the Documents data-path and stencil fixes.
+Legacy iOS preferences with saved Reforged lighting/smoke but no mode entry now
+resolve consistently before archive mounting and during option loading. An explicit
+Classic setting remains authoritative. Remaining graphics gaps include MSAA,
+Modern water, water foam, HDR and Windows post-process grading.

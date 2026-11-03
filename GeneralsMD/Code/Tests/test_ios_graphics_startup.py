@@ -56,6 +56,46 @@ int main(int argc,char **argv){
         with tempfile.TemporaryDirectory() as folder:
             run(program, (folder,))
 
+    def test_legacy_graphics_mode_matches_early_archive_selection(self):
+        source=(CODE/'GameEngine/Include/Common/EarlyOptions.h').read_text()
+        def method(signature):
+            return signature+source.split(signature,1)[1].split('\n}',1)[0]+'\n}\n'
+        methods=method('inline bool isEarlyOptionYes( const char *value )')
+        methods+=method('inline bool resolveClassicGraphics(const char *classic, const char *lighting, const char *smoke)')
+        methods+=method('inline bool getEarlyClassicGraphics()')
+        for ios in (False,True):
+            program=r'''
+#include <cassert>
+#include <cstring>
+#include <strings.h>
+#include <map>
+#include <string>
+#undef ZH_PLATFORM_IOS
+// PLATFORM
+std::map<std::string,std::string> file;
+bool findEarlyOptionValue(const char *key,char *out,size_t size){
+    auto it=file.find(key);if(it==file.end())return false;
+    std::strncpy(out,it->second.c_str(),size-1);return true;
+}
+// METHODS
+int main(){
+    assert(getEarlyClassicGraphics()); // New install retains the default.
+    file["LightingStyle"]="1";
+    assert(getEarlyClassicGraphics()==!IOS);
+    assert(getEarlyClassicGraphics()==resolveClassicGraphics("","1",""));
+    file["ClassicGraphics"]="yes";assert(getEarlyClassicGraphics());
+    file["ClassicGraphics"]="no";assert(!getEarlyClassicGraphics());
+    file.clear();file["VolumetricSmokeShadows"]="YES";
+    assert(getEarlyClassicGraphics()==!IOS);
+    assert(getEarlyClassicGraphics()==resolveClassicGraphics("","","YES"));
+    file["ClassicGraphics"]="on";assert(getEarlyClassicGraphics());
+    file.clear();file["LightingStyle"]="broken";assert(getEarlyClassicGraphics());
+    file["LightingStyle"]="0";file["VolumetricSmokeShadows"]="no";assert(getEarlyClassicGraphics());
+}
+'''
+            run(program.replace('// PLATFORM','#define ZH_PLATFORM_IOS 1' if ios else '')
+                .replace('// METHODS',methods).replace('!IOS','false' if ios else 'true'))
+
     def test_ios_selects_window_formats_and_stencil_first(self):
         source = (CODE / 'Libraries/Source/WWVegas/WW3D2/dx8wrapper.cpp').read_text()
         at = source.index('const bool device_windowed')

@@ -29,6 +29,7 @@
 // Author: Michael S. Booth, November 2001
 
 #include "Common/GlobalData.h"
+#include "Platform/SceneEffects.h"
 #include "Lib/Clock.h"
 #include "GameClient/Color.h"
 #include "W3DDevice/GameClient/W3DParticleSys.h"
@@ -2215,7 +2216,11 @@ void W3DParticleSystemManager::doParticles(RenderInfoClass &rinfo)
 	if (!ShaderClass::Is_Backface_Culling_Inverted())
 	{
 		s_firelightCount = 0;
-		if (TheGlobalData->m_firelight && Direct3D11_Lights_Per_Pixel())
+		if (TheGlobalData->m_firelight && (Direct3D11_Lights_Per_Pixel()
+#if !defined(_WIN32)
+			||(!TheGlobalData->m_classicGraphics&&SceneEffects::SupportsFirelight())
+#endif
+			))
 			gatherFirelights( bbox, m_lastLogicFrameUpdate, m_frameFires, m_frameFireFades );
 	}
 	// Only a CPU drawn smoke system takes a light (pickSmokeLights); with none, the walk over every

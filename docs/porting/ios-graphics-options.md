@@ -28,7 +28,7 @@ the menu disables or hides the control and preserves its saved choice.
 | Lighting (`ComboBoxLightingStyle`) | Conditional / partial | Reforged map-light rebalance and deeper sun shadows exist; load a new map. Classic Graphics must be off after restart. Windows colour grading is absent. |
 | Glow (`ComboBoxBloom`) | Conditional / partial | Accept changes fixed-function LDR bloom; it is not the Windows HDR bloom. Needs scene render targets. AO now accepts this redirected scene target too. |
 | Ground pattern (`CheckGroundLighting`) | Connected | Accept changes terrain lightmap selection; dynamic terrain LOD can also change lightmap/cloud use. |
-| Heat haze (`CheckHeatEffects`) | Unavailable | SDL smudge rendering cannot sample its own active colour target. The iOS hardware probe explicitly returns NO. Now disabled; Custom saves preserve the preference. |
+| Heat haze (`CheckHeatEffects`) | Conditional | Native heat scope copies the completed scene into a separate GPU texture before drawing smudges. Requires scene redirection (Glow/render-to-texture) and eligible heat particles. Allocation/submission failures disable capability with a diagnostic. |
 | Water style (`ComboBoxWaterStyle`) | Unavailable | `ZH_MODERN_WATER` currently includes Linux/Windows, excluding iOS. The style control is hidden; original water remains. |
 | Cloud style (`ComboBoxCloudStyle`) | Conditional | Native SDL hazard clouds are compiled for iOS. Requires sampleable scene depth and supported half/float textures; Classic Graphics retains original clouds. The menu hides unsupported capability. |
 
@@ -59,7 +59,7 @@ the menu disables or hides the control and preserves its saved choice.
 | Smoke thickness (`ComboBoxSmoke`) | Connected | Requires restart: particle templates are modified when initialized. |
 | Particle bounce (`CheckParticleBounce`) | Connected | Requires restart: terrain collision is enabled while loading particle templates. |
 | Smoke lit by fire (`CheckSmokeFireLighting`) | Connected | CPU smoke lighting reads the option per frame; separate from modern per-pixel Firelight. |
-| Firelight (`CheckFirelight`) | Unavailable | POSIX blast-light setter is empty and per-pixel lighting reports false; legacy dynamic lights remain. |
+| Firelight (`CheckFirelight`) | Conditional / partial | Native depth-reconstructed opaque fire lighting uses up to 12 gathered flame lights. Requires Reforged mode, sampleable depth and eligible flame particles. Sky, reflections and translucent surfaces are excluded. Legacy explosion/dynamic lights remain; Windows headlights/HDR are not included. |
 | Explosion debris trails (`CheckDebrisTrails`) | Connected | Particle-system creation rejects marked trail systems while off. Requires applicable Reforged particle templates; existing systems may finish. |
 | Weather (`CheckWeather`) | Conditional | Native capability now enables the shared weather particles/wind and native haze. iOS uses quads, not unsupported sized point sprites. Requires Reforged mode and a matching map/weather setting. |
 | Water splashes (`CheckWaterSplashes`) | Conditional | Shared splash particles now accept the native renderer. Requires Reforged mode, actual original water, eligible impacts and clear shroud. A saved unsupported Modern style no longer blocks the original-water fallback. |
@@ -69,8 +69,9 @@ the menu disables or hides the control and preserves its saved choice.
 The next implementation connects seven previously unavailable controls:
 Warm Light and Haze, Team Color Glow, Atmosphere, Battle Marks, Sky And Ground
 Light, Weather and Water Splashes. The audit now contains 17 connected, 21
-conditional and six unavailable controls. MSAA, heat haze, Modern water, water
-foam, modern Firelight and internal HDR still require separate rendering work.
+conditional and six unavailable controls before the next batch. With native heat haze and
+opaque Firelight, the audit contains 17 connected, 23 conditional and four unavailable
+controls. MSAA, Modern water, water foam and internal HDR still require rendering work.
 
 The new device log from `31177f8d` supplied two additional concrete failures:
 
@@ -136,3 +137,32 @@ filtering, smoke thickness and particle bounce; load a new map for lighting,
 trees, sway, scaffolding and caster changes. Compare AO with Glow off/on. Check
 volumetric smoke during an actual smoke event and stencil markers with an
 occluded unit. Preserve the current and previous stderr logs across the restart.
+
+
+## Firelight, heat haze and the `a7035f1b` device log
+
+The new log confirms `Documents/UserData` selection and `stencil_available=1`,
+D24S8 depth (`75`), and a normal exit. It still loads a legacy Options.ini with
+`LightingStyle=1`, `VolumetricSmokeShadows=yes` and no `ClassicGraphics` entry.
+On iOS, a missing mode now resolves to Reforged when either of those explicit
+opt-ins exists. The archive mount and option loader use the same resolver.
+Explicit Classic choices and empty/new files retain their prior behavior. Accept
+writes the mode even when unchanged; `[IOS_OPTIONS] phase=mode` names its source.
+
+`[SDL_FIRELIGHT] ready` identifies native opaque fire-light resource setup. The
+pass runs before AO/atmosphere/water/particles; destination-scaled additive RGB
+preserves black shroud and destination alpha and caps the gain at 75 percent.
+It does not claim full Windows per-pixel lighting and leaves the existing dynamic
+light fallback active. Failure disables the capability with its reason.
+
+`[SDL_HEAT] ready size=...` identifies the immutable GPU background. Only the
+scoped smudge stage-0 binding may substitute that snapshot; other render-target
+feedback is still refused. Capture flushes prior scene/particle work, refreshes
+for each smudge pass and resizes to the actual target. No CPU readback is used in
+production. Host tests check the actual copy/readback, immutable contents, refresh,
+odd dimensions and resizing; sanitizer tests cover binding guards and cleanup.
+
+Synthetic fire-light checks cover zero lights, range, surface direction, twelve
+strong lights, sky, black shroud, alpha, cropped viewports and viewport depth range.
+SPIR-V/MSL compilation and host GPU evidence do not establish game-map appearance
+or iPhone frame time; those still require device validation.

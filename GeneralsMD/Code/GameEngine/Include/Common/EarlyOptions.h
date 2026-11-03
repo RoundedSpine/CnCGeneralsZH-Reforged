@@ -592,3 +592,27 @@ inline bool getEarlyOptionBool( const char *key, bool defaultValue )
 		return defaultValue;
 	return isEarlyOptionYes( value );
 }
+
+// Older iOS builds saved Reforged lighting/smoke without saving the startup mode.
+// Resolve that legacy file before archives mount as well as when preferences load.
+// An explicit Classic choice always wins; an empty/new file retains Classic.
+inline bool resolveClassicGraphics(const char *classic, const char *lighting, const char *smoke)
+{
+    if(classic && *classic)return isEarlyOptionYes(classic);
+#if defined(ZH_PLATFORM_IOS)
+    if((lighting && ::strcmp(lighting,"1")==0) || (smoke && isEarlyOptionYes(smoke)))return false;
+#else
+    (void)lighting;(void)smoke;
+#endif
+    return true;
+}
+inline bool getEarlyClassicGraphics()
+{
+    char classic[64]={},lighting[64]={},smoke[64]={};
+    findEarlyOptionValue("ClassicGraphics",classic,sizeof(classic));
+#if defined(ZH_PLATFORM_IOS)
+    findEarlyOptionValue("LightingStyle",lighting,sizeof(lighting));
+    findEarlyOptionValue("VolumetricSmokeShadows",smoke,sizeof(smoke));
+#endif
+    return resolveClassicGraphics(classic,lighting,smoke);
+}

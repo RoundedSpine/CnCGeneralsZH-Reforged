@@ -73,6 +73,7 @@ jobs:
           python3 GeneralsMD/Code/Tests/test_ios_main_exit.py
           python3 GeneralsMD/Code/Tests/test_ios_symbols.py
           python3 GeneralsMD/Code/Tests/test_smudge_support.py
+          python3 GeneralsMD/Code/Tests/test_heat_haze.py
           c++ -std=c++17 -Wall -Wextra -fsanitize=address,undefined \
             -IGeneralsMD/Code/GameEngineDevice/Source/PosixDevice/Render \
             GeneralsMD/Code/Tests/test_feedback_diagnostic.cpp -o "$RUNNER_TEMP/test-feedback-diagnostic"
