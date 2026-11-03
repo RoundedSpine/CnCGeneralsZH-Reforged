@@ -2089,9 +2089,11 @@ Libraries/Include/Platform/HazardCloud.h
 Libraries/Include/Platform/HazardCloudCore.h
 Libraries/Include/Platform/HazardCloudFlow.h
 Libraries/Include/Platform/HazardCloudPolicy.h
+Libraries/Include/Platform/IOSAudioSession.h
 Libraries/Include/Platform/IOSLifecycle.h
 Libraries/Include/Platform/IOSStartup.h
 Libraries/Include/Platform/IOSStartupPump.h
+Libraries/Include/Platform/IOSWindowDiagnostics.h
 Libraries/Include/Platform/IsWindows9x.h
 Libraries/Include/Platform/LoadTiming.h
 Libraries/Include/Platform/MSVCCompat.h
@@ -3149,9 +3151,11 @@ Main/RTS.RC
 Main/WinMain.cpp
 Main/WinMain.h
 Main/resource.h
+Platform/iOS/IOSAudioSession.mm
 Platform/iOS/IOSBootstrap.mm
 Platform/iOS/IOSLifecycle.cpp
 Platform/iOS/IOSStartup.cpp
+Platform/iOS/IOSWindowDiagnostics.mm
 Platform/iOS/Info.plist.in
 Platform/iOS/README.md
 Platform/iOS/Reforged.entitlements
@@ -3277,6 +3281,7 @@ Tests/test_map_ini_rollback.inc
 Tests/test_miles_effects.cpp
 Tests/test_miles_miniaudio.cpp
 Tests/test_milesaudiomanager.cpp
+Tests/test_miniaudio_recovery.py
 Tests/test_minimap_input.inc
 Tests/test_modern_water_config.cpp
 Tests/test_msvc_float_casts.cpp

@@ -78,15 +78,15 @@ int main(int argc,char **argv) {
         addWorks=true; assert(ZH_IOS_InstallLifecycle()); assert(installs==2); return 0;
     }
     assert(ZH_IOS_InstallLifecycle()); assert(ZH_IOS_InstallLifecycle()); assert(installs==1);
-    ZH_IOS_WaitForForeground(); assert(pumps==0);
+    ZH_IOS_WaitForForeground(); assert(pumps==0 && ZH_IOS_IsForeground());
     if (argc > 1 && !strcmp(argv[1],"terminate")) {
         emit(SDL_EVENT_TERMINATING); ZH_IOS_WaitForForeground();
         return 9; // Termination must not resume engine/GPU work.
     }
     SDL_GPUDevice device;
     // Startup backgrounding before a device exists is safe.
-    emit(SDL_EVENT_WILL_ENTER_BACKGROUND); assert(drains==0);
-    ZH_IOS_WaitForForeground(); assert(pumps==2);
+    emit(SDL_EVENT_WILL_ENTER_BACKGROUND); assert(drains==0 && !ZH_IOS_IsForeground());
+    ZH_IOS_WaitForForeground(); assert(pumps==2 && ZH_IOS_IsForeground());
     ZH_IOS_RegisterGPU(&device);
     pumps=waits=0;
     emit(SDL_EVENT_WILL_ENTER_BACKGROUND); assert(drains==1);

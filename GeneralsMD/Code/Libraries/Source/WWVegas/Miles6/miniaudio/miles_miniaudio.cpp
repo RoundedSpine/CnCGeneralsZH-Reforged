@@ -66,6 +66,7 @@
 #include "zhio.h"	// the capture's path is the engine's spelling (C4)
 
 #include "miniaudio.h"
+#include "Platform/IOSAudioSession.h"
 
 #include "MSS/MSS.h"
 #include "MSS/mss_ex_pcm.h"
@@ -546,9 +547,31 @@ struct Capture
 	unsigned int sizesWrittenAt;
 };
 
+enum class AudioRecovery { Healthy, Interrupted, Pending, Shutdown };
+
+// Include a generation so an in-flight restart cannot consume a newer request.
+class AudioRecoveryStatus {
+	std::atomic<unsigned long long> value;
+public:
+	explicit AudioRecoveryStatus(AudioRecovery initial) : value((unsigned)initial) {}
+	unsigned long long snapshot() const { return value.load(); }
+	AudioRecovery load() const { return (AudioRecovery)(snapshot() & 3); }
+	void reset() { value.store((unsigned)AudioRecovery::Healthy); }
+	bool change(unsigned long long expected, AudioRecovery next) {
+		return value.compare_exchange_strong(expected, ((expected + 4) & ~3ULL) | (unsigned)next);
+	}
+	void store(AudioRecovery next) {
+		auto previous = snapshot();
+		while ((AudioRecovery)(previous & 3) != AudioRecovery::Shutdown) {
+			if (change(previous, next)) return;
+			previous = snapshot();
+		}
+	}
+};
+
 struct Engine
 {
-	Engine() : contextReady(false), deviceReady(false), serviceRunning(false), started(false), deviceRate(0),
+	Engine() : contextReady(false), deviceReady(false), serviceRunning(false), recovery(AudioRecovery::Healthy), started(false), deviceRate(0),
 		capture(NULL), offline(false), mixAnchored(false), mixedFrames(0), capturedFrames(0), capturedRate(0) {}
 
 	// A process can end without AIL_shutdown - a test, or a game that exits in a hurry - and a
@@ -556,10 +579,12 @@ struct Engine
 	// thread is a HANDLE, which has no such rule, so this is a hazard only this backend has.
 	~Engine()
 	{
+		recovery.store(AudioRecovery::Shutdown);
 		if (serviceThread.joinable()) {
 			serviceRunning.store(false);
 			serviceThread.join();
 		}
+		ZH_IOS_AudioSessionWatch(false);
 		if (deviceReady) {
 			ma_device_uninit(&device);
 			deviceReady = false;
@@ -578,6 +603,8 @@ struct Engine
 	std::mutex mixLock;
 	std::thread serviceThread;
 	std::atomic<bool> serviceRunning;
+	AudioRecoveryStatus recovery;
+	std::chrono::steady_clock::time_point nextRecoveryAttempt;
 	std::vector<Sample *> samples;
 	std::vector<Stream *> streams;
 	std::vector<PcmVoice *> pcmVoices;
@@ -1008,9 +1035,55 @@ void serviceStream(Stream *stream, std::vector<AILSTREAMCB> *callbacks, std::vec
 	}
 }
 
+// Notification callbacks never acquire engine/mixer locks or start/stop devices.
+void deviceNotification(const ma_device_notification *notification)
+{
+	AudioRecovery desired;
+	if (notification->type == ma_device_notification_type_interruption_began)
+		desired = AudioRecovery::Interrupted;
+	else if (notification->type == ma_device_notification_type_interruption_ended)
+		desired = AudioRecovery::Pending;
+	else return;
+	g_engine.recovery.store(desired);
+}
+
+// Only the service thread controls recovery. Shutdown joins it before uninitializing
+// the device. No engine/mixer lock may be held while starting the audio callback.
+void serviceAudioRecovery()
+{
+	if (g_engine.offline) return;
+	const auto ticket = g_engine.recovery.snapshot();
+	auto state = (AudioRecovery)(ticket & 3);
+	if (state == AudioRecovery::Interrupted) {
+		// An interruption can race a restart already in flight.
+		if (ma_device_is_started(&g_engine.device)) ma_device_stop(&g_engine.device);
+		return;
+	}
+	if (state != AudioRecovery::Pending || !ZH_IOS_AudioCanResume()) return;
+	const auto now = std::chrono::steady_clock::now();
+	if (now < g_engine.nextRecoveryAttempt) return;
+	g_engine.nextRecoveryAttempt = now + std::chrono::seconds(1);
+	if (!ZH_IOS_ActivateAudioSession() || !g_engine.serviceRunning.load() ||
+		g_engine.recovery.snapshot() != ticket) return;
+	const ma_result result = ma_device_start(&g_engine.device);
+	if (result == MA_SUCCESS) {
+		g_engine.recovery.change(ticket, AudioRecovery::Healthy);
+		state = g_engine.recovery.load();
+		if (state == AudioRecovery::Interrupted || state == AudioRecovery::Shutdown || !ZH_IOS_AudioCanResume()) {
+			ma_device_stop(&g_engine.device);
+			const auto current = g_engine.recovery.snapshot();
+			if ((AudioRecovery)(current & 3) == AudioRecovery::Healthy)
+				g_engine.recovery.change(current, AudioRecovery::Pending);
+		}
+	}
+	fprintf(stderr, "[AUDIO_RECOVERY] restart_result=%d device_started=%d state=%d\n",
+		(int)result, (int)ma_device_is_started(&g_engine.device), (int)g_engine.recovery.load());
+}
+
 void serviceThreadMain()
 {
 	while (g_engine.serviceRunning.load()) {
+		serviceAudioRecovery();
 		std::vector<AILSAMPLECB> sampleCallbacks;
 		std::vector<HSAMPLE> sampleHandles;
 		std::vector<AIL3DSAMPLECB> sample3DCallbacks;
@@ -1219,12 +1292,21 @@ S32 AILCALL AIL_quick_startup(S32 use_digital, S32, U32, S32, S32)
 		return 1;
 	}
 
+	g_engine.recovery.reset();
+	g_engine.nextRecoveryAttempt = {};
 	const ma_backend nullBackend[] = { ma_backend_null };
-	if (ma_context_init(useNullBackend() ? nullBackend : NULL, useNullBackend() ? 1 : 0, NULL,
+	ma_context_config contextConfig = ma_context_config_init();
+#if defined(ZH_PLATFORM_IOS)
+	// This context is created explicitly, so miniaudio cannot infer playback
+	// from the device type. Avoid its default PlayAndRecord trial sequence.
+	contextConfig.coreaudio.sessionCategory = ma_ios_session_category_playback;
+#endif
+	if (ma_context_init(useNullBackend() ? nullBackend : NULL, useNullBackend() ? 1 : 0, &contextConfig,
 			&g_engine.context) != MA_SUCCESS) {
 		return 0;
 	}
 	g_engine.contextReady = true;
+	ZH_IOS_AudioSessionWatch(true);
 
 	// Float stereo at the device's own rate: what XAudio2's mastering voice mixes in.
 	ma_device_config config = ma_device_config_init(ma_device_type_playback);
@@ -1232,7 +1314,9 @@ S32 AILCALL AIL_quick_startup(S32 use_digital, S32, U32, S32, S32)
 	config.playback.channels = OUTPUT_CHANNELS;
 	config.sampleRate = 0;
 	config.dataCallback = dataCallback;
+	config.notificationCallback = deviceNotification;
 	if (ma_device_init(&g_engine.context, &config, &g_engine.device) != MA_SUCCESS) {
+		ZH_IOS_AudioSessionWatch(false);
 		ma_context_uninit(&g_engine.context);
 		g_engine.contextReady = false;
 		return 0;
@@ -1241,6 +1325,7 @@ S32 AILCALL AIL_quick_startup(S32 use_digital, S32, U32, S32, S32)
 	AIL_ex_limiter_init(&g_engine.limiter, OUTPUT_CHANNELS, (float)g_engine.deviceRate);
 	g_engine.deviceReady = true;
 	if (!g_engine.offline && ma_device_start(&g_engine.device) != MA_SUCCESS) {
+		ZH_IOS_AudioSessionWatch(false);
 		ma_device_uninit(&g_engine.device);
 		ma_context_uninit(&g_engine.context);
 		g_engine.deviceReady = false;
@@ -1446,6 +1531,7 @@ void AILCALL AIL_ex_capture_length(S32 *frames, S32 *rate)
 
 void AILCALL AIL_shutdown(void)
 {
+	g_engine.recovery.store(AudioRecovery::Shutdown);
 	AIL_ex_stop_capture();
 
 	if (g_engine.serviceThread.joinable()) {
@@ -1453,6 +1539,7 @@ void AILCALL AIL_shutdown(void)
 		g_engine.serviceThread.join();
 	}
 
+	ZH_IOS_AudioSessionWatch(false);
 	if (g_engine.deviceReady) {
 		ma_device_uninit(&g_engine.device);
 		g_engine.deviceReady = false;

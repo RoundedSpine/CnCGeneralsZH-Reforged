@@ -41,7 +41,9 @@ bool SDLCALL applicationEvent(void *, SDL_Event *event)
         default: break;
     }
     if (name) {
-        fprintf(stderr, "[IOS_LIFECYCLE] event=%s\n", name);
+        fprintf(stderr, "[IOS_LIFECYCLE] event=%s type=%u ticks_ns=%llu gpu=%p main=%d\n",
+            name, (unsigned)event->type, (unsigned long long)SDL_GetTicksNS(),
+            static_cast<void *>(gpu), SDL_IsMainThread());
         fflush(stderr);
     }
     return true; // SDL delivers these app events directly to watchers, without queuing.
@@ -53,6 +55,11 @@ bool ZH_IOS_InstallLifecycle()
     if (installed) return true;
     installed = SDL_AddEventWatch(applicationEvent, nullptr);
     return installed;
+}
+
+bool ZH_IOS_IsForeground()
+{
+    return phase.load() == Phase::Foreground;
 }
 
 void ZH_IOS_WaitForForeground()

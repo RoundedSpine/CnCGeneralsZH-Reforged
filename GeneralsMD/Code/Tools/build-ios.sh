@@ -8,6 +8,9 @@ mkdir -p "$build"
 build=$(cd "$build" && pwd)
 [ "$(uname -s)" = Darwin ] || { echo 'iOS builds require macOS and Xcode.' >&2; exit 1; }
 "$code/Tools/vendor.sh" --skip-art
+# Run the host recovery regression against the same pinned miniaudio sources
+# before cross-compiling the device app.
+python3 "$code/Tests/test_miniaudio_recovery.py"
 sdk=$(xcrun --sdk iphoneos --show-sdk-path)
 # Fresh Actions checkouts have new mtimes; an object cache alone still recompiles
 # every source. ccache reuses compilation by content, with the device flags in its key.

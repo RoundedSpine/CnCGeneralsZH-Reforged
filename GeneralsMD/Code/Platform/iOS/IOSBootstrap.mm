@@ -6,6 +6,7 @@
 #include <cstdlib>
 #include "Platform/IOSStartup.h"
 #include "Platform/IOSLifecycle.h"
+#include "Platform/IOSWindowDiagnostics.h"
 
 static void uncaughtIOSException(NSException *exception)
 {
@@ -63,6 +64,7 @@ extern "C" bool ZH_IOS_Bootstrap()
             "Three-finger tap = Escape/menu. The minimap also moves the camera.\n";
         [guide writeToURL:[documents URLByAppendingPathComponent:@"READ-ME.txt"] atomically:YES
                encoding:NSUTF8StringEncoding error:nullptr];
+        ZH_IOS_InstallWindowDiagnostics();
         SDL_SetAppMetadata("Zero Hour Reforged", "0.1", "io.github.roundedspine.reforged.ios");
         SDL_SetHint(SDL_HINT_ORIENTATIONS, "LandscapeLeft LandscapeRight");
         // The RTS gesture adapter delivers mouse events directly; avoid duplicate emulated clicks.

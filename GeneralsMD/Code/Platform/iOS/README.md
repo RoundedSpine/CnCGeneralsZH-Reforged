@@ -100,3 +100,25 @@ root view controller; this is a possible source, not a confirmed cause. A device
 trace of view replacement and appearance callbacks is needed before changing
 window setup. The log does not demonstrate background/resume behavior or rule
 out rendering defects.
+
+Audio uses an explicit playback-only iOS session category (Playback, including
+when the silent switch is on). Interruption notifications request recovery on
+the audio service thread. Recovery waits for foreground activation and Apple's
+`ShouldResume` option, reactivates the session, and retries failed device starts
+at most once per second. A newer interruption cancels an in-flight recovery;
+shutdown joins the worker before uninitializing the device. Offline audio never
+starts a realtime device. `[IOS_AUDIO_SESSION]` and `[AUDIO_RECOVERY]` records
+show resume permission, activation failures and restart results. Host tests use
+the real null device with a native-session shim; calls, Siri, lock/unlock and
+headphone/Bluetooth changes still need device validation.
+
+Window diagnostics write `[IOS_WINDOW]` before/after window creation, sizing,
+GPU claim/release and destruction, plus native window visibility/key changes.
+Each record includes a sequence number, SDL monotonic timestamp, window/device
+identity, controller/view classes and addresses, attachment and transition state.
+The first 16 records include up to 12 `[IOS_WINDOW_STACK]` frames with image-relative
+PCs for the exact build's `Reforged-symbols.tsv`; window snapshots stop after 128
+records. These observations do not change the view controller or patch SDL.
+For appearance warnings, retain the entire startup log so warnings can be placed
+between the surrounding claim/release and window records. These diagnostics
+narrow the cause but do not establish that a UIKit transition completed correctly.

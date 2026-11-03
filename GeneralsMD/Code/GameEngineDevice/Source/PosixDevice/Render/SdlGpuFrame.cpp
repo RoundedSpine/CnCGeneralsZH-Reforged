@@ -23,6 +23,7 @@
 #include "sdl3shadercompile.h"
 #include "Platform/WaterFftSpectrum.h"
 #include "Platform/IOSLifecycle.h"
+#include "Platform/IOSWindowDiagnostics.h"
 
 #include <SDL3/SDL.h>
 
@@ -178,12 +179,15 @@ SdlGpuFrame * SdlGpuFrame::Create(RenderWindow window, unsigned int width, unsig
 	ZH_IOS_RegisterGPU(frame->GpuDevice);
 	// The one place a RenderWindow is taken back to what it is: C2 hands the device its SDL_Window.
 	frame->Window = reinterpret_cast<SDL_Window *>(window);
+	ZH_IOS_TraceWindow("gpu.claim.begin", frame->Window, frame->GpuDevice);
 	if (frame->Window != NULL && !SDL_ClaimWindowForGPUDevice(frame->GpuDevice, frame->Window)) {
 		error = std::string("SDL_ClaimWindowForGPUDevice: ") + SDL_GetError();
+		ZH_IOS_TraceWindow("gpu.claim.failed", frame->Window, frame->GpuDevice);
 		frame->Window = NULL;
 		delete frame;
 		return NULL;
 	}
+	ZH_IOS_TraceWindow("gpu.claim.end", frame->Window, frame->GpuDevice);
 	const SdlGpuDepthFormat depth = Sdl_Select_Depth_Format(
 		[frame](SDL_GPUTextureFormat format, SDL_GPUTextureType type, SDL_GPUTextureUsageFlags usage) {
 			return SDL_GPUTextureSupportsFormat(frame->GpuDevice, format, type, usage);
@@ -240,7 +244,9 @@ SdlGpuFrame::~SdlGpuFrame()
 	if (SceneDepthVertex != NULL) SDL_ReleaseGPUShader(GpuDevice, SceneDepthVertex);
 	if (SceneDepthPixel != NULL) SDL_ReleaseGPUShader(GpuDevice, SceneDepthPixel);
 	if (SceneDepthSampler != NULL) SDL_ReleaseGPUSampler(GpuDevice, SceneDepthSampler);
+	ZH_IOS_TraceWindow("gpu.release.begin", Window, GpuDevice);
 	if (Window != NULL) SDL_ReleaseWindowFromGPUDevice(GpuDevice, Window);
+	ZH_IOS_TraceWindow("gpu.release.end", Window, GpuDevice);
 	SDL_DestroyGPUDevice(GpuDevice);
 }
 

@@ -21,6 +21,7 @@
 #include "PreRTS.h"
 #include "Platform/IOSStartup.h"
 #include "Platform/IOSLifecycle.h"
+#include "Platform/IOSWindowDiagnostics.h"
 
 #include "Common/MessageStream.h"
 #include "Common/PlayerList.h"
@@ -88,13 +89,16 @@ static void dressWindow( Int mode )
 	SDL_Window *window = s_titledWindow;
 	if (window == NULL)
 		return;
+	ZH_IOS_TraceWindow("window.frame.begin", window);
 	if (mode == WINDOW_MODE_FULLSCREEN)
 	{
 		SDL_SetWindowFullscreen( window, true );
+		ZH_IOS_TraceWindow("window.frame.end", window);
 		return;
 	}
 	SDL_SetWindowFullscreen( window, false );
 	SDL_SetWindowBordered( window, mode == WINDOW_MODE_WINDOWED );
+	ZH_IOS_TraceWindow("window.frame.end", window);
 }
 
 /** W3DDisplay's sizeWindowToClient, for SDL's window: a client area of the resolution, a plain window
@@ -110,6 +114,7 @@ static void sizeWindow( Int mode, Int width, Int height, const MonitorRect &scre
 	SDL_Window *window = s_titledWindow;
 	if (window == NULL)
 		return;
+	ZH_IOS_TraceWindow("window.size.begin", window);
 	const float density = SdlDisplays_densityOf( screen, window );
 	const int pointsWidth = (int)lround( width / density ), pointsHeight = (int)lround( height / density );
 	SDL_SetWindowSize( window, pointsWidth, pointsHeight );
@@ -123,6 +128,7 @@ static void sizeWindow( Int mode, Int width, Int height, const MonitorRect &scre
 
 	int pixelWidth = 0, pixelHeight = 0;
 	SDL_GetWindowSizeInPixels( window, &pixelWidth, &pixelHeight );
+	ZH_IOS_TraceWindow("window.size.end", window);
 	DEBUG_LOG(( "SdlGameEngine: mode %d at %dx%d, %dx%d points at a density of %.2f; the window is %dx%d pixels\n",
 		mode, width, height, pointsWidth, pointsHeight, density, pixelWidth, pixelHeight ));
 }
@@ -161,6 +167,7 @@ void SdlGameEngine::init( int argc, char *argv[] )
 	ZH_IOS_StartupTrace( "window.ready", "SDL window initialized" );
 	ZH_IOS_ServiceStartup();
 	GameEngine::init( argc, argv );
+	ZH_IOS_TraceWindow("engine.init.end", m_window);
 	ZH_IOS_StartupFinished();
 
 	// P1 step 3: "-dumpFileResolution <file>" writes where every path resolves, then ends the run
@@ -223,6 +230,7 @@ void SdlGameEngine::createWindow( void )
 		height = bounds.h;
 	}
 
+	ZH_IOS_TraceWindow("window.create.begin", nullptr);
 	m_window = SDL_CreateWindow( "Command and Conquer Generals Zero Hour", width, height, flags );
 	if (m_window == NULL)
 	{
@@ -231,6 +239,7 @@ void SdlGameEngine::createWindow( void )
 		RELEASE_CRASH( why );
 		return;
 	}
+	ZH_IOS_TraceWindow("window.create.end", m_window);
 #ifdef ZH_WINDOW_ICON
 	// a Linux executable carries no icon, so the window brings its own for the taskbar and alt-tab;
 	// GNOME on Wayland ignores it and takes zero-hour-reforged.desktop's, by the app id (PosixMain.cpp)
@@ -313,7 +322,9 @@ void SdlGameEngine_releaseWindow( void )
 		if (ApplicationHWnd == (RenderWindow)s_pendingWindow)
 			ApplicationHWnd = NULL;
 		setSdlMessageBoxOwner( NULL );
+		ZH_IOS_TraceWindow("window.destroy.begin", s_pendingWindow);
 		SDL_DestroyWindow( s_pendingWindow );
+		ZH_IOS_TraceWindow("window.destroy.end", nullptr);
 		s_pendingWindow = NULL;
 	}
 	if (s_pendingVideo)
