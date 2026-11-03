@@ -268,7 +268,7 @@ static bool generate_combiners(const CombinerDescription & description,
 {
 	const bool sdl = target == COMBINER_SHADER_TARGET_SDL3_GPU;
 	if (sdl) target = COMBINER_SHADER_TARGET_D3D11;
-	// Depth-faded particles remain Windows-only until SDL supplies the scene depth at t7.
+	// Native SDL and Windows supply an independent scene-depth snapshot at t7.
 	const bool soft = volumetric && description.SoftParticle != SOFT_PARTICLE_NONE;
 	// The native SDL path and Windows both supply the supported cosmetic scene effects.
 	const unsigned effect = (volumetric && description.DrawEffect < DRAW_EFFECT_COUNT)

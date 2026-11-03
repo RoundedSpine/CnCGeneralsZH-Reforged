@@ -84,6 +84,24 @@ int main(){
     CHECK(fire!=plain&&outage!=plain&&emp!=plain);
     auto revealed=draw(0,0,DRAW_EFFECT_REVEALED),cloak=draw(0,0,DRAW_EFFECT_CLOAK);CHECK(revealed!=plain&&cloak!=plain);
     d->Allow_Effects(false);CHECK(draw(1,1,DRAW_EFFECT_EMP)==plain);d->Allow_Effects(true);
+    // Projectile tracers are additive RGB with authored zero alpha. Exercise the
+    // real sorted-billboard FVF, including normal fields, in front of land and sky.
+    d->Set_Object_Effect(0,nullptr);d->Set_Particle_Flag(SceneEffects::FireParticles,false);
+    d->SetFVF(D3DFVF_XYZ|D3DFVF_NORMAL|D3DFVF_DIFFUSE|D3DFVF_TEX2);
+    d->SetRenderState(D3DRS_SRCBLEND,D3DBLEND_ONE);d->SetRenderState(D3DRS_DESTBLEND,D3DBLEND_ONE);
+    d->SetTextureStageState(0,D3DTSS_COLOROP,D3DTOP_MODULATE);d->SetTextureStageState(0,D3DTSS_COLORARG1,D3DTA_TEXTURE);d->SetTextureStageState(0,D3DTSS_COLORARG2,D3DTA_DIFFUSE);
+    d->SetTextureStageState(0,D3DTSS_ALPHAOP,D3DTOP_MODULATE);d->SetTextureStageState(0,D3DTSS_ALPHAARG1,D3DTA_TEXTURE);d->SetTextureStageState(0,D3DTSS_ALPHAARG2,D3DTA_DIFFUSE);
+    struct Billboard{float x,y,z,nx,ny,nz;uint32_t colour;float u,v,halfWidth,age;};
+    const Billboard tracer[3]={{-10,-10,10,0,0,0,0x00ffe1a0,0,1,2.5f,0},
+        {-10,30,10,0,0,0,0x00ffe1a0,0,-1,2.5f,0},{30,-10,10,0,0,0,0x00ffe1a0,2,1,2.5f,0}};
+    for(bool fade:{false,true})for(bool sky:{false,true}) {
+        d->Clear(0,nullptr,D3DCLEAR_TARGET|D3DCLEAR_ZBUFFER,0xff000000,sky?1:ground,0);
+        d->Set_Particle_Flag(SceneEffects::SoftParticles,fade);d->Take_Particle_Depth();
+        const auto before=d->Draws_Recorded();CHECK(d->DrawPrimitiveUP(D3DPT_TRIANGLELIST,1,tracer,sizeof(Billboard))==D3D_OK);CHECK(d->Draws_Recorded()==before+1);
+        std::vector<uint8_t> pixels;CHECK(d->Get_Gpu()->Read_Back(d->Get_Gpu()->Back_Buffer(),64,48,pixels));
+        if(pixels.size()>at+3) {CHECK(pixels[at+2]>100&&pixels[at+1]>80&&pixels[at]>50);
+            printf("TRACER: soft=%d sky=%d rgb=%u,%u,%u alpha=%u\n",int(fade),int(sky),pixels[at+2],pixels[at+1],pixels[at],pixels[at+3]);}
+    }
     d->Set_Object_Effect(0,nullptr);d->Set_Particle_Flag(SceneEffects::SoftParticles,false);d->Set_Particle_Flag(SceneEffects::FireParticles,false);
     texture->Release();CHECK(SDL_WaitForGPUIdle(d->Get_Gpu()->Device()));
     printf("NATIVE_EFFECTS: failures=%u backend=%s\n",failures,SDL_GetGPUDeviceDriver(d->Get_Gpu()->Device()));

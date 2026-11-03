@@ -35,7 +35,7 @@ int main(){
             d->SetTextureStageState(1,D3DTSS_COLOROP,D3DTOP_DISABLE);};
         auto triangle=[&](uint32_t colour){Vertex v[3]={{5,6,.4f,1,colour,0,0},{58,7,.4f,1,colour,0,0},{8,41,.4f,1,colour,0,0}};
             auto before=d->Draws_Recorded();CHECK(d->DrawPrimitiveUP(D3DPT_TRIANGLELIST,1,v,sizeof(Vertex))==D3D_OK);CHECK(d->Draws_Recorded()==before+1);};
-        auto quad=[&](float right,float bottom,float z){Vertex v[4]={{0,0,z,1,0xffffffff,0,0},{right,0,z,1,0xffffffff,1,0},{0,bottom,z,1,0xffffffff,0,1},{right,bottom,z,1,0xffffffff,1,1}};
+        auto quad=[&](float right,float bottom,float z,uint32_t tint=0xffffffff){Vertex v[4]={{0,0,z,1,tint,0,0},{right,0,z,1,tint,1,0},{0,bottom,z,1,tint,0,1},{right,bottom,z,1,tint,1,1}};
             auto before=d->Draws_Recorded();CHECK(d->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP,2,v,sizeof(Vertex))==D3D_OK);CHECK(d->Draws_Recorded()==before+1);};
         state();d->Clear(0,nullptr,D3DCLEAR_TARGET|D3DCLEAR_ZBUFFER|D3DCLEAR_STENCIL,0xff000000,1,0);triangle(0xffff0000);
         std::vector<uint8_t> pixels;CHECK(frame->Read_Back(frame->Back_Buffer(),64,48,pixels));CHECK(edgePixels(pixels,2)>10);
@@ -48,14 +48,17 @@ int main(){
         if(!depth.empty()){CHECK(std::abs(depth[14*64+12]-.4f)<.001f);CHECK(std::abs(depth[14*64+40]-.2f)<.001f);}
         // A second-stage alpha mask exercises independently compacted replay bindings.
         d->Clear(0,nullptr,D3DCLEAR_TARGET|D3DCLEAR_ZBUFFER|D3DCLEAR_STENCIL,0xff000000,1,0);
-        d->SetTexture(0,nullptr);d->SetTexture(1,alpha);
+        // Keep stage zero active: an unbound COLORARG1 texture ends D3D9's cascade.
+        IDirect3DTexture9 *white=nullptr;CHECK(d->CreateTexture(1,1,1,0,D3DFMT_A8R8G8B8,D3DPOOL_MANAGED,&white,nullptr)==D3D_OK);
+        CHECK(white->LockRect(0,&lock,nullptr,0)==D3D_OK);*(uint32_t*)lock.pBits=0xffffffff;white->UnlockRect(0);
+        d->SetTexture(0,white);d->SetTexture(1,alpha);
         d->SetTextureStageState(1,D3DTSS_TEXCOORDINDEX,0);
         d->SetSamplerState(1,D3DSAMP_MINFILTER,D3DTEXF_POINT);d->SetSamplerState(1,D3DSAMP_MAGFILTER,D3DTEXF_POINT);
         d->SetTextureStageState(1,D3DTSS_COLOROP,D3DTOP_SELECTARG1);d->SetTextureStageState(1,D3DTSS_COLORARG1,D3DTA_CURRENT);
         d->SetTextureStageState(1,D3DTSS_ALPHAOP,D3DTOP_SELECTARG1);d->SetTextureStageState(1,D3DTSS_ALPHAARG1,D3DTA_TEXTURE);
         quad(64,48,.2f);CHECK(frame->Read_Depth(frame->Back_Buffer_Target().Depth,64,48,depth));
         if(!depth.empty()){CHECK(depth[14*64+12]>.99f);CHECK(std::abs(depth[14*64+40]-.2f)<.001f);}
-        d->SetTexture(1,nullptr);
+        d->SetTexture(1,nullptr);d->SetTexture(0,nullptr);white->Release();
         IDirect3DSurface9 *back=nullptr,*surface=nullptr,*cpu=nullptr;IDirect3DTexture9 *scene=nullptr;
         CHECK(d->GetRenderTarget(0,&back)==D3D_OK);CHECK(d->CreateTexture(64,48,1,D3DUSAGE_RENDERTARGET,D3DFMT_A8R8G8B8,D3DPOOL_DEFAULT,&scene,nullptr)==D3D_OK);
         CHECK(scene->GetSurfaceLevel(0,&surface)==D3D_OK);CHECK(d->SetRenderTarget(0,surface)==D3D_OK);
@@ -73,6 +76,25 @@ int main(){
             const unsigned ui=(1*64+1)*4;CHECK(pixels[ui]==255&&pixels[ui+1]==255&&pixels[ui+2]==255);const unsigned at=(14*64+12)*4;CHECK(pixels[at]==expected[at]&&pixels[at+2]==expected[at+2]);}
         D3DRECT small={0,0,6,6};CHECK(d->Clear(1,&small,D3DCLEAR_ZBUFFER,0,.9f,0)==D3D_OK);
         CHECK(frame->Read_Depth(frame->Back_Buffer_Target().Depth,64,48,depth));if(!depth.empty())CHECK(std::abs(depth[0]-.9f)<.001f);
+        // Classic water writes a shoreline mask to destination alpha, then
+        // blends with DESTALPHA/INVDESTALPHA. Black vertex colour must not erase
+        // the texture's alpha-only pass; RGB and that mask survive independently.
+        IDirect3DTexture9 *shore=nullptr;CHECK(d->CreateTexture(256,1,1,0,D3DFMT_A8R8G8B8,D3DPOOL_MANAGED,&shore,nullptr)==D3D_OK);
+        CHECK(shore->LockRect(0,&lock,nullptr,0)==D3D_OK);
+        for(unsigned x=0;x<256;++x)((uint32_t*)lock.pBits)[x]=(x<<24)|0x00ffffff;shore->UnlockRect(0);
+        state();d->Clear(0,nullptr,D3DCLEAR_TARGET|D3DCLEAR_ZBUFFER,0xff00ff00,1,0);
+        d->SetTexture(0,shore);d->SetRenderState(D3DRS_ZWRITEENABLE,0);d->SetRenderState(D3DRS_COLORWRITEENABLE,D3DCOLORWRITEENABLE_ALPHA);
+        d->SetSamplerState(0,D3DSAMP_ADDRESSU,D3DTADDRESS_CLAMP);d->SetSamplerState(0,D3DSAMP_MINFILTER,D3DTEXF_LINEAR);d->SetSamplerState(0,D3DSAMP_MAGFILTER,D3DTEXF_LINEAR);
+        d->SetTextureStageState(0,D3DTSS_COLOROP,D3DTOP_SELECTARG1);d->SetTextureStageState(0,D3DTSS_ALPHAOP,D3DTOP_SELECTARG1);
+        quad(64,48,.1f,0);CHECK(frame->Read_Back(frame->Back_Buffer(),64,48,pixels));
+        const unsigned shallow=(20*64+8)*4,deep=(20*64+55)*4;
+        if(pixels.size()>deep+3){CHECK(pixels[shallow+1]==255&&pixels[deep+1]==255);CHECK(pixels[shallow+3]<60&&pixels[deep+3]>190);}
+        d->SetTexture(0,nullptr);d->SetRenderState(D3DRS_COLORWRITEENABLE,7);d->SetRenderState(D3DRS_ALPHABLENDENABLE,1);
+        d->SetRenderState(D3DRS_SRCBLEND,D3DBLEND_DESTALPHA);d->SetRenderState(D3DRS_DESTBLEND,D3DBLEND_INVDESTALPHA);
+        quad(64,48,.05f,0xff0000ff);CHECK(frame->Read_Back(frame->Back_Buffer(),64,48,pixels));
+        if(pixels.size()>deep+3){CHECK(pixels[shallow]<60&&pixels[shallow+1]>190);CHECK(pixels[deep]>190&&pixels[deep+1]<60);
+            printf("SHORELINE: hdr=%d shallow_BG=%u,%u deep_BG=%u,%u\n",int(hdr),pixels[shallow],pixels[shallow+1],pixels[deep],pixels[deep+1]);}
+        d->SetRenderState(D3DRS_COLORWRITEENABLE,15);d->SetTexture(0,nullptr);shore->Release();
         CHECK(frame->Retained_Staging_Bytes()>0);CHECK(frame->Trim_Transient_Memory());CHECK(frame->Retained_Staging_Bytes()==0);state();d->Clear(0,nullptr,D3DCLEAR_TARGET|D3DCLEAR_ZBUFFER,0xff000000,1,0);triangle(0xffff0000);
         CHECK(frame->Read_Back(frame->Back_Buffer(),64,48,pixels));CHECK(edgePixels(pixels,2)>10);
         CHECK(frame->Handle_Memory_Pressure());CHECK(frame->Sample_Count()==1&&frame->Max_Samples()==1);
