@@ -1,0 +1,19 @@
+ 2384 |                 case SERIAL_NONEXISTENT:
+ 2385 |                         resp.discon.reason = DISCONNECT_SERIAL_NOT_PRESENT;
+ 2386 |                         break;
+ 2387 |                 case SERIAL_AUTHFAILED:
+ 2388 |                         resp.discon.reason = DISCONNECT_SERIAL_INVALID;
+ 2389 |                         break;
+ 2390 |                 case SERIAL_BANNED:
+ 2391 |                         resp.discon.reason = DISCONNECT_SERIAL_BANNED;
+ 2392 |                         break;
+ 2393 |         }
+38 warnings generated.
+[1255/1499] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameNetwork/GameSpy/Thread/PersistentStorageThread.cpp.o
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameNetwork/GameSpy/Thread/PersistentStorageThread.cpp:34:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Precompiled/PreRTS.h:139:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/STLTypedefs.h:62:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:755:84: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
+  755 |         inline void *operator new(size_t s) { DEBUG_CRASH(("This should be impossible")); return 0; }
+      |                                                                                           ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:766:7: warning: 'this' pointer cannot be null in well-defined C++ code; pointer may be assumed to always convert to true [-Wundefined-bool-conversion]
