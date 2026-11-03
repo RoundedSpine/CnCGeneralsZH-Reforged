@@ -1899,6 +1899,7 @@ GameEngineDevice/Source/PosixDevice/Render/PosixD3D9Caps.cpp
 GameEngineDevice/Source/PosixDevice/Render/PosixD3D9Caps.h
 GameEngineDevice/Source/PosixDevice/Render/PosixDevice9.cpp
 GameEngineDevice/Source/PosixDevice/Render/PosixDevice9.h
+GameEngineDevice/Source/PosixDevice/Render/PosixDevice9AmbientOcclusion.cpp
 GameEngineDevice/Source/PosixDevice/Render/PosixDevice9Capture.cpp
 GameEngineDevice/Source/PosixDevice/Render/PosixDevice9Draw.cpp
 GameEngineDevice/Source/PosixDevice/Render/PosixDevice9Resources.cpp
@@ -1913,11 +1914,15 @@ GameEngineDevice/Source/PosixDevice/Render/PosixPixelCodec.cpp
 GameEngineDevice/Source/PosixDevice/Render/PosixPixelCodec.h
 GameEngineDevice/Source/PosixDevice/Render/PosixResources9.cpp
 GameEngineDevice/Source/PosixDevice/Render/PosixResources9.h
+GameEngineDevice/Source/PosixDevice/Render/SdlAmbientOcclusion.cpp
+GameEngineDevice/Source/PosixDevice/Render/SdlAmbientOcclusion.h
+GameEngineDevice/Source/PosixDevice/Render/SdlAoShader.h
 GameEngineDevice/Source/PosixDevice/Render/SdlConstants.h
 GameEngineDevice/Source/PosixDevice/Render/SdlCreationLog.h
 GameEngineDevice/Source/PosixDevice/Render/SdlGpuDepthFormat.h
 GameEngineDevice/Source/PosixDevice/Render/SdlGpuFrame.cpp
 GameEngineDevice/Source/PosixDevice/Render/SdlGpuFrame.h
+GameEngineDevice/Source/PosixDevice/Render/SdlGpuFrameAmbientOcclusion.cpp
 GameEngineDevice/Source/PosixDevice/Render/SdlGpuFrameBatch.cpp
 GameEngineDevice/Source/PosixDevice/Render/SdlGpuFrameSmoke.cpp
 GameEngineDevice/Source/PosixDevice/Render/SdlGpuFrameSunShadow.cpp
@@ -2106,6 +2111,7 @@ Libraries/Include/Platform/PosixD3D9/d3d9caps.h
 Libraries/Include/Platform/PosixD3D9/d3d9types.h
 Libraries/Include/Platform/RenderTypes.h
 Libraries/Include/Platform/RendererName.h
+Libraries/Include/Platform/SceneEffects.h
 Libraries/Include/Platform/SleepMilliseconds.h
 Libraries/Include/Platform/StrdupAsWindows.h
 Libraries/Include/Platform/SunShadow.h
@@ -3271,6 +3277,7 @@ Tests/test_ios_lifecycle.py
 Tests/test_ios_main_exit.py
 Tests/test_ios_network_permissions.py
 Tests/test_ios_report.py
+Tests/test_ios_shadow_path.py
 Tests/test_ios_startup_pump.cpp
 Tests/test_ios_symbols.py
 Tests/test_ios_touch.cpp
@@ -3303,6 +3310,7 @@ Tests/test_refpack.cpp
 Tests/test_registryfile.cpp
 Tests/test_render_hooks.cpp
 Tests/test_road_buffer.cpp
+Tests/test_sdl_ao.cpp
 Tests/test_sdl_gpu_depth_format.cpp
 Tests/test_sdl_gpu_frame.cpp
 Tests/test_sdl_input.cpp

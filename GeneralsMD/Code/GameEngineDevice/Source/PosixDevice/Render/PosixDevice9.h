@@ -177,6 +177,7 @@ public:
 	void Set_Sun_Caster_Effect(unsigned effect, const float parameters[4]);
 	void Get_Sun_Caster_Effect(unsigned &effect, float parameters[4]) const;
 	void Set_Smoke_Glow(bool glow) { SmokeGlow = glow; }
+	bool Ambient_Occlusion(IDirect3DBaseTexture9 *shroud, const float shroudRect[4]);
 	bool Begin_Sun_Shadow(unsigned size);
 	// Optional submission status is independent of whether the shadow image can be used.
 	bool End_Sun_Shadow(bool *submission_ok = NULL);
@@ -365,7 +366,7 @@ public:
 protected:
 	struct SunCapture;
 	std::shared_ptr<SunCapture> Sun;
-	bool SunActive = false, SunFailed = false, SunReady = false;
+	bool SunActive = false, SunFailed = false, SunReady = false, SunReported = false;
 	bool SmokeGlow = false;
 	unsigned SunCasterEffect = 0;
 	float SunCasterOpacity = 1;

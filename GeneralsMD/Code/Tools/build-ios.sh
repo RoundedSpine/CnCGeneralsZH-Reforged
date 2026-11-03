@@ -11,6 +11,26 @@ build=$(cd "$build" && pwd)
 # Run the host recovery regression against the same pinned miniaudio sources
 # before cross-compiling the device app.
 python3 "$code/Tests/test_miniaudio_recovery.py"
+# Validate the production AO shaders on the host, with actual Metal readback
+# where the runner exposes a GPU. Device cross-compilation follows separately.
+if [ "${ZH_IOS_GRAPHICS_TESTS:-0}" = 1 ]; then
+  host="$build/host-graphics"
+  host_launcher=$(command -v ccache || true)
+  cmake -S "$code" -B "$host" -G Ninja -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_OSX_ARCHITECTURES="$(uname -m)" \
+    -DCMAKE_OSX_SYSROOT="$(xcrun --sdk macosx --show-sdk-path)" \
+    -DCMAKE_C_COMPILER="$(xcrun --sdk macosx --find clang)" \
+    -DCMAKE_CXX_COMPILER="$(xcrun --sdk macosx --find clang++)" \
+    -DCMAKE_C_COMPILER_LAUNCHER="$host_launcher" -DCMAKE_CXX_COMPILER_LAUNCHER="$host_launcher"
+  cmake --build "$host" --target test_sdl_ao --parallel "${ZH_BUILD_JOBS:-3}"
+  if "$host/test_sdl_ao"; then
+    echo "AO shader and GPU readback checks passed."
+  else
+    graphics_status=$?
+    if [ "$graphics_status" -ne 77 ]; then exit "$graphics_status"; fi
+    echo "AO shaders passed; GPU readback skipped because the host exposes no usable GPU."
+  fi
+fi
 sdk=$(xcrun --sdk iphoneos --show-sdk-path)
 # Fresh Actions checkouts have new mtimes; an object cache alone still recompiles
 # every source. ccache reuses compilation by content, with the device flags in its key.

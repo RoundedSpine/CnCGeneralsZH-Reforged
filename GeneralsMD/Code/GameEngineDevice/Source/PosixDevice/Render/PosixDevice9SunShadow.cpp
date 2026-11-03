@@ -232,6 +232,10 @@ bool PosixDevice9::Set_Sun_Shadow_Parameters(float bias, float strength, float w
     std::memcpy(Sun->Parameters,parameters,sizeof(parameters));
     std::memcpy(Sun->Softness,softness,sizeof(softness));
     Sun->Receiving = true;
+    if (!SunReported) {
+        fprintf(stderr,"[SDL_SHADOW] receivers_ready size=%u strength=%.3f\n",Sun->Target.Width,strength);
+        SunReported = true;
+    }
     return true;
 }
 
@@ -363,7 +367,7 @@ CasterEffect GetCasterEffect(IDirect3DDevice9 *d) {
 void SetSmokeGlow(IDirect3DDevice9 *d,bool g) { if(d) static_cast<PosixDevice9*>(d)->Set_Smoke_Glow(g); }
 bool Begin(IDirect3DDevice9 *device, unsigned size)
 {
-#if defined(__linux__)
+#if defined(__linux__) || defined(ZH_PLATFORM_IOS)
     return device && static_cast<PosixDevice9 *>(device)->Begin_Sun_Shadow(size);
 #else
     return false; // Preserve the existing macOS scene shadows.

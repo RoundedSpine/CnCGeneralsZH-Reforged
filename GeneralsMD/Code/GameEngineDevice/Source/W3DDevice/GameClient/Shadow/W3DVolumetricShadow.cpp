@@ -4090,7 +4090,7 @@ static void endSmokeMap( const Vector3 &focus )
 		water areas; the grid mesh never does. */
 static Bool waterMirrorReadsTheMap()
 {
-#if defined(__linux__)
+#if defined(__linux__) || defined(ZH_PLATFORM_IOS)
 	// SDL gives reflections a separate, excluded scene scope and never samples this
 	// capture through their camera. Keep culling against the actual receiving view.
 	return FALSE;
@@ -4320,14 +4320,14 @@ void W3DVolumetricShadowManager::renderShadowMap( CameraClass &sceneCamera )
 {
 	// A failed, disabled or empty pass must not expose the previous view's shadow.
 	SunShadow::Clear(DX8Wrapper::_Get_D3D_Device());
-#if defined(__linux__)
+#if defined(__linux__) || defined(ZH_PLATFORM_IOS)
 	// The SDL device reads the D3D9 state it was handed.  Under Direct3D 11 nothing reads it back,
 	// and a flush here would send every held-back state to a device that draws nothing, every frame.
 	DX8Wrapper::Flush_Deferred_D3D9_State();
 #endif
 	// Trees historically cast under either shadow option. Smoke has its own option;
 	// it may keep an otherwise empty depth capture alive without enabling geometry.
-#if defined(__linux__)
+#if defined(__linux__) || defined(ZH_PLATFORM_IOS)
 	const Bool geometryShadows = TheGlobalData->m_useShadowVolumes || TheGlobalData->m_useShadowDecals;
 	const Bool captureShadows = geometryShadows || TheGlobalData->m_volumetricSmokeShadows;
 #else
@@ -4479,7 +4479,7 @@ void W3DVolumetricShadowManager::renderShadowMap( CameraClass &sceneCamera )
 		 skip the texture categories and go into instanced depth-only draws, one a piece of a model
 		 (DX8MeshRendererClass::Flush_Shadow_Casters).  The SDL device has no such draw, and
 		 -shadowmapoldcasters keeps the old way for an A/B. */
-#if defined(__linux__)
+#if defined(__linux__) || defined(ZH_PLATFORM_IOS)
 	MeshClass::Shadow_Lean_Casters = false;
 #else
 	MeshClass::Shadow_Lean_Casters = Direct3D11_Shadow_Map_Bound() && !TheGlobalData->m_shadowMapOldCasters;
@@ -4514,7 +4514,7 @@ void W3DVolumetricShadowManager::renderShadowMap( CameraClass &sceneCamera )
 	const Bool cullToFrame = toSun.Z > 0.01f && !waterMirrorReadsTheMap();
 	const SunShadowCasterCull casterCull={seen,toSun,lowestReceiver,SHADOW_MAP_CASTER_PAD,filterReach,SHADOW_MAP_OVERLAY_REACH,cullToFrame};
 
-#if defined(__linux__)
+#if defined(__linux__) || defined(ZH_PLATFORM_IOS)
 	W3DVolumetricShadow *firstCaster = TheGlobalData->m_useShadowVolumes ? m_shadowList : NULL;
 #else
 	W3DVolumetricShadow *firstCaster = m_shadowList;
@@ -4624,7 +4624,7 @@ void W3DVolumetricShadowManager::renderShadowMap( CameraClass &sceneCamera )
 
 	// Invalidate the engine caches before restoring the device snapshot: invalidation itself
 	// unbinds textures and flushes deferred states. The restored scene must be the last writer.
-#if defined(__linux__)
+#if defined(__linux__) || defined(ZH_PLATFORM_IOS)
 	DX8Wrapper::Invalidate_Cached_Render_States();
 	const bool captured = SunShadow::End(DX8Wrapper::_Get_D3D_Device());
 #else
@@ -4635,7 +4635,7 @@ void W3DVolumetricShadowManager::renderShadowMap( CameraClass &sceneCamera )
 	// past the map's limit the smoke nearest the camera wins: the freecam's box is centred on the
 	// map's middle, which is not where it is looking from
 	// The cull ran beside the casters' poses (beginSmokeMap, cullSmokeChunk).
-#if defined(__linux__)
+#if defined(__linux__) || defined(ZH_PLATFORM_IOS)
 	if (captured)
 		endSmokeMap( wholeMap ? sceneCamera.Get_Position() : focus );
 	else {
@@ -4660,7 +4660,7 @@ void W3DVolumetricShadowManager::renderShadowMap( CameraClass &sceneCamera )
 		Matrix4x4 view;
 		DX8Wrapper::Get_Transform( D3DTS_VIEW, view );
 		const Matrix4x4 deviceView = view.Transpose();
-#if defined(__linux__)
+#if defined(__linux__) || defined(ZH_PLATFORM_IOS)
 		// Camera::Apply defers the view in render_state, outside the D3D9 state
 		// queue. Publish this one transform before snapshotting receiver coordinates.
 		DX8Wrapper::_Set_DX8_Transform(D3DTS_VIEW, deviceView);
@@ -4699,7 +4699,7 @@ void W3DVolumetricShadowManager::renderShadowMap( CameraClass &sceneCamera )
 		 ground - handed the frame back to the volumes for that one frame, so the whole scene's
 		 shadows changed style and back again as the camera moved. Backend scene ownership is
 		 installed only after successful parameters. */
-#if defined(__linux__)
+#if defined(__linux__) || defined(ZH_PLATFORM_IOS)
 	DX8Wrapper::Flush_Deferred_D3D9_State();	// as at the top: only the SDL device reads it
 	if (captured)
 		SunShadow::Parameters(DX8Wrapper::_Get_D3D_Device(), depthBias, strength, widest,
@@ -4726,7 +4726,7 @@ void W3DVolumetricShadowManager::renderShadowMap( CameraClass &sceneCamera )
 	// The report costs a full stall of the pipeline, so it is one line a second rather than one a
 	// frame: what it answers is whether the pass draws the world at all, and that does not change
 	// thirty times a second.
-#if defined(__linux__)
+#if defined(__linux__) || defined(ZH_PLATFORM_IOS)
 	// Foliage, bridges and smoke do not increment the volume-caster count.
 	// Report any completed capture so those settings remain diagnosable.
 	const bool hasReportableCapture = captured;

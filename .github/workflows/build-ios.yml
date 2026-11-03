@@ -52,6 +52,7 @@ jobs:
             -o "$RUNNER_TEMP/test-refpack"
           "$RUNNER_TEMP/test-refpack"
           python3 GeneralsMD/Code/Tests/test_disconnect_ping.py
+          python3 GeneralsMD/Code/Tests/test_ios_shadow_path.py
           python3 GeneralsMD/Code/Tests/test_device_creation.py
           python3 GeneralsMD/Code/Tests/test_ios_lifecycle.py
           python3 GeneralsMD/Code/Tests/test_ios_network_permissions.py
@@ -90,6 +91,7 @@ jobs:
         env:
           CCACHE_DIR: ${{ github.workspace }}/build/ios/compiler-cache
           ZH_IOS_LAN_ENTITLEMENT: ${{ inputs.lan_multicast && '1' || '0' }}
+          ZH_IOS_GRAPHICS_TESTS: '1'
         shell: bash
         run: |
           mkdir -p build/ios

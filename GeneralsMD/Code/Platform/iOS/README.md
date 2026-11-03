@@ -49,8 +49,8 @@ for at least 0.55 seconds then release to right click, or tap with two fingers
 pinch to zoom. Lift both fingers before switching between panning and pinching.
 The gesture begins over the map; menus and command-bar panels do not initiate a
 camera pan. A three-finger tap sends Escape for the menu. Hardware mouse and keyboard
-input and the minimap remain available. Touch controls and background/resume behavior still need device validation. Windows-only Direct3D 11 effects
-remain outside the SDL renderer's capabilities, as on desktop POSIX.
+input and the minimap remain available. Touch controls and background/resume behavior still need device validation. Some Windows Direct3D 11 effects remain outside the SDL renderer's capabilities;
+see `docs/porting/ios-feature-audit.md` at the repository root.
 
 The build publishes a bounded compiler report to `ci/ios-port-logs` in addition
 to the Actions artifacts, allowing debugging through Git without Actions API
@@ -130,3 +130,25 @@ attach and remove a UIKit Metal view during an engine fallback attempt.
 result stage; `[DEVICE_SURFACE]` identifies the rejected surface and reason.
 A new device log is needed to establish whether avoiding the failed attempt's
 view replacement removes the appearance-transition warnings.
+
+The iOS renderer now attempts the existing SDL sun-shadow path, including its
+caster/camera state restoration and capability checks. Failed capture or receiver
+setup retains the existing legacy fallback. `[SDL_SHADOW] receivers_ready` confirms
+that a map was accepted by the receiver setup; failure reasons remain logged.
+Classic graphics and the geometry-shadow settings still control eligibility.
+
+Ambient Occlusion now has an SDL GPU path at the opaque-scene boundary, before
+water, particles and UI. It reconstructs world positions from independent scene
+depth, uses 14 taps at a 22-world-unit radius at half resolution, filters with
+depth-aware horizontal/vertical passes, and multiplies scene RGB while preserving
+alpha. Reflection/custom views are excluded; unsupported formats or failed shader
+setup disable AO with a diagnostic. The pass respects the AO option and Classic
+graphics. `[IOS_GRAPHICS]` logs the requested settings; `[SDL_AO] ready` identifies
+successful resource setup. The shroud texture attenuates AO with the same cubic visibility factor as the
+Windows pass; missing GPU shroud data skips AO instead of ignoring the fog.
+
+Actions enables `ZH_IOS_GRAPHICS_TESTS=1` to build and run `test_sdl_ao` on the host
+before cross-compilation. It compiles the production shaders to SPIR-V and MSL,
+and reads back synthetic flat ground and a raised object when a GPU is available.
+No GPU is an explicit skip, not evidence of correct pixels. Actual map appearance,
+shadow quality and frame time still require device validation.

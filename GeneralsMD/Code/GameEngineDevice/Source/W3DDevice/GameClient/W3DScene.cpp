@@ -35,6 +35,7 @@
 
 // SYSTEM INCLUDES ////////////////////////////////////////////////////////////
 #include "Platform/SunShadow.h"
+#include "Platform/SceneEffects.h"
 #include <stdlib.h>
 #include "Lib/Clock.h"
 
@@ -1106,7 +1107,26 @@ void RTS3DScene::Flush(RenderInfoClass & rinfo)
 	// The Ambient Occlusion option goes on under the water and every translucent draw, none of which
 	// writes depth: the water takes no corner's shade from its bed and only the bed's shows through it.
 	if (TheGlobalData->m_ambientOcclusion && !TheGlobalData->m_classicGraphics && m_customPassMode == SCENE_PASS_DEFAULT && Get_Extra_Pass_Polygon_Mode() == EXTRA_PASS_DISABLE)
+	{
+#if defined(_WIN32)
 		Direct3D11_Ambient_Occlusion();
+#else
+		if (!ShaderClass::Is_Backface_Culling_Inverted()) {
+			DX8Wrapper::Flush_Deferred_D3D9_State();
+			W3DShroud *shroud=TheTerrainRenderObject?TheTerrainRenderObject->getShroud():NULL;
+			IDirect3DBaseTexture9 *shroudTexture=NULL;
+			float rect[4]={};
+			if(shroud && shroud->getShroudTexture()) {
+				shroudTexture=shroud->getShroudTexture()->Peek_D3D_Base_Texture();
+				rect[0]=shroud->getDrawOriginX()-shroud->getCellWidth();
+				rect[1]=shroud->getDrawOriginY()-shroud->getCellHeight();
+				rect[2]=1.0f/(shroud->getCellWidth()*shroud->getTextureWidth());
+				rect[3]=1.0f/(shroud->getCellHeight()*shroud->getTextureHeight());
+			}
+			SceneEffects::AmbientOcclusion(DX8Wrapper::_Get_D3D_Device(),shroudTexture,rect);
+		}
+#endif
+	}
 
 	WW3D::Render_And_Clear_Static_Sort_Lists(rinfo);	//draws things like water
 
@@ -1446,6 +1466,19 @@ void RTS3DScene::Customized_Render( RenderInfoClass &rinfo )
 	StDrawableDirtyStuffLocker lockDirtyStuff;
 #endif
 
+#if defined(ZH_PLATFORM_IOS)
+	static unsigned reportedGraphics = ~0u;
+	const unsigned graphics = unsigned(TheGlobalData->m_classicGraphics) | (unsigned(TheGlobalData->m_shadowMap) << 1)
+		| (unsigned(TheGlobalData->m_useShadowVolumes) << 2) | (unsigned(TheGlobalData->m_useShadowDecals) << 3)
+		| (unsigned(TheGlobalData->m_ambientOcclusion) << 4) | (unsigned(TheGlobalData->m_shadowQuality) << 5)
+		| (unsigned(DX8Wrapper::Has_Stencil()) << 10);
+	if (graphics != reportedGraphics) {
+		fprintf(stderr,"[IOS_GRAPHICS] classic=%d shadow_map=%d volumes=%d decals=%d ao=%d shadow_quality=%d stencil_available=%d\n",
+			int(TheGlobalData->m_classicGraphics),int(TheGlobalData->m_shadowMap),int(TheGlobalData->m_useShadowVolumes),
+			int(TheGlobalData->m_useShadowDecals),int(TheGlobalData->m_ambientOcclusion),TheGlobalData->m_shadowQuality,int(DX8Wrapper::Has_Stencil()));
+		reportedGraphics = graphics;
+	}
+#endif
 	RenderObjClass *terrainObject=NULL,*robj;
 	m_translucentObjectsCount = 0;	//start of new frame so no translucent objects
 	m_occludedObjectsCount = 0;

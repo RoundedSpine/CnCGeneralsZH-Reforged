@@ -48,6 +48,7 @@ struct SDL_GPUSampler;
 struct SDL_GPUShader;
 struct SDL_GPUTexture;
 struct SDL_Window;
+namespace SdlAo { struct Constants; class Renderer; }
 
 /// Where a pass draws: a colour texture of Target_Format() and a depth-stencil of Depth_Format(), the
 /// same size.  The back buffer is one; a render-target surface's GPU texture is another (A3d).  Either
@@ -124,6 +125,7 @@ public:
 	SdlTarget Back_Buffer_Target() const;
 	unsigned int Target_Depth_Format(const SdlTarget &target) const;
 	/// Sampleable sun depth, retired only after previously recorded readers are submitted.
+	bool Ambient_Occlusion(const SdlTarget &target, const SdlAo::Constants &constants, SDL_GPUTexture *shroud);
 	bool Sun_Shadow_Target(unsigned int size, SdlTarget &target, std::string &error);
 	bool Fill_Sun_Smoke(const float *sun, const float *casters, unsigned count);
 	SDL_GPUTexture *Sun_Smoke_Texture() const;
@@ -311,6 +313,9 @@ private:
 	SDL_GPUTexture * BackBuffer;
 	SDL_GPUTexture * DepthStencil;
 	SDL_GPUTexture * FrontCopy;			///< the last presented picture
+	SdlAo::Renderer *Ao = nullptr;
+	bool AoFailed = false;
+	void Release_Ambient_Occlusion();
 	SDL_GPUTexture *SunShadowTexture = NULL;
 	unsigned SunShadowSize = 0;
 	struct SmokeResources;
