@@ -22,6 +22,7 @@
 
 #include "PosixDevice9.h"
 #include "Platform/IOSLifecycle.h"
+#include "Platform/SceneEffects.h"
 #include "PosixD3D9Caps.h"
 #include "SdlCreationLog.h"
 #include "Platform/EngineShaderName.h"
@@ -219,7 +220,7 @@ RenderResult PosixDevice9::Create_Gpu_Frame(bool offscreen)
 		return D3D_OK;		// -headless: no GPU device at all
 	}
 	std::string error;
-	Gpu = SdlGpuFrame::Create(Window, Parameters.BackBufferWidth, Parameters.BackBufferHeight, error);
+	Gpu = SdlGpuFrame::Create(Window, Parameters.BackBufferWidth, Parameters.BackBufferHeight, error,SceneEffects::RequestedHdr(),SceneEffects::RequestedSamples());
 	if (Gpu == NULL) {
 		fprintf(stderr, "PosixDevice9: a window, and no SDL3 GPU device for it: %s\n", error.c_str());
 		return D3DERR_NOTAVAILABLE;

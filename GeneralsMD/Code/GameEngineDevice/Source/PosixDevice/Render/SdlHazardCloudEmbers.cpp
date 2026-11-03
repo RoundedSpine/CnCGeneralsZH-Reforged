@@ -44,7 +44,7 @@ bool makeResources(SdlGpuFrame *frame, const SdlTarget &target)
         || !(pixelShader = SDL3_Create_Shader(gpu, spirv, false, log)))
         return fail(("pixel shader: " + log).c_str());
     SDL_GPUColorTargetDescription colour = {};
-    colour.format = static_cast<SDL_GPUTextureFormat>(SdlGpuFrame::Target_Format());
+    colour.format = static_cast<SDL_GPUTextureFormat>(frame->Scene_Format());
     colour.blend_state.enable_blend = true;
     colour.blend_state.src_color_blendfactor = SDL_GPU_BLENDFACTOR_ONE;
     colour.blend_state.dst_color_blendfactor = SDL_GPU_BLENDFACTOR_ONE;
@@ -67,6 +67,7 @@ bool makeResources(SdlGpuFrame *frame, const SdlTarget &target)
     // Clouds render only into the main scene. Its implicit and mirrored depth
     // surfaces use the frame's scene format, independently of shadow targets.
     description.target_info.depth_stencil_format = static_cast<SDL_GPUTextureFormat>(frame->Depth_Format());
+    description.multisample_state.sample_count=(SDL_GPUSampleCount)frame->Target_Sample_Index(target);
     pipeline = SDL_CreateGPUGraphicsPipeline(gpu, &description);
     if (!pipeline) return fail(SDL_GetError());
     SDL_GPUSamplerCreateInfo sampler = {};

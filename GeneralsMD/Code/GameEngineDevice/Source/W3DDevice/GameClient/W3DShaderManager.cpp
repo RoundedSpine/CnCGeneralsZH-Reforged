@@ -521,6 +521,10 @@ void W3DShaderManager::renderNativeAtmosphere(void)
 	glows.  Everywhere else it is the option. */
 static Int fixedFunctionBloomIntensity(void)
 {
+#if !defined(_WIN32)
+    SceneEffects::SetPostGrade(DX8Wrapper::_Get_D3D_Device(),
+        !TheGlobalData->m_classicGraphics&&TheGlobalData->m_lightingStyle==LIGHTING_STYLE_REFORGED?1.0f:0.0f);
+#endif
 	if (Direct3D11_Is_Active())
 	{
 #if defined(_WIN32)
@@ -765,6 +769,11 @@ Bool ScreenDefaultFilter::postRender(enum FilterModes mode, Coord2D &scrollDelta
 	//not worth bothering with index/vertex buffers.
 	DX8Wrapper::Set_Vertex_Format(D3DFVF_XYZRHW | D3DFVF_DIFFUSE | D3DFVF_TEX1);
 
+#if !defined(_WIN32)
+    // The legacy combiner saturates texture samples; a GPU copy keeps HDR scene
+    // radiance intact while moving it back from the Glow/smudge render target.
+    if(!SceneEffects::CopyScene(DX8Wrapper::_Get_D3D_Device(),tex,xpos,ypos,width,height))
+#endif
 	DX8Wrapper::_Draw_DX8_Primitive_UP(D3DPT_TRIANGLESTRIP, 2, v, sizeof(_TRANS_LIT_TEX_VERTEX));
 
 	//v[3] is the top left corner of the viewport inside the scene texture, v[0] the bottom right

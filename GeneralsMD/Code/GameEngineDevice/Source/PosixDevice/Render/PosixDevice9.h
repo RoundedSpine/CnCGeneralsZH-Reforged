@@ -192,6 +192,9 @@ public:
 		IDirect3DBaseTexture9 *shroud, const float rect[4]);
 	void Set_Lighting_Mode(bool modern, bool hemisphere);
     void Set_Particle_Flag(unsigned flag,bool enabled);
+    void Set_Post_Grade(float amount);
+    void Finish_Scene();
+    bool Copy_Scene(IDirect3DBaseTexture9*,int,int,int,int);
     bool Lights_Per_Pixel() const;
     void Set_Blast_Lights(const float*,unsigned);
     void Set_Headlights(const float*,unsigned,const float*);
@@ -392,7 +395,9 @@ protected:
 	struct SunCapture;
 	std::shared_ptr<SunCapture> Sun;
 	bool SunActive = false, SunFailed = false, SunReady = false, SunReported = false;
-	unsigned ParticleFlags=0,RequestedEffect=0,BlastCount=0,HeadlightCount=0;
+	float PostGrade=0,PostRect[4]={};
+    uint64_t SceneSerial=0,FinishedSceneSerial=~uint64_t(0);
+    unsigned ParticleFlags=0,RequestedEffect=0,BlastCount=0,HeadlightCount=0;
     float BlastLights[32][12]={},Headlights[16][8]={},HeadlightGain[4]={};
     bool EffectsAllowed=true;
     float EffectParameters[4]={},EffectSceneView[16]={};

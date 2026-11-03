@@ -688,7 +688,13 @@ const OptionDef TheOptionCatalog[] =
 	// post chain is told every frame.  Classic graphics has no half float scene and -d3d9 no chain.  On
 	// Options > Effects.
 	{ "InternalHdr",							OPT_WND( "CheckInternalHdr" ), "GUI:InternalHdr",
-		OPTION_BOOL, APPLY_LIVE, 0, 1,
+		OPTION_BOOL,
+#if defined(_WIN32)
+        APPLY_LIVE,
+#else
+        APPLY_RESTART,
+#endif
+        0, 1,
 		get_m_internalHdr, set_m_internalHdr },
 
 	// The size of the sun's depth map.  The shadow pass asks for it every frame and the backend makes

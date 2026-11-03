@@ -38,7 +38,7 @@ bool SdlGpuFrame::Sun_Shadow_Target(unsigned int size, SdlTarget &target, std::s
 
 void SdlGpuFrame::Release_Sun_Shadow()
 {
-    if (SunShadowTexture) SDL_ReleaseGPUTexture(GpuDevice, SunShadowTexture);
+    if (SunShadowTexture) Release_Texture( SunShadowTexture);
     SunShadowTexture = NULL;
     SunShadowSize = 0;
 }

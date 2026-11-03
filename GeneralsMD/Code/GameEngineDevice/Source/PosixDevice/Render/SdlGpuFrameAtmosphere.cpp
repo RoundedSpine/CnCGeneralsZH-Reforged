@@ -15,7 +15,7 @@ bool SdlGpuFrame::Firelight(const SdlTarget &target,const SdlFirelight::Constant
     if(!AtmosphereRenderer)AtmosphereRenderer=new(std::nothrow) SdlAtmosphere::Renderer(GpuDevice);
     if(!AtmosphereRenderer)return fail("resource owner allocation failed");
     std::string error;
-    if(!AtmosphereRenderer->PrepareFirelight(target.Width,target.Height,Target_Format(),error))return fail(error.c_str());
+    if(!AtmosphereRenderer->PrepareFirelight(target.Width,target.Height,Scene_Format(),error))return fail(error.c_str());
     ZH_IOS_WaitForForeground();
     auto *commands=SDL_AcquireGPUCommandBuffer(GpuDevice);if(!commands)return fail(SDL_GetError());
     if(!Resolve_Scene_Depth(commands,target.Depth,AtmosphereRenderer->Depth(),target.Width,target.Height)
@@ -23,7 +23,7 @@ bool SdlGpuFrame::Firelight(const SdlTarget &target,const SdlFirelight::Constant
         SDL_CancelGPUCommandBuffer(commands);return fail("could not record firelight pass");
     }
     if(!(SerializeSubmits?Submit(commands):Submit_Flush(commands)))return fail("submission failed");
-    Invalidate_Water_Snapshots(target.Colour,nullptr);return true;
+    External_Colour_Write(target.Colour);Invalidate_Water_Snapshots(target.Colour,nullptr);return true;
 }
 bool SdlGpuFrame::Atmosphere(const SdlTarget &target,const SdlAtmosphere::Constants &constants,
     SDL_GPUTexture *sky,SDL_GPUTexture *shroud)
@@ -35,7 +35,7 @@ bool SdlGpuFrame::Atmosphere(const SdlTarget &target,const SdlAtmosphere::Consta
     if(!AtmosphereRenderer)AtmosphereRenderer=new(std::nothrow) SdlAtmosphere::Renderer(GpuDevice);
     if(!AtmosphereRenderer)return fail("resource owner allocation failed");
     std::string error;
-    if(!AtmosphereRenderer->Prepare(target.Width,target.Height,Target_Format(),error))return fail(error.c_str());
+    if(!AtmosphereRenderer->Prepare(target.Width,target.Height,Scene_Format(),error))return fail(error.c_str());
     ZH_IOS_WaitForForeground();
     auto *commands=SDL_AcquireGPUCommandBuffer(GpuDevice);if(!commands)return fail(SDL_GetError());
     if(!Resolve_Scene_Depth(commands,target.Depth,AtmosphereRenderer->Depth(),target.Width,target.Height)
@@ -43,5 +43,5 @@ bool SdlGpuFrame::Atmosphere(const SdlTarget &target,const SdlAtmosphere::Consta
         SDL_CancelGPUCommandBuffer(commands);return fail("could not record atmosphere pass");
     }
     if(!(SerializeSubmits?Submit(commands):Submit_Flush(commands)))return fail("submission failed");
-    Invalidate_Water_Snapshots(target.Colour,nullptr);return true;
+    External_Colour_Write(target.Colour);Invalidate_Water_Snapshots(target.Colour,nullptr);return true;
 }

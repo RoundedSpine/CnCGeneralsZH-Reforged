@@ -281,7 +281,7 @@ SDL_GPUTexture * SdlResourceMirrors::Texture(IDirect3DBaseTexture9 * base, std::
 		D3DSURFACE_DESC desc;
 		const bool render_target = texture->GetLevelDesc(0, &desc) == D3D_OK && (desc.Usage & D3DUSAGE_RENDERTARGET) != 0;
 		if (render_target) {
-			format = SdlGpuFrame::Target_Format();
+			format = Frame->Scene_Format();
 			native = base_level.format() == D3DFMT_A8R8G8B8;
 		}
 		SDL_GPUTextureCreateInfo info;
@@ -304,6 +304,7 @@ SDL_GPUTexture * SdlResourceMirrors::Texture(IDirect3DBaseTexture9 * base, std::
 			refusal = std::string("the GPU refused the texture: ") + SDL_GetError();
 			return NULL;
 		}
+		if(render_target)Frame->Track_Colour(copy.Texture);
 		if (render_target) {
 			// Nothing to upload: a new render target's pixels are undefined in D3D9 too.
 			for (unsigned int level = 0; level < levels; ++level) {
@@ -327,7 +328,8 @@ SDL_GPUTexture * SdlResourceMirrors::Texture(IDirect3DBaseTexture9 * base, std::
 			uint32_t offset = 0;
 			uint8_t * space = Frame->Upload_Space(Sdl_Level_Upload_Size(image, copy.Native), offset);
 			Sdl_Convert_Level(image, copy.Native, space);
-			Frame->Queue_Texture_Upload(copy.Texture, level, image.width(), image.height(), offset);
+			Frame->Convert_Colour_Upload(copy.Texture,image.width(),image.height(),offset);
+            Frame->Queue_Texture_Upload(copy.Texture, level, image.width(), image.height(), offset);
 			copy.Versions[level] = image.version();
 		}
 		++TexturesUploaded;
@@ -365,7 +367,7 @@ SDL_GPUTexture * SdlResourceMirrors::Surface(IDirect3DSurface9 * surface, bool d
 	SDL_GPUTextureCreateInfo info;
 	SDL_zero(info);
 	info.type = SDL_GPU_TEXTURETYPE_2D;
-	info.format = (SDL_GPUTextureFormat)(depth ? Frame->Depth_Format() : SdlGpuFrame::Target_Format());
+	info.format = (SDL_GPUTextureFormat)(depth ? Frame->Depth_Format() : Frame->Scene_Format());
 	info.usage = depth ? Frame->Depth_Usage()
 		: (SDL_GPU_TEXTUREUSAGE_COLOR_TARGET | SDL_GPU_TEXTUREUSAGE_SAMPLER);
 	info.width = desc.Width;
@@ -383,6 +385,7 @@ SDL_GPUTexture * SdlResourceMirrors::Surface(IDirect3DSurface9 * surface, bool d
 		refusal = std::string("the GPU refused the surface: ") + SDL_GetError();
 		return NULL;
 	}
+	if(!depth)Frame->Track_Colour(copy.Texture);
 	Copies.insert(std::make_pair((const void *)surface, copy));
 	return copy.Texture;
 }

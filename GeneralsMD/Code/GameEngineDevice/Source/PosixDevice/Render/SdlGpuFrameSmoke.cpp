@@ -21,7 +21,7 @@ struct SdlGpuFrame::SmokeResources {
 void SdlGpuFrame::Release_Sun_Smoke()
 {
     if (!Smoke) return;
-    if (Smoke->Texture) SDL_ReleaseGPUTexture(GpuDevice, Smoke->Texture);
+    if (Smoke->Texture) Release_Texture( Smoke->Texture);
     if (Smoke->Sampler) SDL_ReleaseGPUSampler(GpuDevice, Smoke->Sampler);
     if (Smoke->Vertex) SDL_ReleaseGPUShader(GpuDevice, Smoke->Vertex);
     if (Smoke->Pixel) SDL_ReleaseGPUShader(GpuDevice, Smoke->Pixel);

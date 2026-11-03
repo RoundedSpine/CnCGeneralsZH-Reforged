@@ -372,7 +372,7 @@ SDL_GPUGraphicsPipeline *SdlPipelineCache::Pipeline(const SdlPipelineKey &key, b
 		info.rasterizer_state.depth_bias_constant_factor = key.DepthBias;
 		info.rasterizer_state.depth_bias_slope_factor = key.SlopeBias;
 		info.rasterizer_state.enable_depth_clip = true;
-		info.multisample_state.sample_count = SDL_GPU_SAMPLECOUNT_1;
+		info.multisample_state.sample_count = (SDL_GPUSampleCount)key.Samples;
 		info.depth_stencil_state.enable_depth_test = key.DepthTest != 0;
 		info.depth_stencil_state.enable_depth_write = key.DepthWrite != 0;
 		info.depth_stencil_state.compare_op = key.DepthTest ? (SDL_GPUCompareOp)key.DepthCompare : SDL_GPU_COMPAREOP_ALWAYS;

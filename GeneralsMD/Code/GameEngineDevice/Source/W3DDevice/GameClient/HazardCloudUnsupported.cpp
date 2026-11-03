@@ -27,3 +27,7 @@ bool SupportsLighting() { return false; }
 bool SupportsFirelight() { return false; }
 bool SupportsHeatHaze() { return false; }
 }
+
+namespace SceneEffects { bool SupportsHdr(){return false;} }
+
+namespace SceneEffects {unsigned MaxSamples(){return 1;}}

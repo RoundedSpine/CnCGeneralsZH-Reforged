@@ -28,7 +28,7 @@ bool SdlGpuFrame::Ambient_Occlusion(const SdlTarget &target,const SdlAo::Constan
     if(!Flush()||!Create_Scene_Depth_Pipeline()) return fail("scene flush/depth resolve unavailable");
     if(!Ao) Ao=new (std::nothrow) SdlAo::Renderer(GpuDevice);
     if(!Ao) return fail("AO resource owner allocation failed");
-    if(!Ao->Prepare(target.Width,target.Height,Target_Format(),error)) return fail(error.c_str());
+    if(!Ao->Prepare(target.Width,target.Height,Scene_Format(),error)) return fail(error.c_str());
     ZH_IOS_WaitForForeground();
     SDL_GPUCommandBuffer *commands=SDL_AcquireGPUCommandBuffer(GpuDevice);
     if(!commands) return fail(SDL_GetError());
@@ -37,6 +37,6 @@ bool SdlGpuFrame::Ambient_Occlusion(const SdlTarget &target,const SdlAo::Constan
         SDL_CancelGPUCommandBuffer(commands);return fail("could not record AO passes");
     }
     if(!(SerializeSubmits?Submit(commands):Submit_Flush(commands))) return fail("AO submission failed");
-    Invalidate_Water_Snapshots(target.Colour,nullptr);
+    External_Colour_Write(target.Colour);Invalidate_Water_Snapshots(target.Colour,nullptr);
     return true;
 }

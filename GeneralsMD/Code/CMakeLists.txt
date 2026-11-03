@@ -1473,6 +1473,20 @@ if(ZH_PLATFORM_POSIX)
   add_test(NAME test_sdl_native_effects COMMAND test_sdl_native_effects)
   set_tests_properties(test_sdl_native_effects PROPERTIES SKIP_RETURN_CODE 77)
 
+  add_executable(test_sdl_hdr Tests/test_sdl_hdr.cpp)
+  target_include_directories(test_sdl_hdr PRIVATE GameEngineDevice/Source/PosixDevice/Render Libraries/Include)
+  target_link_libraries(test_sdl_hdr PRIVATE posixd3d9 SDL3::SDL3-static sdl3shadercompile)
+  set_target_properties(test_sdl_hdr PROPERTIES CXX_STANDARD 17)
+  add_test(NAME test_sdl_hdr COMMAND test_sdl_hdr)
+  set_tests_properties(test_sdl_hdr PROPERTIES SKIP_RETURN_CODE 77)
+
+  add_executable(test_sdl_msaa Tests/test_sdl_msaa.cpp)
+  target_include_directories(test_sdl_msaa PRIVATE GameEngineDevice/Source/PosixDevice/Render Libraries/Include)
+  target_link_libraries(test_sdl_msaa PRIVATE posixd3d9 SDL3::SDL3-static)
+  set_target_properties(test_sdl_msaa PROPERTIES CXX_STANDARD 17)
+  add_test(NAME test_sdl_msaa COMMAND test_sdl_msaa)
+  set_tests_properties(test_sdl_msaa PROPERTIES SKIP_RETURN_CODE 77)
+
   # Depth-format fallback follows the complete scene-depth capability, without requiring a GPU.
   add_executable(sdl_gpu_depth_format_selfcheck ${CMAKE_CURRENT_SOURCE_DIR}/Tests/test_sdl_gpu_depth_format.cpp)
   set_target_properties(sdl_gpu_depth_format_selfcheck PROPERTIES CXX_STANDARD 17)

@@ -185,7 +185,7 @@ bool Layer::makeResources()
     // full-resolution depth and writes premultiplied radiance without blending.
     shared.volumePipeline = SDL_CreateGPUGraphicsPipeline(gpu, &description);
     if (!shared.volumePipeline) { fail(SDL_GetError()); return false; }
-    target.format = static_cast<SDL_GPUTextureFormat>(SdlGpuFrame::Target_Format());
+    target.format = static_cast<SDL_GPUTextureFormat>(frame->Scene_Format());
     target.blend_state.enable_blend = true;
     target.blend_state.src_color_blendfactor = SDL_GPU_BLENDFACTOR_ONE;
     target.blend_state.dst_color_blendfactor = SDL_GPU_BLENDFACTOR_ONE_MINUS_SRC_ALPHA;
@@ -196,6 +196,7 @@ bool Layer::makeResources()
     description.fragment_shader = shared.compositePixelShader;
     description.target_info.has_depth_stencil_target = true;
     description.target_info.depth_stencil_format = static_cast<SDL_GPUTextureFormat>(frame->Depth_Format());
+    description.multisample_state.sample_count=(SDL_GPUSampleCount)frame->Target_Sample_Index(frame->Back_Buffer_Target());
     shared.compositePipeline = SDL_CreateGPUGraphicsPipeline(gpu, &description);
     if (!shared.compositePipeline) { fail(SDL_GetError()); return false; }
     description.fragment_shader = shared.heatPixelShader;
@@ -203,6 +204,7 @@ bool Layer::makeResources()
     if (!shared.heatPipeline) { fail(SDL_GetError()); return false; }
     target = {};
     target.format = DensityTargetFormat;
+    description.multisample_state.sample_count=SDL_GPU_SAMPLECOUNT_1;
     description.fragment_shader = shared.densityPixelShader;
     description.target_info.has_depth_stencil_target = false;
     description.target_info.depth_stencil_format = SDL_GPU_TEXTUREFORMAT_INVALID;
@@ -282,7 +284,7 @@ bool Layer::prepareHeatBackground(const SdlTarget &target)
     if (!shared.heatBackground.Colour || shared.heatBackground.Width != target.Width || shared.heatBackground.Height != target.Height) {
         SDL_GPUTextureCreateInfo description = {};
         description.type = SDL_GPU_TEXTURETYPE_2D;
-        description.format = static_cast<SDL_GPUTextureFormat>(SdlGpuFrame::Target_Format());
+        description.format = static_cast<SDL_GPUTextureFormat>(frame->Scene_Format());
         description.usage = LowTargetUsage;
         description.width = target.Width;
         description.height = target.Height;

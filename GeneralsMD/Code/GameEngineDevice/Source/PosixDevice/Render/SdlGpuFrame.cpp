@@ -19,6 +19,7 @@
 // The device's frame on SDL3 GPU (decision 7, phase A3a).  See SdlGpuFrame.h.
 
 #include "SdlGpuFrame.h"
+#include "SdlColour.h"
 #include "SdlGpuDepthFormat.h"
 #include "sdl3shadercompile.h"
 #include "Platform/WaterFftSpectrum.h"
@@ -164,7 +165,7 @@ SdlGpuFrame::SdlGpuFrame() :
 	TargetSet = false;
 }
 
-SdlGpuFrame * SdlGpuFrame::Create(RenderWindow window, unsigned int width, unsigned int height, std::string & error)
+SdlGpuFrame * SdlGpuFrame::Create(RenderWindow window, unsigned int width, unsigned int height, std::string & error, bool hdr,unsigned samples)
 {
 	ZH_IOS_WaitForForeground();
 	SdlGpuFrame * frame = new SdlGpuFrame();
@@ -199,6 +200,19 @@ SdlGpuFrame * SdlGpuFrame::Create(RenderWindow window, unsigned int width, unsig
 		delete frame;
 		return NULL;
 	}
+
+    frame->SceneFormat=BACK_BUFFER_FORMAT;
+    if(hdr&&frame->Supports_Hdr()) {
+        frame->SceneFormat=SDL_GPU_TEXTUREFORMAT_R16G16B16A16_FLOAT;frame->HdrActive=true;
+        if(!frame->Prepare_Post()){frame->SceneFormat=BACK_BUFFER_FORMAT;frame->HdrActive=false;}
+    }
+    fprintf(stderr,"[SDL_SCENE] hdr_requested=%d hdr_active=%d format=%u\n",int(hdr),int(frame->HdrActive),frame->SceneFormat);
+
+    for(unsigned candidate:{8u,4u,2u})if(candidate<=samples&&candidate<=frame->Max_Samples()) {
+        frame->SampleCount=candidate;break;
+    }
+    if(frame->SampleCount>1&&!frame->Prepare_Multisampling()){frame->MsaaFailed=true;frame->SampleCount=1;}
+    fprintf(stderr,"[SDL_MSAA] requested=%u active=%u\n",samples,frame->SampleCount);
 	if (!frame->Create_Targets(width, height)) {
 		error = std::string("the back buffer: ") + SDL_GetError();
 		delete frame;
@@ -232,16 +246,18 @@ SdlGpuFrame::~SdlGpuFrame()
 	Release_Sun_Shadow();
 	Release_Ambient_Occlusion();
 	Release_Atmosphere();
+    Release_Post();
 	Release_Heat_Background();
 	if (StreamBuffer != NULL) SDL_ReleaseGPUBuffer(GpuDevice, StreamBuffer);
-	for (int i = 0; i < 8; ++i) if (ClearPipelines[i] != NULL) SDL_ReleaseGPUGraphicsPipeline(GpuDevice, ClearPipelines[i]);
+	for (int i = 0; i < 64; ++i) if (ClearPipelines[i] != NULL) SDL_ReleaseGPUGraphicsPipeline(GpuDevice, ClearPipelines[i]);
+    Release_Multisampling(true);
 	if (ClearVertex != NULL) SDL_ReleaseGPUShader(GpuDevice, ClearVertex);
 	if (ClearPixel != NULL) SDL_ReleaseGPUShader(GpuDevice, ClearPixel);
 	if (Transfer != NULL) SDL_ReleaseGPUTransferBuffer(GpuDevice, Transfer);
 	if (GammaPipeline != NULL) SDL_ReleaseGPUGraphicsPipeline(GpuDevice, GammaPipeline);
 	if (GammaVertex != NULL) SDL_ReleaseGPUShader(GpuDevice, GammaVertex);
 	if (GammaPixel != NULL) SDL_ReleaseGPUShader(GpuDevice, GammaPixel);
-	if (RampTexture != NULL) SDL_ReleaseGPUTexture(GpuDevice, RampTexture);
+	if (RampTexture != NULL) Release_Texture(RampTexture);
 	if (PointSampler != NULL) SDL_ReleaseGPUSampler(GpuDevice, PointSampler);
 	if (SceneDepthPipeline != NULL) SDL_ReleaseGPUGraphicsPipeline(GpuDevice, SceneDepthPipeline);
 	if (SceneDepthVertex != NULL) SDL_ReleaseGPUShader(GpuDevice, SceneDepthVertex);
@@ -258,7 +274,7 @@ bool SdlGpuFrame::Create_Targets(unsigned int width, unsigned int height)
 	SDL_GPUTextureCreateInfo info;
 	SDL_zero(info);
 	info.type = SDL_GPU_TEXTURETYPE_2D;
-	info.format = BACK_BUFFER_FORMAT;
+	info.format = (SDL_GPUTextureFormat)Scene_Format();
 	info.usage = SDL_GPU_TEXTUREUSAGE_COLOR_TARGET | SDL_GPU_TEXTUREUSAGE_SAMPLER;
 	info.width = width;
 	info.height = height;
@@ -271,15 +287,16 @@ bool SdlGpuFrame::Create_Targets(unsigned int width, unsigned int height)
 	info.usage = Depth_Usage();
 	SDL_GPUTexture *depth = SDL_CreateGPUTexture(GpuDevice, &info);
 	if (!back || !front || !depth) {
-		if (back) SDL_ReleaseGPUTexture(GpuDevice, back);
-		if (front) SDL_ReleaseGPUTexture(GpuDevice, front);
-		if (depth) SDL_ReleaseGPUTexture(GpuDevice, depth);
+		if (back) Release_Texture(back);
+		if (front) Release_Texture(front);
+		if (depth) Release_Texture(depth);
 		return false;
 	}
 	// Keep the old attachments, scratch depths and snapshots until every replacement exists.
 	Release_Targets();
 	BackBuffer = back;
 	FrontCopy = front;
+    Track_Colour(back);Track_Colour(front);
 	DepthStencil = depth;
 	BackWidth = width;
 	BackHeight = height;
@@ -289,10 +306,10 @@ bool SdlGpuFrame::Create_Targets(unsigned int width, unsigned int height)
 bool SdlGpuFrame::Trim_Transient_Memory()
 {
     if(!Flush()||!SDL_WaitForGPUIdle(GpuDevice))return false;
-    Release_Ambient_Occlusion();Release_Atmosphere();Release_Heat_Background();Release_Ocean();
+    Release_Ambient_Occlusion();Release_Atmosphere();Release_Heat_Background();Release_Ocean();Release_Multisampling(false);
     for(auto &snapshot:WaterSnapshots) {
-        if(snapshot.Colour)SDL_ReleaseGPUTexture(GpuDevice,snapshot.Colour);
-        if(snapshot.Depth)SDL_ReleaseGPUTexture(GpuDevice,snapshot.Depth);
+        if(snapshot.Colour)Release_Texture(snapshot.Colour);
+        if(snapshot.Depth)Release_Texture(snapshot.Depth);
     }
     WaterSnapshots.clear();
     fprintf(stderr,"[SDL_MEMORY] released transient AO/atmosphere/effect/ocean/scene-copy caches\n");
@@ -301,17 +318,18 @@ bool SdlGpuFrame::Trim_Transient_Memory()
 
 void SdlGpuFrame::Release_Targets()
 {
+    Release_Multisampling(false);
 	for (size_t i = 0; i < WaterSnapshots.size(); ++i) {
-		if (WaterSnapshots[i].Colour) SDL_ReleaseGPUTexture(GpuDevice, WaterSnapshots[i].Colour);
-		if (WaterSnapshots[i].Depth) SDL_ReleaseGPUTexture(GpuDevice, WaterSnapshots[i].Depth);
+		if (WaterSnapshots[i].Colour) Release_Texture(WaterSnapshots[i].Colour);
+		if (WaterSnapshots[i].Depth) Release_Texture(WaterSnapshots[i].Depth);
 	}
 	WaterSnapshots.clear();
-	for (size_t i = 0; i < ScratchDepths.size(); ++i) SDL_ReleaseGPUTexture(GpuDevice, ScratchDepths[i].Texture);
+	for (size_t i = 0; i < ScratchDepths.size(); ++i) Release_Texture(ScratchDepths[i].Texture);
 	ScratchDepths.clear();
-	if (BackBuffer != NULL) SDL_ReleaseGPUTexture(GpuDevice, BackBuffer);
-	if (DepthStencil != NULL) SDL_ReleaseGPUTexture(GpuDevice, DepthStencil);
-	if (FrontCopy != NULL) SDL_ReleaseGPUTexture(GpuDevice, FrontCopy);
-	if (DisplayTexture != NULL) SDL_ReleaseGPUTexture(GpuDevice, DisplayTexture);
+	if (BackBuffer != NULL) Release_Texture(BackBuffer);
+	if (DepthStencil != NULL) Release_Texture(DepthStencil);
+	if (FrontCopy != NULL) Release_Texture(FrontCopy);
+	if (DisplayTexture != NULL) Release_Texture(DisplayTexture);
 	BackBuffer = NULL;
 	DepthStencil = NULL;
 	FrontCopy = NULL;
@@ -549,12 +567,13 @@ SdlGpuFrame::WaterSnapshot *SdlGpuFrame::Water_Snapshot(const SdlTarget &source)
 		SDL_GPUTextureCreateInfo info;
 		SDL_zero(info);
 		info.type = SDL_GPU_TEXTURETYPE_2D;
-		info.format = BACK_BUFFER_FORMAT;
+		info.format = (SDL_GPUTextureFormat)Scene_Format();
 		info.usage = SDL_GPU_TEXTUREUSAGE_COLOR_TARGET | SDL_GPU_TEXTUREUSAGE_SAMPLER;
 		info.width = source.Width; info.height = source.Height;
 		info.layer_count_or_depth = 1; info.num_levels = 1;
 		info.sample_count = SDL_GPU_SAMPLECOUNT_1;
 		fresh.Colour = SDL_CreateGPUTexture(GpuDevice, &info);
+        Track_Colour(fresh.Colour);
 		if (!fresh.Colour) return NULL;
 		if (source.Depth && DepthSampleable && Create_Scene_Depth_Pipeline()) {
 			info.format = SDL_GPU_TEXTUREFORMAT_R32_FLOAT;
@@ -1129,8 +1148,10 @@ bool SdlGpuFrame::Present_To(SDL_GPUTexture * target, unsigned int width, unsign
 
 bool SdlGpuFrame::Upload_Back_Buffer(const std::vector<uint8_t> & bgra)
 {
-	const Uint32 bytes = BackWidth * BackHeight * 4;
-	if (bgra.size() != bytes) {
+    if(!Flush())return false;
+    External_Colour_Write(BackBuffer);
+	const Uint32 bytes = BackWidth * BackHeight * (HdrActive?8:4);
+	if (bgra.size() != BackWidth*BackHeight*4) {
 		return false;
 	}
 	SDL_GPUTransferBufferCreateInfo transfer_info;
@@ -1146,7 +1167,8 @@ bool SdlGpuFrame::Upload_Back_Buffer(const std::vector<uint8_t> & bgra)
 		SDL_ReleaseGPUTransferBuffer(GpuDevice, transfer);
 		return false;
 	}
-	memcpy(mapped, &bgra[0], bytes);
+	if(HdrActive)SdlColour::fromBgra(bgra.data(),(uint16_t*)mapped,BackWidth*BackHeight);
+    else memcpy(mapped, &bgra[0], bytes);
 	SDL_UnmapGPUTransferBuffer(GpuDevice, transfer);
 	ZH_IOS_WaitForForeground();
 	SDL_GPUCommandBuffer * commands = SDL_AcquireGPUCommandBuffer(GpuDevice);
@@ -1170,12 +1192,13 @@ bool SdlGpuFrame::Upload_Back_Buffer(const std::vector<uint8_t> & bgra)
 	return ok;
 }
 
-bool SdlGpuFrame::Read_Back(SDL_GPUTexture * texture, unsigned int width, unsigned int height, std::vector<uint8_t> & bgra)
+bool SdlGpuFrame::Read_Bytes(SDL_GPUTexture * texture, unsigned int width, unsigned int height,unsigned bpp,std::vector<uint8_t> & bgra)
 {
 	if (!Flush()) {
 		return false;
 	}
-	const Uint32 bytes = width * height * 4;
+	const unsigned pitch=(width+63)&~63u;
+    const Uint32 bytes = pitch * height * bpp;
 	SDL_GPUTransferBufferCreateInfo transfer_info;
 	SDL_zero(transfer_info);
 	transfer_info.usage = SDL_GPU_TRANSFERBUFFERUSAGE_DOWNLOAD;
@@ -1196,7 +1219,7 @@ bool SdlGpuFrame::Read_Back(SDL_GPUTexture * texture, unsigned int width, unsign
 	SDL_GPUTextureTransferInfo destination;
 	SDL_zero(destination);
 	destination.transfer_buffer = transfer;
-	destination.pixels_per_row = width;
+	destination.pixels_per_row = pitch;
 	destination.rows_per_layer = height;
 	SDL_DownloadFromGPUTexture(copy, &region, &destination);
 	SDL_EndGPUCopyPass(copy);
@@ -1210,10 +1233,36 @@ bool SdlGpuFrame::Read_Back(SDL_GPUTexture * texture, unsigned int width, unsign
 		const void * mapped = SDL_MapGPUTransferBuffer(GpuDevice, transfer, false);
 		ok = mapped != NULL;
 		if (ok) {
-			bgra.assign((const uint8_t *)mapped, (const uint8_t *)mapped + bytes);
+			bgra.resize(width*height*bpp);
+            for(unsigned y=0;y<height;++y)memcpy(bgra.data()+y*width*bpp,(const uint8_t*)mapped+y*pitch*bpp,width*bpp);
 			SDL_UnmapGPUTransferBuffer(GpuDevice, transfer);
 		}
 	}
 	SDL_ReleaseGPUTransferBuffer(GpuDevice, transfer);
 	return ok;
+}
+
+void SdlGpuFrame::Release_Texture(SDL_GPUTexture *texture){if(texture){
+    auto colour=SampleColours.find(texture);if(colour!=SampleColours.end()){SDL_ReleaseGPUTexture(GpuDevice,colour->second.Texture);SampleColours.erase(colour);}
+    auto depth=SampleDepths.find(texture);if(depth!=SampleDepths.end()){SDL_ReleaseGPUTexture(GpuDevice,depth->second.Texture);SampleDepths.erase(depth);}
+HdrTextures.erase(texture);SDL_ReleaseGPUTexture(GpuDevice,texture);}}
+bool SdlGpuFrame::Read_Back(SDL_GPUTexture *texture,unsigned width,unsigned height,std::vector<uint8_t>&bgra)
+{
+    std::vector<uint8_t> bytes;if(!Read_Bytes(texture,width,height,Is_Hdr_Texture(texture)?8:4,bytes))return false;
+    if(!Is_Hdr_Texture(texture)){bgra=std::move(bytes);return true;}
+    bgra.resize(width*height*4);SdlColour::toBgra((const uint16_t*)bytes.data(),bgra.data(),width*height);return true;
+}
+bool SdlGpuFrame::Read_Float_Colour(SDL_GPUTexture *texture,unsigned width,unsigned height,std::vector<float>&colour)
+{
+    if(!Is_Hdr_Texture(texture))return false;
+    std::vector<uint8_t> bytes;if(!Read_Bytes(texture,width,height,8,bytes))return false;
+    colour.resize(width*height*4);const uint16_t *halves=(const uint16_t*)bytes.data();
+    for(unsigned i=0;i<colour.size();++i)colour[i]=SdlColour::real(halves[i]);return true;
+}
+void SdlGpuFrame::Convert_Colour_Upload(SDL_GPUTexture *texture,unsigned width,unsigned height,uint32_t &offset)
+{
+    if(!Is_Hdr_Texture(texture))return;
+    std::vector<uint8_t> bgra(width*height*4);memcpy(bgra.data(),UploadBytes.data()+offset,bgra.size());
+    uint32_t native;auto *destination=Upload_Space(width*height*8,native);
+    SdlColour::fromBgra(bgra.data(),(uint16_t*)destination,width*height);offset=native;
 }

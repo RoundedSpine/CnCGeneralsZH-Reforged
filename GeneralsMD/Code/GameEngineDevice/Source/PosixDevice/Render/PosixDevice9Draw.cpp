@@ -1023,6 +1023,7 @@ RenderResult PosixDevice9::Gpu_Draw(const DrawCall &call)
         &&(!ParticleDepth||ParticleDepthSource!=target.Depth))
         pixel_engine=pixel_engine==ENGINE_SHADER_WATER_TRAPEZOID_FOAM?ENGINE_SHADER_WATER_CLASSIC_TRAPEZOID:ENGINE_SHADER_WATER_CLASSIC_RIVER;
     const bool water_foam=EngineShader_Reads_Scene_Depth(static_cast<EngineShaderProgram>(pixel_engine));
+    if(!Gpu->Prepare_Multisample_Target(target)&&!Gpu->Disable_Multisampling("attachment allocation failed"))return D3DERR_DRIVERINTERNALERROR;
 	// The programs and the pipeline.
 	std::string refusal;
 	SdlVertexLayout layout;
@@ -1171,24 +1172,25 @@ RenderResult PosixDevice9::Gpu_Draw(const DrawCall &call)
 	}
 	SdlPipelineKey key;
 	if (!Sdl_Pipeline_Key(states, call.Type, vertex_program.Shader, pixel_program->Shader, FVF,
-		target.Colour ? SdlGpuFrame::Target_Format() : 0, Gpu->Target_Depth_Format(target), key, refusal)) {
+		target.Colour ? Gpu->Scene_Format() : 0, Gpu->Target_Depth_Format(target), key, refusal)) {
 		Refuse_Draw("the pipeline: " + refusal);
 		return D3D_OK;
 	}
 	phases.Mark("target+programs");
 	SdlRecordedDraw draw;
 	memset(&draw, 0, sizeof(draw));
+	key.Samples=(uint8_t)Gpu->Target_Sample_Index(target);
 	draw.Pipeline = Pipelines->Pipeline(key, combiner.ShadowReceiving && pixel_engine == ENGINE_SHADER_NONE);
 	if (!draw.Pipeline && retry_without_sun("pipeline refused")) {
 		if (Sdl_Pipeline_Key(states, call.Type, vertex_program.Shader, pixel_program->Shader, FVF,
-			target.Colour ? SdlGpuFrame::Target_Format() : 0, Gpu->Target_Depth_Format(target), key, refusal))
-			draw.Pipeline = Pipelines->Pipeline(key);
+			target.Colour ? Gpu->Scene_Format() : 0, Gpu->Target_Depth_Format(target), key, refusal))
+			{key.Samples=(uint8_t)Gpu->Target_Sample_Index(target);draw.Pipeline = Pipelines->Pipeline(key);}
 	}
 	if(!draw.Pipeline && shore_overlay) {
 		shore_overlay=false;pixel_program=legacy_pixel_program;
 		if(Sdl_Pipeline_Key(states,call.Type,vertex_program.Shader,pixel_program->Shader,FVF,
-			target.Colour ? SdlGpuFrame::Target_Format() : 0,Gpu->Target_Depth_Format(target),key,refusal))
-			draw.Pipeline=Pipelines->Pipeline(key);
+			target.Colour ? Gpu->Scene_Format() : 0,Gpu->Target_Depth_Format(target),key,refusal))
+			{key.Samples=(uint8_t)Gpu->Target_Sample_Index(target);draw.Pipeline=Pipelines->Pipeline(key);}
 	}
 	phases.Mark("pipeline");
 	if (draw.Pipeline == NULL) {
@@ -1196,6 +1198,18 @@ RenderResult PosixDevice9::Gpu_Draw(const DrawCall &call)
 		return D3D_OK;
 	}
 
+
+    const SdlProgram *depth_program=nullptr;
+    if(key.Samples&&(key.DepthWrite||key.StencilEnable)) {
+        const auto &depth=Programs->Sun_Pixel_Program(combiner,pixel_engine);depth_program=&depth;
+        SdlPipelineKey depthKey=key;depthKey.Samples=0;depthKey.ColourFormat=0;depthKey.PixelShader=depth.Shader;depthKey.WriteMask=0;
+        draw.DepthPipeline=depth.Shader?Pipelines->Pipeline(depthKey):nullptr;
+        draw.DepthSamplers=depth.SamplerSlots;draw.DepthUniforms=depth.UniformBuffers;
+        if(!draw.DepthPipeline) {
+            if(!Gpu->Disable_Multisampling("single-sample depth replay unavailable"))return D3DERR_DRIVERINTERNALERROR;
+            return Gpu_Draw(call);
+        }
+    }
 	// The vertex and index sources.
 	const bool user = call.UserVertices != NULL;
 	const unsigned int stride = user ? call.UserStride : StreamStrides[0];
@@ -1333,6 +1347,19 @@ RenderResult PosixDevice9::Gpu_Draw(const DrawCall &call)
 				return D3D_OK;
 			}
 		}
+        // Depth-only optimization may remove/reorder colour-only textures. Bind
+        // the replay by its own reflected stage pairs, never by the colour prefix.
+        if(depth_program)for(unsigned slot=0;slot<draw.DepthSamplers;++slot) {
+            unsigned match=0;
+            for(;match<draw.SamplerCount;++match)
+                if(depth_program->SlotTexture[slot]==pixel_program->SlotTexture[match]
+                    &&depth_program->SlotSampler[slot]==pixel_program->SlotSampler[match])break;
+            if(match==draw.SamplerCount) {
+                if(!Gpu->Disable_Multisampling("depth replay binding unavailable"))return D3DERR_DRIVERINTERNALERROR;
+                return Gpu_Draw(call);
+            }
+            draw.DepthTextures[slot]=draw.Textures[match];draw.DepthSamplerBindings[slot]=draw.Samplers[match];
+        }
 		if (draw.VertexSamplerCount > 3) {
 			// The cage reads the same terrain resource as pixel stage 2. Resolve it
 			// inside this retry loop: updating a mirror can flush the current batch.

@@ -5,7 +5,7 @@
 #include <cstdio>
 void SdlGpuFrame::Release_Heat_Background()
 {
-    if(HeatBackground)SDL_ReleaseGPUTexture(GpuDevice,HeatBackground);
+    if(HeatBackground)Release_Texture(HeatBackground);
     HeatBackground=nullptr;HeatWidth=HeatHeight=0;
 }
 SDL_GPUTexture *SdlGpuFrame::Capture_Heat_Background(const SdlTarget &target,std::string &error)
@@ -18,9 +18,9 @@ SDL_GPUTexture *SdlGpuFrame::Capture_Heat_Background(const SdlTarget &target,std
     if(!Flush())return fail("scene flush failed");
     if(HeatWidth!=target.Width||HeatHeight!=target.Height) {
         Release_Heat_Background();SDL_GPUTextureCreateInfo info={};info.type=SDL_GPU_TEXTURETYPE_2D;
-        info.format=(SDL_GPUTextureFormat)Target_Format();info.usage=SDL_GPU_TEXTUREUSAGE_SAMPLER|SDL_GPU_TEXTUREUSAGE_COLOR_TARGET;
+        info.format=(SDL_GPUTextureFormat)Scene_Format();info.usage=SDL_GPU_TEXTUREUSAGE_SAMPLER|SDL_GPU_TEXTUREUSAGE_COLOR_TARGET;
         info.width=target.Width;info.height=target.Height;info.layer_count_or_depth=info.num_levels=1;
-        HeatBackground=SDL_CreateGPUTexture(GpuDevice,&info);if(!HeatBackground)return fail(SDL_GetError());
+        HeatBackground=SDL_CreateGPUTexture(GpuDevice,&info);Track_Colour(HeatBackground);if(!HeatBackground)return fail(SDL_GetError());
         HeatWidth=target.Width;HeatHeight=target.Height;
         fprintf(stderr,"[SDL_HEAT] ready size=%ux%u\n",HeatWidth,HeatHeight);
     }

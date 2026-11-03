@@ -86,6 +86,7 @@ void SdlGpuFrame::Queue_Buffer_Upload(SDL_GPUBuffer * buffer, uint32_t upload_of
 void SdlGpuFrame::Queue_Texture_Upload(SDL_GPUTexture * texture, unsigned int level, unsigned int width,
 	unsigned int height, uint32_t upload_offset)
 {
+    External_Colour_Write(texture);
 	Upload upload;
 	memset(&upload, 0, sizeof(upload));
 	upload.Texture = texture;
@@ -136,10 +137,11 @@ void SdlGpuFrame::Clear_Rect(int x, int y, int width, int height, bool colour, b
 
 // Bit 0 colour, bit 1 depth, bit 2 stencil: what the clear draw writes.  Depth and stencil always pass
 // and are replaced; what is not cleared is masked off.
-SDL_GPUGraphicsPipeline * SdlGpuFrame::Clear_Pipeline(unsigned int which)
+SDL_GPUGraphicsPipeline * SdlGpuFrame::Clear_Pipeline(unsigned int which,bool depthOnly,unsigned sampleIndex)
 {
-	if (ClearPipelines[which] != NULL) {
-		return ClearPipelines[which];
+    const unsigned cache=which|(sampleIndex<<3)|(depthOnly?32u:0u);
+	if (ClearPipelines[cache] != NULL) {
+		return ClearPipelines[cache];
 	}
 	std::string log;
 	if (ClearVertex == NULL) {
@@ -160,13 +162,19 @@ SDL_GPUGraphicsPipeline * SdlGpuFrame::Clear_Pipeline(unsigned int which)
 	}
 	SDL_GPUColorTargetDescription target;
 	SDL_zero(target);
-	target.format = (SDL_GPUTextureFormat)Target_Format();
+	target.format = (SDL_GPUTextureFormat)Scene_Format();
 	target.blend_state.enable_color_write_mask = true;
 	target.blend_state.color_write_mask = (which & 1) ? 0xF : 0;
 	SDL_GPUGraphicsPipelineCreateInfo info;
 	SDL_zero(info);
 	info.vertex_shader = ClearVertex;
-	info.fragment_shader = ClearPixel;
+	if(depthOnly&&!DepthClearPixel){
+        std::vector<unsigned char> spirv;
+        if(!SDL3_Compile_HLSL_To_SPIRV("void main(){}",false,spirv,log)
+            ||!(DepthClearPixel=SDL3_Create_Shader(GpuDevice,spirv,false,log)))return nullptr;
+    }
+    info.fragment_shader = depthOnly?DepthClearPixel:ClearPixel;
+    info.multisample_state.sample_count=(SDL_GPUSampleCount)sampleIndex;
 	info.primitive_type = SDL_GPU_PRIMITIVETYPE_TRIANGLELIST;
 	info.rasterizer_state.fill_mode = SDL_GPU_FILLMODE_FILL;
 	info.rasterizer_state.cull_mode = SDL_GPU_CULLMODE_NONE;
@@ -183,15 +191,15 @@ SDL_GPUGraphicsPipeline * SdlGpuFrame::Clear_Pipeline(unsigned int which)
 	info.depth_stencil_state.back_stencil_state = replace;
 	info.depth_stencil_state.compare_mask = 0xFF;
 	info.depth_stencil_state.write_mask = 0xFF;
-	info.target_info.color_target_descriptions = &target;
-	info.target_info.num_color_targets = 1;
+	info.target_info.color_target_descriptions = depthOnly?nullptr:&target;
+	info.target_info.num_color_targets = depthOnly?0:1;
 	info.target_info.depth_stencil_format = (SDL_GPUTextureFormat)DepthFormat;
 	info.target_info.has_depth_stencil_target = true;
-	ClearPipelines[which] = SDL_CreateGPUGraphicsPipeline(GpuDevice, &info);
-	if (ClearPipelines[which] == NULL) {
+	ClearPipelines[cache] = SDL_CreateGPUGraphicsPipeline(GpuDevice, &info);
+	if (ClearPipelines[cache] == NULL) {
 		fprintf(stderr, "SdlGpuFrame: the clear draw's pipeline: %s\n", SDL_GetError());
 	}
-	return ClearPipelines[which];
+	return ClearPipelines[cache];
 }
 
 void SdlGpuFrame::Record_Draw(const SdlRecordedDraw & draw)
@@ -246,7 +254,7 @@ void SdlGpuFrame::End_Batch()
 	memset(LastConstants,0,sizeof(LastConstants));memset(LastConstantsSize,0,sizeof(LastConstantsSize));
 	Uploads.clear();
 	// The batch that could use these has been submitted: SDL keeps each until the GPU is done with it.
-	for (size_t i = 0; i < DeadTextures.size(); ++i) SDL_ReleaseGPUTexture(GpuDevice, DeadTextures[i]);
+	for (size_t i = 0; i < DeadTextures.size(); ++i) Release_Texture( DeadTextures[i]);
 	for (size_t i = 0; i < DeadBuffers.size(); ++i) SDL_ReleaseGPUBuffer(GpuDevice, DeadBuffers[i]);
 	DeadTextures.clear();
 	DeadBuffers.clear();
@@ -340,18 +348,31 @@ bool SdlGpuFrame::Record_Batch(SDL_GPUCommandBuffer * commands)
 bool SdlGpuFrame::Begin_Pass(SDL_GPUCommandBuffer * commands, const SdlTarget & target, bool clear_colour, bool clear_depth,
 	bool clear_stencil, uint32_t argb, float z, uint32_t stencil_value, SDL_GPURenderPass ** pass)
 {
+    const unsigned samples=Target_Sample_Index(target);
+    if(samples) {
+        if((clear_depth||clear_stencil)&&target.Depth) {
+            const bool has=Target_Depth_Format(target)==SDL_GPU_TEXTUREFORMAT_D24_UNORM_S8_UINT||Target_Depth_Format(target)==SDL_GPU_TEXTUREFORMAT_D32_FLOAT_S8_UINT;
+            SDL_GPUDepthStencilTargetInfo single={};single.texture=target.Depth;single.clear_depth=z;single.clear_stencil=(Uint8)stencil_value;
+            single.load_op=clear_depth?SDL_GPU_LOADOP_CLEAR:SDL_GPU_LOADOP_LOAD;single.store_op=SDL_GPU_STOREOP_STORE;
+            single.stencil_load_op=!has?SDL_GPU_LOADOP_DONT_CARE:clear_stencil?SDL_GPU_LOADOP_CLEAR:SDL_GPU_LOADOP_LOAD;
+            single.stencil_store_op=has?SDL_GPU_STOREOP_STORE:SDL_GPU_STOREOP_DONT_CARE;
+            auto *clear=SDL_BeginGPURenderPass(commands,nullptr,0,&single);if(!clear)return false;SDL_EndGPURenderPass(clear);
+        }
+        if(!clear_colour&&!Seed_Multisample_Colour(commands,target))return false;
+    } else External_Colour_Write(target.Colour);
 	SDL_GPUColorTargetInfo colour;
 	SDL_zero(colour);
-	colour.texture = target.Colour;
+	colour.texture = samples?SampleColours.at(target.Colour).Texture:target.Colour;
+    if(samples){colour.resolve_texture=target.Colour;SampleColours.at(target.Colour).Current=true;}
 	colour.clear_color.a = (float)((argb >> 24) & 0xFF) / 255.0f;
 	colour.clear_color.r = (float)((argb >> 16) & 0xFF) / 255.0f;
 	colour.clear_color.g = (float)((argb >> 8) & 0xFF) / 255.0f;
 	colour.clear_color.b = (float)(argb & 0xFF) / 255.0f;
 	colour.load_op = clear_colour ? SDL_GPU_LOADOP_CLEAR : SDL_GPU_LOADOP_LOAD;
-	colour.store_op = SDL_GPU_STOREOP_STORE;
+	colour.store_op = samples?SDL_GPU_STOREOP_RESOLVE_AND_STORE:SDL_GPU_STOREOP_STORE;
 	SDL_GPUDepthStencilTargetInfo depth;
 	SDL_zero(depth);
-	depth.texture = target.Depth;
+	depth.texture = samples?SampleDepths.at(target.Depth).Texture:target.Depth;
 	depth.clear_depth = z;
 	depth.clear_stencil = (Uint8)stencil_value;
 	depth.load_op = clear_depth ? SDL_GPU_LOADOP_CLEAR : SDL_GPU_LOADOP_LOAD;
@@ -380,6 +401,7 @@ unsigned int SdlGpuFrame::Target_Depth_Format(const SdlTarget &target) const
 
 void SdlGpuFrame::Set_Target(const SdlTarget & target)
 {
+    if(!Prepare_Multisample_Target(target))Disable_Multisampling("attachment allocation failed");
 	CurrentTarget = target;
 	TargetSet = true;
 }
@@ -387,6 +409,7 @@ void SdlGpuFrame::Set_Target(const SdlTarget & target)
 uint32_t SdlGpuFrame::Target_Index()
 {
 	const SdlTarget target = TargetSet ? CurrentTarget : Back_Buffer_Target();
+    if(!Prepare_Multisample_Target(target))Disable_Multisampling("attachment allocation failed");
 	for (size_t i = Targets.size(); i-- > 0; ) {
 		if (Targets[i].Colour == target.Colour && Targets[i].Depth == target.Depth
 			&& Targets[i].DepthFormat == target.DepthFormat && Targets[i].Width == target.Width && Targets[i].Height == target.Height) {
@@ -448,6 +471,7 @@ bool SdlGpuFrame::Record_Passes(SDL_GPUCommandBuffer * commands, SDL_GPUBuffer *
 {
 	SDL_GPURenderPass * pass = NULL;
 	uint32_t pass_target = 0;
+    size_t pass_first=0;
 	// A whole-target clear waits to be the load operation of the next pass over its own target.
 	bool pending = false, clear_colour = false, clear_depth = false, clear_stencil = false;
 	uint32_t pending_target = 0, argb = 0, stencil_value = 0;
@@ -469,6 +493,8 @@ bool SdlGpuFrame::Record_Passes(SDL_GPUCommandBuffer * commands, SDL_GPUBuffer *
 		// A pass ends at a blit, at a whole-target clear, at a change of target, and at the end.
 		if (pass != NULL && (end || transfer || whole_clear || command->Target != pass_target)) {
 			SDL_EndGPURenderPass(pass);
+            if(!Replay_Depth(commands,stream,Targets[pass_target],pass_first,i))return false;
+            pushed_vertex=pushed_water_vertex=pushed_pixel=0xFFFFFFFFu;memset(pushed_water_pixel,0xFF,sizeof(pushed_water_pixel));
 			pass = NULL;
 		}
 		// A waiting clear whose target is not the next thing drawn into gets a pass of its own.
@@ -505,6 +531,8 @@ bool SdlGpuFrame::Record_Passes(SDL_GPUCommandBuffer * commands, SDL_GPUBuffer *
 			blit.load_op = SDL_GPU_LOADOP_LOAD;
 			blit.filter = command->BlitLinear ? SDL_GPU_FILTER_LINEAR : SDL_GPU_FILTER_NEAREST;
 			SDL_BlitGPUTexture(commands, &blit);
+            External_Colour_Write(command->BlitDestination);
+            pushed_vertex=pushed_water_vertex=pushed_pixel=0xFFFFFFFFu;memset(pushed_water_pixel,0xFF,sizeof(pushed_water_pixel));
 			continue;
 		}
 		if (whole_clear) {
@@ -521,13 +549,14 @@ bool SdlGpuFrame::Record_Passes(SDL_GPUCommandBuffer * commands, SDL_GPUBuffer *
 				return false;
 			}
 			pending = clear_colour = clear_depth = clear_stencil = false;
-			pass_target = command->Target;
+			pass_target = command->Target;pass_first=i;
 			last = NULL;
 		}
 
 		if (Commands[i].IsRect) {
 			const Command & clear = Commands[i];
-			SDL_GPUGraphicsPipeline * pipeline = Clear_Pipeline((clear.Colour ? 1 : 0) | (clear.Depth ? 2 : 0) | (clear.Stencil ? 4 : 0));
+			SDL_GPUGraphicsPipeline * pipeline = Clear_Pipeline((clear.Colour ? 1 : 0) | (clear.Depth ? 2 : 0) | (clear.Stencil ? 4 : 0),
+                !Targets[pass_target].Colour,Target_Sample_Index(Targets[pass_target]));
 			if (pipeline == NULL) {
 				continue;
 			}

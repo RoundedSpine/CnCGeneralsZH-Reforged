@@ -7,6 +7,7 @@
 #include "SdlResourceMirror.h"
 #include "SdlRenderMatrix.h"
 #include <cmath>
+#include <algorithm>
 #include <cstdio>
 #include <cstring>
 
@@ -20,7 +21,23 @@ void PosixDevice9::Set_Lighting_Mode(bool modern,bool hemisphere)
         std::memcpy(EffectSceneView,&Transforms[D3DTS_VIEW],sizeof(EffectSceneView));
         CloakSnapshot=CloakSource=nullptr;CloakFrame=~uint64_t(0);
         ParticleDepth=ParticleDepthSource=nullptr;
+        ++SceneSerial;PostRect[0]=float(Viewport.X);PostRect[1]=float(Viewport.Y);PostRect[2]=float(Viewport.Width);PostRect[3]=float(Viewport.Height);
     }
+}
+bool PosixDevice9::Copy_Scene(IDirect3DBaseTexture9 *texture,int x,int y,int width,int height){
+    if(!Gpu||!Gpu->Hdr_Active()||!texture||x<0||y<0||width<=0||height<=0)return false;
+    SdlTarget target;std::string error;if(!Resolve_Target(target,error))return false;
+    auto *source=Mirrors->Texture(texture,error);
+    if(!source||source==target.Colour||!Gpu->Is_Hdr_Texture(source)||!Gpu->Is_Hdr_Texture(target.Colour))return false;
+    if(unsigned(x)+unsigned(width)>target.Width||unsigned(y)+unsigned(height)>target.Height)return false;
+    const int32_t rect[4]={x,y,width,height};Gpu->Record_Blit(source,rect,target.Colour,rect,false);return true;
+}
+void PosixDevice9::Set_Post_Grade(float amount){PostGrade=std::isfinite(amount)?std::clamp(amount,0.0f,1.0f):0;}
+void PosixDevice9::Finish_Scene(){
+    if(!Gpu||FinishedSceneSerial==SceneSerial||!ModernLighting||!EffectsAllowed||SunActive||Sun_Scene_Excluded())return;
+    SdlTarget target;std::string error;if(!Resolve_Target(target,error))return;
+    FinishedSceneSerial=SceneSerial;
+    if(!Gpu->Post_Process(target,PostRect,PostGrade))fprintf(stderr,"[SDL_POST] scene finish failed\n");
 }
 bool PosixDevice9::Lights_Per_Pixel() const
 {
@@ -176,6 +193,17 @@ bool PosixDevice9::Atmosphere(const SceneEffects::AtmosphereParameters &paramete
     return Gpu->Atmosphere(target,constants,skyTexture,shroudTexture);
 }
 namespace SceneEffects {
+namespace {bool requestedHdr=false;unsigned requestedSamples=0;}
+void RequestDisplay(bool hdr,unsigned samples){requestedHdr=hdr;requestedSamples=samples;}
+bool RequestedHdr(){return requestedHdr;}
+unsigned RequestedSamples(){return requestedSamples;}
+unsigned MaxSamples(IDirect3DDevice9*d){auto *gpu=d?static_cast<PosixDevice9*>(d)->Get_Gpu():nullptr;return gpu?gpu->Max_Samples():1;}
+unsigned ActiveSamples(IDirect3DDevice9*d){auto *gpu=d?static_cast<PosixDevice9*>(d)->Get_Gpu():nullptr;return gpu&&gpu->Sample_Count()>1?gpu->Sample_Count():0;}
+bool SupportsHdr(IDirect3DDevice9*d){auto *gpu=d?static_cast<PosixDevice9*>(d)->Get_Gpu():nullptr;return gpu&&gpu->Supports_Hdr();}
+void SetPostGrade(IDirect3DDevice9*d,float amount){if(d)static_cast<PosixDevice9*>(d)->Set_Post_Grade(amount);}
+bool CopyScene(IDirect3DDevice9*d,IDirect3DBaseTexture9*t,int x,int y,int w,int h){return d&&static_cast<PosixDevice9*>(d)->Copy_Scene(t,x,y,w,h);}
+void FinishScene(IDirect3DDevice9*d){if(d)static_cast<PosixDevice9*>(d)->Finish_Scene();}
+
 bool LightsPerPixel(IDirect3DDevice9*d){return d&&static_cast<PosixDevice9*>(d)->Lights_Per_Pixel();}
 void SetBlastLights(IDirect3DDevice9*d,const float*p,unsigned n){if(d)static_cast<PosixDevice9*>(d)->Set_Blast_Lights(p,n);}
 void SetHeadlights(IDirect3DDevice9*d,const float*p,unsigned n,const float*g){if(d)static_cast<PosixDevice9*>(d)->Set_Headlights(p,n,g);}

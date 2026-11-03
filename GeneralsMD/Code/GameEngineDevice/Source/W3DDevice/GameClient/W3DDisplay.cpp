@@ -39,6 +39,7 @@ static void drawFramerateBar(void);
 #include <stdlib.h>
 #include <algorithm>
 #include "Lib/Clock.h"
+#include "Platform/SceneEffects.h"
 #if defined(_WIN32)
 #include <windows.h>
 #include <condition_variable>
@@ -857,6 +858,10 @@ static void sizeWindowToClient( Int mode, Int width, Int height )
 // always in the default, and the chain leaves it out by itself while the scene is multisampled.
 static void pushDirect3D11PostChain( void )
 {
+#if !defined(_WIN32)
+    SceneEffects::RequestDisplay(!TheGlobalData->m_classicGraphics&&TheGlobalData->m_internalHdr,
+        msaaSamplesForLevel(TheGlobalData->m_msaaLevel));
+#endif
 	// Classic graphics is the game's own picture, which is what -d3d9 draws: hard edged sprites.
 	Direct3D11_Allow_Soft_Particles( !TheGlobalData->m_classicGraphics );
 	// and its own looks for the power outage, the EMP and the two stealth states
@@ -1254,8 +1259,13 @@ void W3DDisplay::init( void )
 #endif
 	// multisampling is opt-in with "-msaa" / "-msaa N" and silently degrades to whatever the
 	// device supports, so log what was actually granted, by whichever device presents
-	DEBUG_LOG(("W3DDisplay::init - multisampling: %ux\n", Direct3D11_Present_Is_Enabled()
-		? Direct3D11_Sample_Count() : DX8Wrapper::Get_MultiSample_Level()));
+	DEBUG_LOG(("W3DDisplay::init - multisampling: %ux\n",
+#if defined(_WIN32)
+        Direct3D11_Present_Is_Enabled()?Direct3D11_Sample_Count():DX8Wrapper::Get_MultiSample_Level()
+#else
+        SceneEffects::ActiveSamples(DX8Wrapper::_Get_D3D_Device())
+#endif
+    ));
 #if defined(_WIN32)
 	DEBUG_LOG(("W3DDisplay::init - vsync: %s\n", DX8Wrapper::Get_Requested_VSync() ? "on" : "off"));
 #else

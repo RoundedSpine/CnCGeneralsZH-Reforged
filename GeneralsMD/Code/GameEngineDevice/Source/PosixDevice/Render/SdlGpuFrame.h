@@ -40,8 +40,11 @@
 #include <stdint.h>
 #include <string>
 #include <vector>
+#include <unordered_set>
+#include <unordered_map>
 
 struct SDL_GPUBuffer;
+struct SDL_GPURenderPass;
 struct SDL_GPUDevice;
 struct SDL_GPUGraphicsPipeline;
 struct SDL_GPUSampler;
@@ -52,7 +55,7 @@ namespace SdlAo { struct Constants; class Renderer; }
 namespace SdlAtmosphere { struct Constants; class Renderer; }
 namespace SdlFirelight { struct Constants; }
 
-/// Where a pass draws: a colour texture of Target_Format() and a depth-stencil of Depth_Format(), the
+/// Where a pass draws: a colour texture of Scene_Format() and a depth-stencil of Depth_Format(), the
 /// same size.  The back buffer is one; a render-target surface's GPU texture is another (A3d).  Either
 /// attachment may be absent: the sun target is depth only, the cloud caches colour only.
 struct SdlTarget
@@ -70,6 +73,10 @@ struct SdlRecordedDraw
 {
 	enum { MAXIMUM_SAMPLERS = 16, MAXIMUM_UNIFORM_SLOTS = 4, WATER_PIXEL_BLOCKS = 3 };
 	SDL_GPUGraphicsPipeline * Pipeline;
+    SDL_GPUGraphicsPipeline *DepthPipeline=nullptr;
+    uint32_t DepthSamplers=0,DepthUniforms=0;
+    SDL_GPUTexture *DepthTextures[MAXIMUM_SAMPLERS];
+    SDL_GPUSampler *DepthSamplerBindings[MAXIMUM_SAMPLERS];
 	SDL_GPUBuffer * VertexBuffer;		///< a GPU copy, or null for the batch's staging stream
 	uint32_t VertexOffset;				///< bytes into it
 	SDL_GPUBuffer * IndexBuffer;		///< as VertexBuffer, when IndexSize is not 0
@@ -114,7 +121,7 @@ public:
 	/// The device, with the window claimed when there is one.  A null window makes an offscreen frame,
 	/// which is what the tests use: Present then needs a target of the caller's (Present_To).  Null, with
 	/// the reason, when SDL has no GPU device to give.
-	static SdlGpuFrame * Create(RenderWindow window, unsigned int width, unsigned int height, std::string & error);
+	static SdlGpuFrame * Create(RenderWindow window, unsigned int width, unsigned int height, std::string & error, bool hdr=false,unsigned samples=0);
 	~SdlGpuFrame();
 
 	/// A failed flush or allocation retains the old attachments and dimensions.
@@ -185,6 +192,13 @@ public:
 	unsigned int Depth_Usage() const;
 	/// Device capability selected at frame creation, including the R32F resolve target.
 	bool Trim_Transient_Memory();
+    unsigned Max_Samples() const;
+    unsigned Sample_Count() const {return SampleCount;}
+    unsigned Target_Sample_Index(const SdlTarget&) const;
+    bool Prepare_Multisample_Target(const SdlTarget&);
+    bool Disable_Multisampling(const char*);
+    void External_Colour_Write(SDL_GPUTexture*);
+
 	bool Supports_Scene_Depth() const { return DepthSampleable; }
 	bool Supports_Ambient_Occlusion() const;
 	bool Supports_Atmosphere() const;
@@ -266,6 +280,15 @@ public:
 	unsigned int Height() const { return BackHeight; }
 	/// The back buffer's format, and so what a Present_To target has to be.
 	static unsigned int Target_Format();
+    unsigned Scene_Format() const {return SceneFormat;}
+    bool Hdr_Active() const {return HdrActive;}
+    bool Supports_Hdr() const;
+    void Track_Colour(SDL_GPUTexture *texture){if(HdrActive&&texture)HdrTextures.insert(texture);}
+    bool Is_Hdr_Texture(SDL_GPUTexture *texture) const{return HdrTextures.count(texture)!=0;}
+    bool Post_Process(const SdlTarget&,const float rect[4],float grade);
+    bool Read_Float_Colour(SDL_GPUTexture*,unsigned,unsigned,std::vector<float>&);
+    void Convert_Colour_Upload(SDL_GPUTexture*,unsigned,unsigned,uint32_t&);
+
 
 private:
 	/// Submits, and with SerializeSubmits waits for the fence, adding the wait to FenceMs.
@@ -308,11 +331,34 @@ private:
 	SdlGpuFrame();
 	bool Create_Targets(unsigned int width, unsigned int height);
 	void Release_Targets();
+    struct SampleTexture {SDL_GPUTexture *Texture=nullptr;unsigned Width=0,Height=0;bool Current=false;};
+    unsigned SampleCount=1;
+    bool MsaaFailed=false;
+    std::unordered_map<SDL_GPUTexture*,SampleTexture> SampleColours,SampleDepths;
+    SDL_GPUShader *SampleVertex=nullptr,*SamplePixel=nullptr,*DepthClearPixel=nullptr;
+    SDL_GPUGraphicsPipeline *SampleSeedPipeline=nullptr;
+    SDL_GPUSampler *SampleSampler=nullptr;
+    bool Prepare_Multisampling();
+    void Release_Multisampling(bool shaders);
+    bool Seed_Multisample_Colour(SDL_GPUCommandBuffer*,const SdlTarget&);
+    bool Replay_Depth(SDL_GPUCommandBuffer*,SDL_GPUBuffer*,const SdlTarget&,size_t,size_t);
+    void Draw_Depth_Record(SDL_GPUCommandBuffer*,SDL_GPURenderPass*,SDL_GPUBuffer*,const SdlRecordedDraw&);
+    unsigned SceneFormat=0;
+    bool HdrActive=false,PostFailed=false;
+    std::unordered_set<SDL_GPUTexture*> HdrTextures;
+    SDL_GPUShader *PostVertex=nullptr,*PostPixel=nullptr;
+    SDL_GPUGraphicsPipeline *PostPipeline=nullptr;
+    SDL_GPUSampler *PostSampler=nullptr;
+    bool Prepare_Post();
+    void Release_Post();
+    void Release_Texture(SDL_GPUTexture*);
+    bool Read_Bytes(SDL_GPUTexture*,unsigned,unsigned,unsigned,std::vector<uint8_t>&);
+
 	bool Record_Batch(struct SDL_GPUCommandBuffer * commands);
 	bool Record_Passes(struct SDL_GPUCommandBuffer * commands, SDL_GPUBuffer * stream);
 	bool Begin_Pass(struct SDL_GPUCommandBuffer * commands, const SdlTarget & target, bool clear_colour, bool clear_depth,
 		bool clear_stencil, uint32_t argb, float z, uint32_t stencil_value, struct SDL_GPURenderPass ** pass);
-	SDL_GPUGraphicsPipeline * Clear_Pipeline(unsigned int which);
+	SDL_GPUGraphicsPipeline * Clear_Pipeline(unsigned int which,bool depthOnly=false,unsigned sampleIndex=0);
 	void End_Batch();
 	bool Present_Into(struct SDL_GPUCommandBuffer * commands, SDL_GPUTexture * target, unsigned int width,
 		unsigned int height, unsigned int format, const uint16_t (*ramp)[256]);
@@ -425,7 +471,7 @@ private:
 	uint64_t BatchNumber;
 	SDL_GPUShader * ClearVertex;			///< the clear draw's programs, and its pipelines by what it clears
 	SDL_GPUShader * ClearPixel;
-	SDL_GPUGraphicsPipeline * ClearPipelines[8];
+	SDL_GPUGraphicsPipeline * ClearPipelines[64];
 	SDL_GPUBuffer * StreamBuffer;		///< the staging stream on the GPU, grown as needed
 	uint32_t StreamBufferSize;
 	struct SDL_GPUTransferBuffer * Transfer;

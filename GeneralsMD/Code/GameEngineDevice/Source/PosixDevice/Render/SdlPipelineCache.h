@@ -69,6 +69,7 @@ struct SdlPipelineKey
 	SDL_GPUShader *VertexShader;
 	SDL_GPUShader *PixelShader;
 	uint32_t FVF;
+    uint8_t Samples;
 	uint32_t ColourFormat;			///< SDL_GPUTextureFormat of the target
 	uint32_t DepthFormat;			///< SDL_GPUTextureFormat of the depth-stencil, or 0 for none
 	float DepthBias;				///< in the depth buffer's units, as SDL takes it

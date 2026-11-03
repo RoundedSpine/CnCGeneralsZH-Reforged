@@ -1121,8 +1121,9 @@ static GameWindow *findOptionWidget( const OptionDef& def )
 static Bool rendererSupportsOption( const OptionDef& def )
 {
 #if !defined(_WIN32)
-	// The SDL device refuses every multisample type except NONE.
-	if( strcmp( def.iniKey, "MSAA" ) == 0 ) return FALSE;
+	// Expose only sample counts supported by both native scene attachments.
+	if( strcmp( def.iniKey, "MSAA" ) == 0 ) return SceneEffects::MaxSamples()>1;
+    if(strcmp(def.iniKey,"InternalHdr")==0)return SceneEffects::SupportsHdr();
 	if( strcmp( def.iniKey, "Firelight" ) == 0 ) return SceneEffects::SupportsFirelight();
 	if( strcmp( def.iniKey, "TeamGlow" ) == 0 || strcmp( def.iniKey, "HemiAmbient" ) == 0
 		|| strcmp( def.iniKey, "GroundMarks" ) == 0 || strcmp( def.iniKey, "WaterSplashes" ) == 0 || strcmp(def.iniKey,"StructureCollapse")==0 )
@@ -1151,6 +1152,21 @@ static Bool rendererSupportsOption( const OptionDef& def )
 	return TRUE;
 }
 
+static Int rendererOptionHigh(const OptionDef &def)
+{
+#if !defined(_WIN32)
+    if(strcmp(def.iniKey,"MSAA")==0) {
+        const unsigned samples=SceneEffects::MaxSamples();
+        return min(def.hi,samples>=8?3:samples>=4?2:samples>=2?1:0);
+    }
+#endif
+    return def.hi;
+}
+static Int clampRendererOptionValue(const OptionDef &def,Int value)
+{
+    return min(clampOptionValue(def,value),rendererOptionHigh(def));
+}
+
 // Classic mode forces these runtime fields. The menu edits the saved choices
 // for the next Reforged start, so both display and change detection use the file.
 static Int catalogMenuValue( const OptionDef& def )
@@ -1158,7 +1174,7 @@ static Int catalogMenuValue( const OptionDef& def )
 	if( TheGlobalData->m_classicGraphics )
 	{
 		if( strcmp( def.iniKey, "LightingStyle" ) == 0 )
-			return clampOptionValue( def, pref->getInt( def.iniKey, optionDefaultValue( def ) ) );
+			return clampRendererOptionValue( def, pref->getInt( def.iniKey, optionDefaultValue( def ) ) );
 		if( strcmp( def.iniKey, "VolumetricSmokeShadows" ) == 0 )
 			return pref->getBool( def.iniKey, optionDefaultValue( def ) != 0 );
 	}
@@ -1206,7 +1222,7 @@ static void fillCatalogWidgets( void )
 			if (!supported) continue;
 		}
 
-		const Int value = clampOptionValue( def, catalogMenuValue( def ) );
+		const Int value = clampRendererOptionValue( def, catalogMenuValue( def ) );
 
 		switch( def.kind )
 		{
@@ -1217,7 +1233,7 @@ static void fillCatalogWidgets( void )
 			case OPTION_ENUM:
 			{
 				GadgetComboBoxReset( widget );
-				for( Int entry = def.lo; entry <= def.hi; ++entry )
+				for( Int entry = def.lo; entry <= rendererOptionHigh(def); ++entry )
 				{
 					AsciiString key;
 					key.format( "%s%d", def.labelKey, entry );
@@ -1280,12 +1296,12 @@ static void readCatalogWidgets( OptionPreferences &out )
 				// -1 is a combo box with nothing picked, which is not a value to write anywhere
 				if( selected < 0 )
 					continue;
-				value = clampOptionValue( def, def.lo + selected );
+				value = clampRendererOptionValue( def, def.lo + selected );
 				break;
 			}
 
 			default:
-				value = clampOptionValue( def, GadgetSliderGetPosition( widget ) );
+				value = clampRendererOptionValue( def, GadgetSliderGetPosition( widget ) );
 				break;
 		}
 
@@ -2470,6 +2486,8 @@ static void updateDetailNote( void );
 /** One quality table value in its control. */
 static void setGraphicsQualityControl( GameWindow *control, Int value )
 {
+    const OptionDef *msaa=findOptionDef("MSAA");
+    if(msaa&&findOptionWidget(*msaa)==control)value=clampRendererOptionValue(*msaa,value);
 	if( BitTest( control->winGetStyle(), GWS_CHECK_BOX ) )
 		GadgetCheckBoxSetChecked( control, value != 0 );
 	else if( BitTest( control->winGetStyle(), GWS_COMBO_BOX ) )
@@ -3163,7 +3181,8 @@ void OptionsMenuInit( WindowLayout *layout, void *userData )
 		checkHeatEffects->winEnable(FALSE);
 		checkHeatEffects->winSetTooltip(TheGameText->fetch("TOOLTIP:GraphicsUnavailable"));
 	}
-	fprintf(stderr,"[GRAPHICS_CAPS] msaa=0 heat=%d firelight=%d ao=%d model_lighting=%d atmosphere=%d\n",
+	fprintf(stderr,"[GRAPHICS_CAPS] msaa_max=%u hdr=%d heat=%d firelight=%d ao=%d model_lighting=%d atmosphere=%d\n",
+        SceneEffects::MaxSamples(),int(SceneEffects::SupportsHdr()),
 		int(SceneEffects::SupportsHeatHaze()),int(SceneEffects::SupportsFirelight()),
 		int(rendererSupportsOption(*findOptionDef("AmbientOcclusion"))),int(SceneEffects::SupportsLighting()),int(SceneEffects::SupportsAtmosphere()));
 #endif

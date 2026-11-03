@@ -64,7 +64,7 @@ bool smokeSupported=true, defaultsPressed=false, pendingShellRebuild=false;
 bool rendererSupportsOption(const OptionDef &def) {return smokeSupported || strcmp(def.iniKey,"VolumetricSmokeShadows")!=0;}
 int optionDefaultValue(const OptionDef &def) {return strcmp(def.iniKey,"ClassicGraphics")==0?1:0;}
 std::string formatOptionValue(const OptionDef &def,int value) {return def.kind==OPTION_BOOL?(value?"yes":"no"):std::to_string(value);}
-int clampOptionValue(const OptionDef &,int value) {return value;}
+int clampRendererOptionValue(const OptionDef &,int value) {return value;}
 bool GadgetCheckBoxIsChecked(GameWindow *w) {return w->value!=0;}
 void GadgetCheckBoxSetChecked(GameWindow *w,bool v){w->value=v;}
 GameWindow *classicGraphicsCheckBox(){return widgets;}
@@ -128,11 +128,13 @@ Data *TheGlobalData=&data;
 namespace ModernWater {bool supported=false;bool Supported(){return supported;}}
 namespace HazardCloud {bool supported=false;bool Supported(){return supported;}}
 namespace SceneEffects {
-bool supported=false,lighting=false,atmosphere=false,firelight=false;
+bool supported=false,lighting=false,atmosphere=false,firelight=false,hdr=false;
 bool SupportsAmbientOcclusion(){return supported;}
 bool SupportsLighting(){return lighting;}
 bool SupportsAtmosphere(){return atmosphere;}
 bool SupportsFirelight(){return firelight;}
+bool SupportsHdr(){return hdr;}
+unsigned samples=1;unsigned MaxSamples(){return samples;}
 }
 // PLATFORM
 // METHOD
@@ -163,6 +165,8 @@ int main() {
     ModernWater::supported=HazardCloud::supported=true;
     assert(rendererSupportsOption({"WaterStyle"}) && rendererSupportsOption({"CloudStyle"}));
 #if !defined(_WIN32)
+    SceneEffects::samples=4;assert(rendererSupportsOption({"MSAA"}));
+    SceneEffects::hdr=true;assert(rendererSupportsOption({"InternalHdr"}));
     SceneEffects::firelight=true;assert(rendererSupportsOption({"Firelight"}));
     SceneEffects::lighting=SceneEffects::atmosphere=true;
     for(auto key:{"MapLight","Atmosphere","TeamGlow","HemiAmbient","GroundMarks","WaterSplashes","Weather","StructureCollapse","WaterFoam"})assert(rendererSupportsOption({key}));
@@ -218,10 +222,11 @@ struct SdlGpuFrame {
     bool Supports_Scene_Depth(){return true;}
     bool Flush(){++flushes;return true;}
     bool Create_Scene_Depth_Pipeline(){return true;}
-    unsigned Target_Format(){return 1;}
+    unsigned Scene_Format(){return 1;}
     bool Resolve_Scene_Depth(SDL_GPUCommandBuffer*,SDL_GPUTexture *source,SDL_GPUTexture *dest,unsigned,unsigned){assert(source==&depth && dest==&resolved);return resolveOK;}
     bool Submit(SDL_GPUCommandBuffer*){++submits;return true;}
     bool Submit_Flush(SDL_GPUCommandBuffer *c){return Submit(c);}
+    void External_Colour_Write(SDL_GPUTexture *colour){assert(colour==lastColour);}
     void Invalidate_Water_Snapshots(SDL_GPUTexture *colour,void*){assert(colour==lastColour);++invalidations;}
     bool Ambient_Occlusion(const SdlTarget&,const SdlAo::Constants&,SDL_GPUTexture*);
 };

@@ -19,17 +19,17 @@ the menu disables or hides the control and preserves its saved choice.
 | Texture resolution (`LowResSlider`) | Connected | Accept adjusts texture LOD; the engine's memory limit can reduce the requested quality. |
 | Disable Dynamic LOD (`CheckNoDynamicLOD`) | Connected | Stored as the inverse of `m_enableDynamicLOD`; leaves scene quality fixed instead of reducing it under load. |
 | Classic Graphics (`CheckClassicGraphics`) | Connected | Requires app restart: archive selection and startup renderer settings depend on it. Forces Classic lighting and disables volumetric smoke while active. |
-| MSAA (`ComboBoxMSAA`) | Unavailable | POSIX capability checks reject every multisample type except NONE; SDL scene targets are single-sample. Now disabled. |
+| MSAA (`ComboBoxMSAA`) | Conditional | Requires restart. Native colour/depth attachments use supported 2×/4×/8× sampling, capped to hardware. Depth/stencil replay preserves sampleable depth for AO, particles and water; this adds geometry cost. Unsupported sample counts are removed from the menu. |
 | Texture filter (`ComboBoxTextureFilter`) | Connected | Requires restart. Display initialization configures the filter table and SDL sampler state. |
 | Anisotropy (`SliderAnisotropy`) | Conditional | Requires restart and anisotropic texture filtering. SDL sampler clamps the request to 1–16. |
 | Warm light (`CheckMapLight`) | Conditional | Native warm map-light rebalance and depth-aware ground haze. Reforged mode and sampleable depth required; load a new map for the sun changes. |
 | Team glow (`CheckTeamGlow`) | Conditional | Native generated shader applies glow to flagged, immediate opaque team-colour meshes. Reforged mode; new map for asset marking. Sorted/translucent draws and reflected/custom views are excluded. |
 | Atmosphere (`CheckAtmosphere`) | Conditional | Native shroud-aware distance fade and time-of-day sky before water/particles. Needs sampleable depth, a sky texture, Reforged mode, no explicit skybox and a non-isometric camera. |
-| Lighting (`ComboBoxLightingStyle`) | Conditional / partial | Reforged map-light rebalance and deeper sun shadows exist; load a new map. Classic Graphics must be off after restart. Windows colour grading is absent. |
-| Glow (`ComboBoxBloom`) | Conditional / partial | Accept changes fixed-function LDR bloom; it is not the Windows HDR bloom. Needs scene render targets. AO now accepts this redirected scene target too. |
+| Lighting (`ComboBoxLightingStyle`) | Conditional | Reforged map-light rebalance, deeper sun shadows and native colour grading. Classic Graphics must be off after restart; load a new map for lighting changes. Grading finishes before HUD rendering. |
+| Glow (`ComboBoxBloom`) | Conditional | Accept changes shared bloom. Native HDR keeps redirected scene colour in half-float storage and copies it back without fixed-function saturation. AO accepts this redirected scene target. |
 | Ground pattern (`CheckGroundLighting`) | Connected | Accept changes terrain lightmap selection; dynamic terrain LOD can also change lightmap/cloud use. |
 | Heat haze (`CheckHeatEffects`) | Conditional | Native heat scope copies the completed scene into a separate GPU texture before drawing smudges. Requires scene redirection (Glow/render-to-texture) and eligible heat particles. Allocation/submission failures disable capability with a diagnostic. |
-| Water style (`ComboBoxWaterStyle`) | Unavailable | `ZH_MODERN_WATER` currently includes Linux/Windows, excluding iOS. The style control is hidden; original water remains. |
+| Water style (`ComboBoxWaterStyle`) | Conditional | Portable Modern water, ocean maps and wakes are compiled for iOS. Requires native depth/texture capabilities and applicable map water; original water remains the fallback. |
 | Cloud style (`ComboBoxCloudStyle`) | Conditional | Native SDL hazard clouds are compiled for iOS. Requires sampleable scene depth and supported half/float textures; Classic Graphics retains original clouds. The menu hides unsupported capability. |
 
 ## Effects
@@ -47,11 +47,11 @@ the menu disables or hides the control and preserves its saved choice.
 | Volumetric smoke (`CheckVolumetricSmoke`) | Conditional | Native sun smoke capture exists on iOS. Requires Classic Graphics off after restart, sampleable depth/shadow setup and eligible smoke/dust. This is not atmosphere fog. |
 | Trees and bushes (`CheckShowProps`) | Conditional | Applied during map object creation; network/replay rules force trees on for simulation consistency. Memory suitability can limit the preset. |
 | Soft shorelines (`CheckSmoothWater`) | Conditional | Original terrain/water alpha path; requires map water transparency settings. Use a new map. |
-| Water foam (`CheckWaterFoam`) | Unavailable | The Windows foam look is not wired into the iOS original-water path. |
+| Water foam (`CheckWaterFoam`) | Conditional | Native original-water shaders consume an independent scene-depth snapshot for shoreline foam. Missing depth falls back to the original non-foam shader. |
 | Ground marks (`CheckGroundMarks`) | Conditional | Shared scorch/mark buffers now accept the native renderer. Reforged mode and eligible dry terrain required. |
 | Hemisphere ambient (`CheckHemiAmbient`) | Conditional | Native vertex shader receives hemisphere state and view-space world-up. Reforged mode; unlit/pretransformed draws and shadow capture are excluded. |
 | Ambient occlusion (`CheckAmbientOcclusion`) | Conditional | Native SDL implementation, format/depth checks, Reforged main opaque view only. Metal synthetic pixel test passed. Now works through the redirected target used by Glow. |
-| Internal HDR (`CheckInternalHdr`) | Unavailable | Requires the Windows half-float scene/post-process path. |
+| Internal HDR (`CheckInternalHdr`) | Conditional | Requires restart, Reforged mode and RGBA16F sampling/rendering support. Native scene targets and snapshots preserve radiance above one; tone mapping runs before health bars/HUD. Output remains SDR. |
 | Building scaffolding (`CheckExtraAnimations`) | Connected | Inverts `m_useDrawModuleLOD`; draw modules are selected at drawable creation, so use a new map. |
 | Tree sway (`CheckTreeSway`) | Connected | Controls creation of shrub sway update modules; use a new map. |
 | Units behind buildings (`CheckBehindBuilding`) | Conditional | Needs stencil support, the game visibility rule and eligible occluded units. |
@@ -59,19 +59,18 @@ the menu disables or hides the control and preserves its saved choice.
 | Smoke thickness (`ComboBoxSmoke`) | Connected | Requires restart: particle templates are modified when initialized. |
 | Particle bounce (`CheckParticleBounce`) | Connected | Requires restart: terrain collision is enabled while loading particle templates. |
 | Smoke lit by fire (`CheckSmokeFireLighting`) | Connected | CPU smoke lighting reads the option per frame; separate from modern per-pixel Firelight. |
-| Firelight (`CheckFirelight`) | Conditional / partial | Native depth-reconstructed opaque fire lighting uses up to 12 gathered flame lights. Requires Reforged mode, sampleable depth and eligible flame particles. Sky, reflections and translucent surfaces are excluded. Legacy explosion/dynamic lights remain; Windows headlights/HDR are not included. |
+| Firelight (`CheckFirelight`) | Conditional | Native opaque pass accepts up to 32 shared point lights and 16 headlights, plus gathered flame lights. Firelight gates flame contribution; headlights/dynamic lights retain their own eligibility. Requires Reforged mode and sampleable depth. Translucent objects retain vertex lights. |
 | Explosion debris trails (`CheckDebrisTrails`) | Connected | Particle-system creation rejects marked trail systems while off. Requires applicable Reforged particle templates; existing systems may finish. |
 | Weather (`CheckWeather`) | Conditional | Native capability now enables the shared weather particles/wind and native haze. iOS uses quads, not unsupported sized point sprites. Requires Reforged mode and a matching map/weather setting. |
 | Water splashes (`CheckWaterSplashes`) | Conditional | Shared splash particles now accept the native renderer. Requires Reforged mode, actual original water, eligible impacts and clear shroud. A saved unsupported Modern style no longer blocks the original-water fallback. |
 
 ## Fixes and evidence
 
-The next implementation connects seven previously unavailable controls:
-Warm Light and Haze, Team Color Glow, Atmosphere, Battle Marks, Sky And Ground
-Light, Weather and Water Splashes. The audit now contains 17 connected, 21
-conditional and six unavailable controls before the next batch. With native heat haze and
-opaque Firelight, the audit contains 17 connected, 23 conditional and four unavailable
-controls. MSAA, Modern water, water foam and internal HDR still require rendering work.
+All 44 controls now have a connected or capability-dependent implementation:
+17 connected and 27 conditional. Capability or allocation failure can still disable
+an individual path; the menu and diagnostic messages report that result. This is
+source integration, not a claim that every option has been visually validated on
+every iPhone/iPad.
 
 The new device log from `31177f8d` supplied two additional concrete failures:
 
@@ -102,17 +101,17 @@ The Graphics page displays a restart notice; the current runtime mode stays fixe
   Capability checks only disable controls and preserve match restrictions.
 - Removed back-buffer-only AO gates: the main scene redirected by Glow is a
   valid opaque scene target. Reflection/custom scene exclusions remain.
-- MSAA and heat haze controls now report unavailable instead of offering settings
-  whose rendering paths cannot activate.
+- MSAA, HDR, water and heat controls query the native renderer; supported MSAA
+  choices are capped to the scene colour/depth hardware intersection.
 
 Source anchors, relative to `GeneralsMD/Code`:
 
 - Menu load/save, defaults and presets: `GameEngine/Source/GameClient/GUI/GUICallbacks/Menus/OptionsMenu.cpp`.
 - Catalog, timing and quality values: `GameEngine/Source/Common/OptionsCatalog.cpp`; legacy LOD loading/application: `GameEngine/Source/Common/GameLOD.cpp`.
-- Initialization, filtering and multisample request: `GameEngineDevice/Source/W3DDevice/GameClient/W3DDisplay.cpp`; actual sampler state: `GameEngineDevice/Source/PosixDevice/Render/SdlPipelineCache.cpp`; multisample refusal: `PosixD3D9Caps.cpp` in that directory.
-- Lighting: `GameEngineDevice/Source/W3DDevice/GameClient/WorldHeightMap.cpp`; absent modern hooks: `Libraries/Source/WWVegas/WW3D2/dx11runtime_posix.cpp`.
+- Initialization, filtering and multisample request: `GameEngineDevice/Source/W3DDevice/GameClient/W3DDisplay.cpp`; actual sampler state: `GameEngineDevice/Source/PosixDevice/Render/SdlPipelineCache.cpp`; native multisampling: `SdlGpuFrameMsaa.cpp` in that directory.
+- Lighting: `GameEngineDevice/Source/W3DDevice/GameClient/WorldHeightMap.cpp`; native compatibility hooks: `Libraries/Source/WWVegas/WW3D2/dx11runtime_posix.cpp`.
 - Sun/smoke: `GameEngineDevice/Source/W3DDevice/GameClient/Shadow/W3DVolumetricShadow.cpp`; AO: `PosixDevice9AmbientOcclusion.cpp` and `SdlGpuFrameAmbientOcclusion.cpp` in the POSIX render directory.
-- Bloom and redirected scene: `GameEngineDevice/Source/W3DDevice/GameClient/W3DShaderManager.cpp`; heat refusal: `W3DSmudge.cpp` beside it.
+- Bloom and redirected scene: `GameEngineDevice/Source/W3DDevice/GameClient/W3DShaderManager.cpp`; heat scope: `W3DSmudge.cpp` beside it.
 - Native clouds: `SdlHazardCloud.cpp` in the POSIX render directory; water platform selection: `Libraries/Include/Platform/ModernWaterBuild.h`.
 - Particle template, cap and shadow consumers: `GameEngine/Source/GameClient/System/ParticleSys.cpp`; CPU smoke lighting and native cloud selection: `GameEngineDevice/Source/W3DDevice/GameClient/W3DParticleSys.cpp`.
 - Map trees: `GameEngine/Source/GameLogic/System/GameLogic.cpp`; module selection: `GameEngine/Source/GameClient/Drawable.cpp`; occlusion markers: `W3DScene.cpp` in the W3D game-client directory.
@@ -152,8 +151,8 @@ writes the mode even when unchanged; `[IOS_OPTIONS] phase=mode` names its source
 `[SDL_FIRELIGHT] ready` identifies native opaque fire-light resource setup. The
 pass runs before AO/atmosphere/water/particles; destination-scaled additive RGB
 preserves black shroud and destination alpha and caps the gain at 75 percent.
-It does not claim full Windows per-pixel lighting and leaves the existing dynamic
-light fallback active. Failure disables the capability with its reason.
+The follow-up opaque pass also consumes the shared dynamic/headlight lists;
+translucent draws retain vertex lights. Failure disables capability with its reason.
 
 `[SDL_HEAT] ready size=...` identifies the immutable GPU background. Only the
 scoped smudge stage-0 binding may substitute that snapshot; other render-target
@@ -177,3 +176,23 @@ checks and iOS device compilation/unsigned IPA packaging also passed.
 [Unsigned IPA](https://github.com/RoundedSpine/CnCGeneralsZH-Reforged/actions/runs/41596199431/artifacts/13211918801)
 and [build diagnostics](https://github.com/RoundedSpine/CnCGeneralsZH-Reforged/actions/runs/41596199431/artifacts/13211873810).
 The new iPhone/iPad appearance and inferred-mode startup still need a device run.
+
+## Remaining batch validation
+
+The new batch adds soft-particle fades, flame treatment, object cloak/reveal/EMP/
+outage effects, client-only building collapse, headlights, water/foam, HDR and
+MSAA. HDR tests check floating-point radiance, alpha, grading, cropped viewports,
+CPU compatibility and HUD sequencing. MSAA tests check edge coverage, independent
+alpha-tested depth (including a second-stage mask), redirected targets, HDR/UI
+composition, partial depth clears and transient-cache recreation.
+
+The prior batch's Metal run exposed mixed integer-load/sampled-texture binding
+collisions. Native shader generation now pairs integer reads with explicit same-
+slot samplers at texel centres. Seventeen production variants compile to SPIR-V
+and MSL with unique texture bindings locally. Actual GPU results and a new IPA
+remain pending until the ARM64 workflow completes. Run 41623320860 ended without
+a runner: GitHub reported hosted ARM64 capacity constraints.
+
+MSAA increases memory and depth geometry work; HDR doubles scene-colour storage.
+Measure both on the target iPhone/iPad before increasing defaults. Neither feature
+changes the default request. Building collapse is a separate Display-page control.

@@ -10,6 +10,17 @@ struct AtmosphereParameters {
     float Fade[4] = {0,1,0,0}; // start, scale, strength, ground height
     float Horizon[4] = {}, Tint[4] = {}, MapSize[4] = {};
 };
+void RequestDisplay(bool hdr,unsigned samples);
+bool RequestedHdr();
+unsigned RequestedSamples();
+unsigned MaxSamples();
+unsigned MaxSamples(IDirect3DDevice9*);
+unsigned ActiveSamples(IDirect3DDevice9*);
+bool SupportsHdr();
+bool SupportsHdr(IDirect3DDevice9*);
+void SetPostGrade(IDirect3DDevice9*,float);
+void FinishScene(IDirect3DDevice9*);
+bool CopyScene(IDirect3DDevice9*,IDirect3DBaseTexture9*,int,int,int,int);
 enum ParticleFlag { SoftParticles=1, FireParticles=2, EmissiveParticles=4 };
 void SetParticleFlag(IDirect3DDevice9*,unsigned,bool);
 void AllowEffects(IDirect3DDevice9*,bool);

@@ -123,7 +123,7 @@ void Direct3D11_Set_VSync(bool) {}
 // understand it for, so every chain is refused.
 bool Direct3D11_Post_Chain(const char *) { return false; }
 const char * Direct3D11_Post_Diagnostic() { return "post-process off"; }
-void Direct3D11_Finish_Scene() {}
+void Direct3D11_Finish_Scene() { DX8Wrapper::Flush_Deferred_D3D9_State();SceneEffects::FinishScene(DX8Wrapper::_Get_D3D_Device()); }
 void Direct3D11_Finish_Frame() {}
 
 unsigned char * Direct3D11_Capture_Back_Buffer(unsigned & width, unsigned & height, unsigned & pitch)
