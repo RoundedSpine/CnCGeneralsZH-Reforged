@@ -270,7 +270,7 @@ static bool generate_combiners(const CombinerDescription & description,
 	if (sdl) target = COMBINER_SHADER_TARGET_D3D11;
 	// Depth-faded particles remain Windows-only until SDL supplies the scene depth at t7.
 	const bool soft = volumetric && description.SoftParticle != SOFT_PARTICLE_NONE;
-	// SDL accepts only the cloak caster variant; Windows also supplies the cosmetic scene effects.
+	// The native SDL path and Windows both supply the supported cosmetic scene effects.
 	const unsigned effect = (volumetric && description.DrawEffect < DRAW_EFFECT_COUNT)
 		? description.DrawEffect : DRAW_EFFECT_NONE;
 	// The fire look reads no constant, but the vertex half that feeds it is the D3D11 one's.

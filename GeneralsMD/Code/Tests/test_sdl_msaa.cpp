@@ -49,6 +49,8 @@ int main(){
         // A second-stage alpha mask exercises independently compacted replay bindings.
         d->Clear(0,nullptr,D3DCLEAR_TARGET|D3DCLEAR_ZBUFFER|D3DCLEAR_STENCIL,0xff000000,1,0);
         d->SetTexture(0,nullptr);d->SetTexture(1,alpha);
+        d->SetTextureStageState(1,D3DTSS_TEXCOORDINDEX,0);
+        d->SetSamplerState(1,D3DSAMP_MINFILTER,D3DTEXF_POINT);d->SetSamplerState(1,D3DSAMP_MAGFILTER,D3DTEXF_POINT);
         d->SetTextureStageState(1,D3DTSS_COLOROP,D3DTOP_SELECTARG1);d->SetTextureStageState(1,D3DTSS_COLORARG1,D3DTA_CURRENT);
         d->SetTextureStageState(1,D3DTSS_ALPHAOP,D3DTOP_SELECTARG1);d->SetTextureStageState(1,D3DTSS_ALPHAARG1,D3DTA_TEXTURE);
         quad(64,48,.2f);CHECK(frame->Read_Depth(frame->Back_Buffer_Target().Depth,64,48,depth));
@@ -66,7 +68,9 @@ int main(){
         std::vector<uint8_t> expected;CHECK(frame->Read_Back(frame->Back_Buffer(),64,48,expected));
         d->SetRenderState(D3DRS_ZENABLE,D3DZB_FALSE);d->SetRenderState(D3DRS_ZWRITEENABLE,0);quad(4,4,.1f);
         CHECK(frame->Read_Back(frame->Back_Buffer(),64,48,pixels));
-        if(!pixels.empty()&&!expected.empty()){CHECK(pixels[0]==255&&pixels[1]==255&&pixels[2]==255);const unsigned at=(14*64+12)*4;CHECK(pixels[at]==expected[at]&&pixels[at+2]==expected[at+2]);}
+        if(!pixels.empty()&&!expected.empty()){// The rectangle starts on a legacy half-pixel edge; MSAA correctly
+            // gives its border partial coverage. The interior must stay white.
+            const unsigned ui=(1*64+1)*4;CHECK(pixels[ui]==255&&pixels[ui+1]==255&&pixels[ui+2]==255);const unsigned at=(14*64+12)*4;CHECK(pixels[at]==expected[at]&&pixels[at+2]==expected[at+2]);}
         D3DRECT small={0,0,6,6};CHECK(d->Clear(1,&small,D3DCLEAR_ZBUFFER,0,.9f,0)==D3D_OK);
         CHECK(frame->Read_Depth(frame->Back_Buffer_Target().Depth,64,48,depth));if(!depth.empty())CHECK(std::abs(depth[0]-.9f)<.001f);
         CHECK(frame->Retained_Staging_Bytes()>0);CHECK(frame->Trim_Transient_Memory());CHECK(frame->Retained_Staging_Bytes()==0);state();d->Clear(0,nullptr,D3DCLEAR_TARGET|D3DCLEAR_ZBUFFER,0xff000000,1,0);triangle(0xffff0000);
