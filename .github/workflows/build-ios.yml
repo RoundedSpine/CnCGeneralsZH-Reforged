@@ -1,0 +1,152 @@
+name: Build iOS unsigned IPA
+on:
+  push:
+    branches: [experiment/ios-port]
+  workflow_dispatch:
+    inputs:
+      host_runner:
+        description: macOS host (Intel is a fallback when arm64 runners are unavailable)
+        type: choice
+        options: [macos-15, macos-15-intel]
+        default: macos-15
+      lan_multicast:
+        description: Request LAN discovery entitlement (requires a matching signing profile)
+        type: boolean
+        default: false
+permissions:
+  contents: read
+concurrency:
+  group: ios-port-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  build-ipa:
+    runs-on: ${{ inputs.host_runner || 'macos-15' }}
+    timeout-minutes: 90
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - name: Select Xcode and build tools
+        env:
+          CCACHE_DIR: ${{ github.workspace }}/build/ios/compiler-cache
+        id: tools
+        run: |
+          xcodebuild -version
+          xcrun --sdk iphoneos --show-sdk-version
+          echo "sdk=$(xcrun --sdk iphoneos --show-sdk-version)" >> "$GITHUB_OUTPUT"
+          cmake --version
+          if ! command -v ninja >/dev/null; then brew install ninja; fi
+          if ! command -v ccache >/dev/null; then
+            brew install ccache || echo "Compiler cache unavailable; building directly."
+          fi
+          if command -v ccache >/dev/null; then ccache --max-size 2G; fi
+      - name: Test gestures and packaging helpers
+        run: |
+          c++ -std=c++17 -Wall -Wextra -fsanitize=address,undefined \
+            -IGeneralsMD/Code/Libraries/Source/Compression \
+            GeneralsMD/Code/Tests/test_refpack.cpp GeneralsMD/Code/Tests/test_main.cpp \
+            GeneralsMD/Code/Libraries/Source/Compression/EAC/refdecode.cpp \
+            GeneralsMD/Code/Libraries/Source/Compression/EAC/refencode.cpp \
+            -o "$RUNNER_TEMP/test-refpack"
+          "$RUNNER_TEMP/test-refpack"
+          python3 GeneralsMD/Code/Tests/test_disconnect_ping.py
+          python3 GeneralsMD/Code/Tests/test_ios_shadow_path.py
+          python3 GeneralsMD/Code/Tests/test_graphics_preferences.py
+          python3 GeneralsMD/Code/Tests/test_ios_graphics_startup.py
+          python3 GeneralsMD/Code/Tests/test_device_creation.py
+          python3 GeneralsMD/Code/Tests/test_ios_lifecycle.py
+          python3 GeneralsMD/Code/Tests/test_ios_memory_pressure.py
+          python3 GeneralsMD/Code/Tests/test_shoreline_refresh.py
+          python3 GeneralsMD/Code/Tests/test_sdl_present_mode.py
+          python3 GeneralsMD/Code/Tests/test_ios_shader_constants.py
+          python3 GeneralsMD/Code/Tests/test_native_particle_admission.py
+          python3 GeneralsMD/Code/Tests/test_ios_network_permissions.py
+          c++ -std=c++17 -Wall -Wextra -fsanitize=address,undefined \
+            -IGeneralsMD/Code/GameEngineDevice/Include \
+            GeneralsMD/Code/Tests/test_ios_touch.cpp -o "$RUNNER_TEMP/test-ios-touch"
+          "$RUNNER_TEMP/test-ios-touch"
+          c++ -std=c++17 -Wall -Wextra -fsanitize=address,undefined \
+            -IGeneralsMD/Code/GameEngineDevice/Include -IGeneralsMD/Code/GameEngine/Include \
+            GeneralsMD/Code/Tests/test_ios_camera_pan.cpp -o "$RUNNER_TEMP/test-ios-camera-pan"
+          "$RUNNER_TEMP/test-ios-camera-pan"
+          python3 GeneralsMD/Code/Tests/test_package_link_libraries.py
+          python3 GeneralsMD/Code/Tests/test_host_tools.py
+          python3 GeneralsMD/Code/Tests/test_ios_global_new.py
+          python3 GeneralsMD/Code/Tests/test_ios_report.py
+          python3 GeneralsMD/Code/Tests/test_ios_main_exit.py
+          python3 GeneralsMD/Code/Tests/test_ios_symbols.py
+          python3 GeneralsMD/Code/Tests/test_smudge_support.py
+          python3 GeneralsMD/Code/Tests/test_heat_haze.py
+          c++ -std=c++17 -Wall -Wextra -fsanitize=address,undefined \
+            -IGeneralsMD/Code/GameEngineDevice/Source/PosixDevice/Render \
+            GeneralsMD/Code/Tests/test_feedback_diagnostic.cpp -o "$RUNNER_TEMP/test-feedback-diagnostic"
+          "$RUNNER_TEMP/test-feedback-diagnostic"
+          c++ -std=c++17 -Wall -Wextra -fsanitize=address,undefined \
+            -IGeneralsMD/Code/Libraries/Include \
+            GeneralsMD/Code/Tests/test_ios_startup_pump.cpp -o "$RUNNER_TEMP/test-ios-startup"
+          "$RUNNER_TEMP/test-ios-startup"
+          GeneralsMD/Code/Tools/fingerprint-manifest.sh --check
+      - name: Restore compiled objects
+        continue-on-error: true
+        uses: actions/cache/restore@v4
+        with:
+          path: build/ios
+          key: ios-${{ runner.arch }}-${{ steps.tools.outputs.sdk }}-${{ github.sha }}
+          restore-keys: ios-${{ runner.arch }}-${{ steps.tools.outputs.sdk }}-
+      - name: Build device IPA
+        env:
+          CCACHE_DIR: ${{ github.workspace }}/build/ios/compiler-cache
+          ZH_IOS_LAN_ENTITLEMENT: ${{ inputs.lan_multicast && '1' || '0' }}
+          ZH_IOS_GRAPHICS_TESTS: '1'
+        shell: bash
+        run: |
+          mkdir -p build/ios
+          set -o pipefail
+          : > build/ios/build.log
+          (
+            while sleep 60; do
+              IOS_JOB_STATUS=in_progress python3 GeneralsMD/Code/Tools/publish-ios-report.py \
+                > build/ios/report-progress.log 2>&1 || true
+            done
+          ) &
+          report_pid=$!
+          trap 'kill "$report_pid" 2>/dev/null || true; wait "$report_pid" 2>/dev/null || true' EXIT
+          GeneralsMD/Code/Tools/build-ios.sh "$PWD/build/ios" 2>&1 | tee build/ios/build.log
+      - name: Save compiled objects
+        if: always()
+        continue-on-error: true
+        uses: actions/cache/save@v4
+        with:
+          path: build/ios
+          key: ios-${{ runner.arch }}-${{ steps.tools.outputs.sdk }}-${{ github.sha }}
+      - name: Upload unsigned IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: Reforged-iOS-unsigned-${{ github.sha }}
+          path: |
+            build/ios/Reforged-iOS-unsigned.ipa
+            build/ios/Reforged.entitlements
+          if-no-files-found: error
+      - name: Upload build diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Reforged-iOS-build-logs-${{ github.run_id }}
+          path: |
+            build/ios/build.log
+            build/ios/CMakeFiles/CMakeConfigureLog.yaml
+            build/ios/ffmpeg-work/build/configure.log
+            build/ios/ffmpeg-work/build/ffbuild/config.log
+            build/ios/ios-load-commands.txt
+            build/ios/signed-entitlements.plist
+            build/ios/Reforged-symbols.tsv
+          if-no-files-found: warn
+      # Keep compiler diagnostics readable through Git for environments with no Actions API access.
+      # Only named build logs are published; never the environment or credentials.
+      - name: Publish compiler report
+        if: always()
+        env:
+          IOS_JOB_STATUS: ${{ job.status }}
+        run: python3 GeneralsMD/Code/Tools/publish-ios-report.py
