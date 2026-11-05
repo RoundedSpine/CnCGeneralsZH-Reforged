@@ -53,6 +53,138 @@ SDL_ShaderCross_SPIRV_Info spirv_info(const std::vector<unsigned char> & spirv, 
 
 } // namespace
 
+namespace {
+
+// Counts the resources a program's SPIR-V binds, the way SDL numbers them, straight from the
+// instructions.  No reflection library: SDL_shadercross counts what a program uses, SDL needs
+// the highest slot + 1, and shadercross's reflection sorts a texel-fetch-only texture (.Load,
+// no sampler) with the storage textures.  Types are followed, so a texture is told from a
+// storage texture by its OpTypeImage "Sampled" operand and a storage buffer from a constant
+// buffer by BufferBlock / the StorageBuffer storage class.
+//
+// SDL's sets: a vertex program's textures, storage textures and storage buffers in set 0 and
+// constant buffers in set 1; a pixel program's in 2 and 3.  Storage resources follow the sampled
+// textures in set 0 / 2, so samplers here is the highest sampled-texture slot + 1 and does not
+// include them.
+struct SdlShaderResources
+{
+	unsigned samplers = 0;
+	unsigned storage_textures = 0;
+	unsigned storage_buffers = 0;
+	unsigned uniform_buffers = 0;
+};
+
+namespace sdl3_shader_resources_detail {
+
+inline unsigned word_at(const unsigned char * p)
+{
+	return p[0] | (p[1] << 8) | (p[2] << 16) | ((unsigned)p[3] << 24);
+}
+
+enum Kind : unsigned char { KindNone, KindImage, KindStorageImage, KindSampler, KindStruct, KindArray, KindPointer, KindVariable };
+
+struct Info
+{
+	unsigned set = ~0u, binding = ~0u;
+	unsigned storage_class = ~0u;
+	unsigned link = 0;		// pointer: pointee type; array: element type; variable: its pointer type
+	Kind kind = KindNone;
+	bool buffer_block = false;
+};
+
+} // namespace sdl3_shader_resources_detail
+
+inline void SDL3_Shader_Resources(const std::vector<unsigned char> & spirv, bool vertex_stage, SdlShaderResources & out)
+{
+	using namespace sdl3_shader_resources_detail;
+	out = SdlShaderResources();
+	const size_t words = spirv.size() / 4;
+	if (words < 5) return;
+	const unsigned char * bytes = &spirv[0];
+	const unsigned id_bound = word_at(bytes + 12);
+	if (id_bound == 0 || id_bound > (1u << 22)) return;
+	const unsigned texture_set = vertex_stage ? 0 : 2;
+	const unsigned uniform_set = vertex_stage ? 1 : 3;
+
+	std::vector<Info> info(id_bound);
+	for (size_t at = 5; at < words;) {
+		const unsigned head = word_at(bytes + at * 4);
+		const unsigned opcode = head & 0xffff, length = head >> 16;
+		if (length == 0 || at + length > words) break;
+		const unsigned char * w = bytes + at * 4;
+#define SDL3_OPERAND(n) word_at(w + (n) * 4)
+		switch (opcode) {
+		case 71:	// OpDecorate target decoration [value]
+			if (length >= 3) {
+				const unsigned target = SDL3_OPERAND(1), decoration = SDL3_OPERAND(2);
+				if (target < id_bound) {
+					if (decoration == 3) info[target].buffer_block = true;							// BufferBlock
+					if (decoration == 34 && length >= 4) info[target].set = SDL3_OPERAND(3);		// DescriptorSet
+					if (decoration == 33 && length >= 4) info[target].binding = SDL3_OPERAND(3);	// Binding
+				}
+			}
+			break;
+		case 25:	// OpTypeImage result sampledType dim depth arrayed ms sampled format
+			if (length >= 8 && SDL3_OPERAND(1) < id_bound)
+				info[SDL3_OPERAND(1)].kind = SDL3_OPERAND(7) == 2 ? KindStorageImage : KindImage;
+			break;
+		case 26:	// OpTypeSampler
+		case 27:	// OpTypeSampledImage
+			if (length >= 2 && SDL3_OPERAND(1) < id_bound)
+				info[SDL3_OPERAND(1)].kind = opcode == 26 ? KindSampler : KindImage;
+			break;
+		case 28:	// OpTypeArray result element length
+		case 29:	// OpTypeRuntimeArray result element
+			if (length >= 3 && SDL3_OPERAND(1) < id_bound) {
+				info[SDL3_OPERAND(1)].kind = KindArray;
+				info[SDL3_OPERAND(1)].link = SDL3_OPERAND(2);
+			}
+			break;
+		case 30:	// OpTypeStruct
+			if (length >= 2 && SDL3_OPERAND(1) < id_bound) info[SDL3_OPERAND(1)].kind = KindStruct;
+			break;
+		case 32:	// OpTypePointer result storageClass type
+			if (length >= 4 && SDL3_OPERAND(1) < id_bound) {
+				info[SDL3_OPERAND(1)].kind = KindPointer;
+				info[SDL3_OPERAND(1)].storage_class = SDL3_OPERAND(2);
+				info[SDL3_OPERAND(1)].link = SDL3_OPERAND(3);
+			}
+			break;
+		case 59:	// OpVariable resultType result storageClass
+			if (length >= 4 && SDL3_OPERAND(2) < id_bound) {
+				info[SDL3_OPERAND(2)].kind = KindVariable;
+				info[SDL3_OPERAND(2)].link = SDL3_OPERAND(1);
+				info[SDL3_OPERAND(2)].storage_class = SDL3_OPERAND(3);
+			}
+			break;
+		}
+#undef SDL3_OPERAND
+		at += length;
+	}
+
+	for (unsigned id = 0; id < id_bound; ++id) {
+		const Info & var = info[id];
+		if (var.kind != KindVariable || var.binding == ~0u || var.set == ~0u) continue;
+		if (var.link >= id_bound) continue;
+		unsigned type = info[var.link].kind == KindPointer ? info[var.link].link : 0;
+		for (int depth = 0; type < id_bound && info[type].kind == KindArray && depth < 8; ++depth) type = info[type].link;
+		if (type >= id_bound) continue;
+		const Info & t = info[type];
+		if (var.set == texture_set) {
+			if (t.kind == KindStorageImage) ++out.storage_textures;
+			else if (t.kind == KindStruct && (var.storage_class == 12 || (var.storage_class == 2 && t.buffer_block))) ++out.storage_buffers;
+			else if (t.kind == KindImage || t.kind == KindSampler) {
+				if (var.binding + 1 > out.samplers) out.samplers = var.binding + 1;
+			}
+		}
+		else if (var.set == uniform_set) {
+			if (var.binding + 1 > out.uniform_buffers) out.uniform_buffers = var.binding + 1;
+		}
+	}
+}
+
+} // namespace
+
 // The one place the HLSL front end is named (see the header).  glslang's defaults are what the
 // D-spike measured all 49 of the game's programs through: Vulkan 1.0, SPIR-V 1.0, default limits.
 bool SDL3_Compile_HLSL_To_SPIRV(const std::string & hlsl, bool vertex_stage, std::vector<unsigned char> & spirv,
@@ -183,18 +315,50 @@ SDL_GPUShader * SDL3_Create_Shader(SDL_GPUDevice * device, const std::vector<uns
 		log = SDL_GetError();
 		return NULL;
 	}
+	// Counted from the SPIR-V itself.  A program reading textures at slots 0 and 7 needs eight, and SDL
+	// binds slots 0 to n - 1.  shadercross's reflection counts what is used (two), and sorts a texture
+	// read only with .Load into the storage textures, so neither its count nor its split is trusted.
+	SdlShaderResources counted;
+	SDL3_Shader_Resources(spirv, vertex_stage, counted);
+	SDL_ClearError();
+
+	// Metal: shadercross's own creation path does not take the counts it is given (the Metal soft
+	// particle depth texture, at slot 7, was created as a two-slot program and left unbound).  Make the
+	// MSL the same way it does and hand SDL the counts ourselves.  The entry point is main0 (MSL renames main).
+	const SDL_GPUShaderFormat formats = SDL_GetGPUShaderFormats(device);
+	if (!(formats & SDL_GPU_SHADERFORMAT_SPIRV) && (formats & SDL_GPU_SHADERFORMAT_MSL)) {
+		std::string msl, translate_log;
+		if (!SDL3_Translate_MSL(spirv, vertex_stage ? SdlShaderStage::Vertex : SdlShaderStage::Fragment, msl, translate_log)) {
+			log = translate_log.empty() ? "SPIR-V to MSL failed without a reason" : translate_log;
+			return NULL;
+		}
+		SDL_GPUShaderCreateInfo create;
+		SDL_zero(create);
+		create.code = reinterpret_cast<const Uint8 *>(msl.c_str());
+		create.code_size = msl.size() + 1;
+		create.entrypoint = "main0";
+		create.format = SDL_GPU_SHADERFORMAT_MSL;
+		create.stage = vertex_stage ? SDL_GPU_SHADERSTAGE_VERTEX : SDL_GPU_SHADERSTAGE_FRAGMENT;
+		create.num_samplers = counted.samplers;
+		create.num_storage_textures = counted.storage_textures;
+		create.num_storage_buffers = counted.storage_buffers;
+		create.num_uniform_buffers = counted.uniform_buffers;
+		SDL_ClearError();
+		SDL_GPUShader * metal_shader = SDL_CreateGPUShader(device, &create);
+		if (metal_shader == NULL) {
+			log = SDL_GetError();
+			if (log.empty()) log = "Metal refused the program, and SDL did not say why";
+		}
+		return metal_shader;
+	}
+
 	const SDL_ShaderCross_SPIRV_Info info = spirv_info(spirv, vertex_stage?SdlShaderStage::Vertex:SdlShaderStage::Fragment);
 	SDL_ShaderCross_GraphicsShaderResourceInfo resources;
 	SDL_zero(resources);
-	SDL3_Shader_Slots(spirv, vertex_stage, resources.num_samplers, resources.num_uniform_buffers);
-	// Storage buffers follow sampled textures in SDL's binding order. The native particle
-	// vertex stage has one storage buffer and no textures; use reflected storage counts too.
-	if(auto *reflected=SDL_ShaderCross_ReflectGraphicsSPIRV(spirv.data(),spirv.size(),0)) {
-		resources.num_storage_buffers=reflected->resource_info.num_storage_buffers;
-		resources.num_storage_textures=reflected->resource_info.num_storage_textures;
-		if(resources.num_storage_buffers||resources.num_storage_textures)resources.num_samplers=reflected->resource_info.num_samplers;
-		SDL_free(reflected);
-	}
+	resources.num_samplers = counted.samplers;
+	resources.num_uniform_buffers = counted.uniform_buffers;
+	resources.num_storage_textures = counted.storage_textures;
+	resources.num_storage_buffers = counted.storage_buffers;
 	// shadercross leaves an error from its start-up (it looks for libraries it may not need) where a
 	// later failure that sets none would report it.  Cleared, so a refusal says its own reason.
 	SDL_ClearError();
