@@ -16385,10 +16385,6 @@ TOOLTIP:SupplyPileFull
 "\n Занято: лимит на кучу не пускает ваших сборщиков"
 END
 
-TOOLTIP:StatTime
-"Время постройки"
-END
-
 TOOLTIP:StatSeconds
 "%d с"
 END
@@ -16747,14 +16743,6 @@ END
 
 TOOLTIP:CloudStyle
 "Классический использует оригинальные эффекты токсинов и радиации. Объёмный добавляет движущийся дым, более тёмную ядерную дымку и марево. Применяется при нажатии «Принять», в том числе к облакам, уже находящимся на поле."
-END
-
-LAN:ErrorModMismatch
-"В этой игре запущены другие моды. Моды хоста: %s. Чтобы присоединиться, запустите игру с теми же модами в том же порядке."
-END
-
-LAN:NoMod
-"нет"
 END
 
 GUI:SaveFromOlderGame
@@ -17239,6 +17227,26 @@ END
 
 GUI:HotkeysCommandAUTO_REPAIR
 "Идти на ремонт или лечение"
+END
+
+GUI:HotkeysCommandTOGGLE_ATTACKMOVE
+"Атака на ходу (следующий щелчок)"
+END
+
+GUI:HotkeysCommandTOGGLE_FORCEATTACK
+"Принудительная атака (следующий щелчок)"
+END
+
+GUI:HotkeysCommandTOGGLE_GUARD
+"Охрана (следующий щелчок)"
+END
+
+GUI:HotkeysCommandTOGGLE_MOVE
+"Движение (следующий щелчок)"
+END
+
+GUI:HotkeysCommandHOLD_POSITION
+"Удерживать позицию"
 END
 
 GUI:LoadModeSkirmish

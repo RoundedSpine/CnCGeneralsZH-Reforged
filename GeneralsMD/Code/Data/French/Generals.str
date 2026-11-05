@@ -16389,10 +16389,6 @@ TOOLTIP:SupplyPileFull
 "\n Pris : la limite par réserve tient vos collecteurs à l'écart"
 END
 
-TOOLTIP:StatTime
-"Temps de construction"
-END
-
 TOOLTIP:StatSeconds
 "%ds"
 END
@@ -16767,14 +16763,6 @@ END
 
 TOOLTIP:CloudStyle
 "Classique utilise les effets de toxine et de radiation d'origine. Volumétrique ajoute une fumée mouvante, une brume nucléaire plus sombre et une distorsion de chaleur. S'applique quand vous cliquez sur Accepter, aux nuages déjà sur le terrain aussi."
-END
-
-LAN:ErrorModMismatch
-"Cette partie utilise d'autres mods. Les mods de l'hôte : %s. Lancez le jeu avec les mêmes mods, dans le même ordre, pour la rejoindre."
-END
-
-LAN:NoMod
-"aucun"
 END
 
 GUI:SaveFromOlderGame
@@ -17287,6 +17275,26 @@ END
 
 GUI:HotkeysCommandAUTO_REPAIR
 "Aller se faire réparer ou soigner"
+END
+
+GUI:HotkeysCommandTOGGLE_ATTACKMOVE
+"Attaquer en marche (prochain clic)"
+END
+
+GUI:HotkeysCommandTOGGLE_FORCEATTACK
+"Forcer l'attaque (prochain clic)"
+END
+
+GUI:HotkeysCommandTOGGLE_GUARD
+"Protéger (prochain clic)"
+END
+
+GUI:HotkeysCommandTOGGLE_MOVE
+"Déplacer (prochain clic)"
+END
+
+GUI:HotkeysCommandHOLD_POSITION
+"Tenir la position"
 END
 
 GUI:LoadModeSkirmish

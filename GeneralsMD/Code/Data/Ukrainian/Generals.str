@@ -16385,10 +16385,6 @@ TOOLTIP:SupplyPileFull
 "\n Зайнято: ліміт купи не пускає ваших збирачів"
 END
 
-TOOLTIP:StatTime
-"Час будівництва"
-END
-
 TOOLTIP:StatSeconds
 "%dс"
 END
@@ -16747,14 +16743,6 @@ END
 
 TOOLTIP:CloudStyle
 "Класичний використовує оригінальні ефекти токсинів і радіації. Об'ємний додає рухомий дим, темнішу ядерну імлу й марево. Діє після натискання Прийняти, також на хмари, що вже є на полі."
-END
-
-LAN:ErrorModMismatch
-"Ця гра запущена з іншими модами. Моди хоста: %s. Щоб приєднатися, запустіть гру з тими ж модами в тому ж порядку."
-END
-
-LAN:NoMod
-"немає"
 END
 
 GUI:SaveFromOlderGame
@@ -17239,6 +17227,26 @@ END
 
 GUI:HotkeysCommandAUTO_REPAIR
 "Іти на ремонт або лікування"
+END
+
+GUI:HotkeysCommandTOGGLE_ATTACKMOVE
+"Атака в русі (наступний клік)"
+END
+
+GUI:HotkeysCommandTOGGLE_FORCEATTACK
+"Примусова атака (наступний клік)"
+END
+
+GUI:HotkeysCommandTOGGLE_GUARD
+"Охорона (наступний клік)"
+END
+
+GUI:HotkeysCommandTOGGLE_MOVE
+"Рух (наступний клік)"
+END
+
+GUI:HotkeysCommandHOLD_POSITION
+"Утримувати позицію"
 END
 
 GUI:LoadModeSkirmish
