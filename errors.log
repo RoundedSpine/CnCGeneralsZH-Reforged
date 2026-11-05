@@ -1,0 +1,174 @@
+ 2389 |                 case SERIAL_NONEXISTENT:
+ 2390 |                         resp.discon.reason = DISCONNECT_SERIAL_NOT_PRESENT;
+ 2391 |                         break;
+ 2392 |                 case SERIAL_AUTHFAILED:
+ 2393 |                         resp.discon.reason = DISCONNECT_SERIAL_INVALID;
+ 2394 |                         break;
+ 2395 |                 case SERIAL_BANNED:
+ 2396 |                         resp.discon.reason = DISCONNECT_SERIAL_BANNED;
+ 2397 |                         break;
+ 2398 |         }
+38 warnings generated.
+[1231/1517] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameNetwork/GameSpy/Thread/PersistentStorageThread.cpp.o
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameNetwork/GameSpy/Thread/PersistentStorageThread.cpp:34:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Precompiled/PreRTS.h:139:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/STLTypedefs.h:62:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:755:84: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
+  755 |         inline void *operator new(size_t s) { DEBUG_CRASH(("This should be impossible")); return 0; }
+      |                                                                                           ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:766:7: warning: 'this' pointer cannot be null in well-defined C++ code; pointer may be assumed to always convert to true [-Wundefined-bool-conversion]
+      |            ^
+319 warnings generated.
+[1514/1517] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/Shadow/W3DProjectedShadow.cpp.o
+FAILED: [code=1] CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/Shadow/W3DProjectedShadow.cpp.o 
+/opt/homebrew/bin/ccache /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang++ -DIG_DEBUG_STACKTRACE -DRELEASE_DEBUG_LOGGING -DZ_PREFIX -D_CRT_NONSTDC_NO_WARNINGS -D_CRT_SECURE_NO_WARNINGS -D_RELEASE -I/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Include -I/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Include -I/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Stubs -I/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Main -I/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/PosixDevice/Render -I/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/Miles6/include -I/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/Bink/include -I/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include -I/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Precompiled -I/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas -I/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib -I/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/GameSpy/include -I/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/GameSpy/include/gamespy -I/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression -I/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WW3D2 -I/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWMath -I/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWSaveLoad -I/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWDebug -I/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/Wwutil -I/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Benchmark -I/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Include/Platform/PosixD3D9 -I/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/build/ios/host-graphics/SDL3/include-revision -I/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/SDL3/include -O3 -DNDEBUG -std=gnu++17 -arch arm64 -isysroot /Applications/Xcode_16.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk -mmacosx-version-min=13.0 -fno-delete-null-pointer-checks -fexceptions -ffp-contract=off -fno-strict-aliasing -fsigned-char -Wno-unknown-pragmas -g -Werror=unguarded-availability-new -MD -MT CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/Shadow/W3DProjectedShadow.cpp.o -MF CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/Shadow/W3DProjectedShadow.cpp.o.d -o CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/Shadow/W3DProjectedShadow.cpp.o -c /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/Shadow/W3DProjectedShadow.cpp
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/Shadow/W3DProjectedShadow.cpp:39:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WW3D2/camera.h:55:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WW3D2/rendobj.h:52:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWMath/sphere.h:60:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWMath/vector3.h:76:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWMath/wwmath.h:552:35: warning: logical not is only applied to the left hand side of this bitwise operator [-Wlogical-not-parentheses]
+  552 |         r = ((r & expsign) ^ (sign)) + ((!((mantissa<<8)&imask)&(expsign^((a-1)>>31)))&sign);   // if (fabs(value)<1.0) value = 0; copy sign; if (value < 0 && value==(int)(value)) value++;
+      |                                          ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWMath/wwmath.h:552:35: note: add parentheses after the '!' to evaluate the bitwise operator first
+  552 |         r = ((r & expsign) ^ (sign)) + ((!((mantissa<<8)&imask)&(expsign^((a-1)>>31)))&sign);   // if (fabs(value)<1.0) value = 0; copy sign; if (value < 0 && value==(int)(value)) value++;
+      |                                          ^                                           
+      |                                           (                                          )
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWMath/wwmath.h:552:35: note: add parentheses around left hand side expression to silence this warning
+  552 |         r = ((r & expsign) ^ (sign)) + ((!((mantissa<<8)&imask)&(expsign^((a-1)>>31)))&sign);   // if (fabs(value)<1.0) value = 0; copy sign; if (value < 0 && value==(int)(value)) value++;
+  614 | DX8Wrapper::Set_Shader(ShaderClass::_PresetMultiplicativeShader);
+  615 | break;
+  616 | case SHADOW_ALPHA_DECAL:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/Shadow/W3DProjectedShadow.cpp:1067:35: error: return type of out-of-line definition of 'W3DProjectedShadowManager::addDecal' differs from that in the declaration
+ 1067 | Shadow W3DProjectedShadowManager::addDecal(Shadow::ShadowTypeInfo *shadowInfo)
+      | ~~~~~~                            ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Include/W3DDevice/GameClient/W3DProjectedShadow.h:67:19: note: previous declaration is here
+   67 |                 virtual Shadow  *addDecal(Shadow::ShadowTypeInfo *shadowInfo);  ///<add a non-shadow decal which does not follow an object.
+      |                         ~~~~~~~~~^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/Shadow/W3DProjectedShadow.cpp:1078:10: error: no viable conversion from returned value of type 'long' to function return type 'Shadow'
+ 1078 |         return NULL;
+      |                ^~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_null.h:21:14: note: expanded from macro 'NULL'
+   21 | #define NULL __null
+      |              ^~~~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameClient/Shadow.h:74:7: note: candidate constructor (the implicit copy constructor) not viable: no known conversion from 'long' to 'const Shadow &' for 1st argument
+   74 | class Shadow
+      |       ^~~~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameClient/Shadow.h:74:7: note: candidate constructor (the implicit move constructor) not viable: no known conversion from 'long' to 'Shadow &&' for 1st argument
+   74 | class Shadow
+      |       ^~~~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/Shadow/W3DProjectedShadow.cpp:1091:11: error: no viable conversion from returned value of type 'long' to function return type 'Shadow'
+ 1091 |                 return NULL;
+      |                        ^~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_null.h:21:14: note: expanded from macro 'NULL'
+   21 | #define NULL __null
+      |              ^~~~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameClient/Shadow.h:74:7: note: candidate constructor (the implicit copy constructor) not viable: no known conversion from 'long' to 'const Shadow &' for 1st argument
+   74 | class Shadow
+      |       ^~~~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameClient/Shadow.h:74:7: note: candidate constructor (the implicit move constructor) not viable: no known conversion from 'long' to 'Shadow &&' for 1st argument
+   74 | class Shadow
+      |       ^~~~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/Shadow/W3DProjectedShadow.cpp:1105:10: error: no viable conversion from returned value of type 'long' to function return type 'Shadow'
+ 1105 |         return NULL;
+      |                ^~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_null.h:21:14: note: expanded from macro 'NULL'
+   21 | #define NULL __null
+      |              ^~~~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameClient/Shadow.h:74:7: note: candidate constructor (the implicit copy constructor) not viable: no known conversion from 'long' to 'const Shadow &' for 1st argument
+   74 | class Shadow
+      |       ^~~~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameClient/Shadow.h:74:7: note: candidate constructor (the implicit move constructor) not viable: no known conversion from 'long' to 'Shadow &&' for 1st argument
+   74 | class Shadow
+      |       ^~~~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/Shadow/W3DProjectedShadow.cpp:1149:9: error: no viable conversion from returned value of type 'W3DProjectedShadow *' to function return type 'Shadow'
+ 1149 |  return shadow;
+      |         ^~~~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameClient/Shadow.h:74:7: note: candidate constructor (the implicit copy constructor) not viable: no known conversion from 'W3DProjectedShadow *' to 'const Shadow &' for 1st argument; dereference the argument with *
+   74 | class Shadow
+      |       ^~~~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameClient/Shadow.h:74:7: note: candidate constructor (the implicit move constructor) not viable: no known conversion from 'W3DProjectedShadow *' to 'Shadow &&' for 1st argument
+   74 | class Shadow
+      |       ^~~~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/Shadow/W3DProjectedShadow.cpp:1093:18: warning: expression result unused [-Wunused-value]
+ 1093 |         SET_REF_OWNER( st );
+      |                        ^~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/refcount.h:68:30: note: expanded from macro 'SET_REF_OWNER'
+   68 | #define SET_REF_OWNER( P )                      P
+      |                                                 ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/Shadow/W3DProjectedShadow.cpp:1152:35: error: return type of out-of-line definition of 'W3DProjectedShadowManager::addDecal' differs from that in the declaration
+ 1152 | Shadow W3DProjectedShadowManager::addDecal(RenderObjClass *robj, Shadow::ShadowTypeInfo *shadowInfo)
+      | ~~~~~~                            ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Include/W3DDevice/GameClient/W3DProjectedShadow.h:66:19: note: previous declaration is here
+   66 |                 virtual Shadow  *addDecal(RenderObjClass *robj, Shadow::ShadowTypeInfo *shadowInfo);    ///<add a non-shadow decal
+      |                         ~~~~~~~~~^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/Shadow/W3DProjectedShadow.cpp:1165:10: error: no viable conversion from returned value of type 'long' to function return type 'Shadow'
+ 1165 |         return NULL;
+      |                ^~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_null.h:21:14: note: expanded from macro 'NULL'
+   21 | #define NULL __null
+      |              ^~~~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameClient/Shadow.h:74:7: note: candidate constructor (the implicit copy constructor) not viable: no known conversion from 'long' to 'const Shadow &' for 1st argument
+   74 | class Shadow
+      |       ^~~~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameClient/Shadow.h:74:7: note: candidate constructor (the implicit move constructor) not viable: no known conversion from 'long' to 'Shadow &&' for 1st argument
+   74 | class Shadow
+      |       ^~~~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/Shadow/W3DProjectedShadow.cpp:1178:11: error: no viable conversion from returned value of type 'long' to function return type 'Shadow'
+ 1178 |                 return NULL;
+      |                        ^~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_null.h:21:14: note: expanded from macro 'NULL'
+   21 | #define NULL __null
+      |              ^~~~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameClient/Shadow.h:74:7: note: candidate constructor (the implicit copy constructor) not viable: no known conversion from 'long' to 'const Shadow &' for 1st argument
+   74 | class Shadow
+      |       ^~~~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameClient/Shadow.h:74:7: note: candidate constructor (the implicit move constructor) not viable: no known conversion from 'long' to 'Shadow &&' for 1st argument
+   74 | class Shadow
+      |       ^~~~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/Shadow/W3DProjectedShadow.cpp:1194:10: error: no viable conversion from returned value of type 'long' to function return type 'Shadow'
+ 1194 |         return NULL;
+      |                ^~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_null.h:21:14: note: expanded from macro 'NULL'
+   21 | #define NULL __null
+      |              ^~~~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameClient/Shadow.h:74:7: note: candidate constructor (the implicit copy constructor) not viable: no known conversion from 'long' to 'const Shadow &' for 1st argument
+   74 | class Shadow
+      |       ^~~~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameClient/Shadow.h:74:7: note: candidate constructor (the implicit move constructor) not viable: no known conversion from 'long' to 'Shadow &&' for 1st argument
+   74 | class Shadow
+      |       ^~~~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/Shadow/W3DProjectedShadow.cpp:1248:9: error: no viable conversion from returned value of type 'W3DProjectedShadow *' to function return type 'Shadow'
+ 1248 |  return shadow;
+      |         ^~~~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameClient/Shadow.h:74:7: note: candidate constructor (the implicit copy constructor) not viable: no known conversion from 'W3DProjectedShadow *' to 'const Shadow &' for 1st argument; dereference the argument with *
+   74 | class Shadow
+      |       ^~~~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameClient/Shadow.h:74:7: note: candidate constructor (the implicit move constructor) not viable: no known conversion from 'W3DProjectedShadow *' to 'Shadow &&' for 1st argument
+   74 | class Shadow
+      |       ^~~~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/Shadow/W3DProjectedShadow.cpp:1180:18: warning: expression result unused [-Wunused-value]
+ 1180 |         SET_REF_OWNER( st );
+      |                        ^~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/refcount.h:68:30: note: expanded from macro 'SET_REF_OWNER'
+   68 | #define SET_REF_OWNER( P )                      P
+      |                                                 ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/Shadow/W3DProjectedShadow.cpp:1307:21: warning: expression result unused [-Wunused-value]
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/refcount.h:68:30: note: expanded from macro 'SET_REF_OWNER'
+   68 | #define SET_REF_OWNER( P )                      P
+      |                                                 ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/Shadow/W3DProjectedShadow.cpp:1831:40: error: expected '}'
+ 1831 | virtual ~MissingTextureClass( void ) {}
+      |                                        ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/Shadow/W3DProjectedShadow.cpp:1828:50: note: to match this '{'
+ 1828 | class MissingTextureClass : public HashableClass {
+      |                                                  ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/Shadow/W3DProjectedShadow.cpp:1830:44: error: member initializer 'Name' does not name a non-static data member or base class
+ 1830 | MissingTextureClass( const char * name ) : Name( name ) {}
+      |                                            ^~~~~~~~~~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/Shadow/W3DProjectedShadow.cpp:1831:40: error: expected ';' after class
+ 1831 | virtual ~MissingTextureClass( void ) {}
+      |                                        ^
+      |                                        ;
+56 warnings and 13 errors generated.
+ninja: build stopped: subcommand failed.
