@@ -1,300 +1,300 @@
-[405/1517] Building C object freetype/CMakeFiles/freetype.dir/src/base/ftotval.c.o
-[406/1517] Building C object freetype/CMakeFiles/freetype.dir/src/base/ftpatent.c.o
-[407/1517] Building C object freetype/CMakeFiles/freetype.dir/src/base/ftpfr.c.o
-[408/1517] Building C object freetype/CMakeFiles/freetype.dir/src/base/ftstroke.c.o
-[409/1517] Building C object freetype/CMakeFiles/freetype.dir/src/base/ftsynth.c.o
-[410/1517] Building C object freetype/CMakeFiles/freetype.dir/src/base/fttype1.c.o
-[411/1517] Building C object freetype/CMakeFiles/freetype.dir/src/base/ftwinfnt.c.o
-[412/1517] Building C object freetype/CMakeFiles/freetype.dir/src/bdf/bdf.c.o
-[413/1517] Building C object freetype/CMakeFiles/freetype.dir/src/bzip2/ftbzip2.c.o
-[414/1517] Building C object freetype/CMakeFiles/freetype.dir/src/cache/ftcache.c.o
-[415/1517] Building C object freetype/CMakeFiles/freetype.dir/src/cff/cff.c.o
-[416/1517] Building C object freetype/CMakeFiles/freetype.dir/src/cid/type1cid.c.o
-[417/1517] Building C object freetype/CMakeFiles/freetype.dir/src/gzip/ftgzip.c.o
-[418/1517] Building C object freetype/CMakeFiles/freetype.dir/src/lzw/ftlzw.c.o
-[419/1517] Building C object freetype/CMakeFiles/freetype.dir/src/pcf/pcf.c.o
-[420/1517] Building C object freetype/CMakeFiles/freetype.dir/src/pfr/pfr.c.o
-[421/1517] Building C object freetype/CMakeFiles/freetype.dir/src/psaux/psaux.c.o
-[422/1517] Building C object freetype/CMakeFiles/freetype.dir/src/pshinter/pshinter.c.o
-[423/1517] Building C object freetype/CMakeFiles/freetype.dir/src/psnames/psnames.c.o
-[424/1517] Building C object freetype/CMakeFiles/freetype.dir/src/raster/raster.c.o
-[425/1517] Building C object freetype/CMakeFiles/freetype.dir/src/sdf/sdf.c.o
-[426/1517] Building C object freetype/CMakeFiles/freetype.dir/src/smooth/smooth.c.o
-[427/1517] Building C object freetype/CMakeFiles/freetype.dir/src/sfnt/sfnt.c.o
-[428/1517] Building C object freetype/CMakeFiles/freetype.dir/src/svg/svg.c.o
-[429/1517] Building C object freetype/CMakeFiles/freetype.dir/src/truetype/truetype.c.o
-[430/1517] Building C object freetype/CMakeFiles/freetype.dir/src/type1/type1.c.o
-[431/1517] Building C object freetype/CMakeFiles/freetype.dir/src/type42/type42.c.o
-[432/1517] Building C object freetype/CMakeFiles/freetype.dir/src/winfonts/winfnt.c.o
-[433/1517] Building C object freetype/CMakeFiles/freetype.dir/builds/unix/ftsystem.c.o
-[434/1517] Building C object freetype/CMakeFiles/freetype.dir/src/base/ftdebug.c.o
-[435/1517] Building CXX object CMakeFiles/wwutil.dir/Libraries/Source/WWVegas/Wwutil/mathutil.cpp.o
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/Wwutil/mathutil.cpp:31:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWMath/wwmath.h:552:35: warning: logical not is only applied to the left hand side of this bitwise operator [-Wlogical-not-parentheses]
-  552 |         r = ((r & expsign) ^ (sign)) + ((!((mantissa<<8)&imask)&(expsign^((a-1)>>31)))&sign);   // if (fabs(value)<1.0) value = 0; copy sign; if (value < 0 && value==(int)(value)) value++;
-      |                                          ^                     ~
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWMath/wwmath.h:552:35: note: add parentheses after the '!' to evaluate the bitwise operator first
-  552 |         r = ((r & expsign) ^ (sign)) + ((!((mantissa<<8)&imask)&(expsign^((a-1)>>31)))&sign);   // if (fabs(value)<1.0) value = 0; copy sign; if (value < 0 && value==(int)(value)) value++;
-      |                                          ^                                           
-      |                                           (                                          )
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWMath/wwmath.h:552:35: note: add parentheses around left hand side expression to silence this warning
-  552 |         r = ((r & expsign) ^ (sign)) + ((!((mantissa<<8)&imask)&(expsign^((a-1)>>31)))&sign);   // if (fabs(value)<1.0) value = 0; copy sign; if (value < 0 && value==(int)(value)) value++;
-      |                                          ^                     
-      |                                          (                     )
-1 warning generated.
-[436/1517] Linking CXX static library glslang/glslang/libglslang-default-resource-limits.a
-[437/1517] Building CXX object CMakeFiles/wwutil.dir/Libraries/Source/WWVegas/Wwutil/miscutil.cpp.o
-[438/1517] Building CXX object CMakeFiles/compression.dir/Libraries/Source/Compression/CompressionManager.cpp.o
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/CompressionManager.cpp:26:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/LZHCompress/NoxCompress.h:40:8: warning: extra tokens at end of #endif directive [-Wextra-tokens]
-   40 | #endif __compress_h
-      |        ^
-      |        //
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/CompressionManager.cpp:142:10: warning: enumeration value 'COMPRESSION_MIN' not handled in switch [-Wswitch]
-  142 |         switch (compType)
-      |                 ^~~~~~~~
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/CompressionManager.cpp:142:10: note: add missing switch cases
-  142 |         switch (compType)
+  684 |         MEMORY_POOL_GLUE_WITHOUT_GCMP(ARGCLASS) \
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:658:3: note: expanded from macro 'MEMORY_POOL_GLUE_WITHOUT_GCMP'
+  658 |                 return 0; \
       |                 ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/CompressionManager.cpp:180:10: warning: enumeration value 'COMPRESSION_MIN' not handled in switch [-Wswitch]
-  180 |         switch (compType)
-      |                 ^~~~~~~~
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/CompressionManager.cpp:180:10: note: add missing switch cases
-  180 |         switch (compType)
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/W3DView.cpp:83:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/AIUpdate.h:38:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/AIStateMachine.h:1316:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
+ 1316 |         MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE(AIAttackAreaState, "AIAttackAreaState")         
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:684:2: note: expanded from macro 'MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE'
+  684 |         MEMORY_POOL_GLUE_WITHOUT_GCMP(ARGCLASS) \
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:658:3: note: expanded from macro 'MEMORY_POOL_GLUE_WITHOUT_GCMP'
+  658 |                 return 0; \
       |                 ^
-3 warnings generated.
-[439/1517] Building CXX object CMakeFiles/compression.dir/Libraries/Source/Compression/EAC/btreeabout.cpp.o
-[440/1517] Building CXX object CMakeFiles/compression.dir/Libraries/Source/Compression/EAC/btreedecode.cpp.o
-[441/1517] Linking CXX static library libwwmath.a
-[442/1517] Building CXX object CMakeFiles/compression.dir/Libraries/Source/Compression/EAC/btreeencode.cpp.o
-[443/1517] Building CXX object CMakeFiles/compression.dir/Libraries/Source/Compression/EAC/huffabout.cpp.o
-[444/1517] Building CXX object CMakeFiles/compression.dir/Libraries/Source/Compression/EAC/huffdecode.cpp.o
-[445/1517] Building CXX object CMakeFiles/compression.dir/Libraries/Source/Compression/EAC/huffencode.cpp.o
-[446/1517] Building CXX object CMakeFiles/compression.dir/Libraries/Source/Compression/EAC/refabout.cpp.o
-[447/1517] Building CXX object CMakeFiles/compression.dir/Libraries/Source/Compression/EAC/refdecode.cpp.o
-[448/1517] Building CXX object CMakeFiles/compression.dir/Libraries/Source/Compression/EAC/refencode.cpp.o
-[449/1517] Building CXX object CMakeFiles/compression.dir/Libraries/Source/Compression/LZHCompress/CompLibSource/Huff.cpp.o
-[450/1517] Building CXX object CMakeFiles/compression.dir/Libraries/Source/Compression/LZHCompress/CompLibSource/Lz.cpp.o
-[451/1517] Building CXX object CMakeFiles/compression.dir/Libraries/Source/Compression/LZHCompress/NoxCompress.cpp.o
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/LZHCompress/NoxCompress.cpp:29:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/LZHCompress/NoxCompress.h:40:8: warning: extra tokens at end of #endif directive [-Wextra-tokens]
-   40 | #endif __compress_h
-      |        ^
-      |        //
-1 warning generated.
-[452/1517] Building CXX object CMakeFiles/compression.dir/Libraries/Source/Compression/LZHCompress/CompLibSource/Lzhl.cpp.o
-[453/1517] Building C object CMakeFiles/compression.dir/Libraries/Source/Compression/ZLib/adler32.c.o
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/adler32.c:21:15: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-   21 | uLong ZEXPORT adler32(adler, buf, len)
-      |               ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/zconf.h:35:19: note: expanded from macro 'adler32'
-   35 | #  define adler32       z_adler32
-      |                         ^
-1 warning generated.
-[454/1517] Building C object CMakeFiles/compression.dir/Libraries/Source/Compression/ZLib/compress.c.o
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/compress.c:21:13: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-   21 | int ZEXPORT compress2 (dest, destLen, source, sourceLen, level)
-      |             ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/zconf.h:33:21: note: expanded from macro 'compress2'
-   33 | #  define compress2     z_compress2
-      |                         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/compress.c:61:13: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-   61 | int ZEXPORT compress (dest, destLen, source, sourceLen)
-      |             ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/zconf.h:32:20: note: expanded from macro 'compress'
-   32 | #  define compress      z_compress
-      |                         ^
-2 warnings generated.
-[455/1517] Building C object CMakeFiles/compression.dir/Libraries/Source/Compression/ZLib/crc32.c.o
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/crc32.c:142:15: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  142 | uLong ZEXPORT crc32(crc, buf, len)
-      |               ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/zconf.h:36:18: note: expanded from macro 'crc32'
-   36 | #  define crc32         z_crc32
-      |                         ^
-1 warning generated.
-[456/1517] Building C object CMakeFiles/compression.dir/Libraries/Source/Compression/ZLib/deflate.c.o
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/deflate.c:190:13: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  190 | int ZEXPORT deflateInit_(strm, level, version, stream_size)
-      |             ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/zconf.h:16:24: note: expanded from macro 'deflateInit_'
-   16 | #  define deflateInit_  z_deflateInit_
-      |                         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/deflate.c:202:13: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  202 | int ZEXPORT deflateInit2_(strm, level, method, windowBits, memLevel, strategy,
-      |             ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/zconf.h:22:25: note: expanded from macro 'deflateInit2_'
-   22 | #  define deflateInit2_ z_deflateInit2_
-      |                         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/deflate.c:291:13: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  291 | int ZEXPORT deflateSetDictionary (strm, dictionary, dictLength)
-      |             ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/zconf.h:23:32: note: expanded from macro 'deflateSetDictionary'
-   23 | #  define deflateSetDictionary z_deflateSetDictionary
-      |                                ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/deflate.c:332:13: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  332 | int ZEXPORT deflateReset (strm)
-      |             ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/zconf.h:25:24: note: expanded from macro 'deflateReset'
-   25 | #  define deflateReset  z_deflateReset
-      |                         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/deflate.c:362:13: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  362 | int ZEXPORT deflateParams(strm, level, strategy)
-      |             ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/zconf.h:26:25: note: expanded from macro 'deflateParams'
-   26 | #  define deflateParams z_deflateParams
-      |                         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/deflate.c:402:12: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  402 | local void putShortMSB (s, b)
-      |            ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/deflate.c:416:12: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  416 | local void flush_pending(strm)
-      |            ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/deflate.c:436:13: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  436 | int ZEXPORT deflate (strm, flush)
-      |             ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/zconf.h:17:19: note: expanded from macro 'deflate'
-   17 | #  define deflate       z_deflate
-      |                         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/deflate.c:570:13: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  570 | int ZEXPORT deflateEnd (strm)
-      |             ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/zconf.h:18:22: note: expanded from macro 'deflateEnd'
-   18 | #  define deflateEnd    z_deflateEnd
-      |                         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/deflate.c:600:13: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  600 | int ZEXPORT deflateCopy (dest, source)
-      |             ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/zconf.h:24:23: note: expanded from macro 'deflateCopy'
-   24 | #  define deflateCopy   z_deflateCopy
-      |                         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/deflate.c:662:11: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  662 | local int read_buf(strm, buf, size)
-      |           ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/deflate.c:687:12: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  687 | local void lm_init (s)
-      |            ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/deflate.c:726:12: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  726 | local uInt longest_match(s, cur_match)
-      |            ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/deflate.c:961:12: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  961 | local void fill_window(s)
-      |            ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/deflate.c:1081:19: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
- 1081 | local block_state deflate_stored(s, flush)
-      |                   ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/deflate.c:1139:19: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
- 1139 | local block_state deflate_fast(s, flush)
-      |                   ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/deflate.c:1235:19: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
- 1235 | local block_state deflate_slow(s, flush)
-      |                   ^
-17 warnings generated.
-[457/1517] Building C object CMakeFiles/compression.dir/Libraries/Source/Compression/ZLib/gzio.c.o
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/gzio.c:73:14: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-   73 | local gzFile gz_open (path, mode, fd)
-      |              ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/gzio.c:183:16: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  183 | gzFile ZEXPORT gzopen (path, mode)
-      |                ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/gzio.c:194:16: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  194 | gzFile ZEXPORT gzdopen (fd, mode)
-      |                ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/gzio.c:209:13: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  209 | int ZEXPORT gzsetparams (file, level, strategy)
-      |             ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/gzio.c:236:11: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  236 | local int get_byte(s)
-      |           ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/gzio.c:263:12: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  263 | local void check_header(s)
-      |            ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/gzio.c:316:11: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  316 | local int destroy (s)
-      |           ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/gzio.c:355:13: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  355 | int ZEXPORT gzread (file, buf, len)
-      |             ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/gzio.c:449:13: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  449 | int ZEXPORT gzgetc(file)
-      |             ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/gzio.c:467:16: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  467 | char * ZEXPORT gzgets(file, buf, len)
-      |                ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/gzio.c:486:13: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  486 | int ZEXPORT gzwrite (file, buf, len)
-      |             ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/gzio.c:573:13: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  573 | int ZEXPORT gzputc(file, c)
-      |             ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/gzio.c:588:13: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  588 | int ZEXPORT gzputs(file, s)
-      |             ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/gzio.c:600:11: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  600 | local int do_flush (file, flush)
-      |           ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/gzio.c:639:13: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  639 | int ZEXPORT gzflush (file, flush)
-      |             ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/gzio.c:660:17: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  660 | z_off_t ZEXPORT gzseek (file, offset, whence)
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/W3DView.cpp:83:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/AIUpdate.h:38:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/AIStateMachine.h:1346:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
+ 1346 |         MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE(AIFaceState, "AIFaceState")             
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:684:2: note: expanded from macro 'MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE'
+  684 |         MEMORY_POOL_GLUE_WITHOUT_GCMP(ARGCLASS) \
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:658:3: note: expanded from macro 'MEMORY_POOL_GLUE_WITHOUT_GCMP'
+  658 |                 return 0; \
       |                 ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/gzio.c:741:13: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  741 | int ZEXPORT gzrewind (file)
-      |             ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/gzio.c:768:17: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  768 | z_off_t ZEXPORT gztell (file)
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/W3DView.cpp:83:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/AIUpdate.h:251:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
+  251 |         MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE( AIUpdateInterface, "AIUpdateInterface" )
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:684:2: note: expanded from macro 'MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE'
+  684 |         MEMORY_POOL_GLUE_WITHOUT_GCMP(ARGCLASS) \
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:658:3: note: expanded from macro 'MEMORY_POOL_GLUE_WITHOUT_GCMP'
+  658 |                 return 0; \
       |                 ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/gzio.c:778:13: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  778 | int ZEXPORT gzeof (file)
-      |             ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/gzio.c:789:12: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  789 | local void putLong (file, x)
-      |            ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/gzio.c:804:13: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  804 | local uLong getLong (s)
-      |             ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/gzio.c:822:13: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  822 | int ZEXPORT gzclose (file)
-      |             ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/gzio.c:851:22: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  851 | const char*  ZEXPORT gzerror (file, errnum)
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/W3DView.cpp:86:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/OpenContain.h:41:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/CollideModule.h:77:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
+   77 |         MEMORY_POOL_GLUE_ABC( CollideModule )
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:700:3: note: expanded from macro 'MEMORY_POOL_GLUE_ABC'
+  700 |                 return 0; \
+      |                 ^
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/W3DView.cpp:86:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/OpenContain.h:41:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/CollideModule.h:77:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:713:3: note: expanded from macro 'MEMORY_POOL_GLUE_ABC'
+  713 |                 return 0; \
+      |                 ^
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/W3DView.cpp:86:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/OpenContain.h:44:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/DieModule.h:79:38: warning: offset of on non-standard-layout type 'DieModuleData' [-Winvalid-offsetof]
+   79 |                 p.add(DieMuxData::getFieldParse(), offsetof( DieModuleData, m_dieMuxData ));
+      |                                                    ^                        ~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/W3DView.cpp:86:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/OpenContain.h:44:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/DieModule.h:89:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
+   89 |         MEMORY_POOL_GLUE_ABC( DieModule )
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:700:3: note: expanded from macro 'MEMORY_POOL_GLUE_ABC'
+  700 |                 return 0; \
+      |                 ^
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/W3DView.cpp:86:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/OpenContain.h:44:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/DieModule.h:89:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:713:3: note: expanded from macro 'MEMORY_POOL_GLUE_ABC'
+  713 |                 return 0; \
+      |                 ^
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/W3DView.cpp:86:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/OpenContain.h:45:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/DamageModule.h:89:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
+   89 |         MEMORY_POOL_GLUE_ABC( DamageModule )
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:700:3: note: expanded from macro 'MEMORY_POOL_GLUE_ABC'
+  700 |                 return 0; \
+      |                 ^
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/W3DView.cpp:86:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/OpenContain.h:45:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/DamageModule.h:89:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:713:3: note: expanded from macro 'MEMORY_POOL_GLUE_ABC'
+  713 |                 return 0; \
+      |                 ^
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/W3DView.cpp:86:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/OpenContain.h:92:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
+   92 |         MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE( OpenContain, "OpenContain" )
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:684:2: note: expanded from macro 'MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE'
+  684 |         MEMORY_POOL_GLUE_WITHOUT_GCMP(ARGCLASS) \
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:658:3: note: expanded from macro 'MEMORY_POOL_GLUE_WITHOUT_GCMP'
+  658 |                 return 0; \
+      |                 ^
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/W3DView.cpp:88:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/ScriptEngine.h:42:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Scripts.h:109:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
+  109 |         MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE(ScriptGroup, "ScriptGroup")             
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:684:2: note: expanded from macro 'MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE'
+  684 |         MEMORY_POOL_GLUE_WITHOUT_GCMP(ARGCLASS) \
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:658:3: note: expanded from macro 'MEMORY_POOL_GLUE_WITHOUT_GCMP'
+  658 |                 return 0; \
+      |                 ^
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/W3DView.cpp:88:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/ScriptEngine.h:42:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Scripts.h:161:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
+  161 |         MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE(OrCondition, "OrCondition")             
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:684:2: note: expanded from macro 'MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE'
+  684 |         MEMORY_POOL_GLUE_WITHOUT_GCMP(ARGCLASS) \
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:658:3: note: expanded from macro 'MEMORY_POOL_GLUE_WITHOUT_GCMP'
+  658 |                 return 0; \
+      |                 ^
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/W3DView.cpp:88:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/ScriptEngine.h:42:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Scripts.h:199:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
+  199 |         MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE(ScriptAction, "ScriptAction")           
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:684:2: note: expanded from macro 'MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE'
+  684 |         MEMORY_POOL_GLUE_WITHOUT_GCMP(ARGCLASS) \
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:658:3: note: expanded from macro 'MEMORY_POOL_GLUE_WITHOUT_GCMP'
+  658 |                 return 0; \
+      |                 ^
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/W3DView.cpp:88:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/ScriptEngine.h:42:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Scripts.h:606:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
+  606 |         MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE(Script, "Script")               
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:684:2: note: expanded from macro 'MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE'
+  684 |         MEMORY_POOL_GLUE_WITHOUT_GCMP(ARGCLASS) \
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:658:3: note: expanded from macro 'MEMORY_POOL_GLUE_WITHOUT_GCMP'
+  658 |                 return 0; \
+      |                 ^
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/W3DView.cpp:88:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/ScriptEngine.h:42:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Scripts.h:715:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
+  715 |         MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE(Parameter, "Parameter")         
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:684:2: note: expanded from macro 'MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE'
+  684 |         MEMORY_POOL_GLUE_WITHOUT_GCMP(ARGCLASS) \
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:658:3: note: expanded from macro 'MEMORY_POOL_GLUE_WITHOUT_GCMP'
+  658 |                 return 0; \
+      |                 ^
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/W3DView.cpp:88:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/ScriptEngine.h:42:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Scripts.h:859:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
+  859 |         MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE(Condition, "Condition")         
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:684:2: note: expanded from macro 'MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE'
+  684 |         MEMORY_POOL_GLUE_WITHOUT_GCMP(ARGCLASS) \
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:658:3: note: expanded from macro 'MEMORY_POOL_GLUE_WITHOUT_GCMP'
+  658 |                 return 0; \
+      |                 ^
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/W3DView.cpp:88:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/ScriptEngine.h:42:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Scripts.h:1040:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
+ 1040 |         MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE(Template, "Template")           
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:684:2: note: expanded from macro 'MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE'
+  684 |         MEMORY_POOL_GLUE_WITHOUT_GCMP(ARGCLASS) \
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:658:3: note: expanded from macro 'MEMORY_POOL_GLUE_WITHOUT_GCMP'
+  658 |                 return 0; \
+      |                 ^
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/W3DView.cpp:88:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/ScriptEngine.h:42:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Scripts.h:1090:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
+ 1090 |         MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE(ScriptList, "ScriptList")               
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:684:2: note: expanded from macro 'MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE'
+  684 |         MEMORY_POOL_GLUE_WITHOUT_GCMP(ARGCLASS) \
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:658:3: note: expanded from macro 'MEMORY_POOL_GLUE_WITHOUT_GCMP'
+  658 |                 return 0; \
+      |                 ^
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/W3DView.cpp:88:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/ScriptEngine.h:128:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
+  128 |         MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE(AttackPriorityInfo, "AttackPriorityInfo")               
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:684:2: note: expanded from macro 'MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE'
+  684 |         MEMORY_POOL_GLUE_WITHOUT_GCMP(ARGCLASS) \
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:658:3: note: expanded from macro 'MEMORY_POOL_GLUE_WITHOUT_GCMP'
+  658 |                 return 0; \
+      |                 ^
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/W3DView.cpp:88:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/ScriptEngine.h:170:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
+  170 |         MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE(SequentialScript, "SequentialScript")           
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:684:2: note: expanded from macro 'MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE'
+  684 |         MEMORY_POOL_GLUE_WITHOUT_GCMP(ARGCLASS) \
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:658:3: note: expanded from macro 'MEMORY_POOL_GLUE_WITHOUT_GCMP'
+  658 |                 return 0; \
+      |                 ^
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/W3DView.cpp:90:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/AudioEventInfo.h:90:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
+   90 |         MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE( AudioEventInfo, "AudioEventInfo" )
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:684:2: note: expanded from macro 'MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE'
+  684 |         MEMORY_POOL_GLUE_WITHOUT_GCMP(ARGCLASS) \
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:658:3: note: expanded from macro 'MEMORY_POOL_GLUE_WITHOUT_GCMP'
+  658 |                 return 0; \
+      |                 ^
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/W3DView.cpp:93:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Include/W3DDevice/GameClient/HeightMap.h:39:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WW3D2/dx8wrapper.h:107:9: warning: '__volatile' macro redefined [-Wmacro-redefined]
+  107 | #define __volatile unsigned
+      |         ^
+/Applications/Xcode_16.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk/usr/include/sys/cdefs.h:121:9: note: previous definition is here
+  121 | #define __volatile      volatile
+      |         ^
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/W3DView.cpp:101:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Include/W3DDevice/GameClient/Module/W3DModelDraw.h:39:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/DrawModule.h:67:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
+   67 |         MEMORY_POOL_GLUE_ABC( DrawModule )
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:700:3: note: expanded from macro 'MEMORY_POOL_GLUE_ABC'
+  700 |                 return 0; \
+      |                 ^
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/W3DView.cpp:101:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Include/W3DDevice/GameClient/Module/W3DModelDraw.h:39:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/DrawModule.h:67:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:713:3: note: expanded from macro 'MEMORY_POOL_GLUE_ABC'
+  713 |                 return 0; \
+      |                 ^
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/W3DView.cpp:101:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Include/W3DDevice/GameClient/Module/W3DModelDraw.h:59:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameClient/ParticleSys.h:179:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
+  179 |         MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE( Particle, "ParticlePool" )             
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:684:2: note: expanded from macro 'MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE'
+  684 |         MEMORY_POOL_GLUE_WITHOUT_GCMP(ARGCLASS) \
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:658:3: note: expanded from macro 'MEMORY_POOL_GLUE_WITHOUT_GCMP'
+  658 |                 return 0; \
+      |                 ^
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/W3DView.cpp:101:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Include/W3DDevice/GameClient/Module/W3DModelDraw.h:59:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameClient/ParticleSys.h:604:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
+  604 |         MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE( ParticleSystemTemplate, "ParticleSystemTemplatePool" )         
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:684:2: note: expanded from macro 'MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE'
+  684 |         MEMORY_POOL_GLUE_WITHOUT_GCMP(ARGCLASS) \
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:658:3: note: expanded from macro 'MEMORY_POOL_GLUE_WITHOUT_GCMP'
+  658 |                 return 0; \
+      |                 ^
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/W3DView.cpp:101:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Include/W3DDevice/GameClient/Module/W3DModelDraw.h:59:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameClient/ParticleSys.h:708:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
+  708 |         MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE( ParticleSystem, "ParticleSystemPool" )         
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:684:2: note: expanded from macro 'MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE'
+  684 |         MEMORY_POOL_GLUE_WITHOUT_GCMP(ARGCLASS) \
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:658:3: note: expanded from macro 'MEMORY_POOL_GLUE_WITHOUT_GCMP'
+  658 |                 return 0; \
+      |                 ^
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/W3DView.cpp:101:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Include/W3DDevice/GameClient/Module/W3DModelDraw.h:354:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
+  354 |         MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE( W3DModelDraw, "W3DModelDraw" )
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:684:2: note: expanded from macro 'MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE'
+  684 |         MEMORY_POOL_GLUE_WITHOUT_GCMP(ARGCLASS) \
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:658:3: note: expanded from macro 'MEMORY_POOL_GLUE_WITHOUT_GCMP'
+  658 |                 return 0; \
+      |                 ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/W3DView.cpp:3953:10: warning: MBL: Clearing variable after polling - for scripting - see Adam.
+ [-W#pragma-messages]
+ 3953 |         #pragma message( "MBL: Clearing variable after polling - for scripting - see Adam.\n" )
+      |                 ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/W3DView.cpp:4372:15: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
+ 4372 |         Real angle = GameClientRandomValueReal( 0, 2*PI );
       |                      ^
-23 warnings generated.
-[458/1517] Linking CXX static library glslang/glslang/libglslang.a
-[459/1517] Building C object CMakeFiles/compression.dir/Libraries/Source/Compression/ZLib/infcodes.c.o
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/infcodes.c:59:23: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-   59 | inflate_codes_statef *inflate_codes_new(bl, bd, tl, td, z)
-      |                       ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/infcodes.c:81:5: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-   81 | int inflate_codes(s, z, r)
-      |     ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/infcodes.c:245:6: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  245 | void inflate_codes_free(c, z)
-      |      ^
-3 warnings generated.
-[460/1517] Building C object CMakeFiles/compression.dir/Libraries/Source/Compression/ZLib/infblock.c.o
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/infblock.c:68:6: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-   68 | void inflate_blocks_reset(s, z, c)
-      |      ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/infblock.c:89:24: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-   89 | inflate_blocks_statef *inflate_blocks_new(z, c, w)
-      |                        ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/infblock.c:120:5: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  120 | int inflate_blocks(s, z, r)
-      |     ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/infblock.c:372:5: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  372 | int inflate_blocks_free(s, z)
-      |     ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/infblock.c:385:6: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  385 | void inflate_set_dictionary(s, d, n)
-      |      ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/infblock.c:399:5: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  399 | int inflate_blocks_sync_point(s)
-      |     ^
-6 warnings generated.
-[461/1517] Building C object CMakeFiles/compression.dir/Libraries/Source/Compression/ZLib/inffast.c.o
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/inffast.c:28:5: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-   28 | int inflate_fast(bl, bd, tl, td, s, z)
-      |     ^
-1 warning generated.
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameClient/ClientRandomValue.h:43:83: note: expanded from macro 'GameClientRandomValueReal'
+   43 | #define GameClientRandomValueReal( lo, hi ) GetGameClientRandomValueReal( lo, hi, __FILE__, __LINE__ )
+      |                                                                                   ^
+<scratch space>:133:1: note: expanded from here
+  133 | "/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/W3DView.cpp"
+      | ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/W3DView.cpp:4378:10: warning: enumeration value 'SHAKE_COUNT' not handled in switch [-Wswitch]
+ 4378 |         switch( shakeType )
+      |                 ^~~~~~~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/W3DView.cpp:4378:10: note: add missing switch cases
+ 4378 |         switch( shakeType )
+      |                 ^
+142 warnings generated.
