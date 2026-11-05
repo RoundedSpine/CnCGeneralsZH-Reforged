@@ -1,0 +1,24 @@
+--- a/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/Shadow/W3DVolumetricShadow.cpp	2026-11-05 23:27:39.868422336 +0000
++++ b/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/Shadow/W3DVolumetricShadow.cpp	2026-11-05 23:27:39.908435236 +0000
+@@ -4773,8 +4773,19 @@
+ 	/* The volumes stand down only where the sun's map has actually taken this frame.  The casters
+ 		 stay registered either way, which is what keeps them in the map; what stops is the volumes'
+ 		 own darkening pass.  A machine with no Direct3D 11 device fills no map and keeps the volumes,
+-		 so nobody ends up with no shadows at all. */
+-	if (TheGlobalData->m_shadowMapOnly && SunShadow::OwnsSceneShadows(DX8Wrapper::_Get_D3D_Device()))
++		 so nobody ends up with no shadows at all.
++
++		 On iOS this holds without -shadowmaponly.  A volume's light is pulled towards the vertical for
++		 anything the terrain drops away from under (updateOptimalExtrusionPadding: it was written for
++		 an object on a cliff edge), and a helicopter is always over such ground, so its volume lands
++		 almost under it while the sun's map puts the shadow where the sun does.  Both drawing gave a
++		 helicopter a pale shadow to the side and a dark one beneath. */
++#if defined(ZH_PLATFORM_IOS)
++	const Bool volumesStandDown = TRUE;
++#else
++	const Bool volumesStandDown = TheGlobalData->m_shadowMapOnly;
++#endif
++	if (volumesStandDown && SunShadow::OwnsSceneShadows(DX8Wrapper::_Get_D3D_Device()))
+ 		return;
+ 
+  	AABoxClass bbox;
