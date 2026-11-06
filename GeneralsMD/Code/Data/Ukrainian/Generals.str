@@ -489,24 +489,36 @@ Color:Pink
 "Рожевий"
 END
 
-Color:Crimson
-"Багряний"
-END
-
-Color:Azure
-"Лазурний"
-END
-
-Color:Salmon
-"Лососевий"
-END
-
 Color:Teal
 "Бірюзовий"
 END
 
+Color:Lime
+"Лаймовий"
+END
+
+Color:Navy
+"Темно-синій"
+END
+
+Color:Magenta
+"Пурпуровий"
+END
+
+Color:Brown
+"Коричневий"
+END
+
 Color:Lavender
 "Лавандовий"
+END
+
+Color:Coral
+"Кораловий"
+END
+
+Color:Olive
+"Оливковий"
 END
 
 MSG:Testing
@@ -2982,7 +2994,7 @@ TOOLTIP:Crates
 END
 
 TOOLTIP:SuperWeapons
-"Скільки суперзброї кожного виду може мати гравець одночасно. Дозволено: стільки, скільки він може оплатити. Ліміт: по одній, а для генерала суперзброї США чотири. Ні: жодної, окрім генерала суперзброї, який залишає одну. Він виняток, бо його три суперзброї — це те, чим він платить за слабшу армію."
+"Скільки суперзброї може мати гравець одночасно. Дозволено: стільки, скільки він може оплатити. Ліміт: одна, а для генерала суперзброї США чотири. Ні: жодної, окрім генерала суперзброї, який залишає одну. Він виняток, бо його суперзброя — це те, чим він платить за слабшу армію. При «Ні» будь-хто, і комп'ютер теж, може збудувати одну шахту ядерної ракети, щоб купувати в ній покращення Китаю. Ракети в ній немає: ні кнопки запуску, ні зворотного відліку, ні оголошення."
 END
 
 DOZER:ConstructionComplete
@@ -16061,6 +16073,34 @@ TOOLTIP:VSync
 "Прив'язує картинку до монітора, щоб вона не рвалася. Вимкнена — картинка йде так швидко, як малює комп'ютер. Застосовується після Прийняти."
 END
 
+GUI:FrameRateLimit
+"Обмеження FPS"
+END
+
+GUI:FrameRateLimit0
+"Вимк."
+END
+
+GUI:FrameRateLimit1
+"240 FPS"
+END
+
+GUI:FrameRateLimit2
+"144 FPS"
+END
+
+GUI:FrameRateLimit3
+"120 FPS"
+END
+
+GUI:FrameRateLimit4
+"60 FPS"
+END
+
+TOOLTIP:FrameRateLimit
+"Скільки кадрів на секунду гра малює в матчі, не більше. З меншою межею відеокарта гріється й шумить менше, а гра не сповільнюється. У меню завжди не більше 60."
+END
+
 GUI:ClassicGraphics
 "Класична графіка"
 END
@@ -16683,6 +16723,26 @@ END
 
 GUI:HudNoWorkerLeft
 "У %s не лишилося робітників"
+END
+
+GUI:HudHighestFirst
+"за спаданням"
+END
+
+GUI:HudPlayerHead
+"Гравець"
+END
+
+GUI:HudStatUnitMoney
+"$"
+END
+
+GUI:HudStatUnitIncome
+"$/хв"
+END
+
+GUI:HudStatUnitPower
+"надлишок"
 END
 
 GUI:BarIdleWorker
@@ -18495,4 +18555,96 @@ END
 
 CONTROLBAR:ToolTipEvacuateAt
 "Вирушити у вибрану точку й наказати всім підрозділам вийти\nAlt: висадити тут"
+END
+
+GUI:OptionsTabWater
+"Вода"
+END
+
+GUI:OptionsGroupReflections
+"Відображення"
+END
+
+GUI:OptionsGroupModernWater
+"Сучасна вода"
+END
+
+GUI:WaterReflectionEnabled
+"Відображення сцени"
+END
+
+TOOLTIP:WaterReflectionEnabled
+"Відображає сцену на сучасній воді. Вимкнення підвищує продуктивність, зберігаючи колір неба й відблиски сонця. Режим відображення запам’ятовується. Застосовується після натискання «Прийняти»."
+END
+
+GUI:WaterFftResolution
+"Деталізація хвиль"
+END
+
+GUI:WaterFftResolution0
+"Низька"
+END
+
+GUI:WaterFftResolution1
+"Висока"
+END
+
+TOOLTIP:WaterFftResolution
+"Визначає деталізацію хвиль сучасної води. Низька підвищує продуктивність; висока показує більше деталей. Застосовується після натискання «Прийняти»."
+END
+
+GUI:WaterRefractionQuality
+"Заломлення"
+END
+
+GUI:WaterRefractionQuality0
+"Повне"
+END
+
+GUI:WaterRefractionQuality1
+"Просте"
+END
+
+GUI:WaterRefractionQuality2
+"Вимкнено"
+END
+
+TOOLTIP:WaterRefractionQuality
+"Для сучасної води. Повне заломлення спотворює вигляд під поверхнею. Просте залишає воду прозорою без спотворення. Вимкнено робить воду непрозорою й забарвленою для кращої продуктивності. Застосовується після натискання «Прийняти»."
+END
+
+GUI:WaterReflectionDetail
+"Деталі відбиття"
+END
+
+GUI:WaterReflectionDetail0
+"Низька"
+END
+
+GUI:WaterReflectionDetail1
+"Висока"
+END
+
+TOOLTIP:WaterReflectionDetail
+"Керує деталізацією відображень сцени на сучасній воді. Низька настройка підвищує продуктивність. Висока забезпечує чіткіші відображення. Роздільність SSR не змінюється. Застосовується після натискання «Прийняти»."
+END
+
+GUI:WaterReflection
+"Режим відображення"
+END
+
+GUI:WaterReflection0
+"Класичний"
+END
+
+GUI:WaterReflection1
+"SSR"
+END
+
+GUI:WaterReflection2
+"Гібридний"
+END
+
+TOOLTIP:WaterReflection
+"Для сучасної води з увімкненими відображеннями сцени. Класичний використовує оригінальні відображення. SSR відображає видимий на екрані вміст. Гібридний поєднує обидва варіанти й обраний за замовчуванням. Застосовується після натискання «Прийняти»."
 END

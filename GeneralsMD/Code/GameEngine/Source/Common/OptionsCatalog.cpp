@@ -119,7 +119,13 @@ OPTION_INT_ACCESSORS( m_windowMode )
 OPTION_INT_ACCESSORS( m_fullscreenScaling )
 OPTION_INT_ACCESSORS( m_msaaLevel )
 OPTION_BOOL_ACCESSORS( m_vsync )
+OPTION_INT_ACCESSORS( m_frameRateLimit )
 OPTION_INT_ACCESSORS( m_waterStyle )
+OPTION_INT_ACCESSORS( m_waterReflection )
+OPTION_BOOL_ACCESSORS( m_waterReflectionEnabled )
+OPTION_INT_ACCESSORS( m_waterFftResolution )
+OPTION_INT_ACCESSORS( m_waterRefractionQuality )
+OPTION_INT_ACCESSORS( m_waterReflectionDetail )
 OPTION_INT_ACCESSORS( m_cloudStyle )
 OPTION_BOOL_ACCESSORS( m_classicGraphics )
 OPTION_INT_ACCESSORS( m_lightingStyle )
@@ -153,6 +159,7 @@ OPTION_BOOL_ACCESSORS( m_atmosphere )
 OPTION_BOOL_ACCESSORS( m_structureCollapse )
 OPTION_BOOL_ACCESSORS( m_smoothMotion )
 OPTION_BOOL_ACCESSORS( m_internalHdr )
+OPTION_BOOL_ACCESSORS( m_heatHaze )
 OPTION_INT_ACCESSORS( m_shadowQuality )
 OPTION_INT_ACCESSORS( m_graphicsQuality )
 
@@ -164,6 +171,16 @@ unsigned msaaSamplesForLevel( Int level )
 	if( level <= 0 || level >= OPTION_MSAA_LEVEL_COUNT )
 		return 0;
 	return TheMsaaSamples[ level ];
+}
+
+//-----------------------------------------------------------------------------
+static const Int TheFrameRateLimits[ FRAME_RATE_LIMIT_COUNT ] = { 0, 240, 144, 120, 60 };
+
+Int frameRateLimitForLevel( Int level )
+{
+	if( level <= 0 || level >= FRAME_RATE_LIMIT_COUNT )
+		return 0;
+	return TheFrameRateLimits[ level ];
 }
 
 //-----------------------------------------------------------------------------
@@ -475,11 +492,41 @@ const OptionDef TheOptionCatalog[] =
 		OPTION_BOOL, APPLY_DEVICE_RESET, 0, 1,
 		get_m_vsync, set_m_vsync },
 
+	// A ceiling on the pictures a second, for a card that runs hot drawing hundreds of them (GitHub
+	// #149).  GameEngine::execute waits out the rest of each picture's time after the present; the
+	// logic is paced by its own clock and the cap never goes under the logic's rate.  Off is the
+	// uncapped picture.  The shell and its menus hold 60 whatever this says (#153).
+	{ "FrameRateLimit",						OPT_WND( "ComboBoxFrameRateLimit" ), "GUI:FrameRateLimit",
+		OPTION_ENUM, APPLY_LIVE, 0, FRAME_RATE_LIMIT_COUNT - 1,
+		get_m_frameRateLimit, set_m_frameRateLimit },
+
 	// Water selects a complete surface path, including geometry and reflections. The water
 	// object applies it at the next frame boundary, including while the options menu is paused.
 	{ "WaterStyle", OPT_WND( "ComboBoxWaterStyle" ), "GUI:WaterStyle",
 		OPTION_ENUM, APPLY_LIVE, 0, WATER_STYLE_COUNT - 1,
 		get_m_waterStyle, set_m_waterStyle },
+
+	// Modern water reads the mode each frame and refreshes its reflection target on a change.
+	// Keep this independent of WaterStyle so Classic can retain a choice for a later Modern switch.
+	{ "WaterReflection", OPT_WND( "ComboBoxWaterReflection" ), "GUI:WaterReflection",
+		OPTION_ENUM, APPLY_LIVE, 0, WATER_REFLECTION_COUNT - 1,
+		get_m_waterReflection, set_m_waterReflection },
+
+	{ "WaterReflectionEnabled", OPT_WND( "CheckWaterReflectionEnabled" ), "GUI:WaterReflectionEnabled",
+		OPTION_BOOL, APPLY_LIVE, 0, 1,
+		get_m_waterReflectionEnabled, set_m_waterReflectionEnabled },
+
+	{ "WaterFftResolution", OPT_WND( "ComboBoxWaterFftResolution" ), "GUI:WaterFftResolution",
+		OPTION_ENUM, APPLY_LIVE, 0, WATER_FFT_RESOLUTION_COUNT - 1,
+		get_m_waterFftResolution, set_m_waterFftResolution },
+
+	{ "WaterRefractionQuality", OPT_WND( "ComboBoxWaterRefractionQuality" ), "GUI:WaterRefractionQuality",
+		OPTION_ENUM, APPLY_LIVE, 0, WATER_REFRACTION_QUALITY_COUNT - 1,
+		get_m_waterRefractionQuality, set_m_waterRefractionQuality },
+
+	{ "WaterReflectionDetail", OPT_WND( "ComboBoxWaterReflectionDetail" ), "GUI:WaterReflectionDetail",
+		OPTION_ENUM, APPLY_LIVE, 0, WATER_REFLECTION_DETAIL_COUNT - 1,
+		get_m_waterReflectionDetail, set_m_waterReflectionDetail },
 
 	// Client appearance only; hazard area, lifetime and damage remain unchanged.
 	{ "CloudStyle", OPT_WND( "ComboBoxCloudStyle" ), "GUI:CloudStyle",
@@ -699,6 +746,14 @@ const OptionDef TheOptionCatalog[] =
 		OPTION_BOOL, APPLY_LIVE, 0, 1,
 		get_m_internalHdr, set_m_internalHdr },
 
+	// The air over fire, along laser beams and behind missile exhaust shimmers, at the strength the
+	// HEAT_HAZE_*, HEAT_BEAM_* and HEAT_EXHAUST_* constants in W3DParticleSys.cpp give.  The particle draw
+	// reads it every frame, and no sim reads it.  Off under Classic graphics and -d3d9; -heathaze turns it
+	// on for a run.  On Options > Display, under Picture: every column of Graphics and Effects is full.
+	{ "HeatHaze",									OPT_WND( "CheckHeatHaze" ), "GUI:HeatHaze",
+		OPTION_BOOL, APPLY_LIVE, 0, 1,
+		get_m_heatHaze, set_m_heatHaze },
+
 	// The size of the sun's depth map.  The shadow pass asks for it every frame and the backend makes
 	// the map again when the size changes, so a new level shows on the next frame.  On Options >
 	// Effects.  Classic graphics and -d3d9 draw no map at all.
@@ -801,6 +856,9 @@ const GraphicsQualityRow TheGraphicsQualityTable[] =
 	{ "CheckWaterSplashes",			0.2f,  {    0,    0,    0,    0,    0,    0,    0,    0,    1,    1,    1 } },
 	{ "CheckAtmosphere",				0.2f,  {    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    1 } },
 	{ "ComboBoxShadowQuality",	0.25f, {    0,    0,    0,    0,    0,    0,    1,    1,    1,    2,    2 } },
+	// from the DX11 GPU frame lines at 1920x1080 with -noFPSLimit, on against off: about 0.1 ms in a
+	// normal match (0.08 to 0.13), 0.2 to 0.4 in a fire-heavy one (0.07 to 0.55 at the ends)
+	{ "CheckHeatHaze",					0.25f, {    0,    0,    0,    0,    0,    0,    0,    0,    1,    1,    1 } },
 	{ "CheckAmbientOcclusion",	0.3f,  {    0,    0,    0,    0,    0,    0,    0,    0,    1,    1,    1 } },
 	{ "CheckMapLight",					0.35f, {    0,    0,    0,    0,    0,    0,    0,    0,    1,    1,    1 } },
 	{ "CheckFirelight",					0.4f,  {    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    1 } },
@@ -812,6 +870,11 @@ const GraphicsQualityRow TheGraphicsQualityTable[] =
 	{ "ParticleCapSlider",			1.6f,  {  500, 1000, 1500, 1500, 1500, 2000, 2500, 3000, 3500, 4000, 5000 } },
 	// the shadow map's whole cost: the scene 4.06 to 2.14 ms and the shadow pass 0.6 to 0
 	{ "Check3DShadows",					2.5f,  {    0,    0,    0,    0,    0,    1,    1,    1,    1,    1,    1 } },
+	// SDL water quality choices. The reflection mode remains the player's chosen look.
+	{ "CheckWaterReflectionEnabled",		0.0f, {    0,    0,    0,    0,    1,    1,    1,    1,    1,    1,    1 } },
+	{ "ComboBoxWaterRefractionQuality",	0.0f, {    2,    1,    1,    1,    1,    1,    0,    0,    0,    0,    0 } },
+	{ "ComboBoxWaterFftResolution",			0.0f, {    0,    0,    0,    0,    0,    0,    0,    1,    1,    1,    1 } },
+	{ "ComboBoxWaterReflectionDetail",	0.0f, {    0,    0,    0,    0,    0,    0,    0,    1,    1,    1,    1 } },
 };
 
 const Int TheGraphicsQualityTableCount = sizeof( TheGraphicsQualityTable ) / sizeof( TheGraphicsQualityTable[ 0 ] );
@@ -834,6 +897,16 @@ const OptionDef *findOptionDef( const char *iniKey )
 			return &TheOptionCatalog[ i ];
 
 	return NULL;
+}
+
+//-----------------------------------------------------------------------------
+Bool isModernWaterOption( const OptionDef& def )
+{
+	return strcmp( def.iniKey, "WaterReflection" ) == 0
+		|| strcmp( def.iniKey, "WaterReflectionEnabled" ) == 0
+		|| strcmp( def.iniKey, "WaterFftResolution" ) == 0
+		|| strcmp( def.iniKey, "WaterRefractionQuality" ) == 0
+		|| strcmp( def.iniKey, "WaterReflectionDetail" ) == 0;
 }
 
 //-----------------------------------------------------------------------------

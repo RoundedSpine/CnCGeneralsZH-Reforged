@@ -132,6 +132,7 @@ static int GetSystemMetrics( int which )
 }
 #endif
 #include "Common/OptionsCatalog.h"
+#include "Platform/WaterScreenReflection.h"
 #include "Common/SubsystemInterface.h"
 #include "GameClient/GameText.h"
 #include "Common/GameLOD.h"
@@ -1389,9 +1390,9 @@ TEST(fxlist_reforged_ini_parses_and_keeps_its_light)
 
 #include "Common/MultiplayerSettings.h"
 
-/* A slot, a replay and a preference hold a colour by its place in the list, so the fork's five have
+/* A slot, a replay and a preference hold a colour by its place in the list, so the fork's eight have
    to follow EA's eight and leave them as they were.  EA's list is in INIZH.big, so it is copied here. */
-TEST(multiplayer_reforged_ini_appends_five_colours_after_eas_eight)
+TEST(multiplayer_reforged_ini_appends_eight_colours_after_eas_eight)
 {
 	static const struct { const char *tooltip; Int r, g, b, nightR, nightG, nightB; } colours[] =
 	{
@@ -1403,11 +1404,14 @@ TEST(multiplayer_reforged_ini_appends_five_colours_after_eas_eight)
 		{ "Color:SkyBlue",   50, 215, 230,   50, 215, 230 },
 		{ "Color:Purple",   150,   0, 200,  223,   0, 156 },
 		{ "Color:Pink",     255, 150, 255,  255, 130, 248 },
-		{ "Color:Crimson",  165,  15,  45,  205,  45,  80 },
-		{ "Color:Azure",      0, 165, 255,    0, 165, 255 },
-		{ "Color:Salmon",   240, 120, 135,  240, 120, 135 },
-		{ "Color:Teal",       0, 175, 140,    0, 175, 140 },
-		{ "Color:Lavender", 165, 165, 255,  165, 165, 255 },
+		{ "Color:Teal",       0, 140, 130,    0, 180, 165 },
+		{ "Color:Lime",     166, 217,   0,  166, 217,   0 },
+		{ "Color:Navy",      37,  59, 155,   70, 100, 225 },
+		{ "Color:Magenta",  201,   0, 120,  240,  30, 160 },
+		{ "Color:Brown",    164,  90,  42,  200, 120,  65 },
+		{ "Color:Lavender", 165, 139, 255,  165, 139, 255 },
+		{ "Color:Coral",    240,  90,  69,  240,  90,  69 },
+		{ "Color:Olive",    120, 140,   0,  160, 180,  20 },
 	};
 
 	CHECK( bootOnce() );
@@ -1430,9 +1434,9 @@ TEST(multiplayer_reforged_ini_appends_five_colours_after_eas_eight)
 	CHECK( loadIni( TEST_INI ) );
 	CHECK_EQ( TheMultiplayerSettings->getNumColors(), 8 );
 	CHECK( loadIni( MULTIPLAYER_REFORGED_INI ) );
-	CHECK_EQ( TheMultiplayerSettings->getNumColors(), 13 );
+	CHECK_EQ( TheMultiplayerSettings->getNumColors(), 16 );
 
-	for( Int i = 0; i < 13 && TheMultiplayerSettings->getNumColors() == 13; ++i )
+	for( Int i = 0; i < 16 && TheMultiplayerSettings->getNumColors() == 16; ++i )
 	{
 		MultiplayerColorDefinition *def = TheMultiplayerSettings->getColor( i );
 		const RGBColor day = def->getRGBValue();
@@ -9909,6 +9913,42 @@ TEST(health_bar_colors_round_trip_through_options_ini)
 	TheWritableGlobalData = saved;
 }
 
+/** The picture cap (GitHub #149): off with no line, so Classic draws as fast as it always did, and
+	 each level the rate the combo box names. */
+TEST(frame_rate_limit_round_trips_through_options_ini)
+{
+	const OptionDef *def = findOptionDef( "FrameRateLimit" );
+	CHECK( def != NULL );
+	CHECK_EQ( (Int)def->kind, (Int)OPTION_ENUM );
+	CHECK_EQ( (Int)def->apply, (Int)APPLY_LIVE );
+	CHECK_EQ( def->hi, FRAME_RATE_LIMIT_COUNT - 1 );
+
+	CHECK_EQ( frameRateLimitForLevel( 0 ), 0 );
+	CHECK_EQ( frameRateLimitForLevel( 1 ), 240 );
+	CHECK_EQ( frameRateLimitForLevel( 2 ), 144 );
+	CHECK_EQ( frameRateLimitForLevel( 3 ), 120 );
+	CHECK_EQ( frameRateLimitForLevel( 4 ), 60 );
+	CHECK_EQ( frameRateLimitForLevel( FRAME_RATE_LIMIT_COUNT ), 0 );
+
+	GlobalData *saved = TheWritableGlobalData;
+	TheWritableGlobalData = NEW GlobalData;
+
+	CHECK_EQ( TheGlobalData->m_frameRateLimit, 0 );
+	CHECK_EQ( optionDefaultValue( *def ), 0 );
+
+	UserPreferences pref;
+	pref[ AsciiString( "FrameRateLimit" ) ] = AsciiString( "4" );
+	loadOptionsFromPreferences( pref );
+	CHECK_EQ( frameRateLimitForLevel( TheGlobalData->m_frameRateLimit ), 60 );
+
+	pref[ AsciiString( "FrameRateLimit" ) ] = AsciiString( "9" );
+	loadOptionsFromPreferences( pref );
+	CHECK_EQ( TheGlobalData->m_frameRateLimit, FRAME_RATE_LIMIT_COUNT - 1 );
+
+	delete TheWritableGlobalData;
+	TheWritableGlobalData = saved;
+}
+
 TEST(player_color_scheme_round_trips_through_options_ini)
 {
 	const OptionDef *def = findOptionDef( "PlayerColors" );
@@ -14816,6 +14856,8 @@ TEST(every_shipped_map_has_wire_letters_of_its_own)
 	names a file of town building names, one a line, standing in for the object INI. Run as
 	test_gameengine.exe write_the_maps_RMG_TEMPLATE_DUMP_names. */
 //-------------------------------------------------------------------------------------------------
+#include "Lib/Clock.h"
+
 TEST(write_the_maps_RMG_TEMPLATE_DUMP_names)
 {
 	const char *dump = getenv( "RMG_TEMPLATE_DUMP" );
@@ -14855,11 +14897,9 @@ TEST(write_the_maps_RMG_TEMPLATE_DUMP_names)
 		RandomMapGenerator::clampSettings( settings );
 		std::vector<char> map, preview;
 		RMGTemplateReport report;
-		LARGE_INTEGER frequency, before, after;
-		QueryPerformanceFrequency( &frequency );
-		QueryPerformanceCounter( &before );
+		const long long before = Clock_Ticks();
 		Bool built = rmgSynthesise( settings, exemplar, civilians ? isListedCivilian : NULL, map, &preview, &report );
-		QueryPerformanceCounter( &after );
+		const long long after = Clock_Ticks();
 		CHECK( built );
 		if( !built )
 			continue;
@@ -14879,7 +14919,7 @@ TEST(write_the_maps_RMG_TEMPLATE_DUMP_names)
 		fclose( out );
 		printf( "  wrote %s.map (%d bytes) in %.2f s: %d pads, %d ramps cut, %d patches, %d bridges, %d rivers, %d towns, %d tech, %d road "
 			"segments, %d trees, %d scenery; cut off %d starts, %d sites, %d tech\n%s",
-			name, (Int)map.size(), (double)( after.QuadPart - before.QuadPart ) / (double)frequency.QuadPart,
+			name, (Int)map.size(), (double)( after - before ) / (double)Clock_Ticks_Per_Second(),
 			report.m_pads, report.m_ramps, report.m_patches, report.m_bridges, report.m_rivers, report.m_towns, report.m_tech,
 			report.m_roads, report.m_trees, report.m_scenery, report.m_cutOffStarts, report.m_cutOffSites, report.m_cutOffTech,
 			report.m_notes.str() );
@@ -19134,6 +19174,262 @@ TEST(water_style_defaults_to_classic_and_preserves_an_explicit_modern_choice)
     TheWritableGlobalData=saved;
 }
 
+TEST(water_reflections_default_to_hybrid_and_persist_each_mode)
+{
+    const OptionDef *reflection = findOptionDef("WaterReflection");
+    CHECK(reflection != NULL);
+    if (!reflection)
+        return;
+    CHECK_EQ(reflection->kind, OPTION_ENUM);
+    CHECK_EQ(reflection->apply, APPLY_LIVE);
+    CHECK_EQ(reflection->lo, 0);
+    CHECK_EQ(reflection->hi, 2);
+    CHECK_STR(reflection->widgetName, "OptionsMenu.wnd:ComboBoxWaterReflection");
+    CHECK_STR(reflection->labelKey, "GUI:WaterReflection");
+
+    GlobalData *saved = TheWritableGlobalData;
+    GlobalData *scratch = NEW GlobalData;
+    TheWritableGlobalData = scratch;
+
+    UserPreferences pref;
+    CHECK_EQ(scratch->m_waterReflection, 2);
+    // Existing preference files have no key; retain Hybrid until the player chooses a mode.
+    loadOptionsFromPreferences(pref);
+    CHECK_EQ(reflection->get(), 2);
+
+    // The choice remains available with Classic water, ready for a later switch to Modern.
+    scratch->m_waterStyle = 0;
+    static const char *const modes[] = { "0", "1", "2" };
+    for (Int mode = 0; mode < WATER_REFLECTION_COUNT; ++mode) {
+        pref["WaterReflection"] = modes[mode];
+        loadOptionsFromPreferences(pref);
+        CHECK_EQ(reflection->get(), mode);
+        saveOptionsToPreferences(pref);
+        CHECK_STR(pref["WaterReflection"].str(), modes[mode]);
+        reflection->set((mode + 1) % WATER_REFLECTION_COUNT);
+        loadOptionsFromPreferences(pref);
+        CHECK_EQ(scratch->m_waterReflection, mode);
+        CHECK_EQ(scratch->m_waterStyle, 0);
+    }
+
+    // Hand-edited out-of-range values must still resolve to a mode shown in the menu.
+    pref["WaterReflection"] = "-1";
+    loadOptionsFromPreferences(pref);
+    CHECK_EQ(reflection->get(), 0);
+    pref["WaterReflection"] = "3";
+    loadOptionsFromPreferences(pref);
+    CHECK_EQ(reflection->get(), 2);
+    pref["WaterReflection"] = "99";
+    loadOptionsFromPreferences(pref);
+    CHECK_EQ(reflection->get(), 2);
+
+    delete scratch;
+    TheWritableGlobalData = saved;
+}
+
+TEST(modern_water_performance_defaults_preserve_existing_appearance)
+{
+    GlobalData *saved = TheWritableGlobalData;
+    GlobalData *scratch = NEW GlobalData;
+    TheWritableGlobalData = scratch;
+
+    CHECK(scratch->m_waterReflectionEnabled);
+    CHECK_EQ(scratch->m_waterFftResolution, 1);
+    CHECK_EQ(scratch->m_waterRefractionQuality, 0);
+    CHECK_EQ(scratch->m_waterReflectionDetail, 1);
+    UserPreferences missing;
+    loadOptionsFromPreferences(missing);
+    CHECK(scratch->m_waterReflectionEnabled);
+    CHECK_EQ(scratch->m_waterFftResolution, 1);
+    CHECK_EQ(scratch->m_waterRefractionQuality, 0);
+    CHECK_EQ(scratch->m_waterReflectionDetail, 1);
+    CHECK_EQ(scratch->m_waterReflection, 2); // existing Hybrid value is unchanged
+
+    delete scratch;
+    TheWritableGlobalData = saved;
+}
+
+TEST(modern_water_performance_choices_round_trip_without_device_or_modern_style)
+{
+    // This engine-only test has no active SDL GPU device. Preferences must still load and save
+    // without one, and remain ready when Modern water becomes available again.
+    CHECK(!WaterScreenReflection::Supported());
+    GlobalData *saved = TheWritableGlobalData;
+    GlobalData *scratch = NEW GlobalData;
+    TheWritableGlobalData = scratch;
+    scratch->m_waterStyle = 0;
+    scratch->m_waterReflection = 2;
+
+    const char *const keys[] = { "WaterReflectionEnabled", "WaterFftResolution", "WaterRefractionQuality", "WaterReflectionDetail" };
+    const char *const widgets[] = { "OptionsMenu.wnd:CheckWaterReflectionEnabled",
+        "OptionsMenu.wnd:ComboBoxWaterFftResolution", "OptionsMenu.wnd:ComboBoxWaterRefractionQuality",
+        "OptionsMenu.wnd:ComboBoxWaterReflectionDetail" };
+    const Int maxValues[] = { 1, WATER_FFT_RESOLUTION_COUNT - 1, WATER_REFRACTION_QUALITY_COUNT - 1, WATER_REFLECTION_DETAIL_COUNT - 1 };
+    for (Int i = 0; i < (Int)(sizeof(keys) / sizeof(keys[0])); ++i) {
+        const OptionDef *def = findOptionDef(keys[i]);
+        CHECK(def != NULL);
+        if (!def) continue;
+        CHECK_EQ(def->kind, i == 0 ? OPTION_BOOL : OPTION_ENUM);
+        CHECK_EQ(def->apply, APPLY_LIVE);
+        CHECK_EQ(def->lo, 0);
+        CHECK_EQ(def->hi, maxValues[i]);
+        CHECK_STR(def->widgetName, widgets[i]);
+        CHECK(isModernWaterOption(*def));
+        for (Int value = 0; value <= maxValues[i]; ++value) {
+            UserPreferences pref;
+            def->set(value);
+            saveOptionsToPreferences(pref);
+            CHECK_STR(pref[keys[i]].str(), formatOptionValue(*def, value).str());
+            def->set((value + 1) % (maxValues[i] + 1));
+            loadOptionsFromPreferences(pref);
+            CHECK_EQ(def->get(), value);
+            CHECK_EQ(scratch->m_waterStyle, 0);
+            CHECK_EQ(scratch->m_waterReflection, 2);
+        }
+    }
+    // The same classification protects every hidden water performance widget from writeback.
+    CHECK(isModernWaterOption(*findOptionDef("WaterReflection")));
+    CHECK(!isModernWaterOption(*findOptionDef("WaterStyle")));
+    CHECK(!isModernWaterOption(*findOptionDef("CloudStyle")));
+
+    delete scratch;
+    TheWritableGlobalData = saved;
+}
+
+TEST(modern_water_performance_invalid_values_are_bounded_and_console_input_is_strict)
+{
+    GlobalData *saved = TheWritableGlobalData;
+    GlobalData *scratch = NEW GlobalData;
+    TheWritableGlobalData = scratch;
+    const char *const keys[] = { "WaterFftResolution", "WaterRefractionQuality", "WaterReflectionDetail" };
+    for (Int i = 0; i < (Int)(sizeof(keys) / sizeof(keys[0])); ++i) {
+        const OptionDef *def = findOptionDef(keys[i]);
+        CHECK(def != NULL);
+        if (!def) continue;
+        UserPreferences pref;
+        pref[keys[i]] = "-100";
+        loadOptionsFromPreferences(pref);
+        CHECK_EQ(def->get(), def->lo);
+        pref[keys[i]] = "99";
+        loadOptionsFromPreferences(pref);
+        CHECK_EQ(def->get(), def->hi);
+        saveOptionsToPreferences(pref);
+        CHECK_STR(pref[keys[i]].str(), formatOptionValue(*def, def->hi).str());
+        pref[keys[i]] = "invalid";
+        loadOptionsFromPreferences(pref);
+        CHECK_EQ(def->get(), 0); // same legacy invalid-number handling as the other catalog enums
+        Int value = 47;
+        CHECK(!parseOptionText(*def, "99", &value));
+        CHECK_EQ(value, 47);
+        CHECK(!parseOptionText(*def, "invalid", &value));
+        CHECK_EQ(value, 47);
+        CHECK(!parseOptionText(*def, "1.5", &value));
+        CHECK_EQ(value, 47);
+    }
+    const OptionDef *reflection = findOptionDef("WaterReflectionEnabled");
+    CHECK(reflection != NULL);
+    if (reflection) {
+        UserPreferences pref;
+        pref["WaterReflectionEnabled"] = "true";
+        loadOptionsFromPreferences(pref);
+        CHECK_EQ(reflection->get(), 1);
+        pref["WaterReflectionEnabled"] = "invalid";
+        loadOptionsFromPreferences(pref);
+        CHECK_EQ(reflection->get(), 0);
+        Int value = 47;
+        CHECK(!parseOptionText(*reflection, "invalid", &value));
+        CHECK_EQ(value, 47);
+    }
+
+    delete scratch;
+    TheWritableGlobalData = saved;
+}
+
+
+TEST(modern_water_reflection_detail_is_retained_while_scene_reflections_are_off)
+{
+    const OptionDef *detail = findOptionDef("WaterReflectionDetail");
+    CHECK(detail != NULL);
+    if (!detail) return;
+    CHECK_STR(detail->labelKey, "GUI:WaterReflectionDetail");
+    CHECK(findGraphicsQualityRow("ComboBoxWaterReflectionDetail") != NULL);
+
+    GlobalData *saved = TheWritableGlobalData;
+    GlobalData *scratch = NEW GlobalData;
+    TheWritableGlobalData = scratch;
+    scratch->m_waterStyle = 0;
+    scratch->m_waterReflectionEnabled = FALSE;
+    scratch->m_waterReflection = 2;
+    detail->set(0);
+    UserPreferences preferences;
+    saveOptionsToPreferences(preferences);
+    CHECK_STR(preferences["WaterReflectionDetail"].str(), "0");
+    detail->set(1);
+    loadOptionsFromPreferences(preferences);
+    CHECK_EQ(scratch->m_waterReflectionDetail, 0);
+    CHECK_EQ(scratch->m_waterStyle, 0);
+    CHECK(!scratch->m_waterReflectionEnabled);
+    CHECK_EQ(scratch->m_waterReflection, 2);
+    UserPreferences missing;
+    loadOptionsFromPreferences(missing);
+    CHECK_EQ(scratch->m_waterReflectionDetail, 0); // absent keys do not overwrite an existing choice
+
+    delete scratch;
+    TheWritableGlobalData = saved;
+}
+
+TEST(modern_water_quality_slider_high_is_the_sdl_default_and_low_is_modern_low)
+{
+    const GraphicsQualityRow *reflections = findGraphicsQualityRow("CheckWaterReflectionEnabled");
+    const GraphicsQualityRow *refraction = findGraphicsQualityRow("ComboBoxWaterRefractionQuality");
+    const GraphicsQualityRow *waves = findGraphicsQualityRow("ComboBoxWaterFftResolution");
+    const GraphicsQualityRow *detail = findGraphicsQualityRow("ComboBoxWaterReflectionDetail");
+    CHECK(reflections && refraction && waves && detail);
+    if (!reflections || !refraction || !waves || !detail) return;
+    // The reflection mode is a look chosen independently of quality.
+    CHECK(findGraphicsQualityRow("ComboBoxWaterReflection") == NULL);
+
+    GlobalData *saved = TheWritableGlobalData;
+    GlobalData *scratch = NEW GlobalData;
+    TheWritableGlobalData = scratch;
+
+    const Int high = TheGraphicsQualityAnchors[STATIC_GAME_LOD_HIGH];
+    CHECK_EQ(reflections->values[high], scratch->m_waterReflectionEnabled ? 1 : 0);
+    CHECK_EQ(refraction->values[high], scratch->m_waterRefractionQuality);
+    CHECK_EQ(waves->values[high], scratch->m_waterFftResolution);
+    CHECK_EQ(detail->values[high], scratch->m_waterReflectionDetail);
+
+    const Int low = TheGraphicsQualityAnchors[STATIC_GAME_LOD_LOW];
+    CHECK_EQ(reflections->values[low], 0);
+    CHECK_EQ(refraction->values[low], 2);
+    CHECK_EQ(waves->values[low], 0);
+    CHECK_EQ(detail->values[low], 0);
+
+    // Upstream loads explicit preferences only; a preset name/slider position does not replace
+    // absent water keys. The menu writes the selected preset's water rows as explicit keys.
+    UserPreferences pref;
+    pref["StaticGameLOD"] = "Low";
+    pref["GraphicsQuality"] = "0";
+    pref["WaterFftResolution"] = "1";
+    loadOptionsFromPreferences(pref);
+    CHECK(scratch->m_waterReflectionEnabled);
+    CHECK_EQ(scratch->m_waterRefractionQuality, 0);
+    CHECK_EQ(scratch->m_waterReflectionDetail, 1);
+    CHECK_EQ(scratch->m_waterFftResolution, 1);
+    pref["WaterReflectionEnabled"] = "no";
+    pref["WaterRefractionQuality"] = "2";
+    pref["WaterReflectionDetail"] = "0";
+    loadOptionsFromPreferences(pref);
+    CHECK(!scratch->m_waterReflectionEnabled);
+    CHECK_EQ(scratch->m_waterRefractionQuality, 2);
+    CHECK_EQ(scratch->m_waterReflectionDetail, 0);
+    CHECK_EQ(scratch->m_waterFftResolution, 1);
+    CHECK_EQ(scratch->m_waterReflection, 2); // the mode is left as it was
+
+    delete scratch;
+    TheWritableGlobalData = saved;
+}
+
 TEST(cloud_style_defaults_to_classic_and_preserves_an_explicit_volumetric_choice)
 {
     GlobalData *saved = TheWritableGlobalData;
@@ -19664,7 +19960,9 @@ TEST(graphics_quality_slider_only_ever_turns_settings_up)
 		const GraphicsQualityRow &quality = TheGraphicsQualityTable[ row ];
 		CHECK( findGraphicsQualityRow( quality.control ) == &quality );
 		for( Int step = 1; step < GRAPHICS_QUALITY_STEPS; ++step )
-			CHECK( quality.values[ step ] >= quality.values[ step - 1 ] );
+			CHECK( strcmp( quality.control, "ComboBoxWaterRefractionQuality" ) == 0
+			? quality.values[ step ] <= quality.values[ step - 1 ]
+			: quality.values[ step ] >= quality.values[ step - 1 ] );
 	}
 	// Modern water is opt-in: a preset gave it to the sea of the main menu's shell map at 11 to 45 ms a pass
 	CHECK( findGraphicsQualityRow( "ComboBoxWaterStyle" ) == NULL );
@@ -19672,7 +19970,7 @@ TEST(graphics_quality_slider_only_ever_turns_settings_up)
 	// the looks of 2026-10-31 rise above High, which stays the picture the Classic box's untick gives,
 	// and every one is on at Ultra and a fork's row, so a Classic page keeps them off
 	static const char *const aboveHigh[] = { "CheckInternalHdr", "CheckHemiAmbient", "CheckGroundMarks", "CheckStructureCollapse",
-		"CheckWaterSplashes", "CheckAtmosphere", "CheckAmbientOcclusion", "CheckFirelight", "CheckWeather" };
+		"CheckWaterSplashes", "CheckAtmosphere", "CheckAmbientOcclusion", "CheckFirelight", "CheckWeather", "CheckHeatHaze" };
 	for( Int i = 0; i < (Int)( sizeof( aboveHigh ) / sizeof( aboveHigh[ 0 ] ) ); ++i )
 	{
 		const GraphicsQualityRow *look = findGraphicsQualityRow( aboveHigh[ i ] );
@@ -19738,7 +20036,7 @@ TEST(no_options_file_is_the_classic_game_with_every_added_row_off)
 		"ShadowsForProjectiles", "ShadowsForProps", "ShadowsForParticles", "VolumetricSmokeShadows", "SmokeFireLighting",
 		"DebrisTrails", "MapLight", "TeamGlow", "WaterFoam", "GroundMarks", "Firelight", "HemiAmbient", "AmbientOcclusion",
 		"Weather", "WaterSplashes", "Atmosphere", "StructureCollapse", "SmoothMotion", "InternalHdr", "Smoke", "ParticleBounce",
-		NULL
+		"HeatHaze", NULL
 	};
 	for( Int i = 0; off[ i ] != NULL; ++i )
 		CHECK_EQ( findOptionDef( off[ i ] )->get(), 0 );
@@ -21260,6 +21558,53 @@ TEST(the_superweapon_rule_is_a_mode_with_one_exception)
 	CHECK_EQ( SuperweaponBuildCap( SUPERWEAPONS_NONE, gla, AsciiString( "ChinaNuclearMissileLauncher" ) ), 1 );
 	CHECK_EQ( SuperweaponBuildCap( SUPERWEAPONS_NONE, gla, AsciiString( "Nuke_ChinaNuclearMissileLauncher" ) ), 1 );
 	CHECK_EQ( SuperweaponBuildCap( SUPERWEAPONS_NONE, superweaponGeneral, AsciiString( "SupW_AmericaNuclearMissileLauncher" ) ), 1 );
+	// the same one silo for every China general, a computer as much as a human: the cap has no say
+	// in who plays the seat
+	const char *const chinaGenerals[][ 2 ] =
+	{
+		{ "FactionChina", "ChinaNuclearMissileLauncher" },
+		{ "FactionChinaNukeGeneral", "Nuke_ChinaNuclearMissileLauncher" },
+		{ "FactionChinaTankGeneral", "Tank_ChinaNuclearMissileLauncher" },
+		{ "FactionChinaInfantryGeneral", "Infa_ChinaNuclearMissileLauncher" }
+	};
+	for ( Int g = 0; g < ARRAY_SIZE( chinaGenerals ); ++g )
+	{
+		const AsciiString general( chinaGenerals[ g ][ 0 ] ), silo( chinaGenerals[ g ][ 1 ] );
+		CHECK_EQ( SuperweaponBuildCap( SUPERWEAPONS_NONE, general, silo ), 1 );
+		CHECK_EQ( SuperweaponBuildCap( SUPERWEAPONS_LIMIT, general, silo ), 1 );
+		CHECK_EQ( SuperweaponBuildCap( SUPERWEAPONS_ALLOW, general, silo ), (Int)SUPERWEAPON_CAP_UNLIMITED );
+		// and under No, or Pro Rules, it is an upgrade building and no superweapon of anybody's
+		CHECK( SuperweaponSiloIsUpgradeBuilding( silo, FALSE, SUPERWEAPONS_NONE ) );
+		CHECK( SuperweaponSiloIsUpgradeBuilding( silo, TRUE, SUPERWEAPONS_ALLOW ) );
+		CHECK( !SuperweaponSiloIsUpgradeBuilding( silo, FALSE, SUPERWEAPONS_LIMIT ) );
+		CHECK( !SuperweaponSiloIsUpgradeBuilding( silo, FALSE, SUPERWEAPONS_ALLOW ) );
+	}
+
+	// Under No the whole matrix: every other superweapon of every side and general is barred, the
+	// Superweapon General's one cannon aside.  The cap counts every superweapon a player has together
+	// (the Superweapon link key), so 1 is one superweapon in all, not one of each.
+	struct NoRow { const char *general; const char *superweapon; Int cap; };
+	const NoRow noRows[] =
+	{
+		{ "FactionAmerica", "AmericaParticleCannonUplink", SUPERWEAPON_CAP_BANNED },
+		{ "FactionAmericaLaserGeneral", "Lazr_AmericaParticleCannonUplink", SUPERWEAPON_CAP_BANNED },
+		{ "FactionAmericaAirForceGeneral", "AirF_AmericaParticleCannonUplink", SUPERWEAPON_CAP_BANNED },
+		{ "FactionAmericaSuperWeaponGeneral", "SupW_AmericaParticleCannonUplink", 1 },
+		{ "FactionGLA", "GLAScudStorm", SUPERWEAPON_CAP_BANNED },
+		{ "FactionGLAToxinGeneral", "Chem_GLAScudStorm", SUPERWEAPON_CAP_BANNED },
+		{ "FactionGLADemolitionGeneral", "Demo_GLAScudStorm", SUPERWEAPON_CAP_BANNED },
+		{ "FactionGLAStealthGeneral", "Slth_GLAScudStorm", SUPERWEAPON_CAP_BANNED },
+		{ "FactionTurkiye", "TurkiyeKarguBase", SUPERWEAPON_CAP_BANNED }
+	};
+	for ( Int r = 0; r < ARRAY_SIZE( noRows ); ++r )
+	{
+		CHECK_EQ( SuperweaponBuildCap( SUPERWEAPONS_NONE, AsciiString( noRows[ r ].general ), AsciiString( noRows[ r ].superweapon ) ), noRows[ r ].cap );
+		CHECK( !SuperweaponSiloIsUpgradeBuilding( AsciiString( noRows[ r ].superweapon ), FALSE, SUPERWEAPONS_NONE ) );
+	}
+	// the exception is the general, not the building: another general's cannon under his name is
+	// still his one, and his cannon under anybody else's is barred
+	CHECK_EQ( SuperweaponBuildCap( SUPERWEAPONS_NONE, gla, AsciiString( "SupW_AmericaParticleCannonUplink" ) ), (Int)SUPERWEAPON_CAP_BANNED );
+	CHECK_EQ( SuperweaponBuildCap( SUPERWEAPONS_NONE, superweaponGeneral, AsciiString( "GLAScudStorm" ) ), 1 );
 	CHECK_EQ( SuperweaponBuildCap( SUPERWEAPONS_NONE, gla, AsciiString( "GLAScudStorm" ) ), (Int)SUPERWEAPON_CAP_BANNED );
 	CHECK_EQ( SuperweaponBuildCap( SUPERWEAPONS_NONE, laserGeneral, AsciiString( "Lazr_AmericaParticleCannonUplink" ) ), (Int)SUPERWEAPON_CAP_BANNED );
 	CHECK_EQ( SuperweaponBuildCap( SUPERWEAPONS_LIMIT, superweaponGeneral, AsciiString( "SupW_AmericaNuclearMissileLauncher" ) ), 4 );

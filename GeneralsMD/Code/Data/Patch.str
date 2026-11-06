@@ -519,6 +519,34 @@ TOOLTIP:VSync
 "Holds the picture to the monitor so it does not tear. Off, the picture runs as fast as the machine draws. Applied when you Accept."
 END
 
+GUI:FrameRateLimit
+"Frame Rate Limit"
+END
+
+GUI:FrameRateLimit0
+"Off"
+END
+
+GUI:FrameRateLimit1
+"240 FPS"
+END
+
+GUI:FrameRateLimit2
+"144 FPS"
+END
+
+GUI:FrameRateLimit3
+"120 FPS"
+END
+
+GUI:FrameRateLimit4
+"60 FPS"
+END
+
+TOOLTIP:FrameRateLimit
+"The most pictures a second the game draws in a match. A lower limit keeps the graphics card cooler and quieter and does not slow the game down. The menus always stop at 60."
+END
+
 GUI:ClassicGraphics
 "Classic Graphics"
 END
@@ -1307,7 +1335,7 @@ GUI:SuperweaponsNone
 END
 
 TOOLTIP:Superweapons
-"How many of each superweapon a player may have standing. Allow: as many as he can pay for. Limit: one each, and four for the USA Superweapon General. No: none at all, except the Superweapon General, who keeps one. He is the exception because his three superweapons are what he pays for a weaker army with."
+"How many superweapons a player may have standing. Allow: as many as he can pay for. Limit: one, and four for the USA Superweapon General. No: none at all, except the Superweapon General, who keeps one. He is the exception because his superweapons are what he pays for a weaker army with. Under No anyone, computer players too, may still put up one Nuclear Missile silo to buy China's upgrades in. It has no missile: no launch button, no countdown, no announcement."
 END
 
 GUI:UnitLimit
@@ -1474,9 +1502,32 @@ GUI:HudArmies
 "Armies"
 END
 
-// the rack's drawer of every player ranked by the dial's stat
+// the rack's drawer of every player ranked by the picked stat
 GUI:HudStandings
 "Standings"
+END
+
+// the standings' heading when no stat key is under the pointer: the order the rows are in
+GUI:HudHighestFirst
+"highest first"
+END
+
+// the standings' column head over the names
+GUI:HudPlayerHead
+"Player"
+END
+
+// the units the standings' column head names after the stat
+GUI:HudStatUnitMoney
+"$"
+END
+
+GUI:HudStatUnitIncome
+"$/min"
+END
+
+GUI:HudStatUnitPower
+"surplus"
 END
 
 // The cheat panel the console's "trainer" command opens.
@@ -1833,6 +1884,14 @@ END
 
 TOOLTIP:SmoothMotion
 "On a screen faster than 60 Hz, units are drawn between their last two positions instead of holding each one until the next. A 60 Hz screen shows no change. Only your picture changes: nothing in the game reads it, and other players see their own setting. Applies when you press Accept."
+END
+
+GUI:HeatHaze
+"Heat Haze"
+END
+
+TOOLTIP:HeatHaze
+"The air shimmers over fires, along laser beams and behind missile exhaust. Direct3D 11 only, and off under Classic Graphics. Applies when you press Accept."
 END
 
 GUI:StructureCollapse
@@ -3596,24 +3655,36 @@ GUI:FactionPickSideNameHint
 END
 
 // the fork's player colours (MultiplayerReforged.ini); EA's eight are in the CSF
-Color:Crimson
-"Crimson"
-END
-
-Color:Azure
-"Azure"
-END
-
-Color:Salmon
-"Salmon"
-END
-
 Color:Teal
 "Teal"
 END
 
+Color:Lime
+"Lime"
+END
+
+Color:Navy
+"Navy"
+END
+
+Color:Magenta
+"Magenta"
+END
+
+Color:Brown
+"Brown"
+END
+
 Color:Lavender
 "Lavender"
+END
+
+Color:Coral
+"Coral"
+END
+
+Color:Olive
+"Olive"
 END
 
 // the LAN lobby's error box when the system bound the socket on another adapter; the first %ls is the
@@ -3625,4 +3696,96 @@ END
 // A vehicle transport's Evacuate asks for a spot, the transport goes there and empties; Alt empties it where it stands
 CONTROLBAR:ToolTipEvacuateAt
 "Go to the chosen spot and order all units to exit\nAlt: unload here"
+END
+
+GUI:OptionsTabWater
+"Water"
+END
+
+GUI:OptionsGroupReflections
+"Reflections"
+END
+
+GUI:OptionsGroupModernWater
+"Modern water"
+END
+
+GUI:WaterReflectionEnabled
+"Scene reflections"
+END
+
+TOOLTIP:WaterReflectionEnabled
+"Reflects the scene in Modern water. Turn off to improve performance while keeping sky colour and sun highlights. Your reflection mode is remembered. Applied when you Accept."
+END
+
+GUI:WaterFftResolution
+"Wave detail"
+END
+
+GUI:WaterFftResolution0
+"Low"
+END
+
+GUI:WaterFftResolution1
+"High"
+END
+
+TOOLTIP:WaterFftResolution
+"Controls fine detail in Modern water waves. Low improves performance; High shows more detail. Applied when you Accept."
+END
+
+GUI:WaterRefractionQuality
+"Refraction"
+END
+
+GUI:WaterRefractionQuality0
+"Full"
+END
+
+GUI:WaterRefractionQuality1
+"Simple"
+END
+
+GUI:WaterRefractionQuality2
+"Off"
+END
+
+TOOLTIP:WaterRefractionQuality
+"For Modern water. Full distorts the view below the surface. Simple keeps clear water without distortion. Off uses opaque tinted water for better performance. Applied when you Accept."
+END
+
+GUI:WaterReflectionDetail
+"Reflection detail"
+END
+
+GUI:WaterReflectionDetail0
+"Low"
+END
+
+GUI:WaterReflectionDetail1
+"High"
+END
+
+TOOLTIP:WaterReflectionDetail
+"Controls scene reflection detail in Modern water. Low improves performance. High gives clearer reflections. SSR resolution is unchanged. Applied when you Accept."
+END
+
+GUI:WaterReflection
+"Reflection mode"
+END
+
+GUI:WaterReflection0
+"Legacy"
+END
+
+GUI:WaterReflection1
+"SSR"
+END
+
+GUI:WaterReflection2
+"Hybrid"
+END
+
+TOOLTIP:WaterReflection
+"For Modern water when Scene reflections is on. Legacy uses the original reflections. SSR reflects visible screen content. Hybrid combines both and is the default. Applied when you Accept."
 END

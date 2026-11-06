@@ -64,6 +64,8 @@
 #include "GameClient/Mouse.h"
 #include "GameClient/GameText.h"
 #include "GameClient/Display.h"
+#include "GameClient/DisplayStringManager.h"
+#include "GameClient/GameFont.h"
 #include "GameClient/IMEManager.h"
 #include "GameClient/ShellHooks.h"
 #include "GameClient/GUICallbacks.h"
@@ -76,6 +78,7 @@
 #include "WWDownload/Registry.h"
 #include "Platform/HazardCloud.h"
 #include "Platform/ModernWaterBuild.h"
+#include "Platform/WaterScreenReflection.h"
 //added by saad
 //used to access a messagebox that does "ok" and "cancel"
 #include "GameClient/MessageBox.h"
@@ -249,13 +252,14 @@ WindowLayout *OptionsLayout = NULL;
 // this is the two arrays that name them and the one function that decides which one you are
 // looking at.  Shell::optionsLayoutFile names the file, OptionsMenuClassic.wnd.
 //-------------------------------------------------------------------------------------------------
-enum { OPTIONS_PAGE_COUNT = 8 };
+enum { OPTIONS_PAGE_COUNT = 9, OPTIONS_WATER_PAGE = 3 };
 
 static const char *TheOptionsPageNames[ OPTIONS_PAGE_COUNT ] =
 {
 	"OptionsMenu.wnd:PageDisplay",
 	"OptionsMenu.wnd:PageGraphics",
 	"OptionsMenu.wnd:PageEffects",
+	"OptionsMenu.wnd:PageWater",
 	"OptionsMenu.wnd:PageAudio",
 	"OptionsMenu.wnd:PageControls",
 	"OptionsMenu.wnd:PageInterface",
@@ -268,6 +272,7 @@ static const char *TheOptionsTabNames[ OPTIONS_PAGE_COUNT ] =
 	"OptionsMenu.wnd:TabDisplay",
 	"OptionsMenu.wnd:TabGraphics",
 	"OptionsMenu.wnd:TabEffects",
+	"OptionsMenu.wnd:TabWater",
 	"OptionsMenu.wnd:TabAudio",
 	"OptionsMenu.wnd:TabControls",
 	"OptionsMenu.wnd:TabInterface",
@@ -280,7 +285,7 @@ static GameWindow *		optionsTab[ OPTIONS_PAGE_COUNT ]	= { NULL };
 static NameKeyType		optionsTabID[ OPTIONS_PAGE_COUNT ] =
 {
 	NAMEKEY_INVALID, NAMEKEY_INVALID, NAMEKEY_INVALID, NAMEKEY_INVALID, NAMEKEY_INVALID, NAMEKEY_INVALID,
-	NAMEKEY_INVALID, NAMEKEY_INVALID
+	NAMEKEY_INVALID, NAMEKEY_INVALID, NAMEKEY_INVALID
 };
 
 // The Hotkeys page, OptionsMenuHotkeys.cpp.  Its keys are written on Accept like the rest.
@@ -289,6 +294,68 @@ Bool OptionsHotkeysSystem( UnsignedInt msg, GameWindow *control, WindowMsgData r
 Bool OptionsHotkeysKey( UnsignedByte key, Int state );
 void OptionsHotkeysSave( void );
 void OptionsHotkeysClose( void );
+
+// The Water page's rows drive the SDL Modern water, which only Linux draws.
+static Bool modernWaterSettingsSupported( void )
+{
+	return WaterScreenReflection::Supported();
+}
+
+// Nine tabs leave less space for translated captions. Fit the actual glyphs,
+// keeping the normal font wherever it already fits the button.
+static void fitWaterOptionsTabCaption( GameWindow *tab )
+{
+	if( !TheFontLibrary || !TheDisplayStringManager ) return;
+	GameFont *font = tab->winGetFont();
+	if( !font ) return;
+	Int width, height;
+	tab->winGetSize( &width, &height );
+	DisplayString *caption = TheDisplayStringManager->newDisplayString();
+	if( !caption ) return;
+	caption->setText( tab->winGetText() );
+	const Int minimum = 8;
+	for( ;; )
+	{
+		caption->setFont( font );
+		if( caption->getWidth() <= (width > 8 ? width - 8 : 1) || font->pointSize <= minimum ) break;
+		GameFont *smaller = TheFontLibrary->getFont( font->nameString, font->pointSize - 1, font->bold );
+		if( !smaller ) break;
+		font = smaller;
+	}
+	tab->winSetFont( font );
+	TheDisplayStringManager->freeDisplayString( caption );
+}
+
+// Hide the Water page off Linux and give the remaining tabs their original width. Derive
+// the bounds from the loaded layout so shell scaling and reopening an existing layout both work.
+static void layoutOptionsTabs( void )
+{
+	if( !optionsTab[0] || !optionsTab[1] || !optionsTab[OPTIONS_PAGE_COUNT - 1] )
+		return;
+	Int left, top, width, height, secondLeft, secondTop, lastLeft, lastTop, lastWidth, lastHeight;
+	optionsTab[0]->winGetPosition( &left, &top );
+	optionsTab[0]->winGetSize( &width, &height );
+	optionsTab[1]->winGetPosition( &secondLeft, &secondTop );
+	optionsTab[OPTIONS_PAGE_COUNT - 1]->winGetPosition( &lastLeft, &lastTop );
+	optionsTab[OPTIONS_PAGE_COUNT - 1]->winGetSize( &lastWidth, &lastHeight );
+	const Int gap = secondLeft - left - width;
+	const Int right = lastLeft + lastWidth;
+	const Bool waterSupported = modernWaterSettingsSupported();
+	const Int count = OPTIONS_PAGE_COUNT - (waterSupported ? 0 : 1);
+	const Int tabWidth = (right - left - (count - 1) * gap) / count;
+	Int visible = 0;
+	for( Int i = 0; i < OPTIONS_PAGE_COUNT; ++i )
+	{
+		if( !optionsTab[i] ) continue;
+		const Bool hidden = i == OPTIONS_WATER_PAGE && !waterSupported;
+		optionsTab[i]->winHide( hidden );
+		if( hidden ) continue;
+		const Int x = left + visible * (tabWidth + gap);
+		optionsTab[i]->winSetPosition( x, top );
+		optionsTab[i]->winSetSize( ++visible == count ? right - x : tabWidth, height );
+		if( waterSupported ) fitWaterOptionsTabCaption( optionsTab[i] );
+	}
+}
 
 //-------------------------------------------------------------------------------------------------
 /** Show one page and hide the rest.
@@ -299,6 +366,8 @@ void OptionsHotkeysClose( void );
 //-------------------------------------------------------------------------------------------------
 static void showOptionsPage( Int which )
 {
+	if( which == OPTIONS_WATER_PAGE && !modernWaterSettingsSupported() )
+		which = 0;
 	for( Int i = 0; i < OPTIONS_PAGE_COUNT; ++i )
 	{
 		if( optionsPage[ i ] )
@@ -1127,12 +1196,22 @@ static void fillCatalogWidgets( void )
 {
 	const Color entryColor = GameMakeColor( 255, 255, 255, 255 );
 
+	const Bool waterSettingsSupported = modernWaterSettingsSupported();
+	layoutOptionsTabs();
+
 	for( Int i = 0; i < TheOptionCatalogCount; ++i )
 	{
 		const OptionDef& def = TheOptionCatalog[ i ];
 		GameWindow *widget = findOptionWidget( def );
 		if( widget == NULL )
 			continue;
+
+		if (isModernWaterOption(def))
+		{
+			// Hidden as well as unfilled, so the quality slider leaves them with their page.
+			widget->winHide(!waterSettingsSupported);
+			if (!waterSettingsSupported) continue;
+		}
 
 		if (strcmp(def.iniKey, "WaterStyle") == 0)
 		{
@@ -1226,6 +1305,8 @@ static void readCatalogWidgets( OptionPreferences &out )
 		if (strcmp(def.iniKey, "CloudStyle") == 0 && !HazardCloud::Supported())
 			continue;
 		if (strcmp(def.iniKey, "WaterStyle") == 0 && !ModernWater::Supported())
+			continue;
+		if (isModernWaterOption(def) && !modernWaterSettingsSupported())
 			continue;
 
 		Int value;
@@ -3055,7 +3136,7 @@ void OptionsMenuInit( WindowLayout *layout, void *userData )
 	// three looks only the Direct3D 11 picture draws; under -d3d9 their boxes keep the saved value, greyed
 	if( !TheGlobalData->m_direct3D11 )
 	{
-		static const char *const direct3D11Only[] = { "MapLight", "TeamGlow", "WaterFoam", "GroundMarks", "Firelight", "HemiAmbient", "AmbientOcclusion", "InternalHdr", "Weather", "WaterSplashes", "Atmosphere", "StructureCollapse" };
+		static const char *const direct3D11Only[] = { "MapLight", "TeamGlow", "WaterFoam", "GroundMarks", "Firelight", "HemiAmbient", "AmbientOcclusion", "InternalHdr", "Weather", "WaterSplashes", "Atmosphere", "StructureCollapse", "HeatHaze" };
 		for( Int i = 0; i < (Int)( sizeof( direct3D11Only ) / sizeof( direct3D11Only[ 0 ] ) ); ++i )
 			findOptionWidget( *findOptionDef( direct3D11Only[ i ] ) )->winEnable( FALSE );
 	}

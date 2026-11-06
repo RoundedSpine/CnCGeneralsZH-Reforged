@@ -180,6 +180,8 @@ public:
 														///< empty is the primary.  See Common/Monitors.h.
 	Int m_msaaLevel;					///< multisampling, as an index into the levels the options menu offers
 	Bool m_vsync;						///< wait for the monitor; off is the uncapped picture the frame-rate cap removal shipped
+	Int m_frameRateLimit;			///< "FrameRateLimit": the player's picture cap as a level, frameRateLimitForLevel gives the rate
+	Bool m_noFrameRateCap;		///< -noFPSLimit: no picture cap at all, the shell's 60 included
 	Bool m_direct3D11;			///< draw and present through the Direct3D 11 backend; -d3d9 and -headless turn it off
 	AsciiString m_direct3D11DumpPath;	///< -dx11dump: where to write each generated program
 	AsciiString m_direct3D11PostChain;	///< -dx11post: the effects run over the finished D3D11 frame
@@ -219,6 +221,11 @@ public:
 	Bool m_smoothMotion;				// R1: on a display faster than the logic, models drawn between their last two logic states (W3DSmoothMotion.h); -nosmoothmotion turns it off
 	Bool m_smoothMotionAnyDisplay;	// -smoothmotion: the same whatever the display's refresh rate
 	Int m_waterStyle;					// "WaterStyle": 0 = Classic, 1 = Modern (SDL); applied between render frames
+	Int m_waterReflection;			// "WaterReflection": 0 = Legacy, 1 = SSR, 2 = Hybrid; SDL Modern water
+	Bool m_waterReflectionEnabled; // scene reflections; remembers the selected mode
+	Int m_waterFftResolution;		// 0 = Low (128), 1 = High (256)
+	Int m_waterRefractionQuality; // 0 = Full, 1 = Simple, 2 = Off
+	Int m_waterReflectionDetail; // 0 = Low, 1 = High planar resolution
 	Int m_cloudStyle;					// "CloudStyle": 0 = Classic (default), 1 = Volumetric (when supported)
 	Bool m_explosionDebrisTrails;	// "DebrisTrails": blasts throw smoke-trailing fragments and burning shrapnel
 	Int m_shadowQuality;				// "ShadowQuality": the sun's depth map at 1024, 2048 or 4096 texels a side (Direct3D 11)
@@ -553,6 +560,7 @@ public:
 	Bool m_waterFoam;								///< "WaterFoam": foam, shore band and the sun's shadow on water (Direct3D 11, client only)
 	Bool m_groundMarks;							///< "GroundMarks": craters, stains and longer treads that fade over minutes (Direct3D 11, client only)
 	Bool m_firelight;								///< "Firelight": flames light the ground, walls and units around them (Direct3D 11, client only)
+	Bool m_heatHaze;								///< "HeatHaze", "-heathaze": the air over fire, beams and exhausts shimmers (Direct3D 11, client only)
 	Bool m_hemiAmbient;							///< "HemiAmbient": models take the ambient from the sky above and the ground below (Direct3D 11, client only)
 	Bool m_ambientOcclusion;				///< "AmbientOcclusion": corners and the ground under what stands on it darken, half size in world units (Direct3D 11, client only)
 	Bool m_weatherEffects;					///< "Weather": rain, blowing sand or snow by the map's ground, and a wind on trees and smoke (Direct3D 11, client only)
