@@ -552,6 +552,21 @@ public:
 	Int m_netGameLocalSlot;						///< -netslot <n>: which of those addresses this copy of the game is
 	Int m_netGameAISlots;							///< -netai <n>: that many AI seats after the addresses, at the -aidiff rung
 	AsciiString m_lanPlayerName;			///< -lanname <name>: the name this copy takes in the LAN lobby (empty = the one in the preferences)
+	AsciiString m_relayHost;					///< -relay <host:port>: the LAN lobby and its games go through this UDP relay (empty = real LAN; Transport.cpp)
+	UnsignedShort m_relayPort;				///< the port of it, 0 when -relay named none
+	AsciiString m_onlineHost;					///< -online <host:port>: the online service to log in to (empty = none; GameNetwork/Online)
+	UnsignedShort m_onlinePort;				///< the port of it, 0 when -online named none
+	AsciiString m_onlineCAFile;				///< -onlineca <file>: PEM CA the service's certificate is checked against (empty = the Let's Encrypt roots)
+	AsciiString m_onlineUser;					///< -onlineuser <email>: log in with this account instead of the login screen's fields
+	AsciiString m_onlinePass;					///< -onlinepass <password>: its password (a test switch: it shows in the process list)
+	AsciiString m_onlineHostGame;			///< -onlinehost <name>: host a custom game of this name once in the lobby
+	AsciiString m_onlineJoinGame;			///< -onlinejoin <name>: join the custom game of this name once it is listed
+	AsciiString m_onlineSay;					///< -onlinesay <text>: say this in the lobby and again in the staging room
+	AsciiString m_onlineMap;					///< -onlinemap <map>: the map -onlinehost sets
+	AsciiString m_onlineOptions;			///< -onlineoptions <list>: the staging room controls the -onlinehost host works (prorules,turbo,unitlimit,randommap)
+	Int m_onlineStart;								///< -onlinestart [N]: the -onlinehost host starts the game at N players (0 = never, bare = 2)
+	Bool m_quickMatchOnStart;					///< -quickmatch: go into the Quick Match queue once logged in
+	Bool m_onlineLoginOnStart;				///< -onlinelogin: open the online login screen at startup, nothing filled in
 	Bool m_lanLobbyOnStart;						///< -lanlobby: open the LAN lobby instead of stopping at the main menu
 	Bool m_skirmishLobbyOnStart;			///< -skirmishlobby: open the skirmish staging room instead of stopping at the main menu
 	Bool m_optionsMenuOnStart;				///< -optionsmenu: open the options screen over the main menu at startup

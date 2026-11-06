@@ -1290,6 +1290,9 @@ GameEngine/Include/GameNetwork/NetPacket.h
 GameEngine/Include/GameNetwork/NetworkDefs.h
 GameEngine/Include/GameNetwork/NetworkInterface.h
 GameEngine/Include/GameNetwork/NetworkUtil.h
+GameEngine/Include/GameNetwork/Online/OnlineConnection.h
+GameEngine/Include/GameNetwork/Online/OnlineQueues.h
+GameEngine/Include/GameNetwork/Online/OnlineSession.h
 GameEngine/Include/GameNetwork/RankPointValue.h
 GameEngine/Include/GameNetwork/StallJudgement.h
 GameEngine/Include/GameNetwork/Transport.h
@@ -1940,6 +1943,10 @@ GameEngine/Source/GameNetwork/NetMessageStream.cpp
 GameEngine/Source/GameNetwork/NetPacket.cpp
 GameEngine/Source/GameNetwork/Network.cpp
 GameEngine/Source/GameNetwork/NetworkUtil.cpp
+GameEngine/Source/GameNetwork/Online/OnlineBuddy.cpp
+GameEngine/Source/GameNetwork/Online/OnlineConnection.cpp
+GameEngine/Source/GameNetwork/Online/OnlinePeer.cpp
+GameEngine/Source/GameNetwork/Online/OnlineStats.cpp
 GameEngine/Source/GameNetwork/StallJudgement.cpp
 GameEngine/Source/GameNetwork/Transport.cpp
 GameEngine/Source/GameNetwork/User.cpp
@@ -3304,6 +3311,7 @@ Libraries/Source/gamespy-strlwr-c-only.patch
 Libraries/Source/glslang/.gitignore
 Libraries/Source/lzhl-clear-history.patch
 Libraries/Source/max4sdk/.gitignore
+Libraries/Source/mbedtls/.gitignore
 Libraries/Source/miniaudio/.gitignore
 Libraries/Source/online/.gitignore
 Libraries/Source/online/vcpkg.json
@@ -3466,6 +3474,7 @@ Tests/test_minimap_input.inc
 Tests/test_modern_water_config.cpp
 Tests/test_msvc_float_casts.cpp
 Tests/test_observer_camera.inc
+Tests/test_online.cpp
 Tests/test_pixelcentre.cpp
 Tests/test_posix_draw_resolve.cpp
 Tests/test_posix_gpu_draw.cpp
@@ -4476,6 +4485,9 @@ Tools/pink_laser.py
 Tools/radar_marks.py
 Tools/recon_marks.py
 Tools/record-dx11-shaders.ps1
+Tools/relay/README.md
+Tools/relay/relay.js
+Tools/relay/test.js
 Tools/replay-check.sh
 Tools/root-readonly-check.sh
 Tools/signal_marks.py
