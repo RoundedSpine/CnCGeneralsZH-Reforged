@@ -1,300 +1,300 @@
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Precompiled/PreRTS.cpp:28:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Precompiled/PreRTS.h:153:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/KindOf.h:40:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BitFlagsIO.h:39:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Xfer.h:41:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Science.h:56:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
+   56 |         MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE( ScienceInfo, "ScienceInfo"  )
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:684:2: note: expanded from macro 'MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE'
+  684 |         MEMORY_POOL_GLUE_WITHOUT_GCMP(ARGCLASS) \
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:658:3: note: expanded from macro 'MEMORY_POOL_GLUE_WITHOUT_GCMP'
+  658 |                 return 0; \
       |                 ^
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Upgrade/ReplaceObjectUpgrade.cpp:32:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/ReplaceObjectUpgrade.h:35:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/UpgradeModule.h:40:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameClient/FXList.h:98:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:713:3: note: expanded from macro 'MEMORY_POOL_GLUE_ABC'
-  713 |                 return 0; \
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Precompiled/PreRTS.cpp:28:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Precompiled/PreRTS.h:153:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/KindOf.h:40:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BitFlagsIO.h:39:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Xfer.h:42:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Upgrade.h:38:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/AudioEventRTS.h:223:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
+  223 |         MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE(DynamicAudioEventRTS, "DynamicAudioEventRTS" )          
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:684:2: note: expanded from macro 'MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE'
+  684 |         MEMORY_POOL_GLUE_WITHOUT_GCMP(ARGCLASS) \
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:658:3: note: expanded from macro 'MEMORY_POOL_GLUE_WITHOUT_GCMP'
+  658 |                 return 0; \
       |                 ^
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Upgrade/ReplaceObjectUpgrade.cpp:32:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/ReplaceObjectUpgrade.h:35:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/UpgradeModule.h:42:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/BehaviorModule.h:150:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
-  150 |         MEMORY_POOL_GLUE_ABC( BehaviorModule )
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Precompiled/PreRTS.cpp:28:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Precompiled/PreRTS.h:153:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/KindOf.h:40:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BitFlagsIO.h:39:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Xfer.h:42:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Upgrade.h:118:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
+  118 |         MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE( Upgrade, "Upgrade" )
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:684:2: note: expanded from macro 'MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE'
+  684 |         MEMORY_POOL_GLUE_WITHOUT_GCMP(ARGCLASS) \
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:658:3: note: expanded from macro 'MEMORY_POOL_GLUE_WITHOUT_GCMP'
+  658 |                 return 0; \
+      |                 ^
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Precompiled/PreRTS.cpp:28:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Precompiled/PreRTS.h:153:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/KindOf.h:40:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BitFlagsIO.h:39:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Xfer.h:42:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Upgrade.h:169:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
+  169 |         MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE( UpgradeTemplate, "UpgradeTemplate" )
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:684:2: note: expanded from macro 'MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE'
+  684 |         MEMORY_POOL_GLUE_WITHOUT_GCMP(ARGCLASS) \
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:658:3: note: expanded from macro 'MEMORY_POOL_GLUE_WITHOUT_GCMP'
+  658 |                 return 0; \
+      |                 ^
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Precompiled/PreRTS.cpp:28:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Precompiled/PreRTS.h:160:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Thing.h:65:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWMath/matrix3d.h:95:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWMath/vector2.h:60:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWMath/wwmath.h:552:35: warning: logical not is only applied to the left hand side of this bitwise operator [-Wlogical-not-parentheses]
+  552 |         r = ((r & expsign) ^ (sign)) + ((!((mantissa<<8)&imask)&(expsign^((a-1)>>31)))&sign);   // if (fabs(value)<1.0) value = 0; copy sign; if (value < 0 && value==(int)(value)) value++;
+      |                                          ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWMath/wwmath.h:552:35: note: add parentheses after the '!' to evaluate the bitwise operator first
+  552 |         r = ((r & expsign) ^ (sign)) + ((!((mantissa<<8)&imask)&(expsign^((a-1)>>31)))&sign);   // if (fabs(value)<1.0) value = 0; copy sign; if (value < 0 && value==(int)(value)) value++;
+      |                                          ^                                           
+      |                                           (                                          )
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWMath/wwmath.h:552:35: note: add parentheses around left hand side expression to silence this warning
+  552 |         r = ((r & expsign) ^ (sign)) + ((!((mantissa<<8)&imask)&(expsign^((a-1)>>31)))&sign);   // if (fabs(value)<1.0) value = 0; copy sign; if (value < 0 && value==(int)(value)) value++;
+      |                                          ^                     
+      |                                          (                     )
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Precompiled/PreRTS.cpp:28:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Precompiled/PreRTS.h:160:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Thing.h:98:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
+   98 |         MEMORY_POOL_GLUE_ABC(Thing)
       |         ^
 /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:700:3: note: expanded from macro 'MEMORY_POOL_GLUE_ABC'
   700 |                 return 0; \
       |                 ^
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Upgrade/ReplaceObjectUpgrade.cpp:32:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/ReplaceObjectUpgrade.h:35:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/UpgradeModule.h:42:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/BehaviorModule.h:150:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Precompiled/PreRTS.cpp:28:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Precompiled/PreRTS.h:160:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Thing.h:98:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
 /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:713:3: note: expanded from macro 'MEMORY_POOL_GLUE_ABC'
   713 |                 return 0; \
       |                 ^
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Upgrade/ReplaceObjectUpgrade.cpp:32:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/ReplaceObjectUpgrade.h:35:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/UpgradeModule.h:167:42: warning: offset of on non-standard-layout type 'UpgradeModuleData' [-Winvalid-offsetof]
-  167 |                 p.add(UpgradeMuxData::getFieldParse(), offsetof( UpgradeModuleData, m_upgradeMuxData ));
-      |                                                        ^                            ~~~~~~~~~~~~~~~~
-/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
-   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
-      |                        ^                     ~
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Upgrade/ReplaceObjectUpgrade.cpp:32:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/ReplaceObjectUpgrade.h:35:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/UpgradeModule.h:175:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
-  175 |         MEMORY_POOL_GLUE_ABC( UpgradeModule )
+11 warnings generated.
+[1256/1517] Linking CXX static library libmilesaudio.a
+[1257/1517] Linking CXX static library libd3dx9runtime.a
+[1258/1517] Linking C static library libgamespy.a
+[1259/1517] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/aabtree.cpp.o
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WW3D2/aabtree.cpp:65:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WW3D2/aabtree.h:51:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWMath/vector3.h:76:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWMath/wwmath.h:552:35: warning: logical not is only applied to the left hand side of this bitwise operator [-Wlogical-not-parentheses]
+  552 |         r = ((r & expsign) ^ (sign)) + ((!((mantissa<<8)&imask)&(expsign^((a-1)>>31)))&sign);   // if (fabs(value)<1.0) value = 0; copy sign; if (value < 0 && value==(int)(value)) value++;
+      |                                          ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWMath/wwmath.h:552:35: note: add parentheses after the '!' to evaluate the bitwise operator first
+  552 |         r = ((r & expsign) ^ (sign)) + ((!((mantissa<<8)&imask)&(expsign^((a-1)>>31)))&sign);   // if (fabs(value)<1.0) value = 0; copy sign; if (value < 0 && value==(int)(value)) value++;
+      |                                          ^                                           
+      |                                           (                                          )
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWMath/wwmath.h:552:35: note: add parentheses around left hand side expression to silence this warning
+  552 |         r = ((r & expsign) ^ (sign)) + ((!((mantissa<<8)&imask)&(expsign^((a-1)>>31)))&sign);   // if (fabs(value)<1.0) value = 0; copy sign; if (value < 0 && value==(int)(value)) value++;
+      |                                          ^                     
+      |                                          (                     )
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WW3D2/aabtree.cpp:74:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/chunkio.h:380:8: warning: extra tokens at end of #endif directive [-Wextra-tokens]
+  380 | #endif CHUNKIO_H
+      |        ^
+      |        //
+2 warnings generated.
+[1260/1517] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/aabtreebuilder.cpp.o
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WW3D2/aabtreebuilder.cpp:60:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WW3D2/aabtreebuilder.h:49:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWMath/vector3.h:76:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWMath/wwmath.h:552:35: warning: logical not is only applied to the left hand side of this bitwise operator [-Wlogical-not-parentheses]
+  552 |         r = ((r & expsign) ^ (sign)) + ((!((mantissa<<8)&imask)&(expsign^((a-1)>>31)))&sign);   // if (fabs(value)<1.0) value = 0; copy sign; if (value < 0 && value==(int)(value)) value++;
+      |                                          ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWMath/wwmath.h:552:35: note: add parentheses after the '!' to evaluate the bitwise operator first
+  552 |         r = ((r & expsign) ^ (sign)) + ((!((mantissa<<8)&imask)&(expsign^((a-1)>>31)))&sign);   // if (fabs(value)<1.0) value = 0; copy sign; if (value < 0 && value==(int)(value)) value++;
+      |                                          ^                                           
+      |                                           (                                          )
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWMath/wwmath.h:552:35: note: add parentheses around left hand side expression to silence this warning
+  552 |         r = ((r & expsign) ^ (sign)) + ((!((mantissa<<8)&imask)&(expsign^((a-1)>>31)))&sign);   // if (fabs(value)<1.0) value = 0; copy sign; if (value < 0 && value==(int)(value)) value++;
+      |                                          ^                     
+      |                                          (                     )
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WW3D2/aabtreebuilder.cpp:61:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/chunkio.h:380:8: warning: extra tokens at end of #endif directive [-Wextra-tokens]
+  380 | #endif CHUNKIO_H
+      |        ^
+      |        //
+2 warnings generated.
+[1261/1517] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/agg_def.cpp.o
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WW3D2/agg_def.cpp:37:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WW3D2/agg_def.h:46:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WW3D2/rendobj.h:52:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWMath/sphere.h:60:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWMath/vector3.h:76:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWMath/wwmath.h:552:35: warning: logical not is only applied to the left hand side of this bitwise operator [-Wlogical-not-parentheses]
+  552 |         r = ((r & expsign) ^ (sign)) + ((!((mantissa<<8)&imask)&(expsign^((a-1)>>31)))&sign);   // if (fabs(value)<1.0) value = 0; copy sign; if (value < 0 && value==(int)(value)) value++;
+      |                                          ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWMath/wwmath.h:552:35: note: add parentheses after the '!' to evaluate the bitwise operator first
+  552 |         r = ((r & expsign) ^ (sign)) + ((!((mantissa<<8)&imask)&(expsign^((a-1)>>31)))&sign);   // if (fabs(value)<1.0) value = 0; copy sign; if (value < 0 && value==(int)(value)) value++;
+      |                                          ^                                           
+      |                                           (                                          )
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWMath/wwmath.h:552:35: note: add parentheses around left hand side expression to silence this warning
+  552 |         r = ((r & expsign) ^ (sign)) + ((!((mantissa<<8)&imask)&(expsign^((a-1)>>31)))&sign);   // if (fabs(value)<1.0) value = 0; copy sign; if (value < 0 && value==(int)(value)) value++;
+      |                                          ^                     
+      |                                          (                     )
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WW3D2/agg_def.cpp:43:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/chunkio.h:380:8: warning: extra tokens at end of #endif directive [-Wextra-tokens]
+  380 | #endif CHUNKIO_H
+      |        ^
+      |        //
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WW3D2/agg_def.cpp:45:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WW3D2/assetmgr.h:52:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WW3D2/texture.h:54:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/chunkio.h:380:8: warning: extra tokens at end of #endif directive [-Wextra-tokens]
+  380 | #endif CHUNKIO_H
+      |        ^
+      |        //
+3 warnings generated.
+[1262/1517] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/animatedsoundmgr.cpp.o
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WW3D2/animatedsoundmgr.cpp:49:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWSaveLoad/definition.h:49:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWSaveLoad/editable.h:56:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWSaveLoad/parameter.h:56:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWMath/obbox.h:52:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWMath/vector3.h:76:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWMath/wwmath.h:552:35: warning: logical not is only applied to the left hand side of this bitwise operator [-Wlogical-not-parentheses]
+  552 |         r = ((r & expsign) ^ (sign)) + ((!((mantissa<<8)&imask)&(expsign^((a-1)>>31)))&sign);   // if (fabs(value)<1.0) value = 0; copy sign; if (value < 0 && value==(int)(value)) value++;
+      |                                          ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWMath/wwmath.h:552:35: note: add parentheses after the '!' to evaluate the bitwise operator first
+  552 |         r = ((r & expsign) ^ (sign)) + ((!((mantissa<<8)&imask)&(expsign^((a-1)>>31)))&sign);   // if (fabs(value)<1.0) value = 0; copy sign; if (value < 0 && value==(int)(value)) value++;
+      |                                          ^                                           
+      |                                           (                                          )
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWMath/wwmath.h:552:35: note: add parentheses around left hand side expression to silence this warning
+  552 |         r = ((r & expsign) ^ (sign)) + ((!((mantissa<<8)&imask)&(expsign^((a-1)>>31)))&sign);   // if (fabs(value)<1.0) value = 0; copy sign; if (value < 0 && value==(int)(value)) value++;
+      |                                          ^                     
+      |                                          (                     )
+1 warning generated.
+[1263/1517] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/animobj.cpp.o
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WW3D2/animobj.cpp:62:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WW3D2/animobj.h:50:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WW3D2/composite.h:45:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WW3D2/rendobj.h:52:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWMath/sphere.h:60:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWMath/vector3.h:76:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWMath/wwmath.h:552:35: warning: logical not is only applied to the left hand side of this bitwise operator [-Wlogical-not-parentheses]
+  552 |         r = ((r & expsign) ^ (sign)) + ((!((mantissa<<8)&imask)&(expsign^((a-1)>>31)))&sign);   // if (fabs(value)<1.0) value = 0; copy sign; if (value < 0 && value==(int)(value)) value++;
+      |                                          ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWMath/wwmath.h:552:35: note: add parentheses after the '!' to evaluate the bitwise operator first
+  552 |         r = ((r & expsign) ^ (sign)) + ((!((mantissa<<8)&imask)&(expsign^((a-1)>>31)))&sign);   // if (fabs(value)<1.0) value = 0; copy sign; if (value < 0 && value==(int)(value)) value++;
+      |                                          ^                                           
+      |                                           (                                          )
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWMath/wwmath.h:552:35: note: add parentheses around left hand side expression to silence this warning
+  552 |         r = ((r & expsign) ^ (sign)) + ((!((mantissa<<8)&imask)&(expsign^((a-1)>>31)))&sign);   // if (fabs(value)<1.0) value = 0; copy sign; if (value < 0 && value==(int)(value)) value++;
+      |                                          ^                     
+      |                                          (                     )
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WW3D2/animobj.cpp:64:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WW3D2/assetmgr.h:52:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WW3D2/texture.h:54:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/chunkio.h:380:8: warning: extra tokens at end of #endif directive [-Wextra-tokens]
+  380 | #endif CHUNKIO_H
+      |        ^
+      |        //
+2 warnings generated.
+[1264/1517] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/assetmgr.cpp.o
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WW3D2/assetmgr.cpp:82:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WW3D2/assetmgr.h:52:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WW3D2/texture.h:54:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/chunkio.h:380:8: warning: extra tokens at end of #endif directive [-Wextra-tokens]
+  380 | #endif CHUNKIO_H
+      |        ^
+      |        //
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WW3D2/assetmgr.cpp:82:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WW3D2/assetmgr.h:52:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WW3D2/texture.h:58:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWMath/vector3.h:76:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWMath/wwmath.h:552:35: warning: logical not is only applied to the left hand side of this bitwise operator [-Wlogical-not-parentheses]
+  552 |         r = ((r & expsign) ^ (sign)) + ((!((mantissa<<8)&imask)&(expsign^((a-1)>>31)))&sign);   // if (fabs(value)<1.0) value = 0; copy sign; if (value < 0 && value==(int)(value)) value++;
+      |                                          ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWMath/wwmath.h:552:35: note: add parentheses after the '!' to evaluate the bitwise operator first
+  552 |         r = ((r & expsign) ^ (sign)) + ((!((mantissa<<8)&imask)&(expsign^((a-1)>>31)))&sign);   // if (fabs(value)<1.0) value = 0; copy sign; if (value < 0 && value==(int)(value)) value++;
+      |                                          ^                                           
+      |                                           (                                          )
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWMath/wwmath.h:552:35: note: add parentheses around left hand side expression to silence this warning
+  552 |         r = ((r & expsign) ^ (sign)) + ((!((mantissa<<8)&imask)&(expsign^((a-1)>>31)))&sign);   // if (fabs(value)<1.0) value = 0; copy sign; if (value < 0 && value==(int)(value)) value++;
+      |                                          ^                     
+      |                                          (                     )
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WW3D2/assetmgr.cpp:89:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/chunkio.h:380:8: warning: extra tokens at end of #endif directive [-Wextra-tokens]
+  380 | #endif CHUNKIO_H
+      |        ^
+      |        //
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WW3D2/assetmgr.cpp:115:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WW3D2/dx8wrapper.h:107:9: warning: '__volatile' macro redefined [-Wmacro-redefined]
+  107 | #define __volatile unsigned
       |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:700:3: note: expanded from macro 'MEMORY_POOL_GLUE_ABC'
-  700 |                 return 0; \
+/Applications/Xcode_16.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk/usr/include/sys/cdefs.h:121:9: note: previous definition is here
+  121 | #define __volatile      volatile
+      |         ^
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WW3D2/assetmgr.cpp:128:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WW3D2/ringobj.h:53:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WW3D2/prim_anim.h:48:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/chunkio.h:380:8: warning: extra tokens at end of #endif directive [-Wextra-tokens]
+  380 | #endif CHUNKIO_H
+      |        ^
+      |        //
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WW3D2/assetmgr.cpp:945:4: warning: 'sprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead. [-Wdeprecated-declarations]
+  945 |                         sprintf( filename, "%s.w3d", name);
+      |                         ^
+/Applications/Xcode_16.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk/usr/include/_stdio.h:278:1: note: 'sprintf' has been explicitly marked deprecated here
+  278 | __deprecated_msg("This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead.")
+      | ^
+/Applications/Xcode_16.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk/usr/include/sys/cdefs.h:218:48: note: expanded from macro '__deprecated_msg'
+  218 |         #define __deprecated_msg(_msg) __attribute__((__deprecated__(_msg)))
+      |                                                       ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WW3D2/assetmgr.cpp:1148:5: warning: 'sprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead. [-Wdeprecated-declarations]
+ 1148 |                                 sprintf( filename, "%s.w3d", animname+1);
+      |                                 ^
+/Applications/Xcode_16.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk/usr/include/_stdio.h:278:1: note: 'sprintf' has been explicitly marked deprecated here
+  278 | __deprecated_msg("This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead.")
+      | ^
+/Applications/Xcode_16.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk/usr/include/sys/cdefs.h:218:48: note: expanded from macro '__deprecated_msg'
+  218 |         #define __deprecated_msg(_msg) __attribute__((__deprecated__(_msg)))
+      |                                                       ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WW3D2/assetmgr.cpp:1218:3: warning: 'sprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead. [-Wdeprecated-declarations]
+ 1218 |                 sprintf( filename, "%s.w3d", name);
       |                 ^
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Upgrade/ReplaceObjectUpgrade.cpp:32:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/ReplaceObjectUpgrade.h:35:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/UpgradeModule.h:175:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:713:3: note: expanded from macro 'MEMORY_POOL_GLUE_ABC'
-  713 |                 return 0; \
+/Applications/Xcode_16.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk/usr/include/_stdio.h:278:1: note: 'sprintf' has been explicitly marked deprecated here
+  278 | __deprecated_msg("This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead.")
+      | ^
+/Applications/Xcode_16.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk/usr/include/sys/cdefs.h:218:48: note: expanded from macro '__deprecated_msg'
+  218 |         #define __deprecated_msg(_msg) __attribute__((__deprecated__(_msg)))
+      |                                                       ^
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WW3D2/assetmgr.cpp:82:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WW3D2/assetmgr.h:51:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/slist.h:61:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/slnode.h:46:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/mempool.h:364:18: warning: instantiation of variable 'AutoPoolClass<GenericSLNode, 256>::Allocator' required here, but no definition is available [-Wundefined-var-template]
+  364 |         return (void *)(Allocator.Allocate_Object_Memory());
+      |                         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/slist.h:462:23: note: in instantiation of member function 'AutoPoolClass<GenericSLNode, 256>::operator new' requested here
+  462 |                 SLNode<T> *temp   = new SLNode<T>(cur->Data());
+      |                                     ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/slist.h:79:3: note: in instantiation of member function 'SList<Font3DDataClass>::Add_Head' requested here
+   79 |                 SList(void)
       |                 ^
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Upgrade/ReplaceObjectUpgrade.cpp:32:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/ReplaceObjectUpgrade.h:54:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
-   54 |         MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE( ReplaceObjectUpgrade, "ReplaceObjectUpgrade" )
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:684:2: note: expanded from macro 'MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE'
-  684 |         MEMORY_POOL_GLUE_WITHOUT_GCMP(ARGCLASS) \
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:658:3: note: expanded from macro 'MEMORY_POOL_GLUE_WITHOUT_GCMP'
-  658 |                 return 0; \
-      |                 ^
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Upgrade/ReplaceObjectUpgrade.cpp:34:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Player.h:62:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/AI.h:41:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:123:10: warning: 35 enumeration values not handled in switch: 'DAMAGE_EXPLOSION', 'DAMAGE_CRUSH', 'DAMAGE_ARMOR_PIERCING'... [-Wswitch]
-  123 |         switch( type )
-      |                 ^~~~
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:123:10: note: add missing switch cases
-  123 |         switch( type )
-      |                 ^
-  124 |         {
-  125 |                 case DAMAGE_SUBDUAL_MISSILE:
-  126 |                 case DAMAGE_SUBDUAL_VEHICLE:
-  127 |                 case DAMAGE_SUBDUAL_BUILDING:
-  128 |                 case DAMAGE_SUBDUAL_UNRESISTABLE:
-  129 |                         return TRUE;
-  130 |         }
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:140:10: warning: 32 enumeration values not handled in switch: 'DAMAGE_EXPLOSION', 'DAMAGE_CRUSH', 'DAMAGE_ARMOR_PIERCING'... [-Wswitch]
-  140 |         switch( type )
-      |                 ^~~~
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:140:10: note: add missing switch cases
-  140 |         switch( type )
-      |                 ^
-  141 |         {
-  142 |                 case DAMAGE_STATUS:
-  143 |                 case DAMAGE_SUBDUAL_MISSILE:
-  144 |                 case DAMAGE_SUBDUAL_VEHICLE:
-  145 |                 case DAMAGE_SUBDUAL_BUILDING:
-  146 |                 case DAMAGE_SUBDUAL_UNRESISTABLE:
-  147 |                 case DAMAGE_KILLPILOT:
-  148 |                 case DAMAGE_KILL_GARRISONED:
-  149 |                         return FALSE;
-  150 |         }
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Upgrade/ReplaceObjectUpgrade.cpp:34:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Player.h:62:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/AI.h:102:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
-  102 |         MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE(AISideInfo, "AISideInfo")               
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:684:2: note: expanded from macro 'MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE'
-  684 |         MEMORY_POOL_GLUE_WITHOUT_GCMP(ARGCLASS) \
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:658:3: note: expanded from macro 'MEMORY_POOL_GLUE_WITHOUT_GCMP'
-  658 |                 return 0; \
-      |                 ^
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Upgrade/ReplaceObjectUpgrade.cpp:34:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Player.h:62:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/AI.h:128:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
-  128 |         MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE(AISideBuildList, "AISideBuildList")             
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:684:2: note: expanded from macro 'MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE'
-  684 |         MEMORY_POOL_GLUE_WITHOUT_GCMP(ARGCLASS) \
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:658:3: note: expanded from macro 'MEMORY_POOL_GLUE_WITHOUT_GCMP'
-  658 |                 return 0; \
-      |                 ^
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Upgrade/ReplaceObjectUpgrade.cpp:34:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Player.h:62:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/AI.h:1901:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
- 1901 |         MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE( AIGroup, "AIGroupPool" );              ///< @todo Set real numbers for mem alloc
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:684:2: note: expanded from macro 'MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE'
-  684 |         MEMORY_POOL_GLUE_WITHOUT_GCMP(ARGCLASS) \
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:658:3: note: expanded from macro 'MEMORY_POOL_GLUE_WITHOUT_GCMP'
-  658 |                 return 0; \
-      |                 ^
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Upgrade/ReplaceObjectUpgrade.cpp:34:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Player.h:63:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/OrderQueue.h:49:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/MessageStream.h:91:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
-   91 |         MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE(GameMessageArgument, "GameMessageArgument")             
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:684:2: note: expanded from macro 'MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE'
-  684 |         MEMORY_POOL_GLUE_WITHOUT_GCMP(ARGCLASS) \
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:658:3: note: expanded from macro 'MEMORY_POOL_GLUE_WITHOUT_GCMP'
-  658 |                 return 0; \
-      |                 ^
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Upgrade/ReplaceObjectUpgrade.cpp:34:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Player.h:63:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/OrderQueue.h:49:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/MessageStream.h:108:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
-  108 |         MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE(GameMessage, "GameMessage")             
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:684:2: note: expanded from macro 'MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE'
-  684 |         MEMORY_POOL_GLUE_WITHOUT_GCMP(ARGCLASS) \
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:658:3: note: expanded from macro 'MEMORY_POOL_GLUE_WITHOUT_GCMP'
-  658 |                 return 0; \
-      |                 ^
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Upgrade/ReplaceObjectUpgrade.cpp:34:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Player.h:69:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Team.h:38:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Object.h:50:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/WeaponSet.h:245:160: warning: implicit conversion of NULL constant to 'UnsignedInt' (aka 'unsigned int') [-Wnull-conversion]
-  245 |         inline UnsignedInt getNthCommandSourceMask( WeaponSlotType n ) const { return m_curWeaponTemplateSet ? m_curWeaponTemplateSet->getNthCommandSourceMask( n ) : NULL; } 
-      |                                                                                ~~~~~~                                                                                 ^~~~
-      |                                                                                                                                                                       0
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Upgrade/ReplaceObjectUpgrade.cpp:34:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Player.h:69:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Team.h:38:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Object.h:52:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/StealthUpdate.h:38:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/UpdateModule.h:138:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
-  138 |         MEMORY_POOL_GLUE_ABC( UpdateModule )
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:700:3: note: expanded from macro 'MEMORY_POOL_GLUE_ABC'
-  700 |                 return 0; \
-      |                 ^
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Upgrade/ReplaceObjectUpgrade.cpp:34:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Player.h:69:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Team.h:38:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Object.h:52:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/StealthUpdate.h:38:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/UpdateModule.h:138:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:713:3: note: expanded from macro 'MEMORY_POOL_GLUE_ABC'
-  713 |                 return 0; \
-      |                 ^
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Upgrade/ReplaceObjectUpgrade.cpp:34:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Player.h:69:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Team.h:38:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Object.h:52:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/StealthUpdate.h:114:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
-  114 |         MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE( StealthUpdate, "StealthUpdate" )
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:684:2: note: expanded from macro 'MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE'
-  684 |         MEMORY_POOL_GLUE_WITHOUT_GCMP(ARGCLASS) \
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:658:3: note: expanded from macro 'MEMORY_POOL_GLUE_WITHOUT_GCMP'
-  658 |                 return 0; \
-      |                 ^
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Upgrade/ReplaceObjectUpgrade.cpp:34:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Player.h:69:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Team.h:38:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Object.h:212:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
-  212 |         MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE(Object, "ObjectPool" )          
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:684:2: note: expanded from macro 'MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE'
-  684 |         MEMORY_POOL_GLUE_WITHOUT_GCMP(ARGCLASS) \
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:658:3: note: expanded from macro 'MEMORY_POOL_GLUE_WITHOUT_GCMP'
-  658 |                 return 0; \
-      |                 ^
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Upgrade/ReplaceObjectUpgrade.cpp:34:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Player.h:69:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Team.h:54:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
-   54 |         MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE( TeamRelationMap, "TeamRelationMapPool" )       
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:684:2: note: expanded from macro 'MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE'
-  684 |         MEMORY_POOL_GLUE_WITHOUT_GCMP(ARGCLASS) \
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:658:3: note: expanded from macro 'MEMORY_POOL_GLUE_WITHOUT_GCMP'
-  658 |                 return 0; \
-      |                 ^
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Upgrade/ReplaceObjectUpgrade.cpp:34:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Player.h:69:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Team.h:186:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
-  186 |         MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE(Team, "TeamPool" )              
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:684:2: note: expanded from macro 'MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE'
-  684 |         MEMORY_POOL_GLUE_WITHOUT_GCMP(ARGCLASS) \
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:658:3: note: expanded from macro 'MEMORY_POOL_GLUE_WITHOUT_GCMP'
-  658 |                 return 0; \
-      |                 ^
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Upgrade/ReplaceObjectUpgrade.cpp:34:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Player.h:69:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Team.h:527:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
-  527 |         MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE(TeamPrototype, "TeamPrototypePool" )    
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:684:2: note: expanded from macro 'MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE'
-  684 |         MEMORY_POOL_GLUE_WITHOUT_GCMP(ARGCLASS) \
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:658:3: note: expanded from macro 'MEMORY_POOL_GLUE_WITHOUT_GCMP'
-  658 |                 return 0; \
-      |                 ^
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Upgrade/ReplaceObjectUpgrade.cpp:34:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Player.h:281:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
-  281 |         MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE(KindOfPercentProductionChange, "KindOfPercentProductionChange")         
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:684:2: note: expanded from macro 'MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE'
-  684 |         MEMORY_POOL_GLUE_WITHOUT_GCMP(ARGCLASS) \
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:658:3: note: expanded from macro 'MEMORY_POOL_GLUE_WITHOUT_GCMP'
-  658 |                 return 0; \
-      |                 ^
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Upgrade/ReplaceObjectUpgrade.cpp:34:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Player.h:314:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
-  314 |         MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE( PlayerRelationMap, "PlayerRelationMapPool" )   
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:684:2: note: expanded from macro 'MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE'
-  684 |         MEMORY_POOL_GLUE_WITHOUT_GCMP(ARGCLASS) \
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:658:3: note: expanded from macro 'MEMORY_POOL_GLUE_WITHOUT_GCMP'
-  658 |                 return 0; \
-      |                 ^
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Upgrade/ReplaceObjectUpgrade.cpp:36:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/ThingTemplate.h:353:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
-  353 |         MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE(ThingTemplate, "ThingTemplatePool" )            
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:684:2: note: expanded from macro 'MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE'
-  684 |         MEMORY_POOL_GLUE_WITHOUT_GCMP(ARGCLASS) \
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:658:3: note: expanded from macro 'MEMORY_POOL_GLUE_WITHOUT_GCMP'
-  658 |                 return 0; \
-      |                 ^
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Upgrade/ReplaceObjectUpgrade.cpp:38:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/AIPathfind.h:179:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
-  179 |         MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE( PathNode, "PathNodePool"  );           ///< @todo Set real numbers for mem alloc
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:684:2: note: expanded from macro 'MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE'
-  684 |         MEMORY_POOL_GLUE_WITHOUT_GCMP(ARGCLASS) \
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:658:3: note: expanded from macro 'MEMORY_POOL_GLUE_WITHOUT_GCMP'
-  658 |                 return 0; \
-      |                 ^
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Upgrade/ReplaceObjectUpgrade.cpp:38:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/AIPathfind.h:276:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
-  276 |         MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE( Path, "PathPool" );                                                    ///< @todo Set real numbers for mem alloc
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:684:2: note: expanded from macro 'MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE'
-  684 |         MEMORY_POOL_GLUE_WITHOUT_GCMP(ARGCLASS) \
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:658:3: note: expanded from macro 'MEMORY_POOL_GLUE_WITHOUT_GCMP'
-  658 |                 return 0; \
-      |                 ^
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Upgrade/ReplaceObjectUpgrade.cpp:40:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/CreateModule.h:65:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
-   65 |         MEMORY_POOL_GLUE_ABC( CreateModule )
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:700:3: note: expanded from macro 'MEMORY_POOL_GLUE_ABC'
-  700 |                 return 0; \
-      |                 ^
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Upgrade/ReplaceObjectUpgrade.cpp:40:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/CreateModule.h:65:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:713:3: note: expanded from macro 'MEMORY_POOL_GLUE_ABC'
-  713 |                 return 0; \
-      |                 ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Upgrade/ReplaceObjectUpgrade.cpp:51:51: warning: offset of on non-standard-layout type 'ReplaceObjectUpgradeModuleData' [-Winvalid-offsetof]
-   51 |                 { "ReplaceObject",      INI::parseAsciiString,  NULL, offsetof( ReplaceObjectUpgradeModuleData, m_replaceObjectName ) },
-      |                                                                       ^                                         ~~~~~~~~~~~~~~~~~~~
-/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
-   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
-      |                        ^                     ~
-52 warnings generated.
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WW3D2/assetmgr.cpp:295:19: note: in instantiation of member function 'SList<Font3DDataClass>::SList' requested here
+  295 | WW3DAssetManager::WW3DAssetManager(void) :
+      |                   ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/mempool.h:156:39: note: forward declaration of template entity is here
+  156 |         static ObjectPoolClass<T,BLOCK_SIZE>    Allocator;
+      |                                                 ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/mempool.h:364:18: note: add an explicit instantiation declaration to suppress this warning if 'AutoPoolClass<GenericSLNode, 256>::Allocator' is explicitly instantiated in another translation unit
+  364 |         return (void *)(Allocator.Allocate_Object_Memory());
+      |                         ^
+9 warnings generated.
