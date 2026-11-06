@@ -84,6 +84,7 @@
 #include "Common/LogicThread.h"
 #include <algorithm>
 #include <cstddef>
+#include <cstdio>
 #include <vector>
 
 #ifdef _INTERNAL
@@ -4764,6 +4765,17 @@ void W3DVolumetricShadowManager::renderShadowMap( CameraClass &sceneCamera )
 	}
 }
 
+/* An aircraft is the one caster whose volume and whose sun-map shadow can disagree about where the
+	 shadow goes: addShadow floors a volume's sun at AIRCRAFT_MIN_SUN_ELEVATION and the map has no such
+	 floor.  Where the map has the frame, the map's is the shadow to keep. */
+static Bool shadowCasterIsAircraft( RenderObjClass *robj )
+{
+	if (robj == NULL || robj->Get_User_Data() == NULL)
+		return FALSE;
+	const Drawable *draw = ((DrawableInfo *)robj->Get_User_Data())->m_drawable;
+	return draw != NULL && draw->isKindOf(KINDOF_AIRCRAFT);
+}
+
 void W3DVolumetricShadowManager::renderShadows( Bool forceStencilFill )
 {
 	USE_PERF_TIMER(stencilShadows)
@@ -4900,10 +4912,37 @@ void W3DVolumetricShadowManager::renderShadows( Bool forceStencilFill )
 		{
 			// CPU: silhouette and extrusion for every enabled caster.  Touches no D3D state.
 			USE_PERF_TIMER(shadowVolumeUpdate)
+			/* A helicopter drew twice: besides its other shadow, its stencil volume, lit from a sun floored at
+				 AIRCRAFT_MIN_SUN_ELEVATION, put a full dark one close under it.  Where the sun's map has the
+				 frame the volumes already stand down (-shadowmaponly), and Classic Graphics has no map at all,
+				 so there an aircraft's volume was the only one left.  Neither way is one built now: it queues
+				 nothing and nothing is drawn.  The caster stays in the shadow list, which keeps it in the map. */
+			const Bool sunMapOwnsFrame = SunShadow::OwnsSceneShadows(DX8Wrapper::_Get_D3D_Device());
+#if defined(ZH_PLATFORM_IOS)
+			static int reportedAircraftState = -1;
+#endif
 			for( shadow = m_shadowList; shadow; shadow = shadow->m_next )
 			{
 				if (shadow->m_isEnabled && !shadow->m_isInvisibleEnabled)
+				{
+					if (shadowCasterIsAircraft(shadow->getRenderObject()))
+					{
+#if defined(ZH_PLATFORM_IOS)
+						// One line each time this changes: whether the sun's map had the frame when an aircraft's volume came up.
+						const int state = (sunMapOwnsFrame ? 1 : 0) | (TheGlobalData->m_shadowMapOnly ? 2 : 0) | (TheGlobalData->m_classicGraphics ? 4 : 0);
+						if (state != reportedAircraftState)
+						{
+							fprintf(stderr, "[AIRCRAFT_SHADOW] sun_map_owns_frame=%d shadow_map_only=%d classic=%d volumes_skipped=%d\n",
+								sunMapOwnsFrame ? 1 : 0, TheGlobalData->m_shadowMapOnly ? 1 : 0, TheGlobalData->m_classicGraphics ? 1 : 0,
+								(sunMapOwnsFrame || TheGlobalData->m_classicGraphics) ? 1 : 0);
+							reportedAircraftState = state;
+						}
+#endif
+						if (sunMapOwnsFrame || TheGlobalData->m_classicGraphics)
+							continue;
+					}
 					shadow->Update();
+				}
 			}
 		}
 
