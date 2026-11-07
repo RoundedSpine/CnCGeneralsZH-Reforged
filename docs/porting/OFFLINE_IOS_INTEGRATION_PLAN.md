@@ -12,19 +12,37 @@ Working branch: `ios-main-merge` (from `Claude-update`). Upstream: `main`. Do **
 
 **Merge strategy:** review the three-way diff against merge base `5d6a328764a7bef8f977387077776ae6835750a7`. Upstream changes must be integrated in coherent dependency groups, not isolated lines that introduce unresolved symbols. Never claim the merge is complete until full conflict enumeration and compilation. Avoid introducing the excluded online libraries through a transitive CMake link.
 
-## Ordered goals and gates
+## Revised ordered goals and acceptance gates (2026-11-07)
 
-- [x] **G1 — Define scope, preserve invariants, and document plan.** Baseline: two W3DTreeBuffer changes already committed on integration branch; prior audit at `docs/porting/ios-main-integration-audit.md`. Verify that `main` and `Claude-update` remain untouched.
-- [ ] **G2 — CMake/build platform integration.** Compare `CMakeLists.txt`, vendor scripts, platform definitions and build workflows. Incorporate upstream non-online build improvements, but omit `mbedtls`/`onlineconnection` targets and linkage. Verify CMake configure with actual iOS SDK; static review is not a pass.
-- [ ] **G3 — Core engine interfaces and initialization.** Compare `GameEngine.cpp`, `GlobalData.cpp`, options, and dependent headers; preserve iOS lifecycle and logging. Verify compile and relevant unit tests.
-- [ ] **G4 — SDL/Metal graphics infrastructure.** Audit renderer, shaders, source registration, and device capabilities; preserve iOS Metal path. Verify shader generation, link and startup tests.
-- [ ] **G5 — Water, reflections, terrain, tree shadows.** Integrate `W3DScene`, `W3DWater`, UI visibility and tree-shadow changes as a single compatible feature. Verify symbols, render passes, and device behavior.
-- [ ] **G6 — Particles, smoke and hazard clouds.** Integrate policy, shader, backend and resource changes together. Review iOS GPU limits and fallback. Run relevant tests.
-- [ ] **G7 — Offline gameplay, UI and options.** Merge options menu/catalog, gameplay and offline fixes; exclude online-only UX. Verify touch and settings persistence.
-- [ ] **G8 — Performance, memory and stability.** Review allocators, frame pacing, memory-pressure handling, streaming and shutdown; run regression tests and performance comparisons.
-- [ ] **G9 — Assets, manifests and packaging.** Reconcile resource changes, fingerprint manifest, shaders and unsigned IPA workflow. Verify required files exist and are bundled.
-- [ ] **G10 — Full merge/conflict enumeration and validation.** Complete a real three-way Git merge or equivalent full tree integration, resolve all conflicts, run tests and build an unsigned iOS device IPA on a macOS/Xcode runner. Record build logs and failures; repeat until green.
-- [ ] **G11 — Final review.** Audit diff for unintended online dependencies and iOS regressions; only then propose merging integration branch into `Claude-update`.
+**Status:** G1 complete; G2–G13 open. A source review or a committed patch is not a successful build. Use the stages below in order; where dependencies require it, prepare a change in its stage and validate it in the next applicable CI gate.
+
+- [x] **G1 — Scope, branch isolation and integration rules.** Keep work on `ios-main-merge`; preserve offline campaign/skirmish, existing LAN, iOS touch, SDL/Metal, lifecycle, memory diagnostics and unsigned IPA. Exclude only *new hosted online-service features* and their mbedTLS/onlineconnection dependencies; do not blanket-remove existing GameSpy/LAN paths.
+- [ ] **G2 — Full upstream inventory and dependency classification.** Obtain an untruncated tree/three-way diff against `5d6a328764a7bef8f977387077776ae6835750a7` (GitHub compare returned only 300 upstream files). Classify every change: safe independent, requires iOS adaptation, resource-coupled, online-only/excluded, or intentionally deferred. Track overlap conflicts and their resolutions. **Gate:** inventory covers the complete source tree, not the truncated API page.
+- [ ] **G3 — Build system, host tools and baseline CI.** Audit CMake, vendor scripts, iOS deployment SDK, ObjC/ObjC++, FFmpeg, fingerprint generation and unsigned IPA workflow. Retain `CMake/HostTools.cmake` and host-built fingerprint tool; do not substitute upstream's target-built executable in a cross-compile. Keep existing iOS curl retries and SDL compute particle source selection. Keep `v3.6.0` until release parity is assessed. Integrate safe upstream build improvements without new online targets. **Gate:** actual iOS configure, host fingerprint execution, dependency fetch and baseline build logs.
+- [ ] **G4 — Manifest and asset prerequisite audit.** Reconcile upstream-only 122 and iOS-only 87 fingerprint manifest paths *against real files*; preserve iOS-specific entries. Stage only corresponding verified assets and shaders, without wholesale manifest replacement. **Gate:** all manifest paths resolve, generator completes, and required resource packaging is understood.
+- [ ] **G5 — Core engine, shared interfaces and initialization.** Three-way merge `GameEngine.cpp`, `GlobalData.cpp`, `OptionsCatalog.cpp` and dependent headers. Preserve iOS lifecycle hooks, diagnostics and platform settings. **Gate:** compile and engine startup tests.
+- [ ] **G6 — SDL/Metal renderer and shader infrastructure.** Adapt upstream rendering capabilities to the iOS GPU architecture; retain native SDL compute particles, existing shader/Metal paths and iOS GPU budget/fallback behavior. **Gate:** shader compilation, link and device startup.
+- [ ] **G7 — Water, reflections, terrain and tree shadows.** Revisit the *two already committed but uncompiled* `W3DTreeBuffer.cpp` changes. Integrate upstream `W3DScene`, `W3DWater`, world-space UI filtering, breeze cache and shadow policy with dependent headers and iOS rendering passes. **Gate:** compile and visual regression tests.
+- [ ] **G8 — Particles, smoke and hazard clouds.** Review upstream `SdlHazardCloudShared.cpp`, `SdlHazardCloudSharedShader.cpp`, model/test additions and source registration as a cohesive feature; do not register files before they exist on the branch. Adapt to iOS SDL/Metal capabilities, not upstream's D3D-only assumptions. **Gate:** cloud/particle tests, shader tests and device rendering.
+- [ ] **G9 — Offline gameplay, LAN, UI and settings.** Merge offline gameplay, `ParticleSys.cpp`, options menu and HUD changes; preserve touch, settings persistence and LAN behavior. Do not accidentally import hosted lobby/account/matchmaking/stats UI. **Gate:** campaign/skirmish, touch, options and LAN smoke tests.
+- [ ] **G10 — Performance, memory, stability and shutdown.** Check renderer frame pacing, texture/streaming resources, iOS memory-pressure callbacks, allocations, diagnostics, lifecycle and shutdown. **Gate:** repeatable performance/memory baselines and no new crash regressions.
+- [ ] **G11 — Full tree integration and conflict resolution.** Complete a real three-way merge (or equivalently verified full-tree integration), retaining necessary upstream fixes and iOS-specific additions. Review every remaining changed file, including docs, tests, shaders, packaging and vendor references. **Gate:** no unresolved conflicts, missing sources or unintended online-service dependencies.
+- [ ] **G12 — Full device IPA build and regression suite.** Run macOS/Xcode CI, configure for iOS, build host tools, compile/link, package unsigned IPA, inspect bundle contents, and run automated + device smoke tests. Record workflow run URLs, logs and failing cases. **Gate:** green build and validated offline, LAN, touch, graphics and lifecycle behavior.
+- [ ] **G13 — Release/version decision and final merge.** Compare integrated feature set against upstream `v3.8.0` before updating version metadata; audit licensing, resource integrity and diff. Merge `ios-main-merge` into `Claude-update` only with approval after G12. **Gate:** reviewed merge candidate and verified release notes.
+
+### Known decisions and corrections to enforce
+
+| Area | Decision |
+| --- | --- |
+| Online services | Exclude new hosted service, `mbedtls`, `onlineconnection`; retain existing LAN/GameSpy-era code |
+| Fingerprint | Same `build_fingerprint.cpp` upstream and iOS; retain iOS host executable CMake and generator expression |
+| Version | `v3.8.0` bump from `307e7bc` was reverted in `c969a83`; current `v3.6.0` is deliberate |
+| Manifests | 122 upstream-only and 87 iOS-only paths; verify actual files, reconcile additively |
+| Vendor script | `.tar.bz2` support integrated (`cc0f45e`); retain iOS retry/timeout logic |
+| GPU particles | Preserve iOS SDL compute backend; validate upstream changes against it |
+| Water/trees | Existing include and modern-mirror shadow guard are not compiled yet; review dependent types and render behavior |
+| Hazard clouds | Defer shared SDL files and test source registration until all source/shader dependencies exist |
+| Build validation | No verified configure, compilation, workflow run or IPA yet; never claim otherwise |
 
 ## Execution discipline
 
