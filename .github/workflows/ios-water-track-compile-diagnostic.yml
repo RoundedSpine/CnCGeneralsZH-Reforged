@@ -173,7 +173,13 @@ jobs:
           # Never overwrite the protected integration branch.
           for dependency in \
             GeneralsMD/Code/GameEngineDevice/Include/W3DDevice/GameClient/W3DWater.h \
-            GeneralsMD/Code/Libraries/Include/Platform/WaterShoreHistory.h; do
+            GeneralsMD/Code/Libraries/Include/Platform/WaterShoreHistory.h \
+            GeneralsMD/Code/Libraries/Include/Platform/WaterRenderCaches.h \
+            GeneralsMD/Code/Libraries/Include/Platform/WaterPreparedMeshCache.h \
+            GeneralsMD/Code/Libraries/Include/Platform/WaterProjectedMeshCache.h \
+            GeneralsMD/Code/Libraries/Include/Platform/WaterProjectedSampleCache.h \
+            GeneralsMD/Code/Libraries/Include/Platform/WaterStaticSampleCache.h \
+            GeneralsMD/Code/Libraries/Include/Platform/WaterTerrainCulling.h; do
             if ! git cat-file -e "refs/remotes/origin/main:$dependency"; then
               echo "Missing upstream coordinated water dependency: $dependency" >&2
               exit 1
