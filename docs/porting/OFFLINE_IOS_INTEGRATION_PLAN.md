@@ -83,3 +83,9 @@ Do **not** remove existing GameSpy-era or LAN code, socket/platform support, or 
 - **Manifest comparison:** upstream has 122 manifest paths absent from the iOS manifest; iOS has 87 absent from upstream, including host-tool, iOS lifecycle, touch, graphics, and test files. Do **not** replace the iOS manifest with upstream's: it would discard iOS-specific fingerprint inputs. Reconcile paths only when corresponding upstream resources are actually integrated.
 - **Review limitation:** manifest path differences alone do not establish that the underlying files exist in a branch or are packaged; existence and fingerprint execution require separate verification.
 - **Decision:** keep the existing iOS `ZH_PLATFORM_IOS`, host-tool CMake, SDL compute particle backend and FFmpeg toolchain behavior. Upstream features may be adapted to these, but not substituted for them.
+
+### G2 PR inventory checkpoint
+
+- Enumerated **all 423 changed paths** in existing PR #4 using the paginated PR file endpoint (source list saved in `docs/porting/pr4-changed-file-inventory.md`, commit `a5b9700`).
+- Provisional filename-only buckets: 152 engine, 130 resources, 70 renderer, 24 build/tools/tests, 9 hosted-online candidates and 38 other. **Do not treat the 9 candidates as all online dependencies or assume every candidate should be removed.**
+- The PR file list is complete for the *PR's net diff*, but **not** a complete union of `main`-only and `Claude-update`-only changes since the merge base; it cannot establish actual Git conflict hunks. Goal G2 stays unchecked until both branch-side changes and dependencies are enumerated.
