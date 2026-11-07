@@ -33,3 +33,11 @@ For each goal: (1) inventory changed files and dependencies, (2) classify iOS im
 ## Current known limitations
 
 GitHub's compare endpoint truncated `main` changed-file enumeration at 300 entries; overlap inventory is partial. GitHub file editing is available here but a complete local checkout, macOS SDK, and successful IPA build have **not** been demonstrated. The two earlier W3DTreeBuffer changes are uncompiled. A workflow file existing in the repository does not establish that it has run.
+
+## G2 implementation checkpoint: offline/LAN build boundary
+
+Commit `0aa2ad3` explicitly removes `GameNetwork/Online/OnlineConnection.cpp` from the recursively globbed engine source list. This is a forward-compatible guard: the file is currently absent from the iOS branch, so the current source list is unchanged. The upstream hosted-service `onlineconnection` and `mbedtls` targets remain excluded.
+
+Do **not** remove existing GameSpy-era or LAN code, socket/platform support, or offline skirmish networking. The upstream `SdlHazardCloudShared*` files are graphics features, not online dependencies; they remain pending a coherent source/shader integration in G6.
+
+**Validation pending:** verify the offline source list, check that existing LAN code still compiles and links, and run the iOS IPA workflow. G2 remains unchecked.
