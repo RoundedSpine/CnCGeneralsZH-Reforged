@@ -1,0 +1,68 @@
+name: iOS water-track adaptation test
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  water-tracks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ios-main-merge
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Resolve water-track platform guards with upstream reflection support
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p water-adaptation
+          git fetch --no-tags origin +refs/heads/main:refs/remotes/origin/main
+          set +e
+          git -c user.name='iOS prototype' -c user.email='prototype@localhost' merge --no-commit --no-ff refs/remotes/origin/main > water-adaptation/merge.log 2>&1
+          set -e
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          root=Path('GeneralsMD/Code/GameEngineDevice')
+          h=root/'Include/W3DDevice/GameClient/W3DWaterTracks.h'
+          cpp=root/'Source/W3DDevice/GameClient/Water/W3DWaterTracks.cpp'
+          pattern=re.compile(r'(?ms)^<<<<<<< HEAD\n(.*?)^=======\n(.*?)^>>>>>>> [^\n]+\n')
+          hs=h.read_text()
+          matches=list(pattern.finditer(hs))
+          assert len(matches)==2, f'Unexpected header conflicts: {len(matches)}'
+          # Preserve iOS/Linux snapshot member fields, while allowing upstream's unconditional definitions.
+          hs=pattern.sub(lambda m:m.group(1),hs)
+          assert 'ZH_PLATFORM_IOS' in hs
+          h.write_text(hs)
+          cs=cpp.read_text()
+          matches=list(pattern.finditer(cs))
+          assert len(matches)==5, f'Unexpected implementation conflicts: {len(matches)}'
+          def resolve(m):
+            ours,theirs=m.group(1),m.group(2)
+            if '#include "Platform/WaterScreenReflection.h"' in theirs:
+              return '#include "Platform/WaterScreenReflection.h"\n'+ours
+            if 'const Bool snapshot = WaterScreenReflection::Supported();' in theirs:
+              return 'const Bool snapshot = WaterScreenReflection::Supported();\n'+ours.replace('#if defined(__linux__) || defined(ZH_PLATFORM_IOS)','if (snapshot) {').replace('#endif','}')
+            if 'if (snapshot) {' in theirs and 'waveTailOrigin' in theirs:
+              return theirs.replace('if (snapshot) {','if (snapshot) {').replace('const Bool hasWaterLevel', 'const Bool hasWaterLevel')
+            if 'if (!WaterScreenReflection::Supported())' in theirs:
+              return theirs
+            return ours
+          cs=pattern.sub(resolve,cs)
+          assert not pattern.search(cs)
+          cpp.write_text(cs)
+          PY
+          git add GeneralsMD/Code/GameEngineDevice/Include/W3DDevice/GameClient/W3DWaterTracks.h GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/Water/W3DWaterTracks.cpp
+          git diff --cached -- GeneralsMD/Code/GameEngineDevice/Include/W3DDevice/GameClient/W3DWaterTracks.h GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/Water/W3DWaterTracks.cpp > water-adaptation/water-tracks.patch
+          git diff --name-only --diff-filter=U > water-adaptation/unresolved.txt
+          echo 'Prototype only: semantic review and compilation required.' > water-adaptation/README.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ios-water-track-adaptation
+          path: water-adaptation/
+          if-no-files-found: warn
