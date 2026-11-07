@@ -100,6 +100,31 @@ jobs:
           PY
           git add GeneralsMD/Code/GameEngineDevice/Include/W3DDevice/GameClient/W3DWaterTracks.h GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/Water/W3DWaterTracks.cpp
           git diff --cached -- GeneralsMD/Code/GameEngineDevice/Include/W3DDevice/GameClient/W3DWaterTracks.h GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/Water/W3DWaterTracks.cpp > water-adaptation/water-tracks.patch
+          # Capture the unresolved W3DWater.cpp three-way conflict for a coordinated
+          # source-level review; do not guess a resolution or alter the iOS branch.
+          python3 - <<'PY'
+          from pathlib import Path
+          import re, subprocess
+          path='GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/Water/W3DWater.cpp'
+          source=Path(path).read_text()
+          pattern=re.compile(r'(?ms)^<<<<<<< HEAD\n(.*?)^=======\n(.*?)^>>>>>>> [^\n]+\n')
+          matches=list(pattern.finditer(source))
+          out=Path('water-adaptation/water-main-conflicts.md')
+          with out.open('w') as f:
+              f.write('# W3DWater.cpp unresolved merge conflict review\n\n')
+              f.write(f'Conflict hunks: {len(matches)}\n\n')
+              for i,m in enumerate(matches,1):
+                  line=source.count('\n',0,m.start())+1
+                  before=source[max(0,m.start()-600):m.start()]
+                  after=source[m.end():m.end()+600]
+                  f.write(f'## Hunk {i}, approximate merged-file line {line}\n\n')
+                  f.write('### Context before\n\n```cpp\n'+before+'\n```\n\n')
+                  f.write('### iOS branch (ours)\n\n```cpp\n'+m.group(1)+'\n```\n\n')
+                  f.write('### upstream (theirs)\n\n```cpp\n'+m.group(2)+'\n```\n\n')
+                  f.write('### Context after\n\n```cpp\n'+after+'\n```\n\n')
+          assert matches, 'Expected unresolved W3DWater.cpp conflict; inspect merge changes'
+          print(f'Captured {len(matches)} W3DWater.cpp conflicts for review')
+          PY
           git diff --name-only --diff-filter=U > water-adaptation/unresolved.txt
           echo 'Guards and snapshot invariants checked. Full C++ compilation and visual testing still required.' > water-adaptation/README.txt
       - name: Compile adapted water tracks in clean Linux source tree
