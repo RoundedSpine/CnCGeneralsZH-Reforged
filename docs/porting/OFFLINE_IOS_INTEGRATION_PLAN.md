@@ -49,3 +49,11 @@ Do **not** remove existing GameSpy-era or LAN code, socket/platform support, or 
 - Upstream `SdlHazardCloudShared*` CMake references are deferred to G6 until the corresponding source/shader files are integrated.
 - Upstream version bump and fingerprint build command require independent review of manifest and generator dependencies; not blindly copied.
 - The added tar extraction branch has been source-reviewed but not executed in a shell test here. G2 still requires build validation.
+
+### G2 version/fingerprint checkpoint
+
+- Integrated upstream generated `BuildVersion.h` values `VERSION_STRING=v3.8.0` and `VERSION_MINOR=8` (`307e7bc`), leaving the iOS build configuration intact. **This is metadata alignment, not evidence of feature parity with upstream v3.8.**
+- Retained the iOS-specific fingerprint host-tool implementation (`zh_add_host_executable` and `$<TARGET_FILE:build_fingerprint>`), rather than replacing it with upstream's target-execution form. A device-target binary cannot be executed on the macOS build host.
+- Retained iOS's SDL compute GPU-particle source selection rather than adopting upstream's SDL no-backend fallback; the backend choice must be validated during graphics work.
+- Existing FFmpeg flags are iOS-aware; do not introduce upstream's macOS-only minimum-version flags into the iOS target.
+- Build/version changes are source-reviewed but uncompiled; G2 remains open.
