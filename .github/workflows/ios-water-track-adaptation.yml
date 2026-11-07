@@ -44,6 +44,9 @@ jobs:
             ours,theirs=m.group(1),m.group(2)
             if '#include "Platform/WaterScreenReflection.h"' in theirs:
               return '#include "Platform/WaterScreenReflection.h"\n'+ours
+            if 'void WaterTracksRenderSystem::takeReadsForRender(void)' in theirs:
+              # Upstream's unconditional definition matches the unconditional header.
+              return theirs
             if 'const Bool snapshot = WaterScreenReflection::Supported();' in theirs:
               # Keep platform compile-time guard and established iOS snapshot readiness check.
               return ours
