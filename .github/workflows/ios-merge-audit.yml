@@ -1,0 +1,59 @@
+name: iOS upstream merge audit
+
+on:
+  push:
+    branches:
+      - ios-main-merge
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  three-way-merge-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout integration branch with complete history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Simulate upstream main merge without changing the branch
+        shell: bash
+        run: |
+          set -uo pipefail
+          git fetch --no-tags origin +refs/heads/main:refs/remotes/origin/main
+          echo "Integration HEAD: $(git rev-parse HEAD)"
+          echo "Upstream HEAD: $(git rev-parse refs/remotes/origin/main)"
+          echo "Merge base: $(git merge-base HEAD refs/remotes/origin/main)"
+          mkdir -p merge-audit
+          set +e
+          git merge-tree --write-tree --messages HEAD refs/remotes/origin/main > merge-audit/merge-tree.txt 2>&1
+          status=$?
+          set -e
+          printf '%s\n' "$status" > merge-audit/merge-tree-exit-status.txt
+          if [ "$status" -eq 0 ]; then
+            echo "Git reports a clean automatic tree merge (not a build validation)."
+          elif [ "$status" -eq 1 ]; then
+            echo "Git reports merge conflicts; inspect merge-tree.txt."
+          else
+            echo "Merge simulation failed to execute (exit $status)."
+            exit "$status"
+          fi
+          git diff --name-status "$(git merge-base HEAD refs/remotes/origin/main)" refs/remotes/origin/main > merge-audit/upstream-net-paths.txt
+          git diff --name-status "$(git merge-base HEAD refs/remotes/origin/main)" HEAD > merge-audit/integration-net-paths.txt
+          git diff --name-only "$(git merge-base HEAD refs/remotes/origin/main)" refs/remotes/origin/main | sort > merge-audit/upstream-paths.txt
+          git diff --name-only "$(git merge-base HEAD refs/remotes/origin/main)" HEAD | sort > merge-audit/integration-paths.txt
+          comm -12 merge-audit/upstream-paths.txt merge-audit/integration-paths.txt > merge-audit/overlap-paths.txt
+          echo "Upstream net paths: $(wc -l < merge-audit/upstream-paths.txt)"
+          echo "Integration net paths: $(wc -l < merge-audit/integration-paths.txt)"
+          echo "Common net paths: $(wc -l < merge-audit/overlap-paths.txt)"
+          echo "Merge simulation exit status: $status"
+      - name: Upload merge audit evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-upstream-merge-audit
+          path: merge-audit/
+          if-no-files-found: warn
+          retention-days: 14
