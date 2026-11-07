@@ -30,7 +30,7 @@ jobs:
           root=Path('GeneralsMD/Code/GameEngineDevice')
           h=root/'Include/W3DDevice/GameClient/W3DWaterTracks.h'
           cpp=root/'Source/W3DDevice/GameClient/Water/W3DWaterTracks.cpp'
-          pattern=re.compile(r'(?ms)^<<<<<<< HEAD\\n(.*?)^=======\\n(.*?)^>>>>>>> [^\\n]+\\n')
+          pattern=re.compile(r'(?ms)^<<<<<<< HEAD\n(.*?)^=======\n(.*?)^>>>>>>> [^\n]+\n')
           # Preserve the existing iOS/Linux snapshot members and declarations.
           hs=h.read_text()
           assert len(pattern.findall(hs))==2
@@ -42,7 +42,7 @@ jobs:
           def resolve(m):
             ours,theirs=m.group(1),m.group(2)
             if '#include "Platform/WaterScreenReflection.h"' in theirs:
-              return '#include "Platform/WaterScreenReflection.h"\\n'+ours
+              return '#include "Platform/WaterScreenReflection.h"\n'+ours
             if 'const Bool snapshot = WaterScreenReflection::Supported();' in theirs:
               # Keep platform compile-time guard and established iOS snapshot readiness check.
               return ours
@@ -66,11 +66,11 @@ jobs:
             stack=[]
             for i,line in enumerate(src.splitlines(),1):
               t=line.strip()
-              if re.match(r'^#\\s*(if|ifdef|ifndef)\\b',t): stack.append(i)
-              elif re.match(r'^#\\s*endif\\b',t):
+              if re.match(r'^#\s*(if|ifdef|ifndef)\b',t): stack.append(i)
+              elif re.match(r'^#\s*endif\b',t):
                 assert stack, f'unmatched endif at {i}'
                 stack.pop()
-              elif re.match(r'^#\\s*(else|elif)\\b',t): assert stack, f'unmatched else/elif at {i}'
+              elif re.match(r'^#\s*(else|elif)\b',t): assert stack, f'unmatched else/elif at {i}'
             assert not stack, f'unclosed preprocessor directives: {stack}'
           balanced(hs)
           balanced(cs)
