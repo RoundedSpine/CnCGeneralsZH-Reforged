@@ -125,6 +125,35 @@ jobs:
           assert matches, 'Expected unresolved W3DWater.cpp conflict; inspect merge changes'
           print(f'Captured {len(matches)} W3DWater.cpp conflicts for review')
           PY
+          # Prototype the coordinated water-object conflict resolution in the
+          # disposable merge workspace, keeping iOS snapshot and Metal support.
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          p=Path('GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/Water/W3DWater.cpp')
+          s=p.read_text()
+          pattern=re.compile(r'(?ms)^<<<<<<< HEAD\n(.*?)^=======\n(.*?)^>>>>>>> [^\n]+\n')
+          hunks=list(pattern.finditer(s))
+          assert len(hunks)==2, f'Expected two W3DWater conflicts, found {len(hunks)}'
+          def resolve(m):
+              ours,theirs=m.group(1),m.group(2)
+              if 'm_waterTrackSystem->takeReadsForRender()' in ours and 'WaterScreenReflection::Supported()' in theirs:
+                  return ('#if defined(ZH_PLATFORM_IOS) || defined(__linux__)\n'
+                          '\tif (m_waterTrackSystem) m_waterTrackSystem->takeReadsForRender();\n'
+                          '#else\n'
+                          '\tif (WaterScreenReflection::Supported() && m_waterTrackSystem) m_waterTrackSystem->takeReadsForRender();\n'
+                          '#endif\n')
+              if 'SceneEffects::SupportsAtmosphere()' in ours and 'return false;' in theirs:
+                  return '#if defined(ZH_PLATFORM_IOS)\n\treturn ZH_MODERN_WATER && SceneEffects::SupportsAtmosphere();\n#else\n\treturn false;\n#endif\n'
+              raise AssertionError('Unexpected W3DWater conflict content')
+          s=pattern.sub(resolve,s)
+          assert '<<<<<<<' not in s and '>>>>>>>' not in s
+          assert s.count('SceneEffects::SupportsAtmosphere()')>=1
+          p.write_text(s)
+          print('PASS: W3DWater two-conflict prototype resolved with iOS snapshot and SceneEffects preserved')
+          PY
+          git add GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/Water/W3DWater.cpp
+          git diff --cached -- GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/Water/W3DWater.cpp > water-adaptation/water-main-prototype.patch
           git diff --name-only --diff-filter=U > water-adaptation/unresolved.txt
           echo 'Guards and snapshot invariants checked. Full C++ compilation and visual testing still required.' > water-adaptation/README.txt
       - name: Compile adapted water tracks in clean Linux source tree
@@ -134,9 +163,11 @@ jobs:
           mkdir -p water-adaptation/compile
           cp GeneralsMD/Code/GameEngineDevice/Include/W3DDevice/GameClient/W3DWaterTracks.h /tmp/adapted-W3DWaterTracks.h
           cp GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/Water/W3DWaterTracks.cpp /tmp/adapted-W3DWaterTracks.cpp
+          cp GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/Water/W3DWater.cpp /tmp/adapted-W3DWater.cpp
           git merge --abort
           cp /tmp/adapted-W3DWaterTracks.h GeneralsMD/Code/GameEngineDevice/Include/W3DDevice/GameClient/W3DWaterTracks.h
           cp /tmp/adapted-W3DWaterTracks.cpp GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/Water/W3DWaterTracks.cpp
+          cp /tmp/adapted-W3DWater.cpp GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/Water/W3DWater.cpp
           # The upstream water-track implementation includes this upstream-only header.
           # Restore its exact bytes from origin/main rather than substituting a mock.
           reflection=GeneralsMD/Code/Libraries/Include/Platform/WaterScreenReflection.h
@@ -189,6 +220,27 @@ jobs:
           set -e
           if [ "$status" -ne 0 ]; then tail -n 160 water-adaptation/compile/water-track-object.log; exit "$status"; fi
           echo 'PASS: adapted W3DWaterTracks.cpp compiled with CMake-generated Linux Clang flags (object only; no link)' | tee water-adaptation/compile/result.txt
+          # Compile W3DWater.cpp separately with the same CMake-generated flags.
+          set +e
+          python3 - <<'PY' > water-adaptation/compile/water-main-object.log 2>&1
+          import json, pathlib, shlex, subprocess, sys
+          entries=json.loads(pathlib.Path('/tmp/zh-water-build/compile_commands.json').read_text())
+          matching=[e for e in entries if pathlib.Path(e['file']).name=='W3DWater.cpp' and 'w3ddevice' in (e.get('command','')+' '.join(e.get('arguments',[])))]
+          if len(matching)!=1:
+              print('Expected one W3DWater.cpp w3ddevice command; found',len(matching),flush=True)
+              sys.exit(2)
+          e=matching[0]
+          args=e.get('arguments') or shlex.split(e['command'])
+          print('Compiling:',shlex.join(args),flush=True)
+          result=subprocess.run(args,cwd=e['directory'])
+          print('W3DWater object exit:',result.returncode,flush=True)
+          sys.exit(result.returncode)
+          PY
+          status=$?
+          set -e
+          if [ "$status" -ne 0 ]; then tail -n 160 water-adaptation/compile/water-main-object.log; exit "$status"; fi
+          echo 'PASS: W3DWater.cpp compiled with CMake-generated Linux Clang flags (object only; no link)' | tee -a water-adaptation/compile/result.txt
+
       - uses: actions/upload-artifact@v4
         if: always()
         with:
