@@ -74,7 +74,7 @@ jobs:
           assert cs.count('void WaterTracksRenderSystem::takeReadsForRender(void)')==1
           assert cs.count('WaterScreenReflection::Supported()')==1
           assert cs.count('#if !defined(__linux__) && !defined(ZH_PLATFORM_IOS)')>=1
-          assert '#if defined(__linux__) || defined(ZH_PLATFORM_IOS)\\n\\tif (!m_drawnWaveReady)' in cs
+          assert re.search(r'#if defined\(__linux__\) \|\| defined\(ZH_PLATFORM_IOS\)\s*\n\s*if \(!m_drawnWaveReady\)',cs), 'Missing iOS readiness guard'
           assert 'waterHeight=m_drawnWaterHeight;' in cs
           assert 'waveForDraw(waveTailOrigin,waveFrontOrigin,waveAlpha,widthFrac);' in cs
           cpp.write_text(cs)
