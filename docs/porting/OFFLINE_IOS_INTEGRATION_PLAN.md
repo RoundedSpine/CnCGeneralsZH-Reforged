@@ -57,3 +57,11 @@ Do **not** remove existing GameSpy-era or LAN code, socket/platform support, or 
 - Retained iOS's SDL compute GPU-particle source selection rather than adopting upstream's SDL no-backend fallback; the backend choice must be validated during graphics work.
 - Existing FFmpeg flags are iOS-aware; do not introduce upstream's macOS-only minimum-version flags into the iOS target.
 - Build/version changes are source-reviewed but uncompiled; G2 remains open.
+
+### G2 retrospective correction and manifest analysis
+
+- **Correction:** reverted the premature `v3.8.0` metadata bump in `c969a83`. The integration branch still lacks many upstream features; its generated version remains `v3.6.0` until a release decision is made.
+- **Verified:** `Tools/fingerprint/build_fingerprint.cpp` has identical file contents on `main` and `ios-main-merge`. The branch-specific `CMake/HostTools.cmake` exists only on iOS; retain it to compile and execute the fingerprint generator on the macOS host when cross-compiling.
+- **Manifest comparison:** upstream has 122 manifest paths absent from the iOS manifest; iOS has 87 absent from upstream, including host-tool, iOS lifecycle, touch, graphics, and test files. Do **not** replace the iOS manifest with upstream's: it would discard iOS-specific fingerprint inputs. Reconcile paths only when corresponding upstream resources are actually integrated.
+- **Review limitation:** manifest path differences alone do not establish that the underlying files exist in a branch or are packaged; existence and fingerprint execution require separate verification.
+- **Decision:** keep the existing iOS `ZH_PLATFORM_IOS`, host-tool CMake, SDL compute particle backend and FFmpeg toolchain behavior. Upstream features may be adapted to these, but not substituted for them.
