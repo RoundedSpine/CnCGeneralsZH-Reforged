@@ -115,6 +115,21 @@ jobs:
           git diff --check | tee water-adaptation/compile/diff-check.log
           sudo apt-get update
           sudo apt-get install -y ninja-build cmake clang pkg-config libfontconfig1-dev libcurl4-openssl-dev
+          # Diagnose the upstream archive before running the full vendor installer.
+          # Do not substitute a different zlib version or silently accept an HTML response.
+          curl -fL --retry 3 --retry-all-errors --connect-timeout 20 --max-time 120 \
+            -D water-adaptation/compile/zlib-headers.txt \
+            -o /tmp/zh-zlib-1.1.4.tar.gz \
+            https://zlib.net/fossils/zlib-1.1.4.tar.gz
+          file /tmp/zh-zlib-1.1.4.tar.gz | tee water-adaptation/compile/zlib-file-type.txt
+          if ! tar -tzf /tmp/zh-zlib-1.1.4.tar.gz > water-adaptation/compile/zlib-contents.txt 2> water-adaptation/compile/zlib-validation-error.txt; then
+            echo 'ERROR: upstream zlib URL did not deliver a valid gzip tar archive; compilation not attempted.'
+            head -c 256 /tmp/zh-zlib-1.1.4.tar.gz | od -An -tx1 | tee water-adaptation/compile/zlib-first-bytes.txt
+            cat water-adaptation/compile/zlib-validation-error.txt
+            exit 1
+          fi
+          mkdir -p /tmp/zhr-vendor
+          cp /tmp/zh-zlib-1.1.4.tar.gz /tmp/zhr-vendor/zlib-1.1.4.tar.gz
           (cd GeneralsMD/Code && bash Tools/vendor.sh) > water-adaptation/compile/vendor.log 2>&1 || { tail -n 100 water-adaptation/compile/vendor.log; exit 1; }
           cmake -S GeneralsMD/Code -B /tmp/zh-water-build -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_COMPILER=clang > water-adaptation/compile/configure.log 2>&1 || { tail -n 100 water-adaptation/compile/configure.log; exit 1; }
           cmake --build /tmp/zh-water-build --target w3ddevice -j 2 > water-adaptation/compile/build.log 2>&1 || { tail -n 150 water-adaptation/compile/build.log; exit 1; }
