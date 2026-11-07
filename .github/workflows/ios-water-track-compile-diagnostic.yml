@@ -341,6 +341,36 @@ jobs:
           print('PASS: water objects combined into a relocatable ELF object',flush=True)
           PY
           echo 'PASS: water objects passed relocatable link; unresolved external symbol inventory captured (not final executable link)' | tee -a water-adaptation/compile/result.txt
+      - name: Attempt complete Linux generals executable build and link
+        shell: bash
+        timeout-minutes: 35
+        run: |
+          set -euo pipefail
+          # This builds the actual POSIX game target, not a partial object or
+          # synthetic link. Capture the full output even if compilation fails.
+          set +e
+          cmake --build /tmp/zh-water-build --target generals --parallel 4             > water-adaptation/compile/full-engine-build.log 2>&1
+          status=$?
+          set -e
+          echo "Full generals target exit code: $status" | tee water-adaptation/compile/full-engine-status.txt
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          src=Path('water-adaptation/compile/full-engine-build.log').read_text(errors='replace')
+          lines=src.splitlines()
+          errors=[(i+1,line) for i,line in enumerate(lines) if re.search(r'(fatal error:|error:|undefined reference|duplicate symbol|ld(?:\\.lld)?: error:|FAILED:|ninja: build stopped)',line,re.I)]
+          p=Path('water-adaptation/compile/full-engine-error-summary.txt')
+          p.write_text('\n'.join(f'{n}: {line}' for n,line in errors[:250])+'\n')
+          print(f'Build output lines: {len(lines)}; diagnostic lines: {len(errors)}')
+          print(p.read_text()[-16000:])
+          PY
+          if [ "$status" -ne 0 ]; then
+            echo 'FAIL: full generals executable build or link; inspect uploaded build log' | tee -a water-adaptation/compile/result.txt
+            tail -n 90 water-adaptation/compile/full-engine-build.log
+            exit "$status"
+          fi
+          echo 'PASS: full Linux generals target compiled and linked (not an iOS or Metal test)' | tee -a water-adaptation/compile/result.txt
+
       - uses: actions/upload-artifact@v4
         if: always()
         with:
