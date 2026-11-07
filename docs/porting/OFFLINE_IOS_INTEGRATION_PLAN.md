@@ -140,3 +140,11 @@ Four consecutive upstream ancestry comparisons from merge base to `main` returne
 **Next actionable sequence:** (a) review actual conflict markers and resolve G3/G4 build and manifest conflicts; (b) integrate SDL/Metal renderer and hazard dependencies; (c) resolve water as a coordinated unit; (d) resolve options, portability/tests and changelog; (e) simulate merge again and verify no unresolved conflicts; (f) run iOS CI and unsigned IPA tests. Preserve work only on `ios-main-merge`, with no changes to `Claude-update` or `main`.
 
 **Verification boundary:** merge-audit workflow ran and artifacts were inspected, but no successful compile, link, packaged IPA or on-device regression run is established.
+
+### G3 vendor conflict resolution candidate (2026-11-07)
+
+- Reviewed both `main` and `ios-main-merge` `GeneralsMD/Code/Tools/vendor.sh` at source level. Upstream adds `install_mbedtls()` and invokes it at the end, solely for the excluded hosted online service. **Do not import that function/call**; the integration branch already supports `*.tar.bz2` extraction and retains stronger `curl` retry/timeout handling.
+- Updated the existing offline vendor script in commit `cf19f945` to apply the same retry/timeout/partial cleanup protection to downloaded art assets. The checksum check and final rename remain intact. This is a source edit, **not a completed merge of upstream**.
+- **Vendor conflict resolution policy:** when applying the full upstream merge, retain the integration branch's offline `vendor.sh` implementation, including this hardening, and explicitly reject the upstream mbedTLS-only additions. Inspect the merged result for unexpected non-online changes before finalizing.
+- **BuildFingerprint.manifest remains unresolved:** upstream-only 122 and iOS-only 87 entries were confirmed from current file contents. Do not concatenate blindly: verify upstream paths exist and exclude online-only paths; preserve all iOS host/touch/Metal/lifecycle entries. Do not mark G3/G4 complete.
+- **Validation pending:** `bash -n`, dependency smoke tests, manifest existence/fingerprint generator, and iOS build.
