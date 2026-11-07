@@ -182,6 +182,7 @@ found and fixed, EA's own, not port damage.**
 - In a LAN or online room the other players do not download anything: the map's name carries its recipe, and their own game builds the same map from it and checks it against yours. A room that records stats keeps to the official list.
 - Random maps used to be reachable only by a hidden command-line switch that added five rows to the skirmish list.
 - Leaving the skirmish room for the main menu no longer crashes the game. In 3.4.0 it did every time, whatever map was picked: the room went on refitting its random map to the seats for a moment after Back had already thrown the seats away.
+- A LAN match on a random map no longer crashes the host as it starts. The room waits behind the battle with its window taken down, and it went on refitting its map to the seats there: one host's game rebuilt a two-player map for three on the match's first frame and died. The online room had the same habit while it slid shut.
 - Back from a match on a random map, the skirmish room still has that map picked. It used to show some other map, usually the first of your own downloaded ones, because the room wrote the map's name down in a way it could not read back. The room also picks up a random map remembered from your last session, building it again from its name.
 
 ## An army screen in every lobby
@@ -1560,6 +1561,7 @@ A third pass went through the generals' powers, promotions and unit abilities.
 - Burning infantry run in every direction, not always north-east.
 - A player name long enough to fill the LAN game room no longer hangs the lobby, changing settings there no longer crashes it, and the list of LAN games keeps its place instead of jumping back to the top every time it refreshes.
 - The pointer resting on a player's name in the LAN game room when the host leaves no longer crashes the game. The game is gone the moment the host goes, the room stays on screen while it slides back to the lobby, and the name's tooltip went looking for a player in it.
+- Pressing Back in the LAN lobby with the pointer on a player's name no longer crashes the game either. Back closes the LAN connection at once while the lobby is still sliding off the screen, and the name's tooltip asked the closed connection who that player was.
 - A save that fails to load shows its error box instead of crashing. A garrisoned building read before the fault counted soldiers it had not been handed yet, and clearing away the half-loaded match asked it for the first of them.
 - Holding Ctrl while the beacon text box was open no longer leaves force-attack armed after you let go.
 - The camera stops following a unit the moment it goes stealthed or into the fog, instead of showing you where it went.
@@ -2058,6 +2060,8 @@ The whole HUD is on the hardware. Four colours carry it, and they mean the same 
 
 ## It does not crash
 
+- A GLA tunnel that belongs to no player no longer crashes the game when a unit near it looks for a target. With no owner there is no tunnel network behind it, and the check for hidden men inside asked that missing network for its first passenger. Three crash reports from 3.5.1 came from it, two of them the same network match seen from both machines.
+- Loading a save could crash on the Generals' Challenge loading screen, the one with two generals facing each other, when the mission named a general the screen could not find. Its right half now stays empty and the mission loads.
 - A sound cut off in the middle no longer takes the game down a moment later. The game stopped the sound and freed it, but Windows' audio mixer only stops reading on its next pass, a hundredth of a second on, and two players' games died with the mixer reading what had just been freed. Every sound now plays from a copy the mixer gives back itself when it is done. A load screen movie skipped to its last frame threw its sound away the same way, and now leaves it to the mixer too.
 - That copy did not end the mixer crash: two 3.3.0 players still met it. Each sound channel was reused for the next sound by stopping it, emptying it and handing it new audio, and now and then Windows' mixer carried its place in the old sound over as one step before the start of the new one, then read eight gigabytes past it. Every sound now gets a fresh channel that nothing has played before, which is how Windows' mixer is normally used.
 - The game no longer crashes now and then as a match starts or a new unit comes on the field. Since 3.2.0 the battle runs beside the picture, and both sides ask the game's files whether a model or a texture is there. The answers go into one shared list, and two answers written at once tore it, which took the game down later in some unrelated place. Two reads from the same game archive at once could also hand one of them the other's bytes. Each now waits its turn.
