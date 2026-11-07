@@ -132,8 +132,27 @@ jobs:
           cp /tmp/zh-zlib-1.1.4.tar.gz /tmp/zhr-vendor/zlib-1.1.4.tar.gz
           (cd GeneralsMD/Code && bash Tools/vendor.sh) > water-adaptation/compile/vendor.log 2>&1 || { tail -n 100 water-adaptation/compile/vendor.log; exit 1; }
           cmake -S GeneralsMD/Code -B /tmp/zh-water-build -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_COMPILER=clang > water-adaptation/compile/configure.log 2>&1 || { tail -n 100 water-adaptation/compile/configure.log; exit 1; }
-          cmake --build /tmp/zh-water-build --target w3ddevice -j 2 > water-adaptation/compile/build.log 2>&1 || { tail -n 150 water-adaptation/compile/build.log; exit 1; }
-          echo 'PASS: adapted water-track translation unit compiled as part of Linux w3ddevice target' | tee water-adaptation/compile/result.txt
+          # Compile the exact adapted translation unit using CMake's generated command,
+          # without first building unrelated gameengine objects.
+          set +e
+          python3 - <<'PY' > water-adaptation/compile/water-track-object.log 2>&1
+          import json, pathlib, shlex, subprocess, sys
+          entries=json.loads(pathlib.Path('/tmp/zh-water-build/compile_commands.json').read_text())
+          matching=[entry for entry in entries if pathlib.Path(entry['file']).name=='W3DWaterTracks.cpp' and 'w3ddevice' in entry.get('command','')]
+          if len(matching)!=1:
+              print('Expected one w3ddevice W3DWaterTracks.cpp command; found',len(matching),flush=True)
+              sys.exit(2)
+          entry=matching[0]
+          args=entry.get('arguments') or shlex.split(entry['command'])
+          print('Compiling:',shlex.join(args),flush=True)
+          result=subprocess.run(args,cwd=entry['directory'],check=False)
+          print('Water-track object compiler exit:',result.returncode,flush=True)
+          sys.exit(result.returncode)
+          PY
+          status=$?
+          set -e
+          if [ "$status" -ne 0 ]; then tail -n 160 water-adaptation/compile/water-track-object.log; exit "$status"; fi
+          echo 'PASS: adapted W3DWaterTracks.cpp compiled with CMake-generated Linux Clang flags (object only; no link)' | tee water-adaptation/compile/result.txt
       - uses: actions/upload-artifact@v4
         if: always()
         with:
