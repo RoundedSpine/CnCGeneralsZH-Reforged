@@ -97,7 +97,7 @@ expand_source() { # archive name -> prints the unpacked root
   mkdir -p "$target"
   step "unpacking $name"
   case "$archive" in
-    *.tar.gz) tar -xf "$archive" -C "$target" || { echo "[vendor] ERROR: could not unpack $archive" >&2; return 1; } ;;
+    *.tar.gz|*.tar.bz2) tar -xf "$archive" -C "$target" || { echo "[vendor] ERROR: could not unpack $archive" >&2; return 1; } ;;
     *)        unzip -qo "$archive" -d "$target" || { echo "[vendor] ERROR: could not unpack $archive" >&2; return 1; } ;;
   esac
   local entry count=0 only=
