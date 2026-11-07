@@ -1,0 +1,77 @@
+name: iOS renderer adaptation prototype
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  prototype:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ios-main-merge
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Adapt low-risk scene-effect interfaces in disposable merge
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p adaptation/validation
+          git fetch --no-tags origin +refs/heads/main:refs/remotes/origin/main
+          set +e
+          git -c user.name='iOS prototype' -c user.email='prototype@localhost' merge --no-commit --no-ff refs/remotes/origin/main > adaptation/merge.log 2>&1
+          set -e
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          files = {
+            'GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/HazardCloudUnsupported.cpp': [
+              ('#include "Platform/SceneEffects.h"', '#include "Platform/SceneEffects.h"\n#include "Platform/WaterScreenReflection.h"'),
+              ('namespace SceneEffects {\nbool SupportsAmbientOcclusion()', 'namespace SceneEffects {\nbool SupportsAmbientOcclusion()'),
+            ],
+            'GeneralsMD/Code/Libraries/Source/WWVegas/WW3D2/dx11runtime_posix.cpp': [],
+          }
+          for name in files:
+            p=Path(name)
+            src=p.read_text()
+            pattern=r'(?ms)^<<<<<<< HEAD\n(.*?)^=======\n(.*?)^>>>>>>> refs/remotes/origin/main\n'
+            matches=list(re.finditer(pattern,src))
+            if name.endswith('HazardCloudUnsupported.cpp'):
+              assert len(matches)==2,len(matches)
+              def merge(m):
+                ours,theirs=m.group(1),m.group(2)
+                if 'SceneEffects.h' in ours:
+                  return ours+theirs
+                assert 'namespace SceneEffects' in ours and 'namespace HazardCloudShared' in theirs
+                return ours+'\n'+theirs
+              result=re.sub(pattern,merge,src)
+            else:
+              assert len(matches)==1,len(matches)
+              def merge(m):
+                ours,theirs=m.group(1),m.group(2)
+                assert 'Direct3D11_Set_Fire_Look' in ours and 'Direct3D11_Set_Heat_Splats' in theirs
+                return ours+'void Direct3D11_Set_Heat_Splats(const float *, unsigned) {}\n'
+              result=re.sub(pattern,merge,src)
+            assert not re.search(r'^(<<<<<<<|=======|>>>>>>>)',result,re.M)
+            p.write_text(result)
+            print(f'Adapted {name}: {len(matches)} conflict sections')
+          PY
+          git add GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/HazardCloudUnsupported.cpp GeneralsMD/Code/Libraries/Source/WWVegas/WW3D2/dx11runtime_posix.cpp
+          git diff --name-only --diff-filter=U > adaptation/unresolved-after.txt
+          git diff --cached -- GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/HazardCloudUnsupported.cpp GeneralsMD/Code/Libraries/Source/WWVegas/WW3D2/dx11runtime_posix.cpp > adaptation/scene-effects.patch
+          grep -q 'namespace HazardCloudShared' GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/HazardCloudUnsupported.cpp
+          grep -q 'namespace SceneEffects' GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/HazardCloudUnsupported.cpp
+          grep -q 'Direct3D11_Set_Heat_Splats' GeneralsMD/Code/Libraries/Source/WWVegas/WW3D2/dx11runtime_posix.cpp
+          echo 'PASS: scene effects and hazard cloud interfaces combined; no compiler validation performed' | tee adaptation/validation/scene-effects.log
+          echo 'Prototype only. No commits or pushes. Full renderer and iOS compilation remain pending.' > adaptation/README.txt
+      - name: Upload adaptation prototype
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-renderer-adaptation-prototype
+          path: adaptation/
+          if-no-files-found: warn
+          retention-days: 14
