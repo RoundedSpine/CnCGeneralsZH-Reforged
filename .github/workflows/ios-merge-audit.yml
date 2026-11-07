@@ -16,14 +16,33 @@ jobs:
           ref: ios-main-merge
           fetch-depth: 0
           persist-credentials: false
+      - name: Prepare individual validation logs
+        shell: bash
+        run: mkdir -p merge-audit/validation
       - name: Validate offline vendor script syntax
         shell: bash
-        run: bash -n GeneralsMD/Code/Tools/vendor.sh
+        run: |
+          set -o pipefail
+          if bash -n GeneralsMD/Code/Tools/vendor.sh > merge-audit/validation/vendor-syntax.log 2>&1; then
+            echo "PASS: vendor.sh shell syntax" | tee -a merge-audit/validation/vendor-syntax.log
+          else
+            status=$?
+            echo "FAIL: vendor.sh shell syntax (exit $status)" | tee -a merge-audit/validation/vendor-syntax.log
+            cat merge-audit/validation/vendor-syntax.log
+            exit "$status"
+          fi
       - name: Check current fingerprint manifest against tracked files
         shell: bash
         run: |
           set -euo pipefail
-          GeneralsMD/Code/Tools/fingerprint-manifest.sh --check
+          if GeneralsMD/Code/Tools/fingerprint-manifest.sh --check > merge-audit/validation/fingerprint-manifest.log 2>&1; then
+            echo "PASS: fingerprint manifest check" | tee -a merge-audit/validation/fingerprint-manifest.log
+          else
+            status=$?
+            echo "FAIL: fingerprint manifest check (exit $status)" | tee -a merge-audit/validation/fingerprint-manifest.log
+            cat merge-audit/validation/fingerprint-manifest.log
+            exit "$status"
+          fi
       - name: Simulate upstream main merge without changing the branch
         shell: bash
         run: |
