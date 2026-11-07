@@ -58,6 +58,7 @@
 #include "Platform/WaterVesselMotion.h"
 #include "Platform/WaterFoamHistory.h"
 #include "Platform/WaterShoreSource.h"
+#include "Platform/WaterScreenReflection.h"
 
 class Drawable;
 class MeshModelClass;
@@ -141,6 +142,7 @@ public:
 	void replaceSkyboxTexture(const AsciiString& oldTexName, const AsciiString& newTextName);
 	TextureClass *getSkyTexture(void) const { return m_settings[m_tod].skyTexture; }	///< the time of day's sky, as WaterSet names it
 	Bool hasModernVesselFoam(UnsignedInt objectID) const; ///< replacement was submitted for this hull in the current render frame
+	Bool isModernFullMirror() const; ///< true only during an active Hybrid reflection pass
 	Bool isModernWaterMirrorForOwner(UnsignedInt objectID) const; ///< owner's surface foam must not reflect back into the same water plane
 
 protected:
@@ -217,6 +219,7 @@ protected:
 	TextureClass *m_riverTexture;
 	TextureClass *m_whiteTexture;		///< a texture containing only white used for NULL pixel shader stages.
 	TextureClass *m_waterNoiseTexture;
+	WaterScreenReflection::Mode m_waterReflectionMode = WaterScreenReflection::Mirror; // Hybrid requires shader and scene-texture integration
 	Bool m_useModernWater = FALSE; // active render style; synchronized before mirror/surface draws
 	TextureClass *m_modernHeightTexture = NULL;
 	TextureClass *m_modernBedTexture = NULL;
