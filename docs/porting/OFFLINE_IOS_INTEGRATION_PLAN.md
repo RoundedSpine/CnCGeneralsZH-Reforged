@@ -148,3 +148,10 @@ Four consecutive upstream ancestry comparisons from merge base to `main` returne
 - **Vendor conflict resolution policy:** when applying the full upstream merge, retain the integration branch's offline `vendor.sh` implementation, including this hardening, and explicitly reject the upstream mbedTLS-only additions. Inspect the merged result for unexpected non-online changes before finalizing.
 - **BuildFingerprint.manifest remains unresolved:** upstream-only 122 and iOS-only 87 entries were confirmed from current file contents. Do not concatenate blindly: verify upstream paths exist and exclude online-only paths; preserve all iOS host/touch/Metal/lifecycle entries. Do not mark G3/G4 complete.
 - **Validation pending:** `bash -n`, dependency smoke tests, manifest existence/fingerprint generator, and iOS build.
+
+### G3/G4 automated validation checkpoint (2026-11-07)
+
+- `GeneralsMD/Code/Tools/fingerprint-manifest.sh` is the existing canonical manifest generator. It uses `git ls-files` to enumerate tracked files, excluding only `BuildFingerprint.manifest` itself and vendored FFmpeg distribution outputs. Its `--check` mode refuses unmerged index entries and detects missing, extra or duplicate entries.
+- **Important correction to the manifest policy:** excluding hosted online functionality from the *compiled iOS build* does not justify deleting its tracked source paths from the fingerprint manifest. After integrating upstream, regenerate the manifest from the actual resolved Git index using `Tools/fingerprint-manifest.sh`; do not manually combine the 122 upstream-only and 87 iOS-only entries, and do not generate while conflicts remain.
+- Added two checks to `.github/workflows/ios-merge-audit.yml` in commit `b8a09a7`: `bash -n GeneralsMD/Code/Tools/vendor.sh` and `GeneralsMD/Code/Tools/fingerprint-manifest.sh --check`. The checks execute before merge-tree simulation and fail CI if the current branch has malformed shell or a stale manifest.
+- **Not yet verified:** new CI run completion or output, actual manifest reconciliation against the final merged tree, vendored dependency fetch, CMake configure, and iOS IPA.
