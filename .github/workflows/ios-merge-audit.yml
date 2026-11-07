@@ -1,9 +1,6 @@
 name: iOS upstream merge audit
 
 on:
-  push:
-    branches:
-      - ios-main-merge
   workflow_dispatch:
 
 permissions:
@@ -16,6 +13,7 @@ jobs:
       - name: Checkout integration branch with complete history
         uses: actions/checkout@v4
         with:
+          ref: ios-main-merge
           fetch-depth: 0
           persist-credentials: false
       - name: Validate offline vendor script syntax
