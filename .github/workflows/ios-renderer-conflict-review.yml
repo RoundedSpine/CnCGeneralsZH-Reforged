@@ -1,0 +1,63 @@
+name: iOS renderer coordinated conflict review
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  renderer-water-hazard:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ios-main-merge
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Capture three-way renderer conflicts and platform dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p renderer-review/conflicts renderer-review/diffs renderer-review/validation
+          git fetch --no-tags origin +refs/heads/main:refs/remotes/origin/main
+          base=$(git merge-base HEAD refs/remotes/origin/main)
+          echo "$base" > renderer-review/merge-base.txt
+          cat > renderer-review/paths.txt <<'EOF'
+          GeneralsMD/Code/GameEngineDevice/Source/PosixDevice/Render/PosixDevice9.cpp
+          GeneralsMD/Code/GameEngineDevice/Source/PosixDevice/Render/SdlGpuFrame.cpp
+          GeneralsMD/Code/GameEngineDevice/Source/PosixDevice/Render/SdlGpuFrame.h
+          GeneralsMD/Code/GameEngineDevice/Include/W3DDevice/GameClient/W3DWaterTracks.h
+          GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/HazardCloudUnsupported.cpp
+          GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/Water/W3DWater.cpp
+          GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/Water/W3DWaterTracks.cpp
+          GeneralsMD/Code/Libraries/Source/WWVegas/WW3D2/dx11runtime_posix.cpp
+          EOF
+          set +e
+          git -c user.name='iOS merge audit' -c user.email='audit@localhost' merge --no-commit --no-ff refs/remotes/origin/main > renderer-review/merge.log 2>&1
+          status=$?
+          set -e
+          echo "$status" > renderer-review/merge-status.txt
+          git diff --name-only --diff-filter=U > renderer-review/all-unresolved.txt
+          while IFS= read -r path; do
+            [ -n "$path" ] || continue
+            name=$(basename "$path")
+            tag=$(printf '%s' "$path" | sha256sum | cut -c1-12)
+            file="renderer-review/conflicts/${name}.${tag}"
+            git show ":1:$path" > "${file}.base" || true
+            git show ":2:$path" > "${file}.ios" || true
+            git show ":3:$path" > "${file}.upstream" || true
+            cp "$path" "${file}.conflicted" || true
+            git diff --no-index -- "${file}.ios" "${file}.upstream" > "renderer-review/diffs/${name}.${tag}.diff" || true
+            printf '%s | %s\n' "$path" "$tag" >> renderer-review/path-map.txt
+          done < renderer-review/paths.txt
+          grep -En 'ZH_PLATFORM_IOS|__APPLE__|SDL_GPU|Metal|metal|compute|hazard|water|shadow' GeneralsMD/Code/CMakeLists.txt > renderer-review/validation/cmake-platform-references.txt || true
+          printf 'Review only: no conflict resolution was committed; preserve iOS Metal/compute paths while integrating upstream behavior.\n' > renderer-review/README.txt
+      - name: Upload renderer review bundle
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-renderer-conflict-review
+          path: renderer-review/
+          retention-days: 14
+          if-no-files-found: warn
