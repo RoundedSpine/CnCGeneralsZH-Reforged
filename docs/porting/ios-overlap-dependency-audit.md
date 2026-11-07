@@ -28,3 +28,18 @@ Compared exact blob SHAs for common ancestor `5d6a328`, upstream `main` and `Cla
 - `W3DWaterTracks.h`, `SdlPipelineCache.h` also have distinct blobs at all three revisions in preliminary checks.
 
 **Caution:** three distinct blob hashes establish divergence, not overlapping merge hunks. The 34 shared touched paths are a historical upper candidate set, not an actual conflict count. Full merge simulation remains pending.
+
+## Renderer/water three-revision blob checkpoint (2026-11-07)
+
+Verified the blob SHA at merge base, `main`, and `Claude-update` for six additional files. **All six have three distinct blobs**:
+
+| File | Base characters | Upstream characters | iOS characters | Review priority |
+| --- | ---: | ---: | ---: | --- |
+| `SdlGpuFrame.cpp` | 46,251 | 49,013 | 53,928 | High: iOS GPU-frame additions |
+| `SdlGpuFrame.h` | 22,609 | 23,413 | 28,072 | High: interface compatibility |
+| `W3DTreeBuffer.cpp` | 114,837 | 114,874 | 114,884 | High: existing uncompiled integration patches |
+| `SdlHazardCloudEmbers.cpp` | 7,639 | 8,141 | 7,735 | High: shared hazard cloud dependencies |
+| `W3DWater.cpp` | 237,990 | 250,954 | 238,176 | High: upstream water expansion |
+| `W3DScene.cpp` | 101,925 | 103,615 | 108,422 | High: iOS scene/render changes |
+
+The values above are character counts returned by the UTF-8 fetch API (not guaranteed on-disk byte sizes); treat them as approximate relative size indicators. Different SHA values prove different final contents, **not** overlapping line conflicts. The merge tool has not been run. Review `SdlGpuFrame.cpp/.h` together, then water/scene/tree as a coordinated rendering change. Do not copy the upstream files wholesale.
