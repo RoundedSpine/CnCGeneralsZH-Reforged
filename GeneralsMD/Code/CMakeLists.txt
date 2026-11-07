@@ -1059,6 +1059,11 @@ set(GE ${CMAKE_CURRENT_SOURCE_DIR}/GameEngine)
 # The source tree is a frozen 2003 snapshot, so a glob cannot go stale the way
 # it would in a live project - and 580 explicit paths would drown this file.
 file(GLOB_RECURSE GAMEENGINE_SOURCES ${GE}/Source/*.cpp)
+# Offline-first iOS integration: the new upstream hosted-service transport is intentionally
+# excluded from this source glob. Existing LAN/GameSpy-era engine paths remain untouched.
+# Do not add the upstream onlineconnection/mbedtls targets or link dependencies here.
+list(REMOVE_ITEM GAMEENGINE_SOURCES
+  ${GE}/Source/GameNetwork/Online/OnlineConnection.cpp)
 # On disk but absent from GameEngine.dsp, i.e. never in the shipping build:
 # dead experiments (SimplePlayer, urlLaunch, VideoStream), an older copy of
 # DrawableManager that GameClient/Drawable/ supersedes, and GameSpeech, whose
