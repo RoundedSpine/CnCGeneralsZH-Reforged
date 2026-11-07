@@ -31,10 +31,11 @@ jobs:
           h=root/'Include/W3DDevice/GameClient/W3DWaterTracks.h'
           cpp=root/'Source/W3DDevice/GameClient/Water/W3DWaterTracks.cpp'
           pattern=re.compile(r'(?ms)^<<<<<<< HEAD\n(.*?)^=======\n(.*?)^>>>>>>> [^\n]+\n')
-          # Preserve the existing iOS/Linux snapshot members and declarations.
+          # Upstream makes snapshot members and takeReadsForRender unconditional.
+          # This retains those same iOS members while avoiding orphaned #if guards.
           hs=h.read_text()
           assert len(pattern.findall(hs))==2
-          hs=pattern.sub(lambda m:m.group(1),hs)
+          hs=pattern.sub(lambda m:m.group(2),hs)
           h.write_text(hs)
           cs=cpp.read_text()
           matches=list(pattern.finditer(cs))
@@ -75,6 +76,7 @@ jobs:
           balanced(hs)
           balanced(cs)
           assert 'void takeReadsForRender(void);' in hs
+          assert '#ifndef __W3DWaterTracks_H_' in hs and '#endif  //__W3DWaterTracks_H_' in hs
           assert 'void WaterTracksRenderSystem::takeReadsForRender(void)' in cs
           assert 'm_drawnHasWater' in hs and 'm_drawnHasWater' in cs
           assert 'WaterScreenReflection::Supported()' in cs
