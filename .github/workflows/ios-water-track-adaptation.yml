@@ -44,8 +44,8 @@ jobs:
             ours,theirs=m.group(1),m.group(2)
             if '#include "Platform/WaterScreenReflection.h"' in theirs:
               return '#include "Platform/WaterScreenReflection.h"\n'+ours
-            if 'void WaterTracksRenderSystem::takeReadsForRender(void)' in theirs:
-              # Upstream's unconditional definition matches the unconditional header.
+            if '#if defined(__linux__) || defined(ZH_PLATFORM_IOS)' in ours and not theirs.strip():
+              # Conflict consists solely of an obsolete opening platform guard.
               return theirs
             if 'const Bool snapshot = WaterScreenReflection::Supported();' in theirs:
               # Keep platform compile-time guard and established iOS snapshot readiness check.
@@ -64,12 +64,6 @@ jobs:
           '''
             return ours
           cs=pattern.sub(resolve,cs)
-          # The opening platform guard sits outside the merge conflict block.
-          # Remove it when the upstream unconditional function is selected.
-          old='#if defined(__linux__) || defined(ZH_PLATFORM_IOS)\\nvoid WaterTracksRenderSystem::takeReadsForRender(void)'
-          new='void WaterTracksRenderSystem::takeReadsForRender(void)'
-          assert cs.count(old)==1, f'Expected exactly one orphaned guard before takeReadsForRender, got {cs.count(old)}'
-          cs=cs.replace(old,new,1)
           assert not pattern.search(cs)
           cpp.write_text(cs)
           def balanced(src):
