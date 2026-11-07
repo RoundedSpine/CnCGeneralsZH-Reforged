@@ -1,0 +1,127 @@
+name: iOS water-track Linux compilation diagnostic
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  water-tracks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ios-main-merge
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Resolve water-track platform guards with upstream reflection support
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p water-adaptation
+          git fetch --no-tags origin +refs/heads/main:refs/remotes/origin/main
+          set +e
+          git -c user.name='iOS prototype' -c user.email='prototype@localhost' merge --no-commit --no-ff refs/remotes/origin/main > water-adaptation/merge.log 2>&1
+          set -e
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          root=Path('GeneralsMD/Code/GameEngineDevice')
+          h=root/'Include/W3DDevice/GameClient/W3DWaterTracks.h'
+          cpp=root/'Source/W3DDevice/GameClient/Water/W3DWaterTracks.cpp'
+          pattern=re.compile(r'(?ms)^<<<<<<< HEAD\n(.*?)^=======\n(.*?)^>>>>>>> [^\n]+\n')
+          # Upstream makes snapshot members and takeReadsForRender unconditional.
+          # This retains those same iOS members while avoiding orphaned #if guards.
+          hs=h.read_text()
+          assert len(pattern.findall(hs))==2
+          hs=pattern.sub(lambda m:m.group(2),hs)
+          h.write_text(hs)
+          cs=cpp.read_text()
+          matches=list(pattern.finditer(cs))
+          assert len(matches)==5, f'Unexpected implementation conflicts: {len(matches)}'
+          def resolve(m):
+            ours,theirs=m.group(1),m.group(2)
+            if '#include "Platform/WaterScreenReflection.h"' in theirs:
+              return '#include "Platform/WaterScreenReflection.h"\n'+ours
+            if '#if defined(__linux__) || defined(ZH_PLATFORM_IOS)' in ours and not theirs.strip():
+              # Conflict consists solely of an obsolete opening platform guard.
+              return theirs
+            if 'const Bool snapshot = WaterScreenReflection::Supported();' in theirs:
+              # Keep platform compile-time guard and established iOS snapshot readiness check.
+              return ours
+            if 'waveTailOrigin' in theirs and 'if (snapshot)' in theirs:
+              # Preserve iOS synchronized reads; upstream fallback is reviewed separately.
+              return ours
+            if 'if (!WaterScreenReflection::Supported())' in theirs:
+              return '''#if !defined(__linux__) && !defined(ZH_PLATFORM_IOS)
+          \tif (!WaterScreenReflection::Supported()) {
+          \t\tif (TheGlobalData->m_usingWaterTrackEditor)
+          \t\t\tTestWaterUpdate();
+          \t\tupdate();
+          \t}
+          #endif
+          '''
+            return ours
+          cs=pattern.sub(resolve,cs)
+          assert not pattern.search(cs)
+          # Preserve the iOS overlay's existing local water-level decision.
+          overlay_old='m_authoredSource && m_drawnHasWater &&'
+          overlay_new='m_authoredSource && hasWaterLevel &&'
+          assert cs.count(overlay_old)==1, 'Unexpected shoreline overlay condition'
+          cs=cs.replace(overlay_old,overlay_new,1)
+          assert cs.count('const Bool hasWaterLevel=m_drawnHasWater;')==1
+          assert cs.count('void WaterTracksRenderSystem::takeReadsForRender(void)')==1
+          assert cs.count('WaterScreenReflection::Supported()')==1
+          assert cs.count('#if !defined(__linux__) && !defined(ZH_PLATFORM_IOS)')>=1
+          assert re.search(r'#if defined\(__linux__\) \|\| defined\(ZH_PLATFORM_IOS\)\s*\n\s*if \(!m_drawnWaveReady\)',cs), 'Missing iOS readiness guard'
+          assert 'waterHeight=m_drawnWaterHeight;' in cs
+          assert 'waveForDraw(waveTailOrigin,waveFrontOrigin,waveAlpha,widthFrac);' in cs
+          cpp.write_text(cs)
+          def balanced(src):
+            stack=[]
+            for i,line in enumerate(src.splitlines(),1):
+              t=line.strip()
+              if re.match(r'^#\s*(if|ifdef|ifndef)\b',t): stack.append(i)
+              elif re.match(r'^#\s*endif\b',t):
+                assert stack, f'unmatched endif at {i}'
+                stack.pop()
+              elif re.match(r'^#\s*(else|elif)\b',t): assert stack, f'unmatched else/elif at {i}'
+            assert not stack, f'unclosed preprocessor directives: {stack}'
+          balanced(hs)
+          balanced(cs)
+          assert 'void takeReadsForRender(void);' in hs
+          assert '#ifndef __W3DWaterTracks_H_' in hs and '#endif  //__W3DWaterTracks_H_' in hs
+          assert 'void WaterTracksRenderSystem::takeReadsForRender(void)' in cs
+          assert 'm_drawnHasWater' in hs and 'm_drawnHasWater' in cs
+          assert 'WaterScreenReflection::Supported()' in cs
+          print('PASS: guards balanced; iOS snapshot state retained; reflection runtime gate scoped to non-iOS path')
+          PY
+          git add GeneralsMD/Code/GameEngineDevice/Include/W3DDevice/GameClient/W3DWaterTracks.h GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/Water/W3DWaterTracks.cpp
+          git diff --cached -- GeneralsMD/Code/GameEngineDevice/Include/W3DDevice/GameClient/W3DWaterTracks.h GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/Water/W3DWaterTracks.cpp > water-adaptation/water-tracks.patch
+          git diff --name-only --diff-filter=U > water-adaptation/unresolved.txt
+          echo 'Guards and snapshot invariants checked. Full C++ compilation and visual testing still required.' > water-adaptation/README.txt
+      - name: Compile adapted water tracks in clean Linux source tree
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p water-adaptation/compile
+          cp GeneralsMD/Code/GameEngineDevice/Include/W3DDevice/GameClient/W3DWaterTracks.h /tmp/adapted-W3DWaterTracks.h
+          cp GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/Water/W3DWaterTracks.cpp /tmp/adapted-W3DWaterTracks.cpp
+          git merge --abort
+          cp /tmp/adapted-W3DWaterTracks.h GeneralsMD/Code/GameEngineDevice/Include/W3DDevice/GameClient/W3DWaterTracks.h
+          cp /tmp/adapted-W3DWaterTracks.cpp GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/Water/W3DWaterTracks.cpp
+          git diff --check | tee water-adaptation/compile/diff-check.log
+          sudo apt-get update
+          sudo apt-get install -y ninja-build cmake clang pkg-config libfontconfig1-dev libcurl4-openssl-dev
+          (cd GeneralsMD/Code && bash Tools/vendor.sh) > water-adaptation/compile/vendor.log 2>&1 || { tail -n 100 water-adaptation/compile/vendor.log; exit 1; }
+          cmake -S GeneralsMD/Code -B /tmp/zh-water-build -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_COMPILER=clang > water-adaptation/compile/configure.log 2>&1 || { tail -n 100 water-adaptation/compile/configure.log; exit 1; }
+          cmake --build /tmp/zh-water-build --target w3ddevice -j 2 > water-adaptation/compile/build.log 2>&1 || { tail -n 150 water-adaptation/compile/build.log; exit 1; }
+          echo 'PASS: adapted water-track translation unit compiled as part of Linux w3ddevice target' | tee water-adaptation/compile/result.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ios-water-track-linux-compile-diagnostic
+          path: water-adaptation/
+          if-no-files-found: warn
