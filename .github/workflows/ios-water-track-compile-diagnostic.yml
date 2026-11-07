@@ -267,6 +267,40 @@ jobs:
           if [ "$status" -ne 0 ]; then tail -n 160 water-adaptation/compile/water-main-object.log; exit "$status"; fi
           echo 'PASS: W3DWater.cpp compiled with CMake-generated Linux Clang flags (object only; no link)' | tee -a water-adaptation/compile/result.txt
 
+      - name: Compile coordinated water translation units and inspect symbols
+        shell: bash
+        run: |
+          set -euo pipefail
+          # Compile every water source registered in the w3ddevice CMake target.
+          # Use its real compile command and avoid linking unrelated engine targets.
+          python3 - <<'PY' > water-adaptation/compile/water-coordinated-objects.log 2>&1
+          import json, pathlib, shlex, subprocess, sys
+          entries=json.loads(pathlib.Path('/tmp/zh-water-build/compile_commands.json').read_text())
+          waterdir='/GameClient/Water/'
+          matching=[e for e in entries if waterdir in e['file'].replace('\\','/') and 'w3ddevice' in (e.get('command','')+' '.join(e.get('arguments',[])))]
+          print('Water translation units found:',len(matching),flush=True)
+          if len(matching)<2: sys.exit('Expected at least W3DWater and W3DWaterTracks')
+          failures=[]
+          for e in sorted(matching,key=lambda e:e['file']):
+              args=e.get('arguments') or shlex.split(e['command'])
+              print('COMPILING',e['file'],flush=True)
+              r=subprocess.run(args,cwd=e['directory'],stdout=subprocess.PIPE,stderr=subprocess.STDOUT,text=True)
+              if r.returncode:
+                  print(r.stdout[-16000:],flush=True)
+                  failures.append((e['file'],r.returncode))
+              else: print('PASS',e['file'],flush=True)
+          print('Failures:',failures,flush=True)
+          sys.exit(1 if failures else 0)
+          PY
+          echo 'PASS: all registered w3ddevice water translation units compiled (object-level only)' | tee -a water-adaptation/compile/result.txt
+          # This check is intentionally not presented as a link or iOS runtime test.
+          find /tmp/zh-water-build -name '*W3DWater*.o' -type f -print > water-adaptation/compile/water-object-files.txt
+          while IFS= read -r object; do
+            echo "===== $object ====="
+            llvm-nm -C --defined-only "$object" 2>/dev/null || nm -C --defined-only "$object"
+          done < water-adaptation/compile/water-object-files.txt > water-adaptation/compile/water-defined-symbols.txt
+          echo 'PASS: coordinated water object symbol inventory captured (no executable link)' | tee -a water-adaptation/compile/result.txt
+
       - uses: actions/upload-artifact@v4
         if: always()
         with:
