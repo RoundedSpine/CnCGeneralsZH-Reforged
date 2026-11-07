@@ -2068,9 +2068,11 @@ static Bool fillShadowInfoFromTemplate(const ThingTemplate *tmplate, Shadow::Sha
 	graphics keeps the decal, which is what a palm stood on in 2003. */
 static Bool wantsModelShadow(const ThingTemplate *tmplate)
 {
+	// Classic keeps the round decal unless 3D shadows are on, which is when a tree should cast one.
+	const Bool classicDecalOnly = TheGlobalData->m_classicGraphics && !TheGlobalData->m_useShadowVolumes;
 	return tmplate->getShadowType() == SHADOW_DECAL &&
-					!TheGlobalData->m_classicGraphics &&
-					TheGlobalData->m_shadowsForProps &&
+					!classicDecalOnly &&
+					(TheGlobalData->m_shadowsForProps || TheGlobalData->m_classicGraphics) &&
 					(TheGlobalData->m_useShadowDecals || TheGlobalData->m_useShadowVolumes) &&
 					tmplate->isKindOf(KINDOF_SHRUBBERY) &&
 					tmplate->isKindOf(KINDOF_IMMOBILE);
