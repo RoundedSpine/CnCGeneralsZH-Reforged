@@ -112,6 +112,17 @@ jobs:
           git merge --abort
           cp /tmp/adapted-W3DWaterTracks.h GeneralsMD/Code/GameEngineDevice/Include/W3DDevice/GameClient/W3DWaterTracks.h
           cp /tmp/adapted-W3DWaterTracks.cpp GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/Water/W3DWaterTracks.cpp
+          # The upstream water-track implementation includes this upstream-only header.
+          # Restore its exact bytes from origin/main rather than substituting a mock.
+          reflection=GeneralsMD/Code/Libraries/Include/Platform/WaterScreenReflection.h
+          if ! git cat-file -e "refs/remotes/origin/main:$reflection"; then
+            echo "Missing upstream dependency: $reflection" >&2
+            exit 1
+          fi
+          mkdir -p "$(dirname "$reflection")"
+          git show "refs/remotes/origin/main:$reflection" > "$reflection"
+          test -s "$reflection"
+          echo "Restored upstream reflection header: $reflection" | tee water-adaptation/compile/reflection-dependency.txt
           git diff --check | tee water-adaptation/compile/diff-check.log
           sudo apt-get update
           sudo apt-get install -y ninja-build cmake clang pkg-config libfontconfig1-dev libcurl4-openssl-dev libx11-dev libxext-dev libxrandr-dev libxcursor-dev libxfixes-dev libxi-dev libxss-dev libxtst-dev libxkbcommon-dev libgl1-mesa-dev libegl1-mesa-dev
