@@ -179,7 +179,9 @@ jobs:
             GeneralsMD/Code/Libraries/Include/Platform/WaterProjectedMeshCache.h \
             GeneralsMD/Code/Libraries/Include/Platform/WaterProjectedSampleCache.h \
             GeneralsMD/Code/Libraries/Include/Platform/WaterStaticSampleCache.h \
-            GeneralsMD/Code/Libraries/Include/Platform/WaterTerrainCulling.h; do
+            GeneralsMD/Code/Libraries/Include/Platform/WaterTerrainCulling.h \
+            GeneralsMD/Code/Libraries/Include/Platform/WaterShoreSource.h \
+            GeneralsMD/Code/GameEngine/Include/Common/GlobalData.h; do
             if ! git cat-file -e "refs/remotes/origin/main:$dependency"; then
               echo "Missing upstream coordinated water dependency: $dependency" >&2
               exit 1
