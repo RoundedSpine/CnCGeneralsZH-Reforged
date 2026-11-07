@@ -25,3 +25,26 @@ Integration branch: `ios-main-merge`, based on `Claude-update`. Source branch: `
 
 ## Current verification
 Source comparison and two targeted code commits only. **No full merge, compilation, or IPA validation has occurred.**
+
+## Three-way overlap scan (2026-11-07)
+Compared merge-base `5d6a328764a7bef8f977387077776ae6835750a7` independently to `main` and `Claude-update`.
+The compare endpoint returned **300** `main` changed-file entries (API cap) and **180** `Claude-update` entries. Therefore the following is a **partial overlap inventory**, NOT the full conflict list; 423 changed files on the draft PR does not mean 423 merge conflicts.
+
+Both branches changed these ten paths in the returned entries:
+- `.github/workflows/build-ios.yml`
+- `CHANGELOG.md`
+- `GeneralsMD/Code/BuildFingerprint.manifest`
+- `GeneralsMD/Code/CMakeLists.txt`
+- `GeneralsMD/Code/Data/Patch.str`
+- `GeneralsMD/Code/GameEngine/Source/Common/GameEngine.cpp`
+- `GeneralsMD/Code/GameEngine/Source/Common/GlobalData.cpp`
+- `GeneralsMD/Code/GameEngine/Source/Common/OptionsCatalog.cpp`
+- `GeneralsMD/Code/GameEngine/Source/GameClient/GUI/GUICallbacks/Menus/OptionsMenu.cpp`
+- `GeneralsMD/Code/GameEngine/Source/GameClient/System/ParticleSys.cpp`
+
+The full overlap inventory requires a complete Git three-way merge or untruncated changed-file enumeration. These paths are **candidates for semantic conflicts**, not confirmed conflict markers.
+
+### Additional cautions
+- `main` CMake includes mbedTLS/onlineconnection targets and SDL hazard-cloud components absent from the iOS CMake; adding CMake references alone is unsafe.
+- The iOS branch adds logging in `GlobalData.cpp` not present in `main`; preserve that behavior.
+- Local checkout attempt in this execution environment could not resolve github.com; no Git merge or compilation has been performed.
