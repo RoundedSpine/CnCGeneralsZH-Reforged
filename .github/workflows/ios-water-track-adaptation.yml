@@ -65,6 +65,18 @@ jobs:
             return ours
           cs=pattern.sub(resolve,cs)
           assert not pattern.search(cs)
+          # Preserve the iOS overlay's existing local water-level decision.
+          overlay_old='m_authoredSource && m_drawnHasWater &&'
+          overlay_new='m_authoredSource && hasWaterLevel &&'
+          assert cs.count(overlay_old)==1, 'Unexpected shoreline overlay condition'
+          cs=cs.replace(overlay_old,overlay_new,1)
+          assert cs.count('const Bool hasWaterLevel=m_drawnHasWater;')==1
+          assert cs.count('void WaterTracksRenderSystem::takeReadsForRender(void)')==1
+          assert cs.count('WaterScreenReflection::Supported()')==1
+          assert cs.count('#if !defined(__linux__) && !defined(ZH_PLATFORM_IOS)')>=1
+          assert '#if defined(__linux__) || defined(ZH_PLATFORM_IOS)\\n\\tif (!m_drawnWaveReady)' in cs
+          assert 'waterHeight=m_drawnWaterHeight;' in cs
+          assert 'waveForDraw(waveTailOrigin,waveFrontOrigin,waveAlpha,widthFrac);' in cs
           cpp.write_text(cs)
           def balanced(src):
             stack=[]
