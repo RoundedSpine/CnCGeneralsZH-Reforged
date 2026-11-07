@@ -301,6 +301,46 @@ jobs:
           done < water-adaptation/compile/water-object-files.txt > water-adaptation/compile/water-defined-symbols.txt
           echo 'PASS: coordinated water object symbol inventory captured (no executable link)' | tee -a water-adaptation/compile/result.txt
 
+      - name: Validate water object symbol resolution and attempt relocatable link
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY' > water-adaptation/compile/water-link-validation.log 2>&1
+          import json, pathlib, re, shlex, subprocess, sys
+          entries=json.loads(pathlib.Path('/tmp/zh-water-build/compile_commands.json').read_text())
+          selected=[e for e in entries if '/GameClient/Water/' in e['file'].replace('\\','/') and 'w3ddevice' in (e.get('command','')+' '.join(e.get('arguments',[])))]
+          if len(selected)<2: sys.exit('Expected at least two water compilation entries')
+          objects=[]
+          for e in selected:
+              args=e.get('arguments') or shlex.split(e['command'])
+              if '-o' not in args: sys.exit('Missing object output flag for '+e['file'])
+              out=pathlib.Path(args[args.index('-o')+1])
+              if not out.is_absolute(): out=pathlib.Path(e['directory'])/out
+              if not out.is_file(): sys.exit('Missing compiled object: '+str(out))
+              objects.append(out)
+          objects=sorted(set(objects))
+          print('Validated water objects:',len(objects),flush=True)
+          for obj in objects: print('  ',obj,flush=True)
+          output=pathlib.Path('water-adaptation/compile/water-combined-relocatable.o')
+          cmd=['clang++','-r','-o',str(output),*[str(o) for o in objects]]
+          print('RELOCATABLE LINK:',shlex.join(cmd),flush=True)
+          r=subprocess.run(cmd,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,text=True)
+          print(r.stdout,flush=True)
+          print('Relocatable link exit:',r.returncode,flush=True)
+          if r.returncode: sys.exit(r.returncode)
+          def symbols(args):
+              result=subprocess.run(['nm','-C',*args],stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True)
+              if result.returncode: sys.exit('nm failed: '+result.stderr)
+              return result.stdout
+          raw=symbols([str(output)])
+          pathlib.Path('water-adaptation/compile/water-relocatable-symbols.txt').write_text(raw)
+          undefined=sorted(set(line.split(' U ',1)[1].strip() for line in raw.splitlines() if ' U ' in line))
+          pathlib.Path('water-adaptation/compile/water-unresolved-external-symbols.txt').write_text('\n'.join(undefined)+'\n')
+          print('Undefined external symbols after relocatable link:',len(undefined),flush=True)
+          print('These can legitimately be provided by other engine libraries; this is not a final executable link.',flush=True)
+          print('PASS: water objects combined into a relocatable ELF object',flush=True)
+          PY
+          echo 'PASS: water objects passed relocatable link; unresolved external symbol inventory captured (not final executable link)' | tee -a water-adaptation/compile/result.txt
       - uses: actions/upload-artifact@v4
         if: always()
         with:
