@@ -64,6 +64,12 @@ jobs:
           '''
             return ours
           cs=pattern.sub(resolve,cs)
+          # The opening platform guard sits outside the merge conflict block.
+          # Remove it when the upstream unconditional function is selected.
+          old='#if defined(__linux__) || defined(ZH_PLATFORM_IOS)\\nvoid WaterTracksRenderSystem::takeReadsForRender(void)'
+          new='void WaterTracksRenderSystem::takeReadsForRender(void)'
+          assert cs.count(old)==1, f'Expected exactly one orphaned guard before takeReadsForRender, got {cs.count(old)}'
+          cs=cs.replace(old,new,1)
           assert not pattern.search(cs)
           cpp.write_text(cs)
           def balanced(src):
