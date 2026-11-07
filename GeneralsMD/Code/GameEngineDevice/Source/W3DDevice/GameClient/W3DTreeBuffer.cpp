@@ -333,8 +333,8 @@ static Bool treeShadowStretch(Real &stretchX, Real &stretchY)
 static Bool treeSilhouetteShadows(IDirect3DVertexShader9 *treeVertexShader)
 {
 	return (TheGlobalData->m_useShadowDecals || TheGlobalData->m_useShadowVolumes) && treeVertexShader != 0
-		&& TheW3DShadowManager != NULL && !TheGlobalData->m_classicGraphics;
-}
+				&& TheW3DShadowManager != NULL
+		&& (!TheGlobalData->m_classicGraphics || TheGlobalData->m_useShadowVolumes);
 
 
 /*
