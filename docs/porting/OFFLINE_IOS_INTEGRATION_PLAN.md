@@ -104,3 +104,11 @@ Do **not** remove existing GameSpy-era or LAN code, socket/platform support, or 
 Four consecutive upstream ancestry comparisons from merge base to `main` returned 245, 139, 119 and 8 changed paths (29 + 25 + 46 + 10 = 110 commits). Their union has **424 unique history-touched paths**, with **34 overlapping** the iOS branch's 180 changed paths. Saved at `docs/porting/upstream-segmented-change-inventory.md` (`16fd684`).
 
 **Interpretation:** this solves the 300-file per-comparison truncation. Segment net diffs can omit edits reverted within a segment; the union can include paths changed and later reverted. Do not label the 34 overlaps as Git conflicts. A true merge simulation and semantic dependency classification are still pending.
+
+### G2 executable three-way audit added (2026-11-07)
+
+- New branch-local workflow: `.github/workflows/ios-merge-audit.yml` (commit `e3973d0`). On push or manual dispatch it uses full Git history, `git merge-tree --write-tree --messages HEAD origin/main`, and `git diff` against the actual merge base.
+- Captures `merge-tree.txt`, `merge-tree-exit-status.txt`, upstream and integration net path lists, and overlap path lists as a GitHub Actions artifact.
+- **Non-mutating:** does not merge or write to `main`/`Claude-update`; only the workflow file was committed on `ios-main-merge`.
+- **Execution not yet verified:** GitHub Actions run ID, artifact, actual merge status and conflict count remain unconfirmed. The container cannot reach github.com directly; use Actions run evidence before claiming simulation results.
+- Additional exact three-revision source review: `W3DWaterTracks.h` upstream removes Linux-only guards while iOS broadens guards to `defined(__linux__) || defined(ZH_PLATFORM_IOS)`. Keep iOS guards pending verification against implementation files.
