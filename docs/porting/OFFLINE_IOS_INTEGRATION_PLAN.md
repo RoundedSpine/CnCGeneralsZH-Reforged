@@ -14,10 +14,10 @@ Working branch: `ios-main-merge` (from `Claude-update`). Upstream: `main`. Do **
 
 ## Revised ordered goals and acceptance gates (2026-11-07)
 
-**Status:** G1 complete; G2–G13 open. A source review or a committed patch is not a successful build. Use the stages below in order; where dependencies require it, prepare a change in its stage and validate it in the next applicable CI gate.
+**Status:** G1 complete; G2 active with full Git-level conflict enumeration achieved; G3–G13 open. G2 is not yet complete because semantic classification and conflict resolution preparation remain. No successful iOS compile or IPA has been demonstrated. A source review or a committed patch is not a successful build. Use the stages below in order; where dependencies require it, prepare a change in its stage and validate it in the next applicable CI gate.
 
 - [x] **G1 — Scope, branch isolation and integration rules.** Keep work on `ios-main-merge`; preserve offline campaign/skirmish, existing LAN, iOS touch, SDL/Metal, lifecycle, memory diagnostics and unsigned IPA. Exclude only *new hosted online-service features* and their mbedTLS/onlineconnection dependencies; do not blanket-remove existing GameSpy/LAN paths.
-- [ ] **G2 — Full upstream inventory and dependency classification (active).** The 300-file limit has been bypassed using four consecutive ancestry segments: 424 unique upstream-history touched paths across 110 commits, 180 iOS-side paths, and 34 shared touched paths (see `docs/porting/upstream-segmented-change-inventory.md`). Next classify semantics/dependencies and perform a true three-way merge simulation. **Gate:** reconcile final net diff, renames and actual conflict hunks; segmented touched paths are not a conflict count.
+- [ ] **G2 — Full upstream inventory, Git conflict enumeration and dependency classification (active).** Historical segmented inventory: 424 upstream-history touched paths, 180 original iOS-branch paths and 34 historical overlaps. **Completed actual Git merge-tree audit** from uploaded Actions artifacts: 423 upstream net paths, 186 current integration net paths, 33 net overlaps and **14 content-conflicted paths**; exit status 1. See `docs/porting/verified-merge-tree-results.md`. **Remaining gate:** classify all 14 conflicts and automatically merged semantic dependencies, validate excluded online-service boundary and prepare safe resolution strategy; do not confuse conflict enumeration with a resolved merge.
 - [ ] **G3 — Build system, host tools and baseline CI.** Audit CMake, vendor scripts, iOS deployment SDK, ObjC/ObjC++, FFmpeg, fingerprint generation and unsigned IPA workflow. Retain `CMake/HostTools.cmake` and host-built fingerprint tool; do not substitute upstream's target-built executable in a cross-compile. Keep existing iOS curl retries and SDL compute particle source selection. Keep `v3.6.0` until release parity is assessed. Integrate safe upstream build improvements without new online targets. **Gate:** actual iOS configure, host fingerprint execution, dependency fetch and baseline build logs.
 - [ ] **G4 — Manifest and asset prerequisite audit.** Reconcile upstream-only 122 and iOS-only 87 fingerprint manifest paths *against real files*; preserve iOS-specific entries. Stage only corresponding verified assets and shaders, without wholesale manifest replacement. **Gate:** all manifest paths resolve, generator completes, and required resource packaging is understood.
 - [ ] **G5 — Core engine, shared interfaces and initialization.** Three-way merge `GameEngine.cpp`, `GlobalData.cpp`, `OptionsCatalog.cpp` and dependent headers. Preserve iOS lifecycle hooks, diagnostics and platform settings. **Gate:** compile and engine startup tests.
@@ -26,7 +26,7 @@ Working branch: `ios-main-merge` (from `Claude-update`). Upstream: `main`. Do **
 - [ ] **G8 — Particles, smoke and hazard clouds.** Review upstream `SdlHazardCloudShared.cpp`, `SdlHazardCloudSharedShader.cpp`, model/test additions and source registration as a cohesive feature; do not register files before they exist on the branch. Adapt to iOS SDL/Metal capabilities, not upstream's D3D-only assumptions. **Gate:** cloud/particle tests, shader tests and device rendering.
 - [ ] **G9 — Offline gameplay, LAN, UI and settings.** Merge offline gameplay, `ParticleSys.cpp`, options menu and HUD changes; preserve touch, settings persistence and LAN behavior. Do not accidentally import hosted lobby/account/matchmaking/stats UI. **Gate:** campaign/skirmish, touch, options and LAN smoke tests.
 - [ ] **G10 — Performance, memory, stability and shutdown.** Check renderer frame pacing, texture/streaming resources, iOS memory-pressure callbacks, allocations, diagnostics, lifecycle and shutdown. **Gate:** repeatable performance/memory baselines and no new crash regressions.
-- [ ] **G11 — Full tree integration and conflict resolution.** Complete a real three-way merge (or equivalently verified full-tree integration), retaining necessary upstream fixes and iOS-specific additions. Review every remaining changed file, including docs, tests, shaders, packaging and vendor references. **Gate:** no unresolved conflicts, missing sources or unintended online-service dependencies.
+- [ ] **G11 — Full tree integration and conflict resolution.** Resolve the **14 verified Git content conflicts** in coherent groups, then complete a real three-way merge (or equivalently verified full-tree integration), retaining necessary upstream fixes and iOS-specific additions. Review every remaining changed file, including docs, tests, shaders, packaging and vendor references. **Gate:** no unresolved conflicts, missing sources or unintended online-service dependencies.
 - [ ] **G12 — Full device IPA build and regression suite.** Run macOS/Xcode CI, configure for iOS, build host tools, compile/link, package unsigned IPA, inspect bundle contents, and run automated + device smoke tests. Record workflow run URLs, logs and failing cases. **Gate:** green build and validated offline, LAN, touch, graphics and lifecycle behavior.
 - [ ] **G13 — Release/version decision and final merge.** Compare integrated feature set against upstream `v3.8.0` before updating version metadata; audit licensing, resource integrity and diff. Merge `ios-main-merge` into `Claude-update` only with approval after G12. **Gate:** reviewed merge candidate and verified release notes.
 
@@ -42,7 +42,7 @@ Working branch: `ios-main-merge` (from `Claude-update`). Upstream: `main`. Do **
 | GPU particles | Preserve iOS SDL compute backend; validate upstream changes against it |
 | Water/trees | Existing include and modern-mirror shadow guard are not compiled yet; review dependent types and render behavior |
 | Hazard clouds | Defer shared SDL files and test source registration until all source/shader dependencies exist |
-| Build validation | No verified configure, compilation, workflow run or IPA yet; never claim otherwise |
+| Build validation | GitHub Actions **merge-audit artifacts verified**, showing merge-tree exit 1 and 14 conflicts; no verified configure, compilation or IPA yet |
 
 ## Execution discipline
 
@@ -50,7 +50,7 @@ For each goal: (1) inventory changed files and dependencies, (2) classify iOS im
 
 ## Current known limitations
 
-GitHub's compare endpoint truncated `main` changed-file enumeration at 300 entries; overlap inventory is partial. GitHub file editing is available here but a complete local checkout, macOS SDK, and successful IPA build have **not** been demonstrated. The two earlier W3DTreeBuffer changes are uncompiled. A workflow file existing in the repository does not establish that it has run.
+The compare endpoint's 300-file truncation has been bypassed by segmented history comparisons, and the actual full-Git merge audit has been executed in GitHub Actions. GitHub file editing is available here, but a complete local checkout, macOS SDK and successful IPA build have **not** been demonstrated in this environment. The two earlier W3DTreeBuffer changes are uncompiled. A workflow file existing in the repository does not establish that it has run.
 
 ## G2 implementation checkpoint: offline/LAN build boundary
 
@@ -58,7 +58,7 @@ Commit `0aa2ad3` explicitly removes `GameNetwork/Online/OnlineConnection.cpp` fr
 
 Do **not** remove existing GameSpy-era or LAN code, socket/platform support, or offline skirmish networking. The upstream `SdlHazardCloudShared*` files are graphics features, not online dependencies; they remain pending a coherent source/shader integration in G6.
 
-**Validation pending:** verify the offline source list, check that existing LAN code still compiles and links, and run the iOS IPA workflow. G2 remains unchecked.
+**Validation pending:** verify the offline source list, check that existing LAN code still compiles and links, and run the iOS IPA workflow. G2 remains unchecked despite the verified merge audit.
 
 ### G2 upstream vendor comparison checkpoint
 
@@ -110,5 +110,33 @@ Four consecutive upstream ancestry comparisons from merge base to `main` returne
 - New branch-local workflow: `.github/workflows/ios-merge-audit.yml` (commit `e3973d0`). On push or manual dispatch it uses full Git history, `git merge-tree --write-tree --messages HEAD origin/main`, and `git diff` against the actual merge base.
 - Captures `merge-tree.txt`, `merge-tree-exit-status.txt`, upstream and integration net path lists, and overlap path lists as a GitHub Actions artifact.
 - **Non-mutating:** does not merge or write to `main`/`Claude-update`; only the workflow file was committed on `ios-main-merge`.
-- **Execution not yet verified:** GitHub Actions run ID, artifact, actual merge status and conflict count remain unconfirmed. The container cannot reach github.com directly; use Actions run evidence before claiming simulation results.
+- **Execution verified via two user-uploaded GitHub Actions artifact ZIPs:** both contain the expected audit files, report exit status 1, and agree on 423 upstream net paths, 186 integration net paths, 33 overlapping net paths and 14 content-conflicted paths. The simulated output tree hashes differ between runs; do not claim identical trees. Run IDs were not independently recorded.
 - Additional exact three-revision source review: `W3DWaterTracks.h` upstream removes Linux-only guards while iOS broadens guards to `defined(__linux__) || defined(ZH_PLATFORM_IOS)`. Keep iOS guards pending verification against implementation files.
+
+### G2 verified merge-tree evidence and updated execution priorities (2026-11-07)
+
+**Source of truth:** two uploaded `ios-upstream-merge-audit` Actions artifact archives, summarized in `docs/porting/verified-merge-tree-results.md` (commit `d158398`). The merge simulation is non-mutating; **no actual upstream merge has been committed**. The 34 historical overlaps and 33 actual net overlaps refer to different snapshots/definitions and are not inconsistent.
+
+| Verified measurement | Value |
+| --- | ---: |
+| Upstream net changed paths since merge base | **423** |
+| Current integration net changed paths | **186** |
+| Shared net changed paths | **33** |
+| Git content-conflicted paths | **14** |
+| Auto-merging notifications | **32** |
+| `git merge-tree` exit status | **1** (conflicts) |
+
+**Fourteen conflict paths, grouped by implementation gate:**
+
+1. **G3/G4 build and assets (2):** `GeneralsMD/Code/Tools/vendor.sh`; `GeneralsMD/Code/BuildFingerprint.manifest`. Preserve iOS curl retries, host tool and iOS manifest entries; exclude new hosted-service dependencies.
+2. **G6/G8 renderer and platform (5):** `GeneralsMD/Code/GameEngineDevice/Source/PosixDevice/Render/PosixDevice9.cpp`, `SdlGpuFrame.cpp`, `SdlGpuFrame.h`, `GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/HazardCloudUnsupported.cpp`, `GeneralsMD/Code/Libraries/Source/WWVegas/WW3D2/dx11runtime_posix.cpp`. Preserve SDL/Metal, iOS GPU handling, compute particles and shader dependencies.
+3. **G7 water (3):** `GeneralsMD/Code/GameEngineDevice/Include/W3DDevice/GameClient/W3DWaterTracks.h`, `GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/Water/W3DWater.cpp`, `W3DWaterTracks.cpp`. Integrate as a unit; preserve iOS platform guards.
+4. **G9 options (1):** `GeneralsMD/Code/GameEngine/Source/GameClient/GUI/GUICallbacks/Menus/OptionsMenu.cpp`. Reconcile upstream nine-page navigation with iOS touch layout and existing settings.
+5. **G9/G11 portability and tests (2):** `GeneralsMD/Code/GameEngineDevice/Source/Win32Device/Common/Win32BIGFileSystem.cpp`, `GeneralsMD/Code/Tests/test_gameengine.cpp`.
+6. **G13 documentation (1):** `CHANGELOG.md`. Do not claim version parity before build validation.
+
+**Auto-merged is not validated:** `CMakeLists.txt`, `GameEngine.cpp`, `GlobalData.cpp`, `OptionsCatalog.cpp`, `ParticleSys.cpp`, `W3DScene.cpp`, and `W3DTreeBuffer.cpp` need semantic review and iOS compilation despite not being among the 14 text conflicts.
+
+**Next actionable sequence:** (a) review actual conflict markers and resolve G3/G4 build and manifest conflicts; (b) integrate SDL/Metal renderer and hazard dependencies; (c) resolve water as a coordinated unit; (d) resolve options, portability/tests and changelog; (e) simulate merge again and verify no unresolved conflicts; (f) run iOS CI and unsigned IPA tests. Preserve work only on `ios-main-merge`, with no changes to `Claude-update` or `main`.
+
+**Verification boundary:** merge-audit workflow ran and artifacts were inspected, but no successful compile, link, packaged IPA or on-device regression run is established.
