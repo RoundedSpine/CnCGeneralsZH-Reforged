@@ -41,3 +41,11 @@ Commit `0aa2ad3` explicitly removes `GameNetwork/Online/OnlineConnection.cpp` fr
 Do **not** remove existing GameSpy-era or LAN code, socket/platform support, or offline skirmish networking. The upstream `SdlHazardCloudShared*` files are graphics features, not online dependencies; they remain pending a coherent source/shader integration in G6.
 
 **Validation pending:** verify the offline source list, check that existing LAN code still compiles and links, and run the iOS IPA workflow. G2 remains unchecked.
+
+### G2 upstream vendor comparison checkpoint
+
+- Ported the independent upstream `expand_source()` archive support for `*.tar.bz2` alongside existing `*.tar.gz` (`cc0f45e`). This does **not** download or enable mbedTLS; `install_mbedtls` remains absent.
+- Kept the iOS branch's stronger `curl` retry, timeout, and partial-file cleanup behavior rather than overwriting it with upstream's simpler download call.
+- Upstream `SdlHazardCloudShared*` CMake references are deferred to G6 until the corresponding source/shader files are integrated.
+- Upstream version bump and fingerprint build command require independent review of manifest and generator dependencies; not blindly copied.
+- The added tar extraction branch has been source-reviewed but not executed in a shell test here. G2 still requires build validation.
