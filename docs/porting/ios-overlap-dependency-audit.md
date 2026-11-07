@@ -17,3 +17,14 @@ This is a **source-content spot audit**, not an automatic merge or a compilation
 3. Trace shared header declarations, settings serializers, render hooks, UI assets and tests before modifying any of these five files.
 4. Keep new hosted online queues/adapters out, but retain legacy LAN networking and any required offline interfaces.
 5. Compile and run relevant iOS/device tests before marking each feature integrated.
+
+## Three-revision blob audit checkpoint (2026-11-07)
+
+Compared exact blob SHAs for common ancestor `5d6a328`, upstream `main` and `Claude-update` on a first subset of shared-history paths.
+
+- `Libraries/Include/Platform/ModernWaterBuild.h`: upstream SHA **equals merge-base SHA**, while iOS differs. The upstream historical touch has no surviving net file change; preserve the iOS file.
+- `.github/workflows/build-ios.yml`: upstream and iOS blob SHAs are **identical**. Merge-base fetch was unavailable in this pass, so do not assert it is a conflict.
+- `CHANGELOG.md`, `BuildFingerprint.manifest`, `CMakeLists.txt`, `Data/Patch.str` and `GameEngine.cpp`: all three blob SHAs differ, requiring a proper three-way content comparison.
+- `W3DWaterTracks.h`, `SdlPipelineCache.h` also have distinct blobs at all three revisions in preliminary checks.
+
+**Caution:** three distinct blob hashes establish divergence, not overlapping merge hunks. The 34 shared touched paths are a historical upper candidate set, not an actual conflict count. Full merge simulation remains pending.
