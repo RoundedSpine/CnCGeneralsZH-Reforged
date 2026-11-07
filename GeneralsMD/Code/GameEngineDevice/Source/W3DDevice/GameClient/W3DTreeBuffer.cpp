@@ -2358,7 +2358,14 @@ void W3DTreeBuffer::drawTrees(CameraClass * camera, RefRenderObjListIterator *pD
 
 	// Shadows are wanted under either option: the loop used to be gated on m_useShadowDecals alone,
 	// so with volume shadows picked trees were the one thing in the scene standing on nothing.
-	Bool drawShadows = !sunCamera && !mapped && (!TheWaterRenderObj || !TheWaterRenderObj->isModernFullMirror()) && (TheGlobalData->m_useShadowDecals || TheGlobalData->m_useShadowVolumes);
+	// The upstream Hybrid full-mirror predicate is not yet part of the iOS water
+	// interface. iOS currently uses its existing reflection path; do not suppress
+	// ordinary tree shadows or call a method absent from that interface.
+	Bool fullModernMirror = FALSE;
+#if !defined(ZH_PLATFORM_IOS)
+	fullModernMirror = TheWaterRenderObj && TheWaterRenderObj->isModernFullMirror();
+#endif
+	Bool drawShadows = !sunCamera && !mapped && !fullModernMirror && (TheGlobalData->m_useShadowDecals || TheGlobalData->m_useShadowVolumes);
 	Bool silhouetteShadows = drawShadows && treeSilhouetteShadows(m_dwTreeVertexShader);
 
 	// Draw tree shadows.
