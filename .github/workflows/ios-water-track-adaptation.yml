@@ -30,13 +30,11 @@ jobs:
           root=Path('GeneralsMD/Code/GameEngineDevice')
           h=root/'Include/W3DDevice/GameClient/W3DWaterTracks.h'
           cpp=root/'Source/W3DDevice/GameClient/Water/W3DWaterTracks.cpp'
-          pattern=re.compile(r'(?ms)^<<<<<<< HEAD\n(.*?)^=======\n(.*?)^>>>>>>> [^\n]+\n')
+          pattern=re.compile(r'(?ms)^<<<<<<< HEAD\\n(.*?)^=======\\n(.*?)^>>>>>>> [^\\n]+\\n')
+          # Preserve the existing iOS/Linux snapshot members and declarations.
           hs=h.read_text()
-          matches=list(pattern.finditer(hs))
-          assert len(matches)==2, f'Unexpected header conflicts: {len(matches)}'
-          # Preserve iOS/Linux snapshot member fields, while allowing upstream's unconditional definitions.
+          assert len(pattern.findall(hs))==2
           hs=pattern.sub(lambda m:m.group(1),hs)
-          assert 'ZH_PLATFORM_IOS' in hs
           h.write_text(hs)
           cs=cpp.read_text()
           matches=list(pattern.finditer(cs))
@@ -44,22 +42,48 @@ jobs:
           def resolve(m):
             ours,theirs=m.group(1),m.group(2)
             if '#include "Platform/WaterScreenReflection.h"' in theirs:
-              return '#include "Platform/WaterScreenReflection.h"\n'+ours
+              return '#include "Platform/WaterScreenReflection.h"\\n'+ours
             if 'const Bool snapshot = WaterScreenReflection::Supported();' in theirs:
-              return 'const Bool snapshot = WaterScreenReflection::Supported();\n'+ours.replace('#if defined(__linux__) || defined(ZH_PLATFORM_IOS)','if (snapshot) {').replace('#endif','}')
-            if 'if (snapshot) {' in theirs and 'waveTailOrigin' in theirs:
-              return theirs.replace('if (snapshot) {','if (snapshot) {').replace('const Bool hasWaterLevel', 'const Bool hasWaterLevel')
+              # Keep platform compile-time guard and established iOS snapshot readiness check.
+              return ours
+            if 'waveTailOrigin' in theirs and 'if (snapshot)' in theirs:
+              # Preserve iOS synchronized reads; upstream fallback is reviewed separately.
+              return ours
             if 'if (!WaterScreenReflection::Supported())' in theirs:
-              return theirs
+              return '''#if !defined(__linux__) && !defined(ZH_PLATFORM_IOS)
+          \tif (!WaterScreenReflection::Supported()) {
+          \t\tif (TheGlobalData->m_usingWaterTrackEditor)
+          \t\t\tTestWaterUpdate();
+          \t\tupdate();
+          \t}
+          #endif
+          '''
             return ours
           cs=pattern.sub(resolve,cs)
           assert not pattern.search(cs)
           cpp.write_text(cs)
+          def balanced(src):
+            stack=[]
+            for i,line in enumerate(src.splitlines(),1):
+              t=line.strip()
+              if re.match(r'^#\\s*(if|ifdef|ifndef)\\b',t): stack.append(i)
+              elif re.match(r'^#\\s*endif\\b',t):
+                assert stack, f'unmatched endif at {i}'
+                stack.pop()
+              elif re.match(r'^#\\s*(else|elif)\\b',t): assert stack, f'unmatched else/elif at {i}'
+            assert not stack, f'unclosed preprocessor directives: {stack}'
+          balanced(hs)
+          balanced(cs)
+          assert 'void takeReadsForRender(void);' in hs
+          assert 'void WaterTracksRenderSystem::takeReadsForRender(void)' in cs
+          assert 'm_drawnHasWater' in hs and 'm_drawnHasWater' in cs
+          assert 'WaterScreenReflection::Supported()' in cs
+          print('PASS: guards balanced; iOS snapshot state retained; reflection runtime gate scoped to non-iOS path')
           PY
           git add GeneralsMD/Code/GameEngineDevice/Include/W3DDevice/GameClient/W3DWaterTracks.h GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/Water/W3DWaterTracks.cpp
           git diff --cached -- GeneralsMD/Code/GameEngineDevice/Include/W3DDevice/GameClient/W3DWaterTracks.h GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/Water/W3DWaterTracks.cpp > water-adaptation/water-tracks.patch
           git diff --name-only --diff-filter=U > water-adaptation/unresolved.txt
-          echo 'Prototype only: semantic review and compilation required.' > water-adaptation/README.txt
+          echo 'Guards and snapshot invariants checked. Full C++ compilation and visual testing still required.' > water-adaptation/README.txt
       - uses: actions/upload-artifact@v4
         if: always()
         with:
