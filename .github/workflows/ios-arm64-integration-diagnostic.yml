@@ -1,0 +1,57 @@
+name: iOS ARM64 integration diagnostic
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  ios-arm64:
+    runs-on: macos-15
+    timeout-minutes: 90
+    steps:
+      - name: Check out protected iOS integration branch without modifying it
+        uses: actions/checkout@v4
+        with:
+          ref: ios-main-merge
+          fetch-depth: 1
+          persist-credentials: false
+      - name: Inspect Apple toolchain
+        run: |
+          xcodebuild -version
+          xcrun --sdk iphoneos --show-sdk-version
+          xcrun --sdk iphoneos --find clang++
+          cmake --version
+          if ! command -v ninja >/dev/null; then brew install ninja; fi
+      - name: Compile and link iOS ARM64 target using existing build script
+        shell: bash
+        run: |
+          set -uo pipefail
+          mkdir -p build/ios
+          set +e
+          ZH_IOS_GRAPHICS_TESTS=1 bash GeneralsMD/Code/Tools/build-ios.sh "$PWD/build/ios" > build/ios/integration-build.log 2>&1
+          result=$?
+          set -e
+          echo "$result" > build/ios/integration-exit-code.txt
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          p=Path('build/ios/integration-build.log')
+          lines=p.read_text(errors='replace').splitlines()
+          errors=[f'{i}: {line}' for i,line in enumerate(lines,1) if re.search(r'(fatal error:|error:|undefined symbols|duplicate symbol|FAILED:|ninja: build stopped|ld:)',line,re.I)]
+          Path('build/ios/integration-errors.txt').write_text('\n'.join(errors[:300])+'\n')
+          print('Build log lines:',len(lines),'error candidates:',len(errors))
+          print('\n'.join(errors[:35]))
+          PY
+          tail -n 70 build/ios/integration-build.log
+          exit "$result"
+      - name: Upload iOS integration diagnostic
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-arm64-integration-diagnostic
+          path: |
+            build/ios/integration-build.log
+            build/ios/integration-errors.txt
+            build/ios/integration-exit-code.txt
+            build/ios/CMakeFiles/CMakeConfigureLog.yaml
+            build/ios/Reforged-iOS-unsigned.ipa
+          if-no-files-found: warn
