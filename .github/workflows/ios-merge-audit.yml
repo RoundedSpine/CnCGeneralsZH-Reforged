@@ -18,6 +18,14 @@ jobs:
         with:
           fetch-depth: 0
           persist-credentials: false
+      - name: Validate offline vendor script syntax
+        shell: bash
+        run: bash -n GeneralsMD/Code/Tools/vendor.sh
+      - name: Check current fingerprint manifest against tracked files
+        shell: bash
+        run: |
+          set -euo pipefail
+          GeneralsMD/Code/Tools/fingerprint-manifest.sh --check
       - name: Simulate upstream main merge without changing the branch
         shell: bash
         run: |
