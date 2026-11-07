@@ -698,7 +698,15 @@ install_art() {
     fi
     partial="$target.part"
     step "downloading $name ($(( (size + 524288) / 1048576 )) MB)"
-    curl -fsSL "$url" -o "$partial"
+    # Keep large art downloads as retryable partials, matching dependency fetches.
+    # Never hash or install an incomplete transfer.
+    if ! curl -fsSL --retry 3 --retry-all-errors --retry-delay 2 \
+        --retry-max-time 180 --connect-timeout 30 --max-time 300 \
+        "$url" -o "$partial"; then
+      rm -f "$partial"
+      echo "[vendor] ERROR: could not download $name from $url" >&2
+      return 1
+    fi
     hash=$(sha256_of "$partial")
     # Loudly, and without leaving the half-file behind: art that is quietly wrong is a game that
     # looks subtly wrong an hour later, with nothing to point at.
