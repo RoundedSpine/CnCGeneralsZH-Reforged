@@ -59,6 +59,7 @@ enum
 #include "Platform/SunShadow.h"
 #include "W3DDevice/GameClient/SunShadowCasterCull.h"
 #include "W3DDevice/GameClient/W3DTreeBuffer.h"
+#include "W3DDevice/GameClient/W3DWater.h"
 
 #include <stdio.h>
 #include <string.h>
