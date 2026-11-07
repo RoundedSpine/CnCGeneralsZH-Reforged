@@ -155,3 +155,10 @@ Four consecutive upstream ancestry comparisons from merge base to `main` returne
 - **Important correction to the manifest policy:** excluding hosted online functionality from the *compiled iOS build* does not justify deleting its tracked source paths from the fingerprint manifest. After integrating upstream, regenerate the manifest from the actual resolved Git index using `Tools/fingerprint-manifest.sh`; do not manually combine the 122 upstream-only and 87 iOS-only entries, and do not generate while conflicts remain.
 - Added two checks to `.github/workflows/ios-merge-audit.yml` in commit `b8a09a7`: `bash -n GeneralsMD/Code/Tools/vendor.sh` and `GeneralsMD/Code/Tools/fingerprint-manifest.sh --check`. The checks execute before merge-tree simulation and fail CI if the current branch has malformed shell or a stale manifest.
 - **Not yet verified:** new CI run completion or output, actual manifest reconciliation against the final merged tree, vendored dependency fetch, CMake configure, and iOS IPA.
+
+### Coordinated conflict-group execution (2026-11-07)
+
+- Added `.github/workflows/ios-conflict-group-audit.yml` on both `main` and `ios-main-merge` (commits `b04aa6b` and `3346177`). The workflow checks out `ios-main-merge`, simulates a real `git merge --no-commit --no-ff origin/main` in a disposable runner, and records unresolved paths.
+- First group policy: resolve the `Tools/vendor.sh` conflict with `git checkout --ours` (retain the iOS offline implementation), stage it, run `bash -n`, and reject an `install_mbedtls` installer. Save merge log, before/after unresolved path lists, and staged vendor patch in an Actions artifact.
+- `BuildFingerprint.manifest` must be regenerated **after all other conflicts are resolved** from the final tracked index, not during a partially conflicted merge.
+- **Not yet verified:** this new workflow's execution/artifact, or an actual committed merge resolution. G3/G4 and G11 remain open. This workflow does not push any merge result.
