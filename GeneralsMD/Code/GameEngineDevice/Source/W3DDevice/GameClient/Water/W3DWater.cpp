@@ -504,6 +504,15 @@ Bool WaterRenderObjClass::hasModernVesselFoam(UnsignedInt objectID) const
 #endif
 }
 
+Bool WaterRenderObjClass::isModernFullMirror() const
+{
+	// Match upstream pass semantics. Until the iOS SSR shader and scene bindings
+	// are integrated, the mode remains Mirror, so Hybrid is never advertised.
+	return m_renderingMirror && m_useModernWater
+		&& m_waterType == WATER_TYPE_0_TRANSLUCENT
+		&& m_waterReflectionMode == WaterScreenReflection::Hybrid;
+}
+
 #if ZH_MODERN_WATER
 void WaterRenderObjClass::takeWaterPolygonsForDraw(void)
 {
