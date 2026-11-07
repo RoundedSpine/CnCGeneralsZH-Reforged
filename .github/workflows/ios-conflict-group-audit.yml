@@ -1,0 +1,55 @@
+name: iOS coordinated conflict group audit
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-manifest-group:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ios-main-merge
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Simulate real merge and resolve offline vendor policy in scratch checkout
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p conflict-group/validation
+          git fetch --no-tags origin +refs/heads/main:refs/remotes/origin/main
+          set +e
+          git -c user.name='iOS merge audit' -c user.email='audit@localhost' merge --no-commit --no-ff refs/remotes/origin/main > conflict-group/merge.log 2>&1
+          merge_status=$?
+          set -e
+          printf '%s\n' "$merge_status" > conflict-group/merge-exit-status.txt
+          git diff --name-only --diff-filter=U > conflict-group/unresolved-before.txt
+          if ! grep -Fxq 'GeneralsMD/Code/Tools/vendor.sh' conflict-group/unresolved-before.txt; then
+            echo 'FAIL: expected vendor.sh conflict absent; inspect merge state' | tee conflict-group/validation/vendor-resolution.log
+            exit 1
+          fi
+          # Offline/LAN-only policy: keep tested iOS vendor script; never import mbedTLS installer.
+          git checkout --ours -- GeneralsMD/Code/Tools/vendor.sh
+          git add GeneralsMD/Code/Tools/vendor.sh
+          bash -n GeneralsMD/Code/Tools/vendor.sh
+          if grep -Eq '(^|[[:space:]])install_mbedtls([[:space:]]|\()' GeneralsMD/Code/Tools/vendor.sh; then
+            echo 'FAIL: hosted mbedTLS installer present' | tee conflict-group/validation/vendor-resolution.log
+            exit 1
+          fi
+          echo 'PASS: vendor.sh resolved using offline iOS implementation; shell syntax valid; no mbedTLS installer' | tee conflict-group/validation/vendor-resolution.log
+          git diff --name-only --diff-filter=U > conflict-group/unresolved-after-vendor.txt
+          git diff --cached -- GeneralsMD/Code/Tools/vendor.sh > conflict-group/vendor-resolution.patch
+          # The manifest must be regenerated only after every remaining merge conflict is resolved.
+          echo 'DEFERRED: BuildFingerprint.manifest regeneration until entire Git index is resolved' > conflict-group/validation/manifest-resolution.log
+          echo 'This job makes no commits or pushes; the merge exists only in the disposable runner checkout.' > conflict-group/README.txt
+      - name: Upload coordinated conflict evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-build-manifest-conflict-group
+          path: conflict-group/
+          if-no-files-found: warn
+          retention-days: 14
