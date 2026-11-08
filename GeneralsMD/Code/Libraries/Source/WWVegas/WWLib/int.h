@@ -201,6 +201,14 @@ class Int {
 		friend struct RemainderTable< Int<PRECISION> >;
 };
 
+// These members belong to the template itself.  Older MSVC accepted declarations without a
+// visible template definition until a particular specialization happened to be emitted elsewhere;
+// Clang correctly warns that an instantiated use then has no definition available.
+template<int PRECISION> int Int<PRECISION>::Error = 0;
+template<int PRECISION> bool Int<PRECISION>::Carry = false;
+template<int PRECISION> bool Int<PRECISION>::Borrow = false;
+template<int PRECISION> Int<PRECISION> Int<PRECISION>::Remainder{};
+
 template<class T>
 struct RemainderTable
 {
