@@ -225,20 +225,30 @@ struct OptionDef {const char *iniKey;};
 struct Data {bool m_direct3D11=false;} data;
 Data *TheGlobalData=&data;
 namespace ModernWater {bool supported=false;bool Supported(){return supported;}}
+namespace WaterScreenReflection {bool supported=false;bool Supported(){return supported;}}
 namespace HazardCloud {bool supported=false;bool Supported(){return supported;}}
+bool isModernWaterOption(const OptionDef& def) {
+    return strcmp(def.iniKey,"WaterReflection")==0
+        || strcmp(def.iniKey,"WaterReflectionEnabled")==0
+        || strcmp(def.iniKey,"WaterFftResolution")==0
+        || strcmp(def.iniKey,"WaterRefractionQuality")==0
+        || strcmp(def.iniKey,"WaterReflectionDetail")==0;
+}
+bool modernWaterSettingsSupported(){return WaterScreenReflection::Supported();}
 namespace SceneEffects {
-bool supported=false,lighting=false,atmosphere=false,firelight=false,hdr=false;
+bool supported=false,lighting=false,atmosphere=false,firelight=false,heatHaze=false,hdr=false;
 bool SupportsAmbientOcclusion(){return supported;}
 bool SupportsLighting(){return lighting;}
 bool SupportsAtmosphere(){return atmosphere;}
 bool SupportsFirelight(){return firelight;}
+bool SupportsHeatHaze(){return heatHaze;}
 bool SupportsHdr(){return hdr;}
 unsigned samples=1;unsigned MaxSamples(){return samples;}
 }
 // PLATFORM
 // METHOD
 int main() {
-    const char *effects[]={"MapLight","TeamGlow","WaterFoam","GroundMarks","Firelight","HemiAmbient","InternalHdr","Weather","WaterSplashes","Atmosphere","StructureCollapse"};
+    const char *effects[]={"MapLight","TeamGlow","WaterFoam","GroundMarks","Firelight","HeatHaze","HemiAmbient","InternalHdr","Weather","WaterSplashes","Atmosphere","StructureCollapse"};
     for(bool modern:{false,true}) {
         data.m_direct3D11=modern;
         for(auto key:effects) {
@@ -263,10 +273,16 @@ int main() {
     assert(!rendererSupportsOption({"WaterStyle"}) && !rendererSupportsOption({"CloudStyle"}));
     ModernWater::supported=HazardCloud::supported=true;
     assert(rendererSupportsOption({"WaterStyle"}) && rendererSupportsOption({"CloudStyle"}));
+    for(auto key:{"WaterReflection","WaterReflectionEnabled","WaterFftResolution","WaterRefractionQuality","WaterReflectionDetail"})
+        assert(!rendererSupportsOption({key}));
+    WaterScreenReflection::supported=true;
+    for(auto key:{"WaterReflection","WaterReflectionEnabled","WaterFftResolution","WaterRefractionQuality","WaterReflectionDetail"})
+        assert(rendererSupportsOption({key}));
 #if !defined(_WIN32)
     SceneEffects::samples=4;assert(rendererSupportsOption({"MSAA"}));
     SceneEffects::hdr=true;assert(rendererSupportsOption({"InternalHdr"}));
     SceneEffects::firelight=true;assert(rendererSupportsOption({"Firelight"}));
+    SceneEffects::heatHaze=true;assert(rendererSupportsOption({"HeatHaze"}));
     SceneEffects::lighting=SceneEffects::atmosphere=true;
     for(auto key:{"MapLight","Atmosphere","TeamGlow","HemiAmbient","GroundMarks","WaterSplashes","Weather","StructureCollapse","WaterFoam"})assert(rendererSupportsOption({key}));
     SceneEffects::atmosphere=false;
