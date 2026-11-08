@@ -4775,6 +4775,24 @@ void W3DVolumetricShadowManager::renderShadows( Bool forceStencilFill )
 		 stay registered either way, which is what keeps them in the map; what stops is the volumes'
 		 own darkening pass.  A machine with no Direct3D 11 device fills no map and keeps the volumes,
 		 so nobody ends up with no shadows at all. */
+#if defined(ZH_PLATFORM_IOS)
+	// Diagnostic: exclude legacy stencil volumes from every modern sun-shadow scene,
+	// including mirror/secondary passes whose receiver ownership is intentionally false.
+	// Keep the casters registered so their real geometry still enters the sun depth map.
+	// This isolates the near-vertical aircraft ground shadow from the sun-map result.
+	// Once confirmed, replace with an aircraft-specific fix rather than retaining a
+	// blanket policy that removes stencil fallback from reflections.
+	if (TheGlobalData->m_shadowMap && TheGlobalData->m_shadowMapOnly && !TheGlobalData->m_classicGraphics)
+	{
+		static Bool reported = FALSE;
+		if (!reported)
+		{
+			fprintf(stderr, "[IOS_STENCIL_ISOLATION] all_legacy_stencil_passes_skipped=1 sun_map=1 modern=1\n");
+			reported = TRUE;
+		}
+		return;
+	}
+#endif
 	if (TheGlobalData->m_shadowMapOnly && SunShadow::OwnsSceneShadows(DX8Wrapper::_Get_D3D_Device()))
 		return;
 
