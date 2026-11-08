@@ -23,6 +23,7 @@
 #include "PosixDevice9.h"
 #include "Platform/IOSLifecycle.h"
 #include "Platform/IOSMemoryDiagnostics.h"
+#include "Platform/ParticlePerfToggle.h"
 #include "Platform/SceneEffects.h"
 #include "PosixD3D9Caps.h"
 #include "SdlCreationLog.h"
@@ -615,6 +616,20 @@ RenderResult PosixDevice9::Present(const RenderRect *, const RenderRect *, Rende
 		Timing_Present((double)(SDL_GetTicksNS() - present_start) / 1.0e6, DrawsRecorded - TimingDrawsAtPresent);
 		TimingDrawsAtPresent = DrawsRecorded;
 		Timing_Frame_Start();
+	} else {
+		// GPU/particle diagnostics are independent of legacy ZH_GPU_TIMING.
+		// The previous implementation only called Take_Timing from Timing_Present,
+		// silently disabling GPU_SYNC_PERF / GPU_PASS_PERF when the in-game
+		// Particle Performance toggle was used by itself.
+		const bool particleTiming = ParticlePerfToggle::enabled();
+		static bool previousParticleTiming = false;
+		if (particleTiming || previousParticleTiming) {
+			double flushMs = 0.0, fenceMs = 0.0, acquireMs = 0.0, offscreenMs = 0.0;
+			unsigned int flushes = 0, notVisible = 0, notShown = 0;
+			Gpu->Take_Timing(flushMs, fenceMs, flushes, acquireMs,
+				offscreenMs, notVisible, notShown);
+		}
+		previousParticleTiming = particleTiming;
 	}
 	if (!presented) {
 		static bool said = false;
