@@ -115,3 +115,9 @@ The `test_shader_sdl` shared-cloud test now checks the `slots_kept` contract acr
 
 **Next A/B:** collect matching 120-interval logs in low particle and high fire/smoke scenes with profiling enabled, then compare `ring_wait_cpu_ms/intervals` and `submit_cpu_ms/intervals`; test actual P50/P95 frame time with profiling disabled. Keep graphics settings, view, unit actions and resolution unchanged. Confirm shared heat/cloud shaders initialize, render and match visually. Only after those measurements should we change batching/fence policy or make particle quality tradeoffs. No speedup has been measured from these commits.
 
+
+## Build 42482624855 — host test environment failure (2026-11-08)
+
+The uploaded `Reforged-iOS-build-logs-42482624855.zip` reports 1,656 successful macOS host compilation/link steps (including `SdlGpuFrame.cpp`, `SdlHazardCloudSharedShader.cpp`, `test_shader_sdl`, and particle test binaries). The user-folder test printed `4 tests, 44 checks, 0 failed`; then the new direct invocation of `test_shader_sdl` stopped with `FAIL: ZH_USER_DATA_DIR is not set` before exercising its shader assertions. The test harness intentionally refuses to use the CI runner's real user-data directory. Commit `981cad94` passes `ZH_USER_DATA_DIR="$host/userfolders-scratch"` into the shader test invocation, matching the existing scratch-directory convention.
+
+**Status:** successful host compilation is verified; the new shader regression test, device cross-compilation, unsigned IPA packaging, and on-device Metal shared-cloud initialization were **not** validated by this log. A subsequent successful workflow and device log are needed before declaring either the shader binding fix or performance profiling validated.
