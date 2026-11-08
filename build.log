@@ -1,37 +1,3 @@
---   SDL_SSE                     (Wanted: OFF): OFF
---   SDL_SSE2                    (Wanted: OFF): OFF
---   SDL_SSE3                    (Wanted: OFF): OFF
---   SDL_SSE4_1                  (Wanted: OFF): OFF
---   SDL_SSE4_2                  (Wanted: OFF): OFF
---   SDL_SYSTEM_ICONV            (Wanted: OFF): OFF
---   SDL_TESTS                   (Wanted: OFF): OFF
---   SDL_TESTS_LINK_SHARED       (Wanted: OFF): OFF
---   SDL_UNINSTALL               (Wanted: OFF): OFF
---   SDL_VIRTUAL_JOYSTICK        (Wanted: OFF): OFF
---   SDL_VIVANTE                 (Wanted: OFF): OFF
---   SDL_VULKAN                  (Wanted: ON): ON
---   SDL_WASAPI                  (Wanted: OFF): OFF
---   SDL_WAYLAND                 (Wanted: OFF): OFF
---   SDL_WAYLAND_LIBDECOR        (Wanted: OFF): OFF
---   SDL_WAYLAND_LIBDECOR_SHARED (Wanted: OFF): OFF
---   SDL_WAYLAND_SHARED          (Wanted: OFF): OFF
---   SDL_X11                     (Wanted: OFF): OFF
---   SDL_X11_SHARED              (Wanted: OFF): OFF
---   SDL_X11_XCURSOR             (Wanted: OFF): OFF
---   SDL_X11_XDBE                (Wanted: OFF): OFF
---   SDL_X11_XFIXES              (Wanted: OFF): OFF
---   SDL_X11_XINPUT              (Wanted: OFF): OFF
---   SDL_X11_XRANDR              (Wanted: OFF): OFF
---   SDL_X11_XSCRNSAVER          (Wanted: OFF): OFF
---   SDL_X11_XSHAPE              (Wanted: OFF): OFF
---   SDL_X11_XSYNC               (Wanted: OFF): OFF
---   SDL_X11_XTEST               (Wanted: OFF): OFF
---   SDL_XINPUT                  (Wanted: OFF): OFF
--- 
---  Build Shared Library: OFF
---  Build Static Library: ON
---  Build libraries as Apple Framework: OFF
--- 
 -- Enabled backends:
 --   Video drivers: cocoa dummy offscreen
 --   Render drivers: 
@@ -298,3 +264,37 @@ to suppress it.
 [233/1651] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/GenericCodeGen/CodeGen.cpp.o
 [234/1651] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/OSDependent/Unix/ossource.cpp.o
 [235/1651] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/CInterface/glslang_c_interface.cpp.o
+[236/1651] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/attribute.cpp.o
+[237/1651] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/Constant.cpp.o
+[238/1651] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/glslang_tab.cpp.o
+[239/1651] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/InfoSink.cpp.o
+[240/1651] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/IntermTraverse.cpp.o
+[241/1651] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/iomapper.cpp.o
+[242/1651] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/Intermediate.cpp.o
+[243/1651] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/ParseContextBase.cpp.o
+[244/1651] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/Initialize.cpp.o
+[245/1651] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/PoolAlloc.cpp.o
+[246/1651] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/RemoveTree.cpp.o
+[247/1651] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/Scan.cpp.o
+[248/1651] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/ShaderLang.cpp.o
+[249/1651] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/SpirvIntrinsics.cpp.o
+[250/1651] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/ParseHelper.cpp.o
+[251/1651] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/SymbolTable.cpp.o
+[252/1651] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/intermOut.cpp.o
+[253/1651] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/Versions.cpp.o
+[254/1651] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/limits.cpp.o
+[255/1651] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/parseConst.cpp.o
+[256/1651] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/linkValidate.cpp.o
+[257/1651] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/reflection.cpp.o
+[258/1651] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/preprocessor/Pp.cpp.o
+[259/1651] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/preprocessor/PpAtom.cpp.o
+[260/1651] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/preprocessor/PpContext.cpp.o
+[261/1651] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/preprocessor/PpScanner.cpp.o
+[262/1651] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/preprocessor/PpTokens.cpp.o
+[263/1651] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/propagateNoContraction.cpp.o
+[264/1651] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/HLSL/hlslAttributes.cpp.o
+[265/1651] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/HLSL/hlslScanContext.cpp.o
+[266/1651] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/HLSL/hlslOpMap.cpp.o
+[267/1651] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/HLSL/hlslTokenStream.cpp.o
+[268/1651] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/HLSL/hlslGrammar.cpp.o
+[269/1651] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/HLSL/hlslParseables.cpp.o
