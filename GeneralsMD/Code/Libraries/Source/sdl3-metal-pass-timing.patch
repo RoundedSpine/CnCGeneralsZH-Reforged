@@ -129,6 +129,9 @@ diff --git a/src/gpu/metal/SDL_gpu_metal.m b/src/gpu/metal/SDL_gpu_metal.m
 +                } else {
 +                    ZH_MetalRecordMissingPass(passTag,timingEpoch);
 +                }
++            } else {
++                ZH_MetalRecordMissingPass(passTag,timingEpoch);
++            }
 +            // Independent hardware statistics: fragment invocations and fragments
 +            // that survive visibility tests. This is a pass-wide overdraw signal,
 +            // not a transparent-only or per-pixel heatmap.
@@ -197,9 +200,6 @@ diff --git a/src/gpu/metal/SDL_gpu_metal.m b/src/gpu/metal/SDL_gpu_metal.m
 +                if (timingEpoch == ZH_MetalTimingEpoch)
 +                    ++ZH_MetalStatisticsMissing[passTag];
 +                SDL_UnlockSpinlock(&ZH_MetalTimingLock);
-+            }
-+            } else {
-+                ZH_MetalRecordMissingPass(passTag,timingEpoch);
 +            }
 +        }
          metalCommandBuffer->renderEncoder = [metalCommandBuffer->handle renderCommandEncoderWithDescriptor:passDescriptor];
