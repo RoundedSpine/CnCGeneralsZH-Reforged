@@ -2572,6 +2572,8 @@ void W3DParticleSystemManager::doParticles(RenderInfoClass &rinfo)
 #endif
 		if (TheGlobalData->m_heatHaze && !TheGlobalData->m_classicGraphics && heatHazeAvailable)
 			gatherHeatHaze( rinfo.Camera, m_frameFires, m_frameFireFades, m_frameExhausts, m_frameExhaustFades );
+		else
+			Direct3D11_Set_Heat_Splats( NULL, 0 );
 	}
 	// Only a CPU drawn smoke system takes a light (pickSmokeLights); with none, the walk over every
 	// fire, a GPU one's samples aged in closed form, is a third of a frame thrown away.
