@@ -1,4 +1,84 @@
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/ControlBar/ControlBarScheme.cpp:56:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWMath/wwmath.h:552:35: note: add parentheses around left hand side expression to silence this warning
+  552 |         r = ((r & expsign) ^ (sign)) + ((!((mantissa<<8)&imask)&(expsign^((a-1)>>31)))&sign);   // if (fabs(value)<1.0) value = 0; copy sign; if (value < 0 && value==(int)(value)) value++;
+      |                                          ^                     
+      |                                          (                     )
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GraphDraw.cpp:48:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Precompiled/PreRTS.h:160:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Thing.h:98:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
+   98 |         MEMORY_POOL_GLUE_ABC(Thing)
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:700:3: note: expanded from macro 'MEMORY_POOL_GLUE_ABC'
+  700 |                 return 0; \
+      |                 ^
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GraphDraw.cpp:48:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Precompiled/PreRTS.h:160:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Thing.h:98:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:713:3: note: expanded from macro 'MEMORY_POOL_GLUE_ABC'
+  713 |                 return 0; \
+      |                 ^
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GraphDraw.cpp:51:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameClient/Display.h:42:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameClient/GameFont.h:45:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
+   45 |         MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE(GameFont, "GameFont")           
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:684:2: note: expanded from macro 'MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE'
+  684 |         MEMORY_POOL_GLUE_WITHOUT_GCMP(ARGCLASS) \
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:658:3: note: expanded from macro 'MEMORY_POOL_GLUE_WITHOUT_GCMP'
+  658 |                 return 0; \
+      |                 ^
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GraphDraw.cpp:52:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameClient/DisplayString.h:75:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
+   75 |         MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE( DisplayString, "DisplayString" )
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:684:2: note: expanded from macro 'MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE'
+  684 |         MEMORY_POOL_GLUE_WITHOUT_GCMP(ARGCLASS) \
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:658:3: note: expanded from macro 'MEMORY_POOL_GLUE_WITHOUT_GCMP'
+  658 |                 return 0; \
+      |                 ^
+13 warnings generated.
+[1009/1624] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GlobalLanguage.cpp.o
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GlobalLanguage.cpp:55:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Precompiled/PreRTS.h:139:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/STLTypedefs.h:62:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:755:84: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
+  755 |         inline void *operator new(size_t s) { DEBUG_CRASH(("This should be impossible")); return 0; }
+      |                                                                                           ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:766:7: warning: 'this' pointer cannot be null in well-defined C++ code; pointer may be assumed to always convert to true [-Wundefined-bool-conversion]
+  766 |                 if (this)
+      |                 ~~  ^~~~
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GlobalLanguage.cpp:55:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Precompiled/PreRTS.h:153:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/KindOf.h:40:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BitFlagsIO.h:39:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Xfer.h:41:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Science.h:38:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Overridable.h:44:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
+   44 |         MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE( Overridable, "Overridable"  )
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:684:2: note: expanded from macro 'MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE'
+  684 |         MEMORY_POOL_GLUE_WITHOUT_GCMP(ARGCLASS) \
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:658:3: note: expanded from macro 'MEMORY_POOL_GLUE_WITHOUT_GCMP'
+  658 |                 return 0; \
+      |                 ^
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GlobalLanguage.cpp:55:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Precompiled/PreRTS.h:153:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/KindOf.h:40:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BitFlagsIO.h:39:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Xfer.h:41:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Science.h:39:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/NameKeyGenerator.h:67:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
+   67 |         MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE( Bucket, "NameKeyBucketPool" );
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:684:2: note: expanded from macro 'MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE'
+  684 |         MEMORY_POOL_GLUE_WITHOUT_GCMP(ARGCLASS) \
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:658:3: note: expanded from macro 'MEMORY_POOL_GLUE_WITHOUT_GCMP'
+  658 |                 return 0; \
+      |                 ^
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GlobalLanguage.cpp:55:
 In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Precompiled/PreRTS.h:153:
 In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/KindOf.h:40:
 In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BitFlagsIO.h:39:
@@ -12,7 +92,7 @@ In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Re
 /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:658:3: note: expanded from macro 'MEMORY_POOL_GLUE_WITHOUT_GCMP'
   658 |                 return 0; \
       |                 ^
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/ControlBar/ControlBarScheme.cpp:56:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GlobalLanguage.cpp:55:
 In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Precompiled/PreRTS.h:153:
 In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/KindOf.h:40:
 In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BitFlagsIO.h:39:
@@ -27,7 +107,7 @@ In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Re
 /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:658:3: note: expanded from macro 'MEMORY_POOL_GLUE_WITHOUT_GCMP'
   658 |                 return 0; \
       |                 ^
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/ControlBar/ControlBarScheme.cpp:56:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GlobalLanguage.cpp:55:
 In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Precompiled/PreRTS.h:153:
 In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/KindOf.h:40:
 In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BitFlagsIO.h:39:
@@ -41,7 +121,7 @@ In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Re
 /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:658:3: note: expanded from macro 'MEMORY_POOL_GLUE_WITHOUT_GCMP'
   658 |                 return 0; \
       |                 ^
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/ControlBar/ControlBarScheme.cpp:56:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GlobalLanguage.cpp:55:
 In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Precompiled/PreRTS.h:153:
 In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/KindOf.h:40:
 In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BitFlagsIO.h:39:
@@ -55,7 +135,7 @@ In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Re
 /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:658:3: note: expanded from macro 'MEMORY_POOL_GLUE_WITHOUT_GCMP'
   658 |                 return 0; \
       |                 ^
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/ControlBar/ControlBarScheme.cpp:56:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GlobalLanguage.cpp:55:
 In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Precompiled/PreRTS.h:160:
 In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Thing.h:65:
 In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWMath/matrix3d.h:95:
@@ -71,7 +151,7 @@ In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Re
   552 |         r = ((r & expsign) ^ (sign)) + ((!((mantissa<<8)&imask)&(expsign^((a-1)>>31)))&sign);   // if (fabs(value)<1.0) value = 0; copy sign; if (value < 0 && value==(int)(value)) value++;
       |                                          ^                     
       |                                          (                     )
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/ControlBar/ControlBarScheme.cpp:56:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GlobalLanguage.cpp:55:
 In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Precompiled/PreRTS.h:160:
 /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Thing.h:98:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
    98 |         MEMORY_POOL_GLUE_ABC(Thing)
@@ -79,222 +159,142 @@ In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Re
 /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:700:3: note: expanded from macro 'MEMORY_POOL_GLUE_ABC'
   700 |                 return 0; \
       |                 ^
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/ControlBar/ControlBarScheme.cpp:56:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GlobalLanguage.cpp:55:
 In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Precompiled/PreRTS.h:160:
 /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Thing.h:98:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
 /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:713:3: note: expanded from macro 'MEMORY_POOL_GLUE_ABC'
   713 |                 return 0; \
       |                 ^
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/ControlBar/ControlBarScheme.cpp:61:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Player.h:62:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/AI.h:41:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:123:10: warning: 35 enumeration values not handled in switch: 'DAMAGE_EXPLOSION', 'DAMAGE_CRUSH', 'DAMAGE_ARMOR_PIERCING'... [-Wswitch]
-  123 |         switch( type )
-      |                 ^~~~
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:123:10: note: add missing switch cases
-  123 |         switch( type )
-      |                 ^
-  124 |         {
-  125 |                 case DAMAGE_SUBDUAL_MISSILE:
-  126 |                 case DAMAGE_SUBDUAL_VEHICLE:
-  127 |                 case DAMAGE_SUBDUAL_BUILDING:
-  128 |                 case DAMAGE_SUBDUAL_UNRESISTABLE:
-  129 |                         return TRUE;
-  130 |         }
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:140:10: warning: 32 enumeration values not handled in switch: 'DAMAGE_EXPLOSION', 'DAMAGE_CRUSH', 'DAMAGE_ARMOR_PIERCING'... [-Wswitch]
-  140 |         switch( type )
-      |                 ^~~~
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:140:10: note: add missing switch cases
-  140 |         switch( type )
-      |                 ^
-  141 |         {
-  142 |                 case DAMAGE_STATUS:
-  143 |                 case DAMAGE_SUBDUAL_MISSILE:
-  144 |                 case DAMAGE_SUBDUAL_VEHICLE:
-  145 |                 case DAMAGE_SUBDUAL_BUILDING:
-  146 |                 case DAMAGE_SUBDUAL_UNRESISTABLE:
-  147 |                 case DAMAGE_KILLPILOT:
-  148 |                 case DAMAGE_KILL_GARRISONED:
-  149 |                         return FALSE;
-  150 |         }
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/ControlBar/ControlBarScheme.cpp:61:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Player.h:62:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/AI.h:104:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
-  104 |         MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE(AISideInfo, "AISideInfo")               
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:684:2: note: expanded from macro 'MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE'
-  684 |         MEMORY_POOL_GLUE_WITHOUT_GCMP(ARGCLASS) \
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:658:3: note: expanded from macro 'MEMORY_POOL_GLUE_WITHOUT_GCMP'
-  658 |                 return 0; \
-      |                 ^
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/ControlBar/ControlBarScheme.cpp:61:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Player.h:62:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/AI.h:130:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
-  130 |         MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE(AISideBuildList, "AISideBuildList")             
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:684:2: note: expanded from macro 'MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE'
-  684 |         MEMORY_POOL_GLUE_WITHOUT_GCMP(ARGCLASS) \
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:658:3: note: expanded from macro 'MEMORY_POOL_GLUE_WITHOUT_GCMP'
-  658 |                 return 0; \
-      |                 ^
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/ControlBar/ControlBarScheme.cpp:61:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Player.h:62:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/AI.h:1951:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
- 1951 |         MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE( AIGroup, "AIGroupPool" );              ///< @todo Set real numbers for mem alloc
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:684:2: note: expanded from macro 'MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE'
-  684 |         MEMORY_POOL_GLUE_WITHOUT_GCMP(ARGCLASS) \
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:658:3: note: expanded from macro 'MEMORY_POOL_GLUE_WITHOUT_GCMP'
-  658 |                 return 0; \
-      |                 ^
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/ControlBar/ControlBarScheme.cpp:61:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Player.h:63:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/OrderQueue.h:49:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/MessageStream.h:91:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
-   91 |         MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE(GameMessageArgument, "GameMessageArgument")             
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:684:2: note: expanded from macro 'MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE'
-  684 |         MEMORY_POOL_GLUE_WITHOUT_GCMP(ARGCLASS) \
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:658:3: note: expanded from macro 'MEMORY_POOL_GLUE_WITHOUT_GCMP'
-  658 |                 return 0; \
-      |                 ^
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/ControlBar/ControlBarScheme.cpp:61:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Player.h:63:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/OrderQueue.h:49:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/MessageStream.h:108:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
-  108 |         MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE(GameMessage, "GameMessage")             
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:684:2: note: expanded from macro 'MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE'
-  684 |         MEMORY_POOL_GLUE_WITHOUT_GCMP(ARGCLASS) \
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:658:3: note: expanded from macro 'MEMORY_POOL_GLUE_WITHOUT_GCMP'
-  658 |                 return 0; \
-      |                 ^
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/ControlBar/ControlBarScheme.cpp:61:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Player.h:69:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Team.h:38:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Object.h:50:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/WeaponSet.h:245:160: warning: implicit conversion of NULL constant to 'UnsignedInt' (aka 'unsigned int') [-Wnull-conversion]
-  245 |         inline UnsignedInt getNthCommandSourceMask( WeaponSlotType n ) const { return m_curWeaponTemplateSet ? m_curWeaponTemplateSet->getNthCommandSourceMask( n ) : NULL; } 
-      |                                                                                ~~~~~~                                                                                 ^~~~
-      |                                                                                                                                                                       0
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/ControlBar/ControlBarScheme.cpp:61:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Player.h:69:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Team.h:38:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Object.h:52:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/StealthUpdate.h:38:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/UpdateModule.h:37:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Module.h:196:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
-  196 |         MEMORY_POOL_GLUE_ABC( Module )                                          ///< this abstract class needs memory pool hooks
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:700:3: note: expanded from macro 'MEMORY_POOL_GLUE_ABC'
-  700 |                 return 0; \
-      |                 ^
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/ControlBar/ControlBarScheme.cpp:61:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Player.h:69:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Team.h:38:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Object.h:52:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/StealthUpdate.h:38:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/UpdateModule.h:37:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Module.h:196:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:713:3: note: expanded from macro 'MEMORY_POOL_GLUE_ABC'
-  713 |                 return 0; \
-      |                 ^
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/ControlBar/ControlBarScheme.cpp:61:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Player.h:69:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Team.h:38:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Object.h:52:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/StealthUpdate.h:38:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/UpdateModule.h:37:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Module.h:257:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
-  257 |         MEMORY_POOL_GLUE_ABC( ObjectModule )                    ///< this abstract class needs memory pool hooks
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:700:3: note: expanded from macro 'MEMORY_POOL_GLUE_ABC'
-  700 |                 return 0; \
-      |                 ^
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/ControlBar/ControlBarScheme.cpp:61:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Player.h:69:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Team.h:38:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Object.h:52:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/StealthUpdate.h:38:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/UpdateModule.h:37:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Module.h:257:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:713:3: note: expanded from macro 'MEMORY_POOL_GLUE_ABC'
-  713 |                 return 0; \
-      |                 ^
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/ControlBar/ControlBarScheme.cpp:61:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Player.h:69:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Team.h:38:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Object.h:52:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/StealthUpdate.h:38:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/UpdateModule.h:37:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Module.h:306:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
-  306 |         MEMORY_POOL_GLUE_ABC( DrawableModule )          ///< this abstract class needs memory pool hooks
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:700:3: note: expanded from macro 'MEMORY_POOL_GLUE_ABC'
-  700 |                 return 0; \
-      |                 ^
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/ControlBar/ControlBarScheme.cpp:61:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Player.h:69:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Team.h:38:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Object.h:52:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/StealthUpdate.h:38:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/UpdateModule.h:37:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Module.h:306:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:713:3: note: expanded from macro 'MEMORY_POOL_GLUE_ABC'
-  713 |                 return 0; \
-      |                 ^
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/ControlBar/ControlBarScheme.cpp:61:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Player.h:69:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Team.h:38:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Object.h:52:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/StealthUpdate.h:38:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/UpdateModule.h:40:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/BehaviorModule.h:150:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
-  150 |         MEMORY_POOL_GLUE_ABC( BehaviorModule )
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:700:3: note: expanded from macro 'MEMORY_POOL_GLUE_ABC'
-  700 |                 return 0; \
-      |                 ^
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/ControlBar/ControlBarScheme.cpp:61:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Player.h:69:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Team.h:38:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Object.h:52:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/StealthUpdate.h:38:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/UpdateModule.h:40:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/BehaviorModule.h:150:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:713:3: note: expanded from macro 'MEMORY_POOL_GLUE_ABC'
-  713 |                 return 0; \
-      |                 ^
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/ControlBar/ControlBarScheme.cpp:61:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Player.h:69:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Team.h:38:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Object.h:52:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/StealthUpdate.h:38:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/UpdateModule.h:138:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
-  138 |         MEMORY_POOL_GLUE_ABC( UpdateModule )
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:700:3: note: expanded from macro 'MEMORY_POOL_GLUE_ABC'
-  700 |                 return 0; \
-      |                 ^
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/ControlBar/ControlBarScheme.cpp:61:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Player.h:69:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Team.h:38:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Object.h:52:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/StealthUpdate.h:38:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/UpdateModule.h:138:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:713:3: note: expanded from macro 'MEMORY_POOL_GLUE_ABC'
-  713 |                 return 0; \
-      |                 ^
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/ControlBar/ControlBarScheme.cpp:61:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Player.h:69:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Team.h:38:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Object.h:52:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/StealthUpdate.h:114:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
-  114 |         MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE( StealthUpdate, "StealthUpdate" )
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:684:2: note: expanded from m
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GlobalLanguage.cpp:75:67: warning: offset of on non-standard-layout type 'GlobalLanguage' [-Winvalid-offsetof]
+   75 |         { "UnicodeFontName",                                                                    INI::parseAsciiString,NULL,                                                                     offsetof( GlobalLanguage, m_unicodeFontName ) },
+      |                                                                                                                                                                                                 ^                         ~~~~~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GlobalLanguage.cpp:78:70: warning: offset of on non-standard-layout type 'GlobalLanguage' [-Winvalid-offsetof]
+   78 |         { "MilitaryCaptionSpeed",                                               INI::parseRetailFramesInt,                              NULL,           offsetof( GlobalLanguage, m_militaryCaptionSpeed ) },
+      |                                                                                                                                                         ^                         ~~~~~~~~~~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GlobalLanguage.cpp:79:55: warning: offset of on non-standard-layout type 'GlobalLanguage' [-Winvalid-offsetof]
+   79 |         { "UseHardWordWrap",                                            INI::parseBool,                                 NULL,           offsetof( GlobalLanguage, m_useHardWrap) },
+      |                                                                                                                                         ^                         ~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GlobalLanguage.cpp:80:64: warning: offset of on non-standard-layout type 'GlobalLanguage' [-Winvalid-offsetof]
+   80 |         { "ResolutionFontAdjustment",                                           INI::parseReal,                                 NULL,           offsetof( GlobalLanguage, m_resolutionFontSizeAdjustment) },
+      |                                                                                                                                                 ^                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GlobalLanguage.cpp:82:62: warning: offset of on non-standard-layout type 'GlobalLanguage' [-Winvalid-offsetof]
+   82 |         { "CopyrightFont",                                      GlobalLanguage::parseFontDesc,  NULL,   offsetof( GlobalLanguage, m_copyrightFont ) },
+      |                                                                                                         ^                         ~~~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GlobalLanguage.cpp:83:60: warning: offset of on non-standard-layout type 'GlobalLanguage' [-Winvalid-offsetof]
+   83 |         { "MessageFont",                                        GlobalLanguage::parseFontDesc,  NULL,   offsetof( GlobalLanguage, m_messageFont) },                                     
+      |                                                                                                         ^                         ~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GlobalLanguage.cpp:84:70: warning: offset of on non-standard-layout type 'GlobalLanguage' [-Winvalid-offsetof]
+   84 |         { "MilitaryCaptionTitleFont",           GlobalLanguage::parseFontDesc,  NULL,   offsetof( GlobalLanguage, m_militaryCaptionTitleFont) },
+      |                                                                                         ^                         ~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GlobalLanguage.cpp:85:60: warning: offset of on non-standard-layout type 'GlobalLanguage' [-Winvalid-offsetof]
+   85 |         { "MilitaryCaptionDelayMS",                                     INI::parseInt,                                  NULL,           offsetof( GlobalLanguage, m_militaryCaptionDelayMS ) },
+      |                                                                                                                                         ^                         ~~~~~~~~~~~~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GlobalLanguage.cpp:86:66: warning: offset of on non-standard-layout type 'GlobalLanguage' [-Winvalid-offsetof]
+   86 |         { "MilitaryCaptionFont",                        GlobalLanguage::parseFontDesc,  NULL,   offsetof( GlobalLanguage, m_militaryCaptionFont) },
+      |                                                                                                 ^                         ~~~~~~~~~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GlobalLanguage.cpp:87:75: warning: offset of on non-standard-layout type 'GlobalLanguage' [-Winvalid-offsetof]
+   87 |         { "SuperweaponCountdownNormalFont",     GlobalLanguage::parseFontDesc,  NULL,   offsetof( GlobalLanguage, m_superweaponCountdownNormalFont) },
+      |                                                                                         ^                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GlobalLanguage.cpp:88:74: warning: offset of on non-standard-layout type 'GlobalLanguage' [-Winvalid-offsetof]
+   88 |         { "SuperweaponCountdownReadyFont",      GlobalLanguage::parseFontDesc,  NULL,   offsetof( GlobalLanguage, m_superweaponCountdownReadyFont) },
+      |                                                                                         ^                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GlobalLanguage.cpp:89:74: warning: offset of on non-standard-layout type 'GlobalLanguage' [-Winvalid-offsetof]
+   89 |         { "NamedTimerCountdownNormalFont",      GlobalLanguage::parseFontDesc,  NULL,   offsetof( GlobalLanguage, m_namedTimerCountdownNormalFont) },
+      |                                                                                         ^                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GlobalLanguage.cpp:90:73: warning: offset of on non-standard-layout type 'GlobalLanguage' [-Winvalid-offsetof]
+   90 |         { "NamedTimerCountdownReadyFont",       GlobalLanguage::parseFontDesc,  NULL,   offsetof( GlobalLanguage, m_namedTimerCountdownReadyFont) },
+      |                                                                                         ^                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GlobalLanguage.cpp:91:66: warning: offset of on non-standard-layout type 'GlobalLanguage' [-Winvalid-offsetof]
+   91 |         { "DrawableCaptionFont",                        GlobalLanguage::parseFontDesc,  NULL,   offsetof( GlobalLanguage, m_drawableCaptionFont) },
+      |                                                                                                 ^                         ~~~~~~~~~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GlobalLanguage.cpp:92:65: warning: offset of on non-standard-layout type 'GlobalLanguage' [-Winvalid-offsetof]
+   92 |         { "DefaultWindowFont",                          GlobalLanguage::parseFontDesc,  NULL,   offsetof( GlobalLanguage, m_defaultWindowFont) },
+      |                                                                                                 ^                         ~~~~~~~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GlobalLanguage.cpp:93:70: warning: offset of on non-standard-layout type 'GlobalLanguage' [-Winvalid-offsetof]
+   93 |         { "DefaultDisplayStringFont",           GlobalLanguage::parseFontDesc,  NULL,   offsetof( GlobalLanguage, m_defaultDisplayStringFont) },
+      |                                                                                         ^                         ~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GlobalLanguage.cpp:94:63: warning: offset of on non-standard-layout type 'GlobalLanguage' [-Winvalid-offsetof]
+   94 |         { "TooltipFontName",                            GlobalLanguage::parseFontDesc,  NULL,   offsetof( GlobalLanguage, m_tooltipFontName) },
+      |                                                                                                 ^                         ~~~~~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GlobalLanguage.cpp:95:66: warning: offset of on non-standard-layout type 'GlobalLanguage' [-Winvalid-offsetof]
+   95 |         { "NativeDebugDisplay",                         GlobalLanguage::parseFontDesc,  NULL,   offsetof( GlobalLanguage, m_nativeDebugDisplay) },
+      |                                                                                                 ^                         ~~~~~~~~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GlobalLanguage.cpp:96:65: warning: offset of on non-standard-layout type 'GlobalLanguage' [-Winvalid-offsetof]
+   96 |         { "DrawGroupInfoFont",                          GlobalLanguage::parseFontDesc,  NULL,   offsetof( GlobalLanguage, m_drawGroupInfoFont) },
+      |                                                                                                 ^                         ~~~~~~~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GlobalLanguage.cpp:97:64: warning: offset of on non-standard-layout type 'GlobalLanguage' [-Winvalid-offsetof]
+   97 |         { "CreditsTitleFont",                           GlobalLanguage::parseFontDesc,  NULL,   offsetof( GlobalLanguage, m_creditsTitleFont) },
+      |                                                                                                 ^                         ~~~~~~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GlobalLanguage.cpp:98:69: warning: offset of on non-standard-layout type 'GlobalLanguage' [-Winvalid-offsetof]
+   98 |         { "CreditsMinorTitleFont",                              GlobalLanguage::parseFontDesc,  NULL,   offsetof( GlobalLanguage, m_creditsPositionFont) },
+      |                                                                                                         ^                         ~~~~~~~~~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GlobalLanguage.cpp:99:65: warning: offset of on non-standard-layout type 'GlobalLanguage' [-Winvalid-offsetof]
+   99 |         { "CreditsNormalFont",                          GlobalLanguage::parseFontDesc,  NULL,   offsetof( GlobalLanguage, m_creditsNormalFont) },
+      |                                                                                                 ^                         ~~~~~~~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+33 warnings generated.
