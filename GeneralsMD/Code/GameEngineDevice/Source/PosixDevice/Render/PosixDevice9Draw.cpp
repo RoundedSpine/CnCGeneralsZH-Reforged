@@ -1010,7 +1010,7 @@ RenderResult PosixDevice9::Gpu_Draw(const DrawCall &call)
 
 	Mirrors->Collect_Dead();
 	if (Gpu->Batch_Is_Full()) {
-		if (!Gpu->Flush()) { Refuse_Draw("batch submission failed"); return D3D_OK; }
+		if (!Gpu->Flush(SdlGpuFrame::FlushBatchLimit)) { Refuse_Draw("batch submission failed"); return D3D_OK; }
 	}
 	phases.Mark("dead+full");
 
