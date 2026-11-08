@@ -1,300 +1,300 @@
---   Video drivers: cocoa dummy offscreen
---   Render drivers: 
---   GPU drivers: metal vulkan
---   Audio drivers: dummy
---   Joystick drivers: disabled dummy
---   Camera drivers: dummy
--- 
--- If something was not detected, although the libraries
--- were installed, then make sure you have set the
--- CMAKE_C_FLAGS and CMAKE_PREFIX_PATH CMake variables correctly.
--- 
--- Looking for unistd.h
--- Looking for unistd.h - found
--- Looking for fcntl.h
--- Looking for fcntl.h - found
-CMake Warning (deprecated) at Libraries/Source/glslang/CMakeLists.txt:111 (message):
-  ENABLE_HLSL is deprecated.  The HLSL front-end will be removed in a future
-  major release of glslang.  See
-  https://github.com/KhronosGroup/glslang/issues/4210 for details.
-This warning is for project developers.  Use -Wno-author or -Wno-deprecated
-to suppress it.
-
--- spirv-tools not linked - illegal SPIRV may be generated for HLSL
--- SPIRV-Cross: Finding Git version for SPIRV-Cross.
--- Found Git: /opt/homebrew/bin/git (found version "2.56.0")
--- SPIRV-Cross: Git hash: 87447fc
--- Configuring done (36.2s)
--- Generating done (0.4s)
--- Build files have been written to: /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/build/ios/host-graphics
-[0/2] Re-checking globbed directories...
-[1/1651] Building CXX object SPIRV-Cross/CMakeFiles/spirv-cross-core.dir/spirv_cross_parsed_ir.cpp.o
-[2/1651] Building CXX object SPIRV-Cross/CMakeFiles/spirv-cross-core.dir/spirv_parser.cpp.o
-[3/1651] Building CXX object SPIRV-Cross/CMakeFiles/spirv-cross-core.dir/spirv_cfg.cpp.o
-[4/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/cmake_pch.h.pch
-[5/1651] Building CXX object SPIRV-Cross/CMakeFiles/spirv-cross-core.dir/spirv_cross.cpp.o
-[6/1651] Linking CXX static library SPIRV-Cross/libspirv-cross-core.a
-[7/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/SDL.c.o
-[8/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/SDL_assert.c.o
-[9/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/SDL_error.c.o
-[10/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/SDL_guid.c.o
-[11/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/SDL_hashtable.c.o
-[12/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/SDL_hints.c.o
-[13/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/SDL_list.c.o
-[14/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/SDL_log.c.o
-[15/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/SDL_properties.c.o
-[16/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/SDL_utils.c.o
-[17/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/atomic/SDL_atomic.c.o
-[18/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/atomic/SDL_spinlock.c.o
-[19/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/audio/SDL_audio.c.o
-[20/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/audio/SDL_audiocvt.c.o
-[21/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/audio/SDL_audiodev.c.o
-[22/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/audio/SDL_audioqueue.c.o
-[23/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/audio/SDL_audioresample.c.o
-[24/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/audio/SDL_audiotypecvt.c.o
-[25/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/audio/SDL_mixer.c.o
-[26/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/audio/SDL_wave.c.o
-[27/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/camera/SDL_camera.c.o
-[28/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/core/SDL_core_unsupported.c.o
-[29/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/cpuinfo/SDL_cpuinfo.c.o
-[30/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/dynapi/SDL_dynapi.c.o
-[31/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/events/SDL_categories.c.o
-[32/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/events/SDL_clipboardevents.c.o
-[33/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/events/SDL_displayevents.c.o
-[34/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/events/SDL_dropevents.c.o
-[35/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/events/SDL_events.c.o
-[36/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/events/SDL_eventwatch.c.o
-[37/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/events/SDL_keyboard.c.o
-[38/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/events/SDL_keymap.c.o
-[39/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/events/SDL_keysym_to_keycode.c.o
-[40/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/events/SDL_keysym_to_scancode.c.o
-[41/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/events/SDL_mouse.c.o
-[42/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/events/SDL_pen.c.o
-[43/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/events/SDL_quit.c.o
-[44/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/events/SDL_scancode_tables.c.o
-[45/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/events/SDL_touch.c.o
-[46/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/events/SDL_windowevents.c.o
-[47/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/events/imKStoUCS.c.o
-[48/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/filesystem/SDL_filesystem.c.o
-[49/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/gpu/SDL_gpu.c.o
-[50/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/haptic/SDL_haptic.c.o
-[51/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/hidapi/SDL_hidapi.c.o
-[52/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/io/SDL_asyncio.c.o
-[53/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/io/SDL_iostream.c.o
-[54/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/io/generic/SDL_asyncio_generic.c.o
-[55/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/joystick/SDL_gamepad.c.o
-[56/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/joystick/SDL_joystick.c.o
-[57/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/joystick/SDL_steam_virtual_gamepad.c.o
-[58/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/joystick/controller_type.c.o
-[59/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/locale/SDL_locale.c.o
-[60/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/main/SDL_main_callbacks.c.o
-[61/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/main/SDL_runapp.c.o
-[62/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/misc/SDL_libusb.c.o
-[63/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/misc/SDL_url.c.o
-[64/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/power/SDL_power.c.o
-[65/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/render/SDL_render.c.o
-[66/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/render/SDL_render_unsupported.c.o
-[67/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/render/SDL_yuv_sw.c.o
-[68/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/render/direct3d/SDL_render_d3d.c.o
-[69/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/render/direct3d/SDL_shaders_d3d.c.o
-[70/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/render/direct3d11/SDL_render_d3d11.c.o
-[71/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/render/direct3d11/SDL_shaders_d3d11.c.o
-[72/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/render/direct3d12/SDL_render_d3d12.c.o
-[73/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/render/direct3d12/SDL_shaders_d3d12.c.o
-[74/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/render/gpu/SDL_pipeline_gpu.c.o
-[75/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/render/gpu/SDL_render_gpu.c.o
-[76/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/render/gpu/SDL_shaders_gpu.c.o
-[77/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/render/ngage/SDL_render_ngage.c.o
-[78/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/render/opengl/SDL_render_gl.c.o
-[79/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/render/opengl/SDL_shaders_gl.c.o
-[80/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/render/opengles2/SDL_render_gles2.c.o
-[81/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/render/opengles2/SDL_shaders_gles2.c.o
-[82/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/render/ps2/SDL_render_ps2.c.o
-[83/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/render/psp/SDL_render_psp.c.o
-[84/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/render/software/SDL_blendfillrect.c.o
-[85/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/render/software/SDL_blendline.c.o
-[86/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/render/software/SDL_blendpoint.c.o
-[87/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/render/software/SDL_drawline.c.o
-[88/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/render/software/SDL_drawpoint.c.o
-[89/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/render/software/SDL_render_sw.c.o
-[90/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/render/software/SDL_triangle.c.o
-[91/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/render/vitagxm/SDL_render_vita_gxm.c.o
-[92/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/render/vitagxm/SDL_render_vita_gxm_memory.c.o
-[93/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/render/vitagxm/SDL_render_vita_gxm_tools.c.o
-[94/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/render/vulkan/SDL_render_vulkan.c.o
-[95/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/render/vulkan/SDL_shaders_vulkan.c.o
-[96/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/sensor/SDL_sensor.c.o
-[97/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/stdlib/SDL_crc16.c.o
-[98/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/stdlib/SDL_crc32.c.o
-[99/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/stdlib/SDL_getenv.c.o
-[100/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/stdlib/SDL_iconv.c.o
-[101/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/stdlib/SDL_malloc.c.o
-[102/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/stdlib/SDL_memcpy.c.o
-[103/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/stdlib/SDL_memmove.c.o
-[104/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/stdlib/SDL_memset.c.o
-[105/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/stdlib/SDL_mslibc.c.o
-[106/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/stdlib/SDL_murmur3.c.o
-[107/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/stdlib/SDL_qsort.c.o
-[108/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/stdlib/SDL_random.c.o
-[109/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/stdlib/SDL_stdlib.c.o
-[110/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/stdlib/SDL_string.c.o
-[111/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/stdlib/SDL_strtokr.c.o
-[112/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/storage/SDL_storage.c.o
-[113/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/thread/SDL_thread.c.o
-[114/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/time/SDL_time.c.o
-[115/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/timer/SDL_timer.c.o
-[116/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/SDL_RLEaccel.c.o
-[117/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/SDL_blit.c.o
-[118/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/SDL_blit_0.c.o
-[119/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/SDL_blit_1.c.o
-[120/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/SDL_blit_A.c.o
-[121/1651] Building CXX object SPIRV-Cross/CMakeFiles/spirv-cross-glsl.dir/spirv_glsl.cpp.o
-[122/1651] Linking CXX static library SPIRV-Cross/libspirv-cross-glsl.a
-[123/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/SDL_blit_N.c.o
-[124/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/SDL_blit_copy.c.o
-[125/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/SDL_blit_slow.c.o
-[126/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/SDL_bmp.c.o
-[127/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/SDL_clipboard.c.o
-[128/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/SDL_egl.c.o
-[129/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/SDL_fillrect.c.o
-[130/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/SDL_pixels.c.o
-[131/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/SDL_rect.c.o
-[132/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/SDL_rotate.c.o
-[133/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/SDL_blit_auto.c.o
-[134/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/SDL_stretch.c.o
-[135/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/SDL_surface.c.o
-[136/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/SDL_stb.c.o
-[137/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/SDL_video_unsupported.c.o
-[138/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/SDL_video.c.o
-[139/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/SDL_vulkan_utils.c.o
-[140/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/yuv2rgb/yuv_rgb_lsx.c.o
-[141/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/yuv2rgb/yuv_rgb_sse.c.o
-[142/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/SDL_yuv.c.o
-[143/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/e_atan2.c.o
-[144/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/e_exp.c.o
-[145/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/yuv2rgb/yuv_rgb_std.c.o
-[146/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/e_log.c.o
-[147/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/e_fmod.c.o
-[148/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/e_log10.c.o
-[149/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/e_pow.c.o
-[150/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/e_rem_pio2.c.o
-[151/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/e_sqrt.c.o
-[152/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/k_cos.c.o
-[153/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/k_sin.c.o
-[154/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/k_rem_pio2.c.o
-[155/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/k_tan.c.o
-[156/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/s_atan.c.o
-[157/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/s_copysign.c.o
-[158/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/s_cos.c.o
-[159/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/s_fabs.c.o
-[160/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/s_floor.c.o
-[161/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/s_isinf.c.o
-[162/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/s_isinff.c.o
-[163/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/s_isnan.c.o
-[164/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/s_isnanf.c.o
-[165/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/s_modf.c.o
-[166/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/s_scalbn.c.o
-[167/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/s_sin.c.o
-[168/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/s_tan.c.o
-[169/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/loadso/dlopen/SDL_sysloadso.c.o
-[170/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/dummy/SDL_nullevents.c.o
-[171/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/dummy/SDL_nullframebuffer.c.o
-[172/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/dummy/SDL_nullvideo.c.o
-[173/1651] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/locale/macos/SDL_syslocale.m.o
-[174/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/time/unix/SDL_systime.c.o
-[175/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/timer/unix/SDL_systimer.c.o
-[176/1651] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/filesystem/cocoa/SDL_sysfilesystem.m.o
-[177/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/storage/generic/SDL_genericstorage.c.o
-[178/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/storage/steam/SDL_steamstorage.c.o
-[179/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/filesystem/posix/SDL_sysfsops.c.o
-[180/1651] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/misc/macos/SDL_sysurl.m.o
-[181/1651] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/video/cocoa/SDL_cocoaclipboard.m.o
-[182/1651] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/video/cocoa/SDL_cocoaevents.m.o
-[183/1651] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/video/cocoa/SDL_cocoakeyboard.m.o
-[184/1651] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/video/cocoa/SDL_cocoamessagebox.m.o
-[185/1651] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/video/cocoa/SDL_cocoametalview.m.o
-[186/1651] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/video/cocoa/SDL_cocoamodes.m.o
-[187/1651] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/video/cocoa/SDL_cocoaopengl.m.o
-[188/1651] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/video/cocoa/SDL_cocoaopengles.m.o
-[189/1651] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/video/cocoa/SDL_cocoamouse.m.o
-[190/1651] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/video/cocoa/SDL_cocoapen.m.o
-[191/1651] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/video/cocoa/SDL_cocoashape.m.o
-[192/1651] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/video/cocoa/SDL_cocoavideo.m.o
-[193/1651] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/video/cocoa/SDL_cocoavulkan.m.o
-[194/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/thread/pthread/SDL_systhread.c.o
-[195/1651] Building CXX object SPIRV-Cross/CMakeFiles/spirv-cross-msl.dir/spirv_msl.cpp.o
-[196/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/thread/pthread/SDL_sysmutex.c.o
-[197/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/thread/pthread/SDL_sysrwlock.c.o
-[198/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/thread/pthread/SDL_syscond.c.o
-[199/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/thread/pthread/SDL_syssem.c.o
-[200/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/thread/pthread/SDL_systls.c.o
-[201/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/dialog/SDL_dialog.c.o
-[202/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/dialog/SDL_dialog_utils.c.o
-[203/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/process/SDL_process.c.o
-[204/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/process/posix/SDL_posixprocess.c.o
-[205/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/offscreen/SDL_offscreenevents.c.o
-[206/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/offscreen/SDL_offscreenframebuffer.c.o
-[207/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/offscreen/SDL_offscreenopengles.c.o
-[208/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/offscreen/SDL_offscreenvideo.c.o
-[209/1651] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/video/cocoa/SDL_cocoawindow.m.o
-[210/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/offscreen/SDL_offscreenwindow.c.o
-[211/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/offscreen/SDL_offscreenvulkan.c.o
-[212/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/tray/SDL_tray_utils.c.o
-[213/1651] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/dialog/cocoa/SDL_cocoadialog.m.o
-[214/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/audio/dummy/SDL_dummyaudio.c.o
-[215/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/joystick/dummy/SDL_sysjoystick.c.o
-[216/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/haptic/dummy/SDL_syshaptic.c.o
-[217/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/sensor/dummy/SDL_dummysensor.c.o
-[218/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/tray/dummy/SDL_tray.c.o
-[219/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/camera/dummy/SDL_camera_dummy.c.o
-[220/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/main/generic/SDL_sysmain_callbacks.c.o
-[221/1651] Linking CXX static library SPIRV-Cross/libspirv-cross-msl.a
-[222/1651] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/gpu/metal/SDL_gpu_metal.m.o
-[223/1651] Building CXX object CMakeFiles/wwdebug.dir/Libraries/Source/WWVegas/WWDebug/wwdebug.cpp.o
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWDebug/wwdebug.cpp:226:3: warning: 'vsprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use vsnprintf(3) instead. [-Wdeprecated-declarations]
-  226 |                 vsprintf(buffer, format, va);
+[343/1651] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/lcw.cpp.o
+[344/1651] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/load.cpp.o
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/load.cpp:74:27: warning: implicit conversion of NULL constant to 'unsigned long' [-Wnull-conversion]
+   74 |         if (!src || !dst) return(NULL);
+      |                           ~~~~~~ ^~~~
+      |                                  0
+1 warning generated.
+[345/1651] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/mpmath.cpp.o
+[346/1651] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/ini.cpp.o
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/ini.cpp:485:17: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
+  485 |                                                 divider = " ";
+      |                                                           ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/ini.cpp:551:17: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
+  551 |                                                 divider = " ";
+      |                                                           ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/ini.cpp:878:3: warning: 'sprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead. [-Wdeprecated-declarations]
+  878 |                 sprintf(entry, "%s%d", Entry_Prefix, count);
       |                 ^
-/Applications/Xcode_16.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk/usr/include/_stdio.h:298:1: note: 'vsprintf' has been explicitly marked deprecated here
-  298 | __deprecated_msg("This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use vsnprintf(3) instead.")
+/Applications/Xcode_16.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk/usr/include/_stdio.h:278:1: note: 'sprintf' has been explicitly marked deprecated here
+  278 | __deprecated_msg("This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead.")
       | ^
 /Applications/Xcode_16.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk/usr/include/sys/cdefs.h:218:48: note: expanded from macro '__deprecated_msg'
   218 |         #define __deprecated_msg(_msg) __attribute__((__deprecated__(_msg)))
       |                                                       ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWDebug/wwdebug.cpp:256:3: warning: 'vsprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use vsnprintf(3) instead. [-Wdeprecated-declarations]
-  256 |                 vsprintf(buffer, format, va);
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/ini.cpp:930:3: warning: 'sprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead. [-Wdeprecated-declarations]
+  930 |                 sprintf(sbuffer, "%d", counter);
       |                 ^
-/Applications/Xcode_16.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk/usr/include/_stdio.h:298:1: note: 'vsprintf' has been explicitly marked deprecated here
-  298 | __deprecated_msg("This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use vsnprintf(3) instead.")
+/Applications/Xcode_16.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk/usr/include/_stdio.h:278:1: note: 'sprintf' has been explicitly marked deprecated here
+  278 | __deprecated_msg("This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead.")
       | ^
 /Applications/Xcode_16.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk/usr/include/sys/cdefs.h:218:48: note: expanded from macro '__deprecated_msg'
   218 |         #define __deprecated_msg(_msg) __attribute__((__deprecated__(_msg)))
       |                                                       ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWDebug/wwdebug.cpp:286:3: warning: 'vsprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use vsnprintf(3) instead. [-Wdeprecated-declarations]
-  286 |                 vsprintf(buffer, format, va);
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/ini.cpp:1168:3: warning: 'sprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead. [-Wdeprecated-declarations]
+ 1168 |                 sprintf(b, "%d", index);
       |                 ^
-/Applications/Xcode_16.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk/usr/include/_stdio.h:298:1: note: 'vsprintf' has been explicitly marked deprecated here
-  298 | __deprecated_msg("This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use vsnprintf(3) instead.")
+/Applications/Xcode_16.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk/usr/include/_stdio.h:278:1: note: 'sprintf' has been explicitly marked deprecated here
+  278 | __deprecated_msg("This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead.")
       | ^
 /Applications/Xcode_16.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk/usr/include/sys/cdefs.h:218:48: note: expanded from macro '__deprecated_msg'
   218 |         #define __deprecated_msg(_msg) __attribute__((__deprecated__(_msg)))
       |                                                       ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/ini.cpp:1291:4: warning: 'sprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead. [-Wdeprecated-declarations]
+ 1291 |                         sprintf(buffer, "%d", number);
+      |                         ^
+/Applications/Xcode_16.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk/usr/include/_stdio.h:278:1: note: 'sprintf' has been explicitly marked deprecated here
+  278 | __deprecated_msg("This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead.")
+      | ^
+/Applications/Xcode_16.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk/usr/include/sys/cdefs.h:218:48: note: expanded from macro '__deprecated_msg'
+  218 |         #define __deprecated_msg(_msg) __attribute__((__deprecated__(_msg)))
+      |                                                       ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/ini.cpp:1295:4: warning: 'sprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead. [-Wdeprecated-declarations]
+ 1295 |                         sprintf(buffer, "%Xh", number);
+      |                         ^
+/Applications/Xcode_16.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk/usr/include/_stdio.h:278:1: note: 'sprintf' has been explicitly marked deprecated here
+  278 | __deprecated_msg("This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead.")
+      | ^
+/Applications/Xcode_16.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk/usr/include/sys/cdefs.h:218:48: note: expanded from macro '__deprecated_msg'
+  218 |         #define __deprecated_msg(_msg) __attribute__((__deprecated__(_msg)))
+      |                                                       ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/ini.cpp:1299:4: warning: 'sprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead. [-Wdeprecated-declarations]
+ 1299 |                         sprintf(buffer, "$%X", number);
+      |                         ^
+/Applications/Xcode_16.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk/usr/include/_stdio.h:278:1: note: 'sprintf' has been explicitly marked deprecated here
+  278 | __deprecated_msg("This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead.")
+      | ^
+/Applications/Xcode_16.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk/usr/include/sys/cdefs.h:218:48: note: expanded from macro '__deprecated_msg'
+  218 |         #define __deprecated_msg(_msg) __attribute__((__deprecated__(_msg)))
+      |                                                       ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/ini.cpp:1375:2: warning: 'sprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead. [-Wdeprecated-declarations]
+ 1375 |         sprintf(buffer, "%d,%d,%d,%d", value.X, value.Y, value.Width, value.Height);
+      |         ^
+/Applications/Xcode_16.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk/usr/include/_stdio.h:278:1: note: 'sprintf' has been explicitly marked deprecated here
+  278 | __deprecated_msg("This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead.")
+      | ^
+/Applications/Xcode_16.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk/usr/include/sys/cdefs.h:218:48: note: expanded from macro '__deprecated_msg'
+  218 |         #define __deprecated_msg(_msg) __attribute__((__deprecated__(_msg)))
+      |                                                       ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/ini.cpp:1438:2: warning: 'sprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead. [-Wdeprecated-declarations]
+ 1438 |         sprintf(buffer, "%X", number);
+      |         ^
+/Applications/Xcode_16.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk/usr/include/_stdio.h:278:1: note: 'sprintf' has been explicitly marked deprecated here
+  278 | __deprecated_msg("This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead.")
+      | ^
+/Applications/Xcode_16.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk/usr/include/sys/cdefs.h:218:48: note: expanded from macro '__deprecated_msg'
+  218 |         #define __deprecated_msg(_msg) __attribute__((__deprecated__(_msg)))
+      |                                                       ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/ini.cpp:1541:2: warning: 'sprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead. [-Wdeprecated-declarations]
+ 1541 |         sprintf(buffer, "%f", number);
+      |         ^
+/Applications/Xcode_16.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk/usr/include/_stdio.h:278:1: note: 'sprintf' has been explicitly marked deprecated here
+  278 | __deprecated_msg("This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead.")
+      | ^
+/Applications/Xcode_16.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk/usr/include/sys/cdefs.h:218:48: note: expanded from macro '__deprecated_msg'
+  218 |         #define __deprecated_msg(_msg) __attribute__((__deprecated__(_msg)))
+      |                                                       ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/ini.cpp:1575:34: warning: format specifies type 'double *' but the argument has type 'float *' [-Wformat]
+ 1575 |                 sscanf(entryptr->Value, "%lf", &val);
+      |                                          ~~~   ^~~~
+      |                                          %f
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/ini.cpp:1608:2: warning: 'sprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead. [-Wdeprecated-declarations]
+ 1608 |         sprintf(buffer, "%lf", number);
+      |         ^
+/Applications/Xcode_16.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk/usr/include/_stdio.h:278:1: note: 'sprintf' has been explicitly marked deprecated here
+  278 | __deprecated_msg("This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead.")
+      | ^
+/Applications/Xcode_16.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk/usr/include/sys/cdefs.h:218:48: note: expanded from macro '__deprecated_msg'
+  218 |         #define __deprecated_msg(_msg) __attribute__((__deprecated__(_msg)))
+      |                                                       ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/ini.cpp:2007:2: warning: 'sprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead. [-Wdeprecated-declarations]
+ 2007 |         sprintf(buffer, "%d,%d", value.X, value.Y);
+      |         ^
+/Applications/Xcode_16.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk/usr/include/_stdio.h:278:1: note: 'sprintf' has been explicitly marked deprecated here
+  278 | __deprecated_msg("This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead.")
+      | ^
+/Applications/Xcode_16.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk/usr/include/sys/cdefs.h:218:48: note: expanded from macro '__deprecated_msg'
+  218 |         #define __deprecated_msg(_msg) __attribute__((__deprecated__(_msg)))
+      |                                                       ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/ini.cpp:2066:2: warning: 'sprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead. [-Wdeprecated-declarations]
+ 2066 |         sprintf(buffer, "%d,%d,%d", value.X, value.Y, value.Z);
+      |         ^
+/Applications/Xcode_16.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk/usr/include/_stdio.h:278:1: note: 'sprintf' has been explicitly marked deprecated here
+  278 | __deprecated_msg("This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead.")
+      | ^
+/Applications/Xcode_16.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk/usr/include/sys/cdefs.h:218:48: note: expanded from macro '__deprecated_msg'
+  218 |         #define __deprecated_msg(_msg) __attribute__((__deprecated__(_msg)))
+      |                                                       ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/ini.cpp:2126:2: warning: 'sprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead. [-Wdeprecated-declarations]
+ 2126 |         sprintf(buffer, "%f,%f,%f", (float)value.X, (float)value.Y, (float)value.Z);
+      |         ^
+/Applications/Xcode_16.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk/usr/include/_stdio.h:278:1: note: 'sprintf' has been explicitly marked deprecated here
+  278 | __deprecated_msg("This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead.")
+      | ^
+/Applications/Xcode_16.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk/usr/include/sys/cdefs.h:218:48: note: expanded from macro '__deprecated_msg'
+  218 |         #define __deprecated_msg(_msg) __attribute__((__deprecated__(_msg)))
+      |                                                       ^
+16 warnings generated.
+[347/1651] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/mixfile.cpp.o
+[348/1651] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/nstrdup.cpp.o
+[349/1651] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/multilist.cpp.o
+[350/1651] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/mutex.cpp.o
+[351/1651] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/palette.cpp.o
+[352/1651] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/pcx.cpp.o
+[353/1651] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/pipe.cpp.o
+[354/1651] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/pk.cpp.o
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/pk.cpp:46:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/pk.h:48:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/int.h:130:55: warning: instantiation of variable 'Int<64>::Error' required here, but no definition is available [-Wundefined-var-template]
+  130 |                 Int operator * (unsigned short b) const {Int result;Error=XMP_Unsigned_Mult_Int(result, &reg[0], b, PRECISION);return(result);}
+      |                                                                     ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/int.h:280:9: note: in instantiation of member function 'Int<64>::operator*' requested here
+  280 |                 p = (q*2) + (unsigned short)1;
+      |                       ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/pk.cpp:219:14: note: in instantiation of function template specialization 'Generate_Prime<Int<64>>' requested here
+  219 |                 BigInt p = Generate_Prime(random, bits, &p);
+      |                            ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/int.h:188:14: note: forward declaration of template entity is here
+  188 |                 static int Error;
+      |                            ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/int.h:130:55: note: add an explicit instantiation declaration to suppress this warning if 'Int<64>::Error' is explicitly instantiated in another translation unit
+  130 |                 Int operator * (unsigned short b) const {Int result;Error=XMP_Unsigned_Mult_Int(result, &reg[0], b, PRECISION);return(result);}
+      |                                                                     ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/int.h:126:55: warning: instantiation of variable 'Int<64>::Carry' required here, but no definition is available [-Wundefined-var-template]
+  126 |                 Int operator + (unsigned short b) const {Int result;Carry=XMP_Add_Int(result, &reg[0], b, 0, PRECISION);return(result);}
+      |                                                                     ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/int.h:280:13: note: in instantiation of member function 'Int<64>::operator+' requested here
+  280 |                 p = (q*2) + (unsigned short)1;
+      |                           ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/pk.cpp:219:14: note: in instantiation of function template specialization 'Generate_Prime<Int<64>>' requested here
+  219 |                 BigInt p = Generate_Prime(random, bits, &p);
+      |                            ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/int.h:191:15: note: forward declaration of template entity is here
+  191 |                 static bool Carry;
+      |                             ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/int.h:126:55: note: add an explicit instantiation declaration to suppress this warning if 'Int<64>::Carry' is explicitly instantiated in another translation unit
+  126 |                 Int operator + (unsigned short b) const {Int result;Carry=XMP_Add_Int(result, &reg[0], b, 0, PRECISION);return(result);}
+      |                                                                     ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/int.h:136:89: warning: instantiation of variable 'Int<64>::Remainder' required here, but no definition is available [-Wundefined-var-template]
+  136 |                 unsigned short operator % (unsigned short divisor) const {return(XMP_Unsigned_Div_Int(Remainder, &reg[0], divisor, PRECISION));}
+      |                                                                                                       ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/int.h:212:17: note: in instantiation of member function 'Int<64>::operator%' requested here
+  212 |                         table[i] = p % primetable[i];
+      |                                      ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/int.h:282:21: note: in instantiation of member function 'RemainderTable<Int<64>>::RemainderTable' requested here
+  282 |                 RemainderTable<T> rtQ(q);
+      |                                   ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/pk.cpp:219:14: note: in instantiation of function template specialization 'Generate_Prime<Int<64>>' requested here
+  219 |                 BigInt p = Generate_Prime(random, bits, &p);
+      |                            ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/int.h:197:14: note: forward declaration of template entity is here
+  197 |                 static Int Remainder;
+      |                            ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/int.h:136:89: note: add an explicit instantiation declaration to suppress this warning if 'Int<64>::Remainder' is explicitly instantiated in another translation unit
+  136 |                 unsigned short operator % (unsigned short divisor) const {return(XMP_Unsigned_Div_Int(Remainder, &reg[0], divisor, PRECISION));}
+      |                                                                                                       ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/int.h:128:55: warning: instantiation of variable 'Int<64>::Borrow' required here, but no definition is available [-Wundefined-var-template]
+  128 |                 Int operator - (unsigned short b) const {Int result;Borrow = XMP_Sub_Int(result, &reg[0], b, 0, PRECISION);return(result);}
+      |                                                                     ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/pk.cpp:227:20: note: in instantiation of member function 'Int<64>::operator-' requested here
+  227 |                 BigInt pqmin = (p-(unsigned short)1)*(q-(unsigned short)1);
+      |                                  ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/int.h:194:15: note: forward declaration of template entity is here
+  194 |                 static bool Borrow;
+      |                             ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/int.h:128:55: note: add an explicit instantiation declaration to suppress this warning if 'Int<64>::Borrow' is explicitly instantiated in another translation unit
+  128 |                 Int operator - (unsigned short b) const {Int result;Borrow = XMP_Sub_Int(result, &reg[0], b, 0, PRECISION);return(result);}
+      |                                                                     ^
+4 warnings generated.
+[355/1651] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/ramfile.cpp.o
+[356/1651] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/random.cpp.o
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/random.cpp:124:45: warning: shifting a negative signed value is undefined [-Wshift-negative-value]
+  124 |         return((Seed >> THROW_AWAY_BITS) & (~((~0) << SIGNIFICANT_BITS)));
+      |                                               ~~~~ ^
+1 warning generated.
+[357/1651] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/rc4.cpp.o
+[358/1651] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/realcrc.cpp.o
+[359/1651] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/readline.cpp.o
+[360/1651] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/refcount.cpp.o
+[361/1651] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/rgb.cpp.o
+[362/1651] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/rle.cpp.o
+[363/1651] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/rawfile.cpp.o
+[364/1651] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/sampler.cpp.o
+[365/1651] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/sha.cpp.o
+[366/1651] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/stimer.cpp.o
+[367/1651] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/rndstrng.cpp.o
+[368/1651] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/straw.cpp.o
+[369/1651] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/strtok_r.cpp.o
+[370/1651] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/systimer.cpp.o
+[371/1651] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/slnode.cpp.o
+[372/1651] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/tagblock.cpp.o
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/tagblock.cpp:56:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/tagblock.h:46:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/slist.h:61:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/slnode.h:46:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/mempool.h:364:18: warning: instantiation of variable 'AutoPoolClass<GenericSLNode, 256>::Allocator' required here, but no definition is available [-Wundefined-var-template]
+  364 |         return (void *)(Allocator.Allocate_Object_Memory());
+      |                         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/slist.h:462:23: note: in instantiation of member function 'AutoPoolClass<GenericSLNode, 256>::operator new' requested here
+  462 |                 SLNode<T> *temp   = new SLNode<T>(cur->Data());
+      |                                     ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/slist.h:79:3: note: in instantiation of member function 'SList<TagBlockIndex>::Add_Head' requested here
+   79 |                 SList(void)
+      |                 ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/tagblock.cpp:129:2: note: in instantiation of member function 'SList<TagBlockIndex>::SList' requested here
+  129 |         IndexList()
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/mempool.h:156:39: note: forward declaration of template entity is here
+  156 |         static ObjectPoolClass<T,BLOCK_SIZE>    Allocator;
+      |                                                 ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/mempool.h:364:18: note: add an explicit instantiation declaration to suppress this warning if 'AutoPoolClass<GenericSLNode, 256>::Allocator' is explicitly instantiated in another translation unit
+  364 |         return (void *)(Allocator.Allocate_Object_Memory());
+      |                         ^
+1 warning generated.
+[373/1651] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/textfile.cpp.o
+[374/1651] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/tgatodxt.cpp.o
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/tgatodxt.cpp:38:9: warning: (gth) disabling TGAtoDXTClass temporarily so I can test the WW libs merge... [-W#pragma-messages]
+   38 | #pragma message ("(gth) disabling TGAtoDXTClass temporarily so I can test the WW libs merge...")
+      |         ^
+1 warning generated.
+[375/1651] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/TARGA.CPP.o
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/TARGA.CPP:367:31: warning: comparison between NULL and non-pointer ('long' and NULL) [-Wnull-arithmetic]
+  367 |         if (Open(name, TGA_READMODE) == NULL) {
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~ ^  ~~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/TARGA.CPP:429:34: warning: comparison between NULL and non-pointer ('long' and NULL) [-Wnull-arithmetic]
+  429 |                                         if ((error = DecodeImage()) == NULL) {
+      |                                             ~~~~~~~~~~~~~~~~~~~~~~~ ^  ~~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/TARGA.CPP:605:32: warning: comparison between NULL and non-pointer ('long' and NULL) [-Wnull-arithmetic]
+  605 |         if (Open(name, TGA_WRITEMODE) == NULL)
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~ ^  ~~~~
 3 warnings generated.
-[224/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/gpu/vulkan/SDL_gpu_vulkan.c.o
-[225/1651] Building CXX object CMakeFiles/wwdebug.dir/Libraries/Source/WWVegas/WWDebug/wwmemlog.cpp.o
-[226/1651] Building CXX object CMakeFiles/wwdebug.dir/Libraries/Source/WWVegas/WWDebug/wwprofile.cpp.o
-[227/1651] Building C object CMakeFiles/sdl3_shadercross.dir/Libraries/Source/SDL_shadercross/src/SDL_shadercross.c.o
-[228/1651] Building CXX object CMakeFiles/ffshader.dir/Libraries/Source/WWVegas/WW3D2/ffshader.cpp.o
-[229/1651] Linking C static library SDL3/libSDL3.a
-[230/1651] Building CXX object SPIRV-Cross/CMakeFiles/spirv-cross-c.dir/spirv_cross_c.cpp.o
-[231/1651] Building CXX object CMakeFiles/build_fingerprint.dir/Tools/fingerprint/build_fingerprint.cpp.o
-[232/1651] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/GenericCodeGen/CodeGen.cpp.o
-[233/1651] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/OSDependent/Unix/ossource.cpp.o
-[234/1651] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/GenericCodeGen/Link.cpp.o
-[235/1651] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/CInterface/glslang_c_interface.cpp.o
-[236/1651] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/attribute.cpp.o
-[237/1651] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/Constant.cpp.o
-[238/1651] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/glslang_tab.cpp.o
-[239/1651] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/InfoSink.cpp.o
-[240/1651] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/IntermTraverse.cpp.o
-[241/1651] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/iomapper.cpp.o
-[242/1651] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/Intermediate.cpp.o
+[376/1651] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/trim.cpp.o
+[377/1651] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/vector.cpp.o
+[378/1651] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/wwfile.cpp.o
+[379/1651] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/wwfont.cpp.o
+[380/1651] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/thread.cpp.o
+[381/1651] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/widestring.cpp.o
+[382/1651] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/xpipe.cpp.o
+[383/1651] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/xstraw.cpp.o
+[384/1651] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/xsurface.cpp.o
+[385/1651] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/wwstring.cpp.o
+[386/1651] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/aesce.c.o
+[387/1651] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/aes.c.o
+[388/1651] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/aesni.c.o
+[389/1651] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/aria.c.o
+[390/1651] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/asn1parse.c.o
+[391/1651] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/base64.c.o
+[392/1651] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/asn1write.c.o
+[393/1651] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/bignum_core.c.o
+[394/1651] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/bignum.c.o
+[395/1651] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/bignum_mod.c.o
+[396/1651] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/bignum_mod_raw.c.o
+[397/1651] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/block_cipher.c.o
+[398/1651] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/posixpath.cpp.o
+[399/1651] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/camellia.c.o
+[400/1651] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/ccm.c.o
+[401/1651] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/chacha20.c.o
+[402/1651] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/chachapoly.c.o
+[403/1651] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/cipher.c.o
+[404/1651] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/cipher_wrap.c.o
+[405/1651] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/cmac.c.o
