@@ -72,6 +72,9 @@
 #include <memory>
 #include <cmath>
 #include <tuple>
+#include <chrono>
+#include <cstdlib>
+#include <cstring>
 
 #ifdef _INTERNAL
 // for occasional debugging...
@@ -79,6 +82,25 @@
 //#pragma MESSAGE("************************************** WARNING, optimization disabled for debugging purposes")
 #endif
 
+// Opt-in diagnostic. CPU submission time is not Metal GPU elapsed time.
+namespace {
+using ParticlePerfClock = std::chrono::steady_clock;
+static bool particlePerfEnabled()
+{
+    static const bool enabled = []() { const char *v = std::getenv("ZH_PARTICLE_PERF"); return v && std::strcmp(v, "1") == 0; }();
+    return enabled;
+}
+static double particlePerfMs(ParticlePerfClock::time_point start)
+{
+    return std::chrono::duration<double, std::milli>(ParticlePerfClock::now() - start).count();
+}
+struct ParticlePerfTotals {
+    unsigned frames = 0;
+    double fillMs = 0, lightsMs = 0, gpuSubmitMs = 0;
+    unsigned long long systems = 0, processed = 0, drawn = 0, native = 0, smokeLightCandidates = 0;
+};
+static ParticlePerfTotals s_particlePerfTotals;
+}
 //------------------------------------------------------------------------------ Performance Timers 
 //#include "Common/PerfMetrics.h"
 //#include "Common/PerfTimer.h"
@@ -2459,6 +2481,10 @@ void DoParticles( RenderInfoClass &rinfo )
 
 void W3DParticleSystemManager::doParticles(RenderInfoClass &rinfo)
 {
+    const bool perf = particlePerfEnabled();
+    const auto perfFrameStart = perf ? ParticlePerfClock::now() : ParticlePerfClock::time_point();
+    double perfLightsMs = 0.0;
+    unsigned long long perfProcessed = 0;
 
 	if (m_readyToRender == false)
 		return;
@@ -2513,6 +2539,8 @@ void W3DParticleSystemManager::doParticles(RenderInfoClass &rinfo)
 	// alpha-tested systems stay in that loop as they were.  Both loops walk the frame view, which
 	// leaves out what neither would draw: drawable systems, empty ones and ones the player cannot see.
 	refreshFrameView();
+    if (perf) for (size_t v = 0; v < m_frameView.size(); ++v)
+        perfProcessed += m_frameView[v].system->getParticleCount();
 	m_billboardFills.clear();
 	for (size_t v = 0; v < m_frameView.size(); ++v)
 	{
@@ -2554,6 +2582,7 @@ void W3DParticleSystemManager::doParticles(RenderInfoClass &rinfo)
 	fillJob.extentY = beY;
 	fillJob.extentZ = beZ;
 	fillJob.lightCount = 0;
+    const auto perfLightStart = perf ? ParticlePerfClock::now() : ParticlePerfClock::time_point();
 	// A reflecting water's mirror comes here first with its own, smaller box; the picks are the frame's.
 	if (!ShaderClass::Is_Backface_Culling_Inverted())
 	{
@@ -2616,6 +2645,7 @@ void W3DParticleSystemManager::doParticles(RenderInfoClass &rinfo)
 		}
 		fillJob.lightCount = gatherSmokeLights( fillJob.lights, bbox );
 	}
+    if (perf) perfLightsMs = particlePerfMs(perfLightStart);
 	fillJob.glowAfterShade = Direct3D11_Present_Is_Enabled();
 #if defined(__linux__) || defined(ZH_PLATFORM_IOS)
 	fillJob.glowAfterShade = fillJob.glowAfterShade
@@ -2922,9 +2952,30 @@ void W3DParticleSystemManager::doParticles(RenderInfoClass &rinfo)
 	}
 #endif
 
+    const double perfFillMs = perf ? particlePerfMs(perfFrameStart) : 0.0;
+    const auto perfGpuStart = perf ? ParticlePerfClock::now() : ParticlePerfClock::time_point();
 	// The GPU particles' two passes, under the sorted billboards this loop put in the sorting pool,
 	// which land over them when the pool flushes.
-	drawGpuParticles( rinfo );
+    drawGpuParticles( rinfo );
+    if (perf) {
+        ParticlePerfTotals &t = s_particlePerfTotals;
+        t.frames++;
+        t.fillMs += perfFillMs;
+        t.lightsMs += perfLightsMs;
+        t.gpuSubmitMs += particlePerfMs(perfGpuStart);
+        t.systems += m_frameView.size();
+        t.processed += perfProcessed;
+        t.drawn += (unsigned long long)m_onScreenParticleCount;
+        t.native += m_gpuLive;
+        t.smokeLightCandidates += (unsigned long long)fillJob.lightCount;
+        if (t.frames == 120) {
+            const double inv = 1.0 / t.frames;
+            std::fprintf(stderr, "[PARTICLE_PERF] frames=%u cpu_render_ms=%.3f fire_smoke_gather_ms=%.3f gpu_submit_cpu_ms=%.3f active_systems=%.1f processed=%.1f drawn=%.1f native_live=%.1f smoke_light_candidates=%.1f gpu_elapsed_ms=unavailable depth_capture_ms=unavailable\n",
+                t.frames, t.fillMs * inv, t.lightsMs * inv, t.gpuSubmitMs * inv,
+                t.systems * inv, t.processed * inv, t.drawn * inv, t.native * inv, t.smokeLightCandidates * inv);
+            t = ParticlePerfTotals();
+        }
+    }
 
 	//Draw any particles belonging to weather effects
 	if (TheSnowManager)
