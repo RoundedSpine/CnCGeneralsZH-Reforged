@@ -27,7 +27,7 @@ if [ "${ZH_IOS_GRAPHICS_TESTS:-0}" = 1 ]; then
   ZH_USER_DATA_DIR="$host/userfolders-scratch" "$host/test_userfolders"
   # Validate every generated shared-cloud shader's SPIR-V/MSL texture bindings,
   # including the Heat pass that previously aliased TerrainImage and SceneDepth.
-  ZH_USER_DATA_DIR="$host/userfolders-scratch" "$host/test_shader_sdl" shared_cloud_programs_compile_validate_and_translate
+  ZH_USER_DATA_DIR="$host/userfolders-scratch" "$host/test_shader_sdl"
   # Main-branch gameplay/memory changes and the new portable hazard/online layers
   # run on the Apple host before the device cross-compile. test_online uses a local
   # TLS loopback server; it does not require an external service or iOS entitlement.
