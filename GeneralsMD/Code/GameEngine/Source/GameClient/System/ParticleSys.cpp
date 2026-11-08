@@ -1107,18 +1107,16 @@ void Particle::loadPostProcess( void )
 		// find system
 		system = TheParticleSystemManager->findParticleSystem( m_systemUnderControlID );
 
+		// A stale/corrupt saved ID must be rejected before dereferencing its lookup result.
+		if( system == NULL )
+		{
+			DEBUG_CRASH(( "Particle::loadPostProcess - Unable to find system under control pointer\n" ));
+			throw SC_INVALID_DATA;
+		}
+
 		// set us as the control particle for this system
 		system->setControlParticle( this );
 		controlParticleSystem( system );
-
-		// sanity
-		if( m_systemUnderControlID == NULL )
-		{
-
-			DEBUG_CRASH(( "Particle::loadPostProcess - Unable to find system under control pointer\n" ));
-			throw SC_INVALID_DATA;
-
-		}  // end if
 
 	}  // end if
 

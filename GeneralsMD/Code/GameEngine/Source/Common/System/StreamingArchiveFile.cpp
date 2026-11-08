@@ -152,7 +152,7 @@ Bool StreamingArchiveFile::open( const Char *filename, Int access )
 		return FALSE;
 	}	
 
-	return (open( file ) != NULL);
+	return open( file );
 }
 
 //============================================================================

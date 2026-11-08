@@ -280,7 +280,7 @@ WindowMsgHandledType LanMapSelectMenuSystem( GameWindow *window, UnsignedInt msg
 		return MSG_HANDLED;
 
 	GameWindow *mapWindow = NULL;
-	if (listboxMap != NULL)
+	if (listboxMap != 0)
 	{
 		mapWindow = TheWindowManager->winGetWindowFromId( parent, listboxMap );
 	}
