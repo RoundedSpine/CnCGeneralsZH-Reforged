@@ -287,7 +287,7 @@ Bool FileSystem::getFileInfo(const AsciiString& filename, FileInfo *fileInfo) co
 	if (fileInfo == NULL) {
 		return FALSE;
 	}
-	memset(fileInfo, 0, sizeof(fileInfo));
+	memset(fileInfo, 0, sizeof(*fileInfo));
 
 	// a generated map has a size and no timestamp: the bytes follow from the name, so there is no
 	// moment at which they were made and nothing that could make them go stale

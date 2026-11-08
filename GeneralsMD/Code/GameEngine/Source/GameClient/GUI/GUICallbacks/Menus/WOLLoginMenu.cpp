@@ -1636,7 +1636,7 @@ WindowMsgHandledType WOLLoginMenuSystem( GameWindow *window, UnsignedInt msg,
 
 							}
 
-							delete fileBuf;
+							delete [] fileBuf;
 							fileBuf = NULL;
 
 							theFile->close();
