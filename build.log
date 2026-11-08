@@ -1,39 +1,17 @@
-   69 |         MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE(Waypoint, "Waypoint")           
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:684:2: note: expanded from macro 'MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE'
-  684 |         MEMORY_POOL_GLUE_WITHOUT_GCMP(ARGCLASS) \
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:658:3: note: expanded from macro 'MEMORY_POOL_GLUE_WITHOUT_GCMP'
-  658 |                 return 0; \
-      |                 ^
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GameClient.cpp:89:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/TerrainLogic.h:167:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
-  167 |         MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE(Bridge, "Bridge")               
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:684:2: note: expanded from macro 'MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE'
-  684 |         MEMORY_POOL_GLUE_WITHOUT_GCMP(ARGCLASS) \
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:658:3: note: expanded from macro 'MEMORY_POOL_GLUE_WITHOUT_GCMP'
-  658 |                 return 0; \
-      |                 ^
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GameClient.cpp:97:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/PartitionManager.h:58:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/ObjectIter.h:77:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
-   77 |         MEMORY_POOL_GLUE_ABC(ObjectIterator)
+   67 |         MEMORY_POOL_GLUE_ABC( DockUpdate )
       |         ^
 /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:700:3: note: expanded from macro 'MEMORY_POOL_GLUE_ABC'
   700 |                 return 0; \
       |                 ^
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GameClient.cpp:97:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/PartitionManager.h:58:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/ObjectIter.h:77:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_gameengine.cpp:21799:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/SupplyWarehouseDockUpdate.h:39:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/DockUpdate.h:67:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
 /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:713:3: note: expanded from macro 'MEMORY_POOL_GLUE_ABC'
   713 |                 return 0; \
       |                 ^
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GameClient.cpp:97:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/PartitionManager.h:58:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/ObjectIter.h:93:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
-   93 |         MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE(SimpleObjectIterator, "SimpleObjectIteratorPool" )              
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_gameengine.cpp:21799:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/SupplyWarehouseDockUpdate.h:76:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
+   76 |         MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE( SupplyWarehouseDockUpdate, "SupplyWarehouseDockUpdate" )
       |         ^
 /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:684:2: note: expanded from macro 'MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE'
   684 |         MEMORY_POOL_GLUE_WITHOUT_GCMP(ARGCLASS) \
@@ -41,20 +19,11 @@ In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Re
 /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:658:3: note: expanded from macro 'MEMORY_POOL_GLUE_WITHOUT_GCMP'
   658 |                 return 0; \
       |                 ^
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GameClient.cpp:97:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/PartitionManager.h:58:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/ObjectIter.h:109:3: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
-  109 |                 MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE(PooledClumps, "SimpleObjectIteratorClumpPool" )
-      |                 ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:684:2: note: expanded from macro 'MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE'
-  684 |         MEMORY_POOL_GLUE_WITHOUT_GCMP(ARGCLASS) \
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:658:3: note: expanded from macro 'MEMORY_POOL_GLUE_WITHOUT_GCMP'
-  658 |                 return 0; \
-      |                 ^
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GameClient.cpp:97:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/PartitionManager.h:263:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
-  263 |         MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE( SightingInfo, "SightingInfo" );
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_gameengine.cpp:22690:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_camera_behavior.inc:8:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameClient/GameWindowManager.h:41:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameClient/WindowLayout.h:57:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
+   57 |         MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE( WindowLayout, "WindowLayoutPool" );
       |         ^
 /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:684:2: note: expanded from macro 'MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE'
   684 |         MEMORY_POOL_GLUE_WITHOUT_GCMP(ARGCLASS) \
@@ -62,9 +31,10 @@ In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Re
 /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:658:3: note: expanded from macro 'MEMORY_POOL_GLUE_WITHOUT_GCMP'
   658 |                 return 0; \
       |                 ^
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GameClient.cpp:97:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/PartitionManager.h:435:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
-  435 |         MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE(PartitionData, "PartitionDataPool" )            
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_gameengine.cpp:22690:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_camera_behavior.inc:11:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/RankInfo.h:45:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
+   45 |         MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE( RankInfo, "RankInfo" );
       |         ^
 /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:684:2: note: expanded from macro 'MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE'
   684 |         MEMORY_POOL_GLUE_WITHOUT_GCMP(ARGCLASS) \
@@ -72,10 +42,20 @@ In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Re
 /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:658:3: note: expanded from macro 'MEMORY_POOL_GLUE_WITHOUT_GCMP'
   658 |                 return 0; \
       |                 ^
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GameClient.cpp:98:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/ScriptEngine.h:42:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Scripts.h:109:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
-  109 |         MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE(ScriptGroup, "ScriptGroup")             
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_gameengine.cpp:22692:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_production_input.inc:10:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
+   10 |         MEMORY_POOL_GLUE_WITH_EXPLICIT_CREATE(ProductionInputWindow, "ProductionInputWindow", 16, 16)
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:679:2: note: expanded from macro 'MEMORY_POOL_GLUE_WITH_EXPLICIT_CREATE'
+  679 |         MEMORY_POOL_GLUE_WITHOUT_GCMP(ARGCLASS) \
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:658:3: note: expanded from macro 'MEMORY_POOL_GLUE_WITHOUT_GCMP'
+  658 |                 return 0; \
+      |                 ^
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_gameengine.cpp:22989:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_minimap_input.inc:13:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Radar.h:95:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
+   95 |         MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE( RadarObject, "RadarObject" )
       |         ^
 /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:684:2: note: expanded from macro 'MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE'
   684 |         MEMORY_POOL_GLUE_WITHOUT_GCMP(ARGCLASS) \
@@ -83,10 +63,20 @@ In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Re
 /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:658:3: note: expanded from macro 'MEMORY_POOL_GLUE_WITHOUT_GCMP'
   658 |                 return 0; \
       |                 ^
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GameClient.cpp:98:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/ScriptEngine.h:42:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Scripts.h:161:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
-  161 |         MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE(OrCondition, "OrCondition")             
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_gameengine.cpp:22989:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_minimap_input.inc:145:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
+  145 |         MEMORY_POOL_GLUE_WITH_EXPLICIT_CREATE(MinimapWindow, "MinimapWindow", 16, 16)
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:679:2: note: expanded from macro 'MEMORY_POOL_GLUE_WITH_EXPLICIT_CREATE'
+  679 |         MEMORY_POOL_GLUE_WITHOUT_GCMP(ARGCLASS) \
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:658:3: note: expanded from macro 'MEMORY_POOL_GLUE_WITHOUT_GCMP'
+  658 |                 return 0; \
+      |                 ^
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_gameengine.cpp:22990:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_selection_priority.inc:2:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameNetwork/GameMessageParser.h:34:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
+   34 |         MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE(GameMessageParserArgumentType, "GameMessageParserArgumentType")         
       |         ^
 /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:684:2: note: expanded from macro 'MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE'
   684 |         MEMORY_POOL_GLUE_WITHOUT_GCMP(ARGCLASS) \
@@ -94,10 +84,10 @@ In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Re
 /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:658:3: note: expanded from macro 'MEMORY_POOL_GLUE_WITHOUT_GCMP'
   658 |                 return 0; \
       |                 ^
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GameClient.cpp:98:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/ScriptEngine.h:42:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Scripts.h:199:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
-  199 |         MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE(ScriptAction, "ScriptAction")           
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_gameengine.cpp:22990:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_selection_priority.inc:2:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameNetwork/GameMessageParser.h:79:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
+   79 |         MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE(GameMessageParser, "GameMessageParser")         
       |         ^
 /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:684:2: note: expanded from macro 'MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE'
   684 |         MEMORY_POOL_GLUE_WITHOUT_GCMP(ARGCLASS) \
@@ -105,10 +95,10 @@ In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Re
 /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:658:3: note: expanded from macro 'MEMORY_POOL_GLUE_WITHOUT_GCMP'
   658 |                 return 0; \
       |                 ^
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GameClient.cpp:98:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/ScriptEngine.h:42:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Scripts.h:606:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
-  606 |         MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE(Script, "Script")               
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_gameengine.cpp:22992:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_supply_center_save.inc:1:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/ResourceGatheringManager.h:47:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
+   47 |         MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE( ResourceGatheringManager, "ResourceGatheringManager" );
       |         ^
 /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:684:2: note: expanded from macro 'MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE'
   684 |         MEMORY_POOL_GLUE_WITHOUT_GCMP(ARGCLASS) \
@@ -116,10 +106,10 @@ In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Re
 /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:658:3: note: expanded from macro 'MEMORY_POOL_GLUE_WITHOUT_GCMP'
   658 |                 return 0; \
       |                 ^
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GameClient.cpp:98:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/ScriptEngine.h:42:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Scripts.h:715:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
-  715 |         MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE(Parameter, "Parameter")         
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_gameengine.cpp:22995:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_map_ini_rollback.inc:9:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameClient/Snow.h:39:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
+   39 |         MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE( WeatherSetting, "WeatherSetting"  )
       |         ^
 /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:684:2: note: expanded from macro 'MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE'
   684 |         MEMORY_POOL_GLUE_WITHOUT_GCMP(ARGCLASS) \
@@ -127,10 +117,45 @@ In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Re
 /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:658:3: note: expanded from macro 'MEMORY_POOL_GLUE_WITHOUT_GCMP'
   658 |                 return 0; \
       |                 ^
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GameClient.cpp:98:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/ScriptEngine.h:42:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Scripts.h:859:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
-  859 |         MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE(Condition, "Condition")         
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_gameengine.cpp:22996:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_hostile_map.inc:8:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/CaveContain.h:39:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/CreateModule.h:65:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
+   65 |         MEMORY_POOL_GLUE_ABC( CreateModule )
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:700:3: note: expanded from macro 'MEMORY_POOL_GLUE_ABC'
+  700 |                 return 0; \
+      |                 ^
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_gameengine.cpp:22996:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_hostile_map.inc:8:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/CaveContain.h:39:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/CreateModule.h:65:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:713:3: note: expanded from macro 'MEMORY_POOL_GLUE_ABC'
+  713 |                 return 0; \
+      |                 ^
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_gameengine.cpp:22996:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_hostile_map.inc:8:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/CaveContain.h:40:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/OpenContain.h:45:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/DamageModule.h:89:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
+   89 |         MEMORY_POOL_GLUE_ABC( DamageModule )
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:700:3: note: expanded from macro 'MEMORY_POOL_GLUE_ABC'
+  700 |                 return 0; \
+      |                 ^
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_gameengine.cpp:22996:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_hostile_map.inc:8:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/CaveContain.h:40:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/OpenContain.h:45:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/DamageModule.h:89:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:713:3: note: expanded from macro 'MEMORY_POOL_GLUE_ABC'
+  713 |                 return 0; \
+      |                 ^
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_gameengine.cpp:22996:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_hostile_map.inc:8:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/CaveContain.h:40:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/OpenContain.h:92:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
+   92 |         MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE( OpenContain, "OpenContain" )
       |         ^
 /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:684:2: note: expanded from macro 'MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE'
   684 |         MEMORY_POOL_GLUE_WITHOUT_GCMP(ARGCLASS) \
@@ -138,10 +163,18 @@ In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Re
 /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:658:3: note: expanded from macro 'MEMORY_POOL_GLUE_WITHOUT_GCMP'
   658 |                 return 0; \
       |                 ^
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GameClient.cpp:98:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/ScriptEngine.h:42:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Scripts.h:1040:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
- 1040 |         MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE(Template, "Template")           
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_gameengine.cpp:22996:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_hostile_map.inc:8:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/CaveContain.h:65:58: warning: offset of on non-standard-layout type 'CaveContainModuleData' [-Winvalid-offsetof]
+   65 |                         { "CaveIndex", INI::parseIntInRange, &caveIndexRange, offsetof( CaveContainModuleData, m_caveIndexData ) },
+      |                                                                               ^                                ~~~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_gameengine.cpp:22996:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_hostile_map.inc:8:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/CaveContain.h:76:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
+   76 |         MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE( CaveContain, "CaveContain" )
       |         ^
 /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:684:2: note: expanded from macro 'MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE'
   684 |         MEMORY_POOL_GLUE_WITHOUT_GCMP(ARGCLASS) \
@@ -149,152 +182,119 @@ In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Re
 /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:658:3: note: expanded from macro 'MEMORY_POOL_GLUE_WITHOUT_GCMP'
   658 |                 return 0; \
       |                 ^
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GameClient.cpp:98:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/ScriptEngine.h:42:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Scripts.h:1090:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
- 1090 |         MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE(ScriptList, "ScriptList")               
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:684:2: note: expanded from macro 'MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE'
-  684 |         MEMORY_POOL_GLUE_WITHOUT_GCMP(ARGCLASS) \
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:658:3: note: expanded from macro 'MEMORY_POOL_GLUE_WITHOUT_GCMP'
-  658 |                 return 0; \
-      |                 ^
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GameClient.cpp:98:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/ScriptEngine.h:128:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
-  128 |         MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE(AttackPriorityInfo, "AttackPriorityInfo")               
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:684:2: note: expanded from macro 'MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE'
-  684 |         MEMORY_POOL_GLUE_WITHOUT_GCMP(ARGCLASS) \
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:658:3: note: expanded from macro 'MEMORY_POOL_GLUE_WITHOUT_GCMP'
-  658 |                 return 0; \
-      |                 ^
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GameClient.cpp:98:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/ScriptEngine.h:170:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
-  170 |         MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE(SequentialScript, "SequentialScript")           
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:684:2: note: expanded from macro 'MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE'
-  684 |         MEMORY_POOL_GLUE_WITHOUT_GCMP(ARGCLASS) \
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:658:3: note: expanded from macro 'MEMORY_POOL_GLUE_WITHOUT_GCMP'
-  658 |                 return 0; \
-      |                 ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GameClient.cpp:1687:3: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
- 1687 |                 "ptspruce01.tga",
-      |                 ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GameClient.cpp:1688:3: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
- 1688 |                 "exrktflame.tga",
-      |                 ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GameClient.cpp:1689:3: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
- 1689 |                 "cvlimo3_d2.tga",
-      |                 ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GameClient.cpp:1690:3: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
- 1690 |                 "exfthrowerstream.tga",
-      |                 ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GameClient.cpp:1691:3: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
- 1691 |                 "uvrockbug_d1.tga",
-      |                 ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GameClient.cpp:1692:3: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
- 1692 |                 "arcbackgroundc.tga",
-      |                 ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GameClient.cpp:1693:3: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
- 1693 |                 "grade3.tga",
-      |                 ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GameClient.cpp:1694:3: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
- 1694 |                 "framebasec.tga",
-      |                 ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GameClient.cpp:1695:3: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
- 1695 |                 "gradec.tga",
-      |                 ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GameClient.cpp:1696:3: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
- 1696 |                 "frametopc.tga",
-      |                 ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GameClient.cpp:1697:3: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
- 1697 |                 "arcbackgrounda.tga",
-      |                 ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GameClient.cpp:1698:3: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
- 1698 |                 "arcglow2.tga",
-      |                 ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GameClient.cpp:1699:3: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
- 1699 |                 "framebasea.tga",
-      |                 ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GameClient.cpp:1700:3: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
- 1700 |                 "gradea.tga",
-      |                 ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GameClient.cpp:1701:3: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
- 1701 |                 "frametopa.tga",
-      |                 ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GameClient.cpp:1702:3: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
- 1702 |                 "sauserinterface256_002.tga",
-      |                 ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GameClient.cpp:1703:3: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
- 1703 |                 "sauserinterface256_001.tga",
-      |                 ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GameClient.cpp:1704:3: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
- 1704 |                 "unitbackgrounda.tga",
-      |                 ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GameClient.cpp:1705:3: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
- 1705 |                 "sauserinterface256_004.tga",
-      |                 ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GameClient.cpp:1706:3: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
- 1706 |                 "sagentank.tga",
-      |                 ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GameClient.cpp:1707:3: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
- 1707 |                 "sauserinterface256_005.tga",
-      |                 ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GameClient.cpp:1708:3: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
- 1708 |                 "sagenair.tga",
-      |                 ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GameClient.cpp:1709:3: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
- 1709 |                 "sauserinterface256_003.tga",
-      |                 ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GameClient.cpp:1710:3: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
- 1710 |                 "sagenspec.tga",
-      |                 ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GameClient.cpp:1711:3: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
- 1711 |                 "snuserinterface256_003.tga",
-      |                 ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GameClient.cpp:1712:3: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
- 1712 |                 "snuserinterface256_002.tga",
-      |                 ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GameClient.cpp:1713:3: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
- 1713 |                 "unitbackgroundc.tga",
-      |                 ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GameClient.cpp:1714:3: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
- 1714 |                 "snuserinterface256_004.tga",
-      |                 ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GameClient.cpp:1715:3: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
- 1715 |                 "sngenredarm.tga",
-      |                 ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GameClient.cpp:1716:3: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
- 1716 |                 "snuserinterface256_001.tga",
-      |                 ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GameClient.cpp:1717:3: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
- 1717 |                 "sngenspewea.tga",
-      |                 ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GameClient.cpp:1718:3: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
- 1718 |                 "sngensecpol.tga",
-      |                 ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GameClient.cpp:1719:3: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
- 1719 |                 "ciburn.tga",
-      |                 ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GameClient.cpp:1720:3: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
- 1720 |                 "ptmaple02.tga",
-      |                 ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GameClient.cpp:1721:3: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
- 1721 |                 "scuserinterface256_005.tga",
-      |                 ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GameClient.cpp:1722:3: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
- 1722 |                 "scuserinterface256_002.tga",
-      |                 ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GameClient.cpp:1723:3: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
- 1723 |                 "sauserinterface256_006.tga",
-      |                 ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GameClient.cpp:1724:3: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
- 1724 |                 "pmcrates.tga",
-      |                 ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GameClient.cpp:1725:3: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
- 1725 |                 ""
-      |                 ^
-126 warnings generated.
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_gameengine.cpp:45:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/MapObject.h:38:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameClient/TerrainRoads.h:40:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/BodyModule.h:37:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:38:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BitFlags.h:280:12: warning: instantiation of variable 'BitFlags<117, 2>::s_bitNameList' required here, but no definition is available [-Wundefined-var-template]
+  280 |     return s_bitNameList;
+      |            ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_gameengine.cpp:3207:35: note: in instantiation of member function 'BitFlags<117, 2>::getBitNames' requested here
+ 3207 |                 { "KINDOF",                                     KindOfMaskType::getBitNames(),                          "OBSTACLE" },
+      |                                                                                 ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BitFlags.h:70:25: note: forward declaration of template entity is here
+   70 |         static const char*                                      s_bitNameList[];
+      |                                                                 ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BitFlags.h:280:12: note: add an explicit instantiation declaration to suppress this warning if 'BitFlags<117, 2>::s_bitNameList' is explicitly instantiated in another translation unit
+  280 |     return s_bitNameList;
+      |            ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BitFlags.h:280:12: warning: instantiation of variable 'BitFlags<117, 3>::s_bitNameList' required here, but no definition is available [-Wundefined-var-template]
+  280 |     return s_bitNameList;
+      |            ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_gameengine.cpp:3208:44: note: in instantiation of member function 'BitFlags<117, 3>::getBitNames' requested here
+ 3208 |                 { "MODELCONDITION",     ModelConditionFlags::getBitNames(),     NULL },
+      |                                                              ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BitFlags.h:70:25: note: forward declaration of template entity is here
+   70 |         static const char*                                      s_bitNameList[];
+      |                                                                 ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BitFlags.h:280:12: note: add an explicit instantiation declaration to suppress this warning if 'BitFlags<117, 3>::s_bitNameList' is explicitly instantiated in another translation unit
+  280 |     return s_bitNameList;
+      |            ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BitFlags.h:280:12: warning: instantiation of variable 'BitFlags<13, 1>::s_bitNameList' required here, but no definition is available [-Wundefined-var-template]
+  280 |     return s_bitNameList;
+      |            ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_gameengine.cpp:3209:38: note: in instantiation of member function 'BitFlags<13, 1>::getBitNames' requested here
+ 3209 |                 { "DISABLED",                           DisabledMaskType::getBitNames(),                NULL },
+      |                                                                           ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BitFlags.h:70:25: note: forward declaration of template entity is here
+   70 |         static const char*                                      s_bitNameList[];
+      |                                                                 ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BitFlags.h:280:12: note: add an explicit instantiation declaration to suppress this warning if 'BitFlags<13, 1>::s_bitNameList' is explicitly instantiated in another translation unit
+  280 |     return s_bitNameList;
+      |            ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BitFlags.h:280:12: warning: instantiation of variable 'BitFlags<45, 4>::s_bitNameList' required here, but no definition is available [-Wundefined-var-template]
+  280 |     return s_bitNameList;
+      |            ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_gameengine.cpp:3210:44: note: in instantiation of member function 'BitFlags<45, 4>::getBitNames' requested here
+ 3210 |                 { "OBJECT_STATUS",      ObjectStatusMaskType::getBitNames(),NULL },
+      |                                                               ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BitFlags.h:70:25: note: forward declaration of template entity is here
+   70 |         static const char*                                      s_bitNameList[];
+      |                                                                 ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BitFlags.h:280:12: note: add an explicit instantiation declaration to suppress this warning if 'BitFlags<45, 4>::s_bitNameList' is explicitly instantiated in another translation unit
+  280 |     return s_bitNameList;
+      |            ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BitFlags.h:280:12: warning: instantiation of variable 'BitFlags<67, 5>::s_bitNameList' required here, but no definition is available [-Wundefined-var-template]
+  280 |     return s_bitNameList;
+      |            ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_gameengine.cpp:3211:44: note: in instantiation of member function 'BitFlags<67, 5>::getBitNames' requested here
+ 3211 |                 { "SPECIALPOWER",               SpecialPowerMaskType::getBitNames(),NULL },
+      |                                                                       ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BitFlags.h:70:25: note: forward declaration of template entity is here
+   70 |         static const char*                                      s_bitNameList[];
+      |                                                                 ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BitFlags.h:280:12: note: add an explicit instantiation declaration to suppress this warning if 'BitFlags<67, 5>::s_bitNameList' is explicitly instantiated in another translation unit
+  280 |     return s_bitNameList;
+      |            ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BitFlags.h:280:12: warning: instantiation of variable 'BitFlags<8, 7>::s_bitNameList' required here, but no definition is available [-Wundefined-var-template]
+  280 |     return s_bitNameList;
+      |            ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_gameengine.cpp:3212:35: note: in instantiation of member function 'BitFlags<8, 7>::getBitNames' requested here
+ 3212 |                 { "ARMORSET",                           ArmorSetFlags::getBitNames(),                           NULL },
+      |                                                                        ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BitFlags.h:70:25: note: forward declaration of template entity is here
+   70 |         static const char*                                      s_bitNameList[];
+      |                                                                 ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BitFlags.h:280:12: note: add an explicit instantiation declaration to suppress this warning if 'BitFlags<8, 7>::s_bitNameList' is explicitly instantiated in another translation unit
+  280 |     return s_bitNameList;
+      |            ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BitFlags.h:280:12: warning: instantiation of variable 'BitFlags<38, 8>::s_bitNameList' required here, but no definition is available [-Wundefined-var-template]
+  280 |     return s_bitNameList;
+      |            ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_gameengine.cpp:3213:36: note: in instantiation of member function 'BitFlags<38, 8>::getBitNames' requested here
+ 3213 |                 { "DAMAGE",                                     DamageTypeFlags::getBitNames(),                 NULL },
+      |                                                                                  ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BitFlags.h:70:25: note: forward declaration of template entity is here
+   70 |         static const char*                                      s_bitNameList[];
+      |                                                                 ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BitFlags.h:280:12: note: add an explicit instantiation declaration to suppress this warning if 'BitFlags<38, 8>::s_bitNameList' is explicitly instantiated in another translation unit
+  280 |     return s_bitNameList;
+      |            ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BitFlags.h:280:12: warning: instantiation of variable 'BitFlags<17, 9>::s_bitNameList' required here, but no definition is available [-Wundefined-var-template]
+  280 |     return s_bitNameList;
+      |            ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_gameengine.cpp:3214:36: note: in instantiation of member function 'BitFlags<17, 9>::getBitNames' requested here
+ 3214 |                 { "WEAPONSET",                  WeaponSetFlags::getBitNames(),                  NULL },
+      |                                                                 ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BitFlags.h:70:25: note: forward declaration of template entity is here
+   70 |         static const char*                                      s_bitNameList[];
+      |                                                                 ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BitFlags.h:280:12: note: add an explicit instantiation declaration to suppress this warning if 'BitFlags<17, 9>::s_bitNameList' is explicitly instantiated in another translation unit
+  280 |     return s_bitNameList;
+      |            ^
+319 warnings generated.
+[1648/1651] Linking CXX static library libw3ddevice.a
+[1649/1651] Linking CXX executable test_gameengine
+ld: warning: ignoring duplicate libraries: 'libgameengine.a'
+[1650/1651] Linking CXX executable test_online
+ld: warning: ignoring duplicate libraries: 'libgameengine.a', 'libmbedtls.a', 'libonlineconnection.a'
+4 tests, 44 checks, 0 failed
+Test project /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/build/ios/host-graphics
+    Start 56: test_hazard_cloud_bake
+1/4 Test #56: test_hazard_cloud_bake ...........   Passed    0.00 sec
+    Start 57: test_hazard_cloud_shared
+2/4 Test #57: test_hazard_cloud_shared .........   Passed    0.00 sec
+    Start 67: test_online
+3/4 Test #67: test_online ......................   Passed    0.35 sec
+    Start 70: test_gameengine
