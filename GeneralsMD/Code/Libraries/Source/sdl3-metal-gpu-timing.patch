@@ -1,0 +1,81 @@
+diff --git a/src/gpu/metal/SDL_gpu_metal.m b/src/gpu/metal/SDL_gpu_metal.m
+--- a/src/gpu/metal/SDL_gpu_metal.m
++++ b/src/gpu/metal/SDL_gpu_metal.m
+@@ -26,8 +26,43 @@
+ #include <Metal/Metal.h>
+ #include <QuartzCore/CoreAnimation.h>
+ 
+ #include "../SDL_sysgpu.h"
++
++// Zero Hour Reforged diagnostic hook: Metal execution times are only valid after
++// completion.  This extension does not change scheduling or wait for the GPU.
++static SDL_SpinLock ZH_MetalTimingLock = 0;
++static SDL_AtomicInt ZH_MetalTimingEnabled;
++static Uint64 ZH_MetalTimingEpoch;
++static Uint64 ZH_MetalTimingTotalNs;
++static Uint64 ZH_MetalTimingMaximumNs;
++static Uint32 ZH_MetalTimingSamples;
++static Uint32 ZH_MetalTimingUnavailable;
++
++void ZH_SDL_Metal_SetTimingEnabled(bool enabled)
++{
++    SDL_LockSpinlock(&ZH_MetalTimingLock);
++    if (SDL_GetAtomicInt(&ZH_MetalTimingEnabled) != (enabled ? 1 : 0)) {
++        ++ZH_MetalTimingEpoch; // Ignore outstanding callbacks from the prior run.
++        ZH_MetalTimingTotalNs = ZH_MetalTimingMaximumNs = 0;
++        ZH_MetalTimingSamples = ZH_MetalTimingUnavailable = 0;
++        SDL_SetAtomicInt(&ZH_MetalTimingEnabled, enabled ? 1 : 0);
++    }
++    SDL_UnlockSpinlock(&ZH_MetalTimingLock);
++}
++
++void ZH_SDL_Metal_TakeTiming(Uint64 *totalNs, Uint64 *maximumNs,
++                              Uint32 *samples, Uint32 *unavailable)
++{
++    SDL_LockSpinlock(&ZH_MetalTimingLock);
++    if (totalNs) *totalNs = ZH_MetalTimingTotalNs;
++    if (maximumNs) *maximumNs = ZH_MetalTimingMaximumNs;
++    if (samples) *samples = ZH_MetalTimingSamples;
++    if (unavailable) *unavailable = ZH_MetalTimingUnavailable;
++    ZH_MetalTimingTotalNs = ZH_MetalTimingMaximumNs = 0;
++    ZH_MetalTimingSamples = ZH_MetalTimingUnavailable = 0;
++    SDL_UnlockSpinlock(&ZH_MetalTimingLock);
++}
+ 
+ // Defines
+ 
+ #define METAL_FIRST_VERTEX_BUFFER_SLOT 14
+@@ -4089,8 +4124,33 @@
+ 
+             windowData->frameCounter = (windowData->frameCounter + 1) % renderer->allowedFramesInFlight;
+         }
+ 
++        // Opt-in, asynchronous Metal GPU elapsed time, not CPU submit/wait time.
++        // Attach BEFORE commit; the callback is invoked after GPU completion.
++        if (SDL_GetAtomicInt(&ZH_MetalTimingEnabled)) {
++            SDL_LockSpinlock(&ZH_MetalTimingLock);
++            const Uint64 timingEpoch = ZH_MetalTimingEpoch;
++            SDL_UnlockSpinlock(&ZH_MetalTimingLock);
++            [metalCommandBuffer->handle addCompletedHandler:^(id<MTLCommandBuffer> completed) {
++                const double gpuStart = completed.GPUStartTime;
++                const double gpuEnd = completed.GPUEndTime;
++                SDL_LockSpinlock(&ZH_MetalTimingLock);
++                if (timingEpoch == ZH_MetalTimingEpoch &&
++                    SDL_GetAtomicInt(&ZH_MetalTimingEnabled)) {
++                    if (gpuStart > 0.0 && gpuEnd > gpuStart) {
++                        const Uint64 duration = (Uint64)((gpuEnd - gpuStart) * 1000000000.0 + 0.5);
++                        ZH_MetalTimingTotalNs += duration;
++                        if (duration > ZH_MetalTimingMaximumNs)
++                            ZH_MetalTimingMaximumNs = duration;
++                        ++ZH_MetalTimingSamples;
++                    } else {
++                        ++ZH_MetalTimingUnavailable;
++                    }
++                }
++                SDL_UnlockSpinlock(&ZH_MetalTimingLock);
++            }];
++        }
+         // Submit the command buffer
+         [metalCommandBuffer->handle commit];
+         metalCommandBuffer->handle = nil;
+ 
