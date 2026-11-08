@@ -2995,7 +2995,7 @@ void W3DParticleSystemManager::doParticles(RenderInfoClass &rinfo)
             std::vector<std::pair<std::string, ParticlePerfTemplate>> tops(s_particlePerfTemplates.begin(), s_particlePerfTemplates.end());
             std::sort(tops.begin(), tops.end(), [](const auto &a, const auto &b) { return a.second.billboardMs > b.second.billboardMs; });
             for (size_t i = 0; i < tops.size() && i < 8; ++i)
-                std::fprintf(stderr, "[PARTICLE_COST] stage=billboard template=%s ms_per_frame=%.3f drawn_per_frame=%.1f smoke_light_tests_per_frame=%.1f\\n",
+                std::fprintf(stderr, "[PARTICLE_COST] stage=billboard template=%s ms_per_frame=%.3f drawn_per_frame=%.1f smoke_light_tests_per_frame=%.1f\n",
                     tops[i].first.c_str(), tops[i].second.billboardMs * inv, tops[i].second.drawn * inv, tops[i].second.lighting * inv);
             s_particlePerfTemplates.clear();
             t = ParticlePerfTotals();
