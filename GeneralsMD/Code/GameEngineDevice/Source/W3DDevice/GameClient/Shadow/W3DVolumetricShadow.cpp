@@ -4577,20 +4577,7 @@ void W3DVolumetricShadowManager::renderShadowMap( CameraClass &sceneCamera )
 			sunInfo.drawEffectParameters[3] = caster->getStealthSolid();
 		}
 
-#if defined(ZH_PLATFORM_IOS)
-		// Once-only proof that an aircraft mesh reached the independent sun-depth pass.
-		// This does not change the caster list, shadow strength or draw submission.
-		if (caster && caster->isKindOf(KINDOF_AIRCRAFT))
-		{
-			static Bool reportedAircraftSunCaster = FALSE;
-			if (!reportedAircraftSunCaster)
-			{
-				fprintf(stderr, "[IOS_AIRCRAFT_SUN_CASTER] model=%s render_requested=1\n",
-					robj->Get_Name() ? robj->Get_Name() : "(unnamed)");
-				reportedAircraftSunCaster = TRUE;
-			}
-		}
-#endif
+
 		robj->Render( sunInfo );
 		++castersCounted;
 	}
@@ -4789,31 +4776,7 @@ void W3DVolumetricShadowManager::renderShadows( Bool forceStencilFill )
 		 stay registered either way, which is what keeps them in the map; what stops is the volumes'
 		 own darkening pass.  A machine with no Direct3D 11 device fills no map and keeps the volumes,
 		 so nobody ends up with no shadows at all. */
-#if defined(ZH_PLATFORM_IOS)
-	// Diagnostic: exclude legacy stencil volumes from every modern sun-shadow scene,
-	// including mirror/secondary passes whose receiver ownership is intentionally false.
-	// Keep the casters registered so their real geometry still enters the sun depth map.
-	// This isolates the near-vertical aircraft ground shadow from the sun-map result.
-	// Once confirmed, replace with an aircraft-specific fix rather than retaining a
-	// blanket policy that removes stencil fallback from reflections.
-	if (TheGlobalData->m_shadowMap && TheGlobalData->m_shadowMapOnly && !TheGlobalData->m_classicGraphics)
-	{
-		// Report each ownership state once: secondary/reflection passes normally
-		// return scene_owns=0, but the isolation must still suppress their volumes.
-		const Bool sceneOwns = SunShadow::OwnsSceneShadows(DX8Wrapper::_Get_D3D_Device());
-		static Bool reportedOwned = FALSE;
-		static Bool reportedSecondary = FALSE;
-		Bool &reported = sceneOwns ? reportedOwned : reportedSecondary;
-		if (!reported)
-		{
-			fprintf(stderr,
-				"[IOS_STENCIL_ISOLATION] all_legacy_stencil_passes_skipped=1 sun_map=1 modern=1 scene_owns=%d\n",
-				(int)sceneOwns);
-			reported = TRUE;
-		}
-		return;
-	}
-#endif
+
 	if (TheGlobalData->m_shadowMapOnly && SunShadow::OwnsSceneShadows(DX8Wrapper::_Get_D3D_Device()))
 		return;
 
@@ -5303,14 +5266,7 @@ W3DVolumetricShadow* W3DVolumetricShadowManager::addShadow(RenderObjClass *robj,
 	Real sunElevation = shadowInfo->m_sizeX;
 	if (owner && owner->isKindOf(KINDOF_AIRCRAFT) && sunElevation > AIRCRAFT_MIN_SUN_ELEVATION)
 		sunElevation = AIRCRAFT_MIN_SUN_ELEVATION;
-#if defined(ZH_PLATFORM_IOS)
-	// Report the legacy 3D-volume configuration at registration, independently
-	// of whether a later stencil pass is skipped by the isolation test.
-	if (owner && owner->isKindOf(KINDOF_AIRCRAFT))
-		fprintf(stderr, "[IOS_AIRCRAFT_VOLUME_REGISTER] model=%s raw_elevation=%.2f effective_elevation=%.2f modern=%d map_enabled=%d\n",
-			name, (double)shadowInfo->m_sizeX, (double)sunElevation,
-			int(!TheGlobalData->m_classicGraphics), int(TheGlobalData->m_shadowMap != FALSE));
-#endif
+
 
 	Real sunElevationAngleTan = 0;
 	if (sunElevation)
