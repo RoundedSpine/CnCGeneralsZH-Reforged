@@ -807,7 +807,7 @@ static const Int BILLBOARD_FILLS_PER_CLAIM = 4;
 static void fillBillboards( Int index, void *context )
 {
 	BillboardFillJob *job = (BillboardFillJob *)context;
-\tW3DParticleSystemManager::BillboardFill &fill = job->fills[ index ];
+	W3DParticleSystemManager::BillboardFill &fill = job->fills[ index ];
     const bool perf = particlePerfEnabled();
     const auto started = perf ? ParticlePerfClock::now() : ParticlePerfClock::time_point();
     unsigned lightEvals = 0;
