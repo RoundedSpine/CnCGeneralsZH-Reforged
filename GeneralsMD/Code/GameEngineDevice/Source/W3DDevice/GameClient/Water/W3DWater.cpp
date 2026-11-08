@@ -1018,7 +1018,7 @@ bool Supported()
 
 } // namespace ModernWater
 
-// The SDL water's reflections, tiers and Water page: Linux only, the one SDL host that draws Modern water.
+// The SDL water's reflections, tiers and Water page: available on SDL GPU hosts whose backend exposes the required scene effects.
 namespace WaterScreenReflection {
 bool Supported()
 {
