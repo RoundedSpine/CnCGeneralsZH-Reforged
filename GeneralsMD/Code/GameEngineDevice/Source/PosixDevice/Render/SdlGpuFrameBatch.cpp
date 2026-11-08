@@ -21,6 +21,7 @@
 
 #include "SdlGpuFrame.h"
 #include "sdl3shadercompile.h"
+#include "Platform/ParticlePerfToggle.h"
 
 #include <SDL3/SDL.h>
 
@@ -271,6 +272,11 @@ bool SdlGpuFrame::Record_Batch(SDL_GPUCommandBuffer * commands)
 	const uint32_t stream_size = (uint32_t)((StreamBytes.size() + 3) & ~(size_t)3);
 	const uint32_t upload_base = (uint32_t)((stream_size + STAGING_ALIGNMENT - 1) & ~(STAGING_ALIGNMENT - 1));
 	const uint32_t total = upload_base + (uint32_t)UploadBytes.size();
+	if (ParticlePerfToggle::enabled()) {
+		ParticleGpuRecordedDraws += Draws.size();
+		ParticleGpuUploadBytes += total; // Includes staging alignment, not allocation capacity.
+		if (total > 0) ++ParticleGpuCopyPasses;
+	}
 	if (total > 0) {
 		if (TransferSize < total) {
 			if (Transfer != NULL) SDL_ReleaseGPUTransferBuffer(GpuDevice, Transfer);
@@ -356,7 +362,9 @@ bool SdlGpuFrame::Begin_Pass(SDL_GPUCommandBuffer * commands, const SdlTarget & 
             single.load_op=clear_depth?SDL_GPU_LOADOP_CLEAR:SDL_GPU_LOADOP_LOAD;single.store_op=SDL_GPU_STOREOP_STORE;
             single.stencil_load_op=!has?SDL_GPU_LOADOP_DONT_CARE:clear_stencil?SDL_GPU_LOADOP_CLEAR:SDL_GPU_LOADOP_LOAD;
             single.stencil_store_op=has?SDL_GPU_STOREOP_STORE:SDL_GPU_STOREOP_DONT_CARE;
-            auto *clear=SDL_BeginGPURenderPass(commands,nullptr,0,&single);if(!clear)return false;SDL_EndGPURenderPass(clear);
+            auto *clear=SDL_BeginGPURenderPass(commands,nullptr,0,&single);if(!clear)return false;
+            if (ParticlePerfToggle::enabled()) ++ParticleGpuRenderPasses;
+            SDL_EndGPURenderPass(clear);
         }
         if(!clear_colour&&!Seed_Multisample_Colour(commands,target))return false;
     } else External_Colour_Write(target.Colour);
@@ -385,6 +393,7 @@ bool SdlGpuFrame::Begin_Pass(SDL_GPUCommandBuffer * commands, const SdlTarget & 
 	depth.stencil_store_op = has_stencil ? SDL_GPU_STOREOP_STORE : SDL_GPU_STOREOP_DONT_CARE;
 	*pass = SDL_BeginGPURenderPass(commands, target.Colour ? &colour : NULL, target.Colour ? 1 : 0,
 		target.Depth ? &depth : NULL);
+	if (*pass && ParticlePerfToggle::enabled()) ++ParticleGpuRenderPasses;
 	return *pass != NULL;
 }
 
@@ -511,11 +520,13 @@ bool SdlGpuFrame::Record_Passes(SDL_GPUCommandBuffer * commands, SDL_GPUBuffer *
 			break;
 		}
 		if (command->IsDepthSnapshot) {
+			if (ParticlePerfToggle::enabled()) ++ParticleGpuDepthSnapshots;
 			if (!Resolve_Scene_Depth(commands, command->BlitSource, command->BlitDestination,
 				(unsigned int)command->Rect[2], (unsigned int)command->Rect[3])) return false;
 			continue;
 		}
 		if (command->IsBlit) {
+			if (ParticlePerfToggle::enabled()) ++ParticleGpuBlits;
 			SDL_GPUBlitInfo blit;
 			SDL_zero(blit);
 			blit.source.texture = command->BlitSource;
