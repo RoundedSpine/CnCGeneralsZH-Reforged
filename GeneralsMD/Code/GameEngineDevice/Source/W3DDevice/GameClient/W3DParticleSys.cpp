@@ -92,7 +92,7 @@ static double particlePerfMs(ParticlePerfClock::time_point start)
 {
     return std::chrono::duration<double, std::milli>(ParticlePerfClock::now() - start).count();
 }
-struct ParticlePerfTemplate { double billboardMs = 0, pickMs = 0; unsigned long long drawn = 0, lighting = 0, culled = 0; };
+struct ParticlePerfTemplate { double billboardMs = 0, pickMs = 0, smokeMs = 0, fireLookMs = 0; unsigned long long drawn = 0, lighting = 0, culled = 0, fireLookParticles = 0; };
 static std::map<std::string, ParticlePerfTemplate> s_particlePerfTemplates;
 struct ParticlePerfTotals {
     unsigned frames = 0;
@@ -809,6 +809,8 @@ static void fillBillboards( Int index, void *context )
     const auto started = perf ? ParticlePerfClock::now() : ParticlePerfClock::time_point();
     unsigned lightEvals = 0;
     unsigned visibilityRejects = 0;
+    double smokeMs = 0.0, fireLookMs = 0.0;
+    unsigned fireLookParticles = 0;
 	VertexFormatXYZNDUV2 *quad = fill.range.Vertices;
 	Int drawn = 0;
 	SmokeLight lights[ SMOKE_LIGHTS_PER_SYSTEM ];
@@ -845,7 +847,9 @@ static void fillBillboards( Int index, void *context )
 		if (lightCount > 0)
 		{
 			if (perf) lightEvals += (unsigned)lightCount;
+			const auto lightStarted = perf ? ParticlePerfClock::now() : ParticlePerfClock::time_point();
 			lightSmoke( pos, p->getAlpha(), lights, lightCount, red, green, blue );
+            if (perf) smokeMs += particlePerfMs(lightStarted);
 			if (job->glowAfterShade)
 			{
 				glow.Set( red - color->red, green - color->green, blue - color->blue );
@@ -864,6 +868,7 @@ static void fillBillboards( Int index, void *context )
 			orientation, packed, glow, flipbookLog2, flipbookLog2 ? p->getFlipbookFrame() : 0 );
 		if (fill.fire)
 		{
+            const auto fireStarted = perf ? ParticlePerfClock::now() : ParticlePerfClock::time_point();
 			// FIRE_LOOK_SAMPLING's packing: a whole number below 256, the seed times eight plus the
 			// flipbook's log2 frames a side, so the noise bends a flipbook frame inside its own cell;
 			// then the age held off the whole numbers on both sides, so the interpolated value never
@@ -873,6 +878,7 @@ static void fillBillboards( Int index, void *context )
 			const Real fireAgeSeed = (Real)( ( ( ( p->getPersonality() * 97u ) & 31u ) << 3 ) | flipbookLog2 ) + 0.01f + 0.98f * age;
 			for (Int k = 0; k < 4; ++k)
 				quad[ k ].v2 = fireAgeSeed;
+            if (perf) { fireLookMs += particlePerfMs(fireStarted); ++fireLookParticles; }
 		}
 		quad += 4;
 
@@ -885,6 +891,9 @@ static void fillBillboards( Int index, void *context )
 
 	fill.drawn = drawn;
     fill.perfBillboardMs = perf ? particlePerfMs(started) : 0.0;
+    fill.perfSmokeMs = smokeMs;
+    fill.perfFireLookMs = fireLookMs;
+    fill.perfFireLookParticles = fireLookParticles;
     fill.perfLightEvaluations = lightEvals;
     fill.perfCulledParticles = visibilityRejects;
 	fill.glow = job->glowAfterShade && lightCount > 0;
@@ -2677,6 +2686,9 @@ void W3DParticleSystemManager::doParticles(RenderInfoClass &rinfo)
             ParticlePerfTemplate &t = s_particlePerfTemplates[f.system->getTemplate()->getName().str()];
             t.billboardMs += f.perfBillboardMs;
             t.pickMs += f.perfLightPickMs;
+            t.smokeMs += f.perfSmokeMs;
+            t.fireLookMs += f.perfFireLookMs;
+            t.fireLookParticles += f.perfFireLookParticles;
             t.drawn += (unsigned)f.drawn;
             t.lighting += f.perfLightEvaluations;
             t.culled += f.perfCulledParticles;
@@ -3006,9 +3018,10 @@ void W3DParticleSystemManager::doParticles(RenderInfoClass &rinfo)
             std::vector<std::pair<std::string, ParticlePerfTemplate>> tops(s_particlePerfTemplates.begin(), s_particlePerfTemplates.end());
             std::sort(tops.begin(), tops.end(), [](const auto &a, const auto &b) { return a.second.billboardMs > b.second.billboardMs; });
             for (size_t i = 0; i < tops.size() && i < 8; ++i)
-                std::fprintf(stderr, "[PARTICLE_COST] stage=billboard template=%s ms_per_frame=%.3f drawn_per_frame=%.1f smoke_light_tests_per_frame=%.1f light_pick_ms_per_frame=%.3f culled_per_frame=%.1f\n",
+                std::fprintf(stderr, "[PARTICLE_COST] stage=billboard template=%s ms_per_frame=%.3f drawn_per_frame=%.1f smoke_light_tests_per_frame=%.1f light_pick_ms_per_frame=%.3f culled_per_frame=%.1f smoke_light_cpu_ms_per_frame=%.3f firelook_cpu_ms_per_frame=%.3f firelook_particles_per_frame=%.1f\n",
                     tops[i].first.c_str(), tops[i].second.billboardMs * inv, tops[i].second.drawn * inv, tops[i].second.lighting * inv,
-                    tops[i].second.pickMs * inv, tops[i].second.culled * inv);
+                    tops[i].second.pickMs * inv, tops[i].second.culled * inv,
+                    tops[i].second.smokeMs * inv, tops[i].second.fireLookMs * inv, tops[i].second.fireLookParticles * inv);
             s_particlePerfTemplates.clear();
             t = ParticlePerfTotals();
         }
