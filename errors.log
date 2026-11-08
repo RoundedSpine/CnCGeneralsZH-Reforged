@@ -1,0 +1,6 @@
+[vendor] SDL3 3.4.16 -> Libraries/Source/SDL3
+[vendor] sdl3-metal-windowless.patch -> Libraries/Source/SDL3
+[vendor] sdl3-metal-gpu-timing.patch -> Libraries/Source/SDL3
+error: patch failed: src/gpu/metal/SDL_gpu_metal.m:29
+error: src/gpu/metal/SDL_gpu_metal.m: patch does not apply
+[vendor] sdl3-metal-pass-timing.patch failed to apply
