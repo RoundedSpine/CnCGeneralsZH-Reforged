@@ -132,7 +132,7 @@ SdlGpuFrame::SdlGpuFrame() :
 	NotShownTotal(0),
 	ShownWidth(0),
 	ShownHeight(0),
-	FlushLimit(3),
+	FlushLimit(6),
 	FlushesTotal(0),
 	FlushInFlightMost(0),
 	FlushWaits(0),
@@ -189,7 +189,10 @@ SdlGpuFrame::SdlGpuFrame() :
 	memset(ClearPipelines, 0, sizeof(ClearPipelines));
 	memset(ParticleGpuFlushReasons, 0, sizeof(ParticleGpuFlushReasons));
 	InFlight[0] = InFlight[1] = NULL;
-	// ZH_GPU_FLUSH_LIMIT=<n>: at most n mid-frame flushes in flight (default 3); 0 lets them pile up as before
+	// Experimental bounded submission window: six (previously three) mid-frame flushes can
+	// remain outstanding before a fence wait. The iOS profiling capture showed frequent
+	// three-slot ring waits; keep this reversible via ZH_GPU_FLUSH_LIMIT=3 for A/B tests.
+	// ZH_GPU_FLUSH_LIMIT=<n>: maximum mid-frame flushes in flight (default 6); 0 is unbounded.
 	// the ring, which is how the ring's effect is measured.
 	if (const char * limit = getenv("ZH_GPU_FLUSH_LIMIT")) {
 		FlushLimit = (unsigned int)strtoul(limit, NULL, 10);
@@ -1104,8 +1107,8 @@ void SdlGpuFrame::Take_Timing(double & flush_ms, double & fence_ms, unsigned int
 					fragmentsPassed[p] ? double(fragmentInvocations[p]) / double(fragmentsPassed[p]) : 0.0);
 			}
 #endif
-			fprintf(stderr, "[GPU_SYNC_PERF] intervals=%u flushes=%u ring_waits=%u ring_wait_cpu_ms=%.3f ring_wait_max_ms=%.3f waits_ge_1ms=%u waits_ge_5ms=%u waits_ge_16ms=%u submit_calls=%u submit_cpu_ms=%.3f gpu_cmd_completed=%u gpu_cmd_unavailable=%u gpu_cmd_total_ms=%.3f gpu_cmd_max_ms=%.3f gpu_time_source=%s render_passes=%u depth_snapshots=%u blits=%u copy_passes=%u recorded_draws=%llu upload_mib=%.3f note=gpu_time_is_async_completed_command_buffer_sum_not_per_frame\n",
-				ParticleGpuPerfFrames, FlushesTotal - ParticleGpuPerfFlushStart,
+			fprintf(stderr, "[GPU_SYNC_PERF] intervals=%u flush_limit=%u flushes=%u ring_waits=%u ring_wait_cpu_ms=%.3f ring_wait_max_ms=%.3f waits_ge_1ms=%u waits_ge_5ms=%u waits_ge_16ms=%u submit_calls=%u submit_cpu_ms=%.3f gpu_cmd_completed=%u gpu_cmd_unavailable=%u gpu_cmd_total_ms=%.3f gpu_cmd_max_ms=%.3f gpu_time_source=%s render_passes=%u depth_snapshots=%u blits=%u copy_passes=%u recorded_draws=%llu upload_mib=%.3f note=gpu_time_is_async_completed_command_buffer_sum_not_per_frame\n",
+				ParticleGpuPerfFrames, FlushLimit, FlushesTotal - ParticleGpuPerfFlushStart,
 				FlushWaits - ParticleGpuPerfWaitStart, double(ParticleGpuWaitNs) / 1.0e6,
 				double(ParticleGpuMaxWaitNs) / 1.0e6,
 				ParticleGpuWaitAbove1Ms, ParticleGpuWaitAbove5Ms, ParticleGpuWaitAbove16Ms,
