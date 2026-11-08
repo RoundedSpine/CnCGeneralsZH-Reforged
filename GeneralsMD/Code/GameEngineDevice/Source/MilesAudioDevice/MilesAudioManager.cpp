@@ -4058,7 +4058,7 @@ void MilesAudioManager::createListener( void )
 //-------------------------------------------------------------------------------------------------
 void MilesAudioManager::initDelayFilter( void )
 {
-	if (m_delayFilter != NULL) {
+	if (m_delayFilter != 0) {
 		return;
 	}
 

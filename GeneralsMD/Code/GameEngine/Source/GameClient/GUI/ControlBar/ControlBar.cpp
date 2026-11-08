@@ -5642,7 +5642,7 @@ void ControlBar::populateSpecialPowerShortcut( Player *player)
 	//
 	if(!player || !player->getPlayerTemplate()
 			|| !player->isLocalPlayer() || m_currentlyUsedSpecialPowersButtons == 0
-			|| m_specialPowerShortcutButtons == NULL || m_specialPowerShortcutButtonParents == NULL)
+			)
 		return;
 	for( i = 0; i < MAX_SPECIAL_POWER_SHORTCUTS; ++i )
 	{
