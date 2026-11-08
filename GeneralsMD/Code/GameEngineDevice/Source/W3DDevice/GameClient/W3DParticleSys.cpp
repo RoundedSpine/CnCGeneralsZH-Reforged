@@ -92,7 +92,7 @@ static double particlePerfMs(ParticlePerfClock::time_point start)
 {
     return std::chrono::duration<double, std::milli>(ParticlePerfClock::now() - start).count();
 }
-struct ParticlePerfTemplate { double billboardMs = 0; unsigned long long drawn = 0, lighting = 0; };
+struct ParticlePerfTemplate { double billboardMs = 0, pickMs = 0; unsigned long long drawn = 0, lighting = 0, culled = 0; };
 static std::map<std::string, ParticlePerfTemplate> s_particlePerfTemplates;
 struct ParticlePerfTotals {
     unsigned frames = 0;
@@ -808,10 +808,13 @@ static void fillBillboards( Int index, void *context )
     const bool perf = particlePerfEnabled();
     const auto started = perf ? ParticlePerfClock::now() : ParticlePerfClock::time_point();
     unsigned lightEvals = 0;
+    unsigned visibilityRejects = 0;
 	VertexFormatXYZNDUV2 *quad = fill.range.Vertices;
 	Int drawn = 0;
 	SmokeLight lights[ SMOKE_LIGHTS_PER_SYSTEM ];
+    const auto pickStart = perf ? ParticlePerfClock::now() : ParticlePerfClock::time_point();
 	const Int lightCount = pickSmokeLights( fill.system, job->lights, job->lightCount, lights );
+    fill.perfLightPickMs = perf ? particlePerfMs(pickStart) : 0.0;
 	const ParticleSystemInfo::ParticleShaderType shaderType = fill.system->getShaderType();
 	const UnsignedInt flipbookLog2 = fill.system->getTemplate()->getFlipbookGridLog2();
 
@@ -821,14 +824,20 @@ static void fillBillboards( Int index, void *context )
 		const Real psize = p->getSize();
 
 		//Cull particle to edges of screen and terrain.
-		if (WWMath::Fabs(pos->x - job->centerX) > (job->extentX + psize))
+		if (WWMath::Fabs(pos->x - job->centerX) > (job->extentX + psize)) {
+            if (perf) ++visibilityRejects;
 			continue;
+        }
 
-		if (WWMath::Fabs(pos->y - job->centerY) > (job->extentY + psize))
+		if (WWMath::Fabs(pos->y - job->centerY) > (job->extentY + psize)) {
+            if (perf) ++visibilityRejects;
 			continue;
+        }
 
-		if (WWMath::Fabs(pos->z - job->centerZ) > (job->extentZ + psize))
+		if (WWMath::Fabs(pos->z - job->centerZ) > (job->extentZ + psize)) {
+            if (perf) ++visibilityRejects;
 			continue;
+        }
 
 		const RGBColor *color = p->getColor();
 		Real red = color->red, green = color->green, blue = color->blue;
@@ -877,6 +886,7 @@ static void fillBillboards( Int index, void *context )
 	fill.drawn = drawn;
     fill.perfBillboardMs = perf ? particlePerfMs(started) : 0.0;
     fill.perfLightEvaluations = lightEvals;
+    fill.perfCulledParticles = visibilityRejects;
 	fill.glow = job->glowAfterShade && lightCount > 0;
 }
 
@@ -2571,7 +2581,9 @@ void W3DParticleSystemManager::doParticles(RenderInfoClass &rinfo)
 		fill.fieldIncrement = ( sys->getPriority() == AREA_EFFECT && sys->m_isGroundAligned != FALSE ) ? 1 : 0;
 		fill.drawn = 0;
         fill.perfBillboardMs = 0;
+        fill.perfLightPickMs = 0;
         fill.perfLightEvaluations = 0;
+        fill.perfCulledParticles = 0;
 		fill.pastLimit = 0;
 		fill.glow = FALSE;
 		fill.fire = sys->getTemplate()->isFireLook();
@@ -2664,8 +2676,10 @@ void W3DParticleSystemManager::doParticles(RenderInfoClass &rinfo)
         for (const BillboardFill &f : m_billboardFills) {
             ParticlePerfTemplate &t = s_particlePerfTemplates[f.system->getTemplate()->getName().str()];
             t.billboardMs += f.perfBillboardMs;
+            t.pickMs += f.perfLightPickMs;
             t.drawn += (unsigned)f.drawn;
             t.lighting += f.perfLightEvaluations;
+            t.culled += f.perfCulledParticles;
         }
     }
 
@@ -2992,8 +3006,9 @@ void W3DParticleSystemManager::doParticles(RenderInfoClass &rinfo)
             std::vector<std::pair<std::string, ParticlePerfTemplate>> tops(s_particlePerfTemplates.begin(), s_particlePerfTemplates.end());
             std::sort(tops.begin(), tops.end(), [](const auto &a, const auto &b) { return a.second.billboardMs > b.second.billboardMs; });
             for (size_t i = 0; i < tops.size() && i < 8; ++i)
-                std::fprintf(stderr, "[PARTICLE_COST] stage=billboard template=%s ms_per_frame=%.3f drawn_per_frame=%.1f smoke_light_tests_per_frame=%.1f\n",
-                    tops[i].first.c_str(), tops[i].second.billboardMs * inv, tops[i].second.drawn * inv, tops[i].second.lighting * inv);
+                std::fprintf(stderr, "[PARTICLE_COST] stage=billboard template=%s ms_per_frame=%.3f drawn_per_frame=%.1f smoke_light_tests_per_frame=%.1f light_pick_ms_per_frame=%.3f culled_per_frame=%.1f\n",
+                    tops[i].first.c_str(), tops[i].second.billboardMs * inv, tops[i].second.drawn * inv, tops[i].second.lighting * inv,
+                    tops[i].second.pickMs * inv, tops[i].second.culled * inv);
             s_particlePerfTemplates.clear();
             t = ParticlePerfTotals();
         }
