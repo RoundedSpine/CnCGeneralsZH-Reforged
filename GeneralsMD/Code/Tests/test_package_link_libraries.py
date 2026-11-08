@@ -31,6 +31,13 @@ class PackageLinkLibraries(unittest.TestCase):
     def test_ios_bundle(self):
         self.assertEqual(self.linked('generals.app/generals'), self.linked('generals'))
 
+    def test_online_stack_dependencies_are_licensed(self):
+        result = subprocess.run(['bash', '-c',
+                                 '. "$1"; package_license_entries "$2" onlineconnection mbedtls',
+                                 'test', str(TOOLS / 'package-common.sh'),
+                                 str(TOOLS / 'macos-app-licenses.txt')], text=True, capture_output=True, check=True)
+        self.assertEqual(result.stdout.splitlines(), ['game', 'lzhl', 'mbedtls', 'zlib'])
+
     def test_new_dependency_requires_license(self):
         result = subprocess.run(['bash', '-c',
                                  '. "$1"; package_license_entries "$2" SDL3 unknownlibrary',

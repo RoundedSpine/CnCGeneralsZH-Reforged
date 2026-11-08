@@ -21,6 +21,7 @@ installroot           game
 iosstartup            game
 milesaudio            game
 milesaudiomanager     game
+onlineconnection      game
 posixd3d9             game
 posixdevice           game
 sdl3shadercompile     game
@@ -50,6 +51,7 @@ spirv-cross-core      spirv-cross
 spirv-cross-glsl      spirv-cross
 spirv-cross-msl       spirv-cross
 miniaudio             miniaudio
+mbedtls               mbedtls
 gamespy               gamespy
 
 # compiled into another library
