@@ -1661,6 +1661,28 @@ RenderResult PosixDevice9::Gpu_Draw(const DrawCall &call)
 	Gpu->Set_Target(target);
 	draw.StencilReference = RenderStates[D3DRS_STENCILREF] & 0xFF;
 	draw.BlendFactor = RenderStates[D3DRS_BLENDFACTOR];
+#if defined(ZH_PLATFORM_IOS)
+	// One accepted Classic Water reflection draw: distinguish the intended
+	// darkening mask from a wrong Metal blend/program/texture binding.  The
+	// shadow-volume option has no role in this independent water overlay.
+	if (pixel_engine == ENGINE_SHADER_WATER_REFLECTION) {
+		static bool reflectionReported = false;
+		if (!reflectionReported) {
+			const unsigned factor = (unsigned)RenderStates[D3DRS_TEXTUREFACTOR];
+			fprintf(stderr,
+				"[IOS_CLASSIC_WATER_REFLECTION] pixel=%s blend=%u src=%u dst=%u factor_alpha=%u texture0=%d sampler_count=%u pipeline=%d target=%ux%u\n",
+				pixel_program->Key.c_str(),
+				(unsigned)RenderStates[D3DRS_ALPHABLENDENABLE],
+				(unsigned)RenderStates[D3DRS_SRCBLEND],
+				(unsigned)RenderStates[D3DRS_DESTBLEND],
+				(factor >> 24) & 0xffu,
+				int(draw.SamplerCount != 0 && draw.Textures[0] != NULL),
+				(unsigned)draw.SamplerCount, int(draw.Pipeline != NULL),
+				(unsigned)target.Width, (unsigned)target.Height);
+			reflectionReported = true;
+		}
+	}
+#endif
 	Gpu->Record_Draw(draw);
 	if (combiner.ShadowReceiving) {
 		if (pixel_engine == ENGINE_SHADER_NONE) ++SunSolidReceivers;
