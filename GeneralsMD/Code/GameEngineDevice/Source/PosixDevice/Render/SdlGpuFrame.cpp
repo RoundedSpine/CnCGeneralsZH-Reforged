@@ -136,6 +136,12 @@ SdlGpuFrame::SdlGpuFrame() :
 	ParticleGpuWaitAbove16Ms(0),
 	ParticleGpuSubmitNs(0),
 	ParticleGpuSubmitCount(0),
+	ParticleGpuRecordedDraws(0),
+	ParticleGpuUploadBytes(0),
+	ParticleGpuRenderPasses(0),
+	ParticleGpuDepthSnapshots(0),
+	ParticleGpuBlits(0),
+	ParticleGpuCopyPasses(0),
 	ParticleGpuPerfFrames(0),
 	ParticleGpuPerfFlushStart(0),
 	ParticleGpuPerfWaitStart(0),
@@ -1051,7 +1057,7 @@ void SdlGpuFrame::Take_Timing(double & flush_ms, double & fence_ms, unsigned int
 				ZH_SDL_Metal_TakeTiming(&gpuCompletedNs, &gpuMaximumNs,
 					&gpuSamples, &gpuUnavailable);
 #endif
-			fprintf(stderr, "[GPU_SYNC_PERF] intervals=%u flushes=%u ring_waits=%u ring_wait_cpu_ms=%.3f ring_wait_max_ms=%.3f waits_ge_1ms=%u waits_ge_5ms=%u waits_ge_16ms=%u submit_calls=%u submit_cpu_ms=%.3f gpu_cmd_completed=%u gpu_cmd_unavailable=%u gpu_cmd_total_ms=%.3f gpu_cmd_max_ms=%.3f gpu_time_source=%s note=gpu_time_is_async_completed_command_buffer_sum_not_per_frame\n",
+			fprintf(stderr, "[GPU_SYNC_PERF] intervals=%u flushes=%u ring_waits=%u ring_wait_cpu_ms=%.3f ring_wait_max_ms=%.3f waits_ge_1ms=%u waits_ge_5ms=%u waits_ge_16ms=%u submit_calls=%u submit_cpu_ms=%.3f gpu_cmd_completed=%u gpu_cmd_unavailable=%u gpu_cmd_total_ms=%.3f gpu_cmd_max_ms=%.3f gpu_time_source=%s render_passes=%u depth_snapshots=%u blits=%u copy_passes=%u recorded_draws=%llu upload_mib=%.3f note=gpu_time_is_async_completed_command_buffer_sum_not_per_frame\n",
 				ParticleGpuPerfFrames, FlushesTotal - ParticleGpuPerfFlushStart,
 				FlushWaits - ParticleGpuPerfWaitStart, double(ParticleGpuWaitNs) / 1.0e6,
 				double(ParticleGpuMaxWaitNs) / 1.0e6,
@@ -1059,13 +1065,19 @@ void SdlGpuFrame::Take_Timing(double & flush_ms, double & fence_ms, unsigned int
 				ParticleGpuSubmitCount, double(ParticleGpuSubmitNs) / 1.0e6,
 				gpuSamples, gpuUnavailable, double(gpuCompletedNs) / 1.0e6,
 				double(gpuMaximumNs) / 1.0e6,
-				metalTimingAvailable ? "metal_GPUStartTime_GPUEndTime" : "unavailable");
+				metalTimingAvailable ? "metal_GPUStartTime_GPUEndTime" : "unavailable",
+				ParticleGpuRenderPasses, ParticleGpuDepthSnapshots, ParticleGpuBlits,
+				ParticleGpuCopyPasses,
+				static_cast<unsigned long long>(ParticleGpuRecordedDraws),
+				double(ParticleGpuUploadBytes) / (1024.0 * 1024.0));
 			ParticleGpuPerfFrames = 0;
 			ParticleGpuPerfFlushStart = FlushesTotal;
 			ParticleGpuPerfWaitStart = FlushWaits;
 			ParticleGpuWaitNs = ParticleGpuMaxWaitNs = ParticleGpuSubmitNs = 0;
 			ParticleGpuWaitAbove1Ms = ParticleGpuWaitAbove5Ms = ParticleGpuWaitAbove16Ms = 0;
 			ParticleGpuSubmitCount = 0;
+		ParticleGpuRecordedDraws = ParticleGpuUploadBytes = 0;
+		ParticleGpuRenderPasses = ParticleGpuDepthSnapshots = ParticleGpuBlits = ParticleGpuCopyPasses = 0;
 		}
 	} else {
 		// Start a fresh diagnostic window if the runtime flag is enabled later.
@@ -1075,6 +1087,8 @@ void SdlGpuFrame::Take_Timing(double & flush_ms, double & fence_ms, unsigned int
 		ParticleGpuWaitNs = ParticleGpuMaxWaitNs = ParticleGpuSubmitNs = 0;
 		ParticleGpuWaitAbove1Ms = ParticleGpuWaitAbove5Ms = ParticleGpuWaitAbove16Ms = 0;
 		ParticleGpuSubmitCount = 0;
+		ParticleGpuRecordedDraws = ParticleGpuUploadBytes = 0;
+		ParticleGpuRenderPasses = ParticleGpuDepthSnapshots = ParticleGpuBlits = ParticleGpuCopyPasses = 0;
 	}
 }
 
