@@ -1,300 +1,300 @@
-[33/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/events/SDL_displayevents.c.o
-[34/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/events/SDL_dropevents.c.o
-[35/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/events/SDL_events.c.o
-[36/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/events/SDL_eventwatch.c.o
-[37/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/events/SDL_keyboard.c.o
-[38/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/events/SDL_keymap.c.o
-[39/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/events/SDL_keysym_to_keycode.c.o
-[40/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/events/SDL_keysym_to_scancode.c.o
-[41/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/events/SDL_mouse.c.o
-[42/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/events/SDL_pen.c.o
-[43/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/events/SDL_quit.c.o
-[44/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/events/SDL_scancode_tables.c.o
-[45/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/events/SDL_touch.c.o
-[46/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/events/SDL_windowevents.c.o
-[47/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/events/imKStoUCS.c.o
-[48/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/filesystem/SDL_filesystem.c.o
-[49/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/gpu/SDL_gpu.c.o
-[50/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/haptic/SDL_haptic.c.o
-[51/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/hidapi/SDL_hidapi.c.o
-[52/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/io/SDL_asyncio.c.o
-[53/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/io/SDL_iostream.c.o
-[54/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/io/generic/SDL_asyncio_generic.c.o
-[55/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/joystick/SDL_gamepad.c.o
-[56/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/joystick/SDL_joystick.c.o
-[57/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/joystick/SDL_steam_virtual_gamepad.c.o
-[58/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/joystick/controller_type.c.o
-[59/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/locale/SDL_locale.c.o
-[60/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/main/SDL_main_callbacks.c.o
-[61/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/main/SDL_runapp.c.o
-[62/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/misc/SDL_libusb.c.o
-[63/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/misc/SDL_url.c.o
-[64/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/power/SDL_power.c.o
-[65/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/render/SDL_render.c.o
-[66/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/render/SDL_render_unsupported.c.o
-[67/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/render/SDL_yuv_sw.c.o
-[68/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/render/direct3d/SDL_render_d3d.c.o
-[69/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/render/direct3d/SDL_shaders_d3d.c.o
-[70/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/render/direct3d11/SDL_render_d3d11.c.o
-[71/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/render/direct3d11/SDL_shaders_d3d11.c.o
-[72/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/render/direct3d12/SDL_render_d3d12.c.o
-[73/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/render/direct3d12/SDL_shaders_d3d12.c.o
-[74/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/render/gpu/SDL_pipeline_gpu.c.o
-[75/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/render/gpu/SDL_render_gpu.c.o
-[76/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/render/gpu/SDL_shaders_gpu.c.o
-[77/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/render/ngage/SDL_render_ngage.c.o
-[78/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/render/opengl/SDL_render_gl.c.o
-[79/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/render/opengl/SDL_shaders_gl.c.o
-[80/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/render/opengles2/SDL_render_gles2.c.o
-[81/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/render/opengles2/SDL_shaders_gles2.c.o
-[82/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/render/ps2/SDL_render_ps2.c.o
-[83/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/render/psp/SDL_render_psp.c.o
-[84/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/render/software/SDL_blendfillrect.c.o
-[85/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/render/software/SDL_blendline.c.o
-[86/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/render/software/SDL_blendpoint.c.o
-[87/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/render/software/SDL_drawline.c.o
-[88/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/render/software/SDL_drawpoint.c.o
-[89/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/render/software/SDL_render_sw.c.o
-[90/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/render/software/SDL_triangle.c.o
-[91/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/render/vitagxm/SDL_render_vita_gxm.c.o
-[92/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/render/vitagxm/SDL_render_vita_gxm_memory.c.o
-[93/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/render/vitagxm/SDL_render_vita_gxm_tools.c.o
-[94/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/render/vulkan/SDL_render_vulkan.c.o
-[95/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/render/vulkan/SDL_shaders_vulkan.c.o
-[96/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/sensor/SDL_sensor.c.o
-[97/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/stdlib/SDL_crc16.c.o
-[98/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/stdlib/SDL_crc32.c.o
-[99/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/stdlib/SDL_getenv.c.o
-[100/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/stdlib/SDL_iconv.c.o
-[101/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/stdlib/SDL_malloc.c.o
-[102/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/stdlib/SDL_memcpy.c.o
-[103/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/stdlib/SDL_memmove.c.o
-[104/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/stdlib/SDL_memset.c.o
-[105/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/stdlib/SDL_mslibc.c.o
-[106/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/stdlib/SDL_murmur3.c.o
-[107/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/stdlib/SDL_qsort.c.o
-[108/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/stdlib/SDL_random.c.o
-[109/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/stdlib/SDL_stdlib.c.o
-[110/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/stdlib/SDL_string.c.o
-[111/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/stdlib/SDL_strtokr.c.o
-[112/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/storage/SDL_storage.c.o
-[113/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/thread/SDL_thread.c.o
-[114/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/time/SDL_time.c.o
-[115/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/timer/SDL_timer.c.o
-[116/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/SDL_RLEaccel.c.o
-[117/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/SDL_blit.c.o
-[118/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/SDL_blit_0.c.o
-[119/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/SDL_blit_1.c.o
-[120/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/SDL_blit_A.c.o
-[121/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/SDL_blit_N.c.o
-[122/1651] Building CXX object SPIRV-Cross/CMakeFiles/spirv-cross-glsl.dir/spirv_glsl.cpp.o
-[123/1651] Linking CXX static library SPIRV-Cross/libspirv-cross-glsl.a
-[124/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/SDL_blit_copy.c.o
-[125/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/SDL_blit_slow.c.o
-[126/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/SDL_bmp.c.o
-[127/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/SDL_clipboard.c.o
-[128/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/SDL_egl.c.o
-[129/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/SDL_fillrect.c.o
-[130/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/SDL_pixels.c.o
-[131/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/SDL_blit_auto.c.o
-[132/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/SDL_rect.c.o
-[133/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/SDL_rotate.c.o
-[134/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/SDL_stretch.c.o
-[135/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/SDL_surface.c.o
-[136/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/SDL_video.c.o
-[137/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/SDL_video_unsupported.c.o
-[138/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/SDL_vulkan_utils.c.o
-[139/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/SDL_yuv.c.o
-[140/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/SDL_stb.c.o
-[141/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/yuv2rgb/yuv_rgb_lsx.c.o
-[142/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/yuv2rgb/yuv_rgb_sse.c.o
-[143/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/e_atan2.c.o
-[144/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/e_exp.c.o
-[145/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/e_fmod.c.o
-[146/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/e_log.c.o
-[147/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/e_log10.c.o
-[148/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/e_pow.c.o
-[149/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/e_rem_pio2.c.o
-[150/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/e_sqrt.c.o
-[151/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/yuv2rgb/yuv_rgb_std.c.o
-[152/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/k_cos.c.o
-[153/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/k_sin.c.o
-[154/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/k_rem_pio2.c.o
-[155/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/k_tan.c.o
-[156/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/s_atan.c.o
-[157/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/s_copysign.c.o
-[158/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/s_cos.c.o
-[159/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/s_fabs.c.o
-[160/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/s_floor.c.o
-[161/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/s_isinf.c.o
-[162/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/s_isinff.c.o
-[163/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/s_isnan.c.o
-[164/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/s_isnanf.c.o
-[165/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/s_modf.c.o
-[166/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/s_scalbn.c.o
-[167/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/s_sin.c.o
-[168/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/s_tan.c.o
-[169/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/loadso/dlopen/SDL_sysloadso.c.o
-[170/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/dummy/SDL_nullevents.c.o
-[171/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/dummy/SDL_nullframebuffer.c.o
-[172/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/dummy/SDL_nullvideo.c.o
-[173/1651] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/locale/macos/SDL_syslocale.m.o
-[174/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/time/unix/SDL_systime.c.o
-[175/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/timer/unix/SDL_systimer.c.o
-[176/1651] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/misc/macos/SDL_sysurl.m.o
-[177/1651] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/filesystem/cocoa/SDL_sysfilesystem.m.o
-[178/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/storage/generic/SDL_genericstorage.c.o
-[179/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/storage/steam/SDL_steamstorage.c.o
-[180/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/filesystem/posix/SDL_sysfsops.c.o
-[181/1651] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/video/cocoa/SDL_cocoaclipboard.m.o
-[182/1651] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/video/cocoa/SDL_cocoaevents.m.o
-[183/1651] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/video/cocoa/SDL_cocoamessagebox.m.o
-[184/1651] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/video/cocoa/SDL_cocoakeyboard.m.o
-[185/1651] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/video/cocoa/SDL_cocoametalview.m.o
-[186/1651] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/video/cocoa/SDL_cocoamodes.m.o
-[187/1651] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/video/cocoa/SDL_cocoaopengl.m.o
-[188/1651] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/video/cocoa/SDL_cocoaopengles.m.o
-[189/1651] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/video/cocoa/SDL_cocoamouse.m.o
-[190/1651] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/video/cocoa/SDL_cocoapen.m.o
-[191/1651] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/video/cocoa/SDL_cocoashape.m.o
-[192/1651] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/video/cocoa/SDL_cocoavideo.m.o
-[193/1651] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/video/cocoa/SDL_cocoavulkan.m.o
-[194/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/thread/pthread/SDL_systhread.c.o
-[195/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/thread/pthread/SDL_sysmutex.c.o
-[196/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/thread/pthread/SDL_syscond.c.o
-[197/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/thread/pthread/SDL_sysrwlock.c.o
-[198/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/thread/pthread/SDL_systls.c.o
-[199/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/thread/pthread/SDL_syssem.c.o
-[200/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/dialog/SDL_dialog.c.o
-[201/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/dialog/SDL_dialog_utils.c.o
-[202/1651] Building CXX object SPIRV-Cross/CMakeFiles/spirv-cross-msl.dir/spirv_msl.cpp.o
-[203/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/process/SDL_process.c.o
-[204/1651] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/video/cocoa/SDL_cocoawindow.m.o
-[205/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/offscreen/SDL_offscreenevents.c.o
-[206/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/process/posix/SDL_posixprocess.c.o
-[207/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/offscreen/SDL_offscreenframebuffer.c.o
-[208/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/offscreen/SDL_offscreenopengles.c.o
-[209/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/offscreen/SDL_offscreenvideo.c.o
-[210/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/offscreen/SDL_offscreenvulkan.c.o
-[211/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/offscreen/SDL_offscreenwindow.c.o
-[212/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/tray/SDL_tray_utils.c.o
-[213/1651] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/dialog/cocoa/SDL_cocoadialog.m.o
-[214/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/audio/dummy/SDL_dummyaudio.c.o
-[215/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/joystick/dummy/SDL_sysjoystick.c.o
-[216/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/haptic/dummy/SDL_syshaptic.c.o
-[217/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/sensor/dummy/SDL_dummysensor.c.o
-[218/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/tray/dummy/SDL_tray.c.o
-[219/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/camera/dummy/SDL_camera_dummy.c.o
-[220/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/main/generic/SDL_sysmain_callbacks.c.o
-[221/1651] Linking CXX static library SPIRV-Cross/libspirv-cross-msl.a
-[222/1651] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/gpu/metal/SDL_gpu_metal.m.o
-[223/1651] Building CXX object CMakeFiles/wwdebug.dir/Libraries/Source/WWVegas/WWDebug/wwdebug.cpp.o
-[224/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/gpu/vulkan/SDL_gpu_vulkan.c.o
-[225/1651] Building CXX object CMakeFiles/wwdebug.dir/Libraries/Source/WWVegas/WWDebug/wwmemlog.cpp.o
-[226/1651] Building CXX object CMakeFiles/wwdebug.dir/Libraries/Source/WWVegas/WWDebug/wwprofile.cpp.o
-[227/1651] Building C object CMakeFiles/sdl3_shadercross.dir/Libraries/Source/SDL_shadercross/src/SDL_shadercross.c.o
-[228/1651] Building CXX object CMakeFiles/ffshader.dir/Libraries/Source/WWVegas/WW3D2/ffshader.cpp.o
-[229/1651] Building CXX object SPIRV-Cross/CMakeFiles/spirv-cross-c.dir/spirv_cross_c.cpp.o
-[230/1651] Linking C static library SDL3/libSDL3.a
-[231/1651] Building CXX object CMakeFiles/build_fingerprint.dir/Tools/fingerprint/build_fingerprint.cpp.o
-[232/1651] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/GenericCodeGen/CodeGen.cpp.o
-[233/1651] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/OSDependent/Unix/ossource.cpp.o
-[234/1651] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/GenericCodeGen/Link.cpp.o
-[235/1651] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/CInterface/glslang_c_interface.cpp.o
-[236/1651] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/attribute.cpp.o
-[237/1651] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/Constant.cpp.o
-[238/1651] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/glslang_tab.cpp.o
-[239/1651] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/InfoSink.cpp.o
-[240/1651] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/IntermTraverse.cpp.o
-[241/1651] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/iomapper.cpp.o
-[242/1651] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/Intermediate.cpp.o
-[243/1651] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/ParseContextBase.cpp.o
-[244/1651] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/Initialize.cpp.o
-[245/1651] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/PoolAlloc.cpp.o
-[246/1651] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/RemoveTree.cpp.o
-[247/1651] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/Scan.cpp.o
-[248/1651] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/ShaderLang.cpp.o
-[249/1651] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/SpirvIntrinsics.cpp.o
-[250/1651] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/ParseHelper.cpp.o
-[251/1651] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/SymbolTable.cpp.o
-[252/1651] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/intermOut.cpp.o
-[253/1651] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/Versions.cpp.o
-[254/1651] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/limits.cpp.o
-[255/1651] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/parseConst.cpp.o
-[256/1651] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/linkValidate.cpp.o
-[257/1651] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/reflection.cpp.o
-[258/1651] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/preprocessor/Pp.cpp.o
-[259/1651] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/preprocessor/PpAtom.cpp.o
-[260/1651] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/preprocessor/PpContext.cpp.o
-[261/1651] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/preprocessor/PpScanner.cpp.o
-[262/1651] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/preprocessor/PpTokens.cpp.o
-[263/1651] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/propagateNoContraction.cpp.o
-[264/1651] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/HLSL/hlslAttributes.cpp.o
-[265/1651] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/HLSL/hlslOpMap.cpp.o
-[266/1651] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/HLSL/hlslScanContext.cpp.o
-[267/1651] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/HLSL/hlslTokenStream.cpp.o
-[268/1651] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/HLSL/hlslGrammar.cpp.o
-[269/1651] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/HLSL/hlslParseables.cpp.o
-[270/1651] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/__/SPIRV/InReadableOrder.cpp.o
-[271/1651] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/HLSL/hlslParseHelper.cpp.o
-[272/1651] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/__/SPIRV/Logger.cpp.o
-[273/1651] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/__/SPIRV/SpvPostProcess.cpp.o
-[274/1651] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/__/SPIRV/doc.cpp.o
-[275/1651] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/__/SPIRV/SpvTools.cpp.o
-[276/1651] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/__/SPIRV/SpvBuilder.cpp.o
-[277/1651] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/__/SPIRV/disassemble.cpp.o
-[278/1651] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/__/SPIRV/CInterface/spirv_c_interface.cpp.o
-[279/1651] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/__/SPIRV/GlslangToSpv.cpp.o
-[280/1651] Linking CXX static library SPIRV-Cross/libspirv-cross-c.a
-[281/1651] Linking CXX static library libwwdebug.a
-[282/1651] Building CXX object glslang/glslang/CMakeFiles/glslang-default-resource-limits.dir/ResourceLimits/resource_limits_c.cpp.o
-[283/1651] Building CXX object CMakeFiles/wwmath.dir/Libraries/Source/WWVegas/WWMath/aabox.cpp.o
-[284/1651] Building CXX object glslang/glslang/CMakeFiles/glslang-default-resource-limits.dir/ResourceLimits/ResourceLimits.cpp.o
-[285/1651] Building CXX object CMakeFiles/wwmath.dir/Libraries/Source/WWVegas/WWMath/aabtreecull.cpp.o
-[286/1651] Building CXX object CMakeFiles/wwmath.dir/Libraries/Source/WWVegas/WWMath/cardinalspline.cpp.o
-[287/1651] Building CXX object CMakeFiles/wwmath.dir/Libraries/Source/WWVegas/WWMath/catmullromspline.cpp.o
-[288/1651] Building CXX object CMakeFiles/wwmath.dir/Libraries/Source/WWVegas/WWMath/colmath.cpp.o
-[289/1651] Building CXX object CMakeFiles/wwmath.dir/Libraries/Source/WWVegas/WWMath/colmathaabox.cpp.o
-[290/1651] Building CXX object CMakeFiles/wwmath.dir/Libraries/Source/WWVegas/WWMath/colmathfrustum.cpp.o
-[291/1651] Building CXX object CMakeFiles/wwmath.dir/Libraries/Source/WWVegas/WWMath/colmathaabtri.cpp.o
-[292/1651] Building CXX object CMakeFiles/wwmath.dir/Libraries/Source/WWVegas/WWMath/colmathline.cpp.o
-[293/1651] Building CXX object CMakeFiles/wwmath.dir/Libraries/Source/WWVegas/WWMath/colmathobbox.cpp.o
-[294/1651] Building CXX object CMakeFiles/wwmath.dir/Libraries/Source/WWVegas/WWMath/colmathobbobb.cpp.o
-[295/1651] Building CXX object CMakeFiles/wwmath.dir/Libraries/Source/WWVegas/WWMath/colmathplane.cpp.o
-[296/1651] Building CXX object CMakeFiles/wwmath.dir/Libraries/Source/WWVegas/WWMath/colmathobbtri.cpp.o
-[297/1651] Building CXX object CMakeFiles/wwmath.dir/Libraries/Source/WWVegas/WWMath/colmathsphere.cpp.o
-[298/1651] Building CXX object CMakeFiles/wwmath.dir/Libraries/Source/WWVegas/WWMath/dettrig.cpp.o
-[299/1651] Building CXX object CMakeFiles/wwmath.dir/Libraries/Source/WWVegas/WWMath/euler.cpp.o
-[300/1651] Building CXX object CMakeFiles/wwmath.dir/Libraries/Source/WWVegas/WWMath/cullsys.cpp.o
-[301/1651] Building CXX object CMakeFiles/wwmath.dir/Libraries/Source/WWVegas/WWMath/frustum.cpp.o
-[302/1651] Building CXX object CMakeFiles/wwmath.dir/Libraries/Source/WWVegas/WWMath/curve.cpp.o
-[303/1651] Building CXX object CMakeFiles/wwmath.dir/Libraries/Source/WWVegas/WWMath/lineseg.cpp.o
-[304/1651] Building CXX object CMakeFiles/wwmath.dir/Libraries/Source/WWVegas/WWMath/gridcull.cpp.o
-[305/1651] Building CXX object CMakeFiles/wwmath.dir/Libraries/Source/WWVegas/WWMath/hermitespline.cpp.o
-[306/1651] Building CXX object CMakeFiles/wwmath.dir/Libraries/Source/WWVegas/WWMath/lookuptable.cpp.o
-[307/1651] Building CXX object CMakeFiles/wwmath.dir/Libraries/Source/WWVegas/WWMath/matrix3.cpp.o
-[308/1651] Building CXX object CMakeFiles/wwmath.dir/Libraries/Source/WWVegas/WWMath/matrix3d.cpp.o
-[309/1651] Building CXX object CMakeFiles/wwmath.dir/Libraries/Source/WWVegas/WWMath/matrix4.cpp.o
-[310/1651] Building CXX object CMakeFiles/wwmath.dir/Libraries/Source/WWVegas/WWMath/obbox.cpp.o
-[311/1651] Building CXX object CMakeFiles/wwmath.dir/Libraries/Source/WWVegas/WWMath/pot.cpp.o
-[312/1651] Building CXX object CMakeFiles/wwmath.dir/Libraries/Source/WWVegas/WWMath/ode.cpp.o
-[313/1651] Building CXX object CMakeFiles/wwmath.dir/Libraries/Source/WWVegas/WWMath/tri.cpp.o
-[314/1651] Building CXX object CMakeFiles/wwmath.dir/Libraries/Source/WWVegas/WWMath/quat.cpp.o
-[315/1651] Building CXX object CMakeFiles/wwmath.dir/Libraries/Source/WWVegas/WWMath/v3_rnd.cpp.o
-[316/1651] Building CXX object CMakeFiles/wwmath.dir/Libraries/Source/WWVegas/WWMath/tcbspline.cpp.o
-[317/1651] Building CXX object CMakeFiles/wwmath.dir/Libraries/Source/WWVegas/WWMath/vehiclecurve.cpp.o
-[318/1651] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/_convert.cpp.o
-[319/1651] Building CXX object CMakeFiles/wwmath.dir/Libraries/Source/WWVegas/WWMath/vp.cpp.o
-[320/1651] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/b64pipe.cpp.o
-[321/1651] Building CXX object CMakeFiles/wwmath.dir/Libraries/Source/WWVegas/WWMath/wwmath.cpp.o
-[322/1651] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/b64straw.cpp.o
-[323/1651] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/base64.cpp.o
-[324/1651] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/blit.cpp.o
-[325/1651] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/blowfish.cpp.o
-[326/1651] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/argv.cpp.o
-[327/1651] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/buff.cpp.o
-[328/1651] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/chunkio.cpp.o
-[329/1651] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/crc.cpp.o
-[330/1651] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/cstraw.cpp.o
-[331/1651] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/Except.cpp.o
-[332/1651] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/bufffile.cpp.o
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/RTS/PlayerTemplate.cpp:116:68: warning: offset of on non-standard-layout type 'PlayerTemplate' [-Winvalid-offsetof]
+  116 |                 { "EnabledImage",                                                       INI::parseAsciiString,                                                                                                  NULL, offsetof( PlayerTemplate, m_enabledImage ) },
+      |                                                                                                                                                                                                                       ^                         ~~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/RTS/PlayerTemplate.cpp:120:68: warning: offset of on non-standard-layout type 'PlayerTemplate' [-Winvalid-offsetof]
+  120 |                 { "SideIconImage",                                              INI::parseAsciiString,                                                                                                  NULL, offsetof( PlayerTemplate, m_sideIconImage ) },
+      |                                                                                                                                                                                                               ^                         ~~~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/RTS/PlayerTemplate.cpp:121:67: warning: offset of on non-standard-layout type 'PlayerTemplate' [-Winvalid-offsetof]
+  121 |                 { "GeneralImage",                                               INI::parseAsciiString,                                                                                                  NULL, offsetof( PlayerTemplate, m_generalImage ) },
+      |                                                                                                                                                                                                               ^                         ~~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/RTS/PlayerTemplate.cpp:123:67: warning: offset of on non-standard-layout type 'PlayerTemplate' [-Winvalid-offsetof]
+  123 |                 { "BeaconName",                                                         INI::parseAsciiString,                                                                                                  NULL, offsetof( PlayerTemplate, m_beaconTemplate ) },
+      |                                                                                                                                                                                                                       ^                         ~~~~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/RTS/PlayerTemplate.cpp:124:58: warning: offset of on non-standard-layout type 'PlayerTemplate' [-Winvalid-offsetof]
+  124 |                 { "ArmyTooltip",                                                INI::parseAsciiString,                                  NULL, offsetof( PlayerTemplate, m_tooltip ) },
+      |                                                                                                                                               ^                         ~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/RTS/PlayerTemplate.cpp:125:55: warning: offset of on non-standard-layout type 'PlayerTemplate' [-Winvalid-offsetof]
+  125 |                 { "Features",                                           INI::parseAsciiString,                                  NULL, offsetof( PlayerTemplate, m_strGeneralFeatures ) },
+      |                                                                                                                                       ^                         ~~~~~~~~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/RTS/PlayerTemplate.cpp:126:63: warning: offset of on non-standard-layout type 'PlayerTemplate' [-Winvalid-offsetof]
+  126 |                 { "MedallionRegular",                                           INI::parseAsciiString,                                  NULL, offsetof( PlayerTemplate, m_strMedallionNormal ) },
+      |                                                                                                                                               ^                         ~~~~~~~~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/RTS/PlayerTemplate.cpp:127:62: warning: offset of on non-standard-layout type 'PlayerTemplate' [-Winvalid-offsetof]
+  127 |                 { "MedallionHilite",                                            INI::parseAsciiString,                                  NULL, offsetof( PlayerTemplate, m_strMedallionHilite ) },
+      |                                                                                                                                               ^                         ~~~~~~~~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/RTS/PlayerTemplate.cpp:128:62: warning: offset of on non-standard-layout type 'PlayerTemplate' [-Winvalid-offsetof]
+  128 |                 { "MedallionSelect",                                            INI::parseAsciiString,                                  NULL, offsetof( PlayerTemplate, m_strMedallionSelected ) },
+      |                                                                                                                                               ^                         ~~~~~~~~~~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+46 warnings generated.
+[809/1651] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/RTS/ProductionPrerequisite.cpp.o
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/RTS/ProductionPrerequisite.cpp:49:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Player.h:62:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/AI.h:41:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:123:10: warning: 35 enumeration values not handled in switch: 'DAMAGE_EXPLOSION', 'DAMAGE_CRUSH', 'DAMAGE_ARMOR_PIERCING'... [-Wswitch]
+  123 |         switch( type )
+      |                 ^~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:123:10: note: add missing switch cases
+  123 |         switch( type )
+      |                 ^
+  124 |         {
+  125 |                 case DAMAGE_SUBDUAL_MISSILE:
+  126 |                 case DAMAGE_SUBDUAL_VEHICLE:
+  127 |                 case DAMAGE_SUBDUAL_BUILDING:
+  128 |                 case DAMAGE_SUBDUAL_UNRESISTABLE:
+  129 |                         return TRUE;
+  130 |         }
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:140:10: warning: 32 enumeration values not handled in switch: 'DAMAGE_EXPLOSION', 'DAMAGE_CRUSH', 'DAMAGE_ARMOR_PIERCING'... [-Wswitch]
+  140 |         switch( type )
+      |                 ^~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:140:10: note: add missing switch cases
+  140 |         switch( type )
+      |                 ^
+  141 |         {
+  142 |                 case DAMAGE_STATUS:
+  143 |                 case DAMAGE_SUBDUAL_MISSILE:
+  144 |                 case DAMAGE_SUBDUAL_VEHICLE:
+  145 |                 case DAMAGE_SUBDUAL_BUILDING:
+  146 |                 case DAMAGE_SUBDUAL_UNRESISTABLE:
+  147 |                 case DAMAGE_KILLPILOT:
+  148 |                 case DAMAGE_KILL_GARRISONED:
+  149 |                         return FALSE;
+  150 |         }
+2 warnings generated.
+[810/1651] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/RTS/ResourceGatheringManager.cpp.o
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/RTS/ResourceGatheringManager.cpp:40:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Object.h:48:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:123:10: warning: 35 enumeration values not handled in switch: 'DAMAGE_EXPLOSION', 'DAMAGE_CRUSH', 'DAMAGE_ARMOR_PIERCING'... [-Wswitch]
+  123 |         switch( type )
+      |                 ^~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:123:10: note: add missing switch cases
+  123 |         switch( type )
+      |                 ^
+  124 |         {
+  125 |                 case DAMAGE_SUBDUAL_MISSILE:
+  126 |                 case DAMAGE_SUBDUAL_VEHICLE:
+  127 |                 case DAMAGE_SUBDUAL_BUILDING:
+  128 |                 case DAMAGE_SUBDUAL_UNRESISTABLE:
+  129 |                         return TRUE;
+  130 |         }
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:140:10: warning: 32 enumeration values not handled in switch: 'DAMAGE_EXPLOSION', 'DAMAGE_CRUSH', 'DAMAGE_ARMOR_PIERCING'... [-Wswitch]
+  140 |         switch( type )
+      |                 ^~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:140:10: note: add missing switch cases
+  140 |         switch( type )
+      |                 ^
+  141 |         {
+  142 |                 case DAMAGE_STATUS:
+  143 |                 case DAMAGE_SUBDUAL_MISSILE:
+  144 |                 case DAMAGE_SUBDUAL_VEHICLE:
+  145 |                 case DAMAGE_SUBDUAL_BUILDING:
+  146 |                 case DAMAGE_SUBDUAL_UNRESISTABLE:
+  147 |                 case DAMAGE_KILLPILOT:
+  148 |                 case DAMAGE_KILL_GARRISONED:
+  149 |                         return FALSE;
+  150 |         }
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/RTS/ResourceGatheringManager.cpp:42:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/SupplyTruckAIUpdate.h:199:44: warning: offset of on non-standard-layout type 'SupplyTruckAIUpdateModuleData' [-Winvalid-offsetof]
+  199 |                         { "MaxBoxes",                                   INI::parseInt,          NULL, offsetof( SupplyTruckAIUpdateModuleData, m_maxBoxesData ) },
+      |                                                                                                       ^                                        ~~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/RTS/ResourceGatheringManager.cpp:42:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/SupplyTruckAIUpdate.h:200:70: warning: offset of on non-standard-layout type 'SupplyTruckAIUpdateModuleData' [-Winvalid-offsetof]
+  200 |                         { "SupplyCenterActionDelay", INI::parseDurationUnsignedInt, NULL, offsetof( SupplyTruckAIUpdateModuleData, m_centerDelay ) },
+      |                                                                                           ^                                        ~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/RTS/ResourceGatheringManager.cpp:42:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/SupplyTruckAIUpdate.h:201:73: warning: offset of on non-standard-layout type 'SupplyTruckAIUpdateModuleData' [-Winvalid-offsetof]
+  201 |                         { "SupplyWarehouseActionDelay", INI::parseDurationUnsignedInt, NULL, offsetof( SupplyTruckAIUpdateModuleData, m_warehouseDelay ) },
+      |                                                                                              ^                                        ~~~~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/RTS/ResourceGatheringManager.cpp:42:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/SupplyTruckAIUpdate.h:202:59: warning: offset of on non-standard-layout type 'SupplyTruckAIUpdateModuleData' [-Winvalid-offsetof]
+  202 |                         { "SupplyWarehouseScanDistance", INI::parseReal, NULL, offsetof( SupplyTruckAIUpdateModuleData, m_warehouseScanDistance ) },
+      |                                                                                ^                                        ~~~~~~~~~~~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/RTS/ResourceGatheringManager.cpp:42:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/SupplyTruckAIUpdate.h:203:63: warning: offset of on non-standard-layout type 'SupplyTruckAIUpdateModuleData' [-Winvalid-offsetof]
+  203 |                         { "SuppliesDepletedVoice", INI::parseAudioEventRTS, NULL, offsetof( SupplyTruckAIUpdateModuleData, m_suppliesDepletedVoice) },
+      |                                                                                   ^                                        ~~~~~~~~~~~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+7 warnings generated.
+[811/1651] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/RTS/Player.cpp.o
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/RTS/Player.cpp:54:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BuildAssistant.h:42:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Object.h:48:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:123:10: warning: 35 enumeration values not handled in switch: 'DAMAGE_EXPLOSION', 'DAMAGE_CRUSH', 'DAMAGE_ARMOR_PIERCING'... [-Wswitch]
+  123 |         switch( type )
+      |                 ^~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:123:10: note: add missing switch cases
+  123 |         switch( type )
+      |                 ^
+  124 |         {
+  125 |                 case DAMAGE_SUBDUAL_MISSILE:
+  126 |                 case DAMAGE_SUBDUAL_VEHICLE:
+  127 |                 case DAMAGE_SUBDUAL_BUILDING:
+  128 |                 case DAMAGE_SUBDUAL_UNRESISTABLE:
+  129 |                         return TRUE;
+  130 |         }
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:140:10: warning: 32 enumeration values not handled in switch: 'DAMAGE_EXPLOSION', 'DAMAGE_CRUSH', 'DAMAGE_ARMOR_PIERCING'... [-Wswitch]
+  140 |         switch( type )
+      |                 ^~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:140:10: note: add missing switch cases
+  140 |         switch( type )
+      |                 ^
+  141 |         {
+  142 |                 case DAMAGE_STATUS:
+  143 |                 case DAMAGE_SUBDUAL_MISSILE:
+  144 |                 case DAMAGE_SUBDUAL_VEHICLE:
+  145 |                 case DAMAGE_SUBDUAL_BUILDING:
+  146 |                 case DAMAGE_SUBDUAL_UNRESISTABLE:
+  147 |                 case DAMAGE_KILLPILOT:
+  148 |                 case DAMAGE_KILL_GARRISONED:
+  149 |                         return FALSE;
+  150 |         }
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/RTS/Player.cpp:100:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/AutoDepositUpdate.h:99:65: warning: offset of on non-standard-layout type 'AutoDepositUpdateModuleData' [-Winvalid-offsetof]
+   99 |                         { "DepositTiming",                                      INI::parseDurationUnsignedInt,          NULL, offsetof( AutoDepositUpdateModuleData, m_depositFrame ) },
+      |                                                                                                                               ^                                      ~~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/RTS/Player.cpp:100:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/AutoDepositUpdate.h:100:49: warning: offset of on non-standard-layout type 'AutoDepositUpdateModuleData' [-Winvalid-offsetof]
+  100 |                         { "DepositAmount",                                      INI::parseInt,          NULL, offsetof( AutoDepositUpdateModuleData, m_depositAmount ) },
+      |                                                                                                               ^                                      ~~~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/RTS/Player.cpp:100:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/AutoDepositUpdate.h:101:52: warning: offset of on non-standard-layout type 'AutoDepositUpdateModuleData' [-Winvalid-offsetof]
+  101 |                         { "InitialCaptureBonus",                INI::parseInt,          NULL, offsetof( AutoDepositUpdateModuleData, m_initialCaptureBonus ) },
+      |                                                                                               ^                                      ~~~~~~~~~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/RTS/Player.cpp:100:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/AutoDepositUpdate.h:102:49: warning: offset of on non-standard-layout type 'AutoDepositUpdateModuleData' [-Winvalid-offsetof]
+  102 |                         { "ActualMoney",                                                INI::parseBool,         NULL, offsetof( AutoDepositUpdateModuleData, m_isActualMoney ) },
+      |                                                                                                                       ^                                      ~~~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/RTS/Player.cpp:100:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/AutoDepositUpdate.h:103:52: warning: offset of on non-standard-layout type 'AutoDepositUpdateModuleData' [-Winvalid-offsetof]
+  103 |                         { "UpgradedBoost",                                      parseUpgradePair,               NULL, offsetof( AutoDepositUpdateModuleData, m_upgradeBoost ) },
+      |                                                                                                                       ^                                      ~~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/RTS/Player.cpp:103:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/SupplyTruckAIUpdate.h:199:44: warning: offset of on non-standard-layout type 'SupplyTruckAIUpdateModuleData' [-Winvalid-offsetof]
+  199 |                         { "MaxBoxes",                                   INI::parseInt,          NULL, offsetof( SupplyTruckAIUpdateModuleData, m_maxBoxesData ) },
+      |                                                                                                       ^                                        ~~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/RTS/Player.cpp:103:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/SupplyTruckAIUpdate.h:200:70: warning: offset of on non-standard-layout type 'SupplyTruckAIUpdateModuleData' [-Winvalid-offsetof]
+  200 |                         { "SupplyCenterActionDelay", INI::parseDurationUnsignedInt, NULL, offsetof( SupplyTruckAIUpdateModuleData, m_centerDelay ) },
+      |                                                                                           ^                                        ~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/RTS/Player.cpp:103:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/SupplyTruckAIUpdate.h:201:73: warning: offset of on non-standard-layout type 'SupplyTruckAIUpdateModuleData' [-Winvalid-offsetof]
+  201 |                         { "SupplyWarehouseActionDelay", INI::parseDurationUnsignedInt, NULL, offsetof( SupplyTruckAIUpdateModuleData, m_warehouseDelay ) },
+      |                                                                                              ^                                        ~~~~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/RTS/Player.cpp:103:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/SupplyTruckAIUpdate.h:202:59: warning: offset of on non-standard-layout type 'SupplyTruckAIUpdateModuleData' [-Winvalid-offsetof]
+  202 |                         { "SupplyWarehouseScanDistance", INI::parseReal, NULL, offsetof( SupplyTruckAIUpdateModuleData, m_warehouseScanDistance ) },
+      |                                                                                ^                                        ~~~~~~~~~~~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/RTS/Player.cpp:103:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/SupplyTruckAIUpdate.h:203:63: warning: offset of on non-standard-layout type 'SupplyTruckAIUpdateModuleData' [-Winvalid-offsetof]
+  203 |                         { "SuppliesDepletedVoice", INI::parseAudioEventRTS, NULL, offsetof( SupplyTruckAIUpdateModuleData, m_suppliesDepletedVoice) },
+      |                                                                                   ^                                        ~~~~~~~~~~~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/RTS/Player.cpp:105:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/ProductionUpdate.h:39:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/DieModule.h:79:38: warning: offset of on non-standard-layout type 'DieModuleData' [-Winvalid-offsetof]
+   79 |                 p.add(DieMuxData::getFieldParse(), offsetof( DieModuleData, m_dieMuxData ));
+      |                                                    ^                        ~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/RTS/Player.cpp:4343:10: warning: enumeration value 'PLANSTATUS_NONE' not handled in switch [-Wswitch]
+ 4343 |         switch( plan )
+      |                 ^~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/RTS/Player.cpp:4343:10: note: add missing switch cases
+ 4343 |         switch( plan )
+      |                 ^
+ 4344 |         {
+ 4345 |                 case PLANSTATUS_BOMBARDMENT:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/RTS/Player.cpp:4420:10: warning: enumeration value 'PLANSTATUS_NONE' not handled in switch [-Wswitch]
+ 4420 |         switch( plan )
+      |                 ^~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/RTS/Player.cpp:4420:10: note: add missing switch cases
+ 4420 |         switch( plan )
+      |                 ^
+ 4421 |         {
+ 4422 |                 case PLANSTATUS_BOMBARDMENT:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/RTS/Player.cpp:47:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Precompiled/PreRTS.h:153:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/KindOf.h:39:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BitFlags.h:280:12: warning: instantiation of variable 'BitFlags<117, 2>::s_bitNameList' required here, but no definition is available [-Wundefined-var-template]
+  280 |     return s_bitNameList;
+      |            ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/RTS/Player.cpp:177:45: note: in instantiation of member function 'BitFlags<117, 2>::getBitNames' requested here
+  177 |         const char** kindofNames = KindOfMaskType::getBitNames();
+      |                                                    ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BitFlags.h:70:25: note: forward declaration of template entity is here
+   70 |         static const char*                                      s_bitNameList[];
+      |                                                                 ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BitFlags.h:280:12: note: add an explicit instantiation declaration to suppress this warning if 'BitFlags<117, 2>::s_bitNameList' is explicitly instantiated in another translation unit
+  280 |     return s_bitNameList;
+      |            ^
+16 warnings generated.
