@@ -48,6 +48,18 @@ The top-eight template entries measure **billboard CPU worker elapsed wall time*
 5. For future changes, A/B toggles must preserve the original code path and be logged alongside all measurements. Compare screenshots for alpha ordering, smoke gradients, FireLook animation, glow, trails, and heat haze before making any quality change the default.
 6. Confirm memory metrics stay unconstrained and that hardware GPU ring waits remain zero; if either changes, revisit the original hypothesis.
 
+## Device log review — revision 4305204e (2026-11-08)
+
+This run booted the SDL GPU Metal renderer and exited normally. It did **not** print `[PARTICLE_PERF]` or `[PARTICLE_COST]`; the process environment `ZH_PARTICLE_PERF=1` was apparently not enabled. It also reported `[SDL_PARTICLES] requested=0 available=0 max_records=8192 CPU_alpha_and_weapon_trails=1`: native particle admission was not used, so this capture is **not** a GPU particle-path A/B baseline.
+
+**Important correction to the earlier GPU-ring hypothesis:** shutdown statistics for this run show **12,726 ring waits**, **11,919 mid-frame flushes**, **1,891,135 draws**, and **1,238 presents**. Earlier logs showing zero waits must not be extrapolated to this run. The count is strong motivation to instrument ring-wait duration and submissions per pass, but counts alone do not distinguish CPU scheduling, GPU saturation, and synchronous wait duration. There are approximately **1,528 recorded draws per present** (not necessarily actual hardware draw calls after batching).
+
+Metal also rejected shared hazard-cloud shader 4: `TerrainImage` and `SceneDepth` both mapped to `[[texture(0)]]`; the shared cloud renderer failed initialization. Fix and validate the shader's resource binding translation separately before attributing performance or appearance to shared volumetric effects. Reforged lighting and volumetric smoke options were enabled, and output resolution was 2868x1320.
+
+Available memory remained plentiful (about 4.6 GiB at the latest periodic sample); `constrained=0` was logged. This supports prioritizing render and submission profiling, though not a conclusion about GPU elapsed time.
+
+**Next measured comparison:** enable the diagnostic environment for device launches and capture two otherwise identical scenarios; add ring-wait wall time, GPU stage timing and true transparent overdraw before making the dynamic particle budget default.
+
 ## Next work required
 
 Add genuine Metal GPU timestamp measurements and depth/heat capture instrumentation at their own render passes; per-template cost for CPU fire gathering and GPU submission; safe shared-light computation A/B; additive-type GPU eligibility matrix; FireLook-specific CPU-vs-fragment analysis; dynamic time-based visible-area and overdraw budgets. Each must receive separate verified performance and visual evidence before claiming a completed optimization.
