@@ -29,7 +29,7 @@ unsigned SdlGpuFrame::Target_Sample_Index(const SdlTarget &target) const {
     return target.Colour&&target.Depth&&Target_Depth_Format(target)==DepthFormat?unsigned(sampleIndex(SampleCount)):0;
 }
 bool SdlGpuFrame::Disable_Multisampling(const char *why){
-    if(!Flush())return false;
+    if(!Flush(FlushMsaa))return false;
     MsaaFailed=true;SampleCount=1;Release_Multisampling(false);
     fprintf(stderr,"[SDL_MSAA] disabled reason=%s\n",why);return true;
 }
