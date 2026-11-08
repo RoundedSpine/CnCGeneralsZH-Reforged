@@ -60,6 +60,7 @@
 #include "GameClient/GameClient.h"
 #include "GameClient/Drawable.h"
 #include "Platform/WaterFoamParticlePolicy.h"
+#include "Platform/ParticlePerfToggle.h"
 #include <map>
 #include "Common/ThingTemplate.h"
 #include "GameClient/Drawable.h"
@@ -86,11 +87,7 @@
 // Opt-in diagnostic. CPU submission time is not Metal GPU elapsed time.
 namespace {
 using ParticlePerfClock = std::chrono::steady_clock;
-static bool particlePerfEnabled()
-{
-    static const bool enabled = []() { const char *v = std::getenv("ZH_PARTICLE_PERF"); return v && std::strcmp(v, "1") == 0; }();
-    return enabled;
-}
+static bool particlePerfEnabled() { return ParticlePerfToggle::enabled(); }
 static double particlePerfMs(ParticlePerfClock::time_point start)
 {
     return std::chrono::duration<double, std::milli>(ParticlePerfClock::now() - start).count();

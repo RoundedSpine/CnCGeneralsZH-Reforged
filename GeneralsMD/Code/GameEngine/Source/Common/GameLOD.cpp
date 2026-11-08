@@ -41,6 +41,7 @@
 #include "GameClient/TerrainVisual.h"
 #include "GameClient/GameClient.h"
 #include "Common/UserPreferences.h"
+#include "Platform/ParticlePerfToggle.h"
 
 #define DEFINE_PARTICLE_SYSTEM_NAMES
 #include "GameClient/ParticleSys.h"
@@ -305,6 +306,7 @@ void GameLODManager::init(void)
 
 	//Override with user preferences
 	OptionPreferences optionPref;
+    ParticlePerfToggle::setEnabled(optionPref.getBool("ParticlePerfDiagnostics", ParticlePerfToggle::enabled()));
 
 	StaticGameLODLevel userSetDetail=(StaticGameLODLevel)optionPref.getStaticGameDetail();
 

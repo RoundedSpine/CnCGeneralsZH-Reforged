@@ -82,6 +82,7 @@
 #include "Platform/SceneEffects.h"
 #endif
 #include "Platform/WaterScreenReflection.h"
+#include "Platform/ParticlePerfToggle.h"
 //added by saad
 //used to access a messagebox that does "ok" and "cancel"
 #include "GameClient/MessageBox.h"
@@ -1013,6 +1014,11 @@ Real OptionPreferences::getMusicVolume(void)
 }
 
 static OptionPreferences *pref = NULL;
+// Diagnostic switch on Display, independent of quality presets.
+static GameWindow *particlePerfWidget()
+{
+    return TheWindowManager->winGetWindowFromId(NULL, NAMEKEY("OptionsMenu.wnd:CheckParticlePerfDiagnostics"));
+}
 
 static void setDefaults( void )
 {
@@ -1725,6 +1731,14 @@ static void saveOptions( void )
 		selectedLighting, smokeControl ? int(GadgetCheckBoxIsChecked(smokeControl)) : -1);
 #endif
 	readCatalogWidgets( *pref );
+#if defined(ZH_PLATFORM_IOS)
+    if (GameWindow *diagnostics = particlePerfWidget()) {
+        const Bool selected = GadgetCheckBoxIsChecked(diagnostics);
+        pref->setBool("ParticlePerfDiagnostics", selected);
+        ParticlePerfToggle::setEnabled(selected != FALSE);
+        std::fprintf(stderr, "[PARTICLE_PERF] toggle=%d applies=now saved_on_accept=1\n", int(selected));
+    }
+#endif
 	const MonitorEntry monitor = selectedMonitor();
 	TheWritableGlobalData->m_monitor = monitor.device;
 
@@ -2697,6 +2711,8 @@ static void showClassicDefaults( void )
 			setGraphicsQualityControl( control, optionDefaultValue( def ) );
 	}
 	GadgetCheckBoxSetChecked( checkCloudShadows, optionDefaultValue( *findOptionDef( "UseCloudMap" ) ) != 0 );
+    if (GameWindow *diagnostics = particlePerfWidget())
+        GadgetCheckBoxSetChecked(diagnostics, FALSE);
 	ignoreSelected = FALSE;
 
 	defaultsPressed = TRUE;
@@ -3201,6 +3217,13 @@ void OptionsMenuInit( WindowLayout *layout, void *userData )
 	}
 
 	fillCatalogWidgets();
+    if (GameWindow *diagnostics = particlePerfWidget()) {
+#if defined(ZH_PLATFORM_IOS)
+        GadgetCheckBoxSetChecked(diagnostics, ParticlePerfToggle::enabled() ? TRUE : FALSE);
+#else
+        diagnostics->winHide(TRUE);
+#endif
+    }
 	OptionsHotkeysInit();
 	showOptionsPage( 0 );
 
