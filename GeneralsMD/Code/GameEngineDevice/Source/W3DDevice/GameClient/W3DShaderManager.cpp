@@ -2082,7 +2082,9 @@ class TerrainShader8Stage : public W3DShaderInterface
 } terrainShader8Stage;
 
 //Offsets into constant register pool used by vertex shader
+#ifndef CV_WORLDVIEWPROJ_0
 #define CV_WORLDVIEWPROJ_0	0	//4 vectors for transform of world->clip space.
+#endif
 
 ///Pixel shader based terrain shader - fastest method for the newest cards.
 class TerrainShaderPixelShader : public W3DShaderInterface
