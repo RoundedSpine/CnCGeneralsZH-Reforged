@@ -5,6 +5,9 @@
 #include "sdl3shadercompile.h"
 #include "Platform/IOSLifecycle.h"
 #include <SDL3/SDL.h>
+#if defined(__APPLE__)
+extern "C" void ZH_SDL_Metal_SetNextRenderPassTag(Uint32 category);
+#endif
 #include <cstdio>
 #include <cmath>
 bool SdlGpuFrame::Supports_Hdr() const {
@@ -63,7 +66,10 @@ bool SdlGpuFrame::Run_Post_Pass(const SdlTarget &target,const float rect[4],floa
     std::string error;auto *source=Capture_Heat_Background(target,error);if(!source)return false;
     ZH_IOS_WaitForForeground();auto *commands=SDL_AcquireGPUCommandBuffer(GpuDevice);if(!commands)return false;
     SDL_GPUColorTargetInfo colour={};colour.texture=target.Colour;colour.load_op=SDL_GPU_LOADOP_LOAD;colour.store_op=SDL_GPU_STOREOP_STORE;
-    auto *pass=SDL_BeginGPURenderPass(commands,&colour,1,nullptr);if(!pass){SDL_CancelGPUCommandBuffer(commands);return false;}
+    #if defined(__APPLE__)
+ZH_SDL_Metal_SetNextRenderPassTag(8u);
+#endif
+auto *pass=SDL_BeginGPURenderPass(commands,&colour,1,nullptr);if(!pass){SDL_CancelGPUCommandBuffer(commands);return false;}
     SDL_BindGPUGraphicsPipeline(pass,PostPipeline);SDL_GPUTextureSamplerBinding binding={source,PostSampler};SDL_BindGPUFragmentSamplers(pass,0,&binding,1);
     const float constants[12]={rect[0],rect[1],rect[2],rect[3],HdrActive?1.0f:0.0f,grade,1.0f/target.Width,1.0f/target.Height,float(filter),amount,0,0};
     SDL_PushGPUFragmentUniformData(commands,0,constants,sizeof(constants));
