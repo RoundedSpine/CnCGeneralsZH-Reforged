@@ -6,6 +6,7 @@
 #include "engineshader.h"
 #include "ffvertex.h"
 #include "sdl3shadercompile.h"
+#include "SdlHazardCloudSharedShader.h"
 #include <SDL3/SDL.h>
 #include <cstdio>
 #include <cmath>
@@ -52,7 +53,20 @@ static void variants(){
         bool ok=SDL3_Compile_HLSL_To_SPIRV(source,false,spirv,error)&&SDL3_Translate_SPIRV_To_MSL(spirv,false,msl,error);
         CHECK(ok);if(ok)uniqueMetalTextures(msl);if(!ok)fprintf(stderr,"water variant %u: %s\n",unsigned(program),error.c_str());
     }
-    printf("NATIVE_EFFECTS: twenty-three production variants compiled SPIR-V/MSL failures=%u\n",failures);
+    // Metal once refused shared heat shader because texel-fetch-only texture slots
+    // collided with sampled SceneDepth. Compile every production shared pass to
+    // MSL and reject duplicate [[texture(n)]] bindings before GPU creation.
+    for(unsigned i=0;i<5;++i) {
+        const auto source=HazardCloudShared::sharedPixelShader(
+            static_cast<HazardCloudShared::ShaderPass>(i));
+        std::string error,msl;std::vector<unsigned char> spirv;
+        const bool ok=SDL3_Compile_HLSL_To_SPIRV(source,false,spirv,error)
+            && SDL3_Translate_SPIRV_To_MSL(spirv,false,msl,error);
+        CHECK(ok);
+        if(ok)uniqueMetalTextures(msl);
+        else fprintf(stderr,"shared hazard cloud shader %u: %s\n",i,error.c_str());
+    }
+    printf("NATIVE_EFFECTS: twenty-eight production variants compiled SPIR-V/MSL failures=%u\n",failures);
 }
 int main(){
     variants();if(failures)return 1;
