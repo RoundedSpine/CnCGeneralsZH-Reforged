@@ -352,11 +352,19 @@ public:
 		only way this class was ever destroyed, so it becomes "drop the owner's reference"
 		instead, and the pooled memory is handed back from Delete_This when the last one goes.
 	*/
+#if defined(__clang__)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wundefined-bool-conversion"
+#endif
 	void deleteInstance()
 	{
+		// Matching MemoryPoolObject, legacy callers may invoke this through a null pointer.
 		if (this)
 			Release_Ref();
 	}
+#if defined(__clang__)
+#pragma clang diagnostic pop
+#endif
 
 	virtual void Delete_This()
 	{

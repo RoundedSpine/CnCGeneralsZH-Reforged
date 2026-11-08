@@ -1646,7 +1646,7 @@ UnsignedInt ThingTemplate::getMaxSimultaneousOfType() const
 Bool ThingTemplate::isEquivalentTo(const ThingTemplate* tt) const
 {
 	// sanity
-	if (!(this && tt)) 
+	if (!tt)
 		return false;
 
 	// sanity
