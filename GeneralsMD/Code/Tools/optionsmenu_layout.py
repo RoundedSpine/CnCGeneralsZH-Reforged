@@ -122,7 +122,7 @@ ADVANCED_KEEP = GRAPHICS_CHECKS + ["CheckUnlockFPS", "LowResSlider", "ParticleCa
 
 # Check boxes of the fork's that OptionsMenu.cpp fills in by name rather than through the catalog:
 # swaying trees are a GameLOD.ini field like the popup's boxes, so they save under Custom with them.
-MENU_CHECKS = ["CheckTreeSway"]
+MENU_CHECKS = ["CheckTreeSway", "CheckParticlePerfDiagnostics"]
 
 # Combo boxes OptionsMenu.cpp fills in by name for the same reason: the monitors on the desktop and
 # the audio endpoints are not a range a catalog row can describe, and the speaker setup is EA's
@@ -263,6 +263,7 @@ NEW_CONTROLS = [
     (CHECK,  "CheckStructureCollapse", "GUI:StructureCollapse"),
     (CHECK,  "CheckSmoothMotion",      "GUI:SmoothMotion"),
     (CHECK,  "CheckHeatHaze",          "GUI:HeatHaze"),
+    (CHECK,  "CheckParticlePerfDiagnostics", "GUI:ParticlePerfDiagnostics"),
     (LABEL,  "LabelGraphicsQuality",   "GUI:GraphicsQuality"),
     (SLIDER, "SliderGraphicsQuality",  None),
 ]
@@ -373,7 +374,8 @@ GROUP_LAYOUT = [
             ("check", "CheckSmoothMotion"),
             ("check", "CheckHeatHaze"),
             # the Screen column is full with the monitor and the resolution note
-            setting("LabelFrameRateLimit", "ComboBoxFrameRateLimit")])]),
+            setting("LabelFrameRateLimit", "ComboBoxFrameRateLimit"),
+            ("check", "CheckParticlePerfDiagnostics")])]),
 
     ("PageGraphics", [
         # the particle limit went to Effects' Particles group to make room for the quality slider

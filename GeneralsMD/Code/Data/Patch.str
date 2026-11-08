@@ -3821,3 +3821,11 @@ END
 TOOLTIP:WaterReflection
 "For Modern water when Scene reflections is on. Legacy uses the original reflections. SSR reflects visible screen content. Hybrid combines both and is the default. Applied when you Accept."
 END
+
+GUI:ParticlePerfDiagnostics
+"Particle Performance Diagnostics"
+END
+
+TOOLTIP:ParticlePerfDiagnostics
+"Log detailed CPU particle timings and the costliest particle templates every 120 particle frames. Helps diagnose fire and smoke slowdowns. Applies when you press Accept; results appear in generals-stderr.log. This does not change visual effects. Logging adds a small overhead."
+END
