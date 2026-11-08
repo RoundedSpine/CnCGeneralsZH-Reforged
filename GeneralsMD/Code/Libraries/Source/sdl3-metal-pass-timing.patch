@@ -1,9 +1,7 @@
 diff --git a/src/gpu/metal/SDL_gpu_metal.m b/src/gpu/metal/SDL_gpu_metal.m
 --- a/src/gpu/metal/SDL_gpu_metal.m
 +++ b/src/gpu/metal/SDL_gpu_metal.m
-@@ -29,7 +64,63 @@
- #include "../SDL_sysgpu.h"
- 
+@@ -31,5 +66,61 @@
 +// Optional stage-boundary timestamps for render encoders (Apple tile GPUs).
 +// Buckets: 0=unlabelled SDL pass, 1=main scene, 2=intermediate, 3=depth-only.
 +// The engine labels its passes just before SDL_BeginGPURenderPass.
