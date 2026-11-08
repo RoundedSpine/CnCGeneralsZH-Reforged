@@ -1,300 +1,300 @@
-[1348/1651] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameNetwork/GameSpy/Thread/BuddyThread.cpp.o
-[1349/1651] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameNetwork/GameSpy/StagingRoomGameInfo.cpp.o
-[1350/1651] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameNetwork/GameSpy/Thread/PeerThread.cpp.o
-[1351/1651] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameNetwork/GameSpy/Thread/GameResultsThread.cpp.o
-[1352/1651] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameNetwork/GameSpy/Thread/PingThread.cpp.o
-[1353/1651] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameNetwork/GameSpy/Thread/PersistentStorageThread.cpp.o
-[1354/1651] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameNetwork/GameSpy/Thread/ThreadUtils.cpp.o
-[1355/1651] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameNetwork/GameSpyOverlay.cpp.o
-[1356/1651] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameNetwork/IPEnumeration.cpp.o
-[1357/1651] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameNetwork/KeepAliveSchedule.cpp.o
-[1358/1651] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameNetwork/LANAPI.cpp.o
-[1359/1651] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameNetwork/LANAPICallbacks.cpp.o
-[1360/1651] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameNetwork/LANAPIhandlers.cpp.o
-[1361/1651] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameNetwork/LANGameInfo.cpp.o
-[1362/1651] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameNetwork/NetCommandList.cpp.o
-[1363/1651] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameNetwork/NAT.cpp.o
-[1364/1651] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameNetwork/NetCommandRef.cpp.o
-[1365/1651] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameNetwork/NetCommandMsg.cpp.o
-[1366/1651] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameNetwork/NetCommandWrapperList.cpp.o
-[1367/1651] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameNetwork/NetMessageStream.cpp.o
-[1368/1651] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameNetwork/NetPacket.cpp.o
-[1369/1651] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameNetwork/Network.cpp.o
-[1370/1651] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameNetwork/NetworkUtil.cpp.o
-[1371/1651] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameNetwork/Online/OnlineBuddy.cpp.o
-[1372/1651] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameNetwork/Online/OnlineStats.cpp.o
-[1373/1651] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameNetwork/Online/OnlinePeer.cpp.o
-[1374/1651] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameNetwork/StallJudgement.cpp.o
-[1375/1651] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameNetwork/Transport.cpp.o
-[1376/1651] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameNetwork/WOLBrowser/WebBrowserPosix.cpp.o
-[1377/1651] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameNetwork/User.cpp.o
-[1378/1651] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Precompiled/PreRTS.cpp.o
-[1379/1651] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameNetwork/udp.cpp.o
-[1380/1651] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/assetstatus.cpp.o
-[1381/1651] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/bitmaphandler.cpp.o
-[1382/1651] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/bmp2d.cpp.o
-[1383/1651] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/boxrobj.cpp.o
-[1384/1651] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/bwrender.cpp.o
-[1385/1651] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/camera.cpp.o
-[1386/1651] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/collect.cpp.o
-[1387/1651] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/coltest.cpp.o
-[1388/1651] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/composite.cpp.o
-[1389/1651] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/dazzle.cpp.o
-[1390/1651] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/ddsfile.cpp.o
-[1391/1651] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/decalmsh.cpp.o
-[1392/1651] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/decalsys.cpp.o
-[1393/1651] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/distlod.cpp.o
-[1394/1651] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/dx8caps.cpp.o
-[1395/1651] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/dx8fvf.cpp.o
-[1396/1651] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/dx8indexbuffer.cpp.o
-[1397/1651] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/dx8polygonrenderer.cpp.o
-[1398/1651] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/dx8renderer.cpp.o
-[1399/1651] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/dx8rendererdebugger.cpp.o
-[1400/1651] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/dx8texman.cpp.o
-[1401/1651] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/dx8vertexbuffer.cpp.o
-[1402/1651] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/dx8wrapper.cpp.o
-[1403/1651] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/dynamesh.cpp.o
-[1404/1651] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/ffprobe.cpp.o
-[1405/1651] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/ffshadercache.cpp.o
-[1406/1651] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/font3d.cpp.o
-[1407/1651] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/formconv.cpp.o
-[1408/1651] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/hanim.cpp.o
-[1409/1651] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/hanimmgr.cpp.o
-[1410/1651] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/hcanim.cpp.o
-[1411/1651] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/hlod.cpp.o
-[1412/1651] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/hmdldef.cpp.o
-[1413/1651] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/hmorphanim.cpp.o
-[1414/1651] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/hrawanim.cpp.o
-[1415/1651] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/htree.cpp.o
-[1416/1651] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/htreemgr.cpp.o
-[1417/1651] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/intersec.cpp.o
-[1418/1651] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/layer.cpp.o
-[1419/1651] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/light.cpp.o
-[1420/1651] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/lightenvironment.cpp.o
-[1421/1651] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/line3d.cpp.o
-[1422/1651] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/linegrp.cpp.o
-[1423/1651] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/mapper.cpp.o
-[1424/1651] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/matinfo.cpp.o
-[1425/1651] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/matpass.cpp.o
-[1426/1651] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/matrixmapper.cpp.o
-[1427/1651] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/mesh.cpp.o
-[1428/1651] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/meshbuild.cpp.o
-[1429/1651] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/meshdam.cpp.o
-[1430/1651] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/meshgeometry.cpp.o
-[1431/1651] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/meshmatdesc.cpp.o
-[1432/1651] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/meshmdl.cpp.o
-[1433/1651] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/meshmdlio.cpp.o
-[1434/1651] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/metalmap.cpp.o
-[1435/1651] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/missingtexture.cpp.o
-[1436/1651] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/motchan.cpp.o
-[1437/1651] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/nullrobj.cpp.o
-[1438/1651] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/part_buf.cpp.o
-[1439/1651] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/part_emt.cpp.o
-[1440/1651] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/part_ldr.cpp.o
-[1441/1651] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/pivot.cpp.o
-[1442/1651] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/pointgr.cpp.o
-[1443/1651] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/polyinfo.cpp.o
-[1444/1651] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/predlod.cpp.o
-[1445/1651] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/prim_anim.cpp.o
-[1446/1651] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/projector.cpp.o
-[1447/1651] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/proto.cpp.o
-[1448/1651] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/render2d.cpp.o
-[1449/1651] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/render2dsentence.cpp.o
-[1450/1651] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/renderobjectrecycler.cpp.o
-[1451/1651] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/rendobj.cpp.o
-[1452/1651] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/rinfo.cpp.o
-[1453/1651] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/ringobj.cpp.o
-[1454/1651] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/scene.cpp.o
-[1455/1651] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/segline.cpp.o
-[1456/1651] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/seglinerenderer.cpp.o
-[1457/1651] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/shader.cpp.o
-[1458/1651] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/shattersystem.cpp.o
-[1459/1651] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/snappts.cpp.o
-[1460/1651] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/sortingrenderer.cpp.o
-[1461/1651] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/soundrobj.cpp.o
-[1462/1651] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/sphereobj.cpp.o
-[1463/1651] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/static_sort_list.cpp.o
-[1464/1651] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/statistics.cpp.o
-[1465/1651] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/streak.cpp.o
-[1466/1651] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/streakRender.cpp.o
-[1467/1651] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/stripoptimizer.cpp.o
-[1468/1651] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/surfaceclass.cpp.o
-[1469/1651] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/texfcach.cpp.o
-[1470/1651] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/texproject.cpp.o
-[1471/1651] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/texture.cpp.o
-[1472/1651] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/texturefilter.cpp.o
-[1473/1651] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/textureloader.cpp.o
-[1474/1651] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/texturethumbnail.cpp.o
-[1475/1651] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/txt.cpp.o
-[1476/1651] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/vertmaterial.cpp.o
-[1477/1651] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/visrasterizer.cpp.o
-[1478/1651] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/w3d_dep.cpp.o
-[1479/1651] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/w3d_util.cpp.o
-[1480/1651] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/w3dexclusionlist.cpp.o
-[1481/1651] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/ww3d.cpp.o
-[1482/1651] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/ww3dformat.cpp.o
-[1483/1651] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/dx11runtime_posix.cpp.o
-[1484/1651] Building CXX object CMakeFiles/sdlinput.dir/GameEngineDevice/Source/SdlDevice/GameClient/AniCursor.cpp.o
-[1485/1651] Building CXX object CMakeFiles/sdlinput.dir/GameEngineDevice/Source/SdlDevice/GameClient/SdlIOSTouch.cpp.o
-[1486/1651] Building CXX object CMakeFiles/sdlinput.dir/GameEngineDevice/Source/SdlDevice/GameClient/SdlInput.cpp.o
-[1487/1651] Building CXX object CMakeFiles/sdlinput.dir/GameEngineDevice/Source/SdlDevice/GameClient/SdlKeyTable.cpp.o
-[1488/1651] Building CXX object CMakeFiles/sdlinput.dir/GameEngineDevice/Source/SdlDevice/GameClient/SdlKeyboard.cpp.o
-[1489/1651] Building CXX object CMakeFiles/sdlinput.dir/GameEngineDevice/Source/SdlDevice/GameClient/SdlMouse.cpp.o
-[1490/1651] Building CXX object CMakeFiles/posixdevice.dir/GameEngineDevice/Source/PosixDevice/Common/PosixCDManager.cpp.o
-[1491/1651] Building CXX object CMakeFiles/posixdevice.dir/GameEngineDevice/Source/PosixDevice/Common/PosixFileResolutionDump.cpp.o
-[1492/1651] Building CXX object CMakeFiles/posixdevice.dir/GameEngineDevice/Source/PosixDevice/Common/PosixGameEngine.cpp.o
-[1493/1651] Building CXX object CMakeFiles/posixdevice.dir/GameEngineDevice/Source/PosixDevice/Common/PosixLocalFile.cpp.o
-[1494/1651] Building CXX object CMakeFiles/posixdevice.dir/GameEngineDevice/Source/PosixDevice/Common/PosixLocalFileSystem.cpp.o
-[1495/1651] Building CXX object CMakeFiles/posixdevice.dir/GameEngineDevice/Source/Win32Device/Common/Win32BIGFile.cpp.o
-[1496/1651] Building CXX object CMakeFiles/posixdevice.dir/GameEngineDevice/Source/Win32Device/Common/Win32BIGFileSystem.cpp.o
-[1497/1651] Linking CXX static library libww3d2.a
-[1498/1651] Building CXX object CMakeFiles/test_harness.dir/Tests/test_main.cpp.o
-[1499/1651] Building CXX object CMakeFiles/test_sdl_ao.dir/Tests/test_sdl_ao.cpp.o
-[1500/1651] Building CXX object CMakeFiles/test_sdl_ao.dir/GameEngineDevice/Source/PosixDevice/Render/SdlAmbientOcclusion.cpp.o
-[1501/1651] Building CXX object CMakeFiles/test_sdl_ao.dir/GameEngineDevice/Source/PosixDevice/Render/SdlAtmosphere.cpp.o
-[1502/1651] Building CXX object CMakeFiles/test_sdl_heat.dir/Tests/test_sdl_heat.cpp.o
-[1503/1651] Building CXX object CMakeFiles/test_sdl_native_effects.dir/Tests/test_sdl_native_effects.cpp.o
-[1504/1651] Building CXX object CMakeFiles/test_sdl_hdr.dir/Tests/test_sdl_hdr.cpp.o
-[1505/1651] Building CXX object CMakeFiles/test_sdl_msaa.dir/Tests/test_sdl_msaa.cpp.o
-[1506/1651] Building CXX object CMakeFiles/test_sdl_post.dir/Tests/test_sdl_post.cpp.o
-[1507/1651] Building CXX object CMakeFiles/test_sdl_particles.dir/Tests/test_sdl_particles.cpp.o
-[1508/1651] Building CXX object CMakeFiles/posix_gpu_draw_selfcheck.dir/Tests/test_posix_gpu_draw.cpp.o
-[1509/1651] Linking CXX static library libtest_harness.a
-[1510/1651] Building CXX object CMakeFiles/test_hazard_cloud_bake.dir/Tests/test_hazard_cloud_bake.cpp.o
-[1511/1651] Building CXX object CMakeFiles/test_hazard_cloud_bake.dir/Tests/test_user_data_guard.cpp.o
-[1512/1651] Building CXX object CMakeFiles/test_hazard_cloud_shared.dir/Tests/test_hazard_cloud_shared.cpp.o
-[1513/1651] Building CXX object CMakeFiles/test_hazard_cloud_shared.dir/GameEngineDevice/Source/W3DDevice/GameClient/HazardCloudSharedModel.cpp.o
-[1514/1651] Building CXX object CMakeFiles/test_hazard_cloud_shared.dir/GameEngineDevice/Source/W3DDevice/GameClient/HazardCloud.cpp.o
-[1515/1651] Building CXX object CMakeFiles/test_hazard_cloud_shared.dir/GameEngineDevice/Source/W3DDevice/GameClient/HazardCloudCore.cpp.o
-[1516/1651] Building CXX object CMakeFiles/test_hazard_cloud_shared.dir/GameEngineDevice/Source/W3DDevice/GameClient/HazardCloudShader.cpp.o
-[1517/1651] Building CXX object CMakeFiles/test_hazard_cloud_shared.dir/GameEngineDevice/Source/W3DDevice/GameClient/HazardCloudFlow.cpp.o
-[1518/1651] Building CXX object CMakeFiles/test_hazard_cloud_shared.dir/GameEngineDevice/Source/W3DDevice/GameClient/HazardCloudUnsupported.cpp.o
-[1519/1651] Building CXX object CMakeFiles/test_hazard_cloud_shared.dir/Tests/test_user_data_guard.cpp.o
-[1520/1651] Building CXX object CMakeFiles/test_userfolders.dir/Tests/test_userfolders.cpp.o
-[1521/1651] Building CXX object CMakeFiles/test_userfolders.dir/Tests/test_user_data_guard.cpp.o
-[1522/1651] Linking CXX executable test_sdl_ao
-[1523/1651] Linking CXX executable test_sdl_heat
-[1524/1651] Linking CXX executable test_sdl_native_effects
-[1525/1651] Linking CXX executable test_sdl_hdr
-[1526/1651] Linking CXX executable test_sdl_msaa
-[1527/1651] Linking CXX executable test_sdl_post
-[1528/1651] Linking CXX executable test_sdl_particles
-[1529/1651] Linking CXX executable posix_gpu_draw_selfcheck
-[1530/1651] Linking CXX executable test_hazard_cloud_bake
-[1531/1651] Linking CXX executable test_hazard_cloud_shared
-[1532/1651] Linking CXX executable test_userfolders
-[1533/1651] Linking CXX static library libgameengine.a
-[1534/1651] Linking CXX static library libsdlinput.a
-[1535/1651] Linking CXX static library libposixdevice.a
-[1536/1651] Building FFmpeg 8.1.2's Bink decoders for the movies (V1)
-ffmpeg-build-posix: FFmpeg 8.1.2 installed into /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/build/ios/host-graphics/ffmpeg
-[1537/1651] Building CXX object CMakeFiles/binkvideo.dir/Libraries/Source/WWVegas/Bink/ffmpeg/bink_ffmpeg.cpp.o
-[1538/1651] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/Common/System/W3DFunctionLexicon.cpp.o
-[1539/1651] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/Common/System/W3DRadar.cpp.o
-[1540/1651] Linking CXX static library libbinkvideo.a
-[1541/1651] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/Common/Thing/W3DThingFactory.cpp.o
-[1542/1651] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/Common/Thing/W3DModuleFactory.cpp.o
-[1543/1651] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/Common/W3DConvert.cpp.o
-[1544/1651] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/Drawable/Draw/W3DDebrisDraw.cpp.o
-[1545/1651] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/BaseHeightMap.cpp.o
-[1546/1651] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/Drawable/Draw/W3DDefaultDraw.cpp.o
-[1547/1651] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/Drawable/Draw/W3DDependencyModelDraw.cpp.o
-[1548/1651] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/Drawable/Draw/W3DLaserDraw.cpp.o
-[1549/1651] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/Drawable/Draw/W3DModelDraw.cpp.o
-[1550/1651] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/Drawable/Draw/W3DOverlordAircraftDraw.cpp.o
-[1551/1651] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/Drawable/Draw/W3DOverlordTankDraw.cpp.o
-[1552/1651] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/Drawable/Draw/W3DOverlordTruckDraw.cpp.o
-[1553/1651] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/Drawable/Draw/W3DPoliceCarDraw.cpp.o
-[1554/1651] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/Drawable/Draw/W3DProjectileStreamDraw.cpp.o
-[1555/1651] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/Drawable/Draw/W3DPropDraw.cpp.o
-[1556/1651] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/Drawable/Draw/W3DRopeDraw.cpp.o
-[1557/1651] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/Drawable/Draw/W3DScienceModelDraw.cpp.o
-[1558/1651] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/Drawable/Draw/W3DSupplyDraw.cpp.o
-[1559/1651] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/Drawable/Draw/W3DTankDraw.cpp.o
-[1560/1651] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/Drawable/Draw/W3DTankTruckDraw.cpp.o
-[1561/1651] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/Drawable/Draw/W3DTracerDraw.cpp.o
-[1562/1651] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/Drawable/Draw/W3DTreeDraw.cpp.o
-[1563/1651] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/Drawable/Draw/W3DTruckDraw.cpp.o
-[1564/1651] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/FlatHeightMap.cpp.o
-[1565/1651] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/GUI/GUICallbacks/W3DControlBar.cpp.o
-[1566/1651] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/GUI/GUICallbacks/W3DMOTD.cpp.o
-[1567/1651] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/GUI/GUICallbacks/W3DMainMenu.cpp.o
-[1568/1651] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/GUI/Gadget/W3DComboBox.cpp.o
-[1569/1651] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/GUI/Gadget/W3DCheckBox.cpp.o
-[1570/1651] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/GUI/Gadget/W3DHorizontalSlider.cpp.o
-[1571/1651] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/GUI/Gadget/W3DListBox.cpp.o
-[1572/1651] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/GUI/Gadget/W3DProgressBar.cpp.o
-[1573/1651] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/GUI/Gadget/W3DPushButton.cpp.o
-[1574/1651] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/GUI/Gadget/W3DStaticText.cpp.o
-[1575/1651] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/GUI/Gadget/W3DRadioButton.cpp.o
-[1576/1651] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/GUI/Gadget/W3DTabControl.cpp.o
-[1577/1651] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/GUI/Gadget/W3DTextEntry.cpp.o
-[1578/1651] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/GUI/Gadget/W3DVerticalSlider.cpp.o
-[1579/1651] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/GUI/W3DGameFont.cpp.o
-[1580/1651] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/GUI/W3DGameWindowManager.cpp.o
-[1581/1651] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/GUI/W3DGameWindow.cpp.o
-[1582/1651] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/HazardCloud.cpp.o
-[1583/1651] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/HazardCloudFlow.cpp.o
-[1584/1651] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/HazardCloudCore.cpp.o
-[1585/1651] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/HazardCloudShader.cpp.o
-[1586/1651] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/HazardCloudSharedModel.cpp.o
-[1587/1651] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/HeightMap.cpp.o
-[1588/1651] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/SdlGpuParticles.cpp.o
-[1589/1651] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/Shadow/W3DBufferManager.cpp.o
-[1590/1651] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/Shadow/W3DShadow.cpp.o
-[1591/1651] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/Shadow/W3DProjectedShadow.cpp.o
-[1592/1651] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/StructureCollapse.cpp.o
-[1593/1651] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/TerrainTex.cpp.o
-[1594/1651] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/TileData.cpp.o
-[1595/1651] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/W3DAssetManager.cpp.o
-[1596/1651] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/W3DAssetManagerExposed.cpp.o
-[1597/1651] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/W3DBibBuffer.cpp.o
-[1598/1651] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/W3DCustomEdging.cpp.o
-[1599/1651] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/W3DBridgeBuffer.cpp.o
-[1600/1651] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/W3DDebugIcons.cpp.o
-[1601/1651] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/W3DDebugDisplay.cpp.o
-[1602/1651] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/W3DDisplayString.cpp.o
-[1603/1651] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/W3DDisplay.cpp.o
-[1604/1651] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/W3DDisplayStringManager.cpp.o
-[1605/1651] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/W3DDynamicLight.cpp.o
-[1606/1651] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/W3DFileSystem.cpp.o
-[1607/1651] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/W3DGranny.cpp.o
-[1608/1651] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/W3DGameClient.cpp.o
-[1609/1651] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/W3DInGameUI.cpp.o
-[1610/1651] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/W3DMouse.cpp.o
-[1611/1651] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/W3DPoly.cpp.o
-[1612/1651] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/W3DParticleSys.cpp.o
-[1613/1651] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/W3DPropBuffer.cpp.o
-[1614/1651] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/W3DReachOverlay.cpp.o
-[1615/1651] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/W3DRoadBuffer.cpp.o
-[1616/1651] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/W3DScene.cpp.o
-[1617/1651] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/W3DShaderManager.cpp.o
-[1618/1651] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/W3DShroud.cpp.o
-[1619/1651] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/W3DSmudge.cpp.o
-[1620/1651] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/W3DSnow.cpp.o
-[1621/1651] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/W3DStatusCircle.cpp.o
-[1622/1651] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/W3DTerrainBackground.cpp.o
-[1623/1651] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/W3DTerrainTracks.cpp.o
-[1624/1651] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/W3DTerrainVisual.cpp.o
-[1625/1651] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/W3DTreeBuffer.cpp.o
-[1626/1651] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/W3DVideoBuffer.cpp.o
-[1627/1651] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/W3DView.cpp.o
-[1628/1651] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/W3dWaypointBuffer.cpp.o
-[1629/1651] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/Water/W3DWater.cpp.o
-[1630/1651] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/Water/W3DWaterTracks.cpp.o
-[1631/1651] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/WorldHeightMap.cpp.o
-[1632/1651] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/camerashakesystem.cpp.o
-[1633/1651] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameLogic/W3DGameLogic.cpp.o
-[1634/1651] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameLogic/W3DGhostObject.cpp.o
-[1635/1651] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameLogic/W3DTerrainLogic.cpp.o
-[1636/1651] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/VideoDevice/Bink/BinkVideoPlayer.cpp.o
-[1637/1651] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/PosixDevice/Render/SdlHazardCloud.cpp.o
-[1638/1651] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/PosixDevice/Render/SdlHazardCloudEmbers.cpp.o
-[1639/1651] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/PosixDevice/Render/SdlHazardCloudShared.cpp.o
-[1640/1651] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/PosixDevice/Render/SdlHazardCloudSharedShader.cpp.o
-[1641/1651] Building CXX object CMakeFiles/test_online.dir/Tests/test_online.cpp.o
-[1642/1651] Building CXX object CMakeFiles/test_online.dir/Tests/test_gameengine_stubs.cpp.o
-[1643/1651] Building CXX object CMakeFiles/test_online.dir/Tests/test_user_data_guard.cpp.o
-[1644/1651] Building CXX object CMakeFiles/test_gameengine.dir/Tests/test_gameengine_stubs.cpp.o
-[1645/1651] Building CXX object CMakeFiles/test_gameengine.dir/Tests/test_user_data_guard.cpp.o
-[1646/1651] Building CXX object CMakeFiles/test_gameengine.dir/Tests/test_gameengine.cpp.o
+[SDL_POST] selected_filters=0 samples=4 hdr=1 constrained=0
+[SDL_HEAT] ready size=64x48
+[SDL_MEMORY] released transient AO/atmosphere/effect/ocean/scene-copy caches cpu_staging_released_mib=0.0 gpu_staging_nominal_mib=0.0
+[SDL_MSAA] disabled reason=iOS memory pressure
+[SDL_MEMORY] released transient AO/atmosphere/effect/ocean/scene-copy caches cpu_staging_released_mib=0.0 gpu_staging_nominal_mib=0.0
+[SDL_MEMORY] constrained=1 paused=ao,atmosphere,firelight,fft,post-filters,particle-overflow msaa=off recovery=device-recreation preferences=retained
+PosixDevice9: 9 draws recorded, 0 presents, 0 of them to a window that was not visible, 0 with no drawable
+PosixDevice9: 21 mid-frame flushes, at most 4 in flight at once, 1 waited for the ring (limit 3); 0 of the flushes for the draw limit (2048 draws)
+SHORELINE: hdr=0 shallow_BG=32,223 deep_BG=219,36
+MSAA: hdr=0 samples=1 edges=111 failures=0 backend=metal
+SHORELINE: hdr=1 shallow_BG=31,223 deep_BG=219,36
+MSAA: hdr=1 samples=1 edges=111 failures=0 backend=metal
+Graphics shader/GPU readback checks passed: test_sdl_msaa.
+[SDL_SCENE] hdr_requested=0 hdr_active=0 format=12
+[SDL_MSAA] requested=0 active=1
+[SDL_POST] selected_filters=2 samples=1 hdr=0 constrained=0
+[SDL_POST] ready hdr=0
+[SDL_HEAT] ready size=33x23
+[SDL_POST] selected_filters=1 samples=1 hdr=0 constrained=0
+[SDL_POST] selected_filters=1 samples=1 hdr=0 constrained=0
+[SDL_POST] selected_filters=2 samples=1 hdr=0 constrained=0
+[SDL_MEMORY] released transient AO/atmosphere/effect/ocean/scene-copy caches cpu_staging_released_mib=0.0 gpu_staging_nominal_mib=0.0
+[SDL_MEMORY] constrained=1 paused=ao,atmosphere,firelight,fft,post-filters,particle-overflow msaa=off recovery=device-recreation preferences=retained
+[SDL_POST] selected_filters=0 samples=1 hdr=0 constrained=1
+[SDL_SCENE] hdr_requested=0 hdr_active=0 format=12
+[SDL_MSAA] requested=4 active=4
+[SDL_POST] selected_filters=0 samples=4 hdr=0 constrained=0
+[SDL_POST] selected_filters=1 samples=4 hdr=0 constrained=0
+[SDL_POST] ready hdr=0
+[SDL_HEAT] ready size=41x27
+POST: failures=0 backend=metal
+Graphics shader/GPU readback checks passed: test_sdl_post.
+[SDL_SCENE] hdr_requested=0 hdr_active=0 format=12
+[SDL_MSAA] requested=0 active=1
+[SDL_PARTICLES] ready capacity=17 system_slots=1024 atlas_layers=32 base_nominal_mib=2.91 admission=opt-in-additive-overflow
+[SDL_PARTICLES] evaluate range=5 capacity=17 now=102 upload_capacity=245760
+[SDL_PARTICLES] released capacity=17 evaluated=1
+[SDL_MEMORY] released transient AO/atmosphere/effect/ocean/scene-copy caches cpu_staging_released_mib=0.0 gpu_staging_nominal_mib=0.0
+[SDL_MEMORY] constrained=1 paused=ao,atmosphere,firelight,fft,post-filters,particle-overflow msaa=off recovery=device-recreation preferences=retained
+[SDL_SCENE] hdr_requested=0 hdr_active=0 format=12
+[SDL_MSAA] requested=0 active=1
+[SDL_PARTICLES] ready capacity=17 system_slots=1024 atlas_layers=32 base_nominal_mib=2.91 admission=opt-in-additive-overflow
+[SDL_PARTICLES] refused reason=upload bounds error= CPU_fallback=1
+[SDL_PARTICLES] released capacity=17 evaluated=0
+PARTICLES: failures=0 backend=metal
+Graphics shader/GPU readback checks passed: test_sdl_particles.
+[DEVICE_CREATE] stage=gpu-frame result=0x00000000 size=32x32 color=22 depth=75 auto_depth=1 samples=0 quality=0 window=0x0 offscreen=0
+[SDL_SCENE] hdr_requested=0 hdr_active=0 format=12
+[SDL_MSAA] requested=0 active=1
+[SDL_TEXTURE] block_compression=1 unsupported_fallback=BGRA8
+[GPU_FEEDBACK] v=1 elapsed_ms=677.0 present=0 recorded_draws=29 attachment=colour back_buffer=0 sun=0 slot=0 texture_stage=0 sampler_stage=0
+[GPU_FEEDBACK_RESOURCE] target=16x16 format=21 sampled=16x16 format=21 same_logical_texture=1 cpu_texture=0x600002346ad0 cpu_surface=0x600002e53400 cpu_container=0x600002346ad0 gpu_sample=0x600002344550 gpu_colour=0x600002344550 gpu_depth=0x600002346260
+[GPU_FEEDBACK_DRAW] primitive_type=4 primitives=2 fvf=0x144 colour_write=0xf z=0/1 blend=0 colour_op=2 args=0x2/0x1 alpha_op=3 args=0x2/0x1
+[GPU_FEEDBACK_SHADER] vertex=fixed-function pixel=fixed-function
+[GPU_FEEDBACK_PROGRAM] vertex=324:001:1,0,0,0:T0,0:F0,0
+[GPU_FEEDBACK_PROGRAM] pixel=1:2,1,2,1,3,1,2,1,0,1:A0,0,F0
+[GPU_FEEDBACK_STACK] frame=0 image=posix_gpu_draw_selfcheck offset=0x17b74 symbol=PosixDevice9::Log_Feedback_Conflict(PosixDevice9::DrawCall const&, SdlTarget const&, unsigned int, int, int, bool, std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char>> const&, std::__1::basic_string<char, std symbol_offset=0x3e4
+[GPU_FEEDBACK_STACK] frame=1 image=posix_gpu_draw_selfcheck offset=0x1ace4 symbol=PosixDevice9::Gpu_Draw(PosixDevice9::DrawCall const&) symbol_offset=0x1db4
+[GPU_FEEDBACK_STACK] frame=2 image=posix_gpu_draw_selfcheck offset=0x1c5c8 symbol=PosixDevice9::DrawPrimitiveUP(D3DPRIMITIVETYPE, unsigned int, void const*, unsigned int) symbol_offset=0x40
+[GPU_FEEDBACK_STACK] frame=3 image=posix_gpu_draw_selfcheck offset=0xa2d8 symbol=main symbol_offset=0x5024
+[GPU_FEEDBACK_STACK] frame=4 image=dyld offset=0x6b98 symbol=start symbol_offset=0x17bc
+PosixDevice9: a draw refused: sampling the render target it draws into
+PosixDevice9: a draw refused: the texture: a cube or volume texture (A3c draws 2D textures)
+PosixDevice9: 678 draws recorded, 1 presents, 0 of them to a window that was not visible, 0 with no drawable
+PosixDevice9: 37 mid-frame flushes, at most 2 in flight at once, 0 waited for the ring (limit 3); 0 of the flushes for the draw limit (2048 draws)
+PosixDevice9:   refused 2: sampling the render target it draws into
+PosixDevice9:   refused 1: the texture: a cube or volume texture (A3c draws 2D textures)
+posix_gpu_draw_selfcheck: an indexed shared edge in one call differs from per-primitive at 16 pixels (C1: this GPU forms quads across edges an index buffer shares)
+posix_gpu_draw_selfcheck: metal: 678 draws recorded, 4 textures and 7 buffers uploaded, 1 stale flushes
+Graphics shader/GPU readback checks passed: posix_gpu_draw_selfcheck.
+-- 
+-- SDL3 was configured with the following options:
+-- 
+-- Platform: iOS
+-- 64-bit:   TRUE
+-- Compiler: /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang
+-- Revision: SDL-3.4.16-HEAD-HASH-NOTFOUND
+-- Vendor:   
+-- 
+-- Subsystems:
+--   Audio:    OFF
+--   Video:    ON
+--   GPU:      ON
+--   Render:   OFF
+--   Camera:   OFF
+--   Joystick: OFF
+--   Haptic:   OFF
+--   Hidapi:   OFF
+--   Power:    OFF
+--   Sensor:   OFF
+--   Dialog:   OFF
+--   Tray:     OFF
+-- 
+-- Options:
+--   SDL_ALSA                    (Wanted: OFF): OFF
+--   SDL_ALSA_SHARED             (Wanted: OFF): OFF
+--   SDL_ALTIVEC                 (Wanted: OFF): OFF
+--   SDL_ARMNEON                 (Wanted: ON): ON
+--   SDL_ASAN                    (Wanted: OFF): OFF
+--   SDL_ASSEMBLY                (Wanted: ON): ON
+--   SDL_ASSERTIONS              (Wanted: auto): auto
+--   SDL_AVX                     (Wanted: OFF): OFF
+--   SDL_AVX2                    (Wanted: OFF): OFF
+--   SDL_AVX512F                 (Wanted: OFF): OFF
+--   SDL_BACKGROUNDING_SIGNAL    (Wanted: OFF): OFF
+--   SDL_CCACHE                  (Wanted: OFF): OFF
+--   SDL_CLANG_TIDY              (Wanted: OFF): OFF
+--   SDL_CLOCK_GETTIME           (Wanted: OFF): OFF
+--   SDL_COCOA                   (Wanted: ON): OFF
+--   SDL_DBUS                    (Wanted: OFF): OFF
+--   SDL_DEPS_SHARED             (Wanted: ON): OFF
+--   SDL_DIRECTX                 (Wanted: OFF): OFF
+--   SDL_DISKAUDIO               (Wanted: OFF): OFF
+--   SDL_DLOPEN_NOTES            (Wanted: OFF): OFF
+--   SDL_DUMMYAUDIO              (Wanted: OFF): OFF
+--   SDL_DUMMYCAMERA             (Wanted: OFF): OFF
+--   SDL_DUMMYVIDEO              (Wanted: ON): ON
+--   SDL_EXAMPLES                (Wanted: OFF): OFF
+--   SDL_EXAMPLES_LINK_SHARED    (Wanted: OFF): OFF
+--   SDL_FOREGROUNDING_SIGNAL    (Wanted: OFF): OFF
+--   SDL_FRIBIDI                 (Wanted: OFF): OFF
+--   SDL_FRIBIDI_SHARED          (Wanted: OFF): OFF
+--   SDL_GCC_ATOMICS             (Wanted: ON): ON
+--   SDL_HIDAPI                  (Wanted: OFF): OFF
+--   SDL_HIDAPI_JOYSTICK         (Wanted: OFF): OFF
+--   SDL_HIDAPI_LIBUSB           (Wanted: OFF): OFF
+--   SDL_HIDAPI_LIBUSB_SHARED    (Wanted: OFF): OFF
+--   SDL_IBUS                    (Wanted: OFF): OFF
+--   SDL_INSTALL                 (Wanted: OFF): OFF
+--   SDL_INSTALL_TESTS           (Wanted: OFF): OFF
+--   SDL_JACK                    (Wanted: OFF): OFF
+--   SDL_JACK_SHARED             (Wanted: OFF): OFF
+--   SDL_KMSDRM                  (Wanted: OFF): OFF
+--   SDL_KMSDRM_SHARED           (Wanted: OFF): OFF
+--   SDL_LASX                    (Wanted: OFF): OFF
+--   SDL_LIBC                    (Wanted: ON): ON
+--   SDL_LIBICONV                (Wanted: OFF): OFF
+--   SDL_LIBTHAI                 (Wanted: OFF): OFF
+--   SDL_LIBTHAI_SHARED          (Wanted: OFF): OFF
+--   SDL_LIBUDEV                 (Wanted: ON): OFF
+--   SDL_LIBURING                (Wanted: OFF): OFF
+--   SDL_LSX                     (Wanted: OFF): OFF
+--   SDL_METAL                   (Wanted: ON): ON
+--   SDL_MMX                     (Wanted: OFF): OFF
+--   SDL_OFFSCREEN               (Wanted: ON): ON
+--   SDL_OPENGL                  (Wanted: OFF): OFF
+--   SDL_OPENGLES                (Wanted: OFF): OFF
+--   SDL_OPENVR                  (Wanted: OFF): OFF
+--   SDL_OSS                     (Wanted: OFF): OFF
+--   SDL_PIPEWIRE                (Wanted: OFF): OFF
+--   SDL_PIPEWIRE_SHARED         (Wanted: OFF): OFF
+--   SDL_PTHREADS                (Wanted: ON): ON
+--   SDL_PTHREADS_SEM            (Wanted: ON): ON
+--   SDL_PULSEAUDIO              (Wanted: OFF): OFF
+--   SDL_PULSEAUDIO_SHARED       (Wanted: OFF): OFF
+--   SDL_RENDER_D3D              (Wanted: OFF): OFF
+--   SDL_RENDER_D3D11            (Wanted: OFF): OFF
+--   SDL_RENDER_D3D12            (Wanted: OFF): OFF
+--   SDL_RENDER_GPU              (Wanted: OFF): OFF
+--   SDL_RENDER_METAL            (Wanted: OFF): OFF
+--   SDL_RENDER_VULKAN           (Wanted: OFF): OFF
+--   SDL_ROCKCHIP                (Wanted: OFF): OFF
+--   SDL_RPATH                   (Wanted: ON): OFF
+--   SDL_RPI                     (Wanted: OFF): OFF
+--   SDL_SNDIO                   (Wanted: OFF): OFF
+--   SDL_SNDIO_SHARED            (Wanted: OFF): OFF
+--   SDL_SSE                     (Wanted: OFF): OFF
+--   SDL_SSE2                    (Wanted: OFF): OFF
+--   SDL_SSE3                    (Wanted: OFF): OFF
+--   SDL_SSE4_1                  (Wanted: OFF): OFF
+--   SDL_SSE4_2                  (Wanted: OFF): OFF
+--   SDL_SYSTEM_ICONV            (Wanted: OFF): OFF
+--   SDL_TESTS                   (Wanted: OFF): OFF
+--   SDL_TESTS_LINK_SHARED       (Wanted: OFF): OFF
+--   SDL_UNINSTALL               (Wanted: OFF): OFF
+--   SDL_VIRTUAL_JOYSTICK        (Wanted: OFF): OFF
+--   SDL_VIVANTE                 (Wanted: OFF): OFF
+--   SDL_VULKAN                  (Wanted: ON): ON
+--   SDL_WASAPI                  (Wanted: OFF): OFF
+--   SDL_WAYLAND                 (Wanted: OFF): OFF
+--   SDL_WAYLAND_LIBDECOR        (Wanted: OFF): OFF
+--   SDL_WAYLAND_LIBDECOR_SHARED (Wanted: OFF): OFF
+--   SDL_WAYLAND_SHARED          (Wanted: OFF): OFF
+--   SDL_X11                     (Wanted: OFF): OFF
+--   SDL_X11_SHARED              (Wanted: OFF): OFF
+--   SDL_X11_XCURSOR             (Wanted: OFF): OFF
+--   SDL_X11_XDBE                (Wanted: OFF): OFF
+--   SDL_X11_XFIXES              (Wanted: OFF): OFF
+--   SDL_X11_XINPUT              (Wanted: OFF): OFF
+--   SDL_X11_XRANDR              (Wanted: OFF): OFF
+--   SDL_X11_XSCRNSAVER          (Wanted: OFF): OFF
+--   SDL_X11_XSHAPE              (Wanted: OFF): OFF
+--   SDL_X11_XSYNC               (Wanted: OFF): OFF
+--   SDL_X11_XTEST               (Wanted: OFF): OFF
+--   SDL_XINPUT                  (Wanted: OFF): OFF
+-- 
+--  Build Shared Library: OFF
+--  Build Static Library: ON
+--  Build libraries as Apple Framework: OFF
+-- 
+-- Enabled backends:
+--   Video drivers: dummy offscreen uikit
+--   Render drivers: 
+--   GPU drivers: metal vulkan
+--   Audio drivers: dummy
+--   Joystick drivers: disabled dummy
+--   Camera drivers: dummy
+-- 
+-- If something was not detected, although the libraries
+-- were installed, then make sure you have set the
+-- CMAKE_C_FLAGS and CMAKE_PREFIX_PATH CMake variables correctly.
+-- 
+CMake Warning (deprecated) at Libraries/Source/glslang/CMakeLists.txt:111 (message):
+  ENABLE_HLSL is deprecated.  The HLSL front-end will be removed in a future
+  major release of glslang.  See
+  https://github.com/KhronosGroup/glslang/issues/4210 for details.
+This warning is for project developers.  Use -Wno-author or -Wno-deprecated
+to suppress it.
+
+-- spirv-tools not linked - illegal SPIRV may be generated for HLSL
+-- SPIRV-Cross: Finding Git version for SPIRV-Cross.
+-- SPIRV-Cross: Git hash: d71bb7d
+-- Configuring done (0.5s)
+-- Generating done (0.4s)
+-- Build files have been written to: /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/build/ios
+[0/2] Re-checking globbed directories...
+[1/1624] Building CXX object SPIRV-Cross/CMakeFiles/spirv-cross-core.dir/spirv_parser.cpp.o
+[2/1624] Building CXX object SPIRV-Cross/CMakeFiles/spirv-cross-core.dir/spirv_cross_parsed_ir.cpp.o
+[3/1624] Building CXX object SPIRV-Cross/CMakeFiles/spirv-cross-core.dir/spirv_cross.cpp.o
+[4/1624] Building CXX object SPIRV-Cross/CMakeFiles/spirv-cross-core.dir/spirv_cfg.cpp.o
+[5/1624] Building CXX object SPIRV-Cross/CMakeFiles/spirv-cross-glsl.dir/spirv_glsl.cpp.o
+[6/1624] Linking CXX static library SPIRV-Cross/libspirv-cross-core.a
+[7/1624] Building CXX object SPIRV-Cross/CMakeFiles/spirv-cross-msl.dir/spirv_msl.cpp.o
+[8/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/dynapi/SDL_dynapi.c.o
+[9/1624] Linking CXX static library SPIRV-Cross/libspirv-cross-glsl.a
+[10/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/cmake_pch.h.pch
+[11/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/SDL.c.o
+[12/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/SDL_assert.c.o
+[13/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/SDL_error.c.o
+[14/1624] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/misc/ios/SDL_sysurl.m.o
+[15/1624] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/main/ios/SDL_sysmain_callbacks.m.o
+[16/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/SDL_guid.c.o
+[17/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/SDL_hints.c.o
+[18/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/SDL_list.c.o
+[19/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/SDL_hashtable.c.o
+[20/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/SDL_log.c.o
+[21/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/SDL_properties.c.o
+[22/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/SDL_utils.c.o
+[23/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/atomic/SDL_atomic.c.o
+[24/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/atomic/SDL_spinlock.c.o
+[25/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/audio/SDL_audiodev.c.o
+[26/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/audio/SDL_audioqueue.c.o
+[27/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/audio/SDL_audio.c.o
+[28/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/audio/SDL_audioresample.c.o
+[29/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/audio/SDL_mixer.c.o
+[30/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/audio/SDL_audiotypecvt.c.o
+[31/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/audio/SDL_audiocvt.c.o
+[32/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/core/SDL_core_unsupported.c.o
+[33/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/cpuinfo/SDL_cpuinfo.c.o
+[34/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/camera/SDL_camera.c.o
+[35/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/audio/SDL_wave.c.o
+[36/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/events/SDL_categories.c.o
+[37/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/events/SDL_clipboardevents.c.o
+[38/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/events/SDL_displayevents.c.o
+[39/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/events/SDL_dropevents.c.o
+[40/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/events/SDL_eventwatch.c.o
+[41/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/events/SDL_keymap.c.o
+[42/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/events/SDL_keyboard.c.o
+[43/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/events/SDL_keysym_to_keycode.c.o
+[44/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/events/SDL_keysym_to_scancode.c.o
+[45/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/events/SDL_events.c.o
+[46/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/events/SDL_quit.c.o
+[47/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/events/SDL_scancode_tables.c.o
+[48/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/events/SDL_pen.c.o
+[49/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/events/SDL_windowevents.c.o
+[50/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/events/SDL_touch.c.o
+[51/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/events/imKStoUCS.c.o
+[52/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/events/SDL_mouse.c.o
+[53/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/filesystem/SDL_filesystem.c.o
+[54/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/haptic/SDL_haptic.c.o
+[55/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/hidapi/SDL_hidapi.c.o
+[56/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/io/SDL_asyncio.c.o
+[57/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/io/generic/SDL_asyncio_generic.c.o
+[58/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/io/SDL_iostream.c.o
+[59/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/gpu/SDL_gpu.c.o
+[60/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/joystick/SDL_steam_virtual_gamepad.c.o
+[61/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/joystick/controller_type.c.o
+[62/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/locale/SDL_locale.c.o
+[63/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/main/SDL_main_callbacks.c.o
+[64/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/main/SDL_runapp.c.o
+[65/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/joystick/SDL_gamepad.c.o
+[66/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/misc/SDL_libusb.c.o
+[67/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/misc/SDL_url.c.o
+[68/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/joystick/SDL_joystick.c.o
+[69/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/power/SDL_power.c.o
+[70/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/render/SDL_render_unsupported.c.o
+[71/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/render/direct3d/SDL_render_d3d.c.o
+[72/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/render/SDL_yuv_sw.c.o
+[73/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/render/direct3d/SDL_shaders_d3d.c.o
+[74/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/render/direct3d11/SDL_render_d3d11.c.o
