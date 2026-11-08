@@ -122,6 +122,10 @@ SdlGpuFrame::SdlGpuFrame() :
 	FlushInFlightMost(0),
 	FlushWaits(0),
 	ParticleGpuWaitNs(0),
+	ParticleGpuMaxWaitNs(0),
+	ParticleGpuWaitAbove1Ms(0),
+	ParticleGpuWaitAbove5Ms(0),
+	ParticleGpuWaitAbove16Ms(0),
 	ParticleGpuSubmitNs(0),
 	ParticleGpuSubmitCount(0),
 	ParticleGpuPerfFrames(0),
@@ -925,7 +929,14 @@ bool SdlGpuFrame::Submit_Flush(SDL_GPUCommandBuffer * commands)
 	if (FlushLimit > 0 && FlushFences.size() > FlushLimit) {
 		const Uint64 waitStart = profile ? SDL_GetTicksNS() : 0;
 		SDL_WaitForGPUFences(GpuDevice, true, &FlushFences[0], 1);
-		if (profile) ParticleGpuWaitNs += SDL_GetTicksNS() - waitStart;
+		if (profile) {
+			const Uint64 waitNs = SDL_GetTicksNS() - waitStart;
+			ParticleGpuWaitNs += waitNs;
+			if (waitNs > ParticleGpuMaxWaitNs) ParticleGpuMaxWaitNs = waitNs;
+			ParticleGpuWaitAbove1Ms += waitNs >= 1000000ull;
+			ParticleGpuWaitAbove5Ms += waitNs >= 5000000ull;
+			ParticleGpuWaitAbove16Ms += waitNs >= 16000000ull;
+		}
 		// Also counted in FlushMs; do not add these times to derive total CPU frame time.
 		SDL_ReleaseGPUFence(GpuDevice, FlushFences[0]);
 		FlushFences.erase(FlushFences.begin());
@@ -1017,14 +1028,17 @@ void SdlGpuFrame::Take_Timing(double & flush_ms, double & fence_ms, unsigned int
 	if (ParticlePerfToggle::enabled()) {
 		// A Take_Timing call normally represents one presentation interval. No per-frame stderr.
 		if (++ParticleGpuPerfFrames >= 120) {
-			fprintf(stderr, "[GPU_SYNC_PERF] intervals=%u flushes=%u ring_waits=%u ring_wait_cpu_ms=%.3f submit_calls=%u submit_cpu_ms=%.3f note=cpu_wall_time_not_gpu_elapsed\n",
+			fprintf(stderr, "[GPU_SYNC_PERF] intervals=%u flushes=%u ring_waits=%u ring_wait_cpu_ms=%.3f ring_wait_max_ms=%.3f waits_ge_1ms=%u waits_ge_5ms=%u waits_ge_16ms=%u submit_calls=%u submit_cpu_ms=%.3f note=cpu_wall_time_not_gpu_elapsed\n",
 				ParticleGpuPerfFrames, FlushesTotal - ParticleGpuPerfFlushStart,
 				FlushWaits - ParticleGpuPerfWaitStart, double(ParticleGpuWaitNs) / 1.0e6,
+				double(ParticleGpuMaxWaitNs) / 1.0e6,
+				ParticleGpuWaitAbove1Ms, ParticleGpuWaitAbove5Ms, ParticleGpuWaitAbove16Ms,
 				ParticleGpuSubmitCount, double(ParticleGpuSubmitNs) / 1.0e6);
 			ParticleGpuPerfFrames = 0;
 			ParticleGpuPerfFlushStart = FlushesTotal;
 			ParticleGpuPerfWaitStart = FlushWaits;
-			ParticleGpuWaitNs = ParticleGpuSubmitNs = 0;
+			ParticleGpuWaitNs = ParticleGpuMaxWaitNs = ParticleGpuSubmitNs = 0;
+			ParticleGpuWaitAbove1Ms = ParticleGpuWaitAbove5Ms = ParticleGpuWaitAbove16Ms = 0;
 			ParticleGpuSubmitCount = 0;
 		}
 	} else {
@@ -1032,7 +1046,8 @@ void SdlGpuFrame::Take_Timing(double & flush_ms, double & fence_ms, unsigned int
 		ParticleGpuPerfFrames = 0;
 		ParticleGpuPerfFlushStart = FlushesTotal;
 		ParticleGpuPerfWaitStart = FlushWaits;
-		ParticleGpuWaitNs = ParticleGpuSubmitNs = 0;
+		ParticleGpuWaitNs = ParticleGpuMaxWaitNs = ParticleGpuSubmitNs = 0;
+		ParticleGpuWaitAbove1Ms = ParticleGpuWaitAbove5Ms = ParticleGpuWaitAbove16Ms = 0;
 		ParticleGpuSubmitCount = 0;
 	}
 }
