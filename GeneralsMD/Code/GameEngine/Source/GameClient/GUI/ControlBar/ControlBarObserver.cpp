@@ -325,7 +325,7 @@ void ControlBar::populateObserverList( void )
 				++currentButton;
 			}
 		}
-		for(currentButton; currentButton<MAX_BUTTONS; ++currentButton)
+		for(; currentButton<MAX_BUTTONS; ++currentButton)
 		{
 			buttonPlayer[currentButton]->winHide(TRUE);
 			staticTextPlayer[currentButton]->winHide(TRUE);
@@ -358,7 +358,7 @@ void ControlBar::populateObserverList( void )
 				break;
 			}
 		}
-		for(currentButton; currentButton<MAX_BUTTONS; ++currentButton)
+		for(; currentButton<MAX_BUTTONS; ++currentButton)
 		{
 			buttonPlayer[currentButton]->winHide(TRUE);
 			staticTextPlayer[currentButton]->winHide(TRUE);

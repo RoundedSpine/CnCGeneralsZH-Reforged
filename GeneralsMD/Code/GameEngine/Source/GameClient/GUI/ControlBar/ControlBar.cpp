@@ -1335,7 +1335,7 @@ ControlBar::ControlBar( void )
 	m_rightHUDWindow = NULL;
 	m_rightHUDCameoWindow = NULL;
 	for( i = 0; i < MAX_RIGHT_HUD_UPGRADE_CAMEOS; i++ )
-		m_rightHUDUpgradeCameos[i];
+		m_rightHUDUpgradeCameos[i] = NULL;
 	m_rightHUDUnitSelectParent = NULL;
 	m_communicatorButton = NULL;
 	m_currentSelectedDrawable = NULL;
@@ -1404,7 +1404,7 @@ ControlBar::~ControlBar( void )
 {
 
 	if (m_rightHUDCameoWindow && m_rightHUDCameoWindow->winGetUserData())
-		delete m_rightHUDCameoWindow->winGetUserData();
+		::operator delete(m_rightHUDCameoWindow->winGetUserData());
 
 	// the layouts, the animation managers and every window pointer, in one place
 	shutdownWindows();

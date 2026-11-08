@@ -81,8 +81,6 @@ MultiplayerSettings::MultiplayerSettings()
 	m_showRandomStartPos = TRUE;
 	m_showRandomColor = TRUE;
 	
-	m_observerColor;
-	m_randomColor;
 
   m_gotDefaultStartingMoney = false;
 

@@ -131,7 +131,7 @@ GameWindow::~GameWindow( void )
 {
 
 	if(	m_inputData )
-		delete m_inputData;
+		::operator delete(m_inputData);
 	m_inputData = NULL;
 	
 	if( m_editData )
