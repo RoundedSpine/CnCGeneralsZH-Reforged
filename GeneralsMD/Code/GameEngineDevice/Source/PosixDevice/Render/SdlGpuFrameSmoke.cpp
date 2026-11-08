@@ -121,7 +121,7 @@ bool SdlGpuFrame::Fill_Sun_Smoke(const float *sun, const float *casters, unsigne
     if (!splats) return true;
     // All previously queued readers must be submitted before this overwrite. GPU submissions
     // run in order; cycling the upload and vertex buffer protects their in-flight versions.
-    if (!Flush()) return Fail_Sun_Smoke("queued reader submission failed");
+    if (!Flush(FlushSmoke)) return Fail_Sun_Smoke("queued reader submission failed");
     void *mapped = SDL_MapGPUTransferBuffer(GpuDevice,Smoke->Upload,true);
     if (!mapped) return Fail_Sun_Smoke(SDL_GetError());
     const Uint32 bytes = splats * SunSmoke::SplatFloats * sizeof(float);
@@ -162,7 +162,7 @@ SDL_GPUSampler *SdlGpuFrame::Sun_Smoke_Sampler() const { return Smoke ? Smoke->S
 bool SdlGpuFrame::Read_Sun_Smoke(std::vector<float> &moments)
 {
     moments.clear();
-    if (!Sun_Smoke_Texture() || !Flush()) return false;
+    if (!Sun_Smoke_Texture() || !Flush(FlushSmoke)) return false;
     SDL_GPUTransferBufferCreateInfo info = {};
     info.usage = SDL_GPU_TRANSFERBUFFERUSAGE_DOWNLOAD;
     info.size = SunSmoke::Texels * SunSmoke::Texels * 4 * sizeof(float);
