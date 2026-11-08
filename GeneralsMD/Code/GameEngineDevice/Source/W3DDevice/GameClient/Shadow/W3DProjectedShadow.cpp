@@ -1491,7 +1491,7 @@ Int W3DProjectedShadowManager::renderShadows(RenderInfoClass & rinfo)
                         const bool owns = SunShadow::OwnsSceneShadows(DX8Wrapper::_Get_D3D_Device());
                         const int state = (owns ? 1 : 0) | (TheGlobalData->m_shadowMapOnly ? 2 : 0);
                         if (state != lastState) {
-                            fprintf(stderr, "[IOS_AIRCRAFT_DECAL] shadow_type=%d sun_map_owns=%d map_only=%d\\n",
+                            fprintf(stderr, "[IOS_AIRCRAFT_DECAL] shadow_type=%d sun_map_owns=%d map_only=%d\n",
                                 int(shadow->m_type), int(owns), int(TheGlobalData->m_shadowMapOnly));
                             lastState = state;
                         }
