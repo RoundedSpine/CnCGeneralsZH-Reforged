@@ -1,300 +1,300 @@
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:700:3: note: expanded from macro 'MEMORY_POOL_GLUE_ABC'
-  700 |                 return 0; \
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/load.cpp:74:27: warning: implicit conversion of NULL constant to 'unsigned long' [-Wnull-conversion]
+   74 |         if (!src || !dst) return(NULL);
+      |                           ~~~~~~ ^~~~
+      |                                  0
+1 warning generated.
+[343/1624] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/mpmath.cpp.o
+[344/1624] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/mixfile.cpp.o
+[345/1624] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/multilist.cpp.o
+[346/1624] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/nstrdup.cpp.o
+[347/1624] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/mutex.cpp.o
+[348/1624] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/palette.cpp.o
+[349/1624] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/pcx.cpp.o
+[350/1624] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/pipe.cpp.o
+[351/1624] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/pk.cpp.o
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/pk.cpp:46:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/pk.h:48:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/int.h:130:55: warning: instantiation of variable 'Int<64>::Error' required here, but no definition is available [-Wundefined-var-template]
+  130 |                 Int operator * (unsigned short b) const {Int result;Error=XMP_Unsigned_Mult_Int(result, &reg[0], b, PRECISION);return(result);}
+      |                                                                     ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/int.h:280:9: note: in instantiation of member function 'Int<64>::operator*' requested here
+  280 |                 p = (q*2) + (unsigned short)1;
+      |                       ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/pk.cpp:219:14: note: in instantiation of function template specialization 'Generate_Prime<Int<64>>' requested here
+  219 |                 BigInt p = Generate_Prime(random, bits, &p);
+      |                            ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/int.h:188:14: note: forward declaration of template entity is here
+  188 |                 static int Error;
+      |                            ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/int.h:130:55: note: add an explicit instantiation declaration to suppress this warning if 'Int<64>::Error' is explicitly instantiated in another translation unit
+  130 |                 Int operator * (unsigned short b) const {Int result;Error=XMP_Unsigned_Mult_Int(result, &reg[0], b, PRECISION);return(result);}
+      |                                                                     ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/int.h:126:55: warning: instantiation of variable 'Int<64>::Carry' required here, but no definition is available [-Wundefined-var-template]
+  126 |                 Int operator + (unsigned short b) const {Int result;Carry=XMP_Add_Int(result, &reg[0], b, 0, PRECISION);return(result);}
+      |                                                                     ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/int.h:280:13: note: in instantiation of member function 'Int<64>::operator+' requested here
+  280 |                 p = (q*2) + (unsigned short)1;
+      |                           ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/pk.cpp:219:14: note: in instantiation of function template specialization 'Generate_Prime<Int<64>>' requested here
+  219 |                 BigInt p = Generate_Prime(random, bits, &p);
+      |                            ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/int.h:191:15: note: forward declaration of template entity is here
+  191 |                 static bool Carry;
+      |                             ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/int.h:126:55: note: add an explicit instantiation declaration to suppress this warning if 'Int<64>::Carry' is explicitly instantiated in another translation unit
+  126 |                 Int operator + (unsigned short b) const {Int result;Carry=XMP_Add_Int(result, &reg[0], b, 0, PRECISION);return(result);}
+      |                                                                     ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/int.h:136:89: warning: instantiation of variable 'Int<64>::Remainder' required here, but no definition is available [-Wundefined-var-template]
+  136 |                 unsigned short operator % (unsigned short divisor) const {return(XMP_Unsigned_Div_Int(Remainder, &reg[0], divisor, PRECISION));}
+      |                                                                                                       ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/int.h:212:17: note: in instantiation of member function 'Int<64>::operator%' requested here
+  212 |                         table[i] = p % primetable[i];
+      |                                      ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/int.h:282:21: note: in instantiation of member function 'RemainderTable<Int<64>>::RemainderTable' requested here
+  282 |                 RemainderTable<T> rtQ(q);
+      |                                   ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/pk.cpp:219:14: note: in instantiation of function template specialization 'Generate_Prime<Int<64>>' requested here
+  219 |                 BigInt p = Generate_Prime(random, bits, &p);
+      |                            ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/int.h:197:14: note: forward declaration of template entity is here
+  197 |                 static Int Remainder;
+      |                            ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/int.h:136:89: note: add an explicit instantiation declaration to suppress this warning if 'Int<64>::Remainder' is explicitly instantiated in another translation unit
+  136 |                 unsigned short operator % (unsigned short divisor) const {return(XMP_Unsigned_Div_Int(Remainder, &reg[0], divisor, PRECISION));}
+      |                                                                                                       ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/int.h:128:55: warning: instantiation of variable 'Int<64>::Borrow' required here, but no definition is available [-Wundefined-var-template]
+  128 |                 Int operator - (unsigned short b) const {Int result;Borrow = XMP_Sub_Int(result, &reg[0], b, 0, PRECISION);return(result);}
+      |                                                                     ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/pk.cpp:227:20: note: in instantiation of member function 'Int<64>::operator-' requested here
+  227 |                 BigInt pqmin = (p-(unsigned short)1)*(q-(unsigned short)1);
+      |                                  ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/int.h:194:15: note: forward declaration of template entity is here
+  194 |                 static bool Borrow;
+      |                             ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/int.h:128:55: note: add an explicit instantiation declaration to suppress this warning if 'Int<64>::Borrow' is explicitly instantiated in another translation unit
+  128 |                 Int operator - (unsigned short b) const {Int result;Borrow = XMP_Sub_Int(result, &reg[0], b, 0, PRECISION);return(result);}
+      |                                                                     ^
+4 warnings generated.
+[352/1624] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/ramfile.cpp.o
+[353/1624] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/random.cpp.o
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/random.cpp:124:45: warning: shifting a negative signed value is undefined [-Wshift-negative-value]
+  124 |         return((Seed >> THROW_AWAY_BITS) & (~((~0) << SIGNIFICANT_BITS)));
+      |                                               ~~~~ ^
+1 warning generated.
+[354/1624] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/rc4.cpp.o
+[355/1624] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/rawfile.cpp.o
+[356/1624] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/readline.cpp.o
+[357/1624] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/realcrc.cpp.o
+[358/1624] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/refcount.cpp.o
+[359/1624] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/rgb.cpp.o
+[360/1624] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/rle.cpp.o
+[361/1624] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/sha.cpp.o
+[362/1624] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/sampler.cpp.o
+[363/1624] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/rndstrng.cpp.o
+[364/1624] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/slnode.cpp.o
+[365/1624] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/straw.cpp.o
+[366/1624] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/stimer.cpp.o
+[367/1624] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/strtok_r.cpp.o
+[368/1624] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/systimer.cpp.o
+[369/1624] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/tagblock.cpp.o
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/tagblock.cpp:56:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/tagblock.h:46:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/slist.h:61:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/slnode.h:46:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/mempool.h:364:18: warning: instantiation of variable 'AutoPoolClass<GenericSLNode, 256>::Allocator' required here, but no definition is available [-Wundefined-var-template]
+  364 |         return (void *)(Allocator.Allocate_Object_Memory());
+      |                         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/slist.h:462:23: note: in instantiation of member function 'AutoPoolClass<GenericSLNode, 256>::operator new' requested here
+  462 |                 SLNode<T> *temp   = new SLNode<T>(cur->Data());
+      |                                     ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/slist.h:79:3: note: in instantiation of member function 'SList<TagBlockIndex>::Add_Head' requested here
+   79 |                 SList(void)
       |                 ^
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_gameengine.cpp:21799:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/SupplyWarehouseDockUpdate.h:39:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/DockUpdate.h:67:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:713:3: note: expanded from macro 'MEMORY_POOL_GLUE_ABC'
-  713 |                 return 0; \
-      |                 ^
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_gameengine.cpp:21799:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/SupplyWarehouseDockUpdate.h:76:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
-   76 |         MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE( SupplyWarehouseDockUpdate, "SupplyWarehouseDockUpdate" )
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/tagblock.cpp:129:2: note: in instantiation of member function 'SList<TagBlockIndex>::SList' requested here
+  129 |         IndexList()
       |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:684:2: note: expanded from macro 'MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE'
-  684 |         MEMORY_POOL_GLUE_WITHOUT_GCMP(ARGCLASS) \
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/mempool.h:156:39: note: forward declaration of template entity is here
+  156 |         static ObjectPoolClass<T,BLOCK_SIZE>    Allocator;
+      |                                                 ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/mempool.h:364:18: note: add an explicit instantiation declaration to suppress this warning if 'AutoPoolClass<GenericSLNode, 256>::Allocator' is explicitly instantiated in another translation unit
+  364 |         return (void *)(Allocator.Allocate_Object_Memory());
+      |                         ^
+1 warning generated.
+[370/1624] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/TARGA.CPP.o
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/TARGA.CPP:367:31: warning: comparison between NULL and non-pointer ('long' and NULL) [-Wnull-arithmetic]
+  367 |         if (Open(name, TGA_READMODE) == NULL) {
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~ ^  ~~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/TARGA.CPP:429:34: warning: comparison between NULL and non-pointer ('long' and NULL) [-Wnull-arithmetic]
+  429 |                                         if ((error = DecodeImage()) == NULL) {
+      |                                             ~~~~~~~~~~~~~~~~~~~~~~~ ^  ~~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/TARGA.CPP:605:32: warning: comparison between NULL and non-pointer ('long' and NULL) [-Wnull-arithmetic]
+  605 |         if (Open(name, TGA_WRITEMODE) == NULL)
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~ ^  ~~~~
+3 warnings generated.
+[371/1624] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/tgatodxt.cpp.o
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/tgatodxt.cpp:38:9: warning: (gth) disabling TGAtoDXTClass temporarily so I can test the WW libs merge... [-W#pragma-messages]
+   38 | #pragma message ("(gth) disabling TGAtoDXTClass temporarily so I can test the WW libs merge...")
       |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:658:3: note: expanded from macro 'MEMORY_POOL_GLUE_WITHOUT_GCMP'
-  658 |                 return 0; \
-      |                 ^
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_gameengine.cpp:22690:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_camera_behavior.inc:8:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameClient/GameWindowManager.h:41:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameClient/WindowLayout.h:57:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
-   57 |         MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE( WindowLayout, "WindowLayoutPool" );
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:684:2: note: expanded from macro 'MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE'
-  684 |         MEMORY_POOL_GLUE_WITHOUT_GCMP(ARGCLASS) \
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:658:3: note: expanded from macro 'MEMORY_POOL_GLUE_WITHOUT_GCMP'
-  658 |                 return 0; \
-      |                 ^
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_gameengine.cpp:22690:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_camera_behavior.inc:11:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/RankInfo.h:45:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
-   45 |         MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE( RankInfo, "RankInfo" );
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:684:2: note: expanded from macro 'MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE'
-  684 |         MEMORY_POOL_GLUE_WITHOUT_GCMP(ARGCLASS) \
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:658:3: note: expanded from macro 'MEMORY_POOL_GLUE_WITHOUT_GCMP'
-  658 |                 return 0; \
-      |                 ^
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_gameengine.cpp:22692:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_production_input.inc:10:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
-   10 |         MEMORY_POOL_GLUE_WITH_EXPLICIT_CREATE(ProductionInputWindow, "ProductionInputWindow", 16, 16)
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:679:2: note: expanded from macro 'MEMORY_POOL_GLUE_WITH_EXPLICIT_CREATE'
-  679 |         MEMORY_POOL_GLUE_WITHOUT_GCMP(ARGCLASS) \
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:658:3: note: expanded from macro 'MEMORY_POOL_GLUE_WITHOUT_GCMP'
-  658 |                 return 0; \
-      |                 ^
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_gameengine.cpp:22989:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_minimap_input.inc:13:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Radar.h:95:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
-   95 |         MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE( RadarObject, "RadarObject" )
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:684:2: note: expanded from macro 'MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE'
-  684 |         MEMORY_POOL_GLUE_WITHOUT_GCMP(ARGCLASS) \
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:658:3: note: expanded from macro 'MEMORY_POOL_GLUE_WITHOUT_GCMP'
-  658 |                 return 0; \
-      |                 ^
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_gameengine.cpp:22989:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_minimap_input.inc:145:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
-  145 |         MEMORY_POOL_GLUE_WITH_EXPLICIT_CREATE(MinimapWindow, "MinimapWindow", 16, 16)
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:679:2: note: expanded from macro 'MEMORY_POOL_GLUE_WITH_EXPLICIT_CREATE'
-  679 |         MEMORY_POOL_GLUE_WITHOUT_GCMP(ARGCLASS) \
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:658:3: note: expanded from macro 'MEMORY_POOL_GLUE_WITHOUT_GCMP'
-  658 |                 return 0; \
-      |                 ^
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_gameengine.cpp:22990:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_selection_priority.inc:2:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameNetwork/GameMessageParser.h:34:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
-   34 |         MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE(GameMessageParserArgumentType, "GameMessageParserArgumentType")         
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:684:2: note: expanded from macro 'MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE'
-  684 |         MEMORY_POOL_GLUE_WITHOUT_GCMP(ARGCLASS) \
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:658:3: note: expanded from macro 'MEMORY_POOL_GLUE_WITHOUT_GCMP'
-  658 |                 return 0; \
-      |                 ^
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_gameengine.cpp:22990:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_selection_priority.inc:2:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameNetwork/GameMessageParser.h:79:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
-   79 |         MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE(GameMessageParser, "GameMessageParser")         
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:684:2: note: expanded from macro 'MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE'
-  684 |         MEMORY_POOL_GLUE_WITHOUT_GCMP(ARGCLASS) \
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:658:3: note: expanded from macro 'MEMORY_POOL_GLUE_WITHOUT_GCMP'
-  658 |                 return 0; \
-      |                 ^
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_gameengine.cpp:22992:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_supply_center_save.inc:1:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/ResourceGatheringManager.h:47:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
-   47 |         MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE( ResourceGatheringManager, "ResourceGatheringManager" );
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:684:2: note: expanded from macro 'MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE'
-  684 |         MEMORY_POOL_GLUE_WITHOUT_GCMP(ARGCLASS) \
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:658:3: note: expanded from macro 'MEMORY_POOL_GLUE_WITHOUT_GCMP'
-  658 |                 return 0; \
-      |                 ^
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_gameengine.cpp:22995:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_map_ini_rollback.inc:9:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameClient/Snow.h:39:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
-   39 |         MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE( WeatherSetting, "WeatherSetting"  )
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:684:2: note: expanded from macro 'MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE'
-  684 |         MEMORY_POOL_GLUE_WITHOUT_GCMP(ARGCLASS) \
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:658:3: note: expanded from macro 'MEMORY_POOL_GLUE_WITHOUT_GCMP'
-  658 |                 return 0; \
-      |                 ^
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_gameengine.cpp:22996:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_hostile_map.inc:8:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/CaveContain.h:39:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/CreateModule.h:65:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
-   65 |         MEMORY_POOL_GLUE_ABC( CreateModule )
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:700:3: note: expanded from macro 'MEMORY_POOL_GLUE_ABC'
-  700 |                 return 0; \
-      |                 ^
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_gameengine.cpp:22996:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_hostile_map.inc:8:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/CaveContain.h:39:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/CreateModule.h:65:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:713:3: note: expanded from macro 'MEMORY_POOL_GLUE_ABC'
-  713 |                 return 0; \
-      |                 ^
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_gameengine.cpp:22996:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_hostile_map.inc:8:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/CaveContain.h:40:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/OpenContain.h:45:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/DamageModule.h:89:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
-   89 |         MEMORY_POOL_GLUE_ABC( DamageModule )
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:700:3: note: expanded from macro 'MEMORY_POOL_GLUE_ABC'
-  700 |                 return 0; \
-      |                 ^
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_gameengine.cpp:22996:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_hostile_map.inc:8:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/CaveContain.h:40:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/OpenContain.h:45:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/DamageModule.h:89:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:713:3: note: expanded from macro 'MEMORY_POOL_GLUE_ABC'
-  713 |                 return 0; \
-      |                 ^
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_gameengine.cpp:22996:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_hostile_map.inc:8:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/CaveContain.h:40:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/OpenContain.h:92:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
-   92 |         MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE( OpenContain, "OpenContain" )
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:684:2: note: expanded from macro 'MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE'
-  684 |         MEMORY_POOL_GLUE_WITHOUT_GCMP(ARGCLASS) \
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:658:3: note: expanded from macro 'MEMORY_POOL_GLUE_WITHOUT_GCMP'
-  658 |                 return 0; \
-      |                 ^
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_gameengine.cpp:22996:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_hostile_map.inc:8:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/CaveContain.h:65:58: warning: offset of on non-standard-layout type 'CaveContainModuleData' [-Winvalid-offsetof]
-   65 |                         { "CaveIndex", INI::parseIntInRange, &caveIndexRange, offsetof( CaveContainModuleData, m_caveIndexData ) },
-      |                                                                               ^                                ~~~~~~~~~~~~~~~
-/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
-   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
-      |                        ^                     ~
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_gameengine.cpp:22996:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_hostile_map.inc:8:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/CaveContain.h:76:2: warning: 'operator new' should not return a null pointer unless it is declared 'throw()' or 'noexcept' [-Wnew-returns-null]
-   76 |         MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE( CaveContain, "CaveContain" )
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:684:2: note: expanded from macro 'MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE'
-  684 |         MEMORY_POOL_GLUE_WITHOUT_GCMP(ARGCLASS) \
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:658:3: note: expanded from macro 'MEMORY_POOL_GLUE_WITHOUT_GCMP'
-  658 |                 return 0; \
-      |                 ^
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_gameengine.cpp:45:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/MapObject.h:38:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameClient/TerrainRoads.h:40:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/BodyModule.h:37:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:38:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BitFlags.h:280:12: warning: instantiation of variable 'BitFlags<117, 2>::s_bitNameList' required here, but no definition is available [-Wundefined-var-template]
-  280 |     return s_bitNameList;
-      |            ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_gameengine.cpp:3207:35: note: in instantiation of member function 'BitFlags<117, 2>::getBitNames' requested here
- 3207 |                 { "KINDOF",                                     KindOfMaskType::getBitNames(),                          "OBSTACLE" },
-      |                                                                                 ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BitFlags.h:70:25: note: forward declaration of template entity is here
-   70 |         static const char*                                      s_bitNameList[];
-      |                                                                 ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BitFlags.h:280:12: note: add an explicit instantiation declaration to suppress this warning if 'BitFlags<117, 2>::s_bitNameList' is explicitly instantiated in another translation unit
-  280 |     return s_bitNameList;
-      |            ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BitFlags.h:280:12: warning: instantiation of variable 'BitFlags<117, 3>::s_bitNameList' required here, but no definition is available [-Wundefined-var-template]
-  280 |     return s_bitNameList;
-      |            ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_gameengine.cpp:3208:44: note: in instantiation of member function 'BitFlags<117, 3>::getBitNames' requested here
- 3208 |                 { "MODELCONDITION",     ModelConditionFlags::getBitNames(),     NULL },
-      |                                                              ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BitFlags.h:70:25: note: forward declaration of template entity is here
-   70 |         static const char*                                      s_bitNameList[];
-      |                                                                 ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BitFlags.h:280:12: note: add an explicit instantiation declaration to suppress this warning if 'BitFlags<117, 3>::s_bitNameList' is explicitly instantiated in another translation unit
-  280 |     return s_bitNameList;
-      |            ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BitFlags.h:280:12: warning: instantiation of variable 'BitFlags<13, 1>::s_bitNameList' required here, but no definition is available [-Wundefined-var-template]
-  280 |     return s_bitNameList;
-      |            ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_gameengine.cpp:3209:38: note: in instantiation of member function 'BitFlags<13, 1>::getBitNames' requested here
- 3209 |                 { "DISABLED",                           DisabledMaskType::getBitNames(),                NULL },
-      |                                                                           ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BitFlags.h:70:25: note: forward declaration of template entity is here
-   70 |         static const char*                                      s_bitNameList[];
-      |                                                                 ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BitFlags.h:280:12: note: add an explicit instantiation declaration to suppress this warning if 'BitFlags<13, 1>::s_bitNameList' is explicitly instantiated in another translation unit
-  280 |     return s_bitNameList;
-      |            ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BitFlags.h:280:12: warning: instantiation of variable 'BitFlags<45, 4>::s_bitNameList' required here, but no definition is available [-Wundefined-var-template]
-  280 |     return s_bitNameList;
-      |            ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_gameengine.cpp:3210:44: note: in instantiation of member function 'BitFlags<45, 4>::getBitNames' requested here
- 3210 |                 { "OBJECT_STATUS",      ObjectStatusMaskType::getBitNames(),NULL },
-      |                                                               ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BitFlags.h:70:25: note: forward declaration of template entity is here
-   70 |         static const char*                                      s_bitNameList[];
-      |                                                                 ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BitFlags.h:280:12: note: add an explicit instantiation declaration to suppress this warning if 'BitFlags<45, 4>::s_bitNameList' is explicitly instantiated in another translation unit
-  280 |     return s_bitNameList;
-      |            ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BitFlags.h:280:12: warning: instantiation of variable 'BitFlags<67, 5>::s_bitNameList' required here, but no definition is available [-Wundefined-var-template]
-  280 |     return s_bitNameList;
-      |            ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_gameengine.cpp:3211:44: note: in instantiation of member function 'BitFlags<67, 5>::getBitNames' requested here
- 3211 |                 { "SPECIALPOWER",               SpecialPowerMaskType::getBitNames(),NULL },
-      |                                                                       ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BitFlags.h:70:25: note: forward declaration of template entity is here
-   70 |         static const char*                                      s_bitNameList[];
-      |                                                                 ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BitFlags.h:280:12: note: add an explicit instantiation declaration to suppress this warning if 'BitFlags<67, 5>::s_bitNameList' is explicitly instantiated in another translation unit
-  280 |     return s_bitNameList;
-      |            ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BitFlags.h:280:12: warning: instantiation of variable 'BitFlags<8, 7>::s_bitNameList' required here, but no definition is available [-Wundefined-var-template]
-  280 |     return s_bitNameList;
-      |            ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_gameengine.cpp:3212:35: note: in instantiation of member function 'BitFlags<8, 7>::getBitNames' requested here
- 3212 |                 { "ARMORSET",                           ArmorSetFlags::getBitNames(),                           NULL },
-      |                                                                        ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BitFlags.h:70:25: note: forward declaration of template entity is here
-   70 |         static const char*                                      s_bitNameList[];
-      |                                                                 ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BitFlags.h:280:12: note: add an explicit instantiation declaration to suppress this warning if 'BitFlags<8, 7>::s_bitNameList' is explicitly instantiated in another translation unit
-  280 |     return s_bitNameList;
-      |            ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BitFlags.h:280:12: warning: instantiation of variable 'BitFlags<38, 8>::s_bitNameList' required here, but no definition is available [-Wundefined-var-template]
-  280 |     return s_bitNameList;
-      |            ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_gameengine.cpp:3213:36: note: in instantiation of member function 'BitFlags<38, 8>::getBitNames' requested here
- 3213 |                 { "DAMAGE",                                     DamageTypeFlags::getBitNames(),                 NULL },
-      |                                                                                  ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BitFlags.h:70:25: note: forward declaration of template entity is here
-   70 |         static const char*                                      s_bitNameList[];
-      |                                                                 ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BitFlags.h:280:12: note: add an explicit instantiation declaration to suppress this warning if 'BitFlags<38, 8>::s_bitNameList' is explicitly instantiated in another translation unit
-  280 |     return s_bitNameList;
-      |            ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BitFlags.h:280:12: warning: instantiation of variable 'BitFlags<17, 9>::s_bitNameList' required here, but no definition is available [-Wundefined-var-template]
-  280 |     return s_bitNameList;
-      |            ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_gameengine.cpp:3214:36: note: in instantiation of member function 'BitFlags<17, 9>::getBitNames' requested here
- 3214 |                 { "WEAPONSET",                  WeaponSetFlags::getBitNames(),                  NULL },
-      |                                                                 ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BitFlags.h:70:25: note: forward declaration of template entity is here
-   70 |         static const char*                                      s_bitNameList[];
-      |                                                                 ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BitFlags.h:280:12: note: add an explicit instantiation declaration to suppress this warning if 'BitFlags<17, 9>::s_bitNameList' is explicitly instantiated in another translation unit
-  280 |     return s_bitNameList;
-      |            ^
-319 warnings generated.
-[1647/1651] Building CXX object CMakeFiles/test_gameengine.dir/Tests/test_user_data_guard.cpp.o
-[1648/1651] Linking CXX static library libw3ddevice.a
-[1649/1651] Linking CXX executable test_online
-ld: warning: ignoring duplicate libraries: 'libgameengine.a', 'libmbedtls.a', 'libonlineconnection.a'
-[1650/1651] Linking CXX executable test_gameengine
-ld: warning: ignoring duplicate libraries: 'libgameengine.a'
-4 tests, 44 checks, 0 failed
-Test project /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/build/ios/host-graphics
-    Start 56: test_hazard_cloud_bake
-1/4 Test #56: test_hazard_cloud_bake ...........   Passed    0.01 sec
-    Start 57: test_hazard_cloud_shared
-2/4 Test #57: test_hazard_cloud_shared .........   Passed    0.01 sec
-    Start 67: test_online
-3/4 Test #67: test_online ......................   Passed    0.45 sec
-    Start 70: test_gameengine
+1 warning generated.
+[372/1624] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/textfile.cpp.o
+[373/1624] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/trim.cpp.o
+[374/1624] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/thread.cpp.o
+[375/1624] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/vector.cpp.o
+[376/1624] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/wwfont.cpp.o
+[377/1624] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/wwfile.cpp.o
+[378/1624] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/widestring.cpp.o
+[379/1624] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/xpipe.cpp.o
+[380/1624] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/xstraw.cpp.o
+[381/1624] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/wwstring.cpp.o
+[382/1624] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/xsurface.cpp.o
+[383/1624] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/aes.c.o
+[384/1624] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/posixpath.cpp.o
+[385/1624] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/aesce.c.o
+[386/1624] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/aria.c.o
+[387/1624] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/aesni.c.o
+[388/1624] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/asn1parse.c.o
+[389/1624] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/asn1write.c.o
+[390/1624] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/base64.c.o
+[391/1624] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/bignum.c.o
+[392/1624] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/bignum_core.c.o
+[393/1624] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/bignum_mod.c.o
+[394/1624] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/bignum_mod_raw.c.o
+[395/1624] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/block_cipher.c.o
+[396/1624] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/camellia.c.o
+[397/1624] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/ccm.c.o
+[398/1624] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/chacha20.c.o
+[399/1624] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/chachapoly.c.o
+[400/1624] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/cipher.c.o
+[401/1624] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/cipher_wrap.c.o
+[402/1624] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/constant_time.c.o
+[403/1624] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/cmac.c.o
+[404/1624] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/ctr_drbg.c.o
+[405/1624] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/des.c.o
+[406/1624] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/debug.c.o
+[407/1624] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/dhm.c.o
+[408/1624] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/ecdh.c.o
+[409/1624] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/ecdsa.c.o
+[410/1624] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/ecjpake.c.o
+[411/1624] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/ecp.c.o
+[412/1624] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/ecp_curves.c.o
+[413/1624] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/ecp_curves_new.c.o
+[414/1624] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/entropy.c.o
+[415/1624] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/error.c.o
+[416/1624] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/entropy_poll.c.o
+[417/1624] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/hkdf.c.o
+[418/1624] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/gcm.c.o
+[419/1624] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/hmac_drbg.c.o
+[420/1624] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/lmots.c.o
+[421/1624] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/md.c.o
+[422/1624] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/lms.c.o
+[423/1624] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/md5.c.o
+[424/1624] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/mps_reader.c.o
+[425/1624] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/memory_buffer_alloc.c.o
+[426/1624] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/mps_trace.c.o
+[427/1624] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/net_sockets.c.o
+[428/1624] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/nist_kw.c.o
+[429/1624] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/oid.c.o
+[430/1624] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/padlock.c.o
+[431/1624] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/pem.c.o
+[432/1624] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/pk.c.o
+[433/1624] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/pk_ecc.c.o
+[434/1624] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/pk_wrap.c.o
+[435/1624] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/pkcs12.c.o
+[436/1624] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/pkcs5.c.o
+[437/1624] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/pkcs7.c.o
+[438/1624] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/pkparse.c.o
+[439/1624] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/pkwrite.c.o
+[440/1624] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/platform.c.o
+[441/1624] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/platform_util.c.o
+[442/1624] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/poly1305.c.o
+[443/1624] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/psa_crypto.c.o
+[444/1624] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/psa_crypto_aead.c.o
+[445/1624] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/psa_crypto_client.c.o
+[446/1624] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/psa_crypto_cipher.c.o
+[447/1624] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/psa_crypto_driver_wrappers_no_static.c.o
+[448/1624] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/psa_crypto_ffdh.c.o
+[449/1624] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/psa_crypto_ecp.c.o
+[450/1624] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/psa_crypto_hash.c.o
+[451/1624] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/psa_crypto_mac.c.o
+[452/1624] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/psa_crypto_pake.c.o
+[453/1624] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/psa_crypto_random.c.o
+[454/1624] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/psa_crypto_rsa.c.o
+[455/1624] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/psa_crypto_se.c.o
+[456/1624] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/psa_crypto_slot_management.c.o
+[457/1624] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/psa_crypto_storage.c.o
+[458/1624] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/psa_its_file.c.o
+[459/1624] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/psa_util.c.o
+[460/1624] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/ripemd160.c.o
+[461/1624] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/rsa.c.o
+[462/1624] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/sha1.c.o
+[463/1624] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/rsa_alt_helpers.c.o
+[464/1624] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/sha256.c.o
+[465/1624] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/sha512.c.o
+[466/1624] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/sha3.c.o
+[467/1624] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/ssl_cache.c.o
+[468/1624] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/ssl_ciphersuites.c.o
+[469/1624] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/ssl_client.c.o
+[470/1624] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/ssl_debug_helpers_generated.c.o
+[471/1624] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/ssl_cookie.c.o
+[472/1624] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/ssl_msg.c.o
+[473/1624] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/ssl_ticket.c.o
+[474/1624] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/ssl_tls.c.o
+[475/1624] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/ssl_tls12_client.c.o
+[476/1624] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/ssl_tls13_client.c.o
+[477/1624] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/ssl_tls13_generic.c.o
+[478/1624] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/ssl_tls12_server.c.o
+[479/1624] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/ssl_tls13_keys.c.o
+[480/1624] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/ssl_tls13_server.c.o
+[481/1624] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/threading.c.o
+[482/1624] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/timing.c.o
+[483/1624] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/version.c.o
+[484/1624] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/version_features.c.o
+[485/1624] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/x509_create.c.o
+[486/1624] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/x509.c.o
+[487/1624] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/x509_crl.c.o
+[488/1624] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/x509_csr.c.o
+[489/1624] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/x509_crt.c.o
+[490/1624] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/x509write.c.o
+[491/1624] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/x509write_csr.c.o
+[492/1624] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/x509write_crt.c.o
+[493/1624] Linking CXX static library libffshader.a
+[494/1624] Building CXX object CMakeFiles/ffvertex.dir/Libraries/Source/WWVegas/WW3D2/ffvertex.cpp.o
+[495/1624] Building CXX object CMakeFiles/engineshader.dir/Libraries/Source/WWVegas/WW3D2/engineshader.cpp.o
+[496/1624] Building CXX object CMakeFiles/sdl3shadercompile.dir/Libraries/Source/WWVegas/WW3D2/sdl3shadercompile.cpp.o
+[497/1624] Linking CXX static library libsdl3_shadercross.a
+[498/1624] Building C object freetype/CMakeFiles/freetype.dir/src/autofit/autofit.c.o
+[499/1624] Building C object freetype/CMakeFiles/freetype.dir/src/base/ftbase.c.o
+[500/1624] Building C object freetype/CMakeFiles/freetype.dir/src/base/ftbbox.c.o
+[501/1624] Building C object freetype/CMakeFiles/freetype.dir/src/base/ftbdf.c.o
+[502/1624] Building C object freetype/CMakeFiles/freetype.dir/src/base/ftcid.c.o
+[503/1624] Building C object freetype/CMakeFiles/freetype.dir/src/base/ftbitmap.c.o
+[504/1624] Building C object freetype/CMakeFiles/freetype.dir/src/base/ftfstype.c.o
+[505/1624] Building C object freetype/CMakeFiles/freetype.dir/src/base/ftgasp.c.o
+[506/1624] Building C object freetype/CMakeFiles/freetype.dir/src/base/ftglyph.c.o
+[507/1624] Building C object freetype/CMakeFiles/freetype.dir/src/base/ftgxval.c.o
+[508/1624] Building C object freetype/CMakeFiles/freetype.dir/src/base/ftinit.c.o
+[509/1624] Building C object freetype/CMakeFiles/freetype.dir/src/base/ftmm.c.o
+[510/1624] Building C object freetype/CMakeFiles/freetype.dir/src/base/ftotval.c.o
+[511/1624] Building C object freetype/CMakeFiles/freetype.dir/src/base/ftpatent.c.o
+[512/1624] Building C object freetype/CMakeFiles/freetype.dir/src/base/ftpfr.c.o
+[513/1624] Building C object freetype/CMakeFiles/freetype.dir/src/base/ftstroke.c.o
+[514/1624] Building C object freetype/CMakeFiles/freetype.dir/src/base/ftsynth.c.o
+[515/1624] Building C object freetype/CMakeFiles/freetype.dir/src/base/ftwinfnt.c.o
+[516/1624] Building C object freetype/CMakeFiles/freetype.dir/src/bdf/bdf.c.o
+[517/1624] Building C object freetype/CMakeFiles/freetype.dir/src/base/fttype1.c.o
+[518/1624] Building C object freetype/CMakeFiles/freetype.dir/src/bzip2/ftbzip2.c.o
+[519/1624] Building C object freetype/CMakeFiles/freetype.dir/src/cache/ftcache.c.o
+[520/1624] Building C object freetype/CMakeFiles/freetype.dir/src/cff/cff.c.o
+[521/1624] Building C object freetype/CMakeFiles/freetype.dir/src/cid/type1cid.c.o
+[522/1624] Building C object freetype/CMakeFiles/freetype.dir/src/gzip/ftgzip.c.o
+[523/1624] Building C object freetype/CMakeFiles/freetype.dir/src/lzw/ftlzw.c.o
+[524/1624] Building C object freetype/CMakeFiles/freetype.dir/src/pcf/pcf.c.o
+[525/1624] Building C object freetype/CMakeFiles/freetype.dir/src/pfr/pfr.c.o
+[526/1624] Building C object freetype/CMakeFiles/freetype.dir/src/psaux/psaux.c.o
+[527/1624] Building C object freetype/CMakeFiles/freetype.dir/src/pshinter/pshinter.c.o
+[528/1624] Building C object freetype/CMakeFiles/freetype.dir/src/psnames/psnames.c.o
+[529/1624] Building C object freetype/CMakeFiles/freetype.dir/src/raster/raster.c.o
+[530/1624] Building C object freetype/CMakeFiles/freetype.dir/src/sdf/sdf.c.o
+[531/1624] Building C object freetype/CMakeFiles/freetype.dir/src/sfnt/sfnt.c.o
+[532/1624] Building C object freetype/CMakeFiles/freetype.dir/src/smooth/smooth.c.o
+[533/1624] Building C object freetype/CMakeFiles/freetype.dir/src/svg/svg.c.o
