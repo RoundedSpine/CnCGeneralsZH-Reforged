@@ -478,6 +478,25 @@ install_sdl3_patch() {
   step "sdl3-metal-windowless.patch -> Libraries/Source/SDL3"
 }
 
+# Optional GPU elapsed-time diagnostic for the pinned SDL3 Metal backend.
+# Applied after the independent headless-Metal patch; it changes no non-Metal backend.
+install_sdl3_gpu_timing_patch() {
+  local destination="$libraries/Source/SDL3"
+  local source="$destination/src/gpu/metal/SDL_gpu_metal.m"
+  if grep -q 'ZH_SDL_Metal_TakeTiming' "$source" 2>/dev/null; then return 0; fi
+  local patch="$libraries/Source/sdl3-metal-gpu-timing.patch"
+  GIT_CEILING_DIRECTORIES="$libraries/Source" \
+    git -C "$destination" -c core.autocrlf=false apply "$patch" || {
+      echo "[vendor] sdl3-metal-gpu-timing.patch failed to apply" >&2
+      exit 1
+    }
+  if ! grep -q 'ZH_SDL_Metal_TakeTiming' "$source"; then
+    echo "[vendor] Metal timing hook missing after patch" >&2
+    exit 1
+  fi
+  step "sdl3-metal-gpu-timing.patch -> Libraries/Source/SDL3"
+}
+
 # --- miniaudio 0.11.25, the one header and its one implementation file: audio beneath C4's port of
 # MilesAudioManager (decision 3). POSIX only, like SDL3. Copied file by file, so its
 # committed .gitignore is never disturbed; upstream's CMakeLists builds extras this does not want.
@@ -759,6 +778,7 @@ install_gamespy_patch
 install_gamespy_unix_patch
 install_sdl3
 install_sdl3_patch
+install_sdl3_gpu_timing_patch
 install_miniaudio
 install_glslang
 install_spirv_cross
