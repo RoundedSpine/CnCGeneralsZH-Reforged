@@ -46,14 +46,24 @@ std::string sharedPixelShader(ShaderPass pass)
 	const auto groundStart = marker(prefix, "float volumeGround(");
 	const auto groundEnd = marker(prefix, "bool volumeInterval(", groundStart);
 	prefix.replace(groundStart, groundEnd - groundStart, R"HLSL(
+// SDL_shadercross maps texel-fetch-only images into a separate MSL texture class,
+// where slot zero collides with sampled SceneDepth. Point sampling at integer
+// texel centers preserves Load's value while using the declared sampled slot.
+float terrainAt(int2 texel)
+{
+	uint width, height;
+	TerrainImage.GetDimensions(width, height);
+	return TerrainImage.SampleLevel(TerrainSampler,
+		(float2(texel) + 0.5) / float2(width, height), 0).r;
+}
 float volumeGround(float2 world, float4 field, float4 shape, float fringe, float identity)
 {
 	if (SharedData.z < 2.0 || identity < 0.5) return field.z - shape.x;
 	float2 uv = saturate((world - SharedMin.xy) / (SharedMax.xy - SharedMin.xy));
 	float2 p = uv * (SharedData.z - 1.0), low = floor(p), f = frac(p);
 	int2 a = (int2)low, b = min(a + 1, (int)SharedData.z - 1);
-	float ground = lerp(lerp(TerrainImage.Load(int3(a, 0)), TerrainImage.Load(int3(b.x, a.y, 0)), f.x),
-		lerp(TerrainImage.Load(int3(a.x, b.y, 0)), TerrainImage.Load(int3(b, 0)), f.x), f.y);
+	float ground = lerp(lerp(terrainAt(a), terrainAt(int2(b.x, a.y)), f.x),
+		lerp(terrainAt(int2(a.x, b.y)), terrainAt(b), f.x), f.y);
 	return ground;
 }
 )HLSL");
@@ -93,12 +103,24 @@ SamplerState IndexSampler : register(s9, space2);
 Texture2D<float4> SharedBackground : register(t5, space2);
 SamplerState SharedBackgroundSampler : register(s5, space2);
 
-float4 sourceAt(uint at) { return SourceData.Load(int3(at % 1024, at / 1024, 0)); }
-float4 binAt(uint at) { return BinData.Load(int3(at % 1024, at / 1024, 0)); }
+float4 sourceAt(uint at)
+{
+	uint width, height; SourceData.GetDimensions(width, height);
+	return SourceData.SampleLevel(SourceSampler,
+		(float2(at % 1024, at / 1024) + 0.5) / float2(width, height), 0);
+}
+float4 binAt(uint at)
+{
+	uint width, height; BinData.GetDimensions(width, height);
+	return BinData.SampleLevel(BinSampler,
+		(float2(at % 1024, at / 1024) + 0.5) / float2(width, height), 0);
+}
 uint indexAt(uint at)
 {
 	uint texel = at / 4;
-	float4 ids = IndexData.Load(int3(texel % 1024, texel / 1024, 0));
+	uint width, height; IndexData.GetDimensions(width, height);
+	float4 ids = IndexData.SampleLevel(IndexSampler,
+		(float2(texel % 1024, texel / 1024) + 0.5) / float2(width, height), 0);
 	return (uint)ids[at % 4];
 }
 float3 atlasWorld(float2 pixel)
