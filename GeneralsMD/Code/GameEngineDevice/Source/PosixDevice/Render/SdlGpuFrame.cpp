@@ -187,6 +187,7 @@ SdlGpuFrame::SdlGpuFrame() :
 {
 	memset(LastConstants,0,sizeof(LastConstants));memset(LastConstantsSize,0,sizeof(LastConstantsSize));
 	memset(ClearPipelines, 0, sizeof(ClearPipelines));
+	memset(ParticleGpuFlushReasons, 0, sizeof(ParticleGpuFlushReasons));
 	InFlight[0] = InFlight[1] = NULL;
 	// ZH_GPU_FLUSH_LIMIT=<n>: at most n mid-frame flushes in flight (default 3); 0 lets them pile up as before
 	// the ring, which is how the ring's effect is measured.
@@ -271,7 +272,7 @@ bool SdlGpuFrame::Configure_VSync(bool enabled)
 	// readers and finish outstanding GPU work before SDL replaces the swapchain.
 	bool applied = true;
 	if (PresentMode != uint32_t(requested)) {
-		applied = Flush() && SDL_WaitForGPUIdle(GpuDevice)
+		applied = Flush(FlushMaintenance) && SDL_WaitForGPUIdle(GpuDevice)
 			&& SDL_SetGPUSwapchainParameters(GpuDevice, Window, SDL_GPU_SWAPCHAINCOMPOSITION_SDR, requested);
 		if (applied) PresentMode = uint32_t(requested);
 	}
@@ -382,7 +383,7 @@ bool SdlGpuFrame::Handle_Memory_Pressure()
 
 bool SdlGpuFrame::Trim_Transient_Memory()
 {
-    if(!Flush()||!SDL_WaitForGPUIdle(GpuDevice))return false;
+    if(!Flush(FlushMaintenance)||!SDL_WaitForGPUIdle(GpuDevice))return false;
     const size_t cpuStaging=Retained_Staging_Bytes();
     const uint64_t gpuStaging=uint64_t(StreamBufferSize)+TransferSize;
     // End_Batch clears sizes but keeps peak capacity. Under pressure, discard
@@ -591,7 +592,7 @@ bool SdlGpuFrame::Prepare_Ocean(float time, unsigned resolution)
 	if (OceanFailed && !Ocean && OceanFailedResolution == requested.resolution) return false;
 	if (!rebuild && OceanReady && time == OceanTime) return true;
 	// Submit older readers before replacing resources. Keep a working field on allocation failure.
-	if ((!Commands.empty() || !Uploads.empty()) && !Flush()) return false;
+	if ((!Commands.empty() || !Uploads.empty()) && !Flush(FlushOcean)) return false;
 	OceanResources *previous = rebuild ? Ocean : NULL;
 	const bool previousReady = OceanReady;
 	const float previousTime = OceanTime;
@@ -766,7 +767,7 @@ SDL_GPUTexture *SdlGpuFrame::Scene_Depth(const SdlTarget &source)
 	if (!depth) return NULL;
 	// Publish the depth-to-colour capture before recording consumers. Queue ordering is enough;
 	// do not wait for GPU idle.
-	if (!Flush()) {
+	if (!Flush(FlushSceneDepth)) {
 		Invalidate_Water_Snapshots(source.Colour, source.Depth);
 		return NULL;
 	}
@@ -875,7 +876,7 @@ bool SdlGpuFrame::Resize(unsigned int width, unsigned int height, ResizeFailure 
 		return false;
 	}
 	// Submit before replacing anything: queued targets and mirror uploads still name the old resources.
-	if (!Flush()) {
+	if (!Flush(FlushMaintenance)) {
 		if (failure) *failure = RESIZE_FLUSH_FAILED;
 		return false;
 	}
@@ -907,8 +908,10 @@ void SdlGpuFrame::Clear_Back_Buffer(bool colour, bool depth, bool stencil, uint3
 }
 
 
-bool SdlGpuFrame::Flush()
+bool SdlGpuFrame::Flush(FlushCause cause)
 {
+	if (ParticlePerfToggle::enabled() && cause < FlushCauseCount)
+		++ParticleGpuFlushReasons[cause];
 	const Uint64 start = SDL_GetTicksNS();
 	ZH_IOS_WaitForForeground();
 	SDL_GPUCommandBuffer * commands = SDL_AcquireGPUCommandBuffer(GpuDevice);
@@ -1114,6 +1117,16 @@ void SdlGpuFrame::Take_Timing(double & flush_ms, double & fence_ms, unsigned int
 				ParticleGpuCopyPasses,
 				static_cast<unsigned long long>(ParticleGpuRecordedDraws),
 				double(ParticleGpuUploadBytes) / (1024.0 * 1024.0));
+			const char *flushNames[FlushCauseCount] = {
+				"unclassified", "batch_limit", "ocean", "scene_depth",
+				"ambient_occlusion", "atmosphere", "heat", "msaa",
+				"native_particles", "smoke", "sun_shadow", "maintenance"
+			};
+			fprintf(stderr, "[GPU_FLUSH_CAUSES] intervals=%u", ParticleGpuPerfFrames);
+			for (unsigned i = 0; i < FlushCauseCount; ++i)
+				fprintf(stderr, " %s=%llu", flushNames[i],
+					static_cast<unsigned long long>(ParticleGpuFlushReasons[i]));
+			fprintf(stderr, "\\n");
 			fprintf(stderr, "[GPU_TRANSPARENCY_PERF] blended_draws=%llu additive_draws=%llu backbuffer_blended_scissor_mpixels=%.3f backbuffer_scissor_fullscreen_equiv=%.3f note=scissor_upper_bound_not_actual_transparent_fragment_overdraw\n",
 				static_cast<unsigned long long>(ParticleGpuBlendedDraws),
 				static_cast<unsigned long long>(ParticleGpuAdditiveDraws),
@@ -1130,6 +1143,7 @@ void SdlGpuFrame::Take_Timing(double & flush_ms, double & fence_ms, unsigned int
 		ParticleGpuBlendedDraws = ParticleGpuAdditiveDraws = 0;
 		ParticleGpuBlendScissorPixels = 0;
 		ParticleGpuRenderPasses = ParticleGpuDepthSnapshots = ParticleGpuBlits = ParticleGpuCopyPasses = 0;
+		memset(ParticleGpuFlushReasons, 0, sizeof(ParticleGpuFlushReasons));
 		}
 	} else {
 		// Start a fresh diagnostic window if the runtime flag is enabled later.
@@ -1143,6 +1157,7 @@ void SdlGpuFrame::Take_Timing(double & flush_ms, double & fence_ms, unsigned int
 		ParticleGpuBlendedDraws = ParticleGpuAdditiveDraws = 0;
 		ParticleGpuBlendScissorPixels = 0;
 		ParticleGpuRenderPasses = ParticleGpuDepthSnapshots = ParticleGpuBlits = ParticleGpuCopyPasses = 0;
+		memset(ParticleGpuFlushReasons, 0, sizeof(ParticleGpuFlushReasons));
 	}
 }
 
@@ -1407,7 +1422,7 @@ bool SdlGpuFrame::Present_To(SDL_GPUTexture * target, unsigned int width, unsign
 
 bool SdlGpuFrame::Upload_Back_Buffer(const std::vector<uint8_t> & bgra)
 {
-    if(!Flush())return false;
+    if(!Flush(FlushMaintenance))return false;
     External_Colour_Write(BackBuffer);
 	const Uint32 bytes = BackWidth * BackHeight * (HdrActive?8:4);
 	if (bgra.size() != BackWidth*BackHeight*4) {
@@ -1453,7 +1468,7 @@ bool SdlGpuFrame::Upload_Back_Buffer(const std::vector<uint8_t> & bgra)
 
 bool SdlGpuFrame::Read_Bytes(SDL_GPUTexture * texture, unsigned int width, unsigned int height,unsigned bpp,std::vector<uint8_t> & bgra)
 {
-	if (!Flush()) {
+	if (!Flush(FlushMaintenance)) {
 		return false;
 	}
 	const unsigned pitch=(width+63)&~63u;
