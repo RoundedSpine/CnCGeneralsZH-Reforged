@@ -40,6 +40,9 @@
 extern "C" void ZH_SDL_Metal_SetTimingEnabled(bool enabled);
 extern "C" void ZH_SDL_Metal_TakeTiming(Uint64 *totalNs, Uint64 *maximumNs,
                                          Uint32 *samples, Uint32 *unavailable);
+extern "C" void ZH_SDL_Metal_SetNextRenderPassTag(Uint32 category);
+extern "C" void ZH_SDL_Metal_TakePassTiming(Uint64 *ns, Uint64 *maxNs,
+                                             Uint32 *count, Uint32 *missing);
 #endif
 
 // The back buffer's format.  D3D9's X8R8G8B8 and A8R8G8B8 are these bytes in this order.
@@ -1056,6 +1059,16 @@ void SdlGpuFrame::Take_Timing(double & flush_ms, double & fence_ms, unsigned int
 			if (metalTimingAvailable)
 				ZH_SDL_Metal_TakeTiming(&gpuCompletedNs, &gpuMaximumNs,
 					&gpuSamples, &gpuUnavailable);
+			Uint64 passNs[4] = {}, passMaxNs[4] = {};
+			Uint32 passCounts[4] = {}, passMissing[4] = {};
+			if (metalTimingAvailable)
+				ZH_SDL_Metal_TakePassTiming(passNs, passMaxNs, passCounts, passMissing);
+			const char *passNames[4] = {"unlabelled", "scene_backbuffer", "intermediate", "depth_only"};
+			for (unsigned p = 0; p < 4; ++p) {
+				fprintf(stderr, "[GPU_PASS_PERF] bucket=%s completed=%u unavailable=%u gpu_ms=%.3f max_ms=%.3f note=async_metal_stage_timestamp_sum_not_frame_time\\n",
+					passNames[p], passCounts[p], passMissing[p],
+					double(passNs[p]) / 1.0e6, double(passMaxNs[p]) / 1.0e6);
+			}
 #endif
 			fprintf(stderr, "[GPU_SYNC_PERF] intervals=%u flushes=%u ring_waits=%u ring_wait_cpu_ms=%.3f ring_wait_max_ms=%.3f waits_ge_1ms=%u waits_ge_5ms=%u waits_ge_16ms=%u submit_calls=%u submit_cpu_ms=%.3f gpu_cmd_completed=%u gpu_cmd_unavailable=%u gpu_cmd_total_ms=%.3f gpu_cmd_max_ms=%.3f gpu_time_source=%s render_passes=%u depth_snapshots=%u blits=%u copy_passes=%u recorded_draws=%llu upload_mib=%.3f note=gpu_time_is_async_completed_command_buffer_sum_not_per_frame\n",
 				ParticleGpuPerfFrames, FlushesTotal - ParticleGpuPerfFlushStart,
