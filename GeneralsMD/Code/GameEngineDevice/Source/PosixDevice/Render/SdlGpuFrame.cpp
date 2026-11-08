@@ -142,6 +142,9 @@ SdlGpuFrame::SdlGpuFrame() :
 	ParticleGpuWaitAbove16Ms(0),
 	ParticleGpuSubmitNs(0),
 	ParticleGpuSubmitCount(0),
+	ParticleGpuBlendedDraws(0),
+	ParticleGpuAdditiveDraws(0),
+	ParticleGpuBlendScissorPixels(0),
 	ParticleGpuRecordedDraws(0),
 	ParticleGpuUploadBytes(0),
 	ParticleGpuRenderPasses(0),
@@ -1095,6 +1098,12 @@ void SdlGpuFrame::Take_Timing(double & flush_ms, double & fence_ms, unsigned int
 				ParticleGpuCopyPasses,
 				static_cast<unsigned long long>(ParticleGpuRecordedDraws),
 				double(ParticleGpuUploadBytes) / (1024.0 * 1024.0));
+			fprintf(stderr, "[GPU_TRANSPARENCY_PERF] blended_draws=%llu additive_draws=%llu backbuffer_blended_scissor_mpixels=%.3f backbuffer_scissor_fullscreen_equiv=%.3f note=scissor_upper_bound_not_actual_transparent_fragment_overdraw\n",
+				static_cast<unsigned long long>(ParticleGpuBlendedDraws),
+				static_cast<unsigned long long>(ParticleGpuAdditiveDraws),
+				double(ParticleGpuBlendScissorPixels) / 1.0e6,
+				BackWidth && BackHeight ? double(ParticleGpuBlendScissorPixels) /
+					(double(BackWidth) * double(BackHeight)) : 0.0);
 			ParticleGpuPerfFrames = 0;
 			ParticleGpuPerfFlushStart = FlushesTotal;
 			ParticleGpuPerfWaitStart = FlushWaits;
@@ -1102,6 +1111,8 @@ void SdlGpuFrame::Take_Timing(double & flush_ms, double & fence_ms, unsigned int
 			ParticleGpuWaitAbove1Ms = ParticleGpuWaitAbove5Ms = ParticleGpuWaitAbove16Ms = 0;
 			ParticleGpuSubmitCount = 0;
 		ParticleGpuRecordedDraws = ParticleGpuUploadBytes = 0;
+		ParticleGpuBlendedDraws = ParticleGpuAdditiveDraws = 0;
+		ParticleGpuBlendScissorPixels = 0;
 		ParticleGpuRenderPasses = ParticleGpuDepthSnapshots = ParticleGpuBlits = ParticleGpuCopyPasses = 0;
 		}
 	} else {
@@ -1113,6 +1124,8 @@ void SdlGpuFrame::Take_Timing(double & flush_ms, double & fence_ms, unsigned int
 		ParticleGpuWaitAbove1Ms = ParticleGpuWaitAbove5Ms = ParticleGpuWaitAbove16Ms = 0;
 		ParticleGpuSubmitCount = 0;
 		ParticleGpuRecordedDraws = ParticleGpuUploadBytes = 0;
+		ParticleGpuBlendedDraws = ParticleGpuAdditiveDraws = 0;
+		ParticleGpuBlendScissorPixels = 0;
 		ParticleGpuRenderPasses = ParticleGpuDepthSnapshots = ParticleGpuBlits = ParticleGpuCopyPasses = 0;
 	}
 }
