@@ -343,7 +343,6 @@ private:
 	unsigned int FlushInFlightMost;
 	unsigned int FlushWaits;
 	// Opt-in CPU-side profiling, aggregated at Take_Timing (not GPU elapsed time).
-	bool ParticleGpuPerf;
 	uint64_t ParticleGpuWaitNs;
 	uint64_t ParticleGpuSubmitNs;
 	unsigned int ParticleGpuSubmitCount;
