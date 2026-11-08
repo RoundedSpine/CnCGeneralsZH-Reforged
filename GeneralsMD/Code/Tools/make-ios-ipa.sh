@@ -50,7 +50,7 @@ otool -l "$app/generals" > "$BUILD/ios-load-commands.txt"
 awk '/cmd LC_BUILD_VERSION/ {block=1; next} block && /platform/ {if ($2 == 2 || $2 == "IOS") ok=1; block=0} END {exit !ok}' "$BUILD/ios-load-commands.txt"
 codesign --force --sign - --timestamp=none --entitlements "$BUILD/Reforged.entitlements" "$app"
 codesign --verify --deep --strict "$app"
-codesign -d --entitlements - "$app" > "$BUILD/signed-entitlements.plist"
+codesign -d --entitlements - --xml "$app" > "$BUILD/signed-entitlements.plist"
 python3 - "$BUILD/signed-entitlements.plist" <<'PY'
 import plistlib, sys
 with open(sys.argv[1], 'rb') as f: e = plistlib.load(f)
