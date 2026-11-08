@@ -48,7 +48,7 @@ bool SdlGpuFrame::Read_Depth(SDL_GPUTexture *texture, unsigned width, unsigned h
     std::vector<float> &depth)
 {
     depth.clear();
-    if (!texture || !width || !height || !Flush() || !Create_Scene_Depth_Pipeline()) return false;
+    if (!texture || !width || !height || !Flush(FlushSunShadow) || !Create_Scene_Depth_Pipeline()) return false;
     SDL_GPUTextureCreateInfo info = {};
     info.type = SDL_GPU_TEXTURETYPE_2D;
     info.format = SDL_GPU_TEXTUREFORMAT_R32_FLOAT;
