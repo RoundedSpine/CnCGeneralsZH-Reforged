@@ -5,6 +5,9 @@
 #include "Platform/IOSLifecycle.h"
 #include "sdl3shadercompile.h"
 #include <SDL3/SDL.h>
+#if defined(__APPLE__)
+extern "C" void ZH_SDL_Metal_SetNextRenderPassTag(Uint32 category);
+#endif
 #include <algorithm>
 #include <cmath>
 #include <cstdio>
@@ -74,7 +77,10 @@ bool SdlGpuFrame::Prepare_Particles(unsigned capacity,bool *fresh){
     for(unsigned layer=0;layer<Slices;++layer){
         SDL_GPUColorTargetInfo target={};target.texture=p.Atlas;target.layer_or_depth_plane=layer;
         target.load_op=SDL_GPU_LOADOP_CLEAR;target.store_op=SDL_GPU_STOREOP_STORE;
-        auto *pass=SDL_BeginGPURenderPass(cmd,&target,1,nullptr);
+        #if defined(__APPLE__)
+ZH_SDL_Metal_SetNextRenderPassTag(7u);
+#endif
+auto *pass=SDL_BeginGPURenderPass(cmd,&target,1,nullptr);
         if(!pass){SDL_CancelGPUCommandBuffer(cmd);return Particle_Failure("atlas clear");}SDL_EndGPURenderPass(pass);
     }
     SDL_GenerateMipmapsForGPUTexture(cmd,p.Atlas);if(!Submit_Flush(cmd))return Particle_Failure("atlas submit");
@@ -187,7 +193,10 @@ bool SdlGpuFrame::Draw_Particles(const SdlTarget &target,const float viewport[6]
     auto *cmd=SDL_AcquireGPUCommandBuffer(GpuDevice);if(!cmd)return Particle_Failure("draw command");
     SDL_GPUColorTargetInfo colour={};colour.texture=target.Colour;colour.load_op=SDL_GPU_LOADOP_LOAD;colour.store_op=SDL_GPU_STOREOP_STORE;
     SDL_GPUDepthStencilTargetInfo z={};z.texture=target.Depth;z.load_op=z.stencil_load_op=SDL_GPU_LOADOP_LOAD;z.store_op=z.stencil_store_op=SDL_GPU_STOREOP_STORE;
-    auto *pass=SDL_BeginGPURenderPass(cmd,&colour,1,&z);if(!pass){SDL_CancelGPUCommandBuffer(cmd);return Particle_Failure("draw pass");}
+    #if defined(__APPLE__)
+ZH_SDL_Metal_SetNextRenderPassTag(7u);
+#endif
+auto *pass=SDL_BeginGPURenderPass(cmd,&colour,1,&z);if(!pass){SDL_CancelGPUCommandBuffer(cmd);return Particle_Failure("draw pass");}
     SDL_BindGPUGraphicsPipeline(pass,pipeline);SDL_BindGPUVertexStorageBuffers(pass,0,&p.Aged,1);
     SDL_GPUTextureSamplerBinding textures[]={{p.Atlas,p.Linear},{depth?depth:p.Ground,p.Point}};
     SDL_BindGPUFragmentSamplers(pass,0,textures,2);
