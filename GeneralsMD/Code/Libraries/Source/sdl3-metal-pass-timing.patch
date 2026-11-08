@@ -1,7 +1,7 @@
 diff --git a/src/gpu/metal/SDL_gpu_metal.m b/src/gpu/metal/SDL_gpu_metal.m
 --- a/src/gpu/metal/SDL_gpu_metal.m
 +++ b/src/gpu/metal/SDL_gpu_metal.m
-@@ -31,5 +66,61 @@
+@@ -31,5 +66,75 @@
 +// Optional stage-boundary timestamps for render encoders (Apple tile GPUs).
 +// Buckets: 0=unlabelled SDL pass, 1=main scene, 2=intermediate, 3=depth-only.
 +// The engine labels its passes just before SDL_BeginGPURenderPass.
@@ -14,6 +14,20 @@ diff --git a/src/gpu/metal/SDL_gpu_metal.m b/src/gpu/metal/SDL_gpu_metal.m
 +static Uint64 ZH_MetalFragmentsPassed[4];
 +static Uint32 ZH_MetalStatisticsCount[4];
 +static Uint32 ZH_MetalStatisticsMissing[4];
++// GPU counter timestamps use the device clock, not necessarily nanoseconds.
++// Calibrate once from paired GPU/CPU samples at least 250ms apart. Apple
++// documents the CPU timestamps returned by sampleTimestamps as nanoseconds.
++static Uint64 ZH_MetalCalibrationStartCpu;
++static Uint64 ZH_MetalCalibrationStartGpu;
++static Uint64 ZH_MetalCalibrationStartWall;
++static double ZH_MetalNanosecondsPerGpuTick;
++
++void ZH_SDL_Metal_GetTimestampScale(double *scale)
++{
++    SDL_LockSpinlock(&ZH_MetalTimingLock);
++    if (scale) *scale = ZH_MetalNanosecondsPerGpuTick;
++    SDL_UnlockSpinlock(&ZH_MetalTimingLock);
++}
 +
 +void ZH_SDL_Metal_SetNextRenderPassTag(Uint32 category)
 +{
@@ -63,7 +77,7 @@ diff --git a/src/gpu/metal/SDL_gpu_metal.m b/src/gpu/metal/SDL_gpu_metal.m
  #define METAL_FIRST_VERTEX_BUFFER_SLOT 14
  #define WINDOW_PROPERTY_DATA           "SDL.internal.gpu.metal.data"
  #define SDL_GPU_SHADERSTAGE_COMPUTE    2
-@@ -2345,7 +2416,140 @@
+@@ -2345,7 +2416,164 @@
              METAL_INTERNAL_TrackTexture(metalCommandBuffer, texture);
          }
  
@@ -72,6 +86,28 @@ diff --git a/src/gpu/metal/SDL_gpu_metal.m b/src/gpu/metal/SDL_gpu_metal.m
 +        const Uint32 passTag = ZH_MetalNextRenderPassTag;
 +        ZH_MetalNextRenderPassTag = 0;
 +        if (SDL_GetAtomicInt(&ZH_MetalTimingEnabled)) {
++            // Take only two paired clock samples per profiling session, not
++            // one per pass. sampleTimestamps may trap into the kernel.
++            const Uint64 calibrationNow = SDL_GetTicksNS();
++            if (ZH_MetalNanosecondsPerGpuTick == 0.0 &&
++                (!ZH_MetalCalibrationStartWall ||
++                 calibrationNow - ZH_MetalCalibrationStartWall >= 250000000ULL)) {
++                MTLTimestamp cpuClock = 0, gpuClock = 0;
++                [renderer->device sampleTimestamps:&cpuClock gpuTimestamp:&gpuClock];
++                SDL_LockSpinlock(&ZH_MetalTimingLock);
++                if (!ZH_MetalCalibrationStartWall) {
++                    ZH_MetalCalibrationStartWall = calibrationNow;
++                    ZH_MetalCalibrationStartCpu = cpuClock;
++                    ZH_MetalCalibrationStartGpu = gpuClock;
++                } else if (cpuClock > ZH_MetalCalibrationStartCpu &&
++                           gpuClock > ZH_MetalCalibrationStartGpu) {
++                    const double scale = double(cpuClock - ZH_MetalCalibrationStartCpu) /
++                                         double(gpuClock - ZH_MetalCalibrationStartGpu);
++                    if (scale > 0.001 && scale < 1000.0)
++                        ZH_MetalNanosecondsPerGpuTick = scale;
++                }
++                SDL_UnlockSpinlock(&ZH_MetalTimingLock);
++            }
 +            SDL_LockSpinlock(&ZH_MetalTimingLock);
 +            const Uint64 timingEpoch = ZH_MetalTimingEpoch;
 +            SDL_UnlockSpinlock(&ZH_MetalTimingLock);
@@ -113,10 +149,12 @@ diff --git a/src/gpu/metal/SDL_gpu_metal.m b/src/gpu/metal/SDL_gpu_metal.m
 +                        SDL_LockSpinlock(&ZH_MetalTimingLock);
 +                        if (timingEpoch == ZH_MetalTimingEpoch &&
 +                            SDL_GetAtomicInt(&ZH_MetalTimingEnabled)) {
-+                            if (valid) {
-+                                ZH_MetalPassNs[passTag] += delta;
-+                                if (delta > ZH_MetalPassMaxNs[passTag])
-+                                    ZH_MetalPassMaxNs[passTag] = delta;
++                            if (valid && ZH_MetalNanosecondsPerGpuTick > 0.0) {
++                                const Uint64 durationNs = (Uint64)(double(delta) *
++                                    ZH_MetalNanosecondsPerGpuTick + 0.5);
++                                ZH_MetalPassNs[passTag] += durationNs;
++                                if (durationNs > ZH_MetalPassMaxNs[passTag])
++                                    ZH_MetalPassMaxNs[passTag] = durationNs;
 +                                ++ZH_MetalPassCount[passTag];
 +                            } else {
 +                                ++ZH_MetalPassMissing[passTag];
