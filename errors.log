@@ -1,0 +1,38 @@
+ 2389 |                 case SERIAL_NONEXISTENT:
+ 2390 |                         resp.discon.reason = DISCONNECT_SERIAL_NOT_PRESENT;
+ 2391 |                         break;
+ 2392 |                 case SERIAL_AUTHFAILED:
+ 2393 |                         resp.discon.reason = DISCONNECT_SERIAL_INVALID;
+ 2394 |                         break;
+ 2395 |                 case SERIAL_BANNED:
+ 2396 |                         resp.discon.reason = DISCONNECT_SERIAL_BANNED;
+ 2397 |                         break;
+ 2398 |         }
+13 warnings generated.
+[1343/1651] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameNetwork/GameSpy/Thread/PersistentStorageThread.cpp.o
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameNetwork/GameSpy/Thread/PersistentStorageThread.cpp:842:2: warning: '/*' within block comment [-Wcomment]
+  842 |         /**/
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameNetwork/GameSpy/Thread/PersistentStorageThread.cpp:897:7: warning: 'sprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead. [-Wdeprecated-declarations]
+  897 |                                                 sprintf(kvbuf, "\\locale\\%d", req.player.locale);
+      |                                                 ^
+/Applications/Xcode_16.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk/usr/include/_stdio.h:278:1: note: 'sprintf' has been explicitly marked deprecated here
+ 2389 |                 case SERIAL_NONEXISTENT:
+ 2390 |                         resp.discon.reason = DISCONNECT_SERIAL_NOT_PRESENT;
+ 2391 |                         break;
+ 2392 |                 case SERIAL_AUTHFAILED:
+ 2393 |                         resp.discon.reason = DISCONNECT_SERIAL_INVALID;
+ 2394 |                         break;
+ 2395 |                 case SERIAL_BANNED:
+ 2396 |                         resp.discon.reason = DISCONNECT_SERIAL_BANNED;
+ 2397 |                         break;
+ 2398 |         }
+13 warnings generated.
+[1346/1624] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameNetwork/GameSpy/Thread/PingThread.cpp.o
+[1347/1624] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameNetwork/GameSpy/Thread/PersistentStorageThread.cpp.o
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameNetwork/GameSpy/Thread/PersistentStorageThread.cpp:842:2: warning: '/*' within block comment [-Wcomment]
+  842 |         /**/
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameNetwork/GameSpy/Thread/PersistentStorageThread.cpp:897:7: warning: 'sprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead. [-Wdeprecated-declarations]
+  897 |                                                 sprintf(kvbuf, "\\locale\\%d", req.player.locale);
+      |                                                 ^
