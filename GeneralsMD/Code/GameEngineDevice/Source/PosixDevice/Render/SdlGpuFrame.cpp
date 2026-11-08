@@ -43,6 +43,9 @@ extern "C" void ZH_SDL_Metal_TakeTiming(Uint64 *totalNs, Uint64 *maximumNs,
 extern "C" void ZH_SDL_Metal_SetNextRenderPassTag(Uint32 category);
 extern "C" void ZH_SDL_Metal_TakePassTiming(Uint64 *ns, Uint64 *maxNs,
                                              Uint32 *count, Uint32 *missing);
+extern "C" void ZH_SDL_Metal_TakeFragmentStatistics(Uint64 *fragmentInvocations,
+                                                       Uint64 *fragmentsPassed,
+                                                       Uint32 *count, Uint32 *missing);
 #endif
 
 // The back buffer's format.  D3D9's X8R8G8B8 and A8R8G8B8 are these bytes in this order.
@@ -1063,11 +1066,20 @@ void SdlGpuFrame::Take_Timing(double & flush_ms, double & fence_ms, unsigned int
 			Uint32 passCounts[4] = {}, passMissing[4] = {};
 			if (metalTimingAvailable)
 				ZH_SDL_Metal_TakePassTiming(passNs, passMaxNs, passCounts, passMissing);
+			Uint64 fragmentInvocations[4] = {}, fragmentsPassed[4] = {};
+			Uint32 statsSamples[4] = {}, statsMissing[4] = {};
+			if (metalTimingAvailable)
+				ZH_SDL_Metal_TakeFragmentStatistics(fragmentInvocations,
+					fragmentsPassed, statsSamples, statsMissing);
 			const char *passNames[4] = {"unlabelled", "scene_backbuffer", "intermediate", "depth_only"};
 			for (unsigned p = 0; p < 4; ++p) {
-				fprintf(stderr, "[GPU_PASS_PERF] bucket=%s completed=%u unavailable=%u gpu_ms=%.3f max_ms=%.3f note=async_metal_stage_timestamp_sum_not_frame_time\n",
+				fprintf(stderr, "[GPU_PASS_PERF] bucket=%s completed=%u unavailable=%u gpu_ms=%.3f max_ms=%.3f stats_completed=%u stats_unavailable=%u fragment_invocations=%llu fragments_passed=%llu fragment_invocations_per_passed=%.3f note=async_gpu_stage_counters_pass_wide_not_transparent_only\n",
 					passNames[p], passCounts[p], passMissing[p],
-					double(passNs[p]) / 1.0e6, double(passMaxNs[p]) / 1.0e6);
+					double(passNs[p]) / 1.0e6, double(passMaxNs[p]) / 1.0e6,
+					statsSamples[p], statsMissing[p],
+					static_cast<unsigned long long>(fragmentInvocations[p]),
+					static_cast<unsigned long long>(fragmentsPassed[p]),
+					fragmentsPassed[p] ? double(fragmentInvocations[p]) / double(fragmentsPassed[p]) : 0.0);
 			}
 #endif
 			fprintf(stderr, "[GPU_SYNC_PERF] intervals=%u flushes=%u ring_waits=%u ring_wait_cpu_ms=%.3f ring_wait_max_ms=%.3f waits_ge_1ms=%u waits_ge_5ms=%u waits_ge_16ms=%u submit_calls=%u submit_cpu_ms=%.3f gpu_cmd_completed=%u gpu_cmd_unavailable=%u gpu_cmd_total_ms=%.3f gpu_cmd_max_ms=%.3f gpu_time_source=%s render_passes=%u depth_snapshots=%u blits=%u copy_passes=%u recorded_draws=%llu upload_mib=%.3f note=gpu_time_is_async_completed_command_buffer_sum_not_per_frame\n",
