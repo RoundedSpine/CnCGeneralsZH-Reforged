@@ -1,43 +1,300 @@
-[vendor] downloading zlib-1.1.4.tar.gz
-[vendor] unpacking zlib
-[vendor] unguarded zlib Byte typedef for Apple (see the comment in this script)
-[vendor] narrowed zlib Classic Mac branch to Classic Mac (see the comment in this script)
-[vendor] zlib 1.1.4 -> Libraries/Source/Compression/ZLib
-[vendor] downloading lzhl.zip
-[vendor] unpacking lzhl
-[vendor] LZH-Light 1.0 -> Libraries/Source/Compression/LZHCompress
-[vendor] lzhl-clear-history.patch -> Libraries/Source/Compression/LZHCompress
-[vendor] skipping the DirectX 8 SDK: Windows only, and vendor.ps1 is what fetches it
-[vendor] downloading gamespy.zip
-[vendor] unpacking gamespy
-[vendor] GamespySDK -> Libraries/Source/GameSpy
-[vendor] gamespy-strlwr-c-only.patch -> Libraries/Source/GameSpy
-[vendor] gamespy-gsi-unix.patch -> Libraries/Source/GameSpy
-[vendor] downloading SDL3-3.4.16.zip
-[vendor] unpacking SDL3
-[vendor] SDL3 3.4.16 -> Libraries/Source/SDL3
-[vendor] sdl3-metal-windowless.patch -> Libraries/Source/SDL3
-[vendor] sdl3-metal-gpu-timing.patch -> Libraries/Source/SDL3
-[vendor] downloading miniaudio-0.11.25.zip
-[vendor] unpacking miniaudio
-[vendor] miniaudio 0.11.25 -> Libraries/Source/miniaudio
-[vendor] downloading glslang-vulkan-sdk-1.4.357.0.zip
-[vendor] unpacking glslang
-[vendor] glslang vulkan-sdk-1.4.357.0 -> Libraries/Source/glslang
-[vendor] downloading SPIRV-Cross-1a616956.zip
-[vendor] unpacking SPIRV-Cross
-[vendor] SPIRV-Cross 1a616956 -> Libraries/Source/SPIRV-Cross
-[vendor] downloading SDL_shadercross-1ff05bec.zip
-[vendor] unpacking SDL_shadercross
-[vendor] SDL_shadercross 1ff05bec -> Libraries/Source/SDL_shadercross
-patching file 'src/SDL_shadercross.c'
-[vendor] downloading freetype-2.14.3.zip
-[vendor] unpacking freetype
-[vendor] FreeType 2.14.3 -> Libraries/Source/freetype
-[vendor] downloading ffmpeg-8.1.2.tar.xz
-curl: (28) Failed to connect to ffmpeg.org port 443 after 30018 ms: Timeout was reached
-[vendor] FFmpeg 8.1.2 (source tarball) -> Libraries/Source/FFmpeg
-[vendor] downloading mbedtls-3.6.7.tar.bz2
-[vendor] unpacking mbedtls
-[vendor] mbedTLS 3.6.7 -> Libraries/Source/mbedtls
-[vendor] everything the build needs is in place
+-- Looking for getresgid
+-- Looking for getresgid - not found
+-- Looking for getresuid
+-- Looking for getresuid - not found
+-- Looking for sigaction
+-- Looking for sigaction - found
+-- Looking for sigtimedwait
+-- Looking for sigtimedwait - not found
+-- Looking for setjmp
+-- Looking for setjmp - found
+-- Looking for nanosleep
+-- Looking for nanosleep - found
+-- Looking for gmtime_r
+-- Looking for gmtime_r - found
+-- Looking for localtime_r
+-- Looking for localtime_r - found
+-- Looking for nl_langinfo
+-- Looking for nl_langinfo - found
+-- Looking for sysconf
+-- Looking for sysconf - found
+-- Looking for sysctlbyname
+-- Looking for sysctlbyname - found
+-- Looking for getauxval
+-- Looking for getauxval - not found
+-- Looking for elf_aux_info
+-- Looking for elf_aux_info - not found
+-- Looking for ppoll
+-- Looking for ppoll - not found
+-- Looking for memfd_create
+-- Looking for memfd_create - not found
+-- Looking for posix_fallocate
+-- Looking for posix_fallocate - not found
+-- Looking for posix_spawn_file_actions_addchdir
+-- Looking for posix_spawn_file_actions_addchdir - not found
+-- Looking for posix_spawn_file_actions_addchdir_np
+-- Looking for posix_spawn_file_actions_addchdir_np - found
+-- Looking for dlopen
+-- Looking for dlopen - found
+-- Performing Test HAVE_O_CLOEXEC
+-- Performing Test HAVE_O_CLOEXEC - Success
+-- Performing Test HAVE_FRAMEWORK_METAL
+-- Performing Test HAVE_FRAMEWORK_METAL - Success
+-- Performing Test HAVE_PTHREADS
+-- Performing Test HAVE_PTHREADS - Success
+-- Performing Test HAVE_RECURSIVE_MUTEXES
+-- Performing Test HAVE_RECURSIVE_MUTEXES - Success
+-- Performing Test HAVE_PTHREADS_SEM
+-- Performing Test HAVE_PTHREADS_SEM - Success
+-- Performing Test COMPILER_HAS_SEM_TIMEDWAIT
+-- Performing Test COMPILER_HAS_SEM_TIMEDWAIT - Failed
+-- Looking for pthread.h
+-- Looking for pthread.h - found
+-- Looking for pthread_np.h
+-- Looking for pthread_np.h - not found
+-- Performing Test HAVE_PTHREAD_SETNAME_NP
+-- Performing Test HAVE_PTHREAD_SETNAME_NP - Success
+-- Performing Test HAVE_POSIX_SPAWN
+-- Performing Test HAVE_POSIX_SPAWN - Success
+-- Performing Test COMPILER_SUPPORTS_FOBJC_ARC
+-- Performing Test COMPILER_SUPPORTS_FOBJC_ARC - Success
+-- 
+-- SDL3 was configured with the following options:
+-- 
+-- Platform: Darwin-24.6.0
+-- 64-bit:   TRUE
+-- Compiler: /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang
+-- Revision: SDL-3.4.16-HEAD-HASH-NOTFOUND
+-- Vendor:   
+-- 
+-- Subsystems:
+--   Audio:    OFF
+--   Video:    ON
+--   GPU:      ON
+--   Render:   OFF
+--   Camera:   OFF
+--   Joystick: OFF
+--   Haptic:   OFF
+--   Hidapi:   OFF
+--   Power:    OFF
+--   Sensor:   OFF
+--   Dialog:   ON
+--   Tray:     OFF
+-- 
+-- Options:
+--   SDL_ALSA                    (Wanted: OFF): OFF
+--   SDL_ALSA_SHARED             (Wanted: OFF): OFF
+--   SDL_ALTIVEC                 (Wanted: OFF): OFF
+--   SDL_ARMNEON                 (Wanted: ON): ON
+--   SDL_ASAN                    (Wanted: OFF): OFF
+--   SDL_ASSEMBLY                (Wanted: ON): ON
+--   SDL_ASSERTIONS              (Wanted: auto): auto
+--   SDL_AVX                     (Wanted: OFF): OFF
+--   SDL_AVX2                    (Wanted: OFF): OFF
+--   SDL_AVX512F                 (Wanted: OFF): OFF
+--   SDL_BACKGROUNDING_SIGNAL    (Wanted: OFF): OFF
+--   SDL_CCACHE                  (Wanted: OFF): OFF
+--   SDL_CLANG_TIDY              (Wanted: OFF): OFF
+--   SDL_CLOCK_GETTIME           (Wanted: OFF): OFF
+--   SDL_COCOA                   (Wanted: ON): ON
+--   SDL_DBUS                    (Wanted: OFF): OFF
+--   SDL_DEPS_SHARED             (Wanted: ON): OFF
+--   SDL_DIRECTX                 (Wanted: OFF): OFF
+--   SDL_DISKAUDIO               (Wanted: OFF): OFF
+--   SDL_DLOPEN_NOTES            (Wanted: OFF): OFF
+--   SDL_DUMMYAUDIO              (Wanted: OFF): OFF
+--   SDL_DUMMYCAMERA             (Wanted: OFF): OFF
+--   SDL_DUMMYVIDEO              (Wanted: ON): ON
+--   SDL_EXAMPLES                (Wanted: OFF): OFF
+--   SDL_EXAMPLES_LINK_SHARED    (Wanted: OFF): OFF
+--   SDL_FOREGROUNDING_SIGNAL    (Wanted: OFF): OFF
+--   SDL_FRIBIDI                 (Wanted: OFF): OFF
+--   SDL_FRIBIDI_SHARED          (Wanted: OFF): OFF
+--   SDL_GCC_ATOMICS             (Wanted: ON): ON
+--   SDL_HIDAPI                  (Wanted: OFF): OFF
+--   SDL_HIDAPI_JOYSTICK         (Wanted: OFF): OFF
+--   SDL_HIDAPI_LIBUSB           (Wanted: OFF): OFF
+--   SDL_HIDAPI_LIBUSB_SHARED    (Wanted: OFF): OFF
+--   SDL_IBUS                    (Wanted: OFF): OFF
+--   SDL_INSTALL                 (Wanted: OFF): OFF
+--   SDL_INSTALL_TESTS           (Wanted: OFF): OFF
+--   SDL_JACK                    (Wanted: OFF): OFF
+--   SDL_JACK_SHARED             (Wanted: OFF): OFF
+--   SDL_KMSDRM                  (Wanted: OFF): OFF
+--   SDL_KMSDRM_SHARED           (Wanted: OFF): OFF
+--   SDL_LASX                    (Wanted: OFF): OFF
+--   SDL_LIBC                    (Wanted: ON): ON
+--   SDL_LIBICONV                (Wanted: OFF): OFF
+--   SDL_LIBTHAI                 (Wanted: OFF): OFF
+--   SDL_LIBTHAI_SHARED          (Wanted: OFF): OFF
+--   SDL_LIBUDEV                 (Wanted: ON): OFF
+--   SDL_LIBURING                (Wanted: OFF): OFF
+--   SDL_LSX                     (Wanted: OFF): OFF
+--   SDL_METAL                   (Wanted: ON): ON
+--   SDL_MMX                     (Wanted: OFF): OFF
+--   SDL_OFFSCREEN               (Wanted: ON): ON
+--   SDL_OPENGL                  (Wanted: OFF): OFF
+--   SDL_OPENGLES                (Wanted: OFF): OFF
+--   SDL_OPENVR                  (Wanted: OFF): OFF
+--   SDL_OSS                     (Wanted: OFF): OFF
+--   SDL_PIPEWIRE                (Wanted: OFF): OFF
+--   SDL_PIPEWIRE_SHARED         (Wanted: OFF): OFF
+--   SDL_PTHREADS                (Wanted: ON): ON
+--   SDL_PTHREADS_SEM            (Wanted: ON): ON
+--   SDL_PULSEAUDIO              (Wanted: OFF): OFF
+--   SDL_PULSEAUDIO_SHARED       (Wanted: OFF): OFF
+--   SDL_RENDER_D3D              (Wanted: OFF): OFF
+--   SDL_RENDER_D3D11            (Wanted: OFF): OFF
+--   SDL_RENDER_D3D12            (Wanted: OFF): OFF
+--   SDL_RENDER_GPU              (Wanted: OFF): OFF
+--   SDL_RENDER_METAL            (Wanted: OFF): OFF
+--   SDL_RENDER_VULKAN           (Wanted: OFF): OFF
+--   SDL_ROCKCHIP                (Wanted: OFF): OFF
+--   SDL_RPATH                   (Wanted: ON): OFF
+--   SDL_RPI                     (Wanted: OFF): OFF
+--   SDL_SNDIO                   (Wanted: OFF): OFF
+--   SDL_SNDIO_SHARED            (Wanted: OFF): OFF
+--   SDL_SSE                     (Wanted: OFF): OFF
+--   SDL_SSE2                    (Wanted: OFF): OFF
+--   SDL_SSE3                    (Wanted: OFF): OFF
+--   SDL_SSE4_1                  (Wanted: OFF): OFF
+--   SDL_SSE4_2                  (Wanted: OFF): OFF
+--   SDL_SYSTEM_ICONV            (Wanted: OFF): OFF
+--   SDL_TESTS                   (Wanted: OFF): OFF
+--   SDL_TESTS_LINK_SHARED       (Wanted: OFF): OFF
+--   SDL_UNINSTALL               (Wanted: OFF): OFF
+--   SDL_VIRTUAL_JOYSTICK        (Wanted: OFF): OFF
+--   SDL_VIVANTE                 (Wanted: OFF): OFF
+--   SDL_VULKAN                  (Wanted: ON): ON
+--   SDL_WASAPI                  (Wanted: OFF): OFF
+--   SDL_WAYLAND                 (Wanted: OFF): OFF
+--   SDL_WAYLAND_LIBDECOR        (Wanted: OFF): OFF
+--   SDL_WAYLAND_LIBDECOR_SHARED (Wanted: OFF): OFF
+--   SDL_WAYLAND_SHARED          (Wanted: OFF): OFF
+--   SDL_X11                     (Wanted: OFF): OFF
+--   SDL_X11_SHARED              (Wanted: OFF): OFF
+--   SDL_X11_XCURSOR             (Wanted: OFF): OFF
+--   SDL_X11_XDBE                (Wanted: OFF): OFF
+--   SDL_X11_XFIXES              (Wanted: OFF): OFF
+--   SDL_X11_XINPUT              (Wanted: OFF): OFF
+--   SDL_X11_XRANDR              (Wanted: OFF): OFF
+--   SDL_X11_XSCRNSAVER          (Wanted: OFF): OFF
+--   SDL_X11_XSHAPE              (Wanted: OFF): OFF
+--   SDL_X11_XSYNC               (Wanted: OFF): OFF
+--   SDL_X11_XTEST               (Wanted: OFF): OFF
+--   SDL_XINPUT                  (Wanted: OFF): OFF
+-- 
+--  Build Shared Library: OFF
+--  Build Static Library: ON
+--  Build libraries as Apple Framework: OFF
+-- 
+-- Enabled backends:
+--   Video drivers: cocoa dummy offscreen
+--   Render drivers: 
+--   GPU drivers: metal vulkan
+--   Audio drivers: dummy
+--   Joystick drivers: disabled dummy
+--   Camera drivers: dummy
+-- 
+-- If something was not detected, although the libraries
+-- were installed, then make sure you have set the
+-- CMAKE_C_FLAGS and CMAKE_PREFIX_PATH CMake variables correctly.
+-- 
+-- Looking for unistd.h
+-- Looking for unistd.h - found
+-- Looking for fcntl.h
+-- Looking for fcntl.h - found
+CMake Warning (deprecated) at Libraries/Source/glslang/CMakeLists.txt:111 (message):
+  ENABLE_HLSL is deprecated.  The HLSL front-end will be removed in a future
+  major release of glslang.  See
+  https://github.com/KhronosGroup/glslang/issues/4210 for details.
+This warning is for project developers.  Use -Wno-author or -Wno-deprecated
+to suppress it.
+
+-- spirv-tools not linked - illegal SPIRV may be generated for HLSL
+-- SPIRV-Cross: Finding Git version for SPIRV-Cross.
+-- Found Git: /opt/homebrew/bin/git (found version "2.56.0")
+-- SPIRV-Cross: Git hash: 2b0fb25
+-- Configuring done (31.5s)
+-- Generating done (0.4s)
+-- Build files have been written to: /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/build/ios/host-graphics
+[0/2] Re-checking globbed directories...
+[1/1656] Building CXX object SPIRV-Cross/CMakeFiles/spirv-cross-core.dir/spirv_cross_parsed_ir.cpp.o
+[2/1656] Building CXX object SPIRV-Cross/CMakeFiles/spirv-cross-core.dir/spirv_parser.cpp.o
+[3/1656] Building CXX object SPIRV-Cross/CMakeFiles/spirv-cross-core.dir/spirv_cfg.cpp.o
+[4/1656] Building C object SDL3/CMakeFiles/SDL3-static.dir/cmake_pch.h.pch
+[5/1656] Building CXX object SPIRV-Cross/CMakeFiles/spirv-cross-core.dir/spirv_cross.cpp.o
+[6/1656] Linking CXX static library SPIRV-Cross/libspirv-cross-core.a
+[7/1656] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/SDL.c.o
+[8/1656] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/SDL_assert.c.o
+[9/1656] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/SDL_error.c.o
+[10/1656] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/SDL_guid.c.o
+[11/1656] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/SDL_hashtable.c.o
+[12/1656] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/SDL_hints.c.o
+[13/1656] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/SDL_list.c.o
+[14/1656] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/SDL_log.c.o
+[15/1656] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/SDL_properties.c.o
+[16/1656] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/SDL_utils.c.o
+[17/1656] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/atomic/SDL_atomic.c.o
+[18/1656] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/atomic/SDL_spinlock.c.o
+[19/1656] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/audio/SDL_audio.c.o
+[20/1656] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/audio/SDL_audiocvt.c.o
+[21/1656] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/audio/SDL_audiodev.c.o
+[22/1656] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/audio/SDL_audioqueue.c.o
+[23/1656] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/audio/SDL_audioresample.c.o
+[24/1656] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/audio/SDL_audiotypecvt.c.o
+[25/1656] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/audio/SDL_mixer.c.o
+[26/1656] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/audio/SDL_wave.c.o
+[27/1656] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/camera/SDL_camera.c.o
+[28/1656] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/core/SDL_core_unsupported.c.o
+[29/1656] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/cpuinfo/SDL_cpuinfo.c.o
+[30/1656] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/dynapi/SDL_dynapi.c.o
+[31/1656] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/events/SDL_categories.c.o
+[32/1656] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/events/SDL_clipboardevents.c.o
+[33/1656] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/events/SDL_displayevents.c.o
+[34/1656] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/events/SDL_dropevents.c.o
+[35/1656] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/events/SDL_events.c.o
+[36/1656] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/events/SDL_eventwatch.c.o
+[37/1656] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/events/SDL_keyboard.c.o
+[38/1656] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/events/SDL_keymap.c.o
+[39/1656] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/events/SDL_keysym_to_keycode.c.o
+[40/1656] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/events/SDL_keysym_to_scancode.c.o
+[41/1656] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/events/SDL_mouse.c.o
+[42/1656] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/events/SDL_pen.c.o
+[43/1656] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/events/SDL_quit.c.o
+[44/1656] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/events/SDL_scancode_tables.c.o
+[45/1656] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/events/SDL_touch.c.o
+[46/1656] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/events/SDL_windowevents.c.o
+[47/1656] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/events/imKStoUCS.c.o
+[48/1656] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/filesystem/SDL_filesystem.c.o
+[49/1656] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/gpu/SDL_gpu.c.o
+[50/1656] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/haptic/SDL_haptic.c.o
+[51/1656] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/hidapi/SDL_hidapi.c.o
+[52/1656] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/io/SDL_asyncio.c.o
+[53/1656] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/io/SDL_iostream.c.o
+[54/1656] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/io/generic/SDL_asyncio_generic.c.o
+[55/1656] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/joystick/SDL_gamepad.c.o
+[56/1656] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/joystick/SDL_joystick.c.o
+[57/1656] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/joystick/SDL_steam_virtual_gamepad.c.o
+[58/1656] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/joystick/controller_type.c.o
+[59/1656] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/locale/SDL_locale.c.o
+[60/1656] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/main/SDL_main_callbacks.c.o
+[61/1656] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/main/SDL_runapp.c.o
+[62/1656] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/misc/SDL_libusb.c.o
+[63/1656] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/misc/SDL_url.c.o
+[64/1656] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/power/SDL_power.c.o
+[65/1656] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/render/SDL_render.c.o
+[66/1656] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/render/SDL_render_unsupported.c.o
+[67/1656] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/render/SDL_yuv_sw.c.o
+[68/1656] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/render/direct3d/SDL_render_d3d.c.o
+[69/1656] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/render/direct3d/SDL_shaders_d3d.c.o
+[70/1656] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/render/direct3d11/SDL_render_d3d11.c.o
+[71/1656] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/render/direct3d11/SDL_shaders_d3d11.c.o
+[72/1656] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/render/direct3d12/SDL_render_d3d12.c.o
+[73/1656] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/render/direct3d12/SDL_shaders_d3d12.c.o
+[74/1656] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/render/gpu/SDL_pipeline_gpu.c.o
+[75/1656] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/render/gpu/SDL_render_gpu.c.o
+[76/1656] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/render/gpu/SDL_shaders_gpu.c.o
+[77/1656] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/render/ngage/SDL_render_ngage.c.o
+[78/1656] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/render/opengl/SDL_render_gl.c.o
+[79/1656] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/render/opengl/SDL_shaders_gl.c.o
