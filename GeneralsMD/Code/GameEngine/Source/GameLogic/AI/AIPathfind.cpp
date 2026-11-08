@@ -6373,7 +6373,7 @@ Locomotor* Pathfinder::chooseBestLocomotorForPosition(PathfindLayerEnum layer, L
 	if (t == PathfindCell::CELL_RUBBLE) {
 		return LOCOMOTORSURFACE_RUBBLE | LOCOMOTORSURFACE_AIR;
 	}
-	if ( (t == PathfindCell::CELL_CLIFF) ) {
+	if ( t == PathfindCell::CELL_CLIFF ) {
 		return LOCOMOTORSURFACE_CLIFF | LOCOMOTORSURFACE_AIR;
 	}
 	return NO_SURFACES;
@@ -6394,7 +6394,7 @@ Bool Pathfinder::validMovementTerrain( PathfindLayerEnum layer, const Locomotor*
 		return false;
 	if (toCell->getType()==PathfindCell::CELL_OBSTACLE) return true;
 	if (toCell->getType()==PathfindCell::CELL_IMPASSABLE) return true;
-	if (toCell->getLayer()!=LAYER_GROUND && toCell->getLayer() == PathfindCell::CELL_CLEAR) {
+	if (toCell->getLayer()!=LAYER_GROUND && toCell->getLayer() == static_cast<PathfindLayerEnum>(PathfindCell::CELL_CLEAR)) {
 		return true; 
 	}
 	// check validity of destination cell

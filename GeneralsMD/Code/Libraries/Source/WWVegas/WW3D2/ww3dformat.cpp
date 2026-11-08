@@ -109,7 +109,7 @@ void Get_WW3D_ZFormat_Name(WW3DZFormat format, StringClass& name)
 	switch (format) 
 	{
 	default:
-	case WW3D_FORMAT_UNKNOWN		: name="Unknown"; break;
+	case WW3D_ZFORMAT_UNKNOWN		: name="Unknown"; break;
 	case WW3D_ZFORMAT_D16_LOCKABLE: name="D16Lockable"; break; // 16-bit z-buffer bit depth. This is an application-lockable surface format. 
 	case WW3D_ZFORMAT_D32			: name="D32"; break; // 32-bit z-buffer bit depth. 
 	case WW3D_ZFORMAT_D15S1			: name="D15S1"; break; // 16-bit z-buffer bit depth where 15 bits are reserved for the depth channel and 1 bit is reserved for the stencil channel. 
