@@ -121,7 +121,7 @@ bool PosixDevice9::End_Sun_Shadow(bool *submission_ok)
     }
     Sun->Draws = DrawsRecorded - Sun->FirstDraw;
     // Submission failure must reach the stencil fallback before the engine decides who owns shadows.
-    const bool submitted = Gpu->Flush();
+    const bool submitted = Gpu->Flush(SdlGpuFrame::FlushSunShadow);
     SunActive = false;
     SunCasterEffect = DRAW_EFFECT_NONE;
     Sun->Restore(*this);
