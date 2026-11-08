@@ -82,3 +82,25 @@ The Liberation Fonts packaging download now tries independent MacPorts/OmniOS re
 
 **Device reading order:** enable the in-game Particle Performance diagnostic option (or `ZH_PARTICLE_PERF=1` where the environment is settable); collect 120-render-call intervals; compare the `stage=smoke_light_cpu` and `stage=firelook_pack_cpu` rankings, then cross-check the parent billboard total and frame-time P95. At identical graphics settings compare several idle, fire and dense-smoke runs, both with and without the profiling flag. Do not interpret `gpu_submit_cpu_ms` as GPU elapsed time; `gpu_elapsed_ms=unavailable` and `depth_capture_ms=unavailable` remain outstanding.
 
+
+## On-device particle diagnostic capture — generals-stderr(4).log (2026-11-08)
+
+Capture identifies `[IOS_BUILD] revision=a6c554e8f1de renderer=SDL_GPU_Metal`, native 2868×1320 output, Reforged lighting and volumetric smoke enabled. **Note:** revision `a6c554e8` predates the later smoke/FireLook diagnostic source edits in the repository, but the log **does contain** `smoke_light_cpu_ms_per_frame`, `firelook_cpu_ms_per_frame` and the separate `stage=smoke_light_cpu` / `stage=firelook_pack_cpu` lines. The apparent mismatch between reported build fingerprint and logged source features should be checked for build-fingerprint stamping/cached-object behavior before claiming exact commit attribution.
+
+Eighteen `[PARTICLE_PERF]` summaries were present (120 render invocations per interval). The first interval: `cpu_render_ms=0.133`, `fire_smoke_gather_ms=0.004`, active systems 37.9, CPU particles processed 106.3, drawn 12.4. At the peak reported interval: `cpu_render_ms=1.629`, `fire_smoke_gather_ms=0.372`, active systems 640.6, processed 2866.7 and drawn 555.3. These are **interval averages**, not worst-frame latency or end-to-end frame time. Across every interval `native_live=0.0`. Separate initialization confirms `[SDL_PARTICLES] requested=0 available=0 max_records=8192 CPU_alpha_and_weapon_trails=1`: the native compute path is **not active**, so this run cannot evaluate GPU particle migration.
+
+Top observed *interval-average per-template* CPU billboard costs were `CarpetBombExplosionShockwave` 0.080ms with 138.1 drawn/frame and `BuggyNewAirDeathSubExplosionSmoke` 0.078ms with 62.9 drawn/frame. The largest separately measured `lightSmoke` costs were 0.009ms (`CarpetBombExplosionShockwave`) and 0.008ms (`BuggyNewAirDeathSubExplosionSmoke`). The largest measured FireLook seed/age packing cost was 0.004ms (`BuggyNewAirDeathSubExplosionFlameSlave`). **These small self-times do not establish that lighting/FireLook fragment shaders are cheap**; no GPU elapsed data exists. The light-picking phase can exceed the actual per-particle `lightSmoke` cost in the high-count templates (e.g. around 0.047ms vs 0.008ms for `BuggyNewAirDeathSubExplosionSmoke`). Because per-particle timers are expensive, evaluate diagnostic overhead before assuming absolute values.
+
+There is a much larger *unattributed* render scheduling signal: shutdown reports **1,998,747 recorded draws across 1,562 presents**, **13,677 mid-frame flushes**, and **15,132 ring waits**, with **zero flushes due to the 2,048-draw limit**. This is approximately 1,280 recorded draws per present. These lifetime counters are not milliseconds and cannot identify particle-specific overhead; instrument time waited for the ring, command buffer submissions, and per-pass draw/fragment cost. Logging 2,243 `[IOS_SHADOW_PASS]` lines also adds avoidable stderr traffic and should be disabled or interval-aggregated for a clean profiling comparison.
+
+The Metal hazard-cloud shader still fails to create because two fragment parameters (`TerrainImage` and `SceneDepth`) both occupy `[[texture(0)]]`; shared hazard-cloud initialization fails. This is **independent of the successful particle CPU profiling** but confounds visual comparisons when volumetric smoke is enabled. Fix resource bindings independently and verify the shared cloud path.
+
+At periodic frame 1342: `footprint_mib=1563.8`, `available_mib=4580.2`, `constrained=0`. Memory pressure remains an unlikely primary explanation **for this capture**. Startup and game shutdown completed normally (`[IOS_EXIT] normal process exit`).
+
+### Prioritized next validation
+
+1. Fix and independently test the shared hazard-cloud shader texture-binding collision, preserving scene/depth semantics.
+2. Instrument ring-wait **duration**, command-buffer submissions and per-render-pass CPU/GPU cost before attributing the severe FPS collapse to smoke or FireLook.
+3. Make native-particle activation explicitly controllable on iOS and validate eligibility before claiming an A/B comparison. Do not globally enable ineligible alpha, FireLook or trails.
+4. Repeat the same scenes with Reforged lighting on/off and diagnostic logging on/off; capture actual frame-time P50/P95 and matching particle counts. No baseline-versus-optimized speedup can yet be reported.
+
