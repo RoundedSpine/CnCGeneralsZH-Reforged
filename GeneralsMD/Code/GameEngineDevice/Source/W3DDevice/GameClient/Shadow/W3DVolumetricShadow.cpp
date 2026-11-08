@@ -4784,10 +4784,17 @@ void W3DVolumetricShadowManager::renderShadows( Bool forceStencilFill )
 	// blanket policy that removes stencil fallback from reflections.
 	if (TheGlobalData->m_shadowMap && TheGlobalData->m_shadowMapOnly && !TheGlobalData->m_classicGraphics)
 	{
-		static Bool reported = FALSE;
+		// Report each ownership state once: secondary/reflection passes normally
+		// return scene_owns=0, but the isolation must still suppress their volumes.
+		const Bool sceneOwns = SunShadow::OwnsSceneShadows(DX8Wrapper::_Get_D3D_Device());
+		static Bool reportedOwned = FALSE;
+		static Bool reportedSecondary = FALSE;
+		Bool &reported = sceneOwns ? reportedOwned : reportedSecondary;
 		if (!reported)
 		{
-			fprintf(stderr, "[IOS_STENCIL_ISOLATION] all_legacy_stencil_passes_skipped=1 sun_map=1 modern=1\n");
+			fprintf(stderr,
+				"[IOS_STENCIL_ISOLATION] all_legacy_stencil_passes_skipped=1 sun_map=1 modern=1 scene_owns=%d\n",
+				(int)sceneOwns);
 			reported = TRUE;
 		}
 		return;
