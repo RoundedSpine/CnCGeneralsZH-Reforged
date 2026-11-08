@@ -25,7 +25,7 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 1
       - name: Select Xcode and build tools
@@ -90,7 +90,7 @@ jobs:
           GeneralsMD/Code/Tools/fingerprint-manifest.sh --check
       - name: Restore compiled objects
         continue-on-error: true
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v5
         with:
           path: build/ios
           key: ios-${{ runner.arch }}-${{ steps.tools.outputs.sdk }}-${{ github.sha }}
@@ -117,12 +117,12 @@ jobs:
       - name: Save compiled objects
         if: always()
         continue-on-error: true
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v5
         with:
           path: build/ios
           key: ios-${{ runner.arch }}-${{ steps.tools.outputs.sdk }}-${{ github.sha }}
       - name: Upload unsigned IPA
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: Reforged-iOS-unsigned-${{ github.sha }}
           path: |
@@ -131,7 +131,7 @@ jobs:
           if-no-files-found: error
       - name: Upload build diagnostics
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: Reforged-iOS-build-logs-${{ github.run_id }}
           path: |
