@@ -137,3 +137,74 @@ At each 120-call `[GPU_SYNC_PERF]` interval the renderer now adds `gpu_cmd_compl
 To attribute command volume, the same log gains `render_passes` (including separately emitted MSAA depth clear passes), `depth_snapshots`, `blits`, `copy_passes`, `recorded_draws`, and `upload_mib`. These are **CPU-side recorded operations during the interval**, not guaranteed completed device work. `upload_mib` counts staged byte volume including stream padding, not texture residency. Counts are gated on the profiler flag to minimize overhead when disabled. Other direct GPU operations outside `Record_Batch` may not be reflected in these counts, though the Metal completion hook sees all Metal submissions on this backend.
 
 **Verification remains required** for the Objective-C hook on the pinned SDL backend, final unsigned ARM64 IPA, and nonzero/accurate GPU timestamps on the iPhone 16 Pro Max. Compare profiling on/off to measure handler overhead. If timing is unavailable, do not fabricate GPU elapsed time; use host Metal GPU tests and device instruments to diagnose API support. For fragment overdraw or separate particle-vs-lighting GPU pass timings, a later pass-labeled Metal counter sample or Xcode GPU frame capture is still necessary.
+
+## Combined iPhone GPU pass + fragment diagnostic (2026-11-08)
+
+On `particle-perf-test` the Metal source patch `sdl3-metal-pass-timing.patch` extends the
+opt-in asynchronous command-buffer profiler with render-pass stage-boundary counter
+samples. It is applied **after** `sdl3-metal-gpu-timing.patch` and requires the
+same `ZH_PARTICLE_PERF=1` / in-game Particle Performance diagnostic switch.
+It does not intentionally alter gameplay shaders, blend modes, render order,
+pass boundaries, or normal resource lifetime. The profiler adds counter-sample
+buffer allocations and completion callbacks; measure its own overhead with a
+profiling-disabled control.
+
+The engine labels render passes as `scene_backbuffer`, `intermediate`,
+`depth_only`, or `unlabelled`. Every 120 `Take_Timing` intervals the
+`[GPU_PASS_PERF]` lines report:
+
+- `completed`, `unavailable`, `gpu_ms`, `max_ms`: real, **asynchronously completed**
+  Metal render-stage timestamp samples, summed per bucket; not one frame's GPU latency.
+- `stats_completed`, `stats_unavailable`, `fragment_invocations`, `fragments_passed`:
+  actual Metal fragment statistics where the GPU supports the standard
+  `MTLCommonCounterSetStatistic` at render-stage boundaries.
+- `fragment_invocations_per_passed`: **pass-wide** fragment work to visibility output.
+  It is an overdraw/fragment-discard indicator, not the literal number of smoke
+  fragments per screen pixel, and isn't alpha-only because a pass can contain
+  opaque geometry and transparency. Zero when `fragments_passed=0` is not
+  a verified ratio; consult the sample and unavailable counts.
+
+The separate `[GPU_TRANSPARENCY_PERF]` line reports accepted
+`blended_draws` and `additive_draws`; its
+`backbuffer_blended_scissor_mpixels` and
+`backbuffer_scissor_fullscreen_equiv` are a **very loose upper bound**
+assuming every pixel of the viewport/scissor were shaded by every accepted
+back-buffer blended draw. These fields can vastly overestimate transparent
+fragment execution when small sprite quads use a full viewport. Do not call
+them a measured heatmap or divide them into the GPU fragment count to infer
+pixel-exact overdraw. They are useful as a transparent-workload marker beside
+the hardware counters.
+
+**One controlled device diagnostic capture:**
+
+1. Install the unsigned experimental IPA; confirm `[IOS_BUILD]`, `[SDL_PARTICLES]`,
+   shader creation, Reforged lighting, and current resolution in the log.
+2. Enable the in-game Particle Performance diagnostic and capture stderr.
+   Hold an idle scene for at least 3 full 120-call windows.
+3. Without changing graphics options, generate several repeatable fires and
+   dense smoke plumes for at least 3 windows. Then produce repeated explosions,
+   projectiles and other overlapping alpha effects for at least 3 windows.
+   Keep the camera, resolution, unit count, and zoom as consistent as possible.
+4. Capture at least 3 windows of a final idle/recovery scene. Retain
+   `[PARTICLE_PERF]`, `[PARTICLE_COST]`, `[GPU_SYNC_PERF]`,
+   `[GPU_PASS_PERF]`, `[GPU_TRANSPARENCY_PERF]`, `[SDL_MEMORY]` and
+   shader startup messages; also record actual frame-time/FPS from an
+   independent frame-time source. Do not equate recorder time with GPU time.
+5. Repeat equivalent scenes with profiling **disabled** to isolate the
+   overhead of counters and callbacks. For lighting A/B, do a separate run
+   with Reforged lighting off instead of toggling in the middle of a window.
+
+If `stats_unavailable` dominates, the hardware statistics are not usable
+on this device/configuration; if `completed=0` with `unavailable>0` it
+means no usable pass timestamps, not zero GPU cost. GPU completion callbacks
+can land in the next 120-call interval. Don't infer a per-frame P95 from the
+aggregate or blame a single shader from a mixed render pass.
+
+Exact transparent-only overdraw heatmaps or attribution to a specific smoke
+shader require additional controlled GPU capture or a separate instrumented
+render pass. This diagnostic is designed to choose the next intervention
+without lowering graphical quality prematurely.
+
+**Validation:** this implementation is experimental until GitHub Actions
+compiles the pinned Objective-C Metal backend, packages an IPA, and an actual
+A18 Pro run provides nonzero supported timing/fragment samples.
