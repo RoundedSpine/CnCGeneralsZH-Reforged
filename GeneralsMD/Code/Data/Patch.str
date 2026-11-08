@@ -262,11 +262,11 @@ TOOLTIP:ShowProps
 END
 
 GUI:HeatEffects
-"Heat Haze"
+"Heat Distortion"
 END
 
 TOOLTIP:HeatEffects
-"Hot air shimmers, as it does over the Microwave Tank's beam. Applies when you press Accept."
+"Enables the older heat-distortion path used by effects such as the Microwave Tank beam and hazard clouds. This is separate from the newer fire, laser and missile-exhaust Heat Haze effect. Applies when you press Accept."
 END
 
 GUI:BehindBuilding
