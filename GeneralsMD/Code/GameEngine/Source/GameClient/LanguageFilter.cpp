@@ -187,7 +187,7 @@ Bool LanguageFilter::readWord(File *file1, WideChar *buf) {
 
 		if ((c == static_cast<UnsignedShort>(WEOF)) || (c == u' ')) {
 			buf[index] = 0;
-			if (c == WEOF) {
+			if (c == static_cast<UnsignedShort>(WEOF)) {
 				retval = FALSE;
 			}
 			break;

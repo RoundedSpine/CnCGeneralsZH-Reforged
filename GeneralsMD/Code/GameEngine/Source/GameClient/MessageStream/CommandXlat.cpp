@@ -2876,7 +2876,7 @@ GameMessageDisposition CommandTranslator::translateGameMessage(const GameMessage
 				{
 				}
 				// temp is the last drawable
-				for( temp; temp != NULL; temp = temp->getPrevDrawable() )
+				for( ; temp != NULL; temp = temp->getPrevDrawable() )
 				{
 					const Object *object = temp->getObject();
 					// if you've reached the end of the list, don't select anything
@@ -2982,7 +2982,7 @@ GameMessageDisposition CommandTranslator::translateGameMessage(const GameMessage
 			{
 				// get the first drawable
 				temp = TheGameClient->firstDrawable();
-				for( temp; temp != NULL; temp = temp->getPrevDrawable() )
+				for( ; temp != NULL; temp = temp->getPrevDrawable() )
 				{
 					const Object *object = temp->getObject();
 					// if you've reached the end of the list, don't select anything
@@ -3011,7 +3011,7 @@ GameMessageDisposition CommandTranslator::translateGameMessage(const GameMessage
 			else
 			{
 				Drawable *newDrawable = NULL;
-				TheGameClient->getDrawableList();
+				(void)TheGameClient->getDrawableList();
 				Bool hack = FALSE; // takes care of when for loop skips firstdrawable
 				Drawable *selectedDrawable = TheInGameUI->getFirstSelectedDrawable();
 				Object *selectedObject = selectedDrawable->getObject();
@@ -3177,7 +3177,7 @@ GameMessageDisposition CommandTranslator::translateGameMessage(const GameMessage
 				{
 				}
 				// temp is the last drawable
-				for( temp; temp != NULL; temp = temp->getPrevDrawable() )
+				for( ; temp != NULL; temp = temp->getPrevDrawable() )
 				{
 					const Object *object = temp->getObject();
 					// if you've reached the end of the list, don't select anything
@@ -3284,7 +3284,7 @@ GameMessageDisposition CommandTranslator::translateGameMessage(const GameMessage
 			{
 				// get the first drawable
 				temp = TheGameClient->firstDrawable();
-				for( temp; temp != NULL; temp = temp->getPrevDrawable() )
+				for( ; temp != NULL; temp = temp->getPrevDrawable() )
 				{
 					const Object *object = temp->getObject();
 					// if you've reached the end of the list, don't select anything
@@ -3313,7 +3313,7 @@ GameMessageDisposition CommandTranslator::translateGameMessage(const GameMessage
 			else
 			{
 				Drawable *newDrawable = NULL;
-				TheGameClient->getDrawableList();
+				(void)TheGameClient->getDrawableList();
 				Bool hack = FALSE; // takes care of when for loop skips firstdrawable
 				Drawable *selectedDrawable = TheInGameUI->getFirstSelectedDrawable();
 				Object *selectedObject = selectedDrawable->getObject();
