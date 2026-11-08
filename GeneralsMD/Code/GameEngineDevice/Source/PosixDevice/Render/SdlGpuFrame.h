@@ -167,8 +167,15 @@ public:
 	void Clear_Rect(int x, int y, int width, int height, bool colour, bool depth, bool stencil, uint32_t argb, float z,
 		uint32_t stencil_value);
 
-	/// Runs what is recorded into the back buffer.  False when the GPU refused the work.
-	bool Flush();
+	// Diagnostic classification only; does not change the submission behavior.
+	enum FlushCause {
+		FlushUnclassified, FlushBatchLimit, FlushOcean, FlushSceneDepth,
+		FlushAmbientOcclusion, FlushAtmosphere, FlushHeat, FlushMsaa,
+		FlushNativeParticles, FlushSmoke, FlushSunShadow, FlushMaintenance,
+		FlushCauseCount
+	};
+	/// Runs what is recorded into the back buffer. False when the GPU refused the work.
+	bool Flush(FlushCause cause = FlushUnclassified);
 
 	// ---- The batch (A3c).  Offsets are into this batch only: a flush starts the next one empty.
 
@@ -362,6 +369,7 @@ private:
 	unsigned int ParticleGpuDepthSnapshots;
 	unsigned int ParticleGpuBlits;
 	unsigned int ParticleGpuCopyPasses;
+	uint64_t ParticleGpuFlushReasons[FlushCauseCount]; // diagnostic attempt counts by explicit caller
 	unsigned int ParticleGpuPerfFrames;
 	unsigned int ParticleGpuPerfFlushStart;
 	unsigned int ParticleGpuPerfWaitStart;
