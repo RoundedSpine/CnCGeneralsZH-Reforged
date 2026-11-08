@@ -34,7 +34,6 @@ patching file 'src/SDL_shadercross.c'
 [vendor] unpacking freetype
 [vendor] FreeType 2.14.3 -> Libraries/Source/freetype
 [vendor] downloading ffmpeg-8.1.2.tar.xz
-curl: (28) Failed to connect to ffmpeg.org port 443 after 30063 ms: Timeout was reached
 [vendor] FFmpeg 8.1.2 (source tarball) -> Libraries/Source/FFmpeg
 [vendor] downloading mbedtls-3.6.7.tar.bz2
 curl: (56) The requested URL returned error: 504
