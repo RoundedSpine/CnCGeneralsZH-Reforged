@@ -3045,7 +3045,7 @@ void GameLogic::writeMismatchDump( Int numPlayers, UnsignedInt crcFrame )
 	}
 
 	fprintf( fp, "Mismatch detected on frame %d\n", m_frame );
-	fprintf( fp, "Local player is slot %d of %d connected players; %d CRCs were compared\n",
+	fprintf( fp, "Local player is slot %d of %d connected players; %zu CRCs were compared\n",
 		TheNetwork ? TheNetwork->getLocalPlayerID() : 0, numPlayers, compared.size() );
 	// every player's dump carries the same two, which is how the reports from one match are paired up
 	fprintf( fp, "Map %s, seed %d\n", TheGameInfo->getMap().str(), TheGameInfo->getSeed() );
@@ -3089,7 +3089,7 @@ void GameLogic::writeMismatchDump( Int numPlayers, UnsignedInt crcFrame )
 		return;
 	}
 
-	fprintf( fp, "\nDiverging frame is %d (world CRC 0x%8.8X, logic random seed CRC 0x%8.8X, %d objects)\n",
+	fprintf( fp, "\nDiverging frame is %d (world CRC 0x%8.8X, logic random seed CRC 0x%8.8X, %zu objects)\n",
 		snap->m_frame, snap->m_totalCRC, snap->m_randomSeed, snap->m_objects.size() );
 	if( !slotFromCRC )
 		fprintf( fp, "Frame %d is no longer retained, so this is the newest one; compare it with the same frame in the other dump.\n", crcFrame );
@@ -3142,7 +3142,7 @@ void GameLogic::writeMismatchDump( Int numPlayers, UnsignedInt crcFrame )
 		const CRCObjectEntry &e = snap->m_objects[i];
 		Object *obj = findObjectByID( (ObjectID)e.m_id );
 		const char *templateName = obj ? obj->getTemplate()->getName().str() : "<destroyed since>";
-		fprintf( fp, "%6d %8d 0x%8.8X %12.4f %12.4f %12.4f %10.3f  %s\n",
+		fprintf( fp, "%6zu %8d 0x%8.8X %12.4f %12.4f %12.4f %10.3f  %s\n",
 			i, e.m_id, e.m_runningCRC, e.m_x, e.m_y, e.m_z, e.m_health, templateName );
 	}
 
@@ -3152,7 +3152,7 @@ void GameLogic::writeMismatchDump( Int numPlayers, UnsignedInt crcFrame )
 		const CRCSnapshot *other = m_crcSnapshots.getSlot( m_crcSnapshots.getNthNewestSlot( n ) );
 		if( other == NULL || other == snap )
 			continue;
-		fprintf( fp, "  frame %d: world CRC 0x%8.8X, %d objects, %d command runs before it, digest 0x%8.8X\n",
+		fprintf( fp, "  frame %d: world CRC 0x%8.8X, %zu objects, %zu command runs before it, digest 0x%8.8X\n",
 			other->m_frame, other->m_totalCRC, other->m_objects.size(), other->m_commands.size(), commandDigest( other ) );
 	}
 

@@ -5944,7 +5944,7 @@ Bool ControlBar::hasAnyShortcutSelection() const
 //-------------------------------------------------------------------------------------------------
 void ControlBar::updateSpecialPowerShortcut( void )
 {
-	if(!m_specialPowerShortcutParent || !m_specialPowerShortcutButtons 
+	if(!m_specialPowerShortcutParent 
 	   || !ThePlayerList || !ThePlayerList->getLocalPlayer())
 		return;
 
@@ -6137,7 +6137,7 @@ void ControlBar::animateSpecialPowerShortcut( Bool isOn )
 void ControlBar::showSpecialPowerShortcut( void )
 {
 	if(TheScriptEngine->isGameEnding() || !m_specialPowerShortcutParent 
-		||!m_specialPowerShortcutButtons || !ThePlayerList || !ThePlayerList->getLocalPlayer())
+		|| !ThePlayerList || !ThePlayerList->getLocalPlayer())
 		return;
 	Bool dontAnimate = TRUE;
 	for( Int i = 0; i < m_currentlyUsedSpecialPowersButtons; ++i )

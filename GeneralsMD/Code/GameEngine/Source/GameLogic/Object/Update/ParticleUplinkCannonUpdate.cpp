@@ -1092,7 +1092,7 @@ void ParticleUplinkCannonUpdate::removeAllEffects()
 	const ParticleUplinkCannonUpdateModuleData *data = getParticleUplinkCannonUpdateModuleData();
 	for( int i = 0; i < data->m_outerEffectNumBones; i++ )
 	{
-		if( m_outerSystemIDs && m_outerSystemIDs[ i ] )
+		if( m_outerSystemIDs[ i ] )
 		{
 			TheParticleSystemManager->destroyParticleSystemByID( m_outerSystemIDs[ i ] );
 			m_outerSystemIDs[ i ] = INVALID_PARTICLE_SYSTEM_ID;

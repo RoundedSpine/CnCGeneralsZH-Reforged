@@ -555,14 +555,15 @@ ScriptEngine::~ScriptEngine()
 //-------------------------------------------------------------------------------------------------
 void ScriptEngine::init( void )
 {
-	if (TheGlobalData->m_windowed)
+	if (TheGlobalData->m_windowed) {
 		if (TheGlobalData->m_scriptDebug) {
 			st_DebugDLL = loadToolDLL("DebugWindow.dll");
 		} else {
 			st_DebugDLL = NULL;
 		}
+	}
 		
-		if (TheGlobalData->m_particleEdit) {
+	if (TheGlobalData->m_particleEdit) {
 			st_ParticleDLL = loadToolDLL("ParticleEditor.dll");
 		} else {
 			st_ParticleDLL = NULL;
@@ -6229,8 +6230,8 @@ void ScriptEngine::runScript(const AsciiString& scriptName, Team *pThisTeam)
 			DEBUG_LOG(("WARNING: Script '%s' not defined.\n", scriptName.str()));
 		}
 	}
-	// m_callingTeam is restored automatically via LatchRestore
-	m_conditionTeam = m_conditionTeam;
+	// m_callingTeam is restored automatically via LatchRestore.
+	// m_conditionTeam intentionally remains NULL here; the old self-assignment was a no-op.
 	m_currentPlayer = savPlayer;
 }  // end runScript
 
