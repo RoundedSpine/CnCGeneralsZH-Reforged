@@ -211,3 +211,47 @@ The merge introduced no custom simulation-behavior change. Any replay movement
 must be attributed and checked against the upstream gameplay/data changes
 before updating E1 pins.
 
+
+
+### Final post-merge validation
+
+Further compatibility cleanup after the earlier validation pass was completed on
+`Claude-update` and is superseded by the final code-validation tip
+`3ca97b6bcf2b15dab6797b7d11b1844027d9e10a`.
+
+GitHub Actions run
+https://github.com/RoundedSpine/CnCGeneralsZH-Reforged/actions/runs/42455783710
+completed successfully on `macos-15`. The helper/test step, host graphics and
+engine validation, iPhoneOS ARM64 configure/compile/link, symbol-map generation,
+load-command check, entitlement validation, ad-hoc bundle signing and IPA
+packaging all completed successfully. The uploaded IPA artifact is:
+
+`Reforged-iOS-unsigned-3ca97b6bcf2b15dab6797b7d11b1844027d9e10a`
+
+The corresponding diagnostic artifact is:
+
+`Reforged-iOS-build-logs-42455783710`
+
+A packaging regression was found immediately before this final run.
+`codesign -d --entitlements -` on the current runner emitted the newer
+human-readable entitlement representation, which is not a plist and caused
+`plistlib.load()` to fail after the entire ARM64 executable had already linked.
+The iOS packaging script restored raw XML extraction with
+`codesign -d --entitlements :-`, and
+`test_ios_network_permissions.py` now asserts that the packaging path keeps a
+machine-readable entitlement extraction form. The final run confirms that the
+resulting `signed-entitlements.plist` contains both required kernel memory
+entitlements and that the IPA is produced.
+
+The runner also warns that the colon-prefixed entitlement-output syntax is
+deprecated. Apple documents the modern explicit XML form as
+`codesign -d --entitlements - --xml`. This is a packaging-maintenance risk, not
+a failure of the validated IPA; changing to the modern form should receive its
+own macOS CI validation before replacing the now-green path.
+
+The E1 replay check remains unexecuted because original game data was not
+available. No replay checksum pin was changed by the merge work. Physical-device
+Metal rendering, gameplay, touch/safe-area behavior, lifecycle/audio recovery,
+memory pressure with the new faction assets, modern-water/hazard visual parity,
+LAN permission prompts and live relay/online sessions remain unverified and
+must not be inferred from the successful cross-build.
