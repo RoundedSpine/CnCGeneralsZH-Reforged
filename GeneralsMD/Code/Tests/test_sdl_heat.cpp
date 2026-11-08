@@ -49,6 +49,10 @@ int main(){
     std::vector<uint8_t> after;CHECK(frame->Read_Back(heatTarget.Colour,64,48,after));CHECK(before!=after);
     frame->Set_Heat_Splats(nullptr,0);CHECK(frame->Heat_Haze_Scene(heatTarget));
     CHECK(frame->Supports_Heat_Haze());CHECK(SDL_WaitForGPUIdle(frame->Device()));
+    // Resize invalidates SdlTarget texture pointers. Restore the original target before
+    // the existing memory-pressure checks below continue to use its 17x11 expectations.
+    CHECK(frame->Resize(17,11));frame->Clear_Back_Buffer(true,true,false,0xff654321,1,0);
+    resized=frame->Back_Buffer_Target();
     // Unused staging capacity survives ordinary batch completion but is disposable.
     uint32_t stagedOffset=0;CHECK(frame->Stage(8*1024*1024,stagedOffset));
     CHECK(frame->Flush());CHECK(frame->Retained_Staging_Bytes()>=8*1024*1024);
