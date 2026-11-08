@@ -1,300 +1,300 @@
-  302 |                         sprintf(m_filePath,USER_W3D_DIR_PATH, TheGlobalData->getPath_UserData().str());
-      |                         ^
-/Applications/Xcode_16.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk/usr/include/_stdio.h:278:1: note: 'sprintf' has been explicitly marked deprecated here
-  278 | __deprecated_msg("This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead.")
-      | ^
-/Applications/Xcode_16.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk/usr/include/sys/cdefs.h:218:48: note: expanded from macro '__deprecated_msg'
-  218 |         #define __deprecated_msg(_msg) __attribute__((__deprecated__(_msg)))
-      |                                                       ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/W3DFileSystem.cpp:309:4: warning: 'sprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead. [-Wdeprecated-declarations]
-  309 |                         sprintf(m_filePath,USER_TGA_DIR_PATH, TheGlobalData->getPath_UserData().str());
-      |                         ^
-/Applications/Xcode_16.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk/usr/include/_stdio.h:278:1: note: 'sprintf' has been explicitly marked deprecated here
-  278 | __deprecated_msg("This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead.")
-      | ^
-/Applications/Xcode_16.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk/usr/include/sys/cdefs.h:218:48: note: expanded from macro '__deprecated_msg'
-  218 |         #define __deprecated_msg(_msg) __attribute__((__deprecated__(_msg)))
-      |                                                       ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/W3DFileSystem.cpp:326:4: warning: 'sprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead. [-Wdeprecated-declarations]
-  326 |                         sprintf(m_filePath,MAP_PREVIEW_DIR_PATH, TheGlobalData->getPath_UserData().str());
-      |                         ^
-/Applications/Xcode_16.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk/usr/include/_stdio.h:278:1: note: 'sprintf' has been explicitly marked deprecated here
-  278 | __deprecated_msg("This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead.")
-      | ^
-/Applications/Xcode_16.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk/usr/include/sys/cdefs.h:218:48: note: expanded from macro '__deprecated_msg'
-  218 |         #define __deprecated_msg(_msg) __attribute__((__deprecated__(_msg)))
-      |                                                       ^
-5 warnings generated.
-[1570/1651] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/W3DGranny.cpp.o
-[1571/1651] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/W3DDisplay.cpp.o
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/W3DDisplay.cpp:55:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/ThingFactory.h:43:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Object.h:48:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:123:10: warning: 35 enumeration values not handled in switch: 'DAMAGE_EXPLOSION', 'DAMAGE_CRUSH', 'DAMAGE_ARMOR_PIERCING'... [-Wswitch]
-  123 |         switch( type )
-      |                 ^~~~
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:123:10: note: add missing switch cases
-  123 |         switch( type )
+  186 |                         { "SkillPointsForTriggering",           INI::parseInt,                                                                          NULL, offsetof( SpecialAbilityUpdateModuleData, m_skillPointsForTriggering ) },
+      |                                                                                                                                                               ^                                         ~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_gameengine.cpp:173:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/SpecialAbilityUpdate.h:187:63: warning: offset of on non-standard-layout type 'SpecialAbilityUpdateModuleData' [-Winvalid-offsetof]
+  187 |                         { "ApproachRequiresLOS",                                INI::parseBool,                                                                         NULL, offsetof( SpecialAbilityUpdateModuleData, m_approachRequiresLOS ) },
+      |                                                                                                                                                                               ^                                         ~~~~~~~~~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_gameengine.cpp:173:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/SpecialAbilityUpdate.h:188:63: warning: offset of on non-standard-layout type 'SpecialAbilityUpdateModuleData' [-Winvalid-offsetof]
+  188 |                         { "ApproachRequiresLOS",                                INI::parseBool,                                                                         NULL, offsetof( SpecialAbilityUpdateModuleData, m_approachRequiresLOS ) },
+      |                                                                                                                                                                               ^                                         ~~~~~~~~~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_gameengine.cpp:173:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/SpecialAbilityUpdate.h:189:70: warning: offset of on non-standard-layout type 'SpecialAbilityUpdateModuleData' [-Winvalid-offsetof]
+  189 |       { "NeedToFaceTarget",           INI::parseBool,                                                                           NULL, offsetof( SpecialAbilityUpdateModuleData, m_needToFaceTarget ) },
+      |                                                                                                                                       ^                                         ~~~~~~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_gameengine.cpp:173:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/SpecialAbilityUpdate.h:190:70: warning: offset of on non-standard-layout type 'SpecialAbilityUpdateModuleData' [-Winvalid-offsetof]
+  190 |       { "PersistenceRequiresRecharge",INI::parseBool,                                                                           NULL, offsetof( SpecialAbilityUpdateModuleData, m_persistenceRequiresRecharge ) },
+      |                                                                                                                                       ^                                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_gameengine.cpp:190:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/DefaultProductionExitUpdate.h:70:52: warning: offset of on non-standard-layout type 'DefaultProductionExitUpdateModuleData' [-Winvalid-offsetof]
+   70 |                         { "UnitCreatePoint",            INI::parseCoord3D,              NULL, offsetof( DefaultProductionExitUpdateModuleData, m_unitCreatePoint ) },
+      |                                                                                               ^                                                ~~~~~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_gameengine.cpp:190:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/DefaultProductionExitUpdate.h:71:54: warning: offset of on non-standard-layout type 'DefaultProductionExitUpdateModuleData' [-Winvalid-offsetof]
+   71 |                         { "NaturalRallyPoint",  INI::parseCoord3D,              NULL, offsetof( DefaultProductionExitUpdateModuleData, m_naturalRallyPoint ) },
+      |                                                                                       ^                                                ~~~~~~~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_gameengine.cpp:190:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/DefaultProductionExitUpdate.h:72:53: warning: offset of on non-standard-layout type 'DefaultProductionExitUpdateModuleData' [-Winvalid-offsetof]
+   72 |                         { "UseSpawnRallyPoint", INI::parseBool,                         NULL, offsetof( DefaultProductionExitUpdateModuleData, m_useSpawnRallyPoint ) },
+      |                                                                                               ^                                                ~~~~~~~~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_gameengine.cpp:191:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/QueueProductionExitUpdate.h:74:59: warning: offset of on non-standard-layout type 'QueueProductionExitUpdateModuleData' [-Winvalid-offsetof]
+   74 |                         { "UnitCreatePoint",                            INI::parseCoord3D,                                                      NULL, offsetof( QueueProductionExitUpdateModuleData, m_unitCreatePoint ) },
+      |                                                                                                                                                       ^                                              ~~~~~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_gameengine.cpp:191:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/QueueProductionExitUpdate.h:75:60: warning: offset of on non-standard-layout type 'QueueProductionExitUpdateModuleData' [-Winvalid-offsetof]
+   75 |                         { "NaturalRallyPoint",                  INI::parseCoord3D,                                                      NULL, offsetof( QueueProductionExitUpdateModuleData, m_naturalRallyPoint ) },
+      |                                                                                                                                               ^                                              ~~~~~~~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_gameengine.cpp:191:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/QueueProductionExitUpdate.h:76:62: warning: offset of on non-standard-layout type 'QueueProductionExitUpdateModuleData' [-Winvalid-offsetof]
+   76 |                         { "ExitDelay",                                                  INI::parseDurationUnsignedInt,  NULL, offsetof( QueueProductionExitUpdateModuleData, m_exitDelayData ) },
+      |                                                                                                                               ^                                              ~~~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_gameengine.cpp:191:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/QueueProductionExitUpdate.h:77:61: warning: offset of on non-standard-layout type 'QueueProductionExitUpdateModuleData' [-Winvalid-offsetof]
+   77 |                         { "AllowAirborneCreation",      INI::parseBool,                                                                 NULL, offsetof( QueueProductionExitUpdateModuleData, m_allowAirborneCreationData ) },
+      |                                                                                                                                               ^                                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_gameengine.cpp:191:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/QueueProductionExitUpdate.h:78:60: warning: offset of on non-standard-layout type 'QueueProductionExitUpdateModuleData' [-Winvalid-offsetof]
+   78 |                         { "InitialBurst",                                               INI::parseUnsignedInt,                                  NULL, offsetof( QueueProductionExitUpdateModuleData, m_initialBurst ) },
+      |                                                                                                                                                       ^                                              ~~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_gameengine.cpp:192:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/SupplyCenterProductionExitUpdate.h:67:52: warning: offset of on non-standard-layout type 'SupplyCenterProductionExitUpdateModuleData' [-Winvalid-offsetof]
+   67 |                         { "UnitCreatePoint",            INI::parseCoord3D,              NULL, offsetof( SupplyCenterProductionExitUpdateModuleData, m_unitCreatePoint ) },
+      |                                                                                               ^                                                     ~~~~~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_gameengine.cpp:192:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/SupplyCenterProductionExitUpdate.h:68:54: warning: offset of on non-standard-layout type 'SupplyCenterProductionExitUpdateModuleData' [-Winvalid-offsetof]
+   68 |                         { "NaturalRallyPoint",  INI::parseCoord3D,              NULL, offsetof( SupplyCenterProductionExitUpdateModuleData, m_naturalRallyPoint ) },
+      |                                                                                       ^                                                     ~~~~~~~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_gameengine.cpp:192:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/SupplyCenterProductionExitUpdate.h:69:68: warning: offset of on non-standard-layout type 'SupplyCenterProductionExitUpdateModuleData' [-Winvalid-offsetof]
+   69 |                         { "GrantTemporaryStealth",INI::parseDurationUnsignedInt,  NULL, offsetof( SupplyCenterProductionExitUpdateModuleData, m_grantTemporaryStealthFrames ) },
+      |                                                                                         ^                                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_gameengine.cpp:9456:3: warning: 'sprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead. [-Wdeprecated-declarations]
+ 9456 |                 sprintf(dir, "%s\\%s", GAMEENGINE_SOURCE_DIR, roots[i]);
       |                 ^
-  124 |         {
-  125 |                 case DAMAGE_SUBDUAL_MISSILE:
-  126 |                 case DAMAGE_SUBDUAL_VEHICLE:
-  127 |                 case DAMAGE_SUBDUAL_BUILDING:
-  128 |                 case DAMAGE_SUBDUAL_UNRESISTABLE:
-  129 |                         return TRUE;
-  130 |         }
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:140:10: warning: 32 enumeration values not handled in switch: 'DAMAGE_EXPLOSION', 'DAMAGE_CRUSH', 'DAMAGE_ARMOR_PIERCING'... [-Wswitch]
-  140 |         switch( type )
-      |                 ^~~~
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:140:10: note: add missing switch cases
-  140 |         switch( type )
-      |                 ^
-  141 |         {
-  142 |                 case DAMAGE_STATUS:
-  143 |                 case DAMAGE_SUBDUAL_MISSILE:
-  144 |                 case DAMAGE_SUBDUAL_VEHICLE:
-  145 |                 case DAMAGE_SUBDUAL_BUILDING:
-  146 |                 case DAMAGE_SUBDUAL_UNRESISTABLE:
-  147 |                 case DAMAGE_KILLPILOT:
-  148 |                 case DAMAGE_KILL_GARRISONED:
-  149 |                         return FALSE;
-  150 |         }
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/W3DDisplay.cpp:73:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameLOD.h:268:8: warning: extra tokens at end of #endif directive [-Wextra-tokens]
-  268 | #endif _GAME_LOD_H_
-      |        ^
-      |        //
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/W3DDisplay.cpp:102:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Include/W3DDevice/GameClient/W3DGameClient.h:45:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Include/W3DDevice/GameClient/W3DParticleSys.h:39:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WW3D2/streak.h:221:8: warning: extra tokens at end of #endif directive [-Wextra-tokens]
-  221 | #endif SEGLINE_H
-      |        ^
-      |        //
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/W3DDisplay.cpp:2159:4: warning: 'sprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead. [-Wdeprecated-declarations]
- 2159 |                         sprintf(buf, "%.2fms ", timeForFrame*1000.0f);
-      |                         ^
 /Applications/Xcode_16.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk/usr/include/_stdio.h:278:1: note: 'sprintf' has been explicitly marked deprecated here
   278 | __deprecated_msg("This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead.")
       | ^
 /Applications/Xcode_16.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk/usr/include/sys/cdefs.h:218:48: note: expanded from macro '__deprecated_msg'
   218 |         #define __deprecated_msg(_msg) __attribute__((__deprecated__(_msg)))
       |                                                       ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/W3DDisplay.cpp:2176:3: warning: 'sprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead. [-Wdeprecated-declarations]
- 2176 |                 sprintf(buf, "\n LOD %d, time %.2fms\n", curLOD, frameTime*1000.0f);
-      |                 ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_gameengine.cpp:13017:3: warning: 'sprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead. [-Wdeprecated-declarations]
+ 13017 |                 sprintf( area, "InnerPerimeter%d", start );
+       |                 ^
 /Applications/Xcode_16.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk/usr/include/_stdio.h:278:1: note: 'sprintf' has been explicitly marked deprecated here
   278 | __deprecated_msg("This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead.")
       | ^
 /Applications/Xcode_16.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk/usr/include/sys/cdefs.h:218:48: note: expanded from macro '__deprecated_msg'
   218 |         #define __deprecated_msg(_msg) __attribute__((__deprecated__(_msg)))
       |                                                       ^
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/W3DDisplay.cpp:55:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/ThingFactory.h:42:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameClient/Drawable.h:36:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/DisabledTypes.h:38:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_gameengine.cpp:13019:3: warning: 'sprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead. [-Wdeprecated-declarations]
+ 13019 |                 sprintf( area, "OuterPerimeter%d", start );
+       |                 ^
+/Applications/Xcode_16.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk/usr/include/_stdio.h:278:1: note: 'sprintf' has been explicitly marked deprecated here
+  278 | __deprecated_msg("This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead.")
+      | ^
+/Applications/Xcode_16.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk/usr/include/sys/cdefs.h:218:48: note: expanded from macro '__deprecated_msg'
+  218 |         #define __deprecated_msg(_msg) __attribute__((__deprecated__(_msg)))
+      |                                                       ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_gameengine.cpp:13028:4: warning: 'sprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead. [-Wdeprecated-declarations]
+ 13028 |                         sprintf( label, "%s%d", LANES[lane], start );
+       |                         ^
+/Applications/Xcode_16.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk/usr/include/_stdio.h:278:1: note: 'sprintf' has been explicitly marked deprecated here
+  278 | __deprecated_msg("This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead.")
+      | ^
+/Applications/Xcode_16.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk/usr/include/sys/cdefs.h:218:48: note: expanded from macro '__deprecated_msg'
+  218 |         #define __deprecated_msg(_msg) __attribute__((__deprecated__(_msg)))
+      |                                                       ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_gameengine.cpp:18181:19: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
+ 18181 |         char *argv[] = { "generals.exe", "-borderless" };
+       |                          ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_gameengine.cpp:18181:35: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
+ 18181 |         char *argv[] = { "generals.exe", "-borderless" };
+       |                                          ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_gameengine.cpp:18194:20: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
+ 18194 |         char *argv2[] = { "generals.exe", "-borderless", "-xres", "1280", "-yres", "720" };
+       |                           ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_gameengine.cpp:18194:36: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
+ 18194 |         char *argv2[] = { "generals.exe", "-borderless", "-xres", "1280", "-yres", "720" };
+       |                                           ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_gameengine.cpp:18194:51: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
+ 18194 |         char *argv2[] = { "generals.exe", "-borderless", "-xres", "1280", "-yres", "720" };
+       |                                                          ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_gameengine.cpp:18194:60: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
+ 18194 |         char *argv2[] = { "generals.exe", "-borderless", "-xres", "1280", "-yres", "720" };
+       |                                                                   ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_gameengine.cpp:18194:68: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
+ 18194 |         char *argv2[] = { "generals.exe", "-borderless", "-xres", "1280", "-yres", "720" };
+       |                                                                           ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_gameengine.cpp:18194:77: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
+ 18194 |         char *argv2[] = { "generals.exe", "-borderless", "-xres", "1280", "-yres", "720" };
+       |                                                                                    ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_gameengine.cpp:18608:4: warning: 'sprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead. [-Wdeprecated-declarations]
+ 18608 |                         sprintf( path, "%s/%s", PLATE_TEXTURE_DIR, plate->filename );
+       |                         ^
+/Applications/Xcode_16.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk/usr/include/_stdio.h:278:1: note: 'sprintf' has been explicitly marked deprecated here
+  278 | __deprecated_msg("This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead.")
+      | ^
+/Applications/Xcode_16.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk/usr/include/sys/cdefs.h:218:48: note: expanded from macro '__deprecated_msg'
+  218 |         #define __deprecated_msg(_msg) __attribute__((__deprecated__(_msg)))
+      |                                                       ^
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_gameengine.cpp:22996:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_hostile_map.inc:8:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/CaveContain.h:65:58: warning: offset of on non-standard-layout type 'CaveContainModuleData' [-Winvalid-offsetof]
+   65 |                         { "CaveIndex", INI::parseIntInRange, &caveIndexRange, offsetof( CaveContainModuleData, m_caveIndexData ) },
+      |                                                                               ^                                ~~~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_gameengine.cpp:45:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/MapObject.h:38:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameClient/TerrainRoads.h:40:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/BodyModule.h:37:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:38:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BitFlags.h:280:12: warning: instantiation of variable 'BitFlags<117, 2>::s_bitNameList' required here, but no definition is available [-Wundefined-var-template]
+  280 |     return s_bitNameList;
+      |            ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_gameengine.cpp:3207:35: note: in instantiation of member function 'BitFlags<117, 2>::getBitNames' requested here
+ 3207 |                 { "KINDOF",                                     KindOfMaskType::getBitNames(),                          "OBSTACLE" },
+      |                                                                                 ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BitFlags.h:70:25: note: forward declaration of template entity is here
+   70 |         static const char*                                      s_bitNameList[];
+      |                                                                 ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BitFlags.h:280:12: note: add an explicit instantiation declaration to suppress this warning if 'BitFlags<117, 2>::s_bitNameList' is explicitly instantiated in another translation unit
+  280 |     return s_bitNameList;
+      |            ^
 /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BitFlags.h:280:12: warning: instantiation of variable 'BitFlags<117, 3>::s_bitNameList' required here, but no definition is available [-Wundefined-var-template]
   280 |     return s_bitNameList;
       |            ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/W3DDisplay.cpp:2010:54: note: in instantiation of member function 'BitFlags<117, 3>::getBitNames' requested here
- 2010 |                                         unibuffer2.format( u"%S ", ModelConditionFlags::getBitNames()[ i ] );
-      |                                                                                         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_gameengine.cpp:3208:44: note: in instantiation of member function 'BitFlags<117, 3>::getBitNames' requested here
+ 3208 |                 { "MODELCONDITION",     ModelConditionFlags::getBitNames(),     NULL },
+      |                                                              ^
 /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BitFlags.h:70:25: note: forward declaration of template entity is here
    70 |         static const char*                                      s_bitNameList[];
       |                                                                 ^
 /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BitFlags.h:280:12: note: add an explicit instantiation declaration to suppress this warning if 'BitFlags<117, 3>::s_bitNameList' is explicitly instantiated in another translation unit
   280 |     return s_bitNameList;
       |            ^
-7 warnings generated.
-[1572/1651] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/W3DInGameUI.cpp.o
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/W3DInGameUI.cpp:35:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BuildAssistant.h:42:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Object.h:48:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:123:10: warning: 35 enumeration values not handled in switch: 'DAMAGE_EXPLOSION', 'DAMAGE_CRUSH', 'DAMAGE_ARMOR_PIERCING'... [-Wswitch]
-  123 |         switch( type )
-      |                 ^~~~
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:123:10: note: add missing switch cases
-  123 |         switch( type )
-      |                 ^
-  124 |         {
-  125 |                 case DAMAGE_SUBDUAL_MISSILE:
-  126 |                 case DAMAGE_SUBDUAL_VEHICLE:
-  127 |                 case DAMAGE_SUBDUAL_BUILDING:
-  128 |                 case DAMAGE_SUBDUAL_UNRESISTABLE:
-  129 |                         return TRUE;
-  130 |         }
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:140:10: warning: 32 enumeration values not handled in switch: 'DAMAGE_EXPLOSION', 'DAMAGE_CRUSH', 'DAMAGE_ARMOR_PIERCING'... [-Wswitch]
-  140 |         switch( type )
-      |                 ^~~~
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:140:10: note: add missing switch cases
-  140 |         switch( type )
-      |                 ^
-  141 |         {
-  142 |                 case DAMAGE_STATUS:
-  143 |                 case DAMAGE_SUBDUAL_MISSILE:
-  144 |                 case DAMAGE_SUBDUAL_VEHICLE:
-  145 |                 case DAMAGE_SUBDUAL_BUILDING:
-  146 |                 case DAMAGE_SUBDUAL_UNRESISTABLE:
-  147 |                 case DAMAGE_KILLPILOT:
-  148 |                 case DAMAGE_KILL_GARRISONED:
-  149 |                         return FALSE;
-  150 |         }
-2 warnings generated.
-[1573/1651] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/W3DMouse.cpp.o
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/W3DMouse.cpp:644:10: warning: enumeration value 'RM_MAX' not handled in switch [-Wswitch]
-  644 |         switch (mode)
-      |                 ^~~~
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/W3DMouse.cpp:644:10: note: add missing switch cases
-  644 |         switch (mode)
-      |                 ^
-1 warning generated.
-[1574/1651] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/W3DGameClient.cpp.o
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/W3DGameClient.cpp:42:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/ThingTemplate.h:52:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/WeaponSet.h:40:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:123:10: warning: 35 enumeration values not handled in switch: 'DAMAGE_EXPLOSION', 'DAMAGE_CRUSH', 'DAMAGE_ARMOR_PIERCING'... [-Wswitch]
-  123 |         switch( type )
-      |                 ^~~~
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:123:10: note: add missing switch cases
-  123 |         switch( type )
-      |                 ^
-  124 |         {
-  125 |                 case DAMAGE_SUBDUAL_MISSILE:
-  126 |                 case DAMAGE_SUBDUAL_VEHICLE:
-  127 |                 case DAMAGE_SUBDUAL_BUILDING:
-  128 |                 case DAMAGE_SUBDUAL_UNRESISTABLE:
-  129 |                         return TRUE;
-  130 |         }
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:140:10: warning: 32 enumeration values not handled in switch: 'DAMAGE_EXPLOSION', 'DAMAGE_CRUSH', 'DAMAGE_ARMOR_PIERCING'... [-Wswitch]
-  140 |         switch( type )
-      |                 ^~~~
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:140:10: note: add missing switch cases
-  140 |         switch( type )
-      |                 ^
-  141 |         {
-  142 |                 case DAMAGE_STATUS:
-  143 |                 case DAMAGE_SUBDUAL_MISSILE:
-  144 |                 case DAMAGE_SUBDUAL_VEHICLE:
-  145 |                 case DAMAGE_SUBDUAL_BUILDING:
-  146 |                 case DAMAGE_SUBDUAL_UNRESISTABLE:
-  147 |                 case DAMAGE_KILLPILOT:
-  148 |                 case DAMAGE_KILL_GARRISONED:
-  149 |                         return FALSE;
-  150 |         }
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/W3DGameClient.cpp:49:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameLOD.h:268:8: warning: extra tokens at end of #endif directive [-Wextra-tokens]
-  268 | #endif _GAME_LOD_H_
-      |        ^
-      |        //
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/W3DGameClient.cpp:62:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Include/W3DDevice/GameClient/W3DGameClient.h:45:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Include/W3DDevice/GameClient/W3DParticleSys.h:39:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WW3D2/streak.h:221:8: warning: extra tokens at end of #endif directive [-Wextra-tokens]
-  221 | #endif SEGLINE_H
-      |        ^
-      |        //
-4 warnings generated.
-[1575/1651] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/W3DPoly.cpp.o
-[1576/1651] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/W3DPropBuffer.cpp.o
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/W3DPropBuffer.cpp:57:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Player.h:62:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/AI.h:41:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:123:10: warning: 35 enumeration values not handled in switch: 'DAMAGE_EXPLOSION', 'DAMAGE_CRUSH', 'DAMAGE_ARMOR_PIERCING'... [-Wswitch]
-  123 |         switch( type )
-      |                 ^~~~
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:123:10: note: add missing switch cases
-  123 |         switch( type )
-      |                 ^
-  124 |         {
-  125 |                 case DAMAGE_SUBDUAL_MISSILE:
-  126 |                 case DAMAGE_SUBDUAL_VEHICLE:
-  127 |                 case DAMAGE_SUBDUAL_BUILDING:
-  128 |                 case DAMAGE_SUBDUAL_UNRESISTABLE:
-  129 |                         return TRUE;
-  130 |         }
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:140:10: warning: 32 enumeration values not handled in switch: 'DAMAGE_EXPLOSION', 'DAMAGE_CRUSH', 'DAMAGE_ARMOR_PIERCING'... [-Wswitch]
-  140 |         switch( type )
-      |                 ^~~~
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:140:10: note: add missing switch cases
-  140 |         switch( type )
-      |                 ^
-  141 |         {
-  142 |                 case DAMAGE_STATUS:
-  143 |                 case DAMAGE_SUBDUAL_MISSILE:
-  144 |                 case DAMAGE_SUBDUAL_VEHICLE:
-  145 |                 case DAMAGE_SUBDUAL_BUILDING:
-  146 |                 case DAMAGE_SUBDUAL_UNRESISTABLE:
-  147 |                 case DAMAGE_KILLPILOT:
-  148 |                 case DAMAGE_KILL_GARRISONED:
-  149 |                         return FALSE;
-  150 |         }
-2 warnings generated.
-[1577/1651] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/W3DReachOverlay.cpp.o
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/W3DReachOverlay.cpp:8:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/MapObject.h:38:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameClient/TerrainRoads.h:40:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/BodyModule.h:37:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:123:10: warning: 35 enumeration values not handled in switch: 'DAMAGE_EXPLOSION', 'DAMAGE_CRUSH', 'DAMAGE_ARMOR_PIERCING'... [-Wswitch]
-  123 |         switch( type )
-      |                 ^~~~
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:123:10: note: add missing switch cases
-  123 |         switch( type )
-      |                 ^
-  124 |         {
-  125 |                 case DAMAGE_SUBDUAL_MISSILE:
-  126 |                 case DAMAGE_SUBDUAL_VEHICLE:
-  127 |                 case DAMAGE_SUBDUAL_BUILDING:
-  128 |                 case DAMAGE_SUBDUAL_UNRESISTABLE:
-  129 |                         return TRUE;
-  130 |         }
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:140:10: warning: 32 enumeration values not handled in switch: 'DAMAGE_EXPLOSION', 'DAMAGE_CRUSH', 'DAMAGE_ARMOR_PIERCING'... [-Wswitch]
-  140 |         switch( type )
-      |                 ^~~~
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:140:10: note: add missing switch cases
-  140 |         switch( type )
-      |                 ^
-  141 |         {
-  142 |                 case DAMAGE_STATUS:
-  143 |                 case DAMAGE_SUBDUAL_MISSILE:
-  144 |                 case DAMAGE_SUBDUAL_VEHICLE:
-  145 |                 case DAMAGE_SUBDUAL_BUILDING:
-  146 |                 case DAMAGE_SUBDUAL_UNRESISTABLE:
-  147 |                 case DAMAGE_KILLPILOT:
-  148 |                 case DAMAGE_KILL_GARRISONED:
-  149 |                         return FALSE;
-  150 |         }
-2 warnings generated.
-[1578/1651] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/W3DRoadBuffer.cpp.o
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/W3DRoadBuffer.cpp:60:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameClient/TerrainRoads.h:40:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/BodyModule.h:37:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:123:10: warning: 35 enumeration values not handled in switch: 'DAMAGE_EXPLOSION', 'DAMAGE_CRUSH', 'DAMAGE_ARMOR_PIERCING'... [-Wswitch]
-  123 |         switch( type )
-      |                 ^~~~
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:123:10: note: add missing switch cases
-  123 |         switch( type )
-      |                 ^
-  124 |         {
-  125 |                 case DAMAGE_SUBDUAL_MISSILE:
-  126 |                 case DAMAGE_SUBDUAL_VEHICLE:
-  127 |                 case DAMAGE_SUBDUAL_BUILDING:
-  128 |                 case DAMAGE_SUBDUAL_UNRESISTABLE:
-  129 |                         return TRUE;
-  130 |         }
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:140:10: warning: 32 enumeration values not handled in switch: 'DAMAGE_EXPLOSION', 'DAMAGE_CRUSH', 'DAMAGE_ARMOR_PIERCING'... [-Wswitch]
-  140 |         switch( type )
-      |                 ^~~~
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:140:10: note: add missing switch cases
-  140 |         switch( type )
-      |                 ^
-  141 |         {
-  142 |                 case DAMAGE_STATUS:
-  143 |                 case DAMAGE_SUBDUAL_MISSILE:
-  144 |                 case DAMAGE_SUBDUAL_VEHICLE:
-  145 |                 case DAMAGE_SUBDUAL_BUILDING:
-  146 |                 case DAMAGE_SUBDUAL_UNRESISTABLE:
-  147 |                 case DAMAGE_KILLPILOT:
-  148 |                 case DAMAGE_KILL_GARRISONED:
-  149 |                         return FALSE;
-  150 |         }
-2 warnings generated.
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BitFlags.h:280:12: warning: instantiation of variable 'BitFlags<13, 1>::s_bitNameList' required here, but no definition is available [-Wundefined-var-template]
+  280 |     return s_bitNameList;
+      |            ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_gameengine.cpp:3209:38: note: in instantiation of member function 'BitFlags<13, 1>::getBitNames' requested here
+ 3209 |                 { "DISABLED",                           DisabledMaskType::getBitNames(),                NULL },
+      |                                                                           ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BitFlags.h:70:25: note: forward declaration of template entity is here
+   70 |         static const char*                                      s_bitNameList[];
+      |                                                                 ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BitFlags.h:280:12: note: add an explicit instantiation declaration to suppress this warning if 'BitFlags<13, 1>::s_bitNameList' is explicitly instantiated in another translation unit
+  280 |     return s_bitNameList;
+      |            ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BitFlags.h:280:12: warning: instantiation of variable 'BitFlags<45, 4>::s_bitNameList' required here, but no definition is available [-Wundefined-var-template]
+  280 |     return s_bitNameList;
+      |            ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_gameengine.cpp:3210:44: note: in instantiation of member function 'BitFlags<45, 4>::getBitNames' requested here
+ 3210 |                 { "OBJECT_STATUS",      ObjectStatusMaskType::getBitNames(),NULL },
+      |                                                               ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BitFlags.h:70:25: note: forward declaration of template entity is here
+   70 |         static const char*                                      s_bitNameList[];
+      |                                                                 ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BitFlags.h:280:12: note: add an explicit instantiation declaration to suppress this warning if 'BitFlags<45, 4>::s_bitNameList' is explicitly instantiated in another translation unit
+  280 |     return s_bitNameList;
+      |            ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BitFlags.h:280:12: warning: instantiation of variable 'BitFlags<67, 5>::s_bitNameList' required here, but no definition is available [-Wundefined-var-template]
+  280 |     return s_bitNameList;
+      |            ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_gameengine.cpp:3211:44: note: in instantiation of member function 'BitFlags<67, 5>::getBitNames' requested here
+ 3211 |                 { "SPECIALPOWER",               SpecialPowerMaskType::getBitNames(),NULL },
+      |                                                                       ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BitFlags.h:70:25: note: forward declaration of template entity is here
+   70 |         static const char*                                      s_bitNameList[];
+      |                                                                 ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BitFlags.h:280:12: note: add an explicit instantiation declaration to suppress this warning if 'BitFlags<67, 5>::s_bitNameList' is explicitly instantiated in another translation unit
+  280 |     return s_bitNameList;
+      |            ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BitFlags.h:280:12: warning: instantiation of variable 'BitFlags<8, 7>::s_bitNameList' required here, but no definition is available [-Wundefined-var-template]
+  280 |     return s_bitNameList;
+      |            ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_gameengine.cpp:3212:35: note: in instantiation of member function 'BitFlags<8, 7>::getBitNames' requested here
+ 3212 |                 { "ARMORSET",                           ArmorSetFlags::getBitNames(),                           NULL },
+      |                                                                        ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BitFlags.h:70:25: note: forward declaration of template entity is here
+   70 |         static const char*                                      s_bitNameList[];
+      |                                                                 ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BitFlags.h:280:12: note: add an explicit instantiation declaration to suppress this warning if 'BitFlags<8, 7>::s_bitNameList' is explicitly instantiated in another translation unit
+  280 |     return s_bitNameList;
+      |            ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BitFlags.h:280:12: warning: instantiation of variable 'BitFlags<38, 8>::s_bitNameList' required here, but no definition is available [-Wundefined-var-template]
+  280 |     return s_bitNameList;
+      |            ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_gameengine.cpp:3213:36: note: in instantiation of member function 'BitFlags<38, 8>::getBitNames' requested here
+ 3213 |                 { "DAMAGE",                                     DamageTypeFlags::getBitNames(),                 NULL },
+      |                                                                                  ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BitFlags.h:70:25: note: forward declaration of template entity is here
+   70 |         static const char*                                      s_bitNameList[];
+      |                                                                 ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BitFlags.h:280:12: note: add an explicit instantiation declaration to suppress this warning if 'BitFlags<38, 8>::s_bitNameList' is explicitly instantiated in another translation unit
+  280 |     return s_bitNameList;
+      |            ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BitFlags.h:280:12: warning: instantiation of variable 'BitFlags<17, 9>::s_bitNameList' required here, but no definition is available [-Wundefined-var-template]
+  280 |     return s_bitNameList;
+      |            ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Tests/test_gameengine.cpp:3214:36: note: in instantiation of member function 'BitFlags<17, 9>::getBitNames' requested here
+ 3214 |                 { "WEAPONSET",                  WeaponSetFlags::getBitNames(),                  NULL },
+      |                                                                 ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BitFlags.h:70:25: note: forward declaration of template entity is here
+   70 |         static const char*                                      s_bitNameList[];
+      |                                                                 ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BitFlags.h:280:12: note: add an explicit instantiation declaration to suppress this warning if 'BitFlags<17, 9>::s_bitNameList' is explicitly instantiated in another translation unit
+  280 |     return s_bitNameList;
+      |            ^
+77 warnings generated.
+[1650/1651] Linking CXX executable test_gameengine
+ld: warning: ignoring duplicate libraries: 'libgameengine.a'
+4 tests, 44 checks, 0 failed
+Test project /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/build/ios/host-graphics
+    Start 56: test_hazard_cloud_bake
+1/4 Test #56: test_hazard_cloud_bake ...........   Passed    0.00 sec
+    Start 57: test_hazard_cloud_shared
+2/4 Test #57: test_hazard_cloud_shared .........   Passed    0.01 sec
+    Start 67: test_online
+3/4 Test #67: test_online ......................   Passed    0.44 sec
+    Start 70: test_gameengine
