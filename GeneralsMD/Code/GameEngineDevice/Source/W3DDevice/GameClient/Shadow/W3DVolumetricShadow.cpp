@@ -4577,6 +4577,20 @@ void W3DVolumetricShadowManager::renderShadowMap( CameraClass &sceneCamera )
 			sunInfo.drawEffectParameters[3] = caster->getStealthSolid();
 		}
 
+#if defined(ZH_PLATFORM_IOS)
+		// Once-only proof that an aircraft mesh reached the independent sun-depth pass.
+		// This does not change the caster list, shadow strength or draw submission.
+		if (caster && caster->isKindOf(KINDOF_AIRCRAFT))
+		{
+			static Bool reportedAircraftSunCaster = FALSE;
+			if (!reportedAircraftSunCaster)
+			{
+				fprintf(stderr, "[IOS_AIRCRAFT_SUN_CASTER] model=%s submitted=1\n",
+					robj->Get_Name() ? robj->Get_Name() : "(unnamed)");
+				reportedAircraftSunCaster = TRUE;
+			}
+		}
+#endif
 		robj->Render( sunInfo );
 		++castersCounted;
 	}
@@ -5289,6 +5303,14 @@ W3DVolumetricShadow* W3DVolumetricShadowManager::addShadow(RenderObjClass *robj,
 	Real sunElevation = shadowInfo->m_sizeX;
 	if (owner && owner->isKindOf(KINDOF_AIRCRAFT) && sunElevation > AIRCRAFT_MIN_SUN_ELEVATION)
 		sunElevation = AIRCRAFT_MIN_SUN_ELEVATION;
+#if defined(ZH_PLATFORM_IOS)
+	// Report the legacy 3D-volume configuration at registration, independently
+	// of whether a later stencil pass is skipped by the isolation test.
+	if (owner && owner->isKindOf(KINDOF_AIRCRAFT))
+		fprintf(stderr, "[IOS_AIRCRAFT_VOLUME_REGISTER] model=%s raw_elevation=%.2f effective_elevation=%.2f modern=%d map_enabled=%d\n",
+			name, (double)shadowInfo->m_sizeX, (double)sunElevation,
+			int(!TheGlobalData->m_classicGraphics), int(TheGlobalData->m_shadowMap != FALSE));
+#endif
 
 	Real sunElevationAngleTan = 0;
 	if (sunElevation)
