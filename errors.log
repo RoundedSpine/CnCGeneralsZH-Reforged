@@ -1,0 +1,15 @@
+[613/1651] Building CXX object CMakeFiles/posixd3d9.dir/GameEngineDevice/Source/PosixDevice/Render/SdlAtmosphere.cpp.o
+[614/1651] Building CXX object CMakeFiles/posixd3d9.dir/GameEngineDevice/Source/PosixDevice/Render/PosixResources9.cpp.o
+[615/1651] Building CXX object CMakeFiles/posixd3d9.dir/GameEngineDevice/Source/PosixDevice/Render/SdlGpuFrame.cpp.o
+FAILED: [code=1] CMakeFiles/posixd3d9.dir/GameEngineDevice/Source/PosixDevice/Render/SdlGpuFrame.cpp.o 
+/opt/homebrew/bin/ccache /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang++ -D_CRT_NONSTDC_NO_WARNINGS -D_CRT_SECURE_NO_WARNINGS -I/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Include -I/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Include/Platform/PosixD3D9 -I/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/build/ios/host-graphics/SDL3/include-revision -I/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/SDL3/include -I/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WW3D2 -O3 -DNDEBUG -std=gnu++17 -arch arm64 -isysroot /Applications/Xcode_16.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk -mmacosx-version-min=13.0 -fno-delete-null-pointer-checks -fexceptions -ffp-contract=off -fno-strict-aliasing -fsigned-char -Wno-unknown-pragmas -g -Werror=unguarded-availability-new -MD -MT CMakeFiles/posixd3d9.dir/GameEngineDevice/Source/PosixDevice/Render/SdlGpuFrame.cpp.o -MF CMakeFiles/posixd3d9.dir/GameEngineDevice/Source/PosixDevice/Render/SdlGpuFrame.cpp.o.d -o CMakeFiles/posixd3d9.dir/GameEngineDevice/Source/PosixDevice/Render/SdlGpuFrame.cpp.o -c /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/PosixDevice/Render/SdlGpuFrame.cpp
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/PosixDevice/Render/SdlGpuFrame.cpp:278:2: error: use of undeclared identifier 'Release_Heat'
+  278 |         Release_Heat();
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/PosixDevice/Render/SdlGpuFrame.cpp:361:54: error: use of undeclared identifier 'Release_Heat'
+  361 |     Release_Ambient_Occlusion();Release_Atmosphere();Release_Heat();Release_Ocean();Release_Multisampling(false);Release_Particles();
+      |                                                      ^
+2 errors generated.
+[616/1651] Building CXX object CMakeFiles/posixd3d9.dir/GameEngineDevice/Source/PosixDevice/Render/SdlGpuFrameAmbientOcclusion.cpp.o
+[617/1651] Building CXX object CMakeFiles/posixd3d9.dir/GameEngineDevice/Source/PosixDevice/Render/SdlGpuFrameAtmosphere.cpp.o
+ninja: build stopped: subcommand failed.
