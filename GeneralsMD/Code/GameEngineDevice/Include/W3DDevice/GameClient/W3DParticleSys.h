@@ -116,7 +116,9 @@ public:
 		Bool																		glow;							///< written by the job: the fire's glow is in the normals, not the colour
 		Bool																		fire;							///< the template's FireLook: each particle's age and seed go in v2
         double perfBillboardMs;             ///< CPU wall time for this fill job when enabled
+        double perfLightPickMs;             ///< CPU time choosing affected smoke lights
         unsigned perfLightEvaluations;      ///< particle-light invocations
+        unsigned perfCulledParticles;       ///< visibility rejects in the fill loop
 	};
 
 	/// One particle the sun's smoke map can take, as the last particle update left it.
