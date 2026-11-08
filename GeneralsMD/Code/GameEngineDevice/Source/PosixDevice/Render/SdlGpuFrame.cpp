@@ -1066,12 +1066,12 @@ void SdlGpuFrame::Take_Timing(double & flush_ms, double & fence_ms, unsigned int
 			if (metalTimingAvailable)
 				ZH_SDL_Metal_TakeTiming(&gpuCompletedNs, &gpuMaximumNs,
 					&gpuSamples, &gpuUnavailable);
-			Uint64 passNs[4] = {}, passMaxNs[4] = {};
-			Uint32 passCounts[4] = {}, passMissing[4] = {};
+			Uint64 passNs[12] = {}, passMaxNs[12] = {};
+			Uint32 passCounts[12] = {}, passMissing[12] = {};
 			if (metalTimingAvailable)
 				ZH_SDL_Metal_TakePassTiming(passNs, passMaxNs, passCounts, passMissing);
-			Uint64 fragmentInvocations[4] = {}, fragmentsPassed[4] = {};
-			Uint32 statsSamples[4] = {}, statsMissing[4] = {};
+			Uint64 fragmentInvocations[12] = {}, fragmentsPassed[12] = {};
+			Uint32 statsSamples[12] = {}, statsMissing[12] = {};
 			if (metalTimingAvailable)
 				ZH_SDL_Metal_TakeFragmentStatistics(fragmentInvocations,
 					fragmentsPassed, statsSamples, statsMissing);
@@ -1080,8 +1080,12 @@ void SdlGpuFrame::Take_Timing(double & flush_ms, double & fence_ms, unsigned int
 				ZH_SDL_Metal_GetTimestampScale(&nanosecondsPerGpuTick);
 			fprintf(stderr, "[GPU_COUNTER_CALIBRATION] ns_per_gpu_tick=%.9f valid=%u source=Metal_sampleTimestamps_cpu_gpu_pairs note=pass_times_converted_only_when_valid\n",
 				nanosecondsPerGpuTick, nanosecondsPerGpuTick > 0.0 ? 1u : 0u);
-			const char *passNames[4] = {"unlabelled", "scene_backbuffer", "intermediate", "depth_only"};
-			for (unsigned p = 0; p < 4; ++p) {
+			const char *passNames[12] = {
+				"unlabelled", "scene_backbuffer", "intermediate", "depth_only",
+				"ocean_fft", "heat", "msaa_colour", "native_particles",
+				"postprocess", "sun_smoke_shadow", "gamma", "msaa_depth"
+			};
+			for (unsigned p = 0; p < 12; ++p) {
 				fprintf(stderr, "[GPU_PASS_PERF] bucket=%s completed=%u unavailable=%u gpu_ms=%.3f max_ms=%.3f stats_completed=%u stats_unavailable=%u fragment_invocations=%llu fragments_passed=%llu fragment_invocations_per_passed=%.3f note=async_gpu_stage_counters_pass_wide_not_transparent_only\n",
 					passNames[p], passCounts[p], passMissing[p],
 					double(passNs[p]) / 1.0e6, double(passMaxNs[p]) / 1.0e6,
