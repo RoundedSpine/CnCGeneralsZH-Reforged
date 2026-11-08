@@ -633,7 +633,14 @@ install_mbedtls() {
      && grep -q 'MBEDTLS_VERSION_STRING         "3.6.7"' "$destination/include/mbedtls/build_info.h"; then return 0; fi
   local sha='a7e8bcbec0e6f761b4af24f25677626b35f762f68eef79c08677a363212d11f6'
   local archive source hash
-  archive=$(get_file 'https://github.com/Mbed-TLS/mbedtls/releases/download/mbedtls-3.6.7/mbedtls-3.6.7.tar.bz2' "$work/mbedtls-3.6.7.tar.bz2")
+  # The release asset can return HTTP 504 from GitHub's asset CDN on hosted runners.
+  # MacPorts mirrors the same official release tarball, not GitHub's incomplete
+  # auto-generated source archive. The pinned SHA-256 check below applies to
+  # either source; an unexpected archive still fails closed.
+  if ! archive=$(get_file 'https://github.com/Mbed-TLS/mbedtls/releases/download/mbedtls-3.6.7/mbedtls-3.6.7.tar.bz2' "$work/mbedtls-3.6.7.tar.bz2"); then
+    step 'mbedTLS official release unavailable; trying MacPorts mirror'
+    archive=$(get_file 'https://mirror.math.princeton.edu/pub/macports/distfiles/mbedtls3/mbedtls-3.6.7.tar.bz2' "$work/mbedtls-3.6.7.tar.bz2")
+  fi
   hash=$(sha256_of "$archive")
   if [ "$hash" != "$sha" ]; then
     rm -f "$archive"
