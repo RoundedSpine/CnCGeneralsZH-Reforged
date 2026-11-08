@@ -19,7 +19,7 @@ for url in \
   rm -f "$archive"
   if curl --fail --location --retry 2 --retry-delay 2 --connect-timeout 20 \
       --max-time 90 "$url" -o "$archive" && \
-      printf '%s  %s\\n' "$expected" "$archive" | shasum -a 256 -c -; then
+      printf '%s  %s\n' "$expected" "$archive" | shasum -a 256 -c -; then
     found=1
     break
   fi
