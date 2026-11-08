@@ -1126,7 +1126,7 @@ void SdlGpuFrame::Take_Timing(double & flush_ms, double & fence_ms, unsigned int
 			for (unsigned i = 0; i < FlushCauseCount; ++i)
 				fprintf(stderr, " %s=%llu", flushNames[i],
 					static_cast<unsigned long long>(ParticleGpuFlushReasons[i]));
-			fprintf(stderr, "\\n");
+			fprintf(stderr, "\n");
 			fprintf(stderr, "[GPU_TRANSPARENCY_PERF] blended_draws=%llu additive_draws=%llu backbuffer_blended_scissor_mpixels=%.3f backbuffer_scissor_fullscreen_equiv=%.3f note=scissor_upper_bound_not_actual_transparent_fragment_overdraw\n",
 				static_cast<unsigned long long>(ParticleGpuBlendedDraws),
 				static_cast<unsigned long long>(ParticleGpuAdditiveDraws),
