@@ -21,3 +21,26 @@
 [vendor] unpacking miniaudio
 [vendor] miniaudio 0.11.25 -> Libraries/Source/miniaudio
 [vendor] downloading glslang-vulkan-sdk-1.4.357.0.zip
+[vendor] unpacking glslang
+[vendor] glslang vulkan-sdk-1.4.357.0 -> Libraries/Source/glslang
+[vendor] downloading SPIRV-Cross-1a616956.zip
+[vendor] unpacking SPIRV-Cross
+[vendor] SPIRV-Cross 1a616956 -> Libraries/Source/SPIRV-Cross
+[vendor] downloading SDL_shadercross-1ff05bec.zip
+[vendor] unpacking SDL_shadercross
+[vendor] SDL_shadercross 1ff05bec -> Libraries/Source/SDL_shadercross
+patching file 'src/SDL_shadercross.c'
+[vendor] downloading freetype-2.14.3.zip
+[vendor] unpacking freetype
+[vendor] FreeType 2.14.3 -> Libraries/Source/freetype
+[vendor] downloading ffmpeg-8.1.2.tar.xz
+[vendor] FFmpeg 8.1.2 (source tarball) -> Libraries/Source/FFmpeg
+[vendor] downloading mbedtls-3.6.7.tar.bz2
+[vendor] unpacking mbedtls
+[vendor] mbedTLS 3.6.7 -> Libraries/Source/mbedtls
+[vendor] everything the build needs is in place
+.
+----------------------------------------------------------------------
+Ran 1 test in 8.360s
+
+OK
