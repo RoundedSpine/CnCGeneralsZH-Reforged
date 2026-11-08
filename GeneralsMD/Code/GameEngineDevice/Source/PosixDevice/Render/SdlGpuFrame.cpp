@@ -19,6 +19,7 @@
 // The device's frame on SDL3 GPU (decision 7, phase A3a).  See SdlGpuFrame.h.
 
 #include "SdlGpuFrame.h"
+#include "Platform/ParticlePerfToggle.h"
 #include "SdlColour.h"
 #include "SdlGpuDepthFormat.h"
 #include "sdl3shadercompile.h"
@@ -120,6 +121,13 @@ SdlGpuFrame::SdlGpuFrame() :
 	FlushesTotal(0),
 	FlushInFlightMost(0),
 	FlushWaits(0),
+	ParticleGpuPerf(false),
+	ParticleGpuWaitNs(0),
+	ParticleGpuSubmitNs(0),
+	ParticleGpuSubmitCount(0),
+	ParticleGpuPerfFrames(0),
+	ParticleGpuPerfFlushStart(0),
+	ParticleGpuPerfWaitStart(0),
 	BatchDrawLimit(2048),
 	DrawLimitFlushes(0),
 	OffscreenMs(0.0),
@@ -889,7 +897,13 @@ bool SdlGpuFrame::Flush()
 bool SdlGpuFrame::Submit_Flush(SDL_GPUCommandBuffer * commands)
 {
 	ZH_IOS_WaitForForeground();
+	const bool profile = ParticlePerfToggle::enabled();
+	const Uint64 submitStart = profile ? SDL_GetTicksNS() : 0;
 	SDL_GPUFence * fence = SDL_SubmitGPUCommandBufferAndAcquireFence(commands);
+	if (profile) {
+		ParticleGpuSubmitNs += SDL_GetTicksNS() - submitStart;
+		++ParticleGpuSubmitCount;
+	}
 	if (fence == NULL) {
 		return false;
 	}
@@ -910,7 +924,10 @@ bool SdlGpuFrame::Submit_Flush(SDL_GPUCommandBuffer * commands)
 		}
 	}
 	if (FlushLimit > 0 && FlushFences.size() > FlushLimit) {
-		SDL_WaitForGPUFences(GpuDevice, true, &FlushFences[0], 1);	// counted in Flush's own time (device flush)
+		const Uint64 waitStart = profile ? SDL_GetTicksNS() : 0;
+		SDL_WaitForGPUFences(GpuDevice, true, &FlushFences[0], 1);
+		if (profile) ParticleGpuWaitNs += SDL_GetTicksNS() - waitStart;
+		// Also counted in FlushMs; do not add these times to derive total CPU frame time.
 		SDL_ReleaseGPUFence(GpuDevice, FlushFences[0]);
 		FlushFences.erase(FlushFences.begin());
 		++FlushWaits;
@@ -998,6 +1015,27 @@ void SdlGpuFrame::Take_Timing(double & flush_ms, double & fence_ms, unsigned int
 	FenceMs = 0.0;
 	Flushes = 0;
 	AcquireMs = 0.0;
+	if (ParticlePerfToggle::enabled()) {
+		// A Take_Timing call normally represents one presentation interval. No per-frame stderr.
+		if (++ParticleGpuPerfFrames >= 120) {
+			fprintf(stderr, "[GPU_SYNC_PERF] intervals=%u flushes=%u ring_waits=%u ring_wait_cpu_ms=%.3f submit_calls=%u submit_cpu_ms=%.3f note=cpu_wall_time_not_gpu_elapsed\n",
+				ParticleGpuPerfFrames, FlushesTotal - ParticleGpuPerfFlushStart,
+				FlushWaits - ParticleGpuPerfWaitStart, double(ParticleGpuWaitNs) / 1.0e6,
+				ParticleGpuSubmitCount, double(ParticleGpuSubmitNs) / 1.0e6);
+			ParticleGpuPerfFrames = 0;
+			ParticleGpuPerfFlushStart = FlushesTotal;
+			ParticleGpuPerfWaitStart = FlushWaits;
+			ParticleGpuWaitNs = ParticleGpuSubmitNs = 0;
+			ParticleGpuSubmitCount = 0;
+		}
+	} else {
+		// Start a fresh diagnostic window if the runtime flag is enabled later.
+		ParticleGpuPerfFrames = 0;
+		ParticleGpuPerfFlushStart = FlushesTotal;
+		ParticleGpuPerfWaitStart = FlushWaits;
+		ParticleGpuWaitNs = ParticleGpuSubmitNs = 0;
+		ParticleGpuSubmitCount = 0;
+	}
 }
 
 SDL_GPUGraphicsPipeline * SdlGpuFrame::Gamma_Pipeline(unsigned int format)
