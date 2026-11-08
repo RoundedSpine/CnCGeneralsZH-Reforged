@@ -121,7 +121,6 @@ SdlGpuFrame::SdlGpuFrame() :
 	FlushesTotal(0),
 	FlushInFlightMost(0),
 	FlushWaits(0),
-	ParticleGpuPerf(false),
 	ParticleGpuWaitNs(0),
 	ParticleGpuSubmitNs(0),
 	ParticleGpuSubmitCount(0),
