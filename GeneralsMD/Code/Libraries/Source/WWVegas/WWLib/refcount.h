@@ -65,7 +65,7 @@ struct ActiveRefStruct
 #else
 
 #define	NEW_REF( C, P )					( W3DNEW C P )
-#define	SET_REF_OWNER( P )			P
+#define	SET_REF_OWNER( P )			((void)(P))
 
 #endif
 
