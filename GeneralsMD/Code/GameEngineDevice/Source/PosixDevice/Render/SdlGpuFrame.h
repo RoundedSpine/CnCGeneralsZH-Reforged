@@ -106,6 +106,8 @@ struct SdlRecordedDraw
 	int32_t Scissor[4];					///< x, y, width, height
 	uint32_t StencilReference;
 	uint32_t BlendFactor;				///< D3DCOLOR
+	bool DiagnosticBlended;		///< D3D alpha blending enabled on accepted draw
+	bool DiagnosticAdditive;	///< source ONE and destination ONE while blending
 };
 
 class SdlGpuFrame
@@ -351,6 +353,9 @@ private:
 	uint64_t ParticleGpuSubmitNs;
 	unsigned int ParticleGpuSubmitCount;
 	// CPU-side counts of recorded GPU operations, not GPU execution statistics.
+	uint64_t ParticleGpuBlendedDraws;
+	uint64_t ParticleGpuAdditiveDraws;
+	uint64_t ParticleGpuBlendScissorPixels;	///< conservative upper bound, not fragments
 	uint64_t ParticleGpuRecordedDraws;
 	uint64_t ParticleGpuUploadBytes;
 	unsigned int ParticleGpuRenderPasses;
