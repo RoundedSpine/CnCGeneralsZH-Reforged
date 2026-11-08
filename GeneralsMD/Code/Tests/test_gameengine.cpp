@@ -15312,7 +15312,7 @@ TEST(an_option_read_before_the_parser_exists_is_read_on_word_boundaries)
 	/* Two options are read straight off the wide command line, before CommandLine.cpp's parser is
 	   alive: -logPrefix (the debug log's name is chosen by a static constructor) and -multiInstance
 	   (the one-copy mutex is taken in WinMain).  The reader is the whole of that parser. */
-	const wchar_t *line = L"\"D:\Run\generals.exe\" -win -multiInstance -logPrefix b_ -maxframes 600";
+	const wchar_t *line = L"\"D:\\Run\\generals.exe\" -win -multiInstance -logPrefix b_ -maxframes 600";
 
 	CHECK( findCommandLineOptionIn( line, L"-win" ) != NULL );
 	CHECK( findCommandLineOptionIn( line, L"-multiInstance" ) != NULL );
