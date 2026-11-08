@@ -1,300 +1,300 @@
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/gzio.c:639:13: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  639 | int ZEXPORT gzflush (file, flush)
-      |             ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/gzio.c:660:17: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  660 | z_off_t ZEXPORT gzseek (file, offset, whence)
-      |                 ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/gzio.c:741:13: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  741 | int ZEXPORT gzrewind (file)
-      |             ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/gzio.c:768:17: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  768 | z_off_t ZEXPORT gztell (file)
-      |                 ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/gzio.c:778:13: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  778 | int ZEXPORT gzeof (file)
-      |             ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/gzio.c:789:12: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  789 | local void putLong (file, x)
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/RTS/Player.cpp:177:45: note: in instantiation of member function 'BitFlags<117, 2>::getBitNames' requested here
+  177 |         const char** kindofNames = KindOfMaskType::getBitNames();
+      |                                                    ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BitFlags.h:70:25: note: forward declaration of template entity is here
+   70 |         static const char*                                      s_bitNameList[];
+      |                                                                 ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BitFlags.h:280:12: note: add an explicit instantiation declaration to suppress this warning if 'BitFlags<117, 2>::s_bitNameList' is explicitly instantiated in another translation unit
+  280 |     return s_bitNameList;
       |            ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/gzio.c:804:13: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  804 | local uLong getLong (s)
-      |             ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/gzio.c:822:13: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  822 | int ZEXPORT gzclose (file)
-      |             ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/gzio.c:851:22: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  851 | const char*  ZEXPORT gzerror (file, errnum)
-      |                      ^
-23 warnings generated.
-[564/1624] Building C object CMakeFiles/compression.dir/Libraries/Source/Compression/ZLib/infblock.c.o
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/infblock.c:68:6: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-   68 | void inflate_blocks_reset(s, z, c)
-      |      ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/infblock.c:89:24: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-   89 | inflate_blocks_statef *inflate_blocks_new(z, c, w)
-      |                        ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/infblock.c:120:5: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  120 | int inflate_blocks(s, z, r)
-      |     ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/infblock.c:372:5: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  372 | int inflate_blocks_free(s, z)
-      |     ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/infblock.c:385:6: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  385 | void inflate_set_dictionary(s, d, n)
-      |      ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/infblock.c:399:5: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  399 | int inflate_blocks_sync_point(s)
-      |     ^
-6 warnings generated.
-[565/1624] Building C object CMakeFiles/compression.dir/Libraries/Source/Compression/ZLib/infcodes.c.o
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/infcodes.c:59:23: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-   59 | inflate_codes_statef *inflate_codes_new(bl, bd, tl, td, z)
-      |                       ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/infcodes.c:81:5: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-   81 | int inflate_codes(s, z, r)
-      |     ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/infcodes.c:245:6: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  245 | void inflate_codes_free(c, z)
-      |      ^
-3 warnings generated.
-[566/1624] Building C object CMakeFiles/compression.dir/Libraries/Source/Compression/ZLib/inffast.c.o
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/inffast.c:28:5: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-   28 | int inflate_fast(bl, bd, tl, td, s, z)
-      |     ^
-1 warning generated.
-[567/1624] Building C object CMakeFiles/compression.dir/Libraries/Source/Compression/ZLib/inflate.c.o
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/inflate.c:53:13: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-   53 | int ZEXPORT inflateReset(z)
-      |             ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/zconf.h:31:24: note: expanded from macro 'inflateReset'
-   31 | #  define inflateReset  z_inflateReset
-      |                         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/inflate.c:67:13: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-   67 | int ZEXPORT inflateEnd(z)
-      |             ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/zconf.h:21:22: note: expanded from macro 'inflateEnd'
-   21 | #  define inflateEnd    z_inflateEnd
-      |                         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/inflate.c:81:13: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-   81 | int ZEXPORT inflateInit2_(z, w, version, stream_size)
-      |             ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/zconf.h:27:25: note: expanded from macro 'inflateInit2_'
-   27 | #  define inflateInit2_ z_inflateInit2_
-      |                         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/inflate.c:138:13: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  138 | int ZEXPORT inflateInit_(z, version, stream_size)
-      |             ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/zconf.h:19:25: note: expanded from macro 'inflateInit_'
-   19 | #  define inflateInit_  z_inflateInit_
-      |                         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/inflate.c:150:13: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  150 | int ZEXPORT inflate(z, f)
-      |             ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/zconf.h:20:19: note: expanded from macro 'inflate'
-   20 | #  define inflate       z_inflate
-      |                         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/inflate.c:278:13: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  278 | int ZEXPORT inflateSetDictionary(z, dictionary, dictLength)
-      |             ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/zconf.h:28:32: note: expanded from macro 'inflateSetDictionary'
-   28 | #  define inflateSetDictionary z_inflateSetDictionary
-      |                                ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/inflate.c:302:13: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  302 | int ZEXPORT inflateSync(z)
-      |             ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/zconf.h:29:23: note: expanded from macro 'inflateSync'
-   29 | #  define inflateSync   z_inflateSync
-      |                         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/inflate.c:360:13: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  360 | int ZEXPORT inflateSyncPoint(z)
-      |             ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/zconf.h:30:28: note: expanded from macro 'inflateSyncPoint'
-   30 | #  define inflateSyncPoint z_inflateSyncPoint
-      |                            ^
-8 warnings generated.
-[568/1624] Building CXX object CMakeFiles/compression.dir/Libraries/Source/Compression/LZHCompress/NoxCompress.cpp.o
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/LZHCompress/NoxCompress.cpp:29:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/LZHCompress/NoxCompress.h:40:8: warning: extra tokens at end of #endif directive [-Wextra-tokens]
-   40 | #endif __compress_h
-      |        ^
-      |        //
-1 warning generated.
-[569/1624] Building C object CMakeFiles/compression.dir/Libraries/Source/Compression/ZLib/infutil.c.o
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/infutil.c:23:5: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-   23 | int inflate_flush(s, z, r)
-      |     ^
-1 warning generated.
-[570/1624] Building C object CMakeFiles/compression.dir/Libraries/Source/Compression/ZLib/inftrees.c.o
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/inftrees.c:93:11: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-   93 | local int huft_build(b, n, s, d, e, t, m, hp, hn, v)
-      |           ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/inftrees.c:293:5: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  293 | int inflate_trees_bits(c, bb, tb, hp, z)
-      |     ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/inftrees.c:320:5: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  320 | int inflate_trees_dynamic(nl, nd, c, bl, bd, tl, td, hp, z)
-      |     ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/inftrees.c:398:5: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  398 | int inflate_trees_fixed(bl, bd, tl, td, z)
-      |     ^
-4 warnings generated.
-[571/1624] Building C object CMakeFiles/compression.dir/Libraries/Source/Compression/ZLib/uncompr.c.o
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/uncompr.c:25:13: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-   25 | int ZEXPORT uncompress (dest, destLen, source, sourceLen)
-      |             ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/zconf.h:34:22: note: expanded from macro 'uncompress'
-   34 | #  define uncompress    z_uncompress
-      |                         ^
-1 warning generated.
-[572/1624] Building C object CMakeFiles/compression.dir/Libraries/Source/Compression/ZLib/zutil.c.o
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/zutil.c:52:22: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-   52 | const char * ZEXPORT zError(err)
-      |                      ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/zutil.c:208:8: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  208 | voidpf zcalloc (opaque, items, size)
-      |        ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/zutil.c:217:7: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  217 | void  zcfree (opaque, ptr)
-      |       ^
-3 warnings generated.
-[573/1624] Linking CXX static library libwwlib.a
-[574/1624] Building C object CMakeFiles/compression.dir/Libraries/Source/Compression/ZLib/trees.c.o
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/trees.c:383:6: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  383 | void _tr_init(s)
-      |      ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/trees.c:412:12: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  412 | local void init_block(s)
-      |            ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/trees.c:456:12: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  456 | local void pqdownheap(s, tree, k)
-      |            ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/trees.c:491:12: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  491 | local void gen_bitlen(s, desc)
-      |            ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/trees.c:578:12: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  578 | local void gen_codes (tree, max_code, bl_count)
-      |            ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/trees.c:620:12: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  620 | local void build_tree(s, desc)
-      |            ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/trees.c:707:12: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  707 | local void scan_tree (s, tree, max_code)
-      |            ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/trees.c:752:12: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  752 | local void send_tree (s, tree, max_code)
-      |            ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/trees.c:803:11: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  803 | local int build_bl_tree(s)
-      |           ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/trees.c:838:12: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  838 | local void send_all_trees(s, lcodes, dcodes, blcodes)
-      |            ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/trees.c:867:6: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  867 | void _tr_stored_block(s, buf, stored_len, eof)
-      |      ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/trees.c:892:6: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  892 | void _tr_align(s)
-      |      ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/trees.c:921:6: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  921 | void _tr_flush_block(s, buf, stored_len, eof)
-      |      ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/trees.c:1021:5: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
- 1021 | int _tr_tally (s, dist, lc)
-      |     ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/trees.c:1071:12: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
- 1071 | local void compress_block(s, ltree, dtree)
-      |            ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/trees.c:1124:12: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
- 1124 | local void set_data_type(s)
-      |            ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/trees.c:1141:16: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
- 1141 | local unsigned bi_reverse(code, len)
-      |                ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/trees.c:1156:12: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
- 1156 | local void bi_flush(s)
-      |            ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/trees.c:1173:12: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
- 1173 | local void bi_windup(s)
-      |            ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/trees.c:1192:12: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
- 1192 | local void copy_block(s, buf, len, header)
-      |            ^
-20 warnings generated.
-[575/1624] Building CXX object CMakeFiles/wwsaveload.dir/Libraries/Source/WWVegas/WWSaveLoad/definitionfactory.cpp.o
-[576/1624] Building CXX object CMakeFiles/wwsaveload.dir/Libraries/Source/WWVegas/WWSaveLoad/definitionfactorymgr.cpp.o
-[577/1624] Building CXX object CMakeFiles/wwsaveload.dir/Libraries/Source/WWVegas/WWSaveLoad/definition.cpp.o
-[578/1624] Building CXX object CMakeFiles/wwsaveload.dir/Libraries/Source/WWVegas/WWSaveLoad/definitionmgr.cpp.o
-[579/1624] Building CXX object CMakeFiles/wwsaveload.dir/Libraries/Source/WWVegas/WWSaveLoad/pointerremap.cpp.o
-[580/1624] Building CXX object CMakeFiles/wwsaveload.dir/Libraries/Source/WWVegas/WWSaveLoad/parameter.cpp.o
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWSaveLoad/parameter.cpp:60:10: warning: enumeration values 'TYPE_TRANSITION', 'TYPE_SCRIPT', and 'TYPE_SCRIPTLIST' not handled in switch [-Wswitch]
-   60 |         switch (type) {
+16 warnings generated.
+[814/1624] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/RTS/ResourceGatheringManager.cpp.o
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/RTS/ResourceGatheringManager.cpp:40:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Object.h:48:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:123:10: warning: 35 enumeration values not handled in switch: 'DAMAGE_EXPLOSION', 'DAMAGE_CRUSH', 'DAMAGE_ARMOR_PIERCING'... [-Wswitch]
+  123 |         switch( type )
       |                 ^~~~
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWSaveLoad/parameter.cpp:60:10: note: add missing switch cases
-   60 |         switch (type) {
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:123:10: note: add missing switch cases
+  123 |         switch( type )
       |                 ^
-1 warning generated.
-[581/1624] Building CXX object CMakeFiles/wwsaveload.dir/Libraries/Source/WWVegas/WWSaveLoad/persistfactory.cpp.o
-[582/1624] Building CXX object CMakeFiles/wwsaveload.dir/Libraries/Source/WWVegas/WWSaveLoad/saveload.cpp.o
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWSaveLoad/saveload.cpp:39:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWSaveLoad/saveload.h:49:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/slist.h:61:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/slnode.h:46:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/mempool.h:364:18: warning: instantiation of variable 'AutoPoolClass<GenericSLNode, 256>::Allocator' required here, but no definition is available [-Wundefined-var-template]
-  364 |         return (void *)(Allocator.Allocate_Object_Memory());
-      |                         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/slist.h:462:23: note: in instantiation of member function 'AutoPoolClass<GenericSLNode, 256>::operator new' requested here
-  462 |                 SLNode<T> *temp   = new SLNode<T>(cur->Data());
-      |                                     ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/slist.h:79:3: note: in instantiation of member function 'SList<PostLoadableClass>::Add_Head' requested here
-   79 |                 SList(void)
+  124 |         {
+  125 |                 case DAMAGE_SUBDUAL_MISSILE:
+  126 |                 case DAMAGE_SUBDUAL_VEHICLE:
+  127 |                 case DAMAGE_SUBDUAL_BUILDING:
+  128 |                 case DAMAGE_SUBDUAL_UNRESISTABLE:
+  129 |                         return TRUE;
+  130 |         }
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:140:10: warning: 32 enumeration values not handled in switch: 'DAMAGE_EXPLOSION', 'DAMAGE_CRUSH', 'DAMAGE_ARMOR_PIERCING'... [-Wswitch]
+  140 |         switch( type )
+      |                 ^~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:140:10: note: add missing switch cases
+  140 |         switch( type )
       |                 ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWSaveLoad/saveload.cpp:60:48: note: in instantiation of member function 'SList<PostLoadableClass>::SList' requested here
-   60 | SList<PostLoadableClass>                SaveLoadSystemClass::PostLoadList;
-      |                                                              ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/mempool.h:156:39: note: forward declaration of template entity is here
-  156 |         static ObjectPoolClass<T,BLOCK_SIZE>    Allocator;
-      |                                                 ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/mempool.h:364:18: note: add an explicit instantiation declaration to suppress this warning if 'AutoPoolClass<GenericSLNode, 256>::Allocator' is explicitly instantiated in another translation unit
-  364 |         return (void *)(Allocator.Allocate_Object_Memory());
-      |                         ^
-1 warning generated.
-[583/1624] Building CXX object CMakeFiles/wwsaveload.dir/Libraries/Source/WWVegas/WWSaveLoad/saveloadstatus.cpp.o
-[584/1624] Building CXX object CMakeFiles/wwsaveload.dir/Libraries/Source/WWVegas/WWSaveLoad/saveloadsubsystem.cpp.o
-[585/1624] Building C object CMakeFiles/benchmark.dir/Libraries/Source/Benchmark/benchmark_stub.c.o
-[586/1624] Linking C static library libmbedtls.a
-[587/1624] Building CXX object CMakeFiles/iosstartup.dir/Platform/iOS/IOSStartup.cpp.o
-[588/1624] Building CXX object CMakeFiles/iosstartup.dir/Platform/iOS/IOSLifecycle.cpp.o
-[589/1624] Building CXX object CMakeFiles/wwsaveload.dir/Libraries/Source/WWVegas/WWSaveLoad/wwsaveload.cpp.o
-[590/1624] Building CXX object CMakeFiles/wwsaveload.dir/Libraries/Source/WWVegas/WWSaveLoad/twiddler.cpp.o
-[591/1624] Building CXX object CMakeFiles/iosstartup.dir/Platform/iOS/IOSMemoryDiagnostics.cpp.o
-[592/1624] Building OBJCXX object CMakeFiles/iosstartup.dir/Platform/iOS/IOSWindowDiagnostics.mm.o
-[593/1624] Building OBJCXX object CMakeFiles/iosstartup.dir/Platform/iOS/IOSAudioSession.mm.o
-[594/1624] Linking CXX static library libffvertex.a
-[595/1624] Linking CXX static library libengineshader.a
-[596/1624] Linking CXX static library libsdl3shadercompile.a
-[597/1624] Building CXX object CMakeFiles/glyphrasteriser.dir/Libraries/Source/WWVegas/WW3D2/glyphrasteriser.cpp.o
-[598/1624] Building CXX object CMakeFiles/posixd3d9.dir/GameEngineDevice/Source/PosixDevice/Render/PosixD3D9Caps.cpp.o
-[599/1624] Building CXX object CMakeFiles/onlineconnection.dir/GameEngine/Source/GameNetwork/Online/OnlineConnection.cpp.o
-[600/1624] Building CXX object CMakeFiles/posixd3d9.dir/GameEngineDevice/Source/PosixDevice/Render/PosixDevice9AmbientOcclusion.cpp.o
-[601/1624] Building CXX object CMakeFiles/posixd3d9.dir/GameEngineDevice/Source/PosixDevice/Render/PosixDevice9.cpp.o
-[602/1624] Building CXX object CMakeFiles/posixd3d9.dir/GameEngineDevice/Source/PosixDevice/Render/PosixDevice9Capture.cpp.o
-[603/1624] Building CXX object CMakeFiles/posixd3d9.dir/GameEngineDevice/Source/PosixDevice/Render/PosixDevice9Particles.cpp.o
-[604/1624] Building CXX object CMakeFiles/posixd3d9.dir/GameEngineDevice/Source/PosixDevice/Render/PosixDevice9Draw.cpp.o
-[605/1624] Building CXX object CMakeFiles/posixd3d9.dir/GameEngineDevice/Source/PosixDevice/Render/PosixDevice9Resources.cpp.o
-[606/1624] Building CXX object CMakeFiles/posixd3d9.dir/GameEngineDevice/Source/PosixDevice/Render/PosixDevice9SceneEffects.cpp.o
-[607/1624] Building CXX object CMakeFiles/posixd3d9.dir/GameEngineDevice/Source/PosixDevice/Render/PosixDevice9SunShadow.cpp.o
-[608/1624] Building CXX object CMakeFiles/posixd3d9.dir/GameEngineDevice/Source/PosixDevice/Render/PosixDevice9Timing.cpp.o
-[609/1624] Building CXX object CMakeFiles/posixd3d9.dir/GameEngineDevice/Source/PosixDevice/Render/PosixDirect3D9.cpp.o
-[610/1624] Building OBJC object CMakeFiles/miniaudio.dir/Libraries/Source/miniaudio/miniaudio.c.o
-[611/1624] Building CXX object CMakeFiles/posixd3d9.dir/GameEngineDevice/Source/PosixDevice/Render/PosixImage.cpp.o
-[612/1624] Building CXX object CMakeFiles/posixd3d9.dir/GameEngineDevice/Source/PosixDevice/Render/PosixPixelCodec.cpp.o
-[613/1624] Building CXX object CMakeFiles/posixd3d9.dir/GameEngineDevice/Source/PosixDevice/Render/PosixImageOps.cpp.o
-[614/1624] Building CXX object CMakeFiles/posixd3d9.dir/GameEngineDevice/Source/PosixDevice/Render/SdlAmbientOcclusion.cpp.o
-[615/1624] Building CXX object CMakeFiles/posixd3d9.dir/GameEngineDevice/Source/PosixDevice/Render/PosixResources9.cpp.o
-[616/1624] Building CXX object CMakeFiles/posixd3d9.dir/GameEngineDevice/Source/PosixDevice/Render/SdlAtmosphere.cpp.o
-[617/1624] Building CXX object CMakeFiles/posixd3d9.dir/GameEngineDevice/Source/PosixDevice/Render/SdlGpuFrameAmbientOcclusion.cpp.o
-[618/1624] Building CXX object CMakeFiles/posixd3d9.dir/GameEngineDevice/Source/PosixDevice/Render/SdlGpuFrameAtmosphere.cpp.o
-[619/1624] Building CXX object CMakeFiles/posixd3d9.dir/GameEngineDevice/Source/PosixDevice/Render/SdlGpuFrame.cpp.o
-[620/1624] Building CXX object CMakeFiles/posixd3d9.dir/GameEngineDevice/Source/PosixDevice/Render/SdlGpuFrameHeat.cpp.o
-[621/1624] Building CXX object CMakeFiles/posixd3d9.dir/GameEngineDevice/Source/PosixDevice/Render/SdlGpuFrameBatch.cpp.o
-[622/1624] Building CXX object CMakeFiles/posixd3d9.dir/GameEngineDevice/Source/PosixDevice/Render/SdlGpuFrameMsaa.cpp.o
+  141 |         {
+  142 |                 case DAMAGE_STATUS:
+  143 |                 case DAMAGE_SUBDUAL_MISSILE:
+  144 |                 case DAMAGE_SUBDUAL_VEHICLE:
+  145 |                 case DAMAGE_SUBDUAL_BUILDING:
+  146 |                 case DAMAGE_SUBDUAL_UNRESISTABLE:
+  147 |                 case DAMAGE_KILLPILOT:
+  148 |                 case DAMAGE_KILL_GARRISONED:
+  149 |                         return FALSE;
+  150 |         }
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/RTS/ResourceGatheringManager.cpp:42:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/SupplyTruckAIUpdate.h:199:44: warning: offset of on non-standard-layout type 'SupplyTruckAIUpdateModuleData' [-Winvalid-offsetof]
+  199 |                         { "MaxBoxes",                                   INI::parseInt,          NULL, offsetof( SupplyTruckAIUpdateModuleData, m_maxBoxesData ) },
+      |                                                                                                       ^                                        ~~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/RTS/ResourceGatheringManager.cpp:42:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/SupplyTruckAIUpdate.h:200:70: warning: offset of on non-standard-layout type 'SupplyTruckAIUpdateModuleData' [-Winvalid-offsetof]
+  200 |                         { "SupplyCenterActionDelay", INI::parseDurationUnsignedInt, NULL, offsetof( SupplyTruckAIUpdateModuleData, m_centerDelay ) },
+      |                                                                                           ^                                        ~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/RTS/ResourceGatheringManager.cpp:42:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/SupplyTruckAIUpdate.h:201:73: warning: offset of on non-standard-layout type 'SupplyTruckAIUpdateModuleData' [-Winvalid-offsetof]
+  201 |                         { "SupplyWarehouseActionDelay", INI::parseDurationUnsignedInt, NULL, offsetof( SupplyTruckAIUpdateModuleData, m_warehouseDelay ) },
+      |                                                                                              ^                                        ~~~~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/RTS/ResourceGatheringManager.cpp:42:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/SupplyTruckAIUpdate.h:202:59: warning: offset of on non-standard-layout type 'SupplyTruckAIUpdateModuleData' [-Winvalid-offsetof]
+  202 |                         { "SupplyWarehouseScanDistance", INI::parseReal, NULL, offsetof( SupplyTruckAIUpdateModuleData, m_warehouseScanDistance ) },
+      |                                                                                ^                                        ~~~~~~~~~~~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/RTS/ResourceGatheringManager.cpp:42:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/SupplyTruckAIUpdate.h:203:63: warning: offset of on non-standard-layout type 'SupplyTruckAIUpdateModuleData' [-Winvalid-offsetof]
+  203 |                         { "SuppliesDepletedVoice", INI::parseAudioEventRTS, NULL, offsetof( SupplyTruckAIUpdateModuleData, m_suppliesDepletedVoice) },
+      |                                                                                   ^                                        ~~~~~~~~~~~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+7 warnings generated.
+[815/1624] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/RTS/Science.cpp.o
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/RTS/Science.cpp:34:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Player.h:62:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/AI.h:41:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:123:10: warning: 35 enumeration values not handled in switch: 'DAMAGE_EXPLOSION', 'DAMAGE_CRUSH', 'DAMAGE_ARMOR_PIERCING'... [-Wswitch]
+  123 |         switch( type )
+      |                 ^~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:123:10: note: add missing switch cases
+  123 |         switch( type )
+      |                 ^
+  124 |         {
+  125 |                 case DAMAGE_SUBDUAL_MISSILE:
+  126 |                 case DAMAGE_SUBDUAL_VEHICLE:
+  127 |                 case DAMAGE_SUBDUAL_BUILDING:
+  128 |                 case DAMAGE_SUBDUAL_UNRESISTABLE:
+  129 |                         return TRUE;
+  130 |         }
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:140:10: warning: 32 enumeration values not handled in switch: 'DAMAGE_EXPLOSION', 'DAMAGE_CRUSH', 'DAMAGE_ARMOR_PIERCING'... [-Wswitch]
+  140 |         switch( type )
+      |                 ^~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:140:10: note: add missing switch cases
+  140 |         switch( type )
+      |                 ^
+  141 |         {
+  142 |                 case DAMAGE_STATUS:
+  143 |                 case DAMAGE_SUBDUAL_MISSILE:
+  144 |                 case DAMAGE_SUBDUAL_VEHICLE:
+  145 |                 case DAMAGE_SUBDUAL_BUILDING:
+  146 |                 case DAMAGE_SUBDUAL_UNRESISTABLE:
+  147 |                 case DAMAGE_KILLPILOT:
+  148 |                 case DAMAGE_KILL_GARRISONED:
+  149 |                         return FALSE;
+  150 |         }
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/RTS/Science.cpp:177:61: warning: offset of on non-standard-layout type 'ScienceInfo' [-Winvalid-offsetof]
+  177 |                         { "PrerequisiteSciences", INI::parseScienceVector, NULL, offsetof( ScienceInfo, m_prereqSciences ) },
+      |                                                                                  ^                      ~~~~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/RTS/Science.cpp:178:55: warning: offset of on non-standard-layout type 'ScienceInfo' [-Winvalid-offsetof]
+  178 |                         { "SciencePurchasePointCost", INI::parseInt, NULL, offsetof( ScienceInfo, m_sciencePurchasePointCost ) },
+      |                                                                            ^                      ~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/RTS/Science.cpp:179:43: warning: offset of on non-standard-layout type 'ScienceInfo' [-Winvalid-offsetof]
+  179 |                         { "IsGrantable", INI::parseBool, NULL, offsetof( ScienceInfo, m_grantable ) },
+      |                                                                ^                      ~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/RTS/Science.cpp:180:56: warning: offset of on non-standard-layout type 'ScienceInfo' [-Winvalid-offsetof]
+  180 |                         { "DisplayName", INI::parseAndTranslateLabel, NULL, offsetof( ScienceInfo, m_name) },
+      |                                                                             ^                      ~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/RTS/Science.cpp:181:56: warning: offset of on non-standard-layout type 'ScienceInfo' [-Winvalid-offsetof]
+  181 |                         { "Description", INI::parseAndTranslateLabel, NULL, offsetof( ScienceInfo, m_description) },
+      |                                                                             ^                      ~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/RTS/Science.cpp:182:52: warning: offset of on non-standard-layout type 'ScienceInfo' [-Winvalid-offsetof]
+  182 |                         { "GrantsUpgrade", INI::parseAsciiString, NULL, offsetof( ScienceInfo, m_grantedUpgradeName) },
+      |                                                                         ^                      ~~~~~~~~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+8 warnings generated.
+[816/1624] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/RTS/SpecialPower.cpp.o
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/RTS/SpecialPower.cpp:36:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Player.h:62:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/AI.h:41:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:123:10: warning: 35 enumeration values not handled in switch: 'DAMAGE_EXPLOSION', 'DAMAGE_CRUSH', 'DAMAGE_ARMOR_PIERCING'... [-Wswitch]
+  123 |         switch( type )
+      |                 ^~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:123:10: note: add missing switch cases
+  123 |         switch( type )
+      |                 ^
+  124 |         {
+  125 |                 case DAMAGE_SUBDUAL_MISSILE:
+  126 |                 case DAMAGE_SUBDUAL_VEHICLE:
+  127 |                 case DAMAGE_SUBDUAL_BUILDING:
+  128 |                 case DAMAGE_SUBDUAL_UNRESISTABLE:
+  129 |                         return TRUE;
+  130 |         }
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:140:10: warning: 32 enumeration values not handled in switch: 'DAMAGE_EXPLOSION', 'DAMAGE_CRUSH', 'DAMAGE_ARMOR_PIERCING'... [-Wswitch]
+  140 |         switch( type )
+      |                 ^~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:140:10: note: add missing switch cases
+  140 |         switch( type )
+      |                 ^
+  141 |         {
+  142 |                 case DAMAGE_STATUS:
+  143 |                 case DAMAGE_SUBDUAL_MISSILE:
+  144 |                 case DAMAGE_SUBDUAL_VEHICLE:
+  145 |                 case DAMAGE_SUBDUAL_BUILDING:
+  146 |                 case DAMAGE_SUBDUAL_UNRESISTABLE:
+  147 |                 case DAMAGE_KILLPILOT:
+  148 |                 case DAMAGE_KILL_GARRISONED:
+  149 |                         return FALSE;
+  150 |         }
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/RTS/SpecialPower.cpp:201:63: warning: offset of on non-standard-layout type 'SpecialPowerTemplate' [-Winvalid-offsetof]
+  201 |         { "ReloadTime",                                                         INI::parseDurationUnsignedInt,          NULL,   offsetof( SpecialPowerTemplate, m_reloadTime ) },
+      |                                                                                                                                 ^                               ~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/RTS/SpecialPower.cpp:202:59: warning: offset of on non-standard-layout type 'SpecialPowerTemplate' [-Winvalid-offsetof]
+  202 |         { "RequiredScience",                                    INI::parseScience,                                                              NULL, offsetof( SpecialPowerTemplate, m_requiredScience ) },
+      |                                                                                                                                                       ^                               ~~~~~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/RTS/SpecialPower.cpp:203:61: warning: offset of on non-standard-layout type 'SpecialPowerTemplate' [-Winvalid-offsetof]
+  203 |         { "InitiateSound",                                              INI::parseAudioEventRTS,                                        NULL,   offsetof( SpecialPowerTemplate, m_initiateSound ) },
+      |                                                                                                                                                 ^                               ~~~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/RTS/SpecialPower.cpp:204:66: warning: offset of on non-standard-layout type 'SpecialPowerTemplate' [-Winvalid-offsetof]
+  204 |         { "InitiateAtLocationSound",    INI::parseAudioEventRTS,                                        NULL,   offsetof( SpecialPowerTemplate, m_initiateAtLocationSound ) },
+      |                                                                                                                 ^                               ~~~~~~~~~~~~~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/RTS/SpecialPower.cpp:205:56: warning: offset of on non-standard-layout type 'SpecialPowerTemplate' [-Winvalid-offsetof]
+  205 |         { "PublicTimer",                                                        INI::parseBool,                                                                         NULL, offsetof( SpecialPowerTemplate, m_publicTimer ) },
+      |                                                                                                                                                                               ^                               ~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/RTS/SpecialPower.cpp:206:86: warning: offset of on non-standard-layout type 'SpecialPowerTemplate' [-Winvalid-offsetof]
+  206 |         { "Enum",                                                                                       INI::parseIndexList,                                                    SpecialPowerMaskType::getBitNames(), offsetof( SpecialPowerTemplate, m_type ) },
+      |                                                                                                                                                                                                                      ^                               ~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/RTS/SpecialPower.cpp:207:64: warning: offset of on non-standard-layout type 'SpecialPowerTemplate' [-Winvalid-offsetof]
+  207 |         { "DetectionTime",                                              INI::parseDurationUnsignedInt,          NULL,   offsetof( SpecialPowerTemplate, m_detectionTime ) },
+      |                                                                                                                         ^                               ~~~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/RTS/SpecialPower.cpp:208:59: warning: offset of on non-standard-layout type 'SpecialPowerTemplate' [-Winvalid-offsetof]
+  208 |         { "SharedSyncedTimer",                          INI::parseBool,                                                                         NULL, offsetof( SpecialPowerTemplate, m_sharedNSync ) },
+      |                                                                                                                                                       ^                               ~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/RTS/SpecialPower.cpp:209:67: warning: offset of on non-standard-layout type 'SpecialPowerTemplate' [-Winvalid-offsetof]
+  209 |         { "ViewObjectDuration",                         INI::parseDurationUnsignedInt,          NULL,   offsetof( SpecialPowerTemplate, m_viewObjectDuration ) },
+      |                                                                                                         ^                               ~~~~~~~~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/RTS/SpecialPower.cpp:210:58: warning: offset of on non-standard-layout type 'SpecialPowerTemplate' [-Winvalid-offsetof]
+  210 |         { "ViewObjectRange",                                    INI::parseReal,                                                                         NULL,   offsetof( SpecialPowerTemplate, m_viewObjectRange ) },
+      |                                                                                                                                                                 ^                               ~~~~~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/RTS/SpecialPower.cpp:211:60: warning: offset of on non-standard-layout type 'SpecialPowerTemplate' [-Winvalid-offsetof]
+  211 |         { "RadiusCursorRadius",                         INI::parseReal,                                                                         NULL,   offsetof( SpecialPowerTemplate, m_radiusCursorRadius ) },
+      |                                                                                                                                                         ^                               ~~~~~~~~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/RTS/SpecialPower.cpp:212:57: warning: offset of on non-standard-layout type 'SpecialPowerTemplate' [-Winvalid-offsetof]
+  212 |         { "ShortcutPower",                                              INI::parseBool,                                                                         NULL, offsetof( SpecialPowerTemplate, m_shortcutPower ) },
+      |                                                                                                                                                                       ^                               ~~~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/RTS/SpecialPower.cpp:213:59: warning: offset of on non-standard-layout type 'SpecialPowerTemplate' [-Winvalid-offsetof]
+  213 |         { "AIFiresWhenReady",                                   INI::parseBool,                                                                         NULL, offsetof( SpecialPowerTemplate, m_aiFiresWhenReady ) },
+      |                                                                                                                                                               ^                               ~~~~~~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/RTS/SpecialPower.cpp:214:85: warning: offset of on non-standard-layout type 'SpecialPowerTemplate' [-Winvalid-offsetof]
+  214 |         { "AcademyClassify",                                    INI::parseIndexList,                    TheAcademyClassificationTypeNames, offsetof( SpecialPowerTemplate, m_academyClassificationType ) },
+      |                                                                                                                                            ^                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+16 warnings generated.
+[817/1624] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/RTS/ScoreKeeper.cpp.o
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/RTS/ScoreKeeper.cpp:61:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Player.h:62:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/AI.h:41:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:123:10: warning: 35 enumeration values not handled in switch: 'DAMAGE_EXPLOSION', 'DAMAGE_CRUSH', 'DAMAGE_ARMOR_PIERCING'... [-Wswitch]
+  123 |         switch( type )
+      |                 ^~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:123:10: note: add missing switch cases
+  123 |         switch( type )
+      |                 ^
+  124 |         {
+  125 |                 case DAMAGE_SUBDUAL_MISSILE:
+  126 |                 case DAMAGE_SUBDUAL_VEHICLE:
+  127 |                 case DAMAGE_SUBDUAL_BUILDING:
+  128 |                 case DAMAGE_SUBDUAL_UNRESISTABLE:
+  129 |                         return TRUE;
+  130 |         }
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:140:10: warning: 32 enumeration values not handled in switch: 'DAMAGE_EXPLOSION', 'DAMAGE_CRUSH', 'DAMAGE_ARMOR_PIERCING'... [-Wswitch]
+  140 |         switch( type )
+      |                 ^~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:140:10: note: add missing switch cases
+  140 |         switch( type )
+      |                 ^
+  141 |         {
+  142 |                 case DAMAGE_STATUS:
+  143 |                 case DAMAGE_SUBDUAL_MISSILE:
+  144 |                 case DAMAGE_SUBDUAL_VEHICLE:
+  145 |                 case DAMAGE_SUBDUAL_BUILDING:
+  146 |                 case DAMAGE_SUBDUAL_UNRESISTABLE:
+  147 |                 case DAMAGE_KILLPILOT:
+  148 |                 case DAMAGE_KILL_GARRISONED:
+  149 |                         return FALSE;
+  150 |         }
+2 warnings generated.
