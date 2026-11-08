@@ -1661,6 +1661,10 @@ RenderResult PosixDevice9::Gpu_Draw(const DrawCall &call)
 	Gpu->Set_Target(target);
 	draw.StencilReference = RenderStates[D3DRS_STENCILREF] & 0xFF;
 	draw.BlendFactor = RenderStates[D3DRS_BLENDFACTOR];
+	draw.DiagnosticBlended = RenderStates[D3DRS_ALPHABLENDENABLE] != 0;
+	draw.DiagnosticAdditive = draw.DiagnosticBlended
+		&& RenderStates[D3DRS_SRCBLEND] == D3DBLEND_ONE
+		&& RenderStates[D3DRS_DESTBLEND] == D3DBLEND_ONE;
 #if defined(ZH_PLATFORM_IOS)
 	// One accepted Classic Water reflection draw: distinguish the intended
 	// darkening mask from a wrong Metal blend/program/texture binding.  The
