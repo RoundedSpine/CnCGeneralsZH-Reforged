@@ -1,300 +1,300 @@
-      |                        ^                     ~
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/ControlBar/ControlBarCommand.cpp:53:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/SpecialAbilityUpdate.h:177:66: warning: offset of on non-standard-layout type 'SpecialAbilityUpdateModuleData' [-Winvalid-offsetof]
-  177 |                         { "FleeRangeAfterCompletion",           INI::parseReal,                                                                         NULL, offsetof( SpecialAbilityUpdateModuleData, m_fleeRangeAfterCompletion ) },
-      |                                                                                                                                                               ^                                         ~~~~~~~~~~~~~~~~~~~~~~~~~~
+   92 |         { "DefaultWindowFont",                          GlobalLanguage::parseFontDesc,  NULL,   offsetof( GlobalLanguage, m_defaultWindowFont) },
+      |                                                                                                 ^                         ~~~~~~~~~~~~~~~~~~~
 /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
    16 | #define offsetof(t, d) __builtin_offsetof(t, d)
       |                        ^                     ~
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/ControlBar/ControlBarCommand.cpp:53:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/SpecialAbilityUpdate.h:178:74: warning: offset of on non-standard-layout type 'SpecialAbilityUpdateModuleData' [-Winvalid-offsetof]
-  178 |                         { "DisableFXParticleSystem",            INI::parseParticleSystemTemplate, NULL, offsetof( SpecialAbilityUpdateModuleData, m_disableFXParticleSystem ) },
-      |                                                                                                         ^                                         ~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GlobalLanguage.cpp:93:70: warning: offset of on non-standard-layout type 'GlobalLanguage' [-Winvalid-offsetof]
+   93 |         { "DefaultDisplayStringFont",           GlobalLanguage::parseFontDesc,  NULL,   offsetof( GlobalLanguage, m_defaultDisplayStringFont) },
+      |                                                                                         ^                         ~~~~~~~~~~~~~~~~~~~~~~~~~~
 /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
    16 | #define offsetof(t, d) __builtin_offsetof(t, d)
       |                        ^                     ~
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/ControlBar/ControlBarCommand.cpp:53:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/SpecialAbilityUpdate.h:179:59: warning: offset of on non-standard-layout type 'SpecialAbilityUpdateModuleData' [-Winvalid-offsetof]
-  179 |                         { "DoCaptureFX",                                                                INI::parseBool,                                                                         NULL, offsetof( SpecialAbilityUpdateModuleData, m_doCaptureFX ) },
-      |                                                                                                                                                                                                       ^                                         ~~~~~~~~~~~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GlobalLanguage.cpp:94:63: warning: offset of on non-standard-layout type 'GlobalLanguage' [-Winvalid-offsetof]
+   94 |         { "TooltipFontName",                            GlobalLanguage::parseFontDesc,  NULL,   offsetof( GlobalLanguage, m_tooltipFontName) },
+      |                                                                                                 ^                         ~~~~~~~~~~~~~~~~~
 /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
    16 | #define offsetof(t, d) __builtin_offsetof(t, d)
       |                        ^                     ~
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/ControlBar/ControlBarCommand.cpp:53:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/SpecialAbilityUpdate.h:180:62: warning: offset of on non-standard-layout type 'SpecialAbilityUpdateModuleData' [-Winvalid-offsetof]
-  180 |                         { "PackSound",                                                                  INI::parseAudioEventRTS,                                        NULL, offsetof( SpecialAbilityUpdateModuleData, m_packSound ) },
-      |                                                                                                                                                                               ^                                         ~~~~~~~~~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GlobalLanguage.cpp:95:66: warning: offset of on non-standard-layout type 'GlobalLanguage' [-Winvalid-offsetof]
+   95 |         { "NativeDebugDisplay",                         GlobalLanguage::parseFontDesc,  NULL,   offsetof( GlobalLanguage, m_nativeDebugDisplay) },
+      |                                                                                                 ^                         ~~~~~~~~~~~~~~~~~~~~
 /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
    16 | #define offsetof(t, d) __builtin_offsetof(t, d)
       |                        ^                     ~
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/ControlBar/ControlBarCommand.cpp:53:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/SpecialAbilityUpdate.h:181:63: warning: offset of on non-standard-layout type 'SpecialAbilityUpdateModuleData' [-Winvalid-offsetof]
-  181 |                         { "UnpackSound",                                                                INI::parseAudioEventRTS,                                        NULL, offsetof( SpecialAbilityUpdateModuleData, m_unpackSound ) },
-      |                                                                                                                                                                               ^                                         ~~~~~~~~~~~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GlobalLanguage.cpp:96:65: warning: offset of on non-standard-layout type 'GlobalLanguage' [-Winvalid-offsetof]
+   96 |         { "DrawGroupInfoFont",                          GlobalLanguage::parseFontDesc,  NULL,   offsetof( GlobalLanguage, m_drawGroupInfoFont) },
+      |                                                                                                 ^                         ~~~~~~~~~~~~~~~~~~~
 /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
    16 | #define offsetof(t, d) __builtin_offsetof(t, d)
       |                        ^                     ~
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/ControlBar/ControlBarCommand.cpp:53:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/SpecialAbilityUpdate.h:182:64: warning: offset of on non-standard-layout type 'SpecialAbilityUpdateModuleData' [-Winvalid-offsetof]
-  182 |                         { "PrepSoundLoop",                                                      INI::parseAudioEventRTS,                                        NULL, offsetof( SpecialAbilityUpdateModuleData, m_prepSoundLoop ) },
-      |                                                                                                                                                                       ^                                         ~~~~~~~~~~~~~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GlobalLanguage.cpp:97:64: warning: offset of on non-standard-layout type 'GlobalLanguage' [-Winvalid-offsetof]
+   97 |         { "CreditsTitleFont",                           GlobalLanguage::parseFontDesc,  NULL,   offsetof( GlobalLanguage, m_creditsTitleFont) },
+      |                                                                                                 ^                         ~~~~~~~~~~~~~~~~~~
 /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
    16 | #define offsetof(t, d) __builtin_offsetof(t, d)
       |                        ^                     ~
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/ControlBar/ControlBarCommand.cpp:53:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/SpecialAbilityUpdate.h:183:64: warning: offset of on non-standard-layout type 'SpecialAbilityUpdateModuleData' [-Winvalid-offsetof]
-  183 |                         { "TriggerSound",                                                               INI::parseAudioEventRTS,                                        NULL, offsetof( SpecialAbilityUpdateModuleData, m_triggerSound ) },
-      |                                                                                                                                                                               ^                                         ~~~~~~~~~~~~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GlobalLanguage.cpp:98:69: warning: offset of on non-standard-layout type 'GlobalLanguage' [-Winvalid-offsetof]
+   98 |         { "CreditsMinorTitleFont",                              GlobalLanguage::parseFontDesc,  NULL,   offsetof( GlobalLanguage, m_creditsPositionFont) },
+      |                                                                                                         ^                         ~~~~~~~~~~~~~~~~~~~~~
 /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
    16 | #define offsetof(t, d) __builtin_offsetof(t, d)
       |                        ^                     ~
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/ControlBar/ControlBarCommand.cpp:53:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/SpecialAbilityUpdate.h:184:64: warning: offset of on non-standard-layout type 'SpecialAbilityUpdateModuleData' [-Winvalid-offsetof]
-  184 |                         { "LoseStealthOnTrigger",                               INI::parseBool,                                                                         NULL, offsetof( SpecialAbilityUpdateModuleData, m_loseStealthOnTrigger ) },
-      |                                                                                                                                                                               ^                                         ~~~~~~~~~~~~~~~~~~~~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GlobalLanguage.cpp:99:65: warning: offset of on non-standard-layout type 'GlobalLanguage' [-Winvalid-offsetof]
+   99 |         { "CreditsNormalFont",                          GlobalLanguage::parseFontDesc,  NULL,   offsetof( GlobalLanguage, m_creditsNormalFont) },
+      |                                                                                                 ^                         ~~~~~~~~~~~~~~~~~~~
 /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
    16 | #define offsetof(t, d) __builtin_offsetof(t, d)
       |                        ^                     ~
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/ControlBar/ControlBarCommand.cpp:53:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/SpecialAbilityUpdate.h:185:63: warning: offset of on non-standard-layout type 'SpecialAbilityUpdateModuleData' [-Winvalid-offsetof]
-  185 |                         { "AwardXPForTriggering",                               INI::parseInt,                                                                          NULL, offsetof( SpecialAbilityUpdateModuleData, m_awardXPForTriggering ) },
-      |                                                                                                                                                                               ^                                         ~~~~~~~~~~~~~~~~~~~~~~
+22 warnings generated.
+[1009/1624] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GraphDraw.cpp.o
+[1010/1624] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/Input/Keyboard.cpp.o
+[1011/1624] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/Input/Mouse.cpp.o
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/Input/Mouse.cpp:97:58: warning: offset of on non-standard-layout type 'Mouse' [-Winvalid-offsetof]
+   97 |         { "TooltipFontName",                                            INI::parseAsciiString,NULL,                     offsetof( Mouse, m_tooltipFontName ) },
+      |                                                                                                                         ^                ~~~~~~~~~~~~~~~~~
 /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
    16 | #define offsetof(t, d) __builtin_offsetof(t, d)
       |                        ^                     ~
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/ControlBar/ControlBarCommand.cpp:53:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/SpecialAbilityUpdate.h:186:65: warning: offset of on non-standard-layout type 'SpecialAbilityUpdateModuleData' [-Winvalid-offsetof]
-  186 |                         { "SkillPointsForTriggering",           INI::parseInt,                                                                          NULL, offsetof( SpecialAbilityUpdateModuleData, m_skillPointsForTriggering ) },
-      |                                                                                                                                                               ^                                         ~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/Input/Mouse.cpp:98:54: warning: offset of on non-standard-layout type 'Mouse' [-Winvalid-offsetof]
+   98 |         { "TooltipFontSize",                                            INI::parseInt,                          NULL,                   offsetof( Mouse, m_tooltipFontSize ) },
+      |                                                                                                                                         ^                ~~~~~~~~~~~~~~~~~
 /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
    16 | #define offsetof(t, d) __builtin_offsetof(t, d)
       |                        ^                     ~
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/ControlBar/ControlBarCommand.cpp:53:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/SpecialAbilityUpdate.h:187:63: warning: offset of on non-standard-layout type 'SpecialAbilityUpdateModuleData' [-Winvalid-offsetof]
-  187 |                         { "ApproachRequiresLOS",                                INI::parseBool,                                                                         NULL, offsetof( SpecialAbilityUpdateModuleData, m_approachRequiresLOS ) },
-      |                                                                                                                                                                               ^                                         ~~~~~~~~~~~~~~~~~~~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/Input/Mouse.cpp:99:56: warning: offset of on non-standard-layout type 'Mouse' [-Winvalid-offsetof]
+   99 |         { "TooltipFontIsBold",                                  INI::parseBool,                         NULL,                   offsetof( Mouse, m_tooltipFontIsBold ) },
+      |                                                                                                                                 ^                ~~~~~~~~~~~~~~~~~~~
 /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
    16 | #define offsetof(t, d) __builtin_offsetof(t, d)
       |                        ^                     ~
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/ControlBar/ControlBarCommand.cpp:53:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/SpecialAbilityUpdate.h:188:63: warning: offset of on non-standard-layout type 'SpecialAbilityUpdateModuleData' [-Winvalid-offsetof]
-  188 |                         { "ApproachRequiresLOS",                                INI::parseBool,                                                                         NULL, offsetof( SpecialAbilityUpdateModuleData, m_approachRequiresLOS ) },
-      |                                                                                                                                                                               ^                                         ~~~~~~~~~~~~~~~~~~~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/Input/Mouse.cpp:100:60: warning: offset of on non-standard-layout type 'Mouse' [-Winvalid-offsetof]
+  100 |         { "TooltipAnimateBackground",           INI::parseBool,                         NULL,                   offsetof( Mouse, m_tooltipAnimateBackground ) },
+      |                                                                                                                 ^                ~~~~~~~~~~~~~~~~~~~~~~~~~~
 /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
    16 | #define offsetof(t, d) __builtin_offsetof(t, d)
       |                        ^                     ~
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/ControlBar/ControlBarCommand.cpp:53:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/SpecialAbilityUpdate.h:189:70: warning: offset of on non-standard-layout type 'SpecialAbilityUpdateModuleData' [-Winvalid-offsetof]
-  189 |       { "NeedToFaceTarget",           INI::parseBool,                                                                           NULL, offsetof( SpecialAbilityUpdateModuleData, m_needToFaceTarget ) },
-      |                                                                                                                                       ^                                         ~~~~~~~~~~~~~~~~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/Input/Mouse.cpp:101:54: warning: offset of on non-standard-layout type 'Mouse' [-Winvalid-offsetof]
+  101 |         { "TooltipFillTime",                                            INI::parseInt,                          NULL,                   offsetof( Mouse, m_tooltipFillTime ) },
+      |                                                                                                                                         ^                ~~~~~~~~~~~~~~~~~
 /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
    16 | #define offsetof(t, d) __builtin_offsetof(t, d)
       |                        ^                     ~
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/ControlBar/ControlBarCommand.cpp:53:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/SpecialAbilityUpdate.h:190:70: warning: offset of on non-standard-layout type 'SpecialAbilityUpdateModuleData' [-Winvalid-offsetof]
-  190 |       { "PersistenceRequiresRecharge",INI::parseBool,                                                                           NULL, offsetof( SpecialAbilityUpdateModuleData, m_persistenceRequiresRecharge ) },
-      |                                                                                                                                       ^                                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/Input/Mouse.cpp:102:55: warning: offset of on non-standard-layout type 'Mouse' [-Winvalid-offsetof]
+  102 |         { "TooltipDelayTime",                                           INI::parseInt,                          NULL,                   offsetof( Mouse, m_tooltipDelayTime ) },
+      |                                                                                                                                         ^                ~~~~~~~~~~~~~~~~~~
 /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
    16 | #define offsetof(t, d) __builtin_offsetof(t, d)
       |                        ^                     ~
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/ControlBar/ControlBarCommand.cpp:56:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/HackInternetAIUpdate.h:166:61: warning: offset of on non-standard-layout type 'HackInternetAIUpdateModuleData' [-Winvalid-offsetof]
-  166 |                         { "UnpackTime",                                 INI::parseDurationUnsignedInt,  NULL, offsetof( HackInternetAIUpdateModuleData, m_unpackTime ) },
-      |                                                                                                               ^                                         ~~~~~~~~~~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/Input/Mouse.cpp:103:60: warning: offset of on non-standard-layout type 'Mouse' [-Winvalid-offsetof]
+  103 |         { "TooltipTextColor",                                           INI::parseRGBAColorInt, NULL,           offsetof( Mouse, m_tooltipColorText ) },
+      |                                                                                                                 ^                ~~~~~~~~~~~~~~~~~~
 /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
    16 | #define offsetof(t, d) __builtin_offsetof(t, d)
       |                        ^                     ~
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/ControlBar/ControlBarCommand.cpp:56:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/HackInternetAIUpdate.h:167:60: warning: offset of on non-standard-layout type 'HackInternetAIUpdateModuleData' [-Winvalid-offsetof]
-  167 |                         { "PackTime",                                           INI::parseDurationUnsignedInt,  NULL, offsetof( HackInternetAIUpdateModuleData, m_packTime ) },
-      |                                                                                                                       ^                                         ~~~~~~~~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/Input/Mouse.cpp:104:62: warning: offset of on non-standard-layout type 'Mouse' [-Winvalid-offsetof]
+  104 |         { "TooltipHighlightColor",                      INI::parseRGBAColorInt, NULL,           offsetof( Mouse, m_tooltipColorHighlight ) },
+      |                                                                                                 ^                ~~~~~~~~~~~~~~~~~~~~~~~
 /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
    16 | #define offsetof(t, d) __builtin_offsetof(t, d)
       |                        ^                     ~
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/ControlBar/ControlBarCommand.cpp:56:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/HackInternetAIUpdate.h:168:61: warning: offset of on non-standard-layout type 'HackInternetAIUpdateModuleData' [-Winvalid-offsetof]
-  168 |                         { "PackUnpackVariationFactor", INI::parseReal,                                  NULL, offsetof( HackInternetAIUpdateModuleData, m_packUnpackVariationFactor ) },
-      |                                                                                                               ^                                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/Input/Mouse.cpp:105:61: warning: offset of on non-standard-layout type 'Mouse' [-Winvalid-offsetof]
+  105 |         { "TooltipShadowColor",                                 INI::parseRGBAColorInt, NULL,           offsetof( Mouse, m_tooltipColorShadow ) },
+      |                                                                                                         ^                ~~~~~~~~~~~~~~~~~~~~
 /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
    16 | #define offsetof(t, d) __builtin_offsetof(t, d)
       |                        ^                     ~
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/ControlBar/ControlBarCommand.cpp:56:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/HackInternetAIUpdate.h:169:63: warning: offset of on non-standard-layout type 'HackInternetAIUpdateModuleData' [-Winvalid-offsetof]
-  169 |                         { "CashUpdateDelay",            INI::parseDurationUnsignedInt,  NULL, offsetof( HackInternetAIUpdateModuleData, m_cashUpdateDelay ) },
-      |                                                                                               ^                                         ~~~~~~~~~~~~~~~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/Input/Mouse.cpp:106:63: warning: offset of on non-standard-layout type 'Mouse' [-Winvalid-offsetof]
+  106 |         { "TooltipBackgroundColor",                     INI::parseRGBAColorInt, NULL,           offsetof( Mouse, m_tooltipColorBackground ) },
+      |                                                                                                 ^                ~~~~~~~~~~~~~~~~~~~~~~~~
 /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
    16 | #define offsetof(t, d) __builtin_offsetof(t, d)
       |                        ^                     ~
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/ControlBar/ControlBarCommand.cpp:56:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/HackInternetAIUpdate.h:170:65: warning: offset of on non-standard-layout type 'HackInternetAIUpdateModuleData' [-Winvalid-offsetof]
-  170 |                         { "CashUpdateDelayFast",INI::parseDurationUnsignedInt,  NULL, offsetof( HackInternetAIUpdateModuleData, m_cashUpdateDelayFast ) },
-      |                                                                                       ^                                         ~~~~~~~~~~~~~~~~~~~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/Input/Mouse.cpp:107:61: warning: offset of on non-standard-layout type 'Mouse' [-Winvalid-offsetof]
+  107 |         { "TooltipBorderColor",                                 INI::parseRGBAColorInt, NULL,           offsetof( Mouse, m_tooltipColorBorder ) },
+      |                                                                                                         ^                ~~~~~~~~~~~~~~~~~~~~
 /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
    16 | #define offsetof(t, d) __builtin_offsetof(t, d)
       |                        ^                     ~
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/ControlBar/ControlBarCommand.cpp:56:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/HackInternetAIUpdate.h:171:56: warning: offset of on non-standard-layout type 'HackInternetAIUpdateModuleData' [-Winvalid-offsetof]
-  171 |                         { "RegularCashAmount",  INI::parseUnsignedInt,  NULL, offsetof( HackInternetAIUpdateModuleData, m_regularCashAmount ) },
-      |                                                                               ^                                         ~~~~~~~~~~~~~~~~~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/Input/Mouse.cpp:108:58: warning: offset of on non-standard-layout type 'Mouse' [-Winvalid-offsetof]
+  108 |         { "TooltipWidth",                                                               INI::parsePercentToReal,NULL,           offsetof( Mouse, m_tooltipWidth ) },
+      |                                                                                                                                 ^                ~~~~~~~~~~~~~~
 /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
    16 | #define offsetof(t, d) __builtin_offsetof(t, d)
       |                        ^                     ~
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/ControlBar/ControlBarCommand.cpp:56:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/HackInternetAIUpdate.h:172:56: warning: offset of on non-standard-layout type 'HackInternetAIUpdateModuleData' [-Winvalid-offsetof]
-  172 |                         { "VeteranCashAmount",  INI::parseUnsignedInt,  NULL, offsetof( HackInternetAIUpdateModuleData, m_veteranCashAmount ) },
-      |                                                                               ^                                         ~~~~~~~~~~~~~~~~~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/Input/Mouse.cpp:109:52: warning: offset of on non-standard-layout type 'Mouse' [-Winvalid-offsetof]
+  109 |         { "CursorMode",                                                                 INI::parseInt,                                  NULL,           offsetof( Mouse, m_currentRedrawMode ) },
+      |                                                                                                                                                         ^                ~~~~~~~~~~~~~~~~~~~
 /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
    16 | #define offsetof(t, d) __builtin_offsetof(t, d)
       |                        ^                     ~
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/ControlBar/ControlBarCommand.cpp:56:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/HackInternetAIUpdate.h:173:55: warning: offset of on non-standard-layout type 'HackInternetAIUpdateModuleData' [-Winvalid-offsetof]
-  173 |                         { "EliteCashAmount",            INI::parseUnsignedInt,  NULL, offsetof( HackInternetAIUpdateModuleData, m_eliteCashAmount ) },
-      |                                                                                       ^                                         ~~~~~~~~~~~~~~~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/Input/Mouse.cpp:110:59: warning: offset of on non-standard-layout type 'Mouse' [-Winvalid-offsetof]
+  110 |         { "UseTooltipAltTextColor",                     INI::parseBool,                                 NULL,           offsetof( Mouse, m_useTooltipAltTextColor ) },
+      |                                                                                                                         ^                ~~~~~~~~~~~~~~~~~~~~~~~~
 /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
    16 | #define offsetof(t, d) __builtin_offsetof(t, d)
       |                        ^                     ~
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/ControlBar/ControlBarCommand.cpp:56:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/HackInternetAIUpdate.h:174:56: warning: offset of on non-standard-layout type 'HackInternetAIUpdateModuleData' [-Winvalid-offsetof]
-  174 |                         { "HeroicCashAmount",           INI::parseUnsignedInt,  NULL, offsetof( HackInternetAIUpdateModuleData, m_heroicCashAmount ) },
-      |                                                                                       ^                                         ~~~~~~~~~~~~~~~~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/Input/Mouse.cpp:111:59: warning: offset of on non-standard-layout type 'Mouse' [-Winvalid-offsetof]
+  111 |         { "UseTooltipAltBackColor",                     INI::parseBool,                                 NULL,           offsetof( Mouse, m_useTooltipAltBackColor ) },
+      |                                                                                                                         ^                ~~~~~~~~~~~~~~~~~~~~~~~~
 /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
    16 | #define offsetof(t, d) __builtin_offsetof(t, d)
       |                        ^                     ~
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/ControlBar/ControlBarCommand.cpp:56:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/HackInternetAIUpdate.h:175:55: warning: offset of on non-standard-layout type 'HackInternetAIUpdateModuleData' [-Winvalid-offsetof]
-  175 |                         { "XpPerCashUpdate",            INI::parseUnsignedInt,  NULL, offsetof( HackInternetAIUpdateModuleData, m_xpPerCashUpdate ) },
-      |                                                                                       ^                                         ~~~~~~~~~~~~~~~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/Input/Mouse.cpp:112:58: warning: offset of on non-standard-layout type 'Mouse' [-Winvalid-offsetof]
+  112 |         { "AdjustTooltipAltColor",                      INI::parseBool,                                 NULL,           offsetof( Mouse, m_adjustTooltipAltColor ) },
+      |                                                                                                                         ^                ~~~~~~~~~~~~~~~~~~~~~~~
 /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
    16 | #define offsetof(t, d) __builtin_offsetof(t, d)
       |                        ^                     ~
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/ControlBar/ControlBarCommand.cpp:1080:10: warning: enumeration values 'LEVEL_REGULAR', 'LEVEL_COUNT', and 'LEVEL_INVALID' not handled in switch [-Wswitch]
- 1080 |         switch( level )
-      |                 ^~~~~
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/ControlBar/ControlBarCommand.cpp:1080:10: note: add missing switch cases
- 1080 |         switch( level )
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/Input/Mouse.cpp:113:53: warning: offset of on non-standard-layout type 'Mouse' [-Winvalid-offsetof]
+  113 |         { "OrthoCamera",                                                                INI::parseBool,                                 NULL,           offsetof( Mouse, m_orthoCamera ) },
+      |                                                                                                                                                         ^                ~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/Input/Mouse.cpp:114:52: warning: offset of on non-standard-layout type 'Mouse' [-Winvalid-offsetof]
+  114 |         { "OrthoZoom",                                                                  INI::parseReal,                                 NULL,           offsetof( Mouse, m_orthoZoom ) },
+      |                                                                                                                                                         ^                ~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/Input/Mouse.cpp:115:57: warning: offset of on non-standard-layout type 'Mouse' [-Winvalid-offsetof]
+  115 |         { "DragTolerance",                                                      INI::parseUnsignedInt,  NULL,           offsetof( Mouse, m_dragTolerance) },
+      |                                                                                                                         ^                ~~~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/Input/Mouse.cpp:116:58: warning: offset of on non-standard-layout type 'Mouse' [-Winvalid-offsetof]
+  116 |         { "DragTolerance3D",                                            INI::parseUnsignedInt,  NULL,           offsetof( Mouse, m_dragTolerance3D) },
+      |                                                                                                                 ^                ~~~~~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/Input/Mouse.cpp:117:58: warning: offset of on non-standard-layout type 'Mouse' [-Winvalid-offsetof]
+  117 |         { "DragToleranceMS",                                            INI::parseUnsignedInt,  NULL,           offsetof( Mouse, m_dragToleranceMS) },
+      |                                                                                                                 ^                ~~~~~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/Input/Mouse.cpp:1175:3: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
+ 1175 |                 "None",
       |                 ^
- 1081 |         {
- 1082 |                 case LEVEL_VETERAN:
- 1083 |                         return m_rankVeteranIcon;
- 1084 |                 case LEVEL_ELITE:
- 1085 |                         return m_rankEliteIcon;
- 1086 |                 case LEVEL_HEROIC:
- 1087 |                         return m_rankHeroicIcon;
- 1088 |         }
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/ControlBar/ControlBarCommand.cpp:1103:10: warning: enumeration values 'LEVEL_REGULAR', 'LEVEL_COUNT', and 'LEVEL_INVALID' not handled in switch [-Wswitch]
- 1103 |         switch( level )
-      |                 ^~~~~
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/ControlBar/ControlBarCommand.cpp:1103:10: note: add missing switch cases
- 1103 |         switch( level )
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/Input/Mouse.cpp:1176:3: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
+ 1176 |                 "Normal",
       |                 ^
- 1104 |         {
- 1105 |                 case LEVEL_VETERAN:
- 1106 |                         return m_rankVeteranIcon;
- 1107 |                 case LEVEL_ELITE:
- 1108 |                         return m_rankEliteIcon;
- 1109 |                 case LEVEL_HEROIC:
- 1110 |                         return m_rankHeroicIcon;
- 1111 |         }
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/ControlBar/ControlBarCommand.cpp:1355:10: warning: 15 enumeration values not handled in switch: 'GUI_COMMAND_NONE', 'GUI_COMMAND_DOZER_CONSTRUCT_CANCEL', 'GUI_COMMAND_CANCEL_UNIT_BUILD'... [-Wswitch]
- 1355 |         switch( command->getCommandType() )
-      |                 ^~~~~~~~~~~~~~~~~~~~~~~~~
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/ControlBar/ControlBarCommand.cpp:1355:10: note: add missing switch cases
- 1355 |         switch( command->getCommandType() )
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/Input/Mouse.cpp:1177:3: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
+ 1177 |                 "Arrow",
       |                 ^
-51 warnings generated.
-[913/1624] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/ControlBar/ControlBar.cpp.o
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/ControlBar/ControlBar.cpp:53:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Player.h:62:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/AI.h:41:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:123:10: warning: 35 enumeration values not handled in switch: 'DAMAGE_EXPLOSION', 'DAMAGE_CRUSH', 'DAMAGE_ARMOR_PIERCING'... [-Wswitch]
-  123 |         switch( type )
-      |                 ^~~~
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:123:10: note: add missing switch cases
-  123 |         switch( type )
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/Input/Mouse.cpp:1178:3: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
+ 1178 |                 "Scroll",
       |                 ^
-  124 |         {
-  125 |                 case DAMAGE_SUBDUAL_MISSILE:
-  126 |                 case DAMAGE_SUBDUAL_VEHICLE:
-  127 |                 case DAMAGE_SUBDUAL_BUILDING:
-  128 |                 case DAMAGE_SUBDUAL_UNRESISTABLE:
-  129 |                         return TRUE;
-  130 |         }
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:140:10: warning: 32 enumeration values not handled in switch: 'DAMAGE_EXPLOSION', 'DAMAGE_CRUSH', 'DAMAGE_ARMOR_PIERCING'... [-Wswitch]
-  140 |         switch( type )
-      |                 ^~~~
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:140:10: note: add missing switch cases
-  140 |         switch( type )
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/Input/Mouse.cpp:1179:3: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
+ 1179 |                 "Target",
       |                 ^
-  141 |         {
-  142 |                 case DAMAGE_STATUS:
-  143 |                 case DAMAGE_SUBDUAL_MISSILE:
-  144 |                 case DAMAGE_SUBDUAL_VEHICLE:
-  145 |                 case DAMAGE_SUBDUAL_BUILDING:
-  146 |                 case DAMAGE_SUBDUAL_UNRESISTABLE:
-  147 |                 case DAMAGE_KILLPILOT:
-  148 |                 case DAMAGE_KILL_GARRISONED:
-  149 |                         return FALSE;
-  150 |         }
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/ControlBar/ControlBar.cpp:53:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Player.h:69:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Team.h:38:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Object.h:50:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/WeaponSet.h:61:2: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
-   61 |         "PRIMARY",
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/WeaponSet.h:62:2: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
-   62 |         "SECONDARY",
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/WeaponSet.h:63:2: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
-   63 |         "TERTIARY",
-      |         ^
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/ControlBar/ControlBar.cpp:68:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/SupplyTruckAIUpdate.h:199:44: warning: offset of on non-standard-layout type 'SupplyTruckAIUpdateModuleData' [-Winvalid-offsetof]
-  199 |                         { "MaxBoxes",                                   INI::parseInt,          NULL, offsetof( SupplyTruckAIUpdateModuleData, m_maxBoxesData ) },
-      |                                                                                                       ^                                        ~~~~~~~~~~~~~~
-/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
-   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
-      |                        ^                     ~
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/ControlBar/ControlBar.cpp:68:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/SupplyTruckAIUpdate.h:200:70: warning: offset of on non-standard-layout type 'SupplyTruckAIUpdateModuleData' [-Winvalid-offsetof]
-  200 |                         { "SupplyCenterActionDelay", INI::parseDurationUnsignedInt, NULL, offsetof( SupplyTruckAIUpdateModuleData, m_centerDelay ) },
-      |                                                                                           ^                                        ~~~~~~~~~~~~~
-/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
-   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
-      |                        ^                     ~
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/ControlBar/ControlBar.cpp:68:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/SupplyTruckAIUpdate.h:201:73: warning: offset of on non-standard-layout type 'SupplyTruckAIUpdateModuleData' [-Winvalid-offsetof]
-  201 |                         { "SupplyWarehouseActionDelay", INI::parseDurationUnsignedInt, NULL, offsetof( SupplyTruckAIUpdateModuleData, m_warehouseDelay ) },
-      |                                                                                              ^                                        ~~~~~~~~~~~~~~~~
-/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
-   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
-      |                        ^                     ~
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/ControlBar/ControlBar.cpp:68:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/SupplyTruckAIUpdate.h:202:59: warning: offset of on non-standard-layout type 'SupplyTruckAIUpdateModuleData' [-Winvalid-offsetof]
-  202 |                         { "SupplyWarehouseScanDistance", INI::parseReal, NULL, offsetof( SupplyTruckAIUpdateModuleData, m_warehouseScanDistance ) },
-      |                                                                                ^                                        ~~~~~~~~~~~~~~~~~~~~~~~
-/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
-   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
-      |                        ^                     ~
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/ControlBar/ControlBar.cpp:68:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/SupplyTruckAIUpdate.h:203:63: warning: offset of on non-standard-layout type 'SupplyTruckAIUpdateModuleData' [-Winvalid-offsetof]
-  203 |                         { "SuppliesDepletedVoice", INI::parseAudioEventRTS, NULL, offsetof( SupplyTruckAIUpdateModuleData, m_suppliesDepletedVoice) },
-      |                                                                                   ^                                        ~~~~~~~~~~~~~~~~~~~~~~~
-/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
-   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
-      |                        ^                     ~
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/ControlBar/ControlBar.cpp:69:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/ProductionUpdate.h:39:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/DieModule.h:79:38: warning: offset of on non-standard-layout type 'DieModuleData' [-Winvalid-offsetof]
-   79 |                 p.add(DieMuxData::getFieldParse(), offsetof( DieModuleData, m_dieMuxData ));
-      |                                                    ^                        ~~~~~~~~~~~~
-/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
-   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
-      |                        ^                     ~
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/ControlBar/ControlBar.cpp:125:56: warning: offset of on non-standard-layout type 'CommandButton' [-Winvalid-offsetof]
-  125 |         { "Command",                                                    CommandButton::parseCommand, NULL, offsetof( CommandButton, m_command ) },
-      |                                                                                                            ^                        ~~~~~~~~~
-/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
-   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
-      |                        ^                     ~
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/ControlBar/ControlBar.cpp:126:71: warning: offs
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/Input/Mouse.cpp:1180:3: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
+ 1180 |                 "Move",
+      |                 ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/Input/Mouse.cpp:1181:3: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
+ 1181 |                 "AttackMove",
+      |                 ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/Input/Mouse.cpp:1182:3: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
+ 1182 |                 "AttackObj",
+      |                 ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/Input/Mouse.cpp:1183:3: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
+ 1183 |                 "ForceAttackObj",
+      |                 ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/Input/Mouse.cpp:1184:3: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
+ 1184 |                 "ForceAttackGround",
+      |                 ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/Input/Mouse.cpp:1185:3: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
+ 1185 |                 "Build",
+      |                 ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/Input/Mouse.cpp:1186:3: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
+ 1186 |                 "InvalidBuild",
+      |                 ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/Input/Mouse.cpp:1187:3: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
+ 1187 |                 "GenericInvalid",
+      |                 ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/Input/Mouse.cpp:1188:3: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
+ 1188 |                 "Select",
+      |                 ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/Input/Mouse.cpp:1189:3: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
+ 1189 |                 "EnterFriendly",
+      |                 ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/Input/Mouse.cpp:1190:3: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
+ 1190 |                 "EnterAggressive",
+      |                 ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/Input/Mouse.cpp:1191:3: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
+ 1191 |                 "SetRallyPoint",
+      |                 ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/Input/Mouse.cpp:1192:3: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
+ 1192 |                 "GetRepaired",
+      |                 ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/Input/Mouse.cpp:1193:3: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
+ 1193 |                 "GetHealed",
+      |                 ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/Input/Mouse.cpp:1194:3: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
+ 1194 |                 "DoRepair",
+      |                 ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/Input/Mouse.cpp:1195:3: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
+ 1195 |                 "ResumeConstruction",
+      |                 ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/Input/Mouse.cpp:1196:3: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
+ 1196 |                 "CaptureBuilding",
+      |                 ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/Input/Mouse.cpp:1197:3: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
+ 1197 |                 "SnipeVehicle",
+      |                 ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/Input/Mouse.cpp:1198:3: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
+ 1198 |                 "LaserGuidedMissiles",
+      |                 ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/Input/Mouse.cpp:1199:3: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
+ 1199 |                 "TankHunterTNTAttack",
+      |                 ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/Input/Mouse.cpp:1200:3: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
+ 1200 |                 "StabAttack",
+      |                 ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/Input/Mouse.cpp:1201:3: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
+ 1201 |                 "PlaceRemoteCharge",
+      |                 ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/Input/Mouse.cpp:1202:3: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
+ 1202 |                 "PlaceTimedCharge",
+      |                 ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/Input/Mouse.cpp:1203:3: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
+ 1203 |                 "Defector",
+      |                 ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/Input/Mouse.cpp:1207:3: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
+ 1207 |                 "Dock",
+      |                 ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/Input/Mouse.cpp:1212:3: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
+ 1212 |                 "FireFlame",
+      |                 ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/Input/Mouse.cpp:1217:3: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
+ 1217 |                 "FireBomb",
+      |                 ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/Input/Mouse.cpp:1218:3: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
+ 1218 |                 "PlaceBeacon",
+      |                 ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/Input/Mouse.cpp:1219:3: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
+ 1219 |                 "DisguiseAsVehicle",
+      |                 ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/Input/Mouse.cpp:1220:3: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
+ 1220 |                 "Waypoint",
+      |                 ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/Input/Mouse.cpp:1221:3: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
+ 1221 |                 "OutRange",
+      |                 ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/Input/Mouse.cpp:1222:3: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
+ 1222 |                 "StabAttackInvalid",
+      |                 ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/Input/Mouse.cpp:1223:3: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
+ 1223 |                 "PlaceChargeInvalid",
+      |                 ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/Input/Mouse.cpp:1224:3: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
+ 1224 |                 "Hack",
+      |                 ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/Input/Mouse.cpp:1225:3: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
+ 1225 |                 "ParticleUplinkCannon",
+      |                 ^
+61 warnings generated.
+[1012/1624] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/LanguageFilter.cpp.o
+[1013/1624] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/Line2D.cpp.o
