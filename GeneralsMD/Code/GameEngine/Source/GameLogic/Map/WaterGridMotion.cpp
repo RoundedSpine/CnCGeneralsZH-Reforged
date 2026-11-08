@@ -418,6 +418,10 @@ void WaterGrid::getTransform(Matrix3D *transform ) const
 }
 
 // ------------------------------------------------------------------------------------------------
+#if defined(__clang__)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wtautological-compare"
+#endif
 void WaterGrid::setResolution(Real gridCellsX, Real gridCellsY, Real cellSize)
 {
 	m_gridCellSize=cellSize;
@@ -444,6 +448,9 @@ void WaterGrid::setResolution(Real gridCellsX, Real gridCellsY, Real cellSize)
 	}
 }
 
+#if defined(__clang__)
+#pragma clang diagnostic pop
+#endif
 // ------------------------------------------------------------------------------------------------
 void WaterGrid::getResolution( Real *gridCellsX, Real *gridCellsY, Real *cellSize ) const
 {

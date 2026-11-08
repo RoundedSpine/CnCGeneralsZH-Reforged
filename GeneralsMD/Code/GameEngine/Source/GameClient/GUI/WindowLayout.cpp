@@ -171,8 +171,13 @@ void WindowLayout::removeWindow( GameWindow *window )
 //-------------------------------------------------------------------------------------------------
 /** Destroy all the windows in a layout */
 //-------------------------------------------------------------------------------------------------
+#if defined(__clang__)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wtautological-undefined-compare"
+#endif
 void WindowLayout::destroyWindows( void )
 {
+	// Historical callers may invoke this through a null layout pointer; POSIX retains that contract.
 	if (this == NULL)
 	{
 		return;
@@ -191,6 +196,9 @@ void WindowLayout::destroyWindows( void )
 	}  // end while
 
 }  // end destroyWindows
+#if defined(__clang__)
+#pragma clang diagnostic pop
+#endif
 
 //-------------------------------------------------------------------------------------------------
 /** Create the windows using the .wnd file script and load all windows into

@@ -409,7 +409,7 @@ UpdateSleepTime SpectreGunshipUpdate::update()
   //          | \      /                                        
   //  perigee |  \   /                                        
   //          |   */ declination                                          
-  //          |  / \                                           
+  //          |  / [\\]                                        
   //          v/    * m_satelliteposition                                         
   //          *                                                
   //          |                                              
