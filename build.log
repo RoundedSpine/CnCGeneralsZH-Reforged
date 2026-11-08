@@ -1,3 +1,33 @@
+[vendor] downloading zlib-1.1.4.tar.gz
+[vendor] unpacking zlib
+[vendor] unguarded zlib Byte typedef for Apple (see the comment in this script)
+[vendor] narrowed zlib Classic Mac branch to Classic Mac (see the comment in this script)
+[vendor] zlib 1.1.4 -> Libraries/Source/Compression/ZLib
+[vendor] downloading lzhl.zip
+[vendor] unpacking lzhl
+[vendor] LZH-Light 1.0 -> Libraries/Source/Compression/LZHCompress
+[vendor] lzhl-clear-history.patch -> Libraries/Source/Compression/LZHCompress
+[vendor] skipping the DirectX 8 SDK: Windows only, and vendor.ps1 is what fetches it
+[vendor] downloading gamespy.zip
+[vendor] unpacking gamespy
+[vendor] GamespySDK -> Libraries/Source/GameSpy
+[vendor] gamespy-strlwr-c-only.patch -> Libraries/Source/GameSpy
+[vendor] gamespy-gsi-unix.patch -> Libraries/Source/GameSpy
+[vendor] downloading SDL3-3.4.16.zip
+[vendor] unpacking SDL3
+[vendor] SDL3 3.4.16 -> Libraries/Source/SDL3
+[vendor] sdl3-metal-windowless.patch -> Libraries/Source/SDL3
+[vendor] downloading miniaudio-0.11.25.zip
+[vendor] unpacking miniaudio
+[vendor] miniaudio 0.11.25 -> Libraries/Source/miniaudio
+[vendor] downloading glslang-vulkan-sdk-1.4.357.0.zip
+[vendor] unpacking glslang
+[vendor] glslang vulkan-sdk-1.4.357.0 -> Libraries/Source/glslang
+[vendor] downloading SPIRV-Cross-1a616956.zip
+[vendor] unpacking SPIRV-Cross
+[vendor] SPIRV-Cross 1a616956 -> Libraries/Source/SPIRV-Cross
+[vendor] downloading SDL_shadercross-1ff05bec.zip
+[vendor] unpacking SDL_shadercross
 [vendor] SDL_shadercross 1ff05bec -> Libraries/Source/SDL_shadercross
 patching file 'src/SDL_shadercross.c'
 [vendor] downloading freetype-2.14.3.zip
@@ -298,3 +328,99 @@ to suppress it.
 [126/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/SDL_clipboard.c.o
 [127/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/SDL_egl.c.o
 [128/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/SDL_fillrect.c.o
+[129/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/SDL_pixels.c.o
+[130/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/SDL_rect.c.o
+[131/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/SDL_rotate.c.o
+[132/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/SDL_stb.c.o
+[133/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/SDL_stretch.c.o
+[134/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/SDL_surface.c.o
+[135/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/SDL_video.c.o
+[136/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/SDL_video_unsupported.c.o
+[137/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/SDL_vulkan_utils.c.o
+[138/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/SDL_yuv.c.o
+[139/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/yuv2rgb/yuv_rgb_lsx.c.o
+[140/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/yuv2rgb/yuv_rgb_sse.c.o
+[141/1651] Building CXX object SPIRV-Cross/CMakeFiles/spirv-cross-glsl.dir/spirv_glsl.cpp.o
+[142/1651] Linking CXX static library SPIRV-Cross/libspirv-cross-glsl.a
+[143/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/e_atan2.c.o
+[144/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/e_exp.c.o
+[145/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/e_fmod.c.o
+[146/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/e_log.c.o
+[147/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/e_log10.c.o
+[148/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/yuv2rgb/yuv_rgb_std.c.o
+[149/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/e_pow.c.o
+[150/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/e_rem_pio2.c.o
+[151/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/k_cos.c.o
+[152/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/e_sqrt.c.o
+[153/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/k_sin.c.o
+[154/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/k_rem_pio2.c.o
+[155/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/k_tan.c.o
+[156/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/s_copysign.c.o
+[157/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/s_atan.c.o
+[158/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/s_fabs.c.o
+[159/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/s_cos.c.o
+[160/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/s_isinf.c.o
+[161/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/s_floor.c.o
+[162/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/s_isnan.c.o
+[163/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/s_isinff.c.o
+[164/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/s_isnanf.c.o
+[165/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/s_modf.c.o
+[166/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/s_scalbn.c.o
+[167/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/s_sin.c.o
+[168/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/s_tan.c.o
+[169/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/loadso/dlopen/SDL_sysloadso.c.o
+[170/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/dummy/SDL_nullevents.c.o
+[171/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/dummy/SDL_nullframebuffer.c.o
+[172/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/dummy/SDL_nullvideo.c.o
+[173/1651] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/locale/macos/SDL_syslocale.m.o
+[174/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/time/unix/SDL_systime.c.o
+[175/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/timer/unix/SDL_systimer.c.o
+[176/1651] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/filesystem/cocoa/SDL_sysfilesystem.m.o
+[177/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/storage/generic/SDL_genericstorage.c.o
+[178/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/storage/steam/SDL_steamstorage.c.o
+[179/1651] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/misc/macos/SDL_sysurl.m.o
+[180/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/filesystem/posix/SDL_sysfsops.c.o
+[181/1651] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/video/cocoa/SDL_cocoaclipboard.m.o
+[182/1651] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/video/cocoa/SDL_cocoaevents.m.o
+[183/1651] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/video/cocoa/SDL_cocoamessagebox.m.o
+[184/1651] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/video/cocoa/SDL_cocoakeyboard.m.o
+[185/1651] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/video/cocoa/SDL_cocoametalview.m.o
+[186/1651] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/video/cocoa/SDL_cocoamodes.m.o
+[187/1651] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/video/cocoa/SDL_cocoaopengl.m.o
+[188/1651] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/video/cocoa/SDL_cocoaopengles.m.o
+[189/1651] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/video/cocoa/SDL_cocoamouse.m.o
+[190/1651] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/video/cocoa/SDL_cocoapen.m.o
+[191/1651] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/video/cocoa/SDL_cocoashape.m.o
+[192/1651] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/video/cocoa/SDL_cocoavideo.m.o
+[193/1651] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/video/cocoa/SDL_cocoavulkan.m.o
+[194/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/thread/pthread/SDL_systhread.c.o
+[195/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/thread/pthread/SDL_sysmutex.c.o
+[196/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/thread/pthread/SDL_syscond.c.o
+[197/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/thread/pthread/SDL_sysrwlock.c.o
+[198/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/thread/pthread/SDL_systls.c.o
+[199/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/thread/pthread/SDL_syssem.c.o
+[200/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/dialog/SDL_dialog.c.o
+[201/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/dialog/SDL_dialog_utils.c.o
+[202/1651] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/video/cocoa/SDL_cocoawindow.m.o
+[203/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/process/SDL_process.c.o
+[204/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/process/posix/SDL_posixprocess.c.o
+[205/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/offscreen/SDL_offscreenevents.c.o
+[206/1651] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/dialog/cocoa/SDL_cocoadialog.m.o
+[207/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/offscreen/SDL_offscreenframebuffer.c.o
+[208/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/offscreen/SDL_offscreenopengles.c.o
+[209/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/offscreen/SDL_offscreenvideo.c.o
+[210/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/offscreen/SDL_offscreenvulkan.c.o
+[211/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/offscreen/SDL_offscreenwindow.c.o
+[212/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/tray/SDL_tray_utils.c.o
+[213/1651] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/gpu/metal/SDL_gpu_metal.m.o
+[214/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/audio/dummy/SDL_dummyaudio.c.o
+[215/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/joystick/dummy/SDL_sysjoystick.c.o
+[216/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/haptic/dummy/SDL_syshaptic.c.o
+[217/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/sensor/dummy/SDL_dummysensor.c.o
+[218/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/tray/dummy/SDL_tray.c.o
+[219/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/camera/dummy/SDL_camera_dummy.c.o
+[220/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/main/generic/SDL_sysmain_callbacks.c.o
+[221/1651] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/gpu/vulkan/SDL_gpu_vulkan.c.o
+[222/1651] Building CXX object SPIRV-Cross/CMakeFiles/spirv-cross-msl.dir/spirv_msl.cpp.o
+[223/1651] Building CXX object CMakeFiles/wwdebug.dir/Libraries/Source/WWVegas/WWDebug/wwdebug.cpp.o
+[224/1651] Linking CXX static library SPIRV-Cross/libspirv-cross-msl.a
