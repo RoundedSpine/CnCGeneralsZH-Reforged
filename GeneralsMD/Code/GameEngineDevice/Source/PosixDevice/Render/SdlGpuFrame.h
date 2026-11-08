@@ -344,6 +344,10 @@ private:
 	unsigned int FlushWaits;
 	// Opt-in CPU-side profiling, aggregated at Take_Timing (not GPU elapsed time).
 	uint64_t ParticleGpuWaitNs;
+	uint64_t ParticleGpuMaxWaitNs;
+	unsigned int ParticleGpuWaitAbove1Ms;
+	unsigned int ParticleGpuWaitAbove5Ms;
+	unsigned int ParticleGpuWaitAbove16Ms;
 	uint64_t ParticleGpuSubmitNs;
 	unsigned int ParticleGpuSubmitCount;
 	unsigned int ParticleGpuPerfFrames;
