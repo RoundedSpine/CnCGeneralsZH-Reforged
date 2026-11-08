@@ -445,7 +445,10 @@ struct SdlGpuFrame::OceanResources
 			// orders the attachment/sampler transitions on this queue without a CPU wait/readback.
 			for(unsigned j=0;j<count;++j) if(source[j]==destination[i]) return false;
 		}
-		SDL_GPURenderPass *pass=SDL_BeginGPURenderPass(commands,targets,6,NULL);
+		#if defined(__APPLE__)
+ZH_SDL_Metal_SetNextRenderPassTag(4u);
+#endif
+SDL_GPURenderPass *pass=SDL_BeginGPURenderPass(commands,targets,6,NULL);
 		if(!pass) return false;
 		SDL_BindGPUGraphicsPipeline(pass,Pipelines[which]);
 		SDL_GPUTextureSamplerBinding bindings[7]={};
@@ -849,7 +852,10 @@ bool SdlGpuFrame::Resolve_Scene_Depth(SDL_GPUCommandBuffer *commands, SDL_GPUTex
 	colour.texture = destination;
 	colour.load_op = SDL_GPU_LOADOP_DONT_CARE;
 	colour.store_op = SDL_GPU_STOREOP_STORE;
-	SDL_GPURenderPass *pass = SDL_BeginGPURenderPass(commands, &colour, 1, NULL);
+	#if defined(__APPLE__)
+ZH_SDL_Metal_SetNextRenderPassTag(2u);
+#endif
+SDL_GPURenderPass *pass = SDL_BeginGPURenderPass(commands, &colour, 1, NULL);
 	if (!pass) return false;
 	SDL_BindGPUGraphicsPipeline(pass, SceneDepthPipeline);
 	const SDL_GPUTextureSamplerBinding binding = { source, SceneDepthSampler };
@@ -1282,7 +1288,10 @@ bool SdlGpuFrame::Present_Into(SDL_GPUCommandBuffer * commands, SDL_GPUTexture *
 	colour.texture = target;
 	colour.load_op = SDL_GPU_LOADOP_DONT_CARE;
 	colour.store_op = SDL_GPU_STOREOP_STORE;
-	SDL_GPURenderPass * pass = SDL_BeginGPURenderPass(commands, &colour, 1, NULL);
+	#if defined(__APPLE__)
+ZH_SDL_Metal_SetNextRenderPassTag(10u);
+#endif
+SDL_GPURenderPass * pass = SDL_BeginGPURenderPass(commands, &colour, 1, NULL);
 	if (pass == NULL) {
 		return false;
 	}
