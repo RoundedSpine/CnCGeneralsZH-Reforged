@@ -1065,7 +1065,7 @@ void SdlGpuFrame::Take_Timing(double & flush_ms, double & fence_ms, unsigned int
 				ZH_SDL_Metal_TakePassTiming(passNs, passMaxNs, passCounts, passMissing);
 			const char *passNames[4] = {"unlabelled", "scene_backbuffer", "intermediate", "depth_only"};
 			for (unsigned p = 0; p < 4; ++p) {
-				fprintf(stderr, "[GPU_PASS_PERF] bucket=%s completed=%u unavailable=%u gpu_ms=%.3f max_ms=%.3f note=async_metal_stage_timestamp_sum_not_frame_time\\n",
+				fprintf(stderr, "[GPU_PASS_PERF] bucket=%s completed=%u unavailable=%u gpu_ms=%.3f max_ms=%.3f note=async_metal_stage_timestamp_sum_not_frame_time\n",
 					passNames[p], passCounts[p], passMissing[p],
 					double(passNs[p]) / 1.0e6, double(passMaxNs[p]) / 1.0e6);
 			}
