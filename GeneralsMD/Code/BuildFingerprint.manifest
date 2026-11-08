@@ -2319,6 +2319,7 @@ Libraries/Include/Platform/ModernWaterConfig.h
 Libraries/Include/Platform/ModernWaterMaterial.h
 Libraries/Include/Platform/MsvcFloatCasts.h
 Libraries/Include/Platform/ParticleBudget.h
+Libraries/Include/Platform/ParticlePerfToggle.h
 Libraries/Include/Platform/ParticleShaders.h
 Libraries/Include/Platform/PosixD3D9/d3d9.h
 Libraries/Include/Platform/PosixD3D9/d3d9caps.h
