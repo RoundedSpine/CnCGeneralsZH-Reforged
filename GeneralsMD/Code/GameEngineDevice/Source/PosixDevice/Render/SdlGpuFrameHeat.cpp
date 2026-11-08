@@ -170,7 +170,7 @@ SDL_GPUTexture *SdlGpuFrame::Capture_Heat_Background(const SdlTarget &target,std
         error=reason;HeatFailed=true;fprintf(stderr,"[SDL_HEAT] disabled reason=%s\n",reason);return nullptr;
     };
     if(HeatBackground==target.Colour)return fail("capture source aliases destination");
-    if(!Flush())return fail("scene flush failed");
+    if(!Flush(FlushHeat))return fail("scene flush failed");
     if(HeatWidth!=target.Width||HeatHeight!=target.Height) {
         Release_Heat_Background();SDL_GPUTextureCreateInfo info={};info.type=SDL_GPU_TEXTURETYPE_2D;
         info.format=(SDL_GPUTextureFormat)Scene_Format();info.usage=SDL_GPU_TEXTUREUSAGE_SAMPLER|SDL_GPU_TEXTUREUSAGE_COLOR_TARGET;
