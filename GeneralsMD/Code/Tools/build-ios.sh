@@ -22,9 +22,12 @@ if [ "${ZH_IOS_GRAPHICS_TESTS:-0}" = 1 ]; then
     -DCMAKE_C_COMPILER="$(xcrun --sdk macosx --find clang)" \
     -DCMAKE_CXX_COMPILER="$(xcrun --sdk macosx --find clang++)" \
     -DCMAKE_C_COMPILER_LAUNCHER="$host_launcher" -DCMAKE_CXX_COMPILER_LAUNCHER="$host_launcher"
-  cmake --build "$host" --target test_sdl_ao test_sdl_heat test_sdl_native_effects test_sdl_hdr test_sdl_msaa test_sdl_post test_sdl_particles posix_gpu_draw_selfcheck test_userfolders test_gameengine test_hazard_cloud_bake test_hazard_cloud_shared test_online --parallel "${ZH_BUILD_JOBS:-3}"
+  cmake --build "$host" --target test_sdl_ao test_sdl_heat test_sdl_native_effects test_sdl_hdr test_sdl_msaa test_sdl_post test_sdl_particles test_shader_sdl posix_gpu_draw_selfcheck test_userfolders test_gameengine test_hazard_cloud_bake test_hazard_cloud_shared test_online --parallel "${ZH_BUILD_JOBS:-3}"
   mkdir -p "$host/userfolders-scratch"
   ZH_USER_DATA_DIR="$host/userfolders-scratch" "$host/test_userfolders"
+  # Validate every generated shared-cloud shader's SPIR-V/MSL texture bindings,
+  # including the Heat pass that previously aliased TerrainImage and SceneDepth.
+  "$host/test_shader_sdl"
   # Main-branch gameplay/memory changes and the new portable hazard/online layers
   # run on the Apple host before the device cross-compile. test_online uses a local
   # TLS loopback server; it does not require an external service or iOS entitlement.
