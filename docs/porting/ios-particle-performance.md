@@ -208,3 +208,44 @@ without lowering graphical quality prematurely.
 **Validation:** this implementation is experimental until GitHub Actions
 compiles the pinned Objective-C Metal backend, packages an IPA, and an actual
 A18 Pro run provides nonzero supported timing/fragment samples.
+
+## Calibrated GPU pass timing and flush-cause attribution (2026-11-09)
+
+The first A18 Pro device capture (revision `fd82e36e5e0f`) verified that GPU
+command-buffer execution timestamps and render-pass boundary counter samples
+can be collected on-device. **Fragment statistics were unavailable**:
+`stats_completed=0` throughout that capture. That is a lack of hardware
+data, not evidence of zero fragment overdraw.
+
+That capture's raw pass-counter totals were not directly comparable to
+`GPUStartTime/GPUEndTime` command-buffer totals. Metal's GPU counter timestamps
+are ticks on a GPU clock, **not necessarily nanoseconds**. The experimental
+patch now calls `MTLDevice sampleTimestamps:gpuTimestamp:` twice at least
+250 ms apart to derive nanoseconds per GPU tick. It reports
+
+- `[GPU_COUNTER_CALIBRATION] ns_per_gpu_tick=... valid=...`: treat
+  `GPU_PASS_PERF.gpu_ms` as calibrated time only when `valid=1`.
+  Samples recorded before the scale is ready are counted unavailable.
+  Asynchronous callback arrivals mean adjacent 120-call buckets need not match.
+- `[GPU_PASS_PERF]` now has 12 buckets: unlabelled, scene backbuffer,
+  intermediate, depth only, ocean FFT, heat, MSAA colour, native particles,
+  post-processing, sun smoke shadow, gamma, and MSAA depth. These are
+  *render-pass sites*, not exact per-shader GPU times. Some mixed/unknown passes
+  remain unlabelled.
+- `[GPU_FLUSH_CAUSES]` counts calls to `SdlGpuFrame::Flush` by explicit
+  originating subsystem: unclassified, batch limit, ocean, scene depth,
+  ambient occlusion, atmosphere, heat, MSAA, native particles, smoke,
+  sun shadow and maintenance. Counts are attempts, including failures; do
+  not interpret them as time spent or as a safe list of flushes to remove.
+
+**Next controlled comparison:** Allow the main menu to cycle several times
+with profiling enabled, keeping lighting, resolution, and thermal state
+consistent. Collect `GPU_COUNTER_CALIBRATION`, all 12 `GPU_PASS_PERF`
+buckets, `GPU_SYNC_PERF`, `GPU_FLUSH_CAUSES`, `GPU_TRANSPARENCY_PERF`,
+`PARTICLE_PERF` and memory samples. Then run the same menu workload with
+profiling disabled; compare independent frame times/FPS to quantify the
+instrumentation overhead. The per-pass profiler still allocates sample
+buffers per pass and uses asynchronous handlers, and can itself be expensive.
+
+Do not change blend/shader behavior or reduce particle quality on the basis
+of uncalibrated samples or scissor-derived overdraw estimates.
