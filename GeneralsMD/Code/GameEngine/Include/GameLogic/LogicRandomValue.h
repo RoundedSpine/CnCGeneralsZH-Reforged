@@ -36,8 +36,8 @@
 #include "Lib/BaseType.h"
 
 // do NOT use these functions directly, rather use the macros below
-extern Int GetGameLogicRandomValue( int lo, int hi, char *file, int line );
-extern Real GetGameLogicRandomValueReal( Real lo, Real hi, char *file, int line );
+extern Int GetGameLogicRandomValue( int lo, int hi, const char *file, int line );
+extern Real GetGameLogicRandomValueReal( Real lo, Real hi, const char *file, int line );
 
 // These two read the logic random stream WITHOUT advancing it, so the answer is the same on every
 // machine but a machine that does not ask stays in step with the ones that do.  Use them for

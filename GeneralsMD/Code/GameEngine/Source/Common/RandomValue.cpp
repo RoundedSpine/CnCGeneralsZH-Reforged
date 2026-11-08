@@ -236,7 +236,7 @@ DEBUG_LOG(( "InitRandom %08lx\n",seed));
 //
 // Integer random value
 //
-Int GetGameLogicRandomValue( int lo, int hi, char *file, int line )
+Int GetGameLogicRandomValue( int lo, int hi, const char *file, int line )
 {
 	//Int delta = hi - lo + 1;
 	//Int rval;
@@ -329,7 +329,7 @@ Real GetGameLogicRandomValueRealUnchanged( Real lo, Real hi )
 //
 // Integer random value
 //
-Int GetGameClientRandomValue( int lo, int hi, char *file, int line )
+Int GetGameClientRandomValue( int lo, int hi, const char *file, int line )
 {
 	UnsignedInt delta = hi - lo + 1;
 	Int rval;
@@ -352,7 +352,7 @@ DEBUG_LOG(( "%d: GetGameClientRandomValue = %d (%d - %d), %s line %d\n",
 //
 // Integer random value
 //
-Int GetGameAudioRandomValue( int lo, int hi, char *file, int line )
+Int GetGameAudioRandomValue( int lo, int hi, const char *file, int line )
 {
 	UnsignedInt delta = hi - lo + 1;
 	Int rval;
@@ -375,7 +375,7 @@ DEBUG_LOG(( "%d: GetGameAudioRandomValue = %d (%d - %d), %s line %d\n",
 //
 // Real valued random value
 //
-Real GetGameLogicRandomValueReal( Real lo, Real hi, char *file, int line )
+Real GetGameLogicRandomValueReal( Real lo, Real hi, const char *file, int line )
 {
 	Real delta = hi - lo;
 	Real rval;
@@ -399,7 +399,7 @@ DEBUG_LOG(( "%d: GetGameLogicRandomValueReal = %f, %s line %d\n",
 //
 // Real valued random value
 //
-Real GetGameClientRandomValueReal( Real lo, Real hi, char *file, int line )
+Real GetGameClientRandomValueReal( Real lo, Real hi, const char *file, int line )
 {
 	Real delta = hi - lo;
 	Real rval;
@@ -423,7 +423,7 @@ DEBUG_LOG(( "%d: GetGameClientRandomValueReal = %f, %s line %d\n",
 //
 // Real valued random value
 //
-Real GetGameAudioRandomValueReal( Real lo, Real hi, char *file, int line )
+Real GetGameAudioRandomValueReal( Real lo, Real hi, const char *file, int line )
 {
 	Real delta = hi - lo;
 	Real rval;
