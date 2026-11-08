@@ -83,6 +83,7 @@
 #endif
 #include "Platform/WaterScreenReflection.h"
 #include "Platform/ParticlePerfToggle.h"
+#include <cstdio>
 //added by saad
 //used to access a messagebox that does "ok" and "cancel"
 #include "GameClient/MessageBox.h"
