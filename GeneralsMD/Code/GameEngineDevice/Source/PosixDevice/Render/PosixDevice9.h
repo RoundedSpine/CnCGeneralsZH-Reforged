@@ -186,6 +186,7 @@ public:
 	bool Supports_Firelight() const;
 	bool Firelight(const SceneEffects::PointLight *lights,unsigned count);
 	bool Supports_Heat_Haze() const;
+	void Set_Heat_Splats(const float *splats,unsigned count);
 	bool Begin_Heat_Haze(IDirect3DBaseTexture9 *source);
 	void End_Heat_Haze();
 	bool Atmosphere(const SceneEffects::AtmosphereParameters &parameters, IDirect3DBaseTexture9 *sky,

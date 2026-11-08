@@ -37,6 +37,17 @@ int main(){
     snapshot=frame->Capture_Heat_Background(resized,error);CHECK(snapshot);
     if(snapshot)verify(snapshot,17,11,0x21,0x43,0x65);
     CHECK(!frame->Capture_Heat_Background({nullptr,nullptr,17,11},error));
+    // The HeatHaze option's fire/laser/exhaust packet must reach an actual native composite,
+    // not only the scene-copy helper used by legacy smudge distortion.
+    CHECK(frame->Resize(64,48));frame->Clear_Back_Buffer(true,true,false,0xff000000,1,0);
+    std::vector<uint8_t> gradient(64*48*4);
+    for(unsigned y=0;y<48;++y)for(unsigned x=0;x<64;++x){const size_t at=(y*64+x)*4;gradient[at]=uint8_t(x*4);gradient[at+1]=uint8_t(y*5);gradient[at+2]=uint8_t((x+y)*2);gradient[at+3]=255;}
+    CHECK(frame->Upload_Back_Buffer(gradient));auto heatTarget=frame->Back_Buffer_Target();
+    std::vector<uint8_t> before;CHECK(frame->Read_Back(heatTarget.Colour,64,48,before));
+    const float splat[16]={0,0,0.85f,0.85f,0.25f,0.035f,0.37f,0,1,1000,0,1,0,0,0,0};
+    frame->Set_Heat_Splats(splat,1);CHECK(frame->Heat_Haze_Scene(heatTarget));
+    std::vector<uint8_t> after;CHECK(frame->Read_Back(heatTarget.Colour,64,48,after));CHECK(before!=after);
+    frame->Set_Heat_Splats(nullptr,0);CHECK(frame->Heat_Haze_Scene(heatTarget));
     CHECK(frame->Supports_Heat_Haze());CHECK(SDL_WaitForGPUIdle(frame->Device()));
     // Unused staging capacity survives ordinary batch completion but is disposable.
     uint32_t stagedOffset=0;CHECK(frame->Stage(8*1024*1024,stagedOffset));

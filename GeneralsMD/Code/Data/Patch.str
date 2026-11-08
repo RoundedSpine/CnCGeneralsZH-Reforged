@@ -1899,7 +1899,7 @@ GUI:HeatHaze
 END
 
 TOOLTIP:HeatHaze
-"The air shimmers over fires, along laser beams and behind missile exhaust. Direct3D 11 only, and off under Classic Graphics. Applies when you press Accept."
+"The air shimmers over fires, along laser beams and behind missile exhaust. Uses the native renderer where supported, and is off under Classic Graphics. Applies when you press Accept."
 END
 
 GUI:StructureCollapse

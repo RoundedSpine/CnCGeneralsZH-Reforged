@@ -88,7 +88,7 @@ void Direct3D11_Set_Scene_View(const float [16]) {}
 void Direct3D11_Set_Smoke_Glow(bool) {}
 void Direct3D11_Set_Fire_Look(bool value) { SceneEffects::SetParticleFlag(DX8Wrapper::_Get_D3D_Device(),SceneEffects::FireParticles,value); }
 void Direct3D11_Set_Emissive(bool value) { SceneEffects::SetParticleFlag(DX8Wrapper::_Get_D3D_Device(),SceneEffects::EmissiveParticles,value); }
-void Direct3D11_Set_Heat_Splats(const float *, unsigned) {}
+void Direct3D11_Set_Heat_Splats(const float *p, unsigned n) { SceneEffects::SetHeatSplats(DX8Wrapper::_Get_D3D_Device(),p,n); }
 void Direct3D11_Set_Team_Glow(bool) {}
 void Direct3D11_Set_Hemi_Ambient(bool) {}
 void Direct3D11_Set_Draw_Effect(unsigned effect,const float parameters[4]) { SceneEffects::SetObjectEffect(DX8Wrapper::_Get_D3D_Device(),effect,parameters); }

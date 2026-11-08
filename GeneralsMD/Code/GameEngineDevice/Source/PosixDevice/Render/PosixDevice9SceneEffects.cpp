@@ -37,6 +37,7 @@ void PosixDevice9::Finish_Scene(){
     if(!Gpu||FinishedSceneSerial==SceneSerial||!ModernLighting||!EffectsAllowed||SunActive||Sun_Scene_Excluded())return;
     SdlTarget target;std::string error;if(!Resolve_Target(target,error))return;
     FinishedSceneSerial=SceneSerial;
+    if(!Gpu->Heat_Haze_Scene(target))fprintf(stderr,"[SDL_HEAT] scene finish failed\n");
     if(!Gpu->Post_Process(target,PostRect,PostGrade,&SceneEffects::RequestedPostChain()))fprintf(stderr,"[SDL_POST] scene finish failed\n");
 }
 bool PosixDevice9::Lights_Per_Pixel() const
@@ -151,6 +152,7 @@ bool PosixDevice9::Firelight(const SceneEffects::PointLight *lights,unsigned cou
     return Gpu->Firelight(target,constants);
 }
 bool PosixDevice9::Supports_Heat_Haze() const {return Gpu&&Gpu->Supports_Heat_Haze();}
+void PosixDevice9::Set_Heat_Splats(const float *splats,unsigned count){if(Gpu)Gpu->Set_Heat_Splats(splats,count);}
 bool PosixDevice9::Begin_Heat_Haze(IDirect3DBaseTexture9 *source)
 {
     if(!Gpu||!source||HeatSnapshot||SunActive||Sun_Scene_Excluded())return false;
@@ -229,6 +231,7 @@ unsigned RequestedObjectEffect(IDirect3DDevice9*d,float*p){if(d)return static_ca
 bool SupportsFirelight(IDirect3DDevice9 *device){return device&&static_cast<PosixDevice9*>(device)->Supports_Firelight();}
 bool Firelight(IDirect3DDevice9 *device,const PointLight *lights,unsigned count){return device&&static_cast<PosixDevice9*>(device)->Firelight(lights,count);}
 bool SupportsHeatHaze(IDirect3DDevice9 *device){return device&&static_cast<PosixDevice9*>(device)->Supports_Heat_Haze();}
+void SetHeatSplats(IDirect3DDevice9 *device,const float *splats,unsigned count){if(device)static_cast<PosixDevice9*>(device)->Set_Heat_Splats(splats,count);}
 bool BeginHeatHaze(IDirect3DDevice9 *device,IDirect3DBaseTexture9 *source){return device&&static_cast<PosixDevice9*>(device)->Begin_Heat_Haze(source);}
 void EndHeatHaze(IDirect3DDevice9 *device){if(device)static_cast<PosixDevice9*>(device)->End_Heat_Haze();}
 bool SupportsLighting(IDirect3DDevice9 *device) {return device&&static_cast<PosixDevice9*>(device)->Get_Gpu();}

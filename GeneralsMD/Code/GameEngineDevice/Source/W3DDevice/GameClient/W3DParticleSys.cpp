@@ -2564,7 +2564,13 @@ void W3DParticleSystemManager::doParticles(RenderInfoClass &rinfo)
 #endif
 			))
 			gatherFirelights( bbox, m_lastLogicFrameUpdate, m_frameFires, m_frameFireFades );
-		if (TheGlobalData->m_heatHaze && !TheGlobalData->m_classicGraphics && Direct3D11_Present_Is_Enabled())
+		const Bool heatHazeAvailable =
+#if defined(_WIN32)
+			Direct3D11_Present_Is_Enabled();
+#else
+			SceneEffects::SupportsHeatHaze( DX8Wrapper::_Get_D3D_Device() );
+#endif
+		if (TheGlobalData->m_heatHaze && !TheGlobalData->m_classicGraphics && heatHazeAvailable)
 			gatherHeatHaze( rinfo.Camera, m_frameFires, m_frameFireFades, m_frameExhausts, m_frameExhaustFades );
 	}
 	// Only a CPU drawn smoke system takes a light (pickSmokeLights); with none, the walk over every

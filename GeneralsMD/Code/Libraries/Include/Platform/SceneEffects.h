@@ -45,6 +45,7 @@ bool SupportsFirelight(IDirect3DDevice9 *device);
 bool Firelight(IDirect3DDevice9 *device,const PointLight *lights,unsigned count);
 bool SupportsHeatHaze();
 bool SupportsHeatHaze(IDirect3DDevice9 *device);
+void SetHeatSplats(IDirect3DDevice9 *device,const float *splats,unsigned count);
 bool BeginHeatHaze(IDirect3DDevice9 *device,IDirect3DBaseTexture9 *source);
 void EndHeatHaze(IDirect3DDevice9 *device);
 class HeatHazeScope {

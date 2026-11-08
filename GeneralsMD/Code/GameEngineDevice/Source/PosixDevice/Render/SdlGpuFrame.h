@@ -216,7 +216,9 @@ public:
 	bool Supports_Atmosphere() const;
 	bool Supports_Firelight() const;
 	bool Firelight(const SdlTarget &target,const SdlFirelight::Constants &constants);
-	bool Supports_Heat_Haze() const {return GpuDevice&&!HeatFailed;}
+	bool Supports_Heat_Haze() const;
+	void Set_Heat_Splats(const float *splats,unsigned count);
+	bool Heat_Haze_Scene(const SdlTarget &target);
 	SDL_GPUTexture *Capture_Heat_Background(const SdlTarget &target,std::string &error);
 	bool Atmosphere(const SdlTarget &target,const SdlAtmosphere::Constants &constants,
 		SDL_GPUTexture *sky,SDL_GPUTexture *shroud);
