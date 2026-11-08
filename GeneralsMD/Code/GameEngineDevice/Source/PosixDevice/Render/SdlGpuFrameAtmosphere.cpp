@@ -11,7 +11,7 @@ bool SdlGpuFrame::Firelight(const SdlTarget &target,const SdlFirelight::Constant
 {
     if(Memory_Constrained()||FirelightFailed||!target.Colour||!target.Depth)return false;
     const auto fail=[&](const char *why){FirelightFailed=true;fprintf(stderr,"[SDL_FIRELIGHT] disabled reason=%s\n",why);return false;};
-    if(!Supports_Scene_Depth()||!Flush()||!Create_Scene_Depth_Pipeline())return fail("scene flush/depth resolve unavailable");
+    if(!Supports_Scene_Depth()||!Flush(FlushAtmosphere)||!Create_Scene_Depth_Pipeline())return fail("scene flush/depth resolve unavailable");
     if(!AtmosphereRenderer)AtmosphereRenderer=new(std::nothrow) SdlAtmosphere::Renderer(GpuDevice);
     if(!AtmosphereRenderer)return fail("resource owner allocation failed");
     std::string error;
@@ -31,7 +31,7 @@ bool SdlGpuFrame::Atmosphere(const SdlTarget &target,const SdlAtmosphere::Consta
     if(Memory_Constrained()||AtmosphereFailed||!target.Colour||!target.Depth)return false;
     const auto fail=[&](const char *why) {AtmosphereFailed=true;fprintf(stderr,"[SDL_ATMOSPHERE] disabled reason=%s\n",why);return false;};
     if(!Supports_Scene_Depth())return fail("sampleable scene depth unavailable");
-    if(!Flush()||!Create_Scene_Depth_Pipeline())return fail("scene flush/depth resolve unavailable");
+    if(!Flush(FlushAtmosphere)||!Create_Scene_Depth_Pipeline())return fail("scene flush/depth resolve unavailable");
     if(!AtmosphereRenderer)AtmosphereRenderer=new(std::nothrow) SdlAtmosphere::Renderer(GpuDevice);
     if(!AtmosphereRenderer)return fail("resource owner allocation failed");
     std::string error;
