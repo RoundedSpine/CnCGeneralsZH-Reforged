@@ -5,6 +5,9 @@
 #include "SdlAoShader.h"
 #include "sdl3shadercompile.h"
 #include <SDL3/SDL.h>
+#if defined(__APPLE__)
+extern "C" void ZH_SDL_Metal_SetNextRenderPassTag(Uint32 category);
+#endif
 #include <cstdio>
 #include <algorithm>
 static SDL_GPUSampleCount sampleIndex(unsigned count){return count>=8?SDL_GPU_SAMPLECOUNT_8:count>=4?SDL_GPU_SAMPLECOUNT_4:count>=2?SDL_GPU_SAMPLECOUNT_2:SDL_GPU_SAMPLECOUNT_1;}
@@ -86,7 +89,10 @@ bool SdlGpuFrame::Seed_Multisample_Colour(SDL_GPUCommandBuffer *commands,const S
     SDL_GPUColorTargetInfo attachment={};attachment.texture=found->second.Texture;
     attachment.load_op=SDL_GPU_LOADOP_DONT_CARE;attachment.store_op=SDL_GPU_STOREOP_STORE;
     // The source is read here, then resolved only by the following scene pass.
-    auto *pass=SDL_BeginGPURenderPass(commands,&attachment,1,nullptr);if(!pass)return false;
+    #if defined(__APPLE__)
+ZH_SDL_Metal_SetNextRenderPassTag(6u);
+#endif
+auto *pass=SDL_BeginGPURenderPass(commands,&attachment,1,nullptr);if(!pass)return false;
     SDL_BindGPUGraphicsPipeline(pass,SampleSeedPipeline);SDL_GPUTextureSamplerBinding binding={target.Colour,SampleSampler};
     SDL_BindGPUFragmentSamplers(pass,0,&binding,1);SDL_GPUViewport viewport={0,0,float(target.Width),float(target.Height),0,1};SDL_SetGPUViewport(pass,&viewport);
     SDL_DrawGPUPrimitives(pass,3,1,0,0);SDL_EndGPURenderPass(pass);found->second.Current=true;return true;
@@ -117,7 +123,10 @@ bool SdlGpuFrame::Replay_Depth(SDL_GPUCommandBuffer *commands,SDL_GPUBuffer *str
     const bool stencil=Target_Depth_Format(target)==SDL_GPU_TEXTUREFORMAT_D24_UNORM_S8_UINT||Target_Depth_Format(target)==SDL_GPU_TEXTUREFORMAT_D32_FLOAT_S8_UINT;
     SDL_GPUDepthStencilTargetInfo depth={};depth.texture=target.Depth;depth.load_op=SDL_GPU_LOADOP_LOAD;depth.store_op=SDL_GPU_STOREOP_STORE;
     depth.stencil_load_op=stencil?SDL_GPU_LOADOP_LOAD:SDL_GPU_LOADOP_DONT_CARE;depth.stencil_store_op=stencil?SDL_GPU_STOREOP_STORE:SDL_GPU_STOREOP_DONT_CARE;
-    auto *pass=SDL_BeginGPURenderPass(commands,nullptr,0,&depth);if(!pass)return false;
+    #if defined(__APPLE__)
+ZH_SDL_Metal_SetNextRenderPassTag(11u);
+#endif
+auto *pass=SDL_BeginGPURenderPass(commands,nullptr,0,&depth);if(!pass)return false;
     for(size_t i=first;i<end;++i){const auto &c=Commands[i];
         if(c.IsDraw&&Draws[c.Draw].DepthPipeline)Draw_Depth_Record(commands,pass,stream,Draws[c.Draw]);
         else if(c.IsRect&&(c.Depth||c.Stencil)){
