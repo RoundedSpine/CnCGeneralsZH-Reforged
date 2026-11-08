@@ -300,11 +300,9 @@ TEST(classic_water_uses_the_original_program_and_separate_cache_identity)
         CHECK(EngineShader_Pixel_Program(classic,pipeline,actual,COMBINER_SHADER_TARGET_SDL3_GPU));
         CHECK(actual==expected);
         CHECK(EngineShader_Pixel_Program(original,pipeline,modern,COMBINER_SHADER_TARGET_SDL3_GPU));
-#if defined(__linux__)
+// SDL Modern water has its own shader path on both macOS and Linux.
+        // Classic remains the retargeted legacy program on either platform.
         CHECK(actual!=modern);
-#else
-        CHECK(actual==modern);
-#endif
         CHECK(std::string(EngineShader_Name(original))!=EngineShader_Name(classic));
         CHECK(EngineShader_From_File(river?"classic river water ps.1.1":"classic trapezoid water ps.1.1")==classic);
         std::vector<unsigned char> spirv;std::string log,msl;
@@ -1534,6 +1532,11 @@ TEST(direct3d11_modern_water_source_matches_the_upstream_baseline)
 		CHECK(EngineShader_Pixel_Program(program, pipeline, source, COMBINER_SHADER_TARGET_D3D11));
 		uint64_t hash = 14695981039346656037ull;
 		for (unsigned char value : source) { hash ^= value; hash *= 1099511628211ull; }
-		CHECK(hash == expected[index++]);
+		if (hash != expected[index])
+            printf("WATER_BASELINE_MISMATCH program=%s expected=%llu actual=%llu\n",
+                EngineShader_Name(program),
+                static_cast<unsigned long long>(expected[index]),
+                static_cast<unsigned long long>(hash));
+        CHECK(hash == expected[index++]);
 	}
 }
