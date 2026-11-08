@@ -48,7 +48,7 @@ bool SdlGpuFrame::Prepare_Particles(unsigned capacity,bool *fresh){
     if(!fresh)return false;*fresh=false;
     if(!Particles_Available()||!capacity||capacity>Records)return false;
     if(Particles&&Particles->Capacity==capacity)return true;
-    if(!Flush()||!SDL_WaitForGPUIdle(GpuDevice))return Particle_Failure("prepare synchronization");
+    if(!Flush(FlushNativeParticles)||!SDL_WaitForGPUIdle(GpuDevice))return Particle_Failure("prepare synchronization");
     Release_Particles();Particles=new SdlParticleState;auto &p=*Particles;p.Capacity=capacity;*fresh=true;
     auto buffer=[&](SDL_GPUBuffer *&out,unsigned bytes,SDL_GPUBufferUsageFlags usage){
         SDL_GPUBufferCreateInfo info={};info.size=bytes;info.usage=usage;out=SDL_CreateGPUBuffer(GpuDevice,&info);return out!=nullptr;
@@ -138,7 +138,7 @@ bool SdlGpuFrame::Particle_Slice(unsigned slice,SDL_GPUTexture *texture,unsigned
     ZH_IOS_WaitForForeground();
     if(!Particles||!Particles_Available())return false;auto &p=*Particles;
     if(slice>=Slices||!texture||!width||!height)return Particle_Failure("slice bounds/source");
-    if(p.Sources[slice]==texture)return true;if(!Flush())return Particle_Failure("slice flush");
+    if(p.Sources[slice]==texture)return true;if(!Flush(FlushNativeParticles))return Particle_Failure("slice flush");
     auto *cmd=SDL_AcquireGPUCommandBuffer(GpuDevice);if(!cmd)return Particle_Failure("slice command");
     SDL_GPUBlitInfo blit={};blit.source.texture=texture;blit.source.w=width;blit.source.h=height;
     blit.destination.texture=p.Atlas;blit.destination.layer_or_depth_plane=slice;blit.destination.w=blit.destination.h=SpriteSize;
@@ -152,7 +152,7 @@ bool SdlGpuFrame::Evaluate_Particles(unsigned first,unsigned count,unsigned now,
     if(first>=p.Capacity||count>p.Capacity||!std::isfinite(smooth)||smooth<0||smooth>1)return Particle_Failure("evaluate bounds/time");
     p.Count=count;if(!count)return true;
     if(!p.Dirty&&p.First==first&&p.Evaluated==count&&p.Now==now&&p.Smooth==smooth)return true;
-    if(!Flush())return Particle_Failure("evaluate flush");
+    if(!Flush(FlushNativeParticles))return Particle_Failure("evaluate flush");
     struct Frame {unsigned First,Count,Capacity,Now;float Smooth,Unused[3],GroundMap[4];};
     const Frame constants={first,count,p.Capacity,now,smooth,{0,0,0},{p.GroundMap[0],p.GroundMap[1],p.GroundMap[2],p.GroundMap[3]}};
     auto *cmd=SDL_AcquireGPUCommandBuffer(GpuDevice);if(!cmd)return Particle_Failure("evaluate command");
@@ -173,7 +173,7 @@ bool SdlGpuFrame::Draw_Particles(const SdlTarget &target,const float viewport[6]
     if(!Particles||!Particles_Available())return false;auto &p=*Particles;if(!p.Count)return true;
     if(!target.Colour||!target.Depth||!viewport||!view||!projection||(shader!=1&&shader!=2))return Particle_Failure("draw target/arguments");
     SDL_GPUTexture *depth=soft?Scene_Depth(target):nullptr;
-    if(!Flush())return Particle_Failure("draw flush");
+    if(!Flush(FlushNativeParticles))return Particle_Failure("draw flush");
     const unsigned key=shader|(Target_Depth_Format(target)<<2);auto &pipeline=p.Pipelines[key];
     if(!pipeline){
         SDL_GPUColorTargetDescription colour={};colour.format=(SDL_GPUTextureFormat)Scene_Format();auto &blend=colour.blend_state;blend.enable_blend=true;
