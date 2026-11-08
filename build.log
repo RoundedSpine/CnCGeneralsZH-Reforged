@@ -1,300 +1,300 @@
--- Looking for strlen - found
--- Looking for strncmp
--- Looking for strncmp - found
--- Looking for strnlen
--- Looking for strnlen - found
--- Looking for strpbrk
--- Looking for strpbrk - found
--- Looking for strrchr
--- Looking for strrchr - found
--- Looking for strstr
--- Looking for strstr - found
--- Looking for strnstr
--- Looking for strnstr - found
--- Looking for strtod
--- Looking for strtod - found
--- Looking for strtok_r
--- Looking for strtok_r - found
--- Looking for strtol
--- Looking for strtol - found
--- Looking for strtoll
--- Looking for strtoll - found
--- Looking for strtoul
--- Looking for strtoul - found
--- Looking for strtoull
--- Looking for strtoull - found
--- Looking for tan
--- Looking for tan - found
--- Looking for tanf
--- Looking for tanf - found
--- Looking for trunc
--- Looking for trunc - found
--- Looking for truncf
--- Looking for truncf - found
--- Looking for unsetenv
--- Looking for unsetenv - found
--- Looking for vsnprintf
--- Looking for vsnprintf - found
--- Looking for vsscanf
--- Looking for vsscanf - found
--- Looking for wcsnlen
--- Looking for wcsnlen - found
--- Looking for wcscmp
--- Looking for wcscmp - found
--- Looking for wcsdup
--- Looking for wcsdup - found
--- Looking for wcslcat
--- Looking for wcslcat - found
--- Looking for wcslcpy
--- Looking for wcslcpy - found
--- Looking for wcslen
--- Looking for wcslen - found
--- Looking for wcsncmp
--- Looking for wcsncmp - found
--- Looking for wcsstr
--- Looking for wcsstr - found
--- Looking for wcstol
--- Looking for wcstol - found
--- Looking for strcasestr
--- Looking for strcasestr - found
--- Performing Test LIBC_HAS_ISINF
--- Performing Test LIBC_HAS_ISINF - Success
--- Performing Test LIBC_ISINF_HANDLES_FLOAT
--- Performing Test LIBC_ISINF_HANDLES_FLOAT - Success
--- Performing Test LIBC_HAS_ISINFF
--- Performing Test LIBC_HAS_ISINFF - Failed
--- Performing Test LIBC_HAS_ISNAN
--- Performing Test LIBC_HAS_ISNAN - Success
--- Performing Test LIBC_ISNAN_HANDLES_FLOAT
--- Performing Test LIBC_ISNAN_HANDLES_FLOAT - Success
--- Performing Test LIBC_HAS_ISNANF
--- Performing Test LIBC_HAS_ISNANF - Failed
--- Looking for fdatasync
--- Looking for fdatasync - not found
--- Looking for gethostname
--- Looking for gethostname - found
--- Looking for getpagesize
--- Looking for getpagesize - found
--- Looking for getresgid
--- Looking for getresgid - not found
--- Looking for getresuid
--- Looking for getresuid - not found
--- Looking for sigaction
--- Looking for sigaction - found
--- Looking for sigtimedwait
--- Looking for sigtimedwait - not found
--- Looking for setjmp
--- Looking for setjmp - found
--- Looking for nanosleep
--- Looking for nanosleep - found
--- Looking for gmtime_r
--- Looking for gmtime_r - found
--- Looking for localtime_r
--- Looking for localtime_r - found
--- Looking for nl_langinfo
--- Looking for nl_langinfo - found
--- Looking for sysconf
--- Looking for sysconf - found
--- Looking for sysctlbyname
--- Looking for sysctlbyname - found
--- Looking for getauxval
--- Looking for getauxval - not found
--- Looking for elf_aux_info
--- Looking for elf_aux_info - not found
--- Looking for ppoll
--- Looking for ppoll - not found
--- Looking for memfd_create
--- Looking for memfd_create - not found
--- Looking for posix_fallocate
--- Looking for posix_fallocate - not found
--- Looking for posix_spawn_file_actions_addchdir
--- Looking for posix_spawn_file_actions_addchdir - not found
--- Looking for posix_spawn_file_actions_addchdir_np
--- Looking for posix_spawn_file_actions_addchdir_np - found
--- Looking for dlopen
--- Looking for dlopen - found
--- Performing Test HAVE_O_CLOEXEC
--- Performing Test HAVE_O_CLOEXEC - Success
--- Performing Test HAVE_FRAMEWORK_METAL
--- Performing Test HAVE_FRAMEWORK_METAL - Success
--- Performing Test HAVE_PTHREADS
--- Performing Test HAVE_PTHREADS - Success
--- Performing Test HAVE_RECURSIVE_MUTEXES
--- Performing Test HAVE_RECURSIVE_MUTEXES - Success
--- Performing Test HAVE_PTHREADS_SEM
--- Performing Test HAVE_PTHREADS_SEM - Success
--- Performing Test COMPILER_HAS_SEM_TIMEDWAIT
--- Performing Test COMPILER_HAS_SEM_TIMEDWAIT - Failed
--- Looking for pthread.h
--- Looking for pthread.h - found
--- Looking for pthread_np.h
--- Looking for pthread_np.h - not found
--- Performing Test HAVE_PTHREAD_SETNAME_NP
--- Performing Test HAVE_PTHREAD_SETNAME_NP - Success
--- Performing Test HAVE_POSIX_SPAWN
--- Performing Test HAVE_POSIX_SPAWN - Success
--- Performing Test COMPILER_SUPPORTS_FOBJC_ARC
--- Performing Test COMPILER_SUPPORTS_FOBJC_ARC - Success
--- 
--- SDL3 was configured with the following options:
--- 
--- Platform: Darwin-24.6.0
--- 64-bit:   TRUE
--- Compiler: /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang
--- Revision: SDL-3.4.16-HEAD-HASH-NOTFOUND
--- Vendor:   
--- 
--- Subsystems:
---   Audio:    OFF
---   Video:    ON
---   GPU:      ON
---   Render:   OFF
---   Camera:   OFF
---   Joystick: OFF
---   Haptic:   OFF
---   Hidapi:   OFF
---   Power:    OFF
---   Sensor:   OFF
---   Dialog:   ON
---   Tray:     OFF
--- 
--- Options:
---   SDL_ALSA                    (Wanted: OFF): OFF
---   SDL_ALSA_SHARED             (Wanted: OFF): OFF
---   SDL_ALTIVEC                 (Wanted: OFF): OFF
---   SDL_ARMNEON                 (Wanted: ON): ON
---   SDL_ASAN                    (Wanted: OFF): OFF
---   SDL_ASSEMBLY                (Wanted: ON): ON
---   SDL_ASSERTIONS              (Wanted: auto): auto
---   SDL_AVX                     (Wanted: OFF): OFF
---   SDL_AVX2                    (Wanted: OFF): OFF
---   SDL_AVX512F                 (Wanted: OFF): OFF
---   SDL_BACKGROUNDING_SIGNAL    (Wanted: OFF): OFF
---   SDL_CCACHE                  (Wanted: OFF): OFF
---   SDL_CLANG_TIDY              (Wanted: OFF): OFF
---   SDL_CLOCK_GETTIME           (Wanted: OFF): OFF
---   SDL_COCOA                   (Wanted: ON): ON
---   SDL_DBUS                    (Wanted: OFF): OFF
---   SDL_DEPS_SHARED             (Wanted: ON): OFF
---   SDL_DIRECTX                 (Wanted: OFF): OFF
---   SDL_DISKAUDIO               (Wanted: OFF): OFF
---   SDL_DLOPEN_NOTES            (Wanted: OFF): OFF
---   SDL_DUMMYAUDIO              (Wanted: OFF): OFF
---   SDL_DUMMYCAMERA             (Wanted: OFF): OFF
---   SDL_DUMMYVIDEO              (Wanted: ON): ON
---   SDL_EXAMPLES                (Wanted: OFF): OFF
---   SDL_EXAMPLES_LINK_SHARED    (Wanted: OFF): OFF
---   SDL_FOREGROUNDING_SIGNAL    (Wanted: OFF): OFF
---   SDL_FRIBIDI                 (Wanted: OFF): OFF
---   SDL_FRIBIDI_SHARED          (Wanted: OFF): OFF
---   SDL_GCC_ATOMICS             (Wanted: ON): ON
---   SDL_HIDAPI                  (Wanted: OFF): OFF
---   SDL_HIDAPI_JOYSTICK         (Wanted: OFF): OFF
---   SDL_HIDAPI_LIBUSB           (Wanted: OFF): OFF
---   SDL_HIDAPI_LIBUSB_SHARED    (Wanted: OFF): OFF
---   SDL_IBUS                    (Wanted: OFF): OFF
---   SDL_INSTALL                 (Wanted: OFF): OFF
---   SDL_INSTALL_TESTS           (Wanted: OFF): OFF
---   SDL_JACK                    (Wanted: OFF): OFF
---   SDL_JACK_SHARED             (Wanted: OFF): OFF
---   SDL_KMSDRM                  (Wanted: OFF): OFF
---   SDL_KMSDRM_SHARED           (Wanted: OFF): OFF
---   SDL_LASX                    (Wanted: OFF): OFF
---   SDL_LIBC                    (Wanted: ON): ON
---   SDL_LIBICONV                (Wanted: OFF): OFF
---   SDL_LIBTHAI                 (Wanted: OFF): OFF
---   SDL_LIBTHAI_SHARED          (Wanted: OFF): OFF
---   SDL_LIBUDEV                 (Wanted: ON): OFF
---   SDL_LIBURING                (Wanted: OFF): OFF
---   SDL_LSX                     (Wanted: OFF): OFF
---   SDL_METAL                   (Wanted: ON): ON
---   SDL_MMX                     (Wanted: OFF): OFF
---   SDL_OFFSCREEN               (Wanted: ON): ON
---   SDL_OPENGL                  (Wanted: OFF): OFF
---   SDL_OPENGLES                (Wanted: OFF): OFF
---   SDL_OPENVR                  (Wanted: OFF): OFF
---   SDL_OSS                     (Wanted: OFF): OFF
---   SDL_PIPEWIRE                (Wanted: OFF): OFF
---   SDL_PIPEWIRE_SHARED         (Wanted: OFF): OFF
---   SDL_PTHREADS                (Wanted: ON): ON
---   SDL_PTHREADS_SEM            (Wanted: ON): ON
---   SDL_PULSEAUDIO              (Wanted: OFF): OFF
---   SDL_PULSEAUDIO_SHARED       (Wanted: OFF): OFF
---   SDL_RENDER_D3D              (Wanted: OFF): OFF
---   SDL_RENDER_D3D11            (Wanted: OFF): OFF
---   SDL_RENDER_D3D12            (Wanted: OFF): OFF
---   SDL_RENDER_GPU              (Wanted: OFF): OFF
---   SDL_RENDER_METAL            (Wanted: OFF): OFF
---   SDL_RENDER_VULKAN           (Wanted: OFF): OFF
---   SDL_ROCKCHIP                (Wanted: OFF): OFF
---   SDL_RPATH                   (Wanted: ON): OFF
---   SDL_RPI                     (Wanted: OFF): OFF
---   SDL_SNDIO                   (Wanted: OFF): OFF
---   SDL_SNDIO_SHARED            (Wanted: OFF): OFF
---   SDL_SSE                     (Wanted: OFF): OFF
---   SDL_SSE2                    (Wanted: OFF): OFF
---   SDL_SSE3                    (Wanted: OFF): OFF
---   SDL_SSE4_1                  (Wanted: OFF): OFF
---   SDL_SSE4_2                  (Wanted: OFF): OFF
---   SDL_SYSTEM_ICONV            (Wanted: OFF): OFF
---   SDL_TESTS                   (Wanted: OFF): OFF
---   SDL_TESTS_LINK_SHARED       (Wanted: OFF): OFF
---   SDL_UNINSTALL               (Wanted: OFF): OFF
---   SDL_VIRTUAL_JOYSTICK        (Wanted: OFF): OFF
---   SDL_VIVANTE                 (Wanted: OFF): OFF
---   SDL_VULKAN                  (Wanted: ON): ON
---   SDL_WASAPI                  (Wanted: OFF): OFF
---   SDL_WAYLAND                 (Wanted: OFF): OFF
---   SDL_WAYLAND_LIBDECOR        (Wanted: OFF): OFF
---   SDL_WAYLAND_LIBDECOR_SHARED (Wanted: OFF): OFF
---   SDL_WAYLAND_SHARED          (Wanted: OFF): OFF
---   SDL_X11                     (Wanted: OFF): OFF
---   SDL_X11_SHARED              (Wanted: OFF): OFF
---   SDL_X11_XCURSOR             (Wanted: OFF): OFF
---   SDL_X11_XDBE                (Wanted: OFF): OFF
---   SDL_X11_XFIXES              (Wanted: OFF): OFF
---   SDL_X11_XINPUT              (Wanted: OFF): OFF
---   SDL_X11_XRANDR              (Wanted: OFF): OFF
---   SDL_X11_XSCRNSAVER          (Wanted: OFF): OFF
---   SDL_X11_XSHAPE              (Wanted: OFF): OFF
---   SDL_X11_XSYNC               (Wanted: OFF): OFF
---   SDL_X11_XTEST               (Wanted: OFF): OFF
---   SDL_XINPUT                  (Wanted: OFF): OFF
--- 
---  Build Shared Library: OFF
---  Build Static Library: ON
---  Build libraries as Apple Framework: OFF
--- 
--- Enabled backends:
---   Video drivers: cocoa dummy offscreen
---   Render drivers: 
---   GPU drivers: metal vulkan
---   Audio drivers: dummy
---   Joystick drivers: disabled dummy
---   Camera drivers: dummy
--- 
--- If something was not detected, although the libraries
--- were installed, then make sure you have set the
--- CMAKE_C_FLAGS and CMAKE_PREFIX_PATH CMake variables correctly.
--- 
--- Looking for unistd.h
--- Looking for unistd.h - found
--- Looking for fcntl.h
--- Looking for fcntl.h - found
-CMake Warning (deprecated) at Libraries/Source/glslang/CMakeLists.txt:111 (message):
-  ENABLE_HLSL is deprecated.  The HLSL front-end will be removed in a future
-  major release of glslang.  See
-  https://github.com/KhronosGroup/glslang/issues/4210 for details.
-This warning is for project developers.  Use -Wno-author or -Wno-deprecated
-to suppress it.
-
--- spirv-tools not linked - illegal SPIRV may be generated for HLSL
--- SPIRV-Cross: Finding Git version for SPIRV-Cross.
--- Found Git: /opt/homebrew/bin/git (found version "2.56.0")
--- SPIRV-Cross: Git hash: 252d387
--- Configuring done (23.1s)
--- Generating done (0.3s)
--- Build files have been written to: /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/build/ios/host-graphics
-[0/2] Re-checking globbed directories...
-[1/1656] Building CXX object SPIRV-Cross/CMakeFiles/spirv-cross-core.dir/spirv_cross_parsed_ir.cpp.o
-[2/1656] Building CXX object SPIRV-Cross/CMakeFiles/spirv-cross-core.dir/spirv_parser.cpp.o
+[161/1656] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/s_floor.c.o
+[162/1656] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/s_isinff.c.o
+[163/1656] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/s_isnan.c.o
+[164/1656] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/s_isnanf.c.o
+[165/1656] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/s_modf.c.o
+[166/1656] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/s_sin.c.o
+[167/1656] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/s_scalbn.c.o
+[168/1656] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/s_tan.c.o
+[169/1656] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/loadso/dlopen/SDL_sysloadso.c.o
+[170/1656] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/dummy/SDL_nullevents.c.o
+[171/1656] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/dummy/SDL_nullframebuffer.c.o
+[172/1656] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/dummy/SDL_nullvideo.c.o
+[173/1656] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/locale/macos/SDL_syslocale.m.o
+[174/1656] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/time/unix/SDL_systime.c.o
+[175/1656] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/timer/unix/SDL_systimer.c.o
+[176/1656] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/misc/macos/SDL_sysurl.m.o
+[177/1656] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/filesystem/cocoa/SDL_sysfilesystem.m.o
+[178/1656] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/storage/generic/SDL_genericstorage.c.o
+[179/1656] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/storage/steam/SDL_steamstorage.c.o
+[180/1656] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/filesystem/posix/SDL_sysfsops.c.o
+[181/1656] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/video/cocoa/SDL_cocoaclipboard.m.o
+[182/1656] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/video/cocoa/SDL_cocoaevents.m.o
+[183/1656] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/video/cocoa/SDL_cocoamessagebox.m.o
+[184/1656] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/video/cocoa/SDL_cocoakeyboard.m.o
+[185/1656] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/video/cocoa/SDL_cocoametalview.m.o
+[186/1656] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/video/cocoa/SDL_cocoamodes.m.o
+[187/1656] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/video/cocoa/SDL_cocoaopengl.m.o
+[188/1656] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/video/cocoa/SDL_cocoaopengles.m.o
+[189/1656] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/video/cocoa/SDL_cocoamouse.m.o
+[190/1656] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/video/cocoa/SDL_cocoapen.m.o
+[191/1656] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/video/cocoa/SDL_cocoashape.m.o
+[192/1656] Building CXX object SPIRV-Cross/CMakeFiles/spirv-cross-msl.dir/spirv_msl.cpp.o
+[193/1656] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/video/cocoa/SDL_cocoavideo.m.o
+[194/1656] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/thread/pthread/SDL_systhread.c.o
+[195/1656] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/thread/pthread/SDL_sysmutex.c.o
+[196/1656] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/thread/pthread/SDL_syscond.c.o
+[197/1656] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/thread/pthread/SDL_sysrwlock.c.o
+[198/1656] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/thread/pthread/SDL_systls.c.o
+[199/1656] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/video/cocoa/SDL_cocoavulkan.m.o
+[200/1656] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/thread/pthread/SDL_syssem.c.o
+[201/1656] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/dialog/SDL_dialog.c.o
+[202/1656] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/dialog/SDL_dialog_utils.c.o
+[203/1656] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/process/SDL_process.c.o
+[204/1656] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/process/posix/SDL_posixprocess.c.o
+[205/1656] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/offscreen/SDL_offscreenevents.c.o
+[206/1656] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/offscreen/SDL_offscreenframebuffer.c.o
+[207/1656] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/offscreen/SDL_offscreenopengles.c.o
+[208/1656] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/video/cocoa/SDL_cocoawindow.m.o
+[209/1656] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/offscreen/SDL_offscreenvideo.c.o
+[210/1656] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/offscreen/SDL_offscreenvulkan.c.o
+[211/1656] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/offscreen/SDL_offscreenwindow.c.o
+[212/1656] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/tray/SDL_tray_utils.c.o
+[213/1656] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/dialog/cocoa/SDL_cocoadialog.m.o
+[214/1656] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/audio/dummy/SDL_dummyaudio.c.o
+[215/1656] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/joystick/dummy/SDL_sysjoystick.c.o
+[216/1656] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/haptic/dummy/SDL_syshaptic.c.o
+[217/1656] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/sensor/dummy/SDL_dummysensor.c.o
+[218/1656] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/tray/dummy/SDL_tray.c.o
+[219/1656] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/camera/dummy/SDL_camera_dummy.c.o
+[220/1656] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/main/generic/SDL_sysmain_callbacks.c.o
+[221/1656] Linking CXX static library SPIRV-Cross/libspirv-cross-msl.a
+[222/1656] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/gpu/metal/SDL_gpu_metal.m.o
+[223/1656] Building CXX object CMakeFiles/wwdebug.dir/Libraries/Source/WWVegas/WWDebug/wwdebug.cpp.o
+[224/1656] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/gpu/vulkan/SDL_gpu_vulkan.c.o
+[225/1656] Building CXX object CMakeFiles/wwdebug.dir/Libraries/Source/WWVegas/WWDebug/wwmemlog.cpp.o
+[226/1656] Building CXX object CMakeFiles/wwdebug.dir/Libraries/Source/WWVegas/WWDebug/wwprofile.cpp.o
+[227/1656] Building C object CMakeFiles/sdl3_shadercross.dir/Libraries/Source/SDL_shadercross/src/SDL_shadercross.c.o
+[228/1656] Building CXX object CMakeFiles/ffshader.dir/Libraries/Source/WWVegas/WW3D2/ffshader.cpp.o
+[229/1656] Building CXX object SPIRV-Cross/CMakeFiles/spirv-cross-c.dir/spirv_cross_c.cpp.o
+[230/1656] Linking C static library SDL3/libSDL3.a
+[231/1656] Building CXX object CMakeFiles/build_fingerprint.dir/Tools/fingerprint/build_fingerprint.cpp.o
+[232/1656] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/GenericCodeGen/CodeGen.cpp.o
+[233/1656] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/OSDependent/Unix/ossource.cpp.o
+[234/1656] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/GenericCodeGen/Link.cpp.o
+[235/1656] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/CInterface/glslang_c_interface.cpp.o
+[236/1656] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/attribute.cpp.o
+[237/1656] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/Constant.cpp.o
+[238/1656] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/glslang_tab.cpp.o
+[239/1656] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/InfoSink.cpp.o
+[240/1656] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/IntermTraverse.cpp.o
+[241/1656] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/iomapper.cpp.o
+[242/1656] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/Intermediate.cpp.o
+[243/1656] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/Initialize.cpp.o
+[244/1656] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/ParseContextBase.cpp.o
+[245/1656] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/PoolAlloc.cpp.o
+[246/1656] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/RemoveTree.cpp.o
+[247/1656] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/Scan.cpp.o
+[248/1656] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/ShaderLang.cpp.o
+[249/1656] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/ParseHelper.cpp.o
+[250/1656] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/SpirvIntrinsics.cpp.o
+[251/1656] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/SymbolTable.cpp.o
+[252/1656] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/intermOut.cpp.o
+[253/1656] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/Versions.cpp.o
+[254/1656] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/limits.cpp.o
+[255/1656] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/parseConst.cpp.o
+[256/1656] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/linkValidate.cpp.o
+[257/1656] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/reflection.cpp.o
+[258/1656] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/preprocessor/Pp.cpp.o
+[259/1656] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/preprocessor/PpAtom.cpp.o
+[260/1656] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/preprocessor/PpContext.cpp.o
+[261/1656] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/preprocessor/PpScanner.cpp.o
+[262/1656] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/preprocessor/PpTokens.cpp.o
+[263/1656] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/propagateNoContraction.cpp.o
+[264/1656] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/HLSL/hlslAttributes.cpp.o
+[265/1656] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/HLSL/hlslScanContext.cpp.o
+[266/1656] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/HLSL/hlslOpMap.cpp.o
+[267/1656] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/HLSL/hlslTokenStream.cpp.o
+[268/1656] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/HLSL/hlslGrammar.cpp.o
+[269/1656] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/HLSL/hlslParseables.cpp.o
+[270/1656] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/HLSL/hlslParseHelper.cpp.o
+[271/1656] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/__/SPIRV/InReadableOrder.cpp.o
+[272/1656] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/__/SPIRV/Logger.cpp.o
+[273/1656] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/__/SPIRV/SpvPostProcess.cpp.o
+[274/1656] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/__/SPIRV/doc.cpp.o
+[275/1656] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/__/SPIRV/SpvTools.cpp.o
+[276/1656] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/__/SPIRV/SpvBuilder.cpp.o
+[277/1656] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/__/SPIRV/disassemble.cpp.o
+[278/1656] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/__/SPIRV/CInterface/spirv_c_interface.cpp.o
+[279/1656] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/__/SPIRV/GlslangToSpv.cpp.o
+[280/1656] Linking CXX static library SPIRV-Cross/libspirv-cross-c.a
+[281/1656] Linking CXX static library libwwdebug.a
+[282/1656] Building CXX object glslang/glslang/CMakeFiles/glslang-default-resource-limits.dir/ResourceLimits/resource_limits_c.cpp.o
+[283/1656] Building CXX object glslang/glslang/CMakeFiles/glslang-default-resource-limits.dir/ResourceLimits/ResourceLimits.cpp.o
+[284/1656] Building CXX object CMakeFiles/wwmath.dir/Libraries/Source/WWVegas/WWMath/aabox.cpp.o
+[285/1656] Building CXX object CMakeFiles/wwmath.dir/Libraries/Source/WWVegas/WWMath/cardinalspline.cpp.o
+[286/1656] Building CXX object CMakeFiles/wwmath.dir/Libraries/Source/WWVegas/WWMath/catmullromspline.cpp.o
+[287/1656] Building CXX object CMakeFiles/wwmath.dir/Libraries/Source/WWVegas/WWMath/aabtreecull.cpp.o
+[288/1656] Building CXX object CMakeFiles/wwmath.dir/Libraries/Source/WWVegas/WWMath/colmath.cpp.o
+[289/1656] Building CXX object CMakeFiles/wwmath.dir/Libraries/Source/WWVegas/WWMath/colmathaabox.cpp.o
+[290/1656] Building CXX object CMakeFiles/wwmath.dir/Libraries/Source/WWVegas/WWMath/colmathaabtri.cpp.o
+[291/1656] Building CXX object CMakeFiles/wwmath.dir/Libraries/Source/WWVegas/WWMath/colmathfrustum.cpp.o
+[292/1656] Building CXX object CMakeFiles/wwmath.dir/Libraries/Source/WWVegas/WWMath/colmathline.cpp.o
+[293/1656] Building CXX object CMakeFiles/wwmath.dir/Libraries/Source/WWVegas/WWMath/colmathobbox.cpp.o
+[294/1656] Building CXX object CMakeFiles/wwmath.dir/Libraries/Source/WWVegas/WWMath/colmathobbobb.cpp.o
+[295/1656] Building CXX object CMakeFiles/wwmath.dir/Libraries/Source/WWVegas/WWMath/colmathobbtri.cpp.o
+[296/1656] Building CXX object CMakeFiles/wwmath.dir/Libraries/Source/WWVegas/WWMath/colmathplane.cpp.o
+[297/1656] Building CXX object CMakeFiles/wwmath.dir/Libraries/Source/WWVegas/WWMath/colmathsphere.cpp.o
+[298/1656] Building CXX object CMakeFiles/wwmath.dir/Libraries/Source/WWVegas/WWMath/dettrig.cpp.o
+[299/1656] Building CXX object CMakeFiles/wwmath.dir/Libraries/Source/WWVegas/WWMath/euler.cpp.o
+[300/1656] Building CXX object CMakeFiles/wwmath.dir/Libraries/Source/WWVegas/WWMath/frustum.cpp.o
+[301/1656] Building CXX object CMakeFiles/wwmath.dir/Libraries/Source/WWVegas/WWMath/cullsys.cpp.o
+[302/1656] Building CXX object CMakeFiles/wwmath.dir/Libraries/Source/WWVegas/WWMath/curve.cpp.o
+[303/1656] Building CXX object CMakeFiles/wwmath.dir/Libraries/Source/WWVegas/WWMath/lineseg.cpp.o
+[304/1656] Building CXX object CMakeFiles/wwmath.dir/Libraries/Source/WWVegas/WWMath/gridcull.cpp.o
+[305/1656] Building CXX object CMakeFiles/wwmath.dir/Libraries/Source/WWVegas/WWMath/hermitespline.cpp.o
+[306/1656] Building CXX object CMakeFiles/wwmath.dir/Libraries/Source/WWVegas/WWMath/matrix3.cpp.o
+[307/1656] Building CXX object CMakeFiles/wwmath.dir/Libraries/Source/WWVegas/WWMath/matrix3d.cpp.o
+[308/1656] Building CXX object CMakeFiles/wwmath.dir/Libraries/Source/WWVegas/WWMath/lookuptable.cpp.o
+[309/1656] Building CXX object CMakeFiles/wwmath.dir/Libraries/Source/WWVegas/WWMath/matrix4.cpp.o
+[310/1656] Building CXX object CMakeFiles/wwmath.dir/Libraries/Source/WWVegas/WWMath/pot.cpp.o
+[311/1656] Building CXX object CMakeFiles/wwmath.dir/Libraries/Source/WWVegas/WWMath/obbox.cpp.o
+[312/1656] Building CXX object CMakeFiles/wwmath.dir/Libraries/Source/WWVegas/WWMath/ode.cpp.o
+[313/1656] Building CXX object CMakeFiles/wwmath.dir/Libraries/Source/WWVegas/WWMath/quat.cpp.o
+[314/1656] Building CXX object CMakeFiles/wwmath.dir/Libraries/Source/WWVegas/WWMath/tri.cpp.o
+[315/1656] Building CXX object CMakeFiles/wwmath.dir/Libraries/Source/WWVegas/WWMath/v3_rnd.cpp.o
+[316/1656] Building CXX object CMakeFiles/wwmath.dir/Libraries/Source/WWVegas/WWMath/tcbspline.cpp.o
+[317/1656] Building CXX object CMakeFiles/wwmath.dir/Libraries/Source/WWVegas/WWMath/vehiclecurve.cpp.o
+[318/1656] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/_convert.cpp.o
+[319/1656] Building CXX object CMakeFiles/wwmath.dir/Libraries/Source/WWVegas/WWMath/vp.cpp.o
+[320/1656] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/b64pipe.cpp.o
+[321/1656] Building CXX object CMakeFiles/wwmath.dir/Libraries/Source/WWVegas/WWMath/wwmath.cpp.o
+[322/1656] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/b64straw.cpp.o
+[323/1656] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/base64.cpp.o
+[324/1656] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/blit.cpp.o
+[325/1656] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/blowfish.cpp.o
+[326/1656] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/argv.cpp.o
+[327/1656] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/buff.cpp.o
+[328/1656] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/chunkio.cpp.o
+[329/1656] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/crc.cpp.o
+[330/1656] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/cstraw.cpp.o
+[331/1656] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/Except.cpp.o
+[332/1656] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/bufffile.cpp.o
+[333/1656] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/cpudetect.cpp.o
+[334/1656] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/fixed.cpp.o
+[335/1656] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/md5.cpp.o
+[336/1656] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/FastAllocator.cpp.o
+[337/1656] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/gcd_lcm.cpp.o
+[338/1656] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/ffactory.cpp.o
+[339/1656] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/hash.cpp.o
+[340/1656] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/hsv.cpp.o
+[341/1656] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/int.cpp.o
+[342/1656] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/jshell.cpp.o
+[343/1656] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/lcw.cpp.o
+[344/1656] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/load.cpp.o
+[345/1656] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/mpmath.cpp.o
+[346/1656] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/ini.cpp.o
+[347/1656] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/mixfile.cpp.o
+[348/1656] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/nstrdup.cpp.o
+[349/1656] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/palette.cpp.o
+[350/1656] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/multilist.cpp.o
+[351/1656] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/mutex.cpp.o
+[352/1656] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/pipe.cpp.o
+[353/1656] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/pcx.cpp.o
+[354/1656] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/pk.cpp.o
+[355/1656] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/ramfile.cpp.o
+[356/1656] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/random.cpp.o
+[357/1656] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/rc4.cpp.o
+[358/1656] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/realcrc.cpp.o
+[359/1656] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/readline.cpp.o
+[360/1656] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/refcount.cpp.o
+[361/1656] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/rgb.cpp.o
+[362/1656] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/rle.cpp.o
+[363/1656] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/sampler.cpp.o
+[364/1656] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/rawfile.cpp.o
+[365/1656] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/sha.cpp.o
+[366/1656] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/stimer.cpp.o
+[367/1656] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/rndstrng.cpp.o
+[368/1656] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/strtok_r.cpp.o
+[369/1656] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/straw.cpp.o
+[370/1656] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/systimer.cpp.o
+[371/1656] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/slnode.cpp.o
+[372/1656] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/tagblock.cpp.o
+[373/1656] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/tgatodxt.cpp.o
+[374/1656] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/TARGA.CPP.o
+[375/1656] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/textfile.cpp.o
+[376/1656] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/trim.cpp.o
+[377/1656] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/vector.cpp.o
+[378/1656] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/wwfile.cpp.o
+[379/1656] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/wwfont.cpp.o
+[380/1656] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/thread.cpp.o
+[381/1656] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/xpipe.cpp.o
+[382/1656] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/widestring.cpp.o
+[383/1656] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/xstraw.cpp.o
+[384/1656] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/xsurface.cpp.o
+[385/1656] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/wwstring.cpp.o
+[386/1656] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/aes.c.o
+[387/1656] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/aesce.c.o
+[388/1656] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/aesni.c.o
+[389/1656] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/aria.c.o
+[390/1656] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/asn1parse.c.o
+[391/1656] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/asn1write.c.o
+[392/1656] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/base64.c.o
+[393/1656] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/bignum_core.c.o
+[394/1656] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/bignum.c.o
+[395/1656] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/bignum_mod.c.o
+[396/1656] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/bignum_mod_raw.c.o
+[397/1656] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/posixpath.cpp.o
+[398/1656] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/block_cipher.c.o
+[399/1656] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/ccm.c.o
+[400/1656] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/camellia.c.o
+[401/1656] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/chacha20.c.o
+[402/1656] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/chachapoly.c.o
+[403/1656] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/cipher.c.o
+[404/1656] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/cipher_wrap.c.o
+[405/1656] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/cmac.c.o
+[406/1656] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/constant_time.c.o
+[407/1656] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/ctr_drbg.c.o
+[408/1656] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/debug.c.o
+[409/1656] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/des.c.o
+[410/1656] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/dhm.c.o
+[411/1656] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/ecdh.c.o
+[412/1656] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/ecdsa.c.o
+[413/1656] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/ecjpake.c.o
+[414/1656] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/ecp_curves_new.c.o
+[415/1656] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/ecp.c.o
+[416/1656] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/entropy.c.o
+[417/1656] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/entropy_poll.c.o
+[418/1656] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/ecp_curves.c.o
+[419/1656] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/hkdf.c.o
+[420/1656] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/error.c.o
+[421/1656] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/hmac_drbg.c.o
+[422/1656] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/gcm.c.o
+[423/1656] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/lmots.c.o
+[424/1656] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/lms.c.o
+[425/1656] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/md.c.o
+[426/1656] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/md5.c.o
+[427/1656] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/memory_buffer_alloc.c.o
+[428/1656] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/mps_reader.c.o
+[429/1656] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/mps_trace.c.o
+[430/1656] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/net_sockets.c.o
+[431/1656] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/nist_kw.c.o
+[432/1656] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/oid.c.o
+[433/1656] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/padlock.c.o
+[434/1656] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/pem.c.o
+[435/1656] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/pk_ecc.c.o
+[436/1656] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/pk.c.o
+[437/1656] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/pk_wrap.c.o
+[438/1656] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/pkcs12.c.o
+[439/1656] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/pkcs5.c.o
+[440/1656] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/pkcs7.c.o
+[441/1656] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/pkparse.c.o
+[442/1656] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/pkwrite.c.o
+[443/1656] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/platform.c.o
+[444/1656] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/platform_util.c.o
+[445/1656] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/poly1305.c.o
+[446/1656] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/psa_crypto_aead.c.o
+[447/1656] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/psa_crypto_cipher.c.o
+[448/1656] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/psa_crypto_client.c.o
+[449/1656] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/psa_crypto_driver_wrappers_no_static.c.o
+[450/1656] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/psa_crypto.c.o
+[451/1656] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/psa_crypto_ecp.c.o
+[452/1656] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/psa_crypto_ffdh.c.o
+[453/1656] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/psa_crypto_hash.c.o
+[454/1656] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/psa_crypto_mac.c.o
+[455/1656] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/psa_crypto_pake.c.o
+[456/1656] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/psa_crypto_random.c.o
+[457/1656] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/psa_crypto_rsa.c.o
+[458/1656] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/psa_crypto_se.c.o
+[459/1656] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/psa_crypto_slot_management.c.o
+[460/1656] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/psa_crypto_storage.c.o
