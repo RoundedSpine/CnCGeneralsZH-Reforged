@@ -117,7 +117,7 @@ void DoShadows(RenderInfoClass & rinfo, Bool stencilPass)
             | (unsigned(TheGlobalData->m_useShadowDecals != FALSE) << 4);
         static unsigned lastState = ~0u;
         if (lastState != state) {
-            fprintf(stderr, "[IOS_SHADOW_PASS] shadow_map=%d map_only=%d scene_owns=%d volumes=%d decals=%d stencil_suppressed=%d\\n",
+            fprintf(stderr, "[IOS_SHADOW_PASS] shadow_map=%d map_only=%d scene_owns=%d volumes=%d decals=%d stencil_suppressed=%d\n",
                 int(TheGlobalData->m_shadowMap != FALSE), int(TheGlobalData->m_shadowMapOnly != FALSE),
                 int(owns), int(TheGlobalData->m_useShadowVolumes != FALSE),
                 int(TheGlobalData->m_useShadowDecals != FALSE), int(owns && TheGlobalData->m_shadowMapOnly));
