@@ -600,6 +600,16 @@ bool SdlGpuFrame::Record_Passes(SDL_GPUCommandBuffer * commands, SDL_GPUBuffer *
 			continue;
 		}
 		const SdlRecordedDraw & draw = Draws[Commands[i].Draw];
+		if (ParticlePerfToggle::enabled() && draw.DiagnosticBlended) {
+			++ParticleGpuBlendedDraws;
+			if (draw.DiagnosticAdditive) ++ParticleGpuAdditiveDraws;
+			if (Targets[command->Target].Colour == BackBuffer) {
+				const uint64_t w = draw.Scissor[2] > 0 ? unsigned(draw.Scissor[2]) : 0u;
+				const uint64_t h = draw.Scissor[3] > 0 ? unsigned(draw.Scissor[3]) : 0u;
+				ParticleGpuBlendScissorPixels += w * h;
+			}
+		}
+
 		if (last == NULL || last->Pipeline != draw.Pipeline) {
 			SDL_BindGPUGraphicsPipeline(pass, draw.Pipeline);
 		}
