@@ -415,6 +415,11 @@ private:
 	bool FirelightFailed = false, HeatFailed = false, HeatSplatFailed = false;
 	SDL_GPUTexture *HeatBackground = nullptr;
 	unsigned HeatWidth = 0, HeatHeight = 0;
+	struct HeatResources;
+	HeatResources *Heat = nullptr;
+	std::vector<float> HeatSplats;
+	bool Prepare_Heat(unsigned width,unsigned height);
+	void Release_Heat();
 	void Release_Heat_Background();
 	void Release_Atmosphere();
 	SDL_GPUTexture *SunShadowTexture = NULL;
