@@ -5,6 +5,9 @@
 #include "Platform/SunSmoke.h"
 #include "sdl3shadercompile.h"
 #include <SDL3/SDL.h>
+#if defined(__APPLE__)
+extern "C" void ZH_SDL_Metal_SetNextRenderPassTag(Uint32 category);
+#endif
 #include <cstring>
 #include <cstdio>
 
@@ -136,7 +139,10 @@ bool SdlGpuFrame::Fill_Sun_Smoke(const float *sun, const float *casters, unsigne
     colour.clear_color.a = 1; colour.load_op = SDL_GPU_LOADOP_CLEAR; colour.store_op = SDL_GPU_STOREOP_STORE;
     // Do not cycle the map: already submitted readers use this version, and the ordered write
     // must be the one subsequently queued receivers sample.
-    SDL_GPURenderPass *pass = SDL_BeginGPURenderPass(commands,&colour,1,nullptr);
+    #if defined(__APPLE__)
+ZH_SDL_Metal_SetNextRenderPassTag(9u);
+#endif
+SDL_GPURenderPass *pass = SDL_BeginGPURenderPass(commands,&colour,1,nullptr);
     if (!pass) { SDL_CancelGPUCommandBuffer(commands); return Fail_Sun_Smoke(SDL_GetError()); }
     SDL_BindGPUGraphicsPipeline(pass,Smoke->Pipeline);
     SDL_GPUBufferBinding binding = {}; binding.buffer = Smoke->Instances;
