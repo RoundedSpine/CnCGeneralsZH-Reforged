@@ -180,6 +180,8 @@ public:
 														///< empty is the primary.  See Common/Monitors.h.
 	Int m_msaaLevel;					///< multisampling, as an index into the levels the options menu offers
 	Bool m_vsync;						///< wait for the monitor; off is the uncapped picture the frame-rate cap removal shipped
+	Int m_frameRateLimit;			///< "FrameRateLimit": the player's picture cap as a level, frameRateLimitForLevel gives the rate
+	Bool m_noFrameRateCap;		///< -noFPSLimit: no picture cap at all, the shell's 60 included
 	Bool m_direct3D11;			///< draw and present through the Direct3D 11 backend; -d3d9 and -headless turn it off
 	AsciiString m_direct3D11DumpPath;	///< -dx11dump: where to write each generated program
 	AsciiString m_direct3D11PostChain;	///< -dx11post: the effects run over the finished D3D11 frame
@@ -219,6 +221,11 @@ public:
 	Bool m_smoothMotion;				// R1: on a display faster than the logic, models drawn between their last two logic states (W3DSmoothMotion.h); -nosmoothmotion turns it off
 	Bool m_smoothMotionAnyDisplay;	// -smoothmotion: the same whatever the display's refresh rate
 	Int m_waterStyle;					// "WaterStyle": 0 = Classic, 1 = Modern (SDL); applied between render frames
+	Int m_waterReflection;			// "WaterReflection": 0 = Legacy, 1 = SSR, 2 = Hybrid; SDL Modern water
+	Bool m_waterReflectionEnabled; // scene reflections; remembers the selected mode
+	Int m_waterFftResolution;		// 0 = Low (128), 1 = High (256)
+	Int m_waterRefractionQuality; // 0 = Full, 1 = Simple, 2 = Off
+	Int m_waterReflectionDetail; // 0 = Low, 1 = High planar resolution
 	Int m_cloudStyle;					// "CloudStyle": 0 = Classic (default), 1 = Volumetric (when supported)
 	Bool m_explosionDebrisTrails;	// "DebrisTrails": blasts throw smoke-trailing fragments and burning shrapnel
 	Int m_shadowQuality;				// "ShadowQuality": the sun's depth map at 1024, 2048 or 4096 texels a side (Direct3D 11)
@@ -545,6 +552,21 @@ public:
 	Int m_netGameLocalSlot;						///< -netslot <n>: which of those addresses this copy of the game is
 	Int m_netGameAISlots;							///< -netai <n>: that many AI seats after the addresses, at the -aidiff rung
 	AsciiString m_lanPlayerName;			///< -lanname <name>: the name this copy takes in the LAN lobby (empty = the one in the preferences)
+	AsciiString m_relayHost;					///< -relay <host:port>: the LAN lobby and its games go through this UDP relay (empty = real LAN; Transport.cpp)
+	UnsignedShort m_relayPort;				///< the port of it, 0 when -relay named none
+	AsciiString m_onlineHost;					///< -online <host:port>: the online service to log in to (empty = none; GameNetwork/Online)
+	UnsignedShort m_onlinePort;				///< the port of it, 0 when -online named none
+	AsciiString m_onlineCAFile;				///< -onlineca <file>: PEM CA the service's certificate is checked against (empty = the Let's Encrypt roots)
+	AsciiString m_onlineUser;					///< -onlineuser <email>: log in with this account instead of the login screen's fields
+	AsciiString m_onlinePass;					///< -onlinepass <password>: its password (a test switch: it shows in the process list)
+	AsciiString m_onlineHostGame;			///< -onlinehost <name>: host a custom game of this name once in the lobby
+	AsciiString m_onlineJoinGame;			///< -onlinejoin <name>: join the custom game of this name once it is listed
+	AsciiString m_onlineSay;					///< -onlinesay <text>: say this in the lobby and again in the staging room
+	AsciiString m_onlineMap;					///< -onlinemap <map>: the map -onlinehost sets
+	AsciiString m_onlineOptions;			///< -onlineoptions <list>: the staging room controls the -onlinehost host works (prorules,turbo,unitlimit,randommap)
+	Int m_onlineStart;								///< -onlinestart [N]: the -onlinehost host starts the game at N players (0 = never, bare = 2)
+	Bool m_quickMatchOnStart;					///< -quickmatch: go into the Quick Match queue once logged in
+	Bool m_onlineLoginOnStart;				///< -onlinelogin: open the online login screen at startup, nothing filled in
 	Bool m_lanLobbyOnStart;						///< -lanlobby: open the LAN lobby instead of stopping at the main menu
 	Bool m_skirmishLobbyOnStart;			///< -skirmishlobby: open the skirmish staging room instead of stopping at the main menu
 	Bool m_optionsMenuOnStart;				///< -optionsmenu: open the options screen over the main menu at startup
@@ -553,6 +575,7 @@ public:
 	Bool m_waterFoam;								///< "WaterFoam": foam, shore band and the sun's shadow on water (Direct3D 11, client only)
 	Bool m_groundMarks;							///< "GroundMarks": craters, stains and longer treads that fade over minutes (Direct3D 11, client only)
 	Bool m_firelight;								///< "Firelight": flames light the ground, walls and units around them (Direct3D 11, client only)
+	Bool m_heatHaze;								///< "HeatHaze", "-heathaze": the air over fire, beams and exhausts shimmers (Direct3D 11, client only)
 	Bool m_hemiAmbient;							///< "HemiAmbient": models take the ambient from the sky above and the ground below (Direct3D 11, client only)
 	Bool m_ambientOcclusion;				///< "AmbientOcclusion": corners and the ground under what stands on it darken, half size in world units (Direct3D 11, client only)
 	Bool m_weatherEffects;					///< "Weather": rain, blowing sand or snow by the map's ground, and a wind on trees and smoke (Direct3D 11, client only)
@@ -596,7 +619,6 @@ public:
 	UnsignedInt m_iniCRC;							///< CRC of important INI files
 	UnsignedInt m_exeCRC;							///< CRC of the executable
 	void computeExeCRC( void );				///< m_exeCRC from the build fingerprint, the version and the two scb as they resolve now
-	UnsignedInt m_baseExeCRC;					///< m_exeCRC before any -mod mounted: the build without its mods, for the LAN mod check
 
 	BodyDamageType m_movementPenaltyDamageState;	///< at this body damage state, we have movement penalties
 
@@ -764,13 +786,6 @@ public:
 
 	Bool				m_isBreakableMovie;							///< if we enter a breakable movie, set this flag
 	Bool				m_breakTheMovie;								///< The user has hit escape!
-	std::vector<AsciiString> m_mods;	///< every -mod in command-line order, later wins: a folder ends in '\', anything else is a .big
-	AsciiString m_modName;	///< UTF-8, each mod's "<name> <version>" from its mod.json (else the folder or archive name), joined by ", " in m_mods order; empty without -mod
-	std::vector<AsciiString> m_modNames;	///< UTF-8, each mod's mod.json "name" (else the folder or archive name), in m_mods order
-	std::vector<Bool> m_modIsPatch;	///< -modpatch: TRUE for each m_mods entry given as a patch; with no full -mod the patches stack as plain mods
-	std::vector< std::vector<AsciiString> > m_modPatches;	///< -modfactions: the -modpatch folders over each m_mods[n], later wins
-	std::vector<AsciiString> m_retailPatches;	///< -modfactions: the -modpatch folders given before any -mod, over retail's files
-	Bool m_modFactions;	///< any full -mod given: every mod's factions load beside retail's under "M<n>~" names (ModNamespace).  "-modfactions" in a comment is this; the switch is gone
 
 	//-allAdvice feature
 	//Bool m_allAdvice;

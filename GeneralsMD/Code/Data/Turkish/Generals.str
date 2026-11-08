@@ -489,24 +489,36 @@ Color:Pink
 "Pembe"
 END
 
-Color:Crimson
-"Kızıl"
-END
-
-Color:Azure
-"Gök Mavisi"
-END
-
-Color:Salmon
-"Somon"
-END
-
 Color:Teal
 "Turkuaz"
 END
 
+Color:Lime
+"Limon Yeşili"
+END
+
+Color:Navy
+"Lacivert"
+END
+
+Color:Magenta
+"Fuşya"
+END
+
+Color:Brown
+"Kahverengi"
+END
+
 Color:Lavender
 "Lavanta"
+END
+
+Color:Coral
+"Mercan"
+END
+
+Color:Olive
+"Zeytin Yeşili"
 END
 
 GUI:ShowBehindBuildings
@@ -2609,14 +2621,6 @@ LAN:ErrorCRCMismatch
 "Oyun bir uyumsuzluk tespit etti. Çok oyunculu oyun, oyuncular arasındaki senkronizasyon verisini kaybetti. Rakibiniz sürümünü değiştirmiş olabilir; onu Yok Sayma Listenize eklemek isteyebilirsiniz"
 END
 
-LAN:ErrorModMismatch
-"Bu oyun başka modlarla oynanıyor. Kurucunun modları: %s. Katılmak için oyunu aynı modlarla, aynı sırayla başlatın."
-END
-
-LAN:NoMod
-"yok"
-END
-
 LAN:ErrorGameStarted
 "Üzgünüz, bu oyun zaten başladı"
 END
@@ -2874,7 +2878,7 @@ TOOLTIP:Crates
 END
 
 TOOLTIP:SuperWeapons
-"Bir oyuncunun aynı anda ayakta tutabileceği süper silah sayısı. İzin Ver: parası yettiği kadar. Sınırla: her birinden bir tane, ABD Süper Silah Generali için dört. Yok: hiç yok, yalnızca Süper Silah Generali bir tane tutar. İstisna odur, çünkü zayıf ordusunun bedelini bu üç süper silahla öder."
+"Bir oyuncunun aynı anda kaç süper silahı olabilir. İzin Ver: parası neye yetiyorsa. Sınırla: bir tane, ABD Süper Silah Generali'ne dört. Yok: hiç yok, bir tek Süper Silah Generali bir tane tutar. Onun istisna olması şundan: zayıf ordusunun bedelini süper silahlarıyla ödüyor. Yok seçiliyse herkes, bilgisayar da, Çin'in geliştirmelerini almak için bir Nükleer Füze silosu kurabilir. Siloda füze yok: ateşleme düğmesi yok, geri sayım yok, anons yok."
 END
 
 DOZER:ConstructionComplete
@@ -10542,11 +10546,23 @@ TOOLTIP:MapMaxBrutalSuccess
 END
 
 GUI:LimitArmies
-"Orduları Sınırla"
+"Sadece Ana Ordular"
 END
 
 TOOLTIP:LimitArmies
-"Orduları geleneksel ABD, GLA ve Çin taraflarıyla sınırlamak ve general ordularını kapatmak için işaretleyin"
+"Yalnızca ana ABD, Çin ve GLA orduları seçilebilir, generallerin orduları seçilemez"
+END
+
+GUI:Lobby
+"Lobi"
+END
+
+GUI:OnlineLoginName
+"E-posta veya Kullanıcı Adı"
+END
+
+GUI:???
+"Rastgele"
 END
 
 GUI:UseStats
@@ -15029,6 +15045,34 @@ TOOLTIP:VSync
 "Görüntüyü monitöre eşler, böylece ekran yırtılmaz. Kapalıyken görüntü, bilgisayarın çizebildiği kadar hızlı akar. Kabul Et'e bastığınızda uygulanır."
 END
 
+GUI:FrameRateLimit
+"FPS Sınırı"
+END
+
+GUI:FrameRateLimit0
+"Kapalı"
+END
+
+GUI:FrameRateLimit1
+"240 FPS"
+END
+
+GUI:FrameRateLimit2
+"144 FPS"
+END
+
+GUI:FrameRateLimit3
+"120 FPS"
+END
+
+GUI:FrameRateLimit4
+"60 FPS"
+END
+
+TOOLTIP:FrameRateLimit
+"Maçta saniyede en fazla kaç kare çizileceği. Sınırı düşürürsen ekran kartın daha serin ve sessiz çalışır, oyun da yavaşlamaz. Menüler zaten 60'ta durur."
+END
+
 GUI:ClassicGraphics
 "Klasik Grafikler"
 END
@@ -15585,10 +15629,6 @@ GUI:CantBuildTooManyDerrickDefenses
 "Bu petrol kuyularının çevresinde zaten iki savunmanız var."
 END
 
-TOOLTIP:StatTime
-"Üretim süresi"
-END
-
 TOOLTIP:StatSeconds
 "%d sn"
 END
@@ -15641,28 +15681,200 @@ TOOLTIP:StatNewWeaponFigures
 "%d hasar, %d menzil"
 END
 
-TOOLTIP:StatHealthHint
-"(zırhtan sonra kaldırabileceği hasar)"
+TOOLTIP:ArmorNo
+"Yok"
 END
 
-TOOLTIP:StatDamageHint
-"(ana silah, atış başına, zırhtan önce)"
+TOOLTIP:ArmorVulnerableAll
+"Yok"
 END
 
-TOOLTIP:StatAttackSpeedHint
-"(saniyedeki atış, şarjör doldurma dahil)"
+TOOLTIP:ArmorInvulnerable
+"Hasar almaz"
 END
 
-TOOLTIP:StatDamagePerSecondHint
-"(hasar × atış hızı)"
+TOOLTIP:ArmorInvulnerableAll
+"Hasar almaz"
 END
 
-TOOLTIP:StatRangeHint
-"(10, yerleştirme ızgarasının bir karesi)"
+TOOLTIP:ArmorHuman
+"Piyade"
 END
 
-TOOLTIP:StatTimeHint
-"(şu anki enerjiniz ve fabrikalarınızla)"
+TOOLTIP:ArmorHazMatHuman
+"Piyade"
+END
+
+TOOLTIP:ArmorChemSuitHuman
+"Piyade"
+END
+
+TOOLTIP:ArmorInfGen_Human
+"Piyade"
+END
+
+TOOLTIP:ArmorChemReb_Human
+"Piyade"
+END
+
+TOOLTIP:ArmorDemoGenTerrorist
+"Piyade"
+END
+
+TOOLTIP:ArmorStingerSoldier
+"Piyade"
+END
+
+TOOLTIP:ArmorTruck
+"Araç"
+END
+
+TOOLTIP:ArmorHumvee
+"Araç"
+END
+
+TOOLTIP:ArmorDozer
+"Araç"
+END
+
+TOOLTIP:ArmorToxinTruck
+"Araç"
+END
+
+TOOLTIP:ArmorAntiAirVehicle
+"Araç"
+END
+
+TOOLTIP:ArmorQuadCannon
+"Araç"
+END
+
+TOOLTIP:ArmorAvenger
+"Araç"
+END
+
+TOOLTIP:ArmorBattleBusTruck
+"Araç"
+END
+
+TOOLTIP:ArmorBattleBusTruckPlusOne
+"Araç"
+END
+
+TOOLTIP:ArmorBattleBusTruckPlusTwo
+"Araç"
+END
+
+TOOLTIP:ArmorTank
+"Tank"
+END
+
+TOOLTIP:ArmorUpgradedTank
+"Tank"
+END
+
+TOOLTIP:ArmorDragonTank
+"Tank"
+END
+
+TOOLTIP:ArmorAssaultCrawler
+"Tank"
+END
+
+TOOLTIP:ArmorAvalanche
+"Tank"
+END
+
+TOOLTIP:ArmorAirplane
+"Uçak"
+END
+
+TOOLTIP:ArmorCountermeasuresAirplane
+"Uçak"
+END
+
+TOOLTIP:ArmorSpectreGunship
+"Uçak"
+END
+
+TOOLTIP:ArmorCountermeasuresSpectreGunship
+"Uçak"
+END
+
+TOOLTIP:ArmorComanche
+"Helikopter"
+END
+
+TOOLTIP:ArmorAFG_Comanche
+"Helikopter"
+END
+
+TOOLTIP:ArmorCountermeasuresComanche
+"Helikopter"
+END
+
+TOOLTIP:ArmorAFG_CountermeasuresComanche
+"Helikopter"
+END
+
+TOOLTIP:ArmorChinook
+"Helikopter"
+END
+
+TOOLTIP:ArmorSentryDrone
+"Dron"
+END
+
+TOOLTIP:ArmorMine
+"Mayın"
+END
+
+TOOLTIP:ArmorStructure
+"Bina"
+END
+
+TOOLTIP:ArmorStructureInternetCenter
+"Bina"
+END
+
+TOOLTIP:ArmorStructureTough
+"Tahkimli"
+END
+
+TOOLTIP:ArmorGLAUpgradedStructure
+"Tahkimli"
+END
+
+TOOLTIP:ArmorGLAUpgradedStructureTough
+"Tahkimli"
+END
+
+TOOLTIP:ArmorBattleBusStructureTough
+"Tahkimli"
+END
+
+TOOLTIP:ArmorBattleBusStructureToughPlusOne
+"Tahkimli"
+END
+
+TOOLTIP:ArmorBattleBusStructureToughPlusTwo
+"Tahkimli"
+END
+
+TOOLTIP:ArmorBaseDefense
+"Savunma"
+END
+
+TOOLTIP:ArmorFireBase
+"Savunma"
+END
+
+TOOLTIP:ArmorStingerSite
+"Savunma"
+END
+
+TOOLTIP:ArmorWall
+"Duvar"
 END
 
 TOOLTIP:Upgrades
@@ -15747,6 +15959,26 @@ END
 
 GUI:HudStandings
 "Sıralama"
+END
+
+GUI:HudHighestFirst
+"en yüksek üstte"
+END
+
+GUI:HudPlayerHead
+"Oyuncu"
+END
+
+GUI:HudStatUnitMoney
+"$"
+END
+
+GUI:HudStatUnitIncome
+"$/dk"
+END
+
+GUI:HudStatUnitPower
+"fazla"
 END
 
 GUI:CheatPanelTitle
@@ -16075,6 +16307,14 @@ END
 
 TOOLTIP:SmoothMotion
 "60 Hz'den hızlı ekranda birimler, her konumu bir sonrakine kadar tutmak yerine son iki konumlarının arasında çizilir. 60 Hz ekranda fark görünmez. Yalnızca sizin görüntünüz değişir: oyundaki hiçbir şey bunu okumaz, diğer oyuncular kendi ayarını görür. Kabul'e basınca geçerli olur."
+END
+
+GUI:HeatHaze
+"Isı Dalgalanması"
+END
+
+TOOLTIP:HeatHaze
+"Yangınların üstünde, lazer ışınları boyunca ve füze egzozunun arkasında hava dalgalanır. Yalnızca Direct3D 11 ile, Klasik Grafikler açıkken kapalıdır. Kabul Et'e basınca uygulanır."
 END
 
 GUI:StructureCollapse
@@ -16447,6 +16687,26 @@ END
 
 GUI:HotkeysCommandAUTO_REPAIR
 "Tamir olmaya ya da iyileşmeye git"
+END
+
+GUI:HotkeysCommandTOGGLE_ATTACKMOVE
+"Saldırarak ilerle (sonraki tıklama)"
+END
+
+GUI:HotkeysCommandTOGGLE_FORCEATTACK
+"Zorla saldır (sonraki tıklama)"
+END
+
+GUI:HotkeysCommandTOGGLE_GUARD
+"Koru (sonraki tıklama)"
+END
+
+GUI:HotkeysCommandTOGGLE_MOVE
+"Hareket et (sonraki tıklama)"
+END
+
+GUI:HotkeysCommandHOLD_POSITION
+"Yerini koru"
 END
 
 // Maç yükleme ekranı (LoadScreen.cpp içindeki LoadScreenBoard)
@@ -17786,4 +18046,96 @@ END
 
 CONTROLBAR:ToolTipEvacuateAt
 "Seçtiğiniz yere gidip tüm birliklere çıkma emri verin\nAlt: burada indir"
+END
+
+GUI:OptionsTabWater
+"Su"
+END
+
+GUI:OptionsGroupReflections
+"Yansımalar"
+END
+
+GUI:OptionsGroupModernWater
+"Modern Su"
+END
+
+GUI:WaterReflectionEnabled
+"Sahne Yansıması"
+END
+
+TOOLTIP:WaterReflectionEnabled
+"Modern suda etraftaki her şey suya yansır. Kapatırsan oyun hızlanır, gökyüzünün rengi ve güneşin parıltısı yine kalır. Seçtiğin yansıma modu unutulmaz. Kabul Et'e basınca uygulanır."
+END
+
+GUI:WaterFftResolution
+"Dalga Ayrıntısı"
+END
+
+GUI:WaterFftResolution0
+"Düşük"
+END
+
+GUI:WaterFftResolution1
+"Yüksek"
+END
+
+TOOLTIP:WaterFftResolution
+"Modern sudaki dalgaların ince ayrıntısı. Düşük oyunu hızlandırır, Yüksek daha çok ayrıntı gösterir. Kabul Et'e basınca uygulanır."
+END
+
+GUI:WaterRefractionQuality
+"Kırılma"
+END
+
+GUI:WaterRefractionQuality0
+"Tam"
+END
+
+GUI:WaterRefractionQuality1
+"Basit"
+END
+
+GUI:WaterRefractionQuality2
+"Kapalı"
+END
+
+TOOLTIP:WaterRefractionQuality
+"Modern su için. Tam'da suyun altı dalgayla kırılıp kayar. Basit'te su yine berrak ama altı kırılmaz. Kapalı'da suyun altı görünmez, su düz bir renk alır ve oyun hızlanır. Kabul Et'e basınca uygulanır."
+END
+
+GUI:WaterReflectionDetail
+"Yansıma Ayrıntısı"
+END
+
+GUI:WaterReflectionDetail0
+"Düşük"
+END
+
+GUI:WaterReflectionDetail1
+"Yüksek"
+END
+
+TOOLTIP:WaterReflectionDetail
+"Modern sudaki sahne yansımasının ne kadar net olacağı. Düşük oyunu hızlandırır, Yüksek yansımayı netleştirir. SSR bundan etkilenmez. Kabul Et'e basınca uygulanır."
+END
+
+GUI:WaterReflection
+"Yansıma Modu"
+END
+
+GUI:WaterReflection0
+"Orijinal"
+END
+
+GUI:WaterReflection1
+"SSR"
+END
+
+GUI:WaterReflection2
+"Hibrit"
+END
+
+TOOLTIP:WaterReflection
+"Sahne Yansıması açıkken Modern su için. Orijinal, oyunun eski yansımasını kullanır. SSR ekranda gördüğün her şeyi yansıtır. Hibrit ikisini birleştirir, varsayılan da bu. Kabul Et'e basınca uygulanır."
 END

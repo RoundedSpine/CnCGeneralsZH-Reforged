@@ -875,8 +875,8 @@ void Player::setDefaultTeam(void) {
 	if (dt == NULL) {
 		/* A skirmish slot takes the name of the skirmish side its general's scripts are written for
 			 (initFromDict), drops its own teamplayer<n>, and gets its teams from those scripts instead.  A
-			 general the skirmish scripts have no player for - a mod's, under the fork's SkirmishScripts.scb -
-			 is left with no team at all, and the AI read the NULL on its first pass.  Every player is given
+			 general the skirmish scripts have no player for is left with no team at all, and the AI read
+			 the NULL on its first pass.  Every player is given
 			 its default team here, so the singleton validateSides would have added is made now. */
 		DEBUG_LOG(("Player::setDefaultTeam - %s had no %s, making it\n", m_playerName.str(), tname.str()));
 		Dict d;
@@ -916,7 +916,6 @@ void Player::initFromDict(const Dict* d)
 		// poorly-formed user maps might not, which would be bad, and could crash us later. so if it doesn't
 		// actually have a skirmish player defined for this side, declare it nonskirmish... the player won't
 		// really work, but it's better than crashing.
-		// -modfactions: a mod faction may have a skirmish player of its own mod's scripts, or retail's of its side
 		skirmish = pt != NULL && TheSidesList->findSkirmishSideFor(pt, NULL) != NULL;
 
 		DEBUG_ASSERTCRASH(skirmish, ("Could not find skirmish player for side %s... quietly making into nonskirmish.", getSide().str()));
@@ -975,7 +974,6 @@ void Player::initFromDict(const Dict* d)
 		AsciiString mySide = getSide();
 		Int i;
 		AsciiString  qualTemplatePlayerName;
-		// -modfactions: a mod faction runs its own mod's skirmish scripts and teams when the mod ships them
 		TeamsInfoRec *skirmishTeams = NULL;
 		SidesInfo *skirmishSide = TheSidesList->findSkirmishSideFor(getPlayerTemplate(), &skirmishTeams);
 		const Bool found = skirmishSide != NULL;
@@ -1410,16 +1408,15 @@ static void doFindSpecialPowerSourceObject( Object *obj, void *userData )
 			//We just care about find an object that has *any* shortcut capable special power.
 			//Iterate through the special power modules and look for one.
 			SpecialPowerModuleInterface *spmInterface = obj->findAnyShortcutSpecialPowerModuleInterface();
-			if( spmInterface && !spmInterface->isScriptOnly()
-					&& !SuperweaponMissileSilencedInMatch( spmInterface->getSpecialPowerTemplate()->getSpecialPowerType() ) )
+			if( spmInterface && !spmInterface->isScriptOnly() )
 			{
 				info->obj = obj;
 				info->lowestReadyFrame = 0;
 				return;
 			}
 		}
-		// a missile that can never fire gets no shortcut button and no hotkey
-		else if( obj->hasSpecialPower( info->spType ) && !SuperweaponMissileSilencedInMatch( info->spType ) )
+		// a silenced missile is no special power (SpecialPowerModule::getSpecialPower): no shortcut, no hotkey
+		else if( obj->hasSpecialPower( info->spType ) )
 		{
 			SpecialPowerModuleInterface *spmInterface = obj->findSpecialPowerModuleInterface( info->spType );
 			if( spmInterface && !spmInterface->isScriptOnly() )
@@ -1469,7 +1466,7 @@ static void doCountSpecialPowersReady( Object *obj, void *userData )
 			&& !obj->testStatus( OBJECT_STATUS_SOLD ) 
 			&& !obj->isEffectivelyDead() )
 	{
-		if( obj->hasSpecialPower( info->spType ) && !SuperweaponMissileSilencedInMatch( info->spType ) )
+		if( obj->hasSpecialPower( info->spType ) )
 		{
 			SpecialPowerModuleInterface *spmInterface = obj->findSpecialPowerModuleInterface( info->spType );
 			if( spmInterface && !spmInterface->isScriptOnly() )
@@ -1884,11 +1881,10 @@ void Player::onStructureConstructionComplete( Object *builder, Object *structure
     }
   }
 
-	// a silo whose missile can never fire is announced as nothing more than a building
-	if( ( structure->hasSpecialPower( SPECIAL_NEUTRON_MISSILE ) ||
+	// a silo whose missile is silenced has no special power at all, so it is announced as a building
+	if( structure->hasSpecialPower( SPECIAL_NEUTRON_MISSILE ) ||
 			structure->hasSpecialPower( NUKE_SPECIAL_NEUTRON_MISSILE ) ||
 			structure->hasSpecialPower( SUPW_SPECIAL_NEUTRON_MISSILE ) )
-			&& !SuperweaponMissileSilencedInMatch( SPECIAL_NEUTRON_MISSILE ) )
   {
     if ( localPlayer == structure->getControllingPlayer() )
     {
@@ -2804,14 +2800,6 @@ Bool Player::hasPrereqsForScience(ScienceType t) const
 }
 
 //=============================================================================
-/** The rank table a player climbs: under -modfactions a mod faction's is its own mod's Rank.ini, so
-	* it gets that mod's ranks, points and rank sciences ("M<n>~SCIENCE_Rank3") and nothing of retail's. */
-static Int rankMod(const Player *player)
-{
-	return player->getPlayerTemplate() ? player->getPlayerTemplate()->getModIndex() : -1;
-}
-
-//=============================================================================
 /// returns TRUE if the player gained/lost levels as a result.
 Bool Player::addSkillPoints(Int delta)
 {
@@ -2820,8 +2808,8 @@ Bool Player::addSkillPoints(Int delta)
 	if( delta == 0 )
 		return false;
 
-	Int levelCap = min( TheGameLogic->getRankLevelLimit(), TheRankInfoStore->getRankLevelCount(rankMod(this)) );
-	Int pointCap = TheRankInfoStore->getRankInfo(levelCap, rankMod(this))->m_skillPointsNeeded; // Cap at lowest point of cap level, not highest.
+	Int levelCap = min( TheGameLogic->getRankLevelLimit(), TheRankInfoStore->getRankLevelCount() );
+	Int pointCap = TheRankInfoStore->getRankInfo(levelCap)->m_skillPointsNeeded; // Cap at lowest point of cap level, not highest.
 
 	Bool levelGained = FALSE;
 	m_skillPoints = min( pointCap, (m_skillPoints + delta) );
@@ -2863,7 +2851,7 @@ void Player::resetSciences()
 
 	for (Int i = 1; i <= m_rankLevel; ++i)
 	{
-		const RankInfo* rank = TheRankInfoStore->getRankInfo(i, rankMod(this));
+		const RankInfo* rank = TheRankInfoStore->getRankInfo(i);
 		if (rank)
 		{
 			for (ScienceVec::const_iterator it = rank->m_sciencesGranted.begin(); it != rank->m_sciencesGranted.end(); ++it)
@@ -3048,12 +3036,12 @@ void Player::resetRank()
 {
 	m_rankLevel = 1;
 	m_skillPoints = 0;
-	const RankInfo* nextRank = TheRankInfoStore->getRankInfo(m_rankLevel+1, rankMod(this));
+	const RankInfo* nextRank = TheRankInfoStore->getRankInfo(m_rankLevel+1);
 	m_levelUp = nextRank ? nextRank->m_skillPointsNeeded : INT_MAX;
 	m_levelDown = 0;
 	m_sciences.clear();
 	m_sciencePurchasePoints = getPlayerTemplate() ? getPlayerTemplate()->getIntrinsicSciencePurchasePoints() : 0;
-	const RankInfo* curRank = TheRankInfoStore->getRankInfo(m_rankLevel, rankMod(this));
+	const RankInfo* curRank = TheRankInfoStore->getRankInfo(m_rankLevel);
 	m_sciencePurchasePoints += curRank ? curRank->m_sciencePurchasePointsGranted : 0;
 	m_generalName = TheGameText? TheGameText->fetch("SCIENCE:GeneralName"):UnicodeString::TheEmptyString;
 	resetSciences();
@@ -3065,8 +3053,8 @@ Bool Player::setRankLevel(Int newLevel)
 {
 	if (newLevel < 1) 
 		newLevel = 1;
-	else if (newLevel > TheRankInfoStore->getRankLevelCount(rankMod(this)))
-		newLevel = TheRankInfoStore->getRankLevelCount(rankMod(this));
+	else if (newLevel > TheRankInfoStore->getRankLevelCount())
+		newLevel = TheRankInfoStore->getRankLevelCount();
 
 	if (newLevel > TheGameLogic->getRankLevelLimit())
 		newLevel = TheGameLogic->getRankLevelLimit();
@@ -3086,7 +3074,7 @@ Bool Player::setRankLevel(Int newLevel)
 
 	for (Int i = m_rankLevel + 1; i <= newLevel; ++i)
 	{
-		const RankInfo* rank = TheRankInfoStore->getRankInfo(i, rankMod(this));
+		const RankInfo* rank = TheRankInfoStore->getRankInfo(i);
 		DEBUG_ASSERTCRASH(rank, ("rank should never be null here"));
 		if (rank)
 		{
@@ -3108,7 +3096,7 @@ Bool Player::setRankLevel(Int newLevel)
 		}
 	}
 
-	const RankInfo* nextRank = TheRankInfoStore->getRankInfo(newLevel + 1, rankMod(this));
+	const RankInfo* nextRank = TheRankInfoStore->getRankInfo(newLevel + 1);
 	m_levelUp = nextRank ? nextRank->m_skillPointsNeeded : INT_MAX;
 	m_rankLevel = newLevel;
 
@@ -3279,7 +3267,9 @@ Int SuperweaponBuildCap( Int restriction, const AsciiString &playerTemplateName,
     return isSuperweaponGeneral ? SUPERWEAPONS_LIMIT_GENERAL : SUPERWEAPONS_LIMIT_OTHERS;
 
   // the silo sells China's Uranium Shells, Nuclear Tanks and Neutron Shells, so under No every
-  // player still stands one and only its missile is refused (SuperweaponMissileSilenced)
+  // player, the computer too, still stands one, and its missile is no special power at all
+  // (SuperweaponMissileSilenced).  The computer builds it for those upgrades, never as its
+  // superweapon (IsSuperweaponInMatch).
   if ( restriction == SUPERWEAPONS_NONE && ProRulesExemptSuperweapon( buildingName ) )
     return SUPERWEAPONS_LIMIT_OTHERS;
 
@@ -3370,14 +3360,6 @@ Bool SuperweaponMissileSilencedInMatch( SpecialPowerType specialPowerType )
 {
   return SuperweaponMissileSilenced( specialPowerType, TheGameLogic->isProRules(),
                                      TheGameLogic->getSuperweaponRestriction() );
-}
-
-Bool SuperweaponSiloSilencedInMatch( const Object *structure )
-{
-  return ( structure->hasSpecialPower( SPECIAL_NEUTRON_MISSILE )
-           || structure->hasSpecialPower( NUKE_SPECIAL_NEUTRON_MISSILE )
-           || structure->hasSpecialPower( SUPW_SPECIAL_NEUTRON_MISSILE ) )
-         && SuperweaponMissileSilencedInMatch( SPECIAL_NEUTRON_MISSILE );
 }
 
 Bool ProRulesRefuseSpecialPower( const Player *player, SpecialPowerType specialPowerType )
@@ -3526,8 +3508,20 @@ Bool DefenseCountsForSuperweapons( Int buildCost )
 Bool SuperweaponNeedsDefenses( const AsciiString &buildingName, Bool proRules, Int superweaponRestriction,
                                Bool computerPlayer )
 {
-  return computerPlayer && !( ProRulesExemptSuperweapon( buildingName )
-            && SuperweaponMissileSilenced( SPECIAL_NEUTRON_MISSILE, proRules, superweaponRestriction ) );
+  return computerPlayer && !SuperweaponSiloIsUpgradeBuilding( buildingName, proRules, superweaponRestriction );
+}
+
+Bool SuperweaponSiloIsUpgradeBuilding( const AsciiString &buildingName, Bool proRules, Int superweaponRestriction )
+{
+  return ProRulesExemptSuperweapon( buildingName )
+         && SuperweaponMissileSilenced( SPECIAL_NEUTRON_MISSILE, proRules, superweaponRestriction );
+}
+
+Bool IsSuperweaponInMatch( const ThingTemplate *tmpl )
+{
+  return tmpl->isKindOf( KINDOF_FS_SUPERWEAPON )
+         && !SuperweaponSiloIsUpgradeBuilding( tmpl->getName(), TheGameLogic->isProRules(),
+                                               TheGameLogic->getSuperweaponRestriction() );
 }
 
 /* A defence counts once it stands finished, so a foundation put down and cancelled never unlocks
@@ -3545,7 +3539,7 @@ static void countSuperweaponDefenses( Object *obj, void *userData )
     return;
 
   SuperweaponDefenseCount *count = (SuperweaponDefenseCount *)userData;
-  if ( obj->isKindOf( KINDOF_FS_SUPERWEAPON ) )
+  if ( IsSuperweaponInMatch( obj->getTemplate() ) )
     count->superweapons++;
   else if ( obj->isKindOf( KINDOF_FS_BASE_DEFENSE ) && !obj->testStatus( OBJECT_STATUS_UNDER_CONSTRUCTION )
     && DefenseCountsForSuperweapons( obj->getTemplate()->friend_getBuildCost() ) )

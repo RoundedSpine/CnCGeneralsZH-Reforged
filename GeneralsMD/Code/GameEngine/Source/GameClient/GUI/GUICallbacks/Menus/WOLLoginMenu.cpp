@@ -71,6 +71,8 @@
 #include "GameNetwork/GameSpy/PersistentStorageThread.h"
 
 #include "GameNetwork/GameSpyOverlay.h"
+#include "GameNetwork/Online/OnlineQueues.h"
+#include "GameNetwork/Transport.h"
 
 #include "GameNetwork/WOLBrowser/WebBrowser.h"
 
@@ -297,6 +299,43 @@ AsciiStringList GameSpyLoginPreferences::getEmails( void )
 static const char *PREF_FILENAME = "GameSpyLogin.ini";
 static GameSpyLoginPreferences *loginPref = NULL;
 
+/* -online.  The login that went out: its email keys the remembered session token, and the relay
+	 handshake waits for this login's ticket, never one an earlier login left behind. */
+static Bool s_rememberLogin = FALSE;
+static Bool s_onlineLoginPending = FALSE;
+static Bool s_onlineRelayTried = FALSE;
+static AsciiString s_onlineLoginEmail;
+static UnsignedByte s_onlineUsedTicket[16];
+
+static void onlineLoginSent( const AsciiString &email, const char *how )
+{
+	s_onlineLoginPending = TRUE;
+	s_onlineRelayTried = FALSE;
+	s_onlineLoginEmail = email;
+	DEBUG_LOG(("ONLINE LOGIN sent how=%s\n", how));
+}
+
+/// The UDP half of an -online login: HELLO_AUTH as soon as this login's ticket is in
+static void onlineOpenRelayWhenTicketed( void )
+{
+	UnsignedByte ticket[16];
+	if (!s_onlineLoginPending || s_onlineRelayTried || !OnlineGetRelayTicket( ticket )
+		|| memcmp( ticket, s_onlineUsedTicket, sizeof(ticket) ) == 0)
+		return;
+	memcpy( s_onlineUsedTicket, ticket, sizeof(ticket) );
+	s_onlineRelayTried = TRUE;
+	if (Transport::openOnlineRelay())
+	{
+		const UnsignedInt vip = Transport::getRelayIP();
+		DEBUG_LOG(("ONLINE RELAY ok vip=%d.%d.%d.%d\n", vip >> 24, (vip >> 16) & 0xff, (vip >> 8) & 0xff, vip & 0xff));
+	}
+	else
+	{
+		DEBUG_LOG(("ONLINE RELAY fail\n"));		// the login then times out and says it could not connect
+	}
+}
+
+
 static void startPings( void )
 {
 	std::list<AsciiString> pingServers = TheGameSpyConfig->getPingServers();
@@ -429,6 +468,8 @@ void EnableLoginControls( Bool state )
 //-------------------------------------------------------------------------------------------------
 /** Initialize the WOL Login Menu */
 //-------------------------------------------------------------------------------------------------
+static void onlineLoginScreen( void );
+
 void WOLLoginMenuInit( WindowLayout *layout, void *userData )
 {
 	nextScreen = NULL;
@@ -698,6 +739,7 @@ void WOLLoginMenuInit( WindowLayout *layout, void *userData )
 #endif // ALLOW_NON_PROFILED_LOGIN
 
 	EnableLoginControls(TRUE);
+	onlineLoginScreen();
 
 	// Show Menu
 	layout->hide( FALSE );
@@ -789,18 +831,82 @@ static void checkLogin( void )
 	}
 }
 
+/* -onlineuser/-onlinepass: fill the fields and press Login as a player would, once per process; a refusal
+	 leaves the screen to a person.  No password logs in with the token a remembered login saved. */
+static void onlineAutoLogin( void )
+{
+	static Bool s_done = FALSE;
+	if (s_done || !OnlineIsEnabled() || TheGlobalData->m_onlineUser.isEmpty() || loginAttemptTime
+		|| !comboBoxEmail || !textEntryPassword || !parentWOLLogin || !buttonLogin)
+		return;
+	s_done = TRUE;
+
+	UnicodeString text;
+	text.translate( TheGlobalData->m_onlineUser );
+	GadgetComboBoxSetText( comboBoxEmail, text );
+	text.translate( TheGlobalData->m_onlinePass );
+	GadgetTextEntrySetText( textEntryPassword, text );
+	if (checkBoxRememberPassword)
+		GadgetCheckBoxSetChecked( checkBoxRememberPassword, TRUE );
+
+	DEBUG_LOG(("ONLINE AUTOLOGIN login\n"));
+	TheWindowManager->winSendSystemMsg( parentWOLLogin, GBM_SELECTED, (WindowMsgData)buttonLogin, buttonLoginID );
+}
+
+/* -online: the game only logs in, the site makes accounts (the owner's call of 2026-11-06).  One field takes
+	 the email or the nick, so the nick box and the birth date go; Create Account opens the site's register
+	 page the server named in its welcome, and goes too when it named none. */
+static void onlineLoginScreen( void )
+{
+	if (!OnlineIsEnabled())
+		return;
+	const char *hidden[] = { "GameSpyLoginProfile.wnd:WinAge", "GameSpyLoginProfile.wnd:StaticTextLoginName",
+		"GameSpyLoginProfile.wnd:ComboBoxLoginName" };
+	AsciiString shown;
+	for (Int i = 0; i < (Int)ARRAY_SIZE(hidden); ++i)
+	{
+		GameWindow *win = TheWindowManager->winGetWindowFromId( NULL, NAMEKEY( hidden[i] ) );
+		if (win)
+			win->winHide( TRUE );
+	}
+	GameWindow *emailLabel = TheWindowManager->winGetWindowFromId( NULL, NAMEKEY( "GameSpyLoginProfile.wnd:StaticTextEmail" ) );
+	if (emailLabel)
+		GadgetStaticTextSetText( emailLabel, TheGameText->fetch( "GUI:OnlineLoginName" ) );
+	const AsciiString url = OnlineGetRegisterUrl();
+	if (buttonCreateAccount)
+		buttonCreateAccount->winHide( url.isEmpty() );
+	// what a player can type into, for online_check.py: a window counts when neither it nor a parent is hidden
+	const struct { GameWindow *win; const char *name; } fields[] = { { comboBoxEmail, "login" }, { comboBoxLoginName, "nick" },
+		{ textEntryPassword, "password" }, { textEntryMonth, "birthdate" }, { checkBoxRememberPassword, "remember" } };
+	for (Int i = 0; i < (Int)ARRAY_SIZE(fields); ++i)
+	{
+		Bool visible = fields[i].win != NULL;
+		for (GameWindow *w = fields[i].win; w && visible; w = w->winGetParent())
+			visible = !w->winIsHidden();
+		if (!visible)
+			continue;
+		if (shown.isNotEmpty())
+			shown.concat( "," );
+		shown.concat( fields[i].name );
+	}
+	DEBUG_LOG(("ONLINE LOGINSCREEN fields=%s register=%s\n", shown.str(), url.isEmpty() ? "hidden" : url.str()));
+}
+
 //-------------------------------------------------------------------------------------------------
 /** WOL Login Menu update method */
 //-------------------------------------------------------------------------------------------------
 void WOLLoginMenuUpdate( WindowLayout * layout, void *userData)
 {
 
-	// We'll only be successful if we've requested to 
+	// We'll only be successful if we've requested to
 	if(isShuttingDown && TheShell->isAnimFinished() && TheTransitionHandler->isFinished())
 		shutdownComplete(layout);
 
 	if (TheShell->isAnimFinished() && !buttonPushed && TheGameSpyPeerMessageQueue)
 	{
+		onlineAutoLogin();
+		onlineOpenRelayWhenTicketed();
+
 		PingResponse pingResp;
 		if (ThePinger && ThePinger->getResponse(pingResp))
 		{
@@ -840,10 +946,25 @@ void WOLLoginMenuUpdate( WindowLayout * layout, void *userData)
 
 					GameSpyMiscPreferences miscPref;
 					TheGameSpyInfo->setMaxMessagesPerUpdate(miscPref.getMaxMessagesPerUpdate());
+
+					if (OnlineIsEnabled())
+					{
+						// the session token is what is remembered, never the password
+						s_onlineLoginPending = FALSE;
+						OnlineSaveToken( s_onlineLoginEmail, s_rememberLogin ? OnlineGetSessionToken() : AsciiString::TheEmptyString );
+						const UnsignedInt vip = Transport::getRelayIP();
+						DEBUG_LOG(("ONLINE LOGIN ok vip=%d.%d.%d.%d nick=%s\n", vip >> 24, (vip >> 16) & 0xff, (vip >> 8) & 0xff, vip & 0xff,
+							resp.nick.c_str()));
+					}
 				}
 				break;
 			case PeerResponse::PEERRESPONSE_DISCONNECT:
 				{
+					if (OnlineIsEnabled())
+					{
+						s_onlineLoginPending = FALSE;
+						DEBUG_LOG(("ONLINE LOGIN fail reason=%d\n", resp.discon.reason));
+					}
 					loginAttemptTime = 0;
 					UnicodeString title, body;
 					AsciiString disconMunkee;
@@ -871,6 +992,11 @@ void WOLLoginMenuUpdate( WindowLayout * layout, void *userData)
 	{
 		// timed out a login attempt, so say so
 		loginAttemptTime = 0;
+		if (OnlineIsEnabled())
+		{
+			s_onlineLoginPending = FALSE;
+			DEBUG_LOG(("ONLINE LOGIN fail reason=timeout\n"));
+		}
 		UnicodeString title, body;
 		AsciiString disconMunkee;
 		disconMunkee.format("GUI:GSDisconReason4");	// ("could not connect to server")
@@ -1237,6 +1363,15 @@ WindowMsgHandledType WOLLoginMenuSystem( GameWindow *window, UnsignedInt msg,
 #endif // ALLOW_NON_PROFILED_LOGIN
 				else if ( controlID == buttonCreateAccountID )
 				{
+					// -online: accounts are made on the site; the button opens its register page.  A test server's
+					// copies only log the address, so a scripted run puts no browser on the desktop
+					if (OnlineIsEnabled())
+					{
+						const AsciiString url = OnlineGetRegisterUrl();
+						const Bool opened = url.isNotEmpty() && !OnlineIsTestServer() && OnlineOpenURL( url.str() );
+						DEBUG_LOG(("ONLINE REGISTER url=%s opened=%d\n", url.str(), (Int)opened));
+						break;
+					}
 #ifdef ALLOW_NON_PROFILED_LOGIN
 					if (GameSpyUseProfiles)
 					{
@@ -1272,11 +1407,11 @@ WindowMsgHandledType WOLLoginMenuSystem( GameWindow *window, UnsignedInt msg,
 							//TheGameSpyInfo->setLocalProfileID( resp.player.profileID );
 							TheGameSpyInfo->setLocalEmail( email );
 							TheGameSpyInfo->setLocalPassword( password );
-							DEBUG_LOG(("before create: TheGameSpyInfo->stuff(%s/%s/%s)\n", TheGameSpyInfo->getLocalBaseName().str(), TheGameSpyInfo->getLocalEmail().str(), TheGameSpyInfo->getLocalPassword().str()));
 
 							TheGameSpyBuddyMessageQueue->addRequest( req );
-							if(checkBoxRememberPassword && GadgetCheckBoxIsChecked(checkBoxRememberPassword))
-							{	
+							s_rememberLogin = checkBoxRememberPassword && GadgetCheckBoxIsChecked(checkBoxRememberPassword);
+							if(s_rememberLogin)
+							{
 								(*loginPref)["lastName"] = login;
 								(*loginPref)["lastEmail"] = email;
 								(*loginPref)["useProfiles"] = "yes";
@@ -1285,9 +1420,9 @@ WindowMsgHandledType WOLLoginMenuSystem( GameWindow *window, UnsignedInt msg,
 								date.concat(day);
 								date.concat(year);
 
-								loginPref->addLogin(email, login, password, date);
+								// -online keeps the session token instead (OnlineSaveToken at login)
+								loginPref->addLogin(email, login, OnlineIsEnabled() ? AsciiString::TheEmptyString : password, date);
 							}
-
 							EnableLoginControls( FALSE );
 
 							// fire off some pings
@@ -1336,8 +1471,9 @@ WindowMsgHandledType WOLLoginMenuSystem( GameWindow *window, UnsignedInt msg,
 						month.translate( GadgetTextEntryGetText(textEntryMonth) );
 						day.translate( GadgetTextEntryGetText(textEntryDay) );
 						year.translate( GadgetTextEntryGetText(textEntryYear) );
-						
-						if(!isAgeOkay(month, day, year))
+
+						// -online asks no birth date: the site's register page is where an account is made
+						if(!OnlineIsEnabled() && !isAgeOkay(month, day, year))
 						{
 							GSMessageBoxOk(TheGameText->fetch("GUI:AgeFailedTitle"), TheGameText->fetch("GUI:AgeFailed"));
 							break;
@@ -1346,26 +1482,39 @@ WindowMsgHandledType WOLLoginMenuSystem( GameWindow *window, UnsignedInt msg,
 						email.translate( GadgetComboBoxGetText(comboBoxEmail) );
 						login.translate( GadgetComboBoxGetText(comboBoxLoginName) );
 						password.translate( GadgetTextEntryGetText(textEntryPassword) );
+						if (OnlineIsEnabled())
+							login = email;		// one field, the email or the nick: the server takes either
 
-						if ( !email.isEmpty() && !login.isEmpty() && !password.isEmpty() )
+						// -online: an empty password with a remembered session token logs in with the token
+						AsciiString token;
+						if (OnlineIsEnabled() && password.isEmpty() && !email.isEmpty())
+							token = OnlineGetSavedToken( email );
+
+						if ( !email.isEmpty() && !login.isEmpty() && (!password.isEmpty() || token.isNotEmpty()) )
 						{
 							loginAttemptTime = Clock_Milliseconds();
-							BuddyRequest req;
-							req.buddyRequestType = BuddyRequest::BUDDYREQUEST_LOGIN;
-							strcpy(req.arg.login.nick, login.str());
-							strcpy(req.arg.login.email, email.str());
-							strcpy(req.arg.login.password, password.str());
-							req.arg.login.hasFirewall = true;
-							
 							TheGameSpyInfo->setLocalBaseName( login );
 							//TheGameSpyInfo->setLocalProfileID( resp.player.profileID );
 							TheGameSpyInfo->setLocalEmail( email );
 							TheGameSpyInfo->setLocalPassword( password );
-							DEBUG_LOG(("before login: TheGameSpyInfo->stuff(%s/%s/%s)\n", TheGameSpyInfo->getLocalBaseName().str(), TheGameSpyInfo->getLocalEmail().str(), TheGameSpyInfo->getLocalPassword().str()));
 
-							TheGameSpyBuddyMessageQueue->addRequest( req );
-							if(checkBoxRememberPassword && GadgetCheckBoxIsChecked(checkBoxRememberPassword))
-							{	
+							if (token.isNotEmpty())
+							{
+								OnlineResume( token );
+							}
+							else
+							{
+								BuddyRequest req;
+								req.buddyRequestType = BuddyRequest::BUDDYREQUEST_LOGIN;
+								strcpy(req.arg.login.nick, login.str());
+								strcpy(req.arg.login.email, email.str());
+								strcpy(req.arg.login.password, password.str());
+								req.arg.login.hasFirewall = true;
+								TheGameSpyBuddyMessageQueue->addRequest( req );
+							}
+							s_rememberLogin = checkBoxRememberPassword && GadgetCheckBoxIsChecked(checkBoxRememberPassword);
+							if(s_rememberLogin)
+							{
 								(*loginPref)["lastName"] = login;
 								(*loginPref)["lastEmail"] = email;
 								(*loginPref)["useProfiles"] = "yes";
@@ -1374,12 +1523,15 @@ WindowMsgHandledType WOLLoginMenuSystem( GameWindow *window, UnsignedInt msg,
 								date.concat(day);
 								date.concat(year);
 
-								loginPref->addLogin(email, login, password,date);
+								// -online keeps the session token instead (OnlineSaveToken at login)
+								loginPref->addLogin(email, login, OnlineIsEnabled() ? AsciiString::TheEmptyString : password, date);
 							}
 							else
 							{
 								loginPref->forgetLogin(email);
 							}
+							if (OnlineIsEnabled())
+								onlineLoginSent( email, token.isNotEmpty() ? "resume" : "login" );
 							EnableLoginControls( FALSE );
 
 							// fire off some pings

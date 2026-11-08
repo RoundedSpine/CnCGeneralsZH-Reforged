@@ -505,31 +505,6 @@ Int ControlBar_commandGroup( const class CommandButton *command );
 	* what does not fit goes on in the next row down with room, then in the rows above. */
 Bool ControlBar_commandPlaces( const Int *types, const Int *groups, const Int *pinned, Int count, Int *places );
 
-/** Which command set slot each of `count` bar windows shows, -1 for none: `types` is what each slot
-	* holds, GUI_COMMAND_NONE for an empty one, and `windowed` whether ControlBar.wnd has that slot's
-	* window.  A slot with a window shows itself.  A mod drawn for a bigger bar (Contra's eighteen, whose
-	* units keep attack move, guard and stop in 15, 17 and 18) names slots our fourteen have no window
-	* for; such a button moves to an empty window, the three orders to Zero Hour's own 11, 13 and 14
-	* when free, anything else to the first empty one. */
-void ControlBar_fitCommandSlots( const Int *types, const Bool *windowed, Int count, Int *shown );
-
-enum
-{
-	COMMAND_GRID_NARROW_SLOTS = 14,		///< ButtonCommand01 to 14, the bar every set of Zero Hour's fits
-	COMMAND_GRID_WIDE_STEP = 92,			///< one column of two cells, at the 1920x1080 the bar was drawn at
-};
-
-/** TRUE when one command set, `types` as ControlBar_fitCommandSlots takes them, shows more buttons
-	* than the fourteen-slot grid has windows for, so ControlBar_fitCommandSlots would have to drop
-	* some: a mod drawn for ControlBar Pro's eighteen (Contra's edit).  A promotion screen's set, the
-	* only one of Zero Hour's with a slot past 14, is laid out on its own screen and never counts. */
-Bool ControlBar_needsWideCommandGrid( const Int *types, Int count );
-
-/** Whether the bar uses its window for `slot`.  spareWindows: our layout's 15 to 18 stand hidden past
-	* the plate, which a mod's own ControlBar.wnd does not do; wide: ControlBar::isCommandGridWide.  Our
-	* narrow bar is the only one that leaves windows out. */
-Bool ControlBar_usesCommandWindow( Int slot, Bool spareWindows, Bool wide );
-
 /** The page's keys past attack, hold position and move, which no command set has a button for either. */
 enum OrderKeyExtra
 {
@@ -1058,11 +1033,6 @@ public:
 		* set - because it remembers both the authored rectangle and the one it last handed out. */
 	void layoutPanels( void );
 
-	/** TRUE when the loaded command sets need all eighteen command windows and our ControlBar.wnd
-		* is the layout: the grid is then nine columns, one more at each end of the plate, and the
-		* scheme draws its painting's <name>Wide copy.  Fixed when the windows are looked up. */
-	Bool isCommandGridWide( void ) const { return m_commandGridWide; }
-
 	/// Whether command set slot `slot` has a window on this bar, for what lays a set out without an object.
 	Bool hasCommandWindow( Int slot ) const { return m_commandWindows[ slot ] != NULL; }
 
@@ -1255,7 +1225,6 @@ protected:
 
 	IRegion2D m_panelRect[ CB_PANEL_COUNT ];				///< screen rect of each panel, filled by layoutPanels()
 	ICoord2D m_panelOrigin;													///< where the frame was put, so the plates can follow it
-	Bool m_commandGridWide;												///< see isCommandGridWide
 	Bool m_UIDirty;																///< the context UI must be re-evaluated
 
 	ControlBarSchemeManager *m_controlBarSchemeManager;		///< The Scheme singleton
@@ -1413,8 +1382,8 @@ public:
 	/// the same with the prices and figures counted for player rather than the local one
 	void populateBuildTooltipLayout( const CommandButton *commandButton, GameWindow *tooltipWin, Player *player );
 	void repopulateBuildTooltipLayout( void );
-	/// where the popup lives, so -uidrill can read the rectangle it landed in.  The tooltip is placed
-	/// against BackgroundMarker's screen position, so it goes wherever the bar's windows went
+	/// where the popup lives, so -uidrill can read the rectangle it landed in.  The tooltip stands on
+	/// the radar's frame, so it goes wherever the bar's windows went
 	WindowLayout *getBuildTooltipLayout( void ) { return m_buildToolTipLayout; }
 private:
 
@@ -1570,6 +1539,26 @@ extern void ControlBarLayoutUniform( GameWindow *root, Real anchorFracX, Real an
 //-------------------------------------------------------------------------------------------------
 extern Int ControlBar_secondsFromFrames( Real frames );
 extern Int ControlBar_secondsFromFramesAt( Real frames, Int logicFps );	///< ...at a rate you name
+
+//-------------------------------------------------------------------------------------------------
+/** What the build card's draw (W3DCommandBarHelpPopupDraw) puts beside the .wnd's texts: the price and
+	* build time at the header's right, then a row of figure cells, each an icon and its value.  Filled by
+	* ControlBar::populateBuildTooltipLayout. */
+//-------------------------------------------------------------------------------------------------
+struct BuildTooltipFigures
+{
+	enum { MAX_CELLS = 7 };
+	/// a card with no figures wears the short top row (<prefix>TipHead*, 38 high at 1080) and its
+	/// description starts here (the generator's TIP_TEXT_HEAD)
+	enum { HEAD_HEIGHT = 36 };
+	UnicodeString cost;									///< empty when there is nothing to pay
+	Bool costIsMoney;										///< the money icon goes before it; a science's points go without
+	UnicodeString time;									///< empty for none
+	Int cellCount;											///< 0: no row, and the description moves up into it
+	Int cellIcon[ MAX_CELLS ];					///< ControlBarTooltipImages::ICON_*
+	UnicodeString cellValue[ MAX_CELLS ];
+};
+extern const BuildTooltipFigures& ControlBarBuildTooltipFigures( void );
 
 #endif  // end __CONTROLBAR_H_
 

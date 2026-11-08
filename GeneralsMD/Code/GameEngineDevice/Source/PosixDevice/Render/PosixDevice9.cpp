@@ -1045,3 +1045,8 @@ void PosixDevice9::Trace_Memory_Caches(const char *stage)
         Programs?Programs->Programs_Built():0,Pipelines?Pipelines->Pipelines_Built():0,
         Gpu->Sample_Count(),int(Gpu->Hdr_Active()),int(Gpu->Memory_Constrained()));
 }
+
+bool PosixWaterGpuAvailable(IDirect3DDevice9 *device)
+{
+	return device && static_cast<PosixDevice9 *>(device)->Get_Gpu();
+}

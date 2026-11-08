@@ -268,7 +268,7 @@ static void AIUpdate_traceMove( const Object *obj, const Coord3D& framePos, Bool
 		const LocomotorTemplate* lt = TheLocomotorStore->findLocomotorTemplate(locoKey);
 		if (!lt && ini->getLoadType() == INI_LOAD_MULTIFILE)
 		{
-			// a patch INI loaded over a mod can name a locomotor the mod renamed or removed
+			// a patch INI can name a locomotor the loaded data renamed or removed
 			DEBUG_LOG(("[LINE: %d in '%s'] locomotor '%s' does not exist; the reference is skipped.\n", ini->getLineNum(), ini->getFilename().str(), locoName));
 			continue;
 		}
@@ -2249,8 +2249,16 @@ Bool AIUpdateInterface::computePath( PathfindServicesInterface *pathServices, Co
 			theNewPath = pathServices->patchPath( getObject(), m_locomotorSet, 
 				getPath(), m_isBlockedAndStuck);
 		}	else {
-			theNewPath = pathServices->findPath( getObject(), m_locomotorSet, getObject()->getPosition(), 
+			theNewPath = pathServices->findPath( getObject(), m_locomotorSet, getObject()->getPosition(),
 				destination);
+			if (theNewPath == NULL && TheAI->pathfinder()->isSearchSuspended( getObject()->getID() )) {
+				// the queue's cells for this frame ran out inside the search: still waiting, still at
+				// the head of the queue, and the search carries on from where it stopped next frame
+				TheAI->pathfinder()->setIgnoreObstacleID( INVALID_ID );
+				TheAI->pathfinder()->setIgnoreUnderConstruction( FALSE );
+				m_waitingForPath = TRUE;
+				return FALSE;
+			}
 		}
 	}
 	if (theNewPath==NULL && m_path==NULL) {
@@ -2823,7 +2831,7 @@ void AIUpdateInterface::updateProgress( void )
 	}
 
 	Real turnBar = STUCK_TURN_EPSILON;
-	const Real rate = m_curLocomotor->getMaxTurnRate( damage );
+	const Real rate = m_curLocomotor->getMaxTurnRate( damage, self );
 	if (rate * 0.5f > turnBar)
 		turnBar = rate * 0.5f;
 
@@ -7156,15 +7164,11 @@ Object* AIUpdateInterface::getNextMoodTarget( Bool calledByAI, Bool calledDuring
 	}
 
 	//
-	// A caller that closes with what it finds picks the biggest threat in range instead of the
-	// nearest thing (see AI_threatScore).  Walking up to a dozer while the artillery next to it
-	// keeps firing is only sensible for a unit that cannot move to a better target - and this
-	// caller can.
+	// Every caller picks what its weapons kill best for the time it takes rather than the nearest
+	// thing (see aiTargetTier): a Humvee the Technical, a tank the tank, and whoever is shooting it
+	// before anything it would have to drive to.
 	//
-	if (allowOutOfWeaponRangeTargets)
-	{
-		flags |= AI::PREFER_HIGH_THREAT;
-	}
+	flags |= AI::PREFER_BEST_TARGET;
 
 	//
 	// ... and an aircraft only makes that long look forward - see PartitionFilterForwardArc.

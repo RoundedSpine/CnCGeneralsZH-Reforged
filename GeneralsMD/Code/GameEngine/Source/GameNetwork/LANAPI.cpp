@@ -361,15 +361,13 @@ static void terminateLANMessageStrings( LANMessage *msg, Int length )
 			msg->PlayerInfo.playerName[g_lanPlayerNameLength] = 0;
 			break;
 		case LANMessage::MSG_REQUEST_JOIN:
-			msg->GameToJoin.modNamePad = 0;		// ends the serial, which has no room of its own for it
-			msg->GameToJoin.modName[g_lanModNameLength] = 0;
+			msg->GameToJoin.serial[g_maxSerialLength-1] = 0;
 			break;
 		case LANMessage::MSG_JOIN_ACCEPT:
 			msg->GameJoined.gameName[g_lanGameNameLength] = 0;
 			break;
 		case LANMessage::MSG_JOIN_DENY:
 			msg->GameNotJoined.gameName[g_lanGameNameLength] = 0;
-			msg->GameNotJoined.modName[g_lanModNameLength] = 0;
 			break;
 		case LANMessage::MSG_SET_ACCEPT:
 			msg->Accept.gameName[g_lanGameNameLength] = 0;
@@ -727,9 +725,6 @@ void LANAPI::RequestGameJoin( LANGameInfo *game, UnsignedInt ip /* = 0 */ )
 	// and the far end reads these as C strings out of the packet.
 	strlcpy(msg.GameToJoin.serial, s.str(), ARRAY_SIZE(msg.GameToJoin.serial));
 	msg.GameToJoin.serial[g_maxSerialLength-1] = '\0';
-	// so a host whose INI set differs can tell the player it is the mod and which one (handleRequestJoin)
-	WideCharFromUtf8(TheGlobalData->m_modName.str(), msg.GameToJoin.modName, ARRAY_SIZE(msg.GameToJoin.modName));
-	msg.GameToJoin.baseExeCRC = TheGlobalData->m_baseExeCRC;
 
 	sendMessage(&msg, ip);
 
@@ -1364,6 +1359,8 @@ void LANAPI::listenForBroadcasts( void )
 		 itself, and a second wildcard socket would take each one twice. */
 	if (m_localIP == 0 || m_localIP == INADDR_ANY)
 		return;
+	if (TheGlobalData->m_relayHost.isNotEmpty())		// the relay delivers broadcasts on the lobby's own transport
+		return;
 	if (!m_broadcastListener->initBroadcastListener(lobbyPort))
 	{
 		DEBUG_LOG(("LANAPI::listenForBroadcasts - no broadcast listener on port %d (error %d): other hosts' games will not be listed\n",
@@ -1391,6 +1388,9 @@ Bool LANAPI::SetLocalIP( UnsignedInt localIP )
 #if !defined(_WIN32)
 	listenForBroadcasts();
 #endif
+	// -relay: this machine is the address the relay handed out, whichever card the menu picked
+	if (retval && TheGlobalData->m_relayHost.isNotEmpty())
+		m_localIP = Transport::getRelayIP();
 
 	return retval;
 }

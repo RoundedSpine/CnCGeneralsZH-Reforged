@@ -519,6 +519,34 @@ TOOLTIP:VSync
 "Holds the picture to the monitor so it does not tear. Off, the picture runs as fast as the machine draws. Applied when you Accept."
 END
 
+GUI:FrameRateLimit
+"Frame Rate Limit"
+END
+
+GUI:FrameRateLimit0
+"Off"
+END
+
+GUI:FrameRateLimit1
+"240 FPS"
+END
+
+GUI:FrameRateLimit2
+"144 FPS"
+END
+
+GUI:FrameRateLimit3
+"120 FPS"
+END
+
+GUI:FrameRateLimit4
+"60 FPS"
+END
+
+TOOLTIP:FrameRateLimit
+"The most pictures a second the game draws in a match. A lower limit keeps the graphics card cooler and quieter and does not slow the game down. The menus always stop at 60."
+END
+
 GUI:ClassicGraphics
 "Classic Graphics"
 END
@@ -962,10 +990,6 @@ END
 
 // The build tooltip card's figures, a label and its value each.
 
-TOOLTIP:StatTime
-"Build time"
-END
-
 TOOLTIP:StatSeconds
 "%ds"
 END
@@ -1018,33 +1042,203 @@ TOOLTIP:StatNewWeaponFigures
 "%d damage, %d range"
 END
 
-// The gloss after each figure on the card: what it counts, as the card computes it.  Damage is the
-// main weapon's primary damage a shot, the weapon that does the most a second; attack speed spreads
-// a clip's reload over its shots; range is in world units, 10 to a pathfinding cell, the square the
-// placement grid draws; build time counts the player's power and how many factories make the unit.
+// The card's armour cell: the class of the unconditioned ArmorSet's armour, TOOLTIP:Armor and the
+// Armor block's name with its first "Armor" taken out.  Short, a cell is about sixty pixels wide.
 
-TOOLTIP:StatHealthHint
-"(damage it can take after armor)"
+TOOLTIP:ArmorNo
+"None"
 END
 
-TOOLTIP:StatDamageHint
-"(main weapon, one shot, before armor)"
+TOOLTIP:ArmorVulnerableAll
+"None"
 END
 
-TOOLTIP:StatAttackSpeedHint
-"(shots a second, reloads counted)"
+TOOLTIP:ArmorInvulnerable
+"Invulnerable"
 END
 
-TOOLTIP:StatDamagePerSecondHint
-"(damage × attack speed)"
+TOOLTIP:ArmorInvulnerableAll
+"Invulnerable"
 END
 
-TOOLTIP:StatRangeHint
-"(10 is one square of the placement grid)"
+TOOLTIP:ArmorHuman
+"Infantry"
 END
 
-TOOLTIP:StatTimeHint
-"(with your power and factories now)"
+TOOLTIP:ArmorHazMatHuman
+"Infantry"
+END
+
+TOOLTIP:ArmorChemSuitHuman
+"Infantry"
+END
+
+TOOLTIP:ArmorInfGen_Human
+"Infantry"
+END
+
+TOOLTIP:ArmorChemReb_Human
+"Infantry"
+END
+
+TOOLTIP:ArmorDemoGenTerrorist
+"Infantry"
+END
+
+TOOLTIP:ArmorStingerSoldier
+"Infantry"
+END
+
+TOOLTIP:ArmorTruck
+"Vehicle"
+END
+
+TOOLTIP:ArmorHumvee
+"Vehicle"
+END
+
+TOOLTIP:ArmorDozer
+"Vehicle"
+END
+
+TOOLTIP:ArmorToxinTruck
+"Vehicle"
+END
+
+TOOLTIP:ArmorAntiAirVehicle
+"Vehicle"
+END
+
+TOOLTIP:ArmorQuadCannon
+"Vehicle"
+END
+
+TOOLTIP:ArmorAvenger
+"Vehicle"
+END
+
+TOOLTIP:ArmorBattleBusTruck
+"Vehicle"
+END
+
+TOOLTIP:ArmorBattleBusTruckPlusOne
+"Vehicle"
+END
+
+TOOLTIP:ArmorBattleBusTruckPlusTwo
+"Vehicle"
+END
+
+TOOLTIP:ArmorTank
+"Tank"
+END
+
+TOOLTIP:ArmorUpgradedTank
+"Tank"
+END
+
+TOOLTIP:ArmorDragonTank
+"Tank"
+END
+
+TOOLTIP:ArmorAssaultCrawler
+"Tank"
+END
+
+TOOLTIP:ArmorAvalanche
+"Tank"
+END
+
+TOOLTIP:ArmorAirplane
+"Aircraft"
+END
+
+TOOLTIP:ArmorCountermeasuresAirplane
+"Aircraft"
+END
+
+TOOLTIP:ArmorSpectreGunship
+"Aircraft"
+END
+
+TOOLTIP:ArmorCountermeasuresSpectreGunship
+"Aircraft"
+END
+
+TOOLTIP:ArmorComanche
+"Helicopter"
+END
+
+TOOLTIP:ArmorAFG_Comanche
+"Helicopter"
+END
+
+TOOLTIP:ArmorCountermeasuresComanche
+"Helicopter"
+END
+
+TOOLTIP:ArmorAFG_CountermeasuresComanche
+"Helicopter"
+END
+
+TOOLTIP:ArmorChinook
+"Helicopter"
+END
+
+TOOLTIP:ArmorSentryDrone
+"Drone"
+END
+
+TOOLTIP:ArmorMine
+"Mine"
+END
+
+TOOLTIP:ArmorStructure
+"Building"
+END
+
+TOOLTIP:ArmorStructureInternetCenter
+"Building"
+END
+
+TOOLTIP:ArmorStructureTough
+"Fortified"
+END
+
+TOOLTIP:ArmorGLAUpgradedStructure
+"Fortified"
+END
+
+TOOLTIP:ArmorGLAUpgradedStructureTough
+"Fortified"
+END
+
+TOOLTIP:ArmorBattleBusStructureTough
+"Fortified"
+END
+
+TOOLTIP:ArmorBattleBusStructureToughPlusOne
+"Fortified"
+END
+
+TOOLTIP:ArmorBattleBusStructureToughPlusTwo
+"Fortified"
+END
+
+TOOLTIP:ArmorBaseDefense
+"Defense"
+END
+
+TOOLTIP:ArmorFireBase
+"Defense"
+END
+
+TOOLTIP:ArmorStingerSite
+"Defense"
+END
+
+TOOLTIP:ArmorWall
+"Wall"
 END
 
 // Under the figures: a unit's upgrades, or on an upgrade's card the units it changes.
@@ -1141,7 +1335,7 @@ GUI:SuperweaponsNone
 END
 
 TOOLTIP:Superweapons
-"How many of each superweapon a player may have standing. Allow: as many as he can pay for. Limit: one each, and four for the USA Superweapon General. No: none at all, except the Superweapon General, who keeps one. He is the exception because his three superweapons are what he pays for a weaker army with."
+"How many superweapons a player may have standing. Allow: as many as he can pay for. Limit: one, and four for the USA Superweapon General. No: none at all, except the Superweapon General, who keeps one. He is the exception because his superweapons are what he pays for a weaker army with. Under No anyone, computer players too, may still put up one Nuclear Missile silo to buy China's upgrades in. It has no missile: no launch button, no countdown, no announcement."
 END
 
 GUI:UnitLimit
@@ -1308,9 +1502,32 @@ GUI:HudArmies
 "Armies"
 END
 
-// the rack's drawer of every player ranked by the dial's stat
+// the rack's drawer of every player ranked by the picked stat
 GUI:HudStandings
 "Standings"
+END
+
+// the standings' heading when no stat key is under the pointer: the order the rows are in
+GUI:HudHighestFirst
+"highest first"
+END
+
+// the standings' column head over the names
+GUI:HudPlayerHead
+"Player"
+END
+
+// the units the standings' column head names after the stat
+GUI:HudStatUnitMoney
+"$"
+END
+
+GUI:HudStatUnitIncome
+"$/min"
+END
+
+GUI:HudStatUnitPower
+"surplus"
 END
 
 // The cheat panel the console's "trainer" command opens.
@@ -1463,14 +1680,6 @@ END
 
 TOOLTIP:CloudStyle
 "Classic uses the original toxin and radiation effects. Volumetric adds moving smoke, darker nuclear haze and heat shimmer. Applies when you press Accept, to the clouds already on the field too."
-END
-
-LAN:ErrorModMismatch
-"This game runs different mods. The host's mods: %s. Start the game with the same mods, in the same order, to join."
-END
-
-LAN:NoMod
-"none"
 END
 
 GUI:SaveFromOlderGame
@@ -1683,6 +1892,14 @@ END
 
 TOOLTIP:SmoothMotion
 "On a screen faster than 60 Hz, units are drawn between their last two positions instead of holding each one until the next. A 60 Hz screen shows no change. Only your picture changes: nothing in the game reads it, and other players see their own setting. Applies when you press Accept."
+END
+
+GUI:HeatHaze
+"Heat Haze"
+END
+
+TOOLTIP:HeatHaze
+"The air shimmers over fires, along laser beams and behind missile exhaust. Direct3D 11 only, and off under Classic Graphics. Applies when you press Accept."
 END
 
 GUI:StructureCollapse
@@ -2077,6 +2294,26 @@ END
 
 GUI:HotkeysCommandAUTO_REPAIR
 "Go get repaired or healed"
+END
+
+GUI:HotkeysCommandTOGGLE_ATTACKMOVE
+"Attack move (next click)"
+END
+
+GUI:HotkeysCommandTOGGLE_FORCEATTACK
+"Force Attack (next click)"
+END
+
+GUI:HotkeysCommandTOGGLE_GUARD
+"Guard (next click)"
+END
+
+GUI:HotkeysCommandTOGGLE_MOVE
+"Move (next click)"
+END
+
+GUI:HotkeysCommandHOLD_POSITION
+"Hold position"
 END
 
 // The match load screen (LoadScreenBoard in LoadScreen.cpp)
@@ -3412,7 +3649,7 @@ GUI:FactionPickPool
 "Random picks one of the %d armies ticked on the left, out of %d. Click an army to tick it or take it out."
 END
 
-// %s is a side's name as its heading reads (USA, China, a mod's side): the pool is that side and nothing else.
+// %s is a side's name as its heading reads (USA, China, Turkiye): the pool is that side and nothing else.
 GUI:FactionPickRandomSide
 "Random %s"
 END
@@ -3426,24 +3663,36 @@ GUI:FactionPickSideNameHint
 END
 
 // the fork's player colours (MultiplayerReforged.ini); EA's eight are in the CSF
-Color:Crimson
-"Crimson"
-END
-
-Color:Azure
-"Azure"
-END
-
-Color:Salmon
-"Salmon"
-END
-
 Color:Teal
 "Teal"
 END
 
+Color:Lime
+"Lime"
+END
+
+Color:Navy
+"Navy"
+END
+
+Color:Magenta
+"Magenta"
+END
+
+Color:Brown
+"Brown"
+END
+
 Color:Lavender
 "Lavender"
+END
+
+Color:Coral
+"Coral"
+END
+
+Color:Olive
+"Olive"
 END
 
 // the LAN lobby's error box when the system bound the socket on another adapter; the first %ls is the
@@ -3452,7 +3701,123 @@ GUI:SocketRedirected
 "The LAN IP is %ls, but the system put the game's connection on %ls. A VPN split tunnel or a firewall redirected it, so nobody on your network can hear you. Turn split tunnelling off for the game and try again."
 END
 
+// the online service's one chat room; the lobby's room box shows GUI:<room name>
+GUI:Lobby
+"Lobby"
+END
+
+// EA's oldFactionsOnly box, read by players as a unit cap and mixed up with Unit Limit
+GUI:LimitArmies
+"Original Armies Only"
+END
+
+TOOLTIP:LimitArmies
+"Only the original USA, China and GLA armies can be picked, no generals' armies"
+END
+
+// a seat's colour left to chance; EA's label for it was "???"
+GUI:???
+"Random"
+END
+
+// the online login screen's one account field: the service takes the email or the nick
+GUI:OnlineLoginName
+"Email or Nickname"
+END
+
 // A vehicle transport's Evacuate asks for a spot, the transport goes there and empties; Alt empties it where it stands
 CONTROLBAR:ToolTipEvacuateAt
 "Go to the chosen spot and order all units to exit\nAlt: unload here"
+END
+
+GUI:OptionsTabWater
+"Water"
+END
+
+GUI:OptionsGroupReflections
+"Reflections"
+END
+
+GUI:OptionsGroupModernWater
+"Modern water"
+END
+
+GUI:WaterReflectionEnabled
+"Scene reflections"
+END
+
+TOOLTIP:WaterReflectionEnabled
+"Reflects the scene in Modern water. Turn off to improve performance while keeping sky colour and sun highlights. Your reflection mode is remembered. Applied when you Accept."
+END
+
+GUI:WaterFftResolution
+"Wave detail"
+END
+
+GUI:WaterFftResolution0
+"Low"
+END
+
+GUI:WaterFftResolution1
+"High"
+END
+
+TOOLTIP:WaterFftResolution
+"Controls fine detail in Modern water waves. Low improves performance; High shows more detail. Applied when you Accept."
+END
+
+GUI:WaterRefractionQuality
+"Refraction"
+END
+
+GUI:WaterRefractionQuality0
+"Full"
+END
+
+GUI:WaterRefractionQuality1
+"Simple"
+END
+
+GUI:WaterRefractionQuality2
+"Off"
+END
+
+TOOLTIP:WaterRefractionQuality
+"For Modern water. Full distorts the view below the surface. Simple keeps clear water without distortion. Off uses opaque tinted water for better performance. Applied when you Accept."
+END
+
+GUI:WaterReflectionDetail
+"Reflection detail"
+END
+
+GUI:WaterReflectionDetail0
+"Low"
+END
+
+GUI:WaterReflectionDetail1
+"High"
+END
+
+TOOLTIP:WaterReflectionDetail
+"Controls scene reflection detail in Modern water. Low improves performance. High gives clearer reflections. SSR resolution is unchanged. Applied when you Accept."
+END
+
+GUI:WaterReflection
+"Reflection mode"
+END
+
+GUI:WaterReflection0
+"Legacy"
+END
+
+GUI:WaterReflection1
+"SSR"
+END
+
+GUI:WaterReflection2
+"Hybrid"
+END
+
+TOOLTIP:WaterReflection
+"For Modern water when Scene reflections is on. Legacy uses the original reflections. SSR reflects visible screen content. Hybrid combines both and is the default. Applied when you Accept."
 END

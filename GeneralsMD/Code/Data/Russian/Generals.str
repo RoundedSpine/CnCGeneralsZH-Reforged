@@ -489,24 +489,36 @@ Color:Pink
 "Розовый"
 END
 
-Color:Crimson
-"Багровый"
-END
-
-Color:Azure
-"Лазурный"
-END
-
-Color:Salmon
-"Лососевый"
-END
-
 Color:Teal
 "Бирюзовый"
 END
 
+Color:Lime
+"Лаймовый"
+END
+
+Color:Navy
+"Тёмно-синий"
+END
+
+Color:Magenta
+"Пурпурный"
+END
+
+Color:Brown
+"Коричневый"
+END
+
 Color:Lavender
 "Лавандовый"
+END
+
+Color:Coral
+"Коралловый"
+END
+
+Color:Olive
+"Оливковый"
 END
 
 MSG:Testing
@@ -2982,7 +2994,7 @@ TOOLTIP:Crates
 END
 
 TOOLTIP:SuperWeapons
-"Сколько супероружия каждого вида может иметь игрок одновременно. Разрешено: сколько он в состоянии оплатить. Лимит: по одному, а для генерала США по супероружию — четыре. Нет: ни одного, кроме генерала по супероружию, у которого остаётся одно. Он исключение, потому что три его супероружия — плата за более слабую армию."
+"Сколько супероружия может иметь игрок одновременно. Разрешено: сколько он в состоянии оплатить. Лимит: одно, а для генерала США по супероружию — четыре. Нет: ни одного, кроме генерала по супероружию, у которого остаётся одно. Он исключение, потому что его супероружие — плата за более слабую армию. При «Нет» любой, и компьютер тоже, может построить одну шахту ядерной ракеты, чтобы покупать в ней улучшения Китая. Ракеты в ней нет: ни кнопки запуска, ни обратного отсчёта, ни объявления."
 END
 
 DOZER:ConstructionComplete
@@ -16061,6 +16073,34 @@ TOOLTIP:VSync
 "Привязывает картинку к частоте монитора, чтобы не было разрывов. Выключено: картинка рисуется так быстро, как может компьютер. Применяется при нажатии «Принять»."
 END
 
+GUI:FrameRateLimit
+"Ограничение FPS"
+END
+
+GUI:FrameRateLimit0
+"Выкл."
+END
+
+GUI:FrameRateLimit1
+"240 FPS"
+END
+
+GUI:FrameRateLimit2
+"144 FPS"
+END
+
+GUI:FrameRateLimit3
+"120 FPS"
+END
+
+GUI:FrameRateLimit4
+"60 FPS"
+END
+
+TOOLTIP:FrameRateLimit
+"Сколько кадров в секунду игра рисует в матче, не больше. С меньшим пределом видеокарта греется и шумит меньше, а игра не замедляется. В меню всегда не больше 60."
+END
+
 GUI:ClassicGraphics
 "Классическая графика"
 END
@@ -16385,10 +16425,6 @@ TOOLTIP:SupplyPileFull
 "\n Занято: лимит на кучу не пускает ваших сборщиков"
 END
 
-TOOLTIP:StatTime
-"Время постройки"
-END
-
 TOOLTIP:StatSeconds
 "%d с"
 END
@@ -16689,6 +16725,26 @@ GUI:HudNoWorkerLeft
 "У %s не осталось рабочих"
 END
 
+GUI:HudHighestFirst
+"по убыванию"
+END
+
+GUI:HudPlayerHead
+"Игрок"
+END
+
+GUI:HudStatUnitMoney
+"$"
+END
+
+GUI:HudStatUnitIncome
+"$/мин"
+END
+
+GUI:HudStatUnitPower
+"излишек"
+END
+
 GUI:BarIdleWorker
 "Рабочий"
 END
@@ -16747,14 +16803,6 @@ END
 
 TOOLTIP:CloudStyle
 "Классический использует оригинальные эффекты токсинов и радиации. Объёмный добавляет движущийся дым, более тёмную ядерную дымку и марево. Применяется при нажатии «Принять», в том числе к облакам, уже находящимся на поле."
-END
-
-LAN:ErrorModMismatch
-"В этой игре запущены другие моды. Моды хоста: %s. Чтобы присоединиться, запустите игру с теми же модами в том же порядке."
-END
-
-LAN:NoMod
-"нет"
 END
 
 GUI:SaveFromOlderGame
@@ -17239,6 +17287,26 @@ END
 
 GUI:HotkeysCommandAUTO_REPAIR
 "Идти на ремонт или лечение"
+END
+
+GUI:HotkeysCommandTOGGLE_ATTACKMOVE
+"Атака на ходу (следующий щелчок)"
+END
+
+GUI:HotkeysCommandTOGGLE_FORCEATTACK
+"Принудительная атака (следующий щелчок)"
+END
+
+GUI:HotkeysCommandTOGGLE_GUARD
+"Охрана (следующий щелчок)"
+END
+
+GUI:HotkeysCommandTOGGLE_MOVE
+"Движение (следующий щелчок)"
+END
+
+GUI:HotkeysCommandHOLD_POSITION
+"Удерживать позицию"
 END
 
 GUI:LoadModeSkirmish
@@ -18487,4 +18555,96 @@ END
 
 CONTROLBAR:ToolTipEvacuateAt
 "Отправиться в выбранную точку и приказать всем юнитам выйти\nAlt: высадить здесь"
+END
+
+GUI:OptionsTabWater
+"Вода"
+END
+
+GUI:OptionsGroupReflections
+"Отражения"
+END
+
+GUI:OptionsGroupModernWater
+"Современная вода"
+END
+
+GUI:WaterReflectionEnabled
+"Отражения сцены"
+END
+
+TOOLTIP:WaterReflectionEnabled
+"Отражает сцену в современной воде. Отключение повышает производительность, сохраняя цвет неба и блики солнца. Режим отражения запоминается. Применяется после нажатия «Принять»."
+END
+
+GUI:WaterFftResolution
+"Детализация волн"
+END
+
+GUI:WaterFftResolution0
+"Низкая"
+END
+
+GUI:WaterFftResolution1
+"Высокая"
+END
+
+TOOLTIP:WaterFftResolution
+"Задаёт детализацию волн в современной воде. Низкая повышает производительность; высокая показывает больше деталей. Применяется после нажатия «Принять»."
+END
+
+GUI:WaterRefractionQuality
+"Преломление"
+END
+
+GUI:WaterRefractionQuality0
+"Полное"
+END
+
+GUI:WaterRefractionQuality1
+"Простое"
+END
+
+GUI:WaterRefractionQuality2
+"Выкл."
+END
+
+TOOLTIP:WaterRefractionQuality
+"Для современной воды. Полное преломление искажает вид под поверхностью. Простое сохраняет чистую воду без искажений. Выкл. делает воду непрозрачной и окрашенной для повышения производительности. Применяется после нажатия «Принять»."
+END
+
+GUI:WaterReflectionDetail
+"Детали отражений"
+END
+
+GUI:WaterReflectionDetail0
+"Низкая"
+END
+
+GUI:WaterReflectionDetail1
+"Высокая"
+END
+
+TOOLTIP:WaterReflectionDetail
+"Управляет детализацией отражений сцены в современной воде. Низкая настройка повышает производительность. Высокая даёт более чёткие отражения. Разрешение SSR не меняется. Применяется после нажатия «Принять»."
+END
+
+GUI:WaterReflection
+"Режим отражений"
+END
+
+GUI:WaterReflection0
+"Классический"
+END
+
+GUI:WaterReflection1
+"SSR"
+END
+
+GUI:WaterReflection2
+"Гибридный"
+END
+
+TOOLTIP:WaterReflection
+"Для современной воды при включённых отражениях сцены. Классический использует исходные отражения. SSR отражает видимое на экране. Гибридный сочетает оба варианта и выбран по умолчанию. Применяется после нажатия «Принять»."
 END

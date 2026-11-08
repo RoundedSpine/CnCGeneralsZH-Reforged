@@ -56,6 +56,8 @@
 #include "GameClient/View.h"
 #include "W3DDevice/GameClient/HeightMap.h"
 #include "W3DDevice/GameClient/W3DScene.h"
+#include "W3DDevice/GameClient/W3DWater.h"
+#include "W3DDevice/GameClient/W3DInGameUI.h"
 #include "W3DDevice/GameClient/W3DDynamicLight.h"
 #include "W3DDevice/GameClient/W3DParticleSys.h"
 #include "W3DDevice/GameClient/FireLights.h"
@@ -576,6 +578,7 @@ void RTS3DScene::Visibility_Check(CameraClass * camera)
 	if (ShaderClass::Is_Backface_Culling_Inverted()) 
 	{	//we are rendering reflections
 		///@todo: Have better flag to detect reflection pass
+		const Bool modernFullMirror = TheWaterRenderObj && TheWaterRenderObj->isModernFullMirror();
 
 		// Loop over all top-level RenderObjects in this scene. If the bounding sphere is not in front
 		// of all the frustum planes, it is invisible.
@@ -589,6 +592,16 @@ void RTS3DScene::Visibility_Check(CameraClass * camera)
 			if (drawInfo)
 				draw=drawInfo->m_drawable;
 
+			// The Modern mirror admits ordinary scene models, but the cursor and order feedback
+			// are still UI even when their models live in the world scene.
+			if (modernFullMirror && (robj == TheWaterRenderObj ||
+				(draw && draw->isNoSaveForDraw()) ||
+				(TheInGameUI && ((W3DInGameUI *)TheInGameUI)->isWorldSpaceUI(robj, draw))))
+			{
+				robj->Set_Visible(false);
+				continue;
+			}
+
 			if( draw )
 			{
 				// The flags are last frame's.  Customized_Render leaves an occluder, and any drawable
@@ -601,7 +614,7 @@ void RTS3DScene::Visibility_Check(CameraClass * camera)
 					// The same test the main pass hides a drawable by, or a unit under the fog of war,
 					// or a building standing in for its own ghost, shows up in the water and nowhere else.
 					Bool hidden = robj->Is_Hidden() || draw->isDrawableEffectivelyHidden() || draw->getFullyObscuredByShroud();
-					robj->Set_Visible(!hidden && draw->getDrawsInMirror() && (!camera->Cull_Sphere(robj->Get_Bounding_Sphere()) || posedPartsInView(robj, camera)));
+					robj->Set_Visible(!hidden && (modernFullMirror || draw->getDrawsInMirror()) && (!camera->Cull_Sphere(robj->Get_Bounding_Sphere()) || posedPartsInView(robj, camera)));
 				}
 			}
 			else
@@ -835,7 +848,10 @@ void RTS3DScene::renderOneObject(RenderInfoClass &rinfo, RenderObjClass *robj, I
 
 
 	if (robj->Class_ID() == RenderObjClass::CLASSID_IMAGE3D	)
-	{	robj->Render(rinfo);	//notify decals system that this track is visible
+	{
+		if (TheWaterRenderObj && TheWaterRenderObj->isModernFullMirror())
+			return;	//ground decals belong to the main view, not the coloured mirror
+		robj->Render(rinfo);	//notify decals system that this track is visible
 		return;	//decals are not lit by this system yet so skip rest of lighting
 	}
 
@@ -918,7 +934,8 @@ void RTS3DScene::renderOneObject(RenderInfoClass &rinfo, RenderObjClass *robj, I
 
 		if ( rinfo.drawEffect != DRAW_EFFECT_OUTAGE && rinfo.drawEffect != DRAW_EFFECT_EMP )
 			tintColor = draw->getTintColor();
-		selectionColor = draw->getSelectionColor();
+		if (!TheWaterRenderObj || !TheWaterRenderObj->isModernFullMirror())
+			selectionColor = draw->getSelectionColor();
 
 		if ( tintColor || selectionColor )
 		{
@@ -1115,8 +1132,9 @@ static Real sceneElapsedMS( const Int64 &from, const Int64 &to )
 /**Draw everything that was submitted from this scene*/
 void RTS3DScene::Flush(RenderInfoClass & rinfo)
 {
+	const Bool modernFullMirror = TheWaterRenderObj && TheWaterRenderObj->isModernFullMirror();
 	//don't draw shadows in this mode because they interfere with destination alpha or are invisible (wireframe)
-	if (m_customPassMode == SCENE_PASS_DEFAULT && Get_Extra_Pass_Polygon_Mode() == EXTRA_PASS_DISABLE)
+	if (m_customPassMode == SCENE_PASS_DEFAULT && Get_Extra_Pass_Polygon_Mode() == EXTRA_PASS_DISABLE && !modernFullMirror)
 		DoShadows(rinfo, false);	//draw all non-stencil shadows (decals) since they fall under other objects.
 	TheDX8MeshRenderer.Flush();	//draw all non-translucent objects.
 
@@ -1135,7 +1153,7 @@ void RTS3DScene::Flush(RenderInfoClass & rinfo)
 	DoTrees(rinfo);
 
 	//don't draw shadows in this mode because they interfere with destination alpha
-	if (m_customPassMode == SCENE_PASS_DEFAULT && Get_Extra_Pass_Polygon_Mode() == EXTRA_PASS_DISABLE)
+	if (m_customPassMode == SCENE_PASS_DEFAULT && Get_Extra_Pass_Polygon_Mode() == EXTRA_PASS_DISABLE && !modernFullMirror)
 		DoShadows(rinfo, true);	//draw all stencil shadows
 
 #if !defined(_WIN32)
@@ -1599,6 +1617,7 @@ void RTS3DScene::Customized_Render( RenderInfoClass &rinfo )
 			// If we are doing water mirror, we draw with backface culling inverted.  In this case, 
 			// we only want to call On_Frame_Update if we aren't drawing water, as otherwise
 			// we get 2 frame updates per frame, and it screws up the particle emitters.
+			// The Modern mirror also reuses the terrain textures, visibility and LOD from that update.
 			it.Peek_Obj()->On_Frame_Update();
 		}
 	}
@@ -2424,6 +2443,7 @@ void RTS3DScene::Visibility_Check(CameraClass * camera)
 	if (ShaderClass::Is_Backface_Culling_Inverted()) 
 	{	//we are rendering reflections
 		///@todo: Have better flag to detect reflection pass
+		const Bool modernFullMirror = TheWaterRenderObj && TheWaterRenderObj->isModernFullMirror();
 
 		// Loop over all top-level RenderObjects in this scene. If the bounding sphere is not in front
 		// of all the frustum planes, it is invisible.
@@ -2436,12 +2456,23 @@ void RTS3DScene::Visibility_Check(CameraClass * camera)
 			if (drawInfo)
 				draw=drawInfo->m_drawable;
 
+			// The Modern mirror admits ordinary scene models, but the cursor and order feedback
+			// are still UI even when their models live in the world scene.
+			if (modernFullMirror && (robj == TheWaterRenderObj ||
+				(draw && draw->isNoSaveForDraw()) ||
+				(TheInGameUI && ((W3DInGameUI *)TheInGameUI)->isWorldSpaceUI(robj, draw))))
+			{
+				robj->Set_Visible(false);
+				continue;
+			}
+
 			if( draw )
 			{
 				if (robj->Is_Force_Visible()) {
 					robj->Set_Visible(true);
 				} else {
-					robj->Set_Visible(draw->getDrawsInMirror() && !camera->Cull_Sphere(robj->Get_Bounding_Sphere()));
+					Bool hidden = modernFullMirror && (robj->Is_Hidden() || draw->isDrawableEffectivelyHidden() || draw->getFullyObscuredByShroud());
+					robj->Set_Visible(!hidden && (modernFullMirror || draw->getDrawsInMirror()) && !camera->Cull_Sphere(robj->Get_Bounding_Sphere()));
 				}
 			}
 			else

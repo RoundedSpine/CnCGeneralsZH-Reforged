@@ -3221,6 +3221,13 @@ static Bool shotPatternAgainst( const WeaponTemplate *weapon, const ThingTemplat
 	else
 		out->m_damagePerShot = armor.adjustDamage( type, weapon->getPrimaryDamage( bonus ) );
 
+	aiShotTiming( weapon, bonus, out );
+	return TRUE;
+}
+
+//-------------------------------------------------------------------------------------------------
+void aiShotTiming( const WeaponTemplate *weapon, const WeaponBonus &bonus, AIShotPattern *out )
+{
 	const Real rateOfFire = bonus.getField( WeaponBonus::RATE_OF_FIRE );
 	const Real preAttack = INT_TO_REAL( weapon->getPreAttackDelay( bonus ) );
 	out->m_delayFrames = INT_TO_REAL( weapon->getMinDelayBetweenShots() + weapon->getMaxDelayBetweenShots() ) * 0.5f / rateOfFire;
@@ -3243,7 +3250,6 @@ static Bool shotPatternAgainst( const WeaponTemplate *weapon, const ThingTemplat
 			out->m_openingFrames = preAttack;
 			break;
 	}
-	return TRUE;
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -3282,19 +3288,6 @@ static Real templateFramesToKill( const ThingTemplate *attacker, const ThingTemp
 	return frames;
 }
 
-static Int playerArmyMod( const Player *player )
-{
-	const PlayerTemplate *faction = player->getPlayerTemplate();
-	return faction != NULL ? faction->getModIndex() : -1;
-}
-
-/** A mod's America carries retail's side name, so a scan of every template by side or by kind walks
- * into the other army: a retail Ranger's job went to a mod's cheaper rifleman nobody can train here. */
-static Bool isOwnArmy( const Player *player, const ThingTemplate *tmpl )
-{
-	return tmpl->getModIndex() == playerArmyMod( player );
-}
-
 /*static*/ void AIPlayer::prepareMatchupTables( void )
 {
 	theFramesToKillCache.clear();
@@ -3302,14 +3295,13 @@ static Bool isOwnArmy( const Player *player, const ThingTemplate *tmpl )
 	theDetectsStealthCache.clear();
 
 	Bool skirmishAI = FALSE;
-	typedef std::pair<AsciiString, Int> SideInMod;
-	std::vector<SideInMod> sides;
+	std::vector<AsciiString> sides;
 	for( Int i = 0; i < ThePlayerList->getPlayerCount(); ++i )
 	{
 		Player *player = ThePlayerList->getNthPlayer( i );
 		if( player->isSkirmishAIPlayer() )
 			skirmishAI = TRUE;
-		const SideInMod side( player->getSide(), playerArmyMod( player ) );
+		const AsciiString side = player->getSide();
 		if( std::find( sides.begin(), sides.end(), side ) == sides.end() )
 			sides.push_back( side );
 	}
@@ -3326,7 +3318,7 @@ static Bool isOwnArmy( const Player *player, const ThingTemplate *tmpl )
 	{
 		if( tmpl->friend_getBuildCost() <= 0 || tmpl->isKindOf( KINDOF_STRUCTURE ) || tmpl->getBuildable() == BSTATUS_NO )
 			continue;
-		if( std::find( sides.begin(), sides.end(), SideInMod( tmpl->getDefaultOwningSide(), tmpl->getModIndex() ) ) != sides.end() )
+		if( std::find( sides.begin(), sides.end(), tmpl->getDefaultOwningSide() ) != sides.end() )
 			units.push_back( tmpl );
 	}
 	for( size_t a = 0; a < units.size(); ++a )
@@ -3587,8 +3579,8 @@ static AITeamCapability teamCapability( const TeamPrototype *proto, const Player
 		if( tmpl == NULL )
 			continue;			// a map's team naming a unit this game does not have
 
-		// the same question the game itself answers when it builds the object, one INI edit away from
-		// being right for a mod's own detector
+		// the same question the game itself answers when it builds the object, so a new detector in
+		// the data counts without a table here
 		if( templateDetectsStealth( tmpl ) )
 			cap.m_detectsStealth = TRUE;
 
@@ -3625,7 +3617,7 @@ static Bool unlocksStealthUnit( const Player *player, ScienceType science )
 {
 	for( const ThingTemplate *tmpl = TheThingFactory->firstTemplate(); tmpl; tmpl = tmpl->friend_getNextTemplate() )
 	{
-		if( !templateCanStealth( tmpl ) || !isOwnArmy( player, tmpl ) )
+		if( !templateCanStealth( tmpl ) )
 			continue;
 		for( Int p = 0; p < tmpl->getPrereqCount(); ++p )
 		{
@@ -6062,7 +6054,7 @@ void AIPlayer::doExpansion( void )
 
 	//
 	// What this faction calls a supply centre: whatever is already flagged as one on the build
-	// list.  Faction-correct and mod-correct without a table, and if the AI has never had one it
+	// list.  Faction-correct without a table, and if the AI has never had one it
 	// has nothing to expand with anyway.
 	//
 	AsciiString supplyCenterName;
@@ -7272,7 +7264,7 @@ static void tallyObject( Object *obj, void *userData )
 		return;
 	if( obj->isKindOf( KINDOF_FS_BASE_DEFENSE ) )
 		++tally->defenses;
-	else if( obj->isKindOf( KINDOF_FS_SUPERWEAPON ) )
+	else if( IsSuperweaponInMatch( obj->getTemplate() ) )
 		++tally->superweapons;
 	else if( !obj->isKindOf( KINDOF_STRUCTURE ) && !obj->isKindOf( KINDOF_DOZER ) && !obj->isKindOf( KINDOF_HARVESTER ) &&
 					 !obj->isKindOf( KINDOF_MONEY_HACKER ) && obj->isAbleToAttack() )
@@ -8377,6 +8369,9 @@ void AIPlayer::doSuperweapons( void )
 
 	// with the purchase queue they are asked for before the bank can pay, and the queue saves for them
 	const ThingTemplate *superweapon = buildableOfKind( dozer, GUI_COMMAND_DOZER_CONSTRUCT, KINDOF_FS_SUPERWEAPON, purchaseQueueOn() );
+	// a silo whose missile is silenced goes up for its upgrades, when one is worth it (buyUpgradesForArmy)
+	if( superweapon && !IsSuperweaponInMatch( superweapon ) )
+		superweapon = NULL;
 	const ThingTemplate *techBuilding = buildableOfKind( dozer, GUI_COMMAND_DOZER_CONSTRUCT, KINDOF_FS_ADVANCED_TECH, purchaseQueueOn() );
 
 	TechCount tech;
@@ -8576,7 +8571,8 @@ AIPurchaseKind AIPlayer::purchaseKindOf( const ThingTemplate *tmpl ) const
 	if( tmpl->isKindOf( KINDOF_HARVESTER ) || tmpl->isKindOf( KINDOF_MONEY_HACKER ) || tmpl->isKindOf( KINDOF_FS_SUPPLY_CENTER ) ||
 			tmpl->isKindOf( KINDOF_FS_SUPPLY_DROPZONE ) || tmpl->isKindOf( KINDOF_FS_BLACK_MARKET ) || tmpl->isKindOf( KINDOF_FS_INTERNET_CENTER ) )
 		return AIBUY_ECONOMY;
-	if( tmpl->isKindOf( KINDOF_FS_SUPERWEAPON ) || tmpl->isKindOf( KINDOF_FS_ADVANCED_TECH ) )
+	// a silo whose missile is silenced is bought as a building, for its upgrades
+	if( IsSuperweaponInMatch( tmpl ) || tmpl->isKindOf( KINDOF_FS_ADVANCED_TECH ) )
 		return AIBUY_SUPERWEAPON;
 	if( tmpl->isKindOf( KINDOF_FS_BASE_DEFENSE ) )
 		return AIBUY_DEFENSE;
@@ -10240,6 +10236,40 @@ void AIPlayer::buyUpgradesForArmy( Bool overTarget )
 				where[ u ] = *f;
 		}
 	}
+
+	// A silo whose missile is silenced is only where China buys Uranium Shells, Nuclear Tanks and
+	// Neutron Shells, so it goes up when one of them is worth buying: while none stands or is asked
+	// for, its upgrades are weighed with the rest at the silo's price on top, with no building to
+	// buy them at (where NULL), and a pick of one asks for the silo instead.
+	const ThingTemplate *silo = NULL;
+	Int siloCost = 0;
+	Object *dozer = NULL;
+	m_player->iterateObjects( findAnyDozer, &dozer );
+	if( dozer )
+		silo = buildableOfKind( dozer, GUI_COMMAND_DOZER_CONSTRUCT, KINDOF_FS_SUPERWEAPON, TRUE );
+	if( silo && ( IsSuperweaponInMatch( silo ) || priorityBuildPending( m_player, silo ) ) )
+		silo = NULL;
+	const CommandSet *siloSet = silo ? TheCommandStore->findCommandSet( silo->friend_getCommandSetString() ) : NULL;
+	for( Int i = 0; siloSet && i < MAX_COMMANDS_PER_SET; ++i )
+	{
+		const CommandButton *button = siloSet->getCommandButton( i );
+		if( button == NULL || button->getCommandType() != GUI_COMMAND_PLAYER_UPGRADE || button->getUpgradeTemplate() == NULL )
+			continue;
+		const UpgradeTemplate *upgrade = button->getUpgradeTemplate();
+		if( m_player->hasUpgradeComplete( upgrade ) || m_player->hasUpgradeInProduction( upgrade ) ||
+				std::find( upgrades.begin(), upgrades.end(), upgrade ) != upgrades.end() ||
+				( TheGameLogic->isProRules() && ProRulesBanUpgrade( upgrade->getUpgradeName() ) ) )
+			continue;
+		Bool sciences = TRUE;
+		for( size_t s = 0; s < button->getScienceVec().size(); ++s )
+			if( !m_player->hasScience( button->getScienceVec()[ s ] ) )
+				sciences = FALSE;
+		if( !sciences )
+			continue;
+		upgrades.push_back( upgrade );
+		where.push_back( NULL );
+		siloCost = silo->calcCostToBuild( m_player );
+	}
 	if( upgrades.empty() )
 		return;
 
@@ -10290,10 +10320,18 @@ void AIPlayer::buyUpgradesForArmy( Bool overTarget )
 
 	std::vector<Int> cost( upgrades.size(), 0 );
 	for( size_t u = 0; u < upgrades.size(); ++u )
-		cost[ u ] = upgrades[ u ]->calcCostToBuild( m_player );
+		cost[ u ] = upgrades[ u ]->calcCostToBuild( m_player ) + ( where[ u ] == NULL ? siloCost : 0 );
 	const Int pick = aiPickUpgrade( &covered[ 0 ], &cost[ 0 ], (Int)upgrades.size(), profile->m_upgradePayoff, overTarget );
 	if( pick < 0 )
 		return;
+	if( where[ pick ] == NULL )
+	{
+		DEBUG_LOG(("AI UPGRADE frame %d player %d asks for '%s' to buy '%s' at %d, improves %.0f of what it owns, %d in the bank\n",
+			now, m_player->getPlayerIndex(), silo->getName().str(), upgrades[ pick ]->getUpgradeName().str(),
+			cost[ pick ], covered[ pick ], m_player->getMoney()->countMoney()));
+		buildAsap( silo );
+		return;
+	}
 	const Int offset = 2.0f * likedCovered[ pick ] > covered[ pick ] ? PERSONA_KIND_UPGRADE_SCORE : 0;
 	if( buyUpgrade( where[ pick ]->getProductionUpdateInterface(), upgrades[ pick ], offset ) )
 		DEBUG_LOG(("AI UPGRADE frame %d player %d queues '%s' at '%s' for %d, improves %.0f of what it owns, %.1f times the price where %.1f will do, %d in the bank, bank target %d, %d enemy kinds known\n",
@@ -10564,7 +10602,7 @@ void AIPlayer::trainFavoured( void )
 /** The doctrine: what a side fields that the other generals of its side do not.  The skirmish scripts'
 	* teams are written per side, and an Air Force General built 2 jets' worth of aircraft in 983 units
 	* off them, a Tank General as many soldiers as tanks.  So each side's signature units are worked out
-	* from the data, which gives a mod's new side one as well:
+	* from the data, which gives a new side one as well:
 	*
 	*   - the roster: every fighting unit a building of the side offers on its buttons;
 	*   - each unit against the same unit at every other general of the same BaseSide, the name behind a
@@ -10611,11 +10649,11 @@ static AsciiString doctrineKey( const ThingTemplate *tmpl )
 }
 
 /** Every fighting unit a side's buildings offer, in template order. */
-static void doctrineRoster( const AsciiString &side, Int mod, std::vector<const ThingTemplate *> *out )
+static void doctrineRoster( const AsciiString &side, std::vector<const ThingTemplate *> *out )
 {
 	for( const ThingTemplate *building = TheThingFactory->firstTemplate(); building; building = building->friend_getNextTemplate() )
 	{
-		if( !building->isKindOf( KINDOF_STRUCTURE ) || building->getModIndex() != mod || building->getDefaultOwningSide() != side )
+		if( !building->isKindOf( KINDOF_STRUCTURE ) || building->getDefaultOwningSide() != side )
 			continue;
 		const CommandSet *commandSet = TheCommandStore->findCommandSet( building->friend_getCommandSetString() );
 		for( Int i = 0; commandSet && i < MAX_COMMANDS_PER_SET; ++i )
@@ -10692,7 +10730,6 @@ void AIPlayer::ensureDoctrine( void )
 	if( faction == NULL || !runsOwnAI() )
 		return;
 
-	const Int mod = faction->getModIndex();
 	const std::vector<AsciiString> &named = faction->getAIDoctrine();
 	for( size_t n = 0; n < named.size(); ++n )
 	{
@@ -10706,16 +10743,16 @@ void AIPlayer::ensureDoctrine( void )
 	if( named.empty() )
 	{
 		std::vector<const ThingTemplate *> mine;
-		doctrineRoster( faction->getSide(), mod, &mine );
+		doctrineRoster( faction->getSide(), &mine );
 		std::vector< std::vector<const ThingTemplate *> > siblings;
 		for( Int i = 0; i < ThePlayerTemplateStore->getPlayerTemplateCount(); ++i )
 		{
 			const PlayerTemplate *other = ThePlayerTemplateStore->getNthPlayerTemplate( i );
-			if( other == faction || !other->isPlayableSide() || other->isObserver() || other->getModIndex() != mod ||
+			if( other == faction || !other->isPlayableSide() || other->isObserver() ||
 					other->getBaseSide() != faction->getBaseSide() || other->getSide() == faction->getSide() )
 				continue;
 			std::vector<const ThingTemplate *> roster;
-			doctrineRoster( other->getSide(), mod, &roster );
+			doctrineRoster( other->getSide(), &roster );
 			if( !roster.empty() )
 				siblings.push_back( roster );
 		}
@@ -12259,15 +12296,21 @@ Object *aiFindFreeGarrison( Object *unit, const Coord3D *center, Real radius, co
 	unit->getControllingPlayer()->iterateObjects( collectBoardingGoals, &goals );
 	AIUpdateInterface *ai = unit->getAI();
 	const Int owner = unit->getControllingPlayer()->getPlayerIndex();
-	PartitionFilterGarrisonable filterGarrisonable( TRUE );
-	PartitionFilter *filters[] = { &filterGarrisonable, 0 };
 	MemoryPoolObjectHolder hold;
-	SimpleObjectIterator *nearby = ThePartitionManager->iterateObjectsInRange( center, radius, FROM_CENTER_2D, filters, ITER_SORTED_NEAR_TO_FAR );
+	SimpleObjectIterator *nearby = ThePartitionManager->iterateObjectsInRange( center, radius, FROM_CENTER_2D, NULL, ITER_SORTED_NEAR_TO_FAR );
 	hold.hold( nearby );
+	// a building beats any transport, so the nearest transport with a seat waits until no building has one
+	Object *transport = NULL;
 	for( Object *building = nearby->first(); building; building = nearby->next() )
 	{
-		if( !building->isKindOf( KINDOF_STRUCTURE ) || std::find( tried.begin(), tried.end(), building->getID() ) != tried.end() ||
-				!TheActionManager->canEnterObject( unit, building, CMD_FROM_PLAYER, CHECK_CAPACITY ) )
+		const ContainModuleInterface *contain = building->getContain();
+		if( contain == NULL || std::find( tried.begin(), tried.end(), building->getID() ) != tried.end() )
+			continue;
+		const Bool isBuilding = building->isKindOf( KINDOF_STRUCTURE );
+		if( isBuilding ? !contain->isGarrisonable() :
+				( transport != NULL || unit->getRelationship( building ) != ALLIES || building->isAirborneTarget() || contain->isRiderChangeContain() ) )
+			continue;
+		if( !TheActionManager->canEnterObject( unit, building, CMD_FROM_PLAYER, CHECK_CAPACITY ) )
 			continue;
 		// a house never in sight has no memory to read, so what really stands there would decide it, and
 		// skipping one the enemy holds would give him away
@@ -12276,10 +12319,13 @@ Object *aiFindFreeGarrison( Object *unit, const Coord3D *center, Real radius, co
 		// a press while he is already walking to it does not take his own seat from him
 		const Bool walkingThere = ai->getCurrentStateID() == AI_ENTER && ai->getGoalObject() == building;
 		const Int walkers = (Int)std::count( goals.begin(), goals.end(), building->getID() ) - (walkingThere ? 1 : 0);
-		if( TheActionManager->openSeatsAsSeen( unit, building, CMD_FROM_PLAYER ) > walkers )
+		if( TheActionManager->openSeatsAsSeen( unit, building, CMD_FROM_PLAYER ) <= walkers )
+			continue;
+		if( isBuilding )
 			return building;
+		transport = building;
 	}
-	return NULL;
+	return transport;
 }
 
 //----------------------------------------------------------------------------------------------------------
@@ -13715,9 +13761,9 @@ static const UpgradeTemplate *helixUpgradeOn( const ThingTemplate *tmpl, Int kin
 	return NULL;
 }
 
-/** A Helix of this kind flies the napalm bomb flyRaid drops.  A mod's Helix can carry a "Bomb" upgrade
-	* on its buttons and drop something else, or nothing the AI knows: ShockWave's under -modfactions
-	* came out as a raider with no such power and the raid read a null one. */
+/** A Helix of this kind flies the napalm bomb flyRaid drops.  A Helix can carry a "Bomb" upgrade on
+	* its buttons and drop something else, or nothing the AI knows, and the raid then read a null
+	* power. */
 static Bool helixCarriesNapalmBomb( const ThingTemplate *tmpl )
 {
 	const ModuleInfo &modules = tmpl->getBehaviorModuleInfo();
@@ -15128,7 +15174,7 @@ static Real groundAttackRange( const Object *obj );
 
 /** A unit's contribution to an exchange: what it can still take, and what it can still deal.  The
 	* threat value the data already carries stands in for damage per second - it is what
-	* AI_threatScore uses for the same purpose. */
+	* aiTargetKillRate's value uses for the same purpose. */
 static void addToForce( const Object *obj, Real *health, Real *power )
 {
 	if( obj == NULL || obj->isEffectivelyDead() )
@@ -17612,7 +17658,7 @@ void AIPlayer::answerFire( void )
 //----------------------------------------------------------------------------------------------------------
 /** The cheapest thing this player could build that can walk somewhere and is not needed elsewhere.
 	* Faction-agnostic on purpose - it lands on the Ranger, the Red Guard, the Rebel and the
-	* Technical without a per-side table to keep, and on whatever a mod's cheapest unit is. */
+	* Technical without a per-side table to keep. */
 static const ThingTemplate *cheapestScoutTemplate( Player *player )
 {
 	const ThingTemplate *best = NULL;
@@ -17626,7 +17672,7 @@ static const ThingTemplate *cheapestScoutTemplate( Player *player )
 			continue;		// those have a job
 		if( t->isKindOf( KINDOF_AIRCRAFT ) || t->isKindOf( KINDOF_IMMOBILE ) )
 			continue;
-		if( !isOwnArmy( player, t ) || !player->canBuild( t ) )
+		if( !player->canBuild( t ) )
 			continue;
 
 		Int cost = t->calcCostToBuild( player );
@@ -18087,7 +18133,7 @@ Bool AIPlayer::nextScoutTarget( Int slot, const Coord3D *from, Coord3D *pos )
 //----------------------------------------------------------------------------------------------------------
 /** The cheapest infantry this player can build that can walk into a building and own it.  Read off
 	* the command set rather than a per-faction table, so it lands on the Ranger, the Rebel and the
-	* Red Guard - and on whatever a mod gave the ability to. */
+	* Red Guard - and on whatever else the data gives the ability to. */
 static const ThingTemplate *cheapestCapturerTemplate( Player *player )
 {
 	const ThingTemplate *best = NULL;
@@ -18097,7 +18143,7 @@ static const ThingTemplate *cheapestCapturerTemplate( Player *player )
 	{
 		if( !t->isKindOf( KINDOF_INFANTRY ) || t->isKindOf( KINDOF_DOZER ) )
 			continue;
-		if( !isOwnArmy( player, t ) || !player->canBuild( t ) )
+		if( !player->canBuild( t ) )
 			continue;
 
 		const Int cost = t->calcCostToBuild( player );
@@ -18507,7 +18553,7 @@ static Bool couldBuildUnit( Player *player, const ThingTemplate *tmpl )
 
 //----------------------------------------------------------------------------------------------------------
 /** This one takes a vehicle by walking into it.  Asked of the object rather than of a faction table,
-	* so it lands on the GLA Hijacker and on anything a mod gave the same collide to. */
+	* so it lands on the GLA Hijacker and on anything else the data gives the same collide to. */
 static Bool carriesHijackModule( const Object *obj )
 {
 	for( BehaviorModule **m = obj->getBehaviorModules(); *m; ++m )
@@ -18529,7 +18575,7 @@ static const ThingTemplate *cheapestHijackerTemplate( Player *player )
 
 	for( const ThingTemplate *t = TheThingFactory->firstTemplate(); t; t = t->friend_getNextTemplate() )
 	{
-		if( !t->isKindOf( KINDOF_INFANTRY ) || !isOwnArmy( player, t ) || !couldBuildUnit( player, t ) )
+		if( !t->isKindOf( KINDOF_INFANTRY ) || !couldBuildUnit( player, t ) )
 			continue;
 
 		const Int cost = t->calcCostToBuild( player );
@@ -19038,7 +19084,7 @@ void AIPlayer::personaChat( const char *trigger )
 
 static void findFinishedSuperweapon( Object *obj, void *userData )
 {
-	if( obj->isKindOf( KINDOF_FS_SUPERWEAPON ) && !obj->isEffectivelyDead() && !obj->testStatus( OBJECT_STATUS_UNDER_CONSTRUCTION ) )
+	if( IsSuperweaponInMatch( obj->getTemplate() ) && !obj->isEffectivelyDead() && !obj->testStatus( OBJECT_STATUS_UNDER_CONSTRUCTION ) )
 		*(Bool *)userData = TRUE;
 }
 

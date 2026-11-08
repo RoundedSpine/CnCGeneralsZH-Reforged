@@ -58,6 +58,8 @@
 #include "GameClient/Mouse.h"
 #include "GameClient/Display.h"
 #include "GameNetwork/GameSpyOverlay.h"
+#include "GameNetwork/Online/OnlineQueues.h"
+#include "Lib/WideCharFns.h"
 #include "GameClient/GameWindowTransitions.h"
 
 #include "GameLogic/GameLogic.h"
@@ -68,6 +70,7 @@
 #include "GameNetwork/GameSpy/LadderDefs.h"
 #include "GameNetwork/GameSpy/PeerDefs.h"
 #include "GameNetwork/GameSpy/PeerThread.h"
+#include "GameNetwork/GameSpy/ThreadUtils.h"
 #include "GameNetwork/GameSpy/PersistentStorageDefs.h"
 #include "GameNetwork/GameSpy/PersistentStorageThread.h"
 #include "GameNetwork/GameSpy/LobbyUtils.h"
@@ -227,6 +230,90 @@ static Bool s_tryingToHostOrJoin = FALSE;
 void SetLobbyAttemptHostJoin(Bool start)
 {
 	s_tryingToHostOrJoin = start;
+}
+
+/* -online scripting in the lobby, once per process each: -onlinesay says its line once somebody else is in
+	 the room to read it, -onlinehost asks for a staging room the way the host popup's createGame does (no
+	 password, no observers, unrated, no ladder) three seconds after that line so the answer still reaches
+	 the lobby, -onlinejoin joins the first listed game of that name the way the Join button does. */
+static void onlineLobbyScript( void )
+{
+	static Bool s_said = FALSE, s_hosted = FALSE, s_joined = FALSE;
+	static UnsignedInt s_saidAt = 0;
+	if (!OnlineIsEnabled() || !TheGameSpyInfo->getCurrentGroupRoom() || s_tryingToHostOrJoin)
+		return;
+
+	const Bool saying = TheGlobalData->m_onlineSay.isNotEmpty();
+	if (saying && !s_said && TheGameSpyInfo->getPlayerInfoMap()->size() >= 2)
+	{
+		s_said = TRUE;
+		s_saidAt = Clock_Milliseconds();
+		// straight to the queue: sendChat would drop the staging room's copy as a repeat of this one
+		UnicodeString line( MultiByteToWideCharSingleLine( TheGlobalData->m_onlineSay.str() ).c_str() );
+		PeerRequest req;
+		req.peerRequestType = PeerRequest::PEERREQUEST_MESSAGEROOM;
+		req.text = line.str();
+		req.message.isAction = FALSE;
+		TheGameSpyPeerMessageQueue->addRequest( req );
+		DEBUG_LOG(("ONLINE SAY where=lobby text=%s\n", TheGlobalData->m_onlineSay.str()));
+	}
+
+	if (!s_hosted && TheGlobalData->m_onlineHostGame.isNotEmpty()
+		&& (!saying || (s_said && Clock_Milliseconds() - s_saidAt >= 3000)))
+	{
+		s_hosted = TRUE;
+		/* The Host button, then the host popup's name and Create Game, as a player clicks them, so the room
+			 is made under the popup's own rules.  Building the request here once hid that the popup made
+			 every online room a stats room, with every option locked for its host. */
+		GameWindow *popupName = NULL, *popupCreate = NULL, *popup = NULL;
+		if (buttonHost)
+		{
+			TheWindowManager->winSendSystemMsg( parent, GBM_SELECTED, (WindowMsgData)buttonHost, buttonHostID );
+			popup = TheWindowManager->winGetWindowFromId( NULL, NAMEKEY( "PopupHostGame.wnd:ParentHostPopUp" ) );
+			popupName = TheWindowManager->winGetWindowFromId( popup, NAMEKEY( "PopupHostGame.wnd:TextEntryGameName" ) );
+			popupCreate = TheWindowManager->winGetWindowFromId( popup, NAMEKEY( "PopupHostGame.wnd:ButtonCreateGame" ) );
+		}
+		if (!popup || !popupName || !popupCreate)
+		{
+			DEBUG_LOG(("ONLINE HOST fail popup=%d\n", popup != NULL));
+			return;
+		}
+		UnicodeString gameName;
+		gameName.translate( TheGlobalData->m_onlineHostGame );
+		GadgetTextEntrySetText( popupName, gameName );
+		TheWindowManager->winSendSystemMsg( popupCreate->winGetOwner(), GBM_SELECTED, (WindowMsgData)popupCreate, popupCreate->winGetWindowId() );
+		DEBUG_LOG(("ONLINE HOST name=%s stats=%d\n", TheGlobalData->m_onlineHostGame.str(), (Int)TheGameSpyGame->getUseStats()));
+		return;
+	}
+
+	if (!s_joined && TheGlobalData->m_onlineJoinGame.isNotEmpty())
+	{
+		UnicodeString wanted;
+		wanted.translate( TheGlobalData->m_onlineJoinGame );
+		StagingRoomMap *srm = TheGameSpyInfo->getStagingRoomList();
+		for (StagingRoomMap::iterator it = srm->begin(); it != srm->end(); ++it)
+		{
+			GameSpyStagingRoom *room = it->second;
+			if (!room || room->getGameName().compare( wanted ) != 0)
+				continue;
+			s_joined = TRUE;
+			TheLobbyQueuedUTMs.clear();
+			groupRoomToJoin = TheGameSpyInfo->getCurrentGroupRoom();
+			TheGameSpyInfo->markAsStagingRoomJoiner( it->first );
+			TheGameSpyGame->setGameName( room->getGameName() );
+			TheGameSpyGame->setLadderIP( room->getLadderIP() );
+			TheGameSpyGame->setLadderPort( room->getLadderPort() );
+			SetLobbyAttemptHostJoin( TRUE );
+			PeerRequest req;
+			req.peerRequestType = PeerRequest::PEERREQUEST_JOINSTAGINGROOM;
+			req.text = room->getGameName().str();
+			req.stagingRoom.id = it->first;
+			req.password = "";
+			TheGameSpyPeerMessageQueue->addRequest( req );
+			DEBUG_LOG(("ONLINE JOIN name=%s id=%d\n", TheGlobalData->m_onlineJoinGame.str(), it->first));
+			break;
+		}
+	}
 }
 
 // Tooltips -------------------------------------------------------------------------------
@@ -957,6 +1044,8 @@ void WOLLobbyMenuUpdate( WindowLayout * layout, void *userData)
 					//buttonPushed = true;
 					TheGameSpyInfo->setCurrentGroupRoom(resp.joinGroupRoom.id);
 					TheGameSpyInfo->getPlayerInfoMap()->clear();
+					if (OnlineIsEnabled())
+						DEBUG_LOG(("ONLINE LOBBY joined room=%d\n", resp.joinGroupRoom.id));
 					GroupRoomMap::iterator iter = TheGameSpyInfo->getGroupRoomList()->find(resp.joinGroupRoom.id);
 					if (iter != TheGameSpyInfo->getGroupRoomList()->end())
 					{
@@ -1026,6 +1115,8 @@ void WOLLobbyMenuUpdate( WindowLayout * layout, void *userData)
 				break;
 			case PeerResponse::PEERRESPONSE_MESSAGE:
 				{
+					if (OnlineIsEnabled())
+						DEBUG_LOG(("ONLINE CHAT where=lobby from=%s text=%s\n", resp.nick.c_str(), WideCharAsUtf8( resp.text.c_str() ).str()));
 					TheGameSpyInfo->addChat(resp.nick.c_str(), resp.message.profileID,
 						UnicodeString(resp.text.c_str()), !resp.message.isPrivate, resp.message.isAction, listboxLobbyChat);
 				}
@@ -1047,6 +1138,8 @@ void WOLLobbyMenuUpdate( WindowLayout * layout, void *userData)
 				{
 					sawImportantMessage = TRUE;
 					SetLobbyAttemptHostJoin(FALSE);
+					if (OnlineIsEnabled())
+						DEBUG_LOG(("ONLINE HOSTED result=%d\n", (Int)resp.createStagingRoom.result));
 					if (resp.createStagingRoom.result == PEERJoinSuccess)
 					{
 						// Woohoo!  On to our next screen!
@@ -1062,6 +1155,8 @@ void WOLLobbyMenuUpdate( WindowLayout * layout, void *userData)
 				{
 					sawImportantMessage = TRUE;
 					SetLobbyAttemptHostJoin(FALSE);
+					if (OnlineIsEnabled())
+						DEBUG_LOG(("ONLINE JOINED ok=%d\n", (Int)resp.joinStagingRoom.ok));
 					Bool isHostPresent = TRUE;
 					if (resp.joinStagingRoom.ok == PEERTrue)
 					{
@@ -1312,6 +1407,8 @@ void WOLLobbyMenuUpdate( WindowLayout * layout, void *userData)
 #else
 	refreshGameList();
 #endif
+		if (!buttonPushed)
+			onlineLobbyScript();
 	}
 }// WOLLobbyMenuUpdate
 
