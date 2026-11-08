@@ -77,7 +77,7 @@ struct SdlGpuFrame::HeatResources {
 
 bool SdlGpuFrame::Supports_Heat_Haze() const
 {
-    return GpuDevice&&!HeatFailed&&DepthSampleable
+    return GpuDevice&&!HeatFailed&&!HeatSplatFailed&&DepthSampleable
         && SDL_GPUTextureSupportsFormat(GpuDevice,SDL_GPU_TEXTUREFORMAT_R16G16B16A16_FLOAT,
             SDL_GPU_TEXTURETYPE_2D,SDL_GPU_TEXTUREUSAGE_COLOR_TARGET|SDL_GPU_TEXTUREUSAGE_SAMPLER);
 }
@@ -116,7 +116,7 @@ void SdlGpuFrame::Release_Heat()
 bool SdlGpuFrame::Prepare_Heat(unsigned width,unsigned height)
 {
     if(!Supports_Heat_Haze()||!width||!height)return false;
-    const auto fail=[&](const char *why){HeatFailed=true;fprintf(stderr,"[SDL_HEAT] disabled reason=%s error=%s\n",why,SDL_GetError());Release_Heat();return false;};
+    const auto fail=[&](const char *why){HeatSplatFailed=true;fprintf(stderr,"[SDL_HEAT] splats disabled reason=%s error=%s\n",why,SDL_GetError());Release_Heat();return false;};
     if(!Heat)Heat=new HeatResources;
     auto &h=*Heat;
     if(!h.SplatVertex){
@@ -162,7 +162,7 @@ bool SdlGpuFrame::Prepare_Heat(unsigned width,unsigned height)
 
 SDL_GPUTexture *SdlGpuFrame::Capture_Heat_Background(const SdlTarget &target,std::string &error)
 {
-    if(!Supports_Heat_Haze()||!target.Colour||!target.Width||!target.Height)return nullptr;
+    if(!GpuDevice||HeatFailed||!target.Colour||!target.Width||!target.Height)return nullptr;
     const auto fail=[&](const char *reason)->SDL_GPUTexture* {
         error=reason;HeatFailed=true;fprintf(stderr,"[SDL_HEAT] disabled reason=%s\n",reason);return nullptr;
     };

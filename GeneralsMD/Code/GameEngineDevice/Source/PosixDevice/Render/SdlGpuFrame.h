@@ -412,7 +412,7 @@ private:
 	void Release_Ambient_Occlusion();
 	SdlAtmosphere::Renderer *AtmosphereRenderer = nullptr;
 	bool AtmosphereFailed = false;
-	bool FirelightFailed = false, HeatFailed = false;
+	bool FirelightFailed = false, HeatFailed = false, HeatSplatFailed = false;
 	SDL_GPUTexture *HeatBackground = nullptr;
 	unsigned HeatWidth = 0, HeatHeight = 0;
 	void Release_Heat_Background();
