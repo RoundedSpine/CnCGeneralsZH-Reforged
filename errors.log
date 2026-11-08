@@ -1,0 +1,32 @@
+ 2389 |                 case SERIAL_NONEXISTENT:
+ 2390 |                         resp.discon.reason = DISCONNECT_SERIAL_NOT_PRESENT;
+ 2391 |                         break;
+ 2392 |                 case SERIAL_AUTHFAILED:
+ 2393 |                         resp.discon.reason = DISCONNECT_SERIAL_INVALID;
+ 2394 |                         break;
+ 2395 |                 case SERIAL_BANNED:
+ 2396 |                         resp.discon.reason = DISCONNECT_SERIAL_BANNED;
+ 2397 |                         break;
+ 2398 |         }
+13 warnings generated.
+[1343/1651] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameNetwork/GameSpy/Thread/PersistentStorageThread.cpp.o
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameNetwork/GameSpy/Thread/PersistentStorageThread.cpp:842:2: warning: '/*' within block comment [-Wcomment]
+  842 |         /**/
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameNetwork/GameSpy/Thread/PersistentStorageThread.cpp:897:7: warning: 'sprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead. [-Wdeprecated-declarations]
+  897 |                                                 sprintf(kvbuf, "\\locale\\%d", req.player.locale);
+      |                                                 ^
+/Applications/Xcode_16.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk/usr/include/_stdio.h:278:1: note: 'sprintf' has been explicitly marked deprecated here
+[1446/1651] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/predlod.cpp.o
+[1447/1651] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/projector.cpp.o
+[1448/1651] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/proto.cpp.o
+FAILED: [code=1] CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/proto.cpp.o 
+/opt/homebrew/bin/ccache /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang++ -D_CRT_NONSTDC_NO_WARNINGS -D_CRT_SECURE_NO_WARNINGS -I/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Include -I/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WW3D2 -I/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Include/Platform/PosixD3D9 -I/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib -I/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWMath -I/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWDebug -I/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWSaveLoad -I/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/Wwutil -I/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/wwshade -I/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWAudio -I/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/Miles6/include -O3 -DNDEBUG -std=gnu++17 -arch arm64 -isysroot /Applications/Xcode_16.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk -mmacosx-version-min=13.0 -fno-delete-null-pointer-checks -fexceptions -ffp-contract=off -fno-strict-aliasing -fsigned-char -Wno-unknown-pragmas -g -Werror=unguarded-availability-new -MD -MT CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/proto.cpp.o -MF CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/proto.cpp.o.d -o CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/proto.cpp.o -c /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WW3D2/proto.cpp
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WW3D2/proto.cpp:86:9: error: cannot cast from type 'void' to pointer type 'RenderObjClass *'
+   86 |         return (RenderObjClass *)( SET_REF_OWNER( Proto->Clone() ) ); 
+      |                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+1 error generated.
+[1449/1651] Building FFmpeg 8.1.2's Bink decoders for the movies (V1)
+ffmpeg-build-posix: FFmpeg 8.1.2 installed into /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/build/ios/host-graphics/ffmpeg
+[1450/1651] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/render2d.cpp.o
+ninja: build stopped: subcommand failed.
