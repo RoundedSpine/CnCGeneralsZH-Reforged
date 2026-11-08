@@ -973,7 +973,7 @@ void ShaderClass::Apply()
 			}			
 		} else {
 			
-#pragma message("(gth) Generals added a feature here WW3D::Is_Coloring_Enabled() which needs to be merged properly")
+// Legacy note: Generals coloring support remains disabled in the block below.
 #if 0
 			if (WW3D::Is_Coloring_Enabled())
 			{

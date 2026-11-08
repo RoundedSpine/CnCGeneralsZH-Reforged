@@ -757,7 +757,7 @@ static inline void compute_contact_normal(ObbCollisionStruct & context,CastResul
 	switch(context.AxisId) 
 	{
 	case INTERSECTION:
-#pragma message("Fatal assert disabled for demo, obb-obb collision")
+// Fatal assert intentionally disabled for the legacy demo collision path.
 //		WWASSERT(0);
 //		break;
 

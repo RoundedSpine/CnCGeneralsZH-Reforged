@@ -1845,7 +1845,7 @@ bool DX8Wrapper::Set_Device_Resolution(int width,int height,int bits,int windowe
 			}
 		}
 #endif
-#pragma message("TODO: support changing windowed status and changing the bit depth")
+// TODO: support changing windowed status and changing the bit depth.
 		Apply_Fullscreen_Display(true);
 		const bool reset = Reset_Device();
 		Direct3D11_Resize(ResolutionWidth, ResolutionHeight);

@@ -35,7 +35,7 @@
  * Functions:                                                                                  *
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-#pragma message ("(gth) disabling TGAtoDXTClass temporarily so I can test the WW libs merge...")
+// TGAtoDXTClass remains disabled in this legacy source block.
 #if 0 
 
 #include "always.h"
