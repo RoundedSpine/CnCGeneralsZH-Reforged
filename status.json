@@ -1,7 +1,7 @@
 {
-  "revision": "e4d3f7a8b4c87b397429587d5cc926f2a89b3625",
-  "run_id": "42457121561",
+  "revision": "93bf0fa5318ef92628452a6a1d0920d62edf426a",
+  "run_id": "42459155233",
   "attempt": "1",
-  "status": "success",
-  "url": "https://github.com/RoundedSpine/CnCGeneralsZH-Reforged/actions/runs/42457121561"
+  "status": "cancelled",
+  "url": "https://github.com/RoundedSpine/CnCGeneralsZH-Reforged/actions/runs/42459155233"
 }
