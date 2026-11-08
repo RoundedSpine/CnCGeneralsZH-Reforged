@@ -4585,7 +4585,7 @@ void W3DVolumetricShadowManager::renderShadowMap( CameraClass &sceneCamera )
 			static Bool reportedAircraftSunCaster = FALSE;
 			if (!reportedAircraftSunCaster)
 			{
-				fprintf(stderr, "[IOS_AIRCRAFT_SUN_CASTER] model=%s submitted=1\n",
+				fprintf(stderr, "[IOS_AIRCRAFT_SUN_CASTER] model=%s render_requested=1\n",
 					robj->Get_Name() ? robj->Get_Name() : "(unnamed)");
 				reportedAircraftSunCaster = TRUE;
 			}
