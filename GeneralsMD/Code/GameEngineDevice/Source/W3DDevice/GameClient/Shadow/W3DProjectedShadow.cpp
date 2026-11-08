@@ -62,8 +62,6 @@
 #include "W3DDevice/GameClient/W3DShadow.h"
 #include "W3DDevice/GameClient/HeightMap.h"
 #include "Platform/RenderTypes.h"
-#include "Platform/SunShadow.h"
-#include <cstdio>
 
 #ifdef _INTERNAL
 // for occasional debugging...
@@ -1479,24 +1477,7 @@ Int W3DProjectedShadowManager::renderShadows(RenderInfoClass & rinfo)
 			{
 				if (shadow->m_type & SHADOW_DECAL)
 				{
-#if defined(ZH_PLATFORM_IOS)
-                    // Object shadows, not the independent marker/decal list below.
-                    // Distinguishes an aircraft legacy decal from the sun map and
-                    // its stencil volume without changing fallback behavior.
-                    const DrawableInfo *shadowInfo = shadow->m_robj
-                        ? static_cast<const DrawableInfo *>(shadow->m_robj->Get_User_Data()) : NULL;
-                    const Drawable *owner = shadowInfo ? shadowInfo->m_drawable : NULL;
-                    if (owner && owner->isKindOf(KINDOF_AIRCRAFT)) {
-                        static int lastState = -1;
-                        const bool owns = SunShadow::OwnsSceneShadows(DX8Wrapper::_Get_D3D_Device());
-                        const int state = (owns ? 1 : 0) | (TheGlobalData->m_shadowMapOnly ? 2 : 0);
-                        if (state != lastState) {
-                            fprintf(stderr, "[IOS_AIRCRAFT_DECAL] shadow_type=%d sun_map_owns=%d map_only=%d\n",
-                                int(shadow->m_type), int(owns), int(TheGlobalData->m_shadowMapOnly));
-                            lastState = state;
-                        }
-                    }
-#endif
+
 					if (lastShadowDecalTexture == NULL)
 						lastShadowDecalTexture=m_shadowList->m_shadowTexture[0];
 					if (lastShadowType == SHADOW_NONE)
