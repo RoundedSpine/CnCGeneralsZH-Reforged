@@ -101,8 +101,8 @@ diff --git a/src/gpu/metal/SDL_gpu_metal.m b/src/gpu/metal/SDL_gpu_metal.m
 +                    ZH_MetalCalibrationStartGpu = gpuClock;
 +                } else if (cpuClock > ZH_MetalCalibrationStartCpu &&
 +                           gpuClock > ZH_MetalCalibrationStartGpu) {
-+                    const double scale = double(cpuClock - ZH_MetalCalibrationStartCpu) /
-+                                         double(gpuClock - ZH_MetalCalibrationStartGpu);
++                    const double scale = (double)(cpuClock - ZH_MetalCalibrationStartCpu) /
++                                         (double)(gpuClock - ZH_MetalCalibrationStartGpu);
 +                    if (scale > 0.001 && scale < 1000.0)
 +                        ZH_MetalNanosecondsPerGpuTick = scale;
 +                }
@@ -150,7 +150,7 @@ diff --git a/src/gpu/metal/SDL_gpu_metal.m b/src/gpu/metal/SDL_gpu_metal.m
 +                        if (timingEpoch == ZH_MetalTimingEpoch &&
 +                            SDL_GetAtomicInt(&ZH_MetalTimingEnabled)) {
 +                            if (valid && ZH_MetalNanosecondsPerGpuTick > 0.0) {
-+                                const Uint64 durationNs = (Uint64)(double(delta) *
++                                const Uint64 durationNs = (Uint64)((double)delta *
 +                                    ZH_MetalNanosecondsPerGpuTick + 0.5);
 +                                ZH_MetalPassNs[passTag] += durationNs;
 +                                if (durationNs > ZH_MetalPassMaxNs[passTag])
