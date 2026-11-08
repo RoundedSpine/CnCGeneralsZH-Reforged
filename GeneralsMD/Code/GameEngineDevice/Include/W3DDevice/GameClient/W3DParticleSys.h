@@ -117,6 +117,9 @@ public:
 		Bool																		fire;							///< the template's FireLook: each particle's age and seed go in v2
         double perfBillboardMs;             ///< CPU wall time for this fill job when enabled
         double perfLightPickMs;             ///< CPU time choosing affected smoke lights
+        double perfSmokeMs;                 ///< CPU time inside smoke lighting
+        double perfFireLookMs;              ///< CPU time packing FireLook age and seed
+        unsigned perfFireLookParticles;     ///< FireLook billboards prepared
         unsigned perfLightEvaluations;      ///< particle-light invocations
         unsigned perfCulledParticles;       ///< visibility rejects in the fill loop
 	};
