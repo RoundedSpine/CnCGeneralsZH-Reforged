@@ -1404,6 +1404,16 @@ TEST(shared_cloud_programs_compile_validate_and_translate)
 		unsigned samplers = 0, uniforms = 0;
 		SDL3_Shader_Slots(spirv, program.second, samplers, uniforms);
 		CHECK_EQ(uniforms, program.first == HazardCloud::vertexShader() ? 0u : 1u);
+		// A pair of distinct source textures previously mapped to Metal texture(0)
+		// in the shared Heat pass. All five shared shaders must use unique sampled
+		// texture slots, without aliasing SceneDepth or exceeding SDL's bindings.
+		if (program.first.find("SharedData;") != std::string::npos ||
+		    program.first.find("SharedBackground : register") != std::string::npos) {
+			std::string why;
+			const bool valid = slots_kept(msl, samplers, why);
+			if (!valid) printf("shared cloud Metal binding: %s\n", why.c_str());
+			CHECK(valid);
+		}
 	}
 }
 
