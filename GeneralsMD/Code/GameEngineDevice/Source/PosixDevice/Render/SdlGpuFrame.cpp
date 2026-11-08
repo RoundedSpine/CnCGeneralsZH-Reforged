@@ -41,6 +41,7 @@ extern "C" void ZH_SDL_Metal_SetTimingEnabled(bool enabled);
 extern "C" void ZH_SDL_Metal_TakeTiming(Uint64 *totalNs, Uint64 *maximumNs,
                                          Uint32 *samples, Uint32 *unavailable);
 extern "C" void ZH_SDL_Metal_SetNextRenderPassTag(Uint32 category);
+extern "C" void ZH_SDL_Metal_GetTimestampScale(double *scale);
 extern "C" void ZH_SDL_Metal_TakePassTiming(Uint64 *ns, Uint64 *maxNs,
                                              Uint32 *count, Uint32 *missing);
 extern "C" void ZH_SDL_Metal_TakeFragmentStatistics(Uint64 *fragmentInvocations,
@@ -1074,6 +1075,11 @@ void SdlGpuFrame::Take_Timing(double & flush_ms, double & fence_ms, unsigned int
 			if (metalTimingAvailable)
 				ZH_SDL_Metal_TakeFragmentStatistics(fragmentInvocations,
 					fragmentsPassed, statsSamples, statsMissing);
+			double nanosecondsPerGpuTick = 0.0;
+			if (metalTimingAvailable)
+				ZH_SDL_Metal_GetTimestampScale(&nanosecondsPerGpuTick);
+			fprintf(stderr, "[GPU_COUNTER_CALIBRATION] ns_per_gpu_tick=%.9f valid=%u source=Metal_sampleTimestamps_cpu_gpu_pairs note=pass_times_converted_only_when_valid\n",
+				nanosecondsPerGpuTick, nanosecondsPerGpuTick > 0.0 ? 1u : 0u);
 			const char *passNames[4] = {"unlabelled", "scene_backbuffer", "intermediate", "depth_only"};
 			for (unsigned p = 0; p < 4; ++p) {
 				fprintf(stderr, "[GPU_PASS_PERF] bucket=%s completed=%u unavailable=%u gpu_ms=%.3f max_ms=%.3f stats_completed=%u stats_unavailable=%u fragment_invocations=%llu fragments_passed=%llu fragment_invocations_per_passed=%.3f note=async_gpu_stage_counters_pass_wide_not_transparent_only\n",
