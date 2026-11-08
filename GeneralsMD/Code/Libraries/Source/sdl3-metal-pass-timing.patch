@@ -3,17 +3,17 @@ diff --git a/src/gpu/metal/SDL_gpu_metal.m b/src/gpu/metal/SDL_gpu_metal.m
 +++ b/src/gpu/metal/SDL_gpu_metal.m
 @@ -31,5 +66,75 @@
 +// Optional stage-boundary timestamps for render encoders (Apple tile GPUs).
-+// Buckets: 0=unlabelled SDL pass, 1=main scene, 2=intermediate, 3=depth-only.
++// Buckets: 0=unlabelled, 1=scene, 2=intermediate, 3=depth-only; 4=FFT, 5=heat,\n+// 6=MSAA, 7=native particles, 8=post, 9=smoke shadow, 10=gamma, 11=MSAA depth.
 +// The engine labels its passes just before SDL_BeginGPURenderPass.
 +static __thread Uint32 ZH_MetalNextRenderPassTag;
-+static Uint64 ZH_MetalPassNs[4];
-+static Uint64 ZH_MetalPassMaxNs[4];
-+static Uint32 ZH_MetalPassCount[4];
-+static Uint32 ZH_MetalPassMissing[4];
-+static Uint64 ZH_MetalFragmentInvocations[4];
-+static Uint64 ZH_MetalFragmentsPassed[4];
-+static Uint32 ZH_MetalStatisticsCount[4];
-+static Uint32 ZH_MetalStatisticsMissing[4];
++static Uint64 ZH_MetalPassNs[12];
++static Uint64 ZH_MetalPassMaxNs[12];
++static Uint32 ZH_MetalPassCount[12];
++static Uint32 ZH_MetalPassMissing[12];
++static Uint64 ZH_MetalFragmentInvocations[12];
++static Uint64 ZH_MetalFragmentsPassed[12];
++static Uint32 ZH_MetalStatisticsCount[12];
++static Uint32 ZH_MetalStatisticsMissing[12];
 +// GPU counter timestamps use the device clock, not necessarily nanoseconds.
 +// Calibrate once from paired GPU/CPU samples at least 250ms apart. Apple
 +// documents the CPU timestamps returned by sampleTimestamps as nanoseconds.
@@ -31,14 +31,14 @@ diff --git a/src/gpu/metal/SDL_gpu_metal.m b/src/gpu/metal/SDL_gpu_metal.m
 +
 +void ZH_SDL_Metal_SetNextRenderPassTag(Uint32 category)
 +{
-+    ZH_MetalNextRenderPassTag = category < 4 ? category : 0;
++    ZH_MetalNextRenderPassTag = category < 12 ? category : 0;
 +}
 +
 +void ZH_SDL_Metal_TakePassTiming(Uint64 *ns, Uint64 *maxNs,
 +                                 Uint32 *count, Uint32 *missing)
 +{
 +    SDL_LockSpinlock(&ZH_MetalTimingLock);
-+    for (unsigned i=0; i<4; ++i) {
++    for (unsigned i=0; i<12; ++i) {
 +        if (ns) ns[i] = ZH_MetalPassNs[i];
 +        if (maxNs) maxNs[i] = ZH_MetalPassMaxNs[i];
 +        if (count) count[i] = ZH_MetalPassCount[i];
@@ -54,7 +54,7 @@ diff --git a/src/gpu/metal/SDL_gpu_metal.m b/src/gpu/metal/SDL_gpu_metal.m
 +                                          Uint32 *count, Uint32 *missing)
 +{
 +    SDL_LockSpinlock(&ZH_MetalTimingLock);
-+    for (unsigned i=0; i<4; ++i) {
++    for (unsigned i=0; i<12; ++i) {
 +        if (fragmentInvocations) fragmentInvocations[i] = ZH_MetalFragmentInvocations[i];
 +        if (fragmentsPassed) fragmentsPassed[i] = ZH_MetalFragmentsPassed[i];
 +        if (count) count[i] = ZH_MetalStatisticsCount[i];
