@@ -22,11 +22,10 @@
 #include "SdlGpuFrame.h"
 #include "sdl3shadercompile.h"
 #include "Platform/ParticlePerfToggle.h"
+#include <SDL3/SDL.h>
 #if defined(__APPLE__)
 extern "C" void ZH_SDL_Metal_SetNextRenderPassTag(Uint32 category);
 #endif
-
-#include <SDL3/SDL.h>
 
 #include <stdio.h>
 #include <string.h>
