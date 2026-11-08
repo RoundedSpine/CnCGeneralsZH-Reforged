@@ -3374,6 +3374,7 @@ Libraries/Source/profile/profile_result.cpp
 Libraries/Source/profile/profile_result.h
 Libraries/Source/profile/test1/test1.cpp
 Libraries/Source/profile/test1/test1.dsp
+Libraries/Source/sdl3-metal-gpu-timing.patch
 Libraries/Source/sdl3-metal-windowless.patch
 Libraries/Source/template.cpp
 Libraries/Source/template.h
