@@ -3950,7 +3950,7 @@ Bool W3DView::isCameraMovementAtWaypointAlongPath(void)
 	// WWDEBUG_SAY((( "MBL: Polling W3DView::isCameraMovementAtWaypointAlongPath\n" )));
 	
 	Bool return_value = m_CameraArrivedAtWaypointOnPathFlag;
-	#pragma message( "MBL: Clearing variable after polling - for scripting - see Adam.\n" )
+	// Polling consumes the waypoint-arrival flag for scripting.
 	m_CameraArrivedAtWaypointOnPathFlag = false;
 	return( return_value );
 }
