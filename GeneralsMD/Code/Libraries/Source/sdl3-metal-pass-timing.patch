@@ -1,9 +1,11 @@
 diff --git a/src/gpu/metal/SDL_gpu_metal.m b/src/gpu/metal/SDL_gpu_metal.m
 --- a/src/gpu/metal/SDL_gpu_metal.m
 +++ b/src/gpu/metal/SDL_gpu_metal.m
-@@ -31,5 +66,75 @@
+@@ -31,5 +66,77 @@
 +// Optional stage-boundary timestamps for render encoders (Apple tile GPUs).
-+// Buckets: 0=unlabelled, 1=scene, 2=intermediate, 3=depth-only; 4=FFT, 5=heat,\n+// 6=MSAA, 7=native particles, 8=post, 9=smoke shadow, 10=gamma, 11=MSAA depth.
++// Buckets: 0=unlabelled, 1=scene, 2=intermediate, 3=depth-only;
++// 4=FFT, 5=heat, 6=MSAA, 7=native particles, 8=post, 9=smoke shadow,
++// 10=gamma, 11=MSAA depth.
 +// The engine labels its passes just before SDL_BeginGPURenderPass.
 +static __thread Uint32 ZH_MetalNextRenderPassTag;
 +static Uint64 ZH_MetalPassNs[12];
