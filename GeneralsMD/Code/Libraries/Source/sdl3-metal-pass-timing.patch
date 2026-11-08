@@ -1,0 +1,119 @@
+diff --git a/src/gpu/metal/SDL_gpu_metal.m b/src/gpu/metal/SDL_gpu_metal.m
+--- a/src/gpu/metal/SDL_gpu_metal.m
++++ b/src/gpu/metal/SDL_gpu_metal.m
+@@ -29,7 +64,43 @@
+ #include "../SDL_sysgpu.h"
+ 
++// Optional stage-boundary timestamps for render encoders (Apple tile GPUs).
++// Buckets: 0=unlabelled SDL pass, 1=main scene, 2=intermediate, 3=depth-only.
++// The engine labels its passes just before SDL_BeginGPURenderPass.
++static __thread Uint32 ZH_MetalNextRenderPassTag;
++static Uint64 ZH_MetalPassNs[4];
++static Uint64 ZH_MetalPassMaxNs[4];
++static Uint32 ZH_MetalPassCount[4];
++static Uint32 ZH_MetalPassMissing[4];
++
++void ZH_SDL_Metal_SetNextRenderPassTag(Uint32 category)
++{
++    ZH_MetalNextRenderPassTag = category < 4 ? category : 0;
++}
++
++void ZH_SDL_Metal_TakePassTiming(Uint64 *ns, Uint64 *maxNs,
++                                 Uint32 *count, Uint32 *missing)
++{
++    SDL_LockSpinlock(&ZH_MetalTimingLock);
++    for (unsigned i=0; i<4; ++i) {
++        if (ns) ns[i] = ZH_MetalPassNs[i];
++        if (maxNs) maxNs[i] = ZH_MetalPassMaxNs[i];
++        if (count) count[i] = ZH_MetalPassCount[i];
++        if (missing) missing[i] = ZH_MetalPassMissing[i];
++        ZH_MetalPassNs[i] = ZH_MetalPassMaxNs[i] = 0;
++        ZH_MetalPassCount[i] = ZH_MetalPassMissing[i] = 0;
++    }
++    SDL_UnlockSpinlock(&ZH_MetalTimingLock);
++}
++
++static void ZH_MetalRecordMissingPass(Uint32 category, Uint64 epoch)
++{
++    SDL_LockSpinlock(&ZH_MetalTimingLock);
++    if (epoch == ZH_MetalTimingEpoch && SDL_GetAtomicInt(&ZH_MetalTimingEnabled))
++        ++ZH_MetalPassMissing[category];
++    SDL_UnlockSpinlock(&ZH_MetalTimingLock);
++}
+ // Defines
+ 
+ #define METAL_FIRST_VERTEX_BUFFER_SLOT 14
+ #define WINDOW_PROPERTY_DATA           "SDL.internal.gpu.metal.data"
+ #define SDL_GPU_SHADERSTAGE_COMPUTE    2
+@@ -2345,7 +2416,71 @@
+             METAL_INTERNAL_TrackTexture(metalCommandBuffer, texture);
+         }
+ 
++        // GPU stage boundary counters are opt-in. On unsupported devices report
++        // unavailable instead of substituting CPU timing or stalling the command queue.
++        const Uint32 passTag = ZH_MetalNextRenderPassTag;
++        ZH_MetalNextRenderPassTag = 0;
++        if (SDL_GetAtomicInt(&ZH_MetalTimingEnabled)) {
++            SDL_LockSpinlock(&ZH_MetalTimingLock);
++            const Uint64 timingEpoch = ZH_MetalTimingEpoch;
++            SDL_UnlockSpinlock(&ZH_MetalTimingLock);
++            id<MTLCounterSet> timestamps = nil;
++            if ([renderer->device supportsCounterSampling:MTLCounterSamplingPointAtStageBoundary]) {
++                for (id<MTLCounterSet> candidate in renderer->device.counterSets) {
++                    if ([candidate.name isEqualToString:MTLCommonCounterSetTimestamp]) {
++                        timestamps = candidate;
++                        break;
++                    }
++                }
++            }
++            if (timestamps) {
++                MTLCounterSampleBufferDescriptor *sampleDescriptor = [MTLCounterSampleBufferDescriptor new];
++                sampleDescriptor.counterSet = timestamps;
++                sampleDescriptor.sampleCount = 4;
++                sampleDescriptor.storageMode = MTLStorageModeShared;
++                id<MTLCounterSampleBuffer> samples =
++                    [renderer->device newCounterSampleBufferWithDescriptor:sampleDescriptor error:nil];
++                if (samples) {
++                    MTLRenderPassSampleBufferAttachmentDescriptor *attachment =
++                        passDescriptor.sampleBufferAttachments[0];
++                    attachment.sampleBuffer = samples;
++                    attachment.startOfVertexSampleIndex = 0;
++                    attachment.endOfVertexSampleIndex = MTLCounterDontSample;
++                    attachment.startOfFragmentSampleIndex = MTLCounterDontSample;
++                    attachment.endOfFragmentSampleIndex = 1;
++                    [metalCommandBuffer->handle addCompletedHandler:^(id<MTLCommandBuffer> completed) {
++                        NSData *resolved = [samples resolveCounterRange:NSMakeRange(0,2)];
++                        bool valid = resolved.length >= sizeof(MTLCounterResultTimestamp) * 2;
++                        Uint64 delta = 0;
++                        if (valid) {
++                            const MTLCounterResultTimestamp *t = (const MTLCounterResultTimestamp *)resolved.bytes;
++                            valid = t[0].timestamp != MTLCounterErrorValue &&
++                                    t[1].timestamp != MTLCounterErrorValue &&
++                                    t[1].timestamp > t[0].timestamp;
++                            if (valid) delta = t[1].timestamp - t[0].timestamp;
++                        }
++                        SDL_LockSpinlock(&ZH_MetalTimingLock);
++                        if (timingEpoch == ZH_MetalTimingEpoch &&
++                            SDL_GetAtomicInt(&ZH_MetalTimingEnabled)) {
++                            if (valid) {
++                                ZH_MetalPassNs[passTag] += delta;
++                                if (delta > ZH_MetalPassMaxNs[passTag])
++                                    ZH_MetalPassMaxNs[passTag] = delta;
++                                ++ZH_MetalPassCount[passTag];
++                            } else {
++                                ++ZH_MetalPassMissing[passTag];
++                            }
++                        }
++                        SDL_UnlockSpinlock(&ZH_MetalTimingLock);
++                    }];
++                } else {
++                    ZH_MetalRecordMissingPass(passTag,timingEpoch);
++                }
++            } else {
++                ZH_MetalRecordMissingPass(passTag,timingEpoch);
++            }
++        }
+         metalCommandBuffer->renderEncoder = [metalCommandBuffer->handle renderCommandEncoderWithDescriptor:passDescriptor];
+ 
+         // The viewport cannot be larger than the smallest target.
+         for (Uint32 i = 0; i < numColorTargets; i += 1) {
