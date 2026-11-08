@@ -3,6 +3,9 @@
 #include "sdl3shadercompile.h"
 #include "Platform/IOSLifecycle.h"
 #include <SDL3/SDL.h>
+#if defined(__APPLE__)
+extern "C" void ZH_SDL_Metal_SetNextRenderPassTag(Uint32 category);
+#endif
 #include <algorithm>
 #include <cmath>
 #include <cstdio>
@@ -201,13 +204,19 @@ bool SdlGpuFrame::Heat_Haze_Scene(const SdlTarget &target)
     SDL_GPUTransferBufferLocation from={};from.transfer_buffer=h.Transfer;SDL_GPUBufferRegion to={};to.buffer=h.Splats;to.size=bytes;
     SDL_UploadToGPUBuffer(copy,&from,&to,true);SDL_EndGPUCopyPass(copy);
     SDL_GPUColorTargetInfo field={};field.texture=h.Field;field.load_op=SDL_GPU_LOADOP_CLEAR;field.store_op=SDL_GPU_STOREOP_STORE;
-    auto *pass=SDL_BeginGPURenderPass(commands,&field,1,nullptr);if(!pass){SDL_CancelGPUCommandBuffer(commands);return false;}
+    #if defined(__APPLE__)
+ZH_SDL_Metal_SetNextRenderPassTag(5u);
+#endif
+auto *pass=SDL_BeginGPURenderPass(commands,&field,1,nullptr);if(!pass){SDL_CancelGPUCommandBuffer(commands);return false;}
     SDL_BindGPUGraphicsPipeline(pass,h.SplatPipeline);SDL_BindGPUVertexStorageBuffers(pass,0,&h.Splats,1);
     SDL_GPUTextureSamplerBinding depthBinding={depth,h.Point};SDL_BindGPUFragmentSamplers(pass,0,&depthBinding,1);
     const SDL_GPUViewport half={0,0,float(h.Width),float(h.Height),0,1};SDL_SetGPUViewport(pass,&half);
     SDL_DrawGPUPrimitives(pass,count*6,1,0,0);SDL_EndGPURenderPass(pass);
     SDL_GPUColorTargetInfo scene={};scene.texture=target.Colour;scene.load_op=SDL_GPU_LOADOP_LOAD;scene.store_op=SDL_GPU_STOREOP_STORE;
-    pass=SDL_BeginGPURenderPass(commands,&scene,1,nullptr);if(!pass){SDL_CancelGPUCommandBuffer(commands);return false;}
+    #if defined(__APPLE__)
+ZH_SDL_Metal_SetNextRenderPassTag(5u);
+#endif
+pass=SDL_BeginGPURenderPass(commands,&scene,1,nullptr);if(!pass){SDL_CancelGPUCommandBuffer(commands);return false;}
     SDL_BindGPUGraphicsPipeline(pass,h.CompositePipeline);
     SDL_GPUTextureSamplerBinding textures[]={{source,h.Linear},{h.Field,h.Linear}};SDL_BindGPUFragmentSamplers(pass,0,textures,2);
     const SDL_GPUViewport full={0,0,float(target.Width),float(target.Height),0,1};SDL_SetGPUViewport(pass,&full);
