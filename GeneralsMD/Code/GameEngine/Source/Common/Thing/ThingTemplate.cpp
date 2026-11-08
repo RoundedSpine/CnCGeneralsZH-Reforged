@@ -526,7 +526,8 @@ void ThingTemplate::parseModuleName(INI* ini, void *instance, void* store, const
 {
 	ThingTemplate* self = (ThingTemplate*)instance;
 	ModuleInfo* mi = (ModuleInfo*)store;
-	ModuleType type = (ModuleType)(UnsignedInt)(uintptr_t)userData;
+	const UnsignedInt rawType = (UnsignedInt)(uintptr_t)userData;
+	ModuleType type = rawType == 999 ? MODULETYPE_BEHAVIOR : (ModuleType)rawType;
 	const char* token = ini->getNextToken();
 	AsciiString tokenStr = token;
 
@@ -549,9 +550,8 @@ void ThingTemplate::parseModuleName(INI* ini, void *instance, void* store, const
 	Int interfaceMask;
 
 	// ugh -- special case for "Body".
-	if (type == 999)
+	if (rawType == 999)
 	{
-		type = MODULETYPE_BEHAVIOR;
 	// what interface(s) does this module support?
 		interfaceMask = TheModuleFactory->findModuleInterfaceMask(tokenStr, type);
 		if ((interfaceMask & (MODULEINTERFACE_BODY)) == 0)

@@ -1023,7 +1023,8 @@ Bool Keyboard::isAlt()
 
 WideChar Keyboard::getPrintableKey( UnsignedByte key,  Int state )
 {
-	if((key < 0 || key >=KEY_NAMES_COUNT) || ( state < 0 || state >= MAX_KEY_STATES))
+	// UnsignedByte covers exactly the 256-entry key table; only the state needs a bounds check.
+	if( state < 0 || state >= MAX_KEY_STATES )
 		return u'\0';
 	if(state == 0)
 		return m_keyNames[key].stdKey;
