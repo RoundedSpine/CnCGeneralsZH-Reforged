@@ -3035,7 +3035,7 @@ void W3DParticleSystemManager::doParticles(RenderInfoClass &rinfo)
                     const double ms = smoke ? cost.smokeMs : cost.fireLookMs;
                     if (ms <= 0.0) break;
                     std::fprintf(stderr,
-                        "[PARTICLE_COST] stage=%s template=%s ms_per_frame=%.3f particles_per_frame=%.1f\\n",
+                        "[PARTICLE_COST] stage=%s template=%s ms_per_frame=%.3f particles_per_frame=%.1f\n",
                         smoke ? "smoke_light_cpu" : "firelook_pack_cpu", tops[i].first.c_str(),
                         ms * inv, (smoke ? cost.drawn : cost.fireLookParticles) * inv);
                 }
