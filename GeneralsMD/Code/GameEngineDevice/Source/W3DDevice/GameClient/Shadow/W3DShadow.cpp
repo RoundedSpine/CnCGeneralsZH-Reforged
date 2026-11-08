@@ -35,6 +35,7 @@
 
 // USER INCLUDES //////////////////////////////////////////////////////////////
 #include "Platform/SunShadow.h"
+#include <cstdio>
 #include "always.h"
 #include "GameClient/View.h"
 #include "WW3D2/camera.h"
@@ -103,6 +104,27 @@ Bool volumeShadowCanReachView( const FrustumClass &view, const SphereClass &body
 DECLARE_PERF_TIMER(shadowsRender)
 void DoShadows(RenderInfoClass & rinfo, Bool stencilPass)
 {
+#if defined(ZH_PLATFORM_IOS)
+    // Observe the actual fallback/ownership decision at the legacy pass,
+    // without assuming that the Shadow Map preference means a capture succeeded.
+    // Emit only when the state changes, avoiding per-frame diagnostic overhead.
+    if (stencilPass && TheGlobalData) {
+        const bool owns = SunShadow::OwnsSceneShadows(DX8Wrapper::_Get_D3D_Device());
+        const unsigned state = unsigned(TheGlobalData->m_shadowMap != FALSE)
+            | (unsigned(TheGlobalData->m_shadowMapOnly != FALSE) << 1)
+            | (unsigned(owns) << 2)
+            | (unsigned(TheGlobalData->m_useShadowVolumes != FALSE) << 3)
+            | (unsigned(TheGlobalData->m_useShadowDecals != FALSE) << 4);
+        static unsigned lastState = ~0u;
+        if (lastState != state) {
+            fprintf(stderr, "[IOS_SHADOW_PASS] shadow_map=%d map_only=%d scene_owns=%d volumes=%d decals=%d stencil_suppressed=%d\\n",
+                int(TheGlobalData->m_shadowMap != FALSE), int(TheGlobalData->m_shadowMapOnly != FALSE),
+                int(owns), int(TheGlobalData->m_useShadowVolumes != FALSE),
+                int(TheGlobalData->m_useShadowDecals != FALSE), int(owns && TheGlobalData->m_shadowMapOnly));
+            lastState = state;
+        }
+    }
+#endif
 	SunShadow::ReceiverExclusion sunReceivers(DX8Wrapper::_Get_D3D_Device());
 	USE_PERF_TIMER(shadowsRender)
 	shadowCameraFrustum=&rinfo.Camera.Get_Frustum();
