@@ -1,71 +1,38 @@
-      |                 ^~~~
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:123:10: note: add missing switch cases
-  123 |         switch( type )
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/Input/Mouse.cpp:1218:3: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
+ 1218 |                 "PlaceBeacon",
       |                 ^
-  124 |         {
-  125 |                 case DAMAGE_SUBDUAL_MISSILE:
-  126 |                 case DAMAGE_SUBDUAL_VEHICLE:
-  127 |                 case DAMAGE_SUBDUAL_BUILDING:
-  128 |                 case DAMAGE_SUBDUAL_UNRESISTABLE:
-  129 |                         return TRUE;
-  130 |         }
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:140:10: warning: 32 enumeration values not handled in switch: 'DAMAGE_EXPLOSION', 'DAMAGE_CRUSH', 'DAMAGE_ARMOR_PIERCING'... [-Wswitch]
-  140 |         switch( type )
-      |                 ^~~~
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:140:10: note: add missing switch cases
-  140 |         switch( type )
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/Input/Mouse.cpp:1219:3: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
+ 1219 |                 "DisguiseAsVehicle",
       |                 ^
-  141 |         {
-  142 |                 case DAMAGE_STATUS:
-  143 |                 case DAMAGE_SUBDUAL_MISSILE:
-  144 |                 case DAMAGE_SUBDUAL_VEHICLE:
-  145 |                 case DAMAGE_SUBDUAL_BUILDING:
-  146 |                 case DAMAGE_SUBDUAL_UNRESISTABLE:
-  147 |                 case DAMAGE_KILLPILOT:
-  148 |                 case DAMAGE_KILL_GARRISONED:
-  149 |                         return FALSE;
-  150 |         }
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/ControlBar/ControlBarScheme.cpp:91:75: warning: implicit conversion of NULL constant to 'Int' (aka 'int') [-Wnull-conversion]
-   91 |         { "AnimatingPart",                              ControlBarSchemeManager::parseAnimatingPart,    NULL, NULL },
-      |         ~                                                                                                     ^~~~
-      |                                                                                                               0
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/ControlBar/ControlBarScheme.cpp:90:71: warning: implicit conversion of NULL constant to 'Int' (aka 'int') [-Wnull-conversion]
-   90 |         { "ImagePart",                                          ControlBarSchemeManager::parseImagePart,                        NULL, NULL },
-      |         ~                                                                                                                             ^~~~
-      |                                                                                                                                       0
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/ControlBar/ControlBarScheme.cpp:998:49: warning: offset of on non-standard-layout type 'ControlBarSchemeAnimation' [-Winvalid-offsetof]
-  998 |                         { "Name",                                               INI::parseAsciiString,          NULL, offsetof( ControlBarSchemeAnimation, m_name ) },
-      |                                                                                                                       ^                                    ~~~~~~
-/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
-   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
-      |                        ^                     ~
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/ControlBar/ControlBarScheme.cpp:999:63: warning: offset of on non-standard-layout type 'ControlBarSchemeAnimation' [-Winvalid-offsetof]
-  999 |       { "Animation",                    INI::parseLookupList,                   AnimTypeNames, offsetof( ControlBarSchemeAnimation, m_animType ) },
-      |                                                                                                ^                                    ~~~~~~~~~~
-/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
-   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
-      |                        ^                     ~
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/ControlBar/ControlBarScheme.cpp:1000:60: warning: offset of on non-standard-layout type 'ControlBarSchemeAnimation' [-Winvalid-offsetof]
- 1000 |                         { "Duration",                           INI::parseDurationUnsignedInt,                  NULL, offsetof( ControlBarSchemeAnimation, m_animDuration ) },
-      |                                                                                                                       ^                                    ~~~~~~~~~~~~~~
-/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
-   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
-      |                        ^                     ~
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/ControlBar/ControlBarScheme.cpp:1001:49: warning: offset of on non-standard-layout type 'ControlBarSchemeAnimation' [-Winvalid-offsetof]
- 1001 |                         { "FinalPos",                           INI::parseICoord2D,                     NULL, offsetof( ControlBarSchemeAnimation, m_finalPos ) },
-      |                                                                                                               ^                                    ~~~~~~~~~~
-/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
-   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
-      |                        ^                     ~
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/ControlBar/ControlBarScheme.cpp:1002:77: warning: implicit conversion of NULL constant to 'Int' (aka 'int') [-Wnull-conversion]
- 1002 |                         { "ImagePart",                  ControlBarSchemeManager::parseAnimatingPartImage,       NULL, NULL },
-      |                         ~                                                                                             ^~~~
-      |                                                                                                                       0
-9 warnings generated.
-[916/1651] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/ControlBar/ControlBarStructureInventory.cpp.o
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/ControlBar/ControlBarStructureInventory.cpp:36:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/ThingTemplate.h:52:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/WeaponSet.h:40:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/Input/Mouse.cpp:1220:3: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
+ 1220 |                 "Waypoint",
+      |                 ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/Input/Mouse.cpp:1221:3: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
+ 1221 |                 "OutRange",
+      |                 ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/Input/Mouse.cpp:1222:3: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
+ 1222 |                 "StabAttackInvalid",
+      |                 ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/Input/Mouse.cpp:1223:3: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
+ 1223 |                 "PlaceChargeInvalid",
+      |                 ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/Input/Mouse.cpp:1224:3: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
+ 1224 |                 "Hack",
+      |                 ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/Input/Mouse.cpp:1225:3: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
+ 1225 |                 "ParticleUplinkCannon",
+      |                 ^
+61 warnings generated.
+[1009/1651] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/LanguageFilter.cpp.o
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/LanguageFilter.cpp:190:10: warning: result of comparison of constant -1 with expression of type 'UnsignedShort' (aka 'unsigned short') is always false [-Wtautological-constant-out-of-range-compare]
+  190 |                         if (c == WEOF) {
+      |                             ~ ^  ~~~~
+1 warning generated.
+[1010/1651] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/Line2D.cpp.o
+[1011/1651] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/MapUtil.cpp.o
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/MapUtil.cpp:54:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/ThingFactory.h:43:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Object.h:48:
 /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:123:10: warning: 35 enumeration values not handled in switch: 'DAMAGE_EXPLOSION', 'DAMAGE_CRUSH', 'DAMAGE_ARMOR_PIERCING'... [-Wswitch]
   123 |         switch( type )
       |                 ^~~~
@@ -95,206 +62,239 @@ In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Re
   148 |                 case DAMAGE_KILL_GARRISONED:
   149 |                         return FALSE;
   150 |         }
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/ControlBar/ControlBarStructureInventory.cpp:41:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/OpenContain.h:44:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/MapUtil.cpp:78:29: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
+   78 | static char *mapExtension = ".map";
+      |                             ^
+3 warnings generated.
+[1012/1651] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/MessageStream/CommandXlat.cpp.o
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/MessageStream/CommandXlat.cpp:48:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Player.h:62:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/AI.h:41:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:123:10: warning: 35 enumeration values not handled in switch: 'DAMAGE_EXPLOSION', 'DAMAGE_CRUSH', 'DAMAGE_ARMOR_PIERCING'... [-Wswitch]
+  123 |         switch( type )
+      |                 ^~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:123:10: note: add missing switch cases
+  123 |         switch( type )
+      |                 ^
+  124 |         {
+  125 |                 case DAMAGE_SUBDUAL_MISSILE:
+  126 |                 case DAMAGE_SUBDUAL_VEHICLE:
+  127 |                 case DAMAGE_SUBDUAL_BUILDING:
+  128 |                 case DAMAGE_SUBDUAL_UNRESISTABLE:
+  129 |                         return TRUE;
+  130 |         }
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:140:10: warning: 32 enumeration values not handled in switch: 'DAMAGE_EXPLOSION', 'DAMAGE_CRUSH', 'DAMAGE_ARMOR_PIERCING'... [-Wswitch]
+  140 |         switch( type )
+      |                 ^~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:140:10: note: add missing switch cases
+  140 |         switch( type )
+      |                 ^
+  141 |         {
+  142 |                 case DAMAGE_STATUS:
+  143 |                 case DAMAGE_SUBDUAL_MISSILE:
+  144 |                 case DAMAGE_SUBDUAL_VEHICLE:
+  145 |                 case DAMAGE_SUBDUAL_BUILDING:
+  146 |                 case DAMAGE_SUBDUAL_UNRESISTABLE:
+  147 |                 case DAMAGE_KILLPILOT:
+  148 |                 case DAMAGE_KILL_GARRISONED:
+  149 |                         return FALSE;
+  150 |         }
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/MessageStream/CommandXlat.cpp:57:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameLOD.h:268:8: warning: extra tokens at end of #endif directive [-Wextra-tokens]
+  268 | #endif _GAME_LOD_H_
+      |        ^
+      |        //
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/MessageStream/CommandXlat.cpp:87:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/SpawnBehavior.h:44:
 /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/DieModule.h:79:38: warning: offset of on non-standard-layout type 'DieModuleData' [-Winvalid-offsetof]
    79 |                 p.add(DieMuxData::getFieldParse(), offsetof( DieModuleData, m_dieMuxData ));
       |                                                    ^                        ~~~~~~~~~~~~
 /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
    16 | #define offsetof(t, d) __builtin_offsetof(t, d)
       |                        ^                     ~
-3 warnings generated.
-[917/1651] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/ControlBar/ControlBarUnderConstruction.cpp.o
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/ControlBar/ControlBarUnderConstruction.cpp:36:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/ThingTemplate.h:52:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/WeaponSet.h:40:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:123:10: warning: 35 enumeration values not handled in switch: 'DAMAGE_EXPLOSION', 'DAMAGE_CRUSH', 'DAMAGE_ARMOR_PIERCING'... [-Wswitch]
-  123 |         switch( type )
-      |                 ^~~~
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:123:10: note: add missing switch cases
-  123 |         switch( type )
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/MessageStream/CommandXlat.cpp:87:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/SpawnBehavior.h:92:57: warning: offset of on non-standard-layout type 'SpawnBehaviorModuleData' [-Winvalid-offsetof]
+   92 |                         { "SpawnNumber",                                                        INI::parseInt,                                                                          NULL, offsetof( SpawnBehaviorModuleData, m_spawnNumberData ) },
+      |                                                                                                                                                                                               ^                                  ~~~~~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/MessageStream/CommandXlat.cpp:87:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/SpawnBehavior.h:93:68: warning: offset of on non-standard-layout type 'SpawnBehaviorModuleData' [-Winvalid-offsetof]
+   93 |                         { "SpawnReplaceDelay",                          INI::parseDurationUnsignedInt,          NULL, offsetof( SpawnBehaviorModuleData, m_spawnReplaceDelayData ) },
+      |                                                                                                                       ^                                  ~~~~~~~~~~~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/MessageStream/CommandXlat.cpp:87:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/SpawnBehavior.h:94:56: warning: offset of on non-standard-layout type 'SpawnBehaviorModuleData' [-Winvalid-offsetof]
+   94 |                         { "OneShot",                                                                    INI::parseBool,                                                                         NULL, offsetof( SpawnBehaviorModuleData, m_isOneShotData ) },
+      |                                                                                                                                                                                                       ^                                  ~~~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/MessageStream/CommandXlat.cpp:87:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/SpawnBehavior.h:95:61: warning: offset of on non-standard-layout type 'SpawnBehaviorModuleData' [-Winvalid-offsetof]
+   95 |                         { "CanReclaimOrphans",                          INI::parseBool,                                                                         NULL,   offsetof( SpawnBehaviorModuleData, m_canReclaimOrphans ) },
+      |                                                                                                                                                                         ^                                  ~~~~~~~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/MessageStream/CommandXlat.cpp:87:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/SpawnBehavior.h:96:61: warning: offset of on non-standard-layout type 'SpawnBehaviorModuleData' [-Winvalid-offsetof]
+   96 |                         { "AggregateHealth",                            INI::parseBool,                                                                         NULL, offsetof( SpawnBehaviorModuleData, m_aggregateHealth ) },         
+      |                                                                                                                                                                       ^                                  ~~~~~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/MessageStream/CommandXlat.cpp:87:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/SpawnBehavior.h:97:61: warning: offset of on non-standard-layout type 'SpawnBehaviorModuleData' [-Winvalid-offsetof]
+   97 |                         { "ExitByBudding",                              INI::parseBool,                                                                         NULL, offsetof( SpawnBehaviorModuleData, m_exitByBudding ) },           
+      |                                                                                                                                                                       ^                                  ~~~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/MessageStream/CommandXlat.cpp:87:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/SpawnBehavior.h:98:70: warning: offset of on non-standard-layout type 'SpawnBehaviorModuleData' [-Winvalid-offsetof]
+   98 |                         { "SpawnTemplateName",                          INI::parseAsciiStringVectorAppend,NULL, offsetof( SpawnBehaviorModuleData, m_spawnTemplateNameData ) },
+      |                                                                                                                 ^                                  ~~~~~~~~~~~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/MessageStream/CommandXlat.cpp:87:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/SpawnBehavior.h:99:63: warning: offset of on non-standard-layout type 'SpawnBehaviorModuleData' [-Winvalid-offsetof]
+   99 |                         { "SpawnedRequireSpawner",              INI::parseBool,                                                                         NULL,   offsetof( SpawnBehaviorModuleData, m_spawnedRequireSpawner ) },
+      |                                                                                                                                                                 ^                                  ~~~~~~~~~~~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/MessageStream/CommandXlat.cpp:87:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/SpawnBehavior.h:100:85: warning: offset of on non-standard-layout type 'SpawnBehaviorModuleData' [-Winvalid-offsetof]
+  100 |                         { "PropagateDamageTypesToSlavesWhenExisting",   INI::parseDamageTypeFlags, NULL, offsetof( SpawnBehaviorModuleData, m_damageTypesToPropagateToSlaves ) },
+      |                                                                                                          ^                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/MessageStream/CommandXlat.cpp:87:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/SpawnBehavior.h:101:65: warning: offset of on non-standard-layout type 'SpawnBehaviorModuleData' [-Winvalid-offsetof]
+  101 |                         { "InitialBurst",                                     INI::parseInt,                                                    NULL, offsetof( SpawnBehaviorModuleData, m_initialBurst ) },                    
+      |                                                                                                                                                       ^                                  ~~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/MessageStream/CommandXlat.cpp:87:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/SpawnBehavior.h:102:62: warning: offset of on non-standard-layout type 'SpawnBehaviorModuleData' [-Winvalid-offsetof]
+  102 |                         { "SlavesHaveFreeWill",                         INI::parseBool,                                                                         NULL, offsetof( SpawnBehaviorModuleData, m_slavesHaveFreeWill ) },
+      |                                                                                                                                                                       ^                                  ~~~~~~~~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/MessageStream/CommandXlat.cpp:87:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/SpawnBehavior.h:107:38: warning: offset of on non-standard-layout type 'SpawnBehaviorModuleData' [-Winvalid-offsetof]
+  107 |                 p.add(DieMuxData::getFieldParse(), offsetof( SpawnBehaviorModuleData, m_dieMuxData ));
+      |                                                    ^                                  ~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/MessageStream/CommandXlat.cpp:670:14: warning: enumeration value 'WEAPONSLOT_COUNT' not handled in switch [-Wswitch]
+  670 |                                         switch( *info->m_weaponSlot )
+      |                                                 ^~~~~~~~~~~~~~~~~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/MessageStream/CommandXlat.cpp:670:14: note: add missing switch cases
+  670 |                                         switch( *info->m_weaponSlot )
+      |                                                 ^
+  671 |                                         {
+  672 |                                                 case PRIMARY_WEAPON:
+  673 |                                                         soundToPlayPtr = templ->getPerUnitSound( "VoicePrimaryWeaponMode" );
+  674 |                                                         break;
+  675 |                                                 case SECONDARY_WEAPON:
+  676 |                                                         soundToPlayPtr = templ->getPerUnitSound( "VoiceSecondaryWeaponMode" );
+  677 |                                                         break;
+  678 |                                                 case TERTIARY_WEAPON:
+  679 |                                                         soundToPlayPtr = templ->getPerUnitSound( "VoiceTertiaryWeaponMode" );
+  680 |                                                         break;
+  681 |                                         }
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/MessageStream/CommandXlat.cpp:722:14: warning: 35 enumeration values not handled in switch: 'DAMAGE_EXPLOSION', 'DAMAGE_CRUSH', 'DAMAGE_ARMOR_PIERCING'... [-Wswitch]
+  722 |                                         switch( weapon->getDamageType() )
+      |                                                 ^~~~~~~~~~~~~~~~~~~~~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/MessageStream/CommandXlat.cpp:722:14: note: add missing switch cases
+  722 |                                         switch( weapon->getDamageType() )
+      |                                                 ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/MessageStream/CommandXlat.cpp:890:12: warning: 328 enumeration values not handled in switch: 'MSG_INVALID', 'MSG_FRAME_TICK', 'MSG_RAW_MOUSE_BEGIN'... [-Wswitch]
+  890 |                         switch (msgType) 
+      |                                 ^~~~~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/MessageStream/CommandXlat.cpp:890:12: note: add missing switch cases
+  890 |                         switch (msgType) 
+      |                                 ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/MessageStream/CommandXlat.cpp:1962:12: warning: 30 enumeration values not handled in switch: 'GUI_COMMAND_NONE', 'GUI_COMMAND_DOZER_CONSTRUCT', 'GUI_COMMAND_DOZER_CONSTRUCT_CANCEL'... [-Wswitch]
+ 1962 |                         switch( command->getCommandType() )
+      |                                 ^~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/MessageStream/CommandXlat.cpp:1962:12: note: add missing switch cases
+ 1962 |                         switch( command->getCommandType() )
+      |                                 ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/MessageStream/CommandXlat.cpp:2006:14: warning: 30 enumeration values not handled in switch: 'GUI_COMMAND_NONE', 'GUI_COMMAND_DOZER_CONSTRUCT', 'GUI_COMMAND_DOZER_CONSTRUCT_CANCEL'... [-Wswitch]
+ 2006 |                                         switch( command->getCommandType() )
+      |                                                 ^~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/MessageStream/CommandXlat.cpp:2006:14: note: add missing switch cases
+ 2006 |                                         switch( command->getCommandType() )
+      |                                                 ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/MessageStream/CommandXlat.cpp:2067:13: warning: 35 enumeration values not handled in switch: 'GUI_COMMAND_NONE', 'GUI_COMMAND_DOZER_CONSTRUCT', 'GUI_COMMAND_DOZER_CONSTRUCT_CANCEL'... [-Wswitch]
+ 2067 |                                 switch( command->getCommandType() )
+      |                                         ^~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/MessageStream/CommandXlat.cpp:2067:13: note: add missing switch cases
+ 2067 |                                 switch( command->getCommandType() )
+      |                                         ^
+ 2068 |                                 {
+ 2069 |                                         case GUI_COMMAND_SPECIAL_POWER_FROM_SHORTCUT:
+ 2070 |                                         {
+ 2071 |                                                 Object* unit = ThePlayerList->getLocalPlayer()->findMostReadyShortcutSpecialPowerOfType( command->getSpecialPowerTemplate()->getSpecialPowerType() );
+ 2072 |                                                 if( unit )
+ 2073 |                                                         msgType = issueSpecialPowerCommand( command, type, draw, pos, unit );
+ 2074 |                                                 break;
+ 2075 |                                         }
+ 2076 |                                         case GUI_COMMAND_SPECIAL_POWER://lorenzen
+ 2077 |                                                 msgType = issueSpecialPowerCommand( command, type, draw, pos, NULL );
+ 2078 |                                                 break;
+ 2079 |                                 }
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/MessageStream/CommandXlat.cpp:2831:10: warning: 210 enumeration values not handled in switch: 'MSG_INVALID', 'MSG_FRAME_TICK', 'MSG_RAW_MOUSE_BEGIN'... [-Wswitch]
+ 2831 |         switch (t)
       |                 ^
-  124 |         {
-  125 |                 case DAMAGE_SUBDUAL_MISSILE:
-  126 |                 case DAMAGE_SUBDUAL_VEHICLE:
-  127 |                 case DAMAGE_SUBDUAL_BUILDING:
-  128 |                 case DAMAGE_SUBDUAL_UNRESISTABLE:
-  129 |                         return TRUE;
-  130 |         }
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:140:10: warning: 32 enumeration values not handled in switch: 'DAMAGE_EXPLOSION', 'DAMAGE_CRUSH', 'DAMAGE_ARMOR_PIERCING'... [-Wswitch]
-  140 |         switch( type )
-      |                 ^~~~
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:140:10: note: add missing switch cases
-  140 |         switch( type )
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/MessageStream/CommandXlat.cpp:2831:10: note: add missing switch cases
+ 2831 |         switch (t)
       |                 ^
-  141 |         {
-  142 |                 case DAMAGE_STATUS:
-  143 |                 case DAMAGE_SUBDUAL_MISSILE:
-  144 |                 case DAMAGE_SUBDUAL_VEHICLE:
-  145 |                 case DAMAGE_SUBDUAL_BUILDING:
-  146 |                 case DAMAGE_SUBDUAL_UNRESISTABLE:
-  147 |                 case DAMAGE_KILLPILOT:
-  148 |                 case DAMAGE_KILL_GARRISONED:
-  149 |                         return FALSE;
-  150 |         }
-2 warnings generated.
-[918/1651] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/EstablishConnectionsMenu/EstablishConnectionsMenu.cpp.o
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/EstablishConnectionsMenu/EstablishConnectionsMenu.cpp:40:2: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
-   40 |         "EstablishConnectionsScreen.wnd:ButtonAccept1",
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/EstablishConnectionsMenu/EstablishConnectionsMenu.cpp:41:2: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
-   41 |         "EstablishConnectionsScreen.wnd:ButtonAccept2",
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/EstablishConnectionsMenu/EstablishConnectionsMenu.cpp:42:2: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
-   42 |         "EstablishConnectionsScreen.wnd:ButtonAccept3",
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/EstablishConnectionsMenu/EstablishConnectionsMenu.cpp:43:2: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
-   43 |         "EstablishConnectionsScreen.wnd:ButtonAccept4",
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/EstablishConnectionsMenu/EstablishConnectionsMenu.cpp:44:2: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
-   44 |         "EstablishConnectionsScreen.wnd:ButtonAccept5",
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/EstablishConnectionsMenu/EstablishConnectionsMenu.cpp:45:2: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
-   45 |         "EstablishConnectionsScreen.wnd:ButtonAccept6",
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/EstablishConnectionsMenu/EstablishConnectionsMenu.cpp:46:2: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
-   46 |         "EstablishConnectionsScreen.wnd:ButtonAccept7",
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/EstablishConnectionsMenu/EstablishConnectionsMenu.cpp:50:2: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
-   50 |         "EstablishConnectionsScreen.wnd:StaticPlayer1Name",
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/EstablishConnectionsMenu/EstablishConnectionsMenu.cpp:51:2: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
-   51 |         "EstablishConnectionsScreen.wnd:StaticPlayer2Name",
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/EstablishConnectionsMenu/EstablishConnectionsMenu.cpp:52:2: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
-   52 |         "EstablishConnectionsScreen.wnd:StaticPlayer3Name",
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/EstablishConnectionsMenu/EstablishConnectionsMenu.cpp:53:2: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
-   53 |         "EstablishConnectionsScreen.wnd:StaticPlayer4Name",
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/EstablishConnectionsMenu/EstablishConnectionsMenu.cpp:54:2: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
-   54 |         "EstablishConnectionsScreen.wnd:StaticPlayer5Name",
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/EstablishConnectionsMenu/EstablishConnectionsMenu.cpp:55:2: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
-   55 |         "EstablishConnectionsScreen.wnd:StaticPlayer6Name",
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/EstablishConnectionsMenu/EstablishConnectionsMenu.cpp:56:2: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
-   56 |         "EstablishConnectionsScreen.wnd:StaticPlayer7Name",
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/EstablishConnectionsMenu/EstablishConnectionsMenu.cpp:61:2: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
-   61 |         "EstablishConnectionsScreen.wnd:StaticPlayer1Status",
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/EstablishConnectionsMenu/EstablishConnectionsMenu.cpp:62:2: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
-   62 |         "EstablishConnectionsScreen.wnd:StaticPlayer2Status",
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/EstablishConnectionsMenu/EstablishConnectionsMenu.cpp:63:2: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
-   63 |         "EstablishConnectionsScreen.wnd:StaticPlayer3Status",
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/EstablishConnectionsMenu/EstablishConnectionsMenu.cpp:64:2: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
-   64 |         "EstablishConnectionsScreen.wnd:StaticPlayer4Status",
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/EstablishConnectionsMenu/EstablishConnectionsMenu.cpp:65:2: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
-   65 |         "EstablishConnectionsScreen.wnd:StaticPlayer5Status",
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/EstablishConnectionsMenu/EstablishConnectionsMenu.cpp:66:2: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
-   66 |         "EstablishConnectionsScreen.wnd:StaticPlayer6Status",
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/EstablishConnectionsMenu/EstablishConnectionsMenu.cpp:67:2: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
-   67 |         "EstablishConnectionsScreen.wnd:StaticPlayer7Status",
-      |         ^
-21 warnings generated.
-[919/1651] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/DisconnectMenu/DisconnectMenu.cpp.o
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/DisconnectMenu/DisconnectMenu.cpp:39:2: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
-   39 |         "DisconnectScreen.wnd:StaticPlayer1Name",
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/DisconnectMenu/DisconnectMenu.cpp:40:2: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
-   40 |         "DisconnectScreen.wnd:StaticPlayer2Name",
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/DisconnectMenu/DisconnectMenu.cpp:41:2: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
-   41 |         "DisconnectScreen.wnd:StaticPlayer3Name",
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/DisconnectMenu/DisconnectMenu.cpp:42:2: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
-   42 |         "DisconnectScreen.wnd:StaticPlayer4Name",
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/DisconnectMenu/DisconnectMenu.cpp:43:2: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
-   43 |         "DisconnectScreen.wnd:StaticPlayer5Name",
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/DisconnectMenu/DisconnectMenu.cpp:44:2: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
-   44 |         "DisconnectScreen.wnd:StaticPlayer6Name",
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/DisconnectMenu/DisconnectMenu.cpp:45:2: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
-   45 |         "DisconnectScreen.wnd:StaticPlayer7Name",
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/DisconnectMenu/DisconnectMenu.cpp:50:2: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
-   50 |         "DisconnectScreen.wnd:StaticPlayer1Timeout",
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/DisconnectMenu/DisconnectMenu.cpp:51:2: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
-   51 |         "DisconnectScreen.wnd:StaticPlayer2Timeout",
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/DisconnectMenu/DisconnectMenu.cpp:52:2: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
-   52 |         "DisconnectScreen.wnd:StaticPlayer3Timeout",
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/DisconnectMenu/DisconnectMenu.cpp:53:2: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
-   53 |         "DisconnectScreen.wnd:StaticPlayer4Timeout",
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/DisconnectMenu/DisconnectMenu.cpp:54:2: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
-   54 |         "DisconnectScreen.wnd:StaticPlayer5Timeout",
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/DisconnectMenu/DisconnectMenu.cpp:55:2: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
-   55 |         "DisconnectScreen.wnd:StaticPlayer6Timeout",
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/DisconnectMenu/DisconnectMenu.cpp:56:2: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
-   56 |         "DisconnectScreen.wnd:StaticPlayer7Timeout",
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/DisconnectMenu/DisconnectMenu.cpp:61:2: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
-   61 |         "DisconnectScreen.wnd:ButtonKickPlayer1",
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/DisconnectMenu/DisconnectMenu.cpp:62:2: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
-   62 |         "DisconnectScreen.wnd:ButtonKickPlayer2",
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/DisconnectMenu/DisconnectMenu.cpp:63:2: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
-   63 |         "DisconnectScreen.wnd:ButtonKickPlayer3",
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/DisconnectMenu/DisconnectMenu.cpp:64:2: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
-   64 |         "DisconnectScreen.wnd:ButtonKickPlayer4",
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/DisconnectMenu/DisconnectMenu.cpp:65:2: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
-   65 |         "DisconnectScreen.wnd:ButtonKickPlayer5",
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/DisconnectMenu/DisconnectMenu.cpp:66:2: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
-   66 |         "DisconnectScreen.wnd:ButtonKickPlayer6",
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/DisconnectMenu/DisconnectMenu.cpp:67:2: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
-   67 |         "DisconnectScreen.wnd:ButtonKickPlayer7",
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/DisconnectMenu/DisconnectMenu.cpp:72:2: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
-   72 |         "DisconnectScreen.wnd:StaticPlayer1Votes",
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/DisconnectMenu/DisconnectMenu.cpp:73:2: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
-   73 |         "DisconnectScreen.wnd:StaticPlayer2Votes",
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/DisconnectMenu/DisconnectMenu.cpp:74:2: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
-   74 |         "DisconnectScreen.wnd:StaticPlayer3Votes",
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/DisconnectMenu/DisconnectMenu.cpp:75:2: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
-   75 |         "DisconnectScreen.wnd:StaticPlayer4Votes",
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/DisconnectMenu/DisconnectMenu.cpp:76:2: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
-   76 |         "DisconnectScreen.wnd:StaticPlayer5Votes",
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/DisconnectMenu/DisconnectMenu.cpp:77:2: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
-   77 |         "DisconnectScreen.wnd:StaticPlayer6Votes",
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/DisconnectMenu/DisconnectMenu.cpp:78:2: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
-   78 |         "DisconnectScreen.wnd:StaticPlayer7Votes",
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/DisconnectMenu/DisconnectMenu.cpp:82:58: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
-   82 | char *DisconnectMenu::m_packetRouterTimeoutControlName = "DisconnectScreen.wnd:StaticPacketRouterTimeout";
-      |                                                          ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/DisconnectMenu/DisconnectMenu.cpp:83:63: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
-   83 | char *DisconnectMenu::m_packetRouterTimeoutLabelControlName = "DisconnectScreen.wnd:StaticPacketRouterTimeoutLabel";
-      |                                                               ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/DisconnectMenu/DisconnectMenu.cpp:84:50: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
-   84 | char *DisconnectMenu::m_textDisplayControlName = "DisconnectScreen.wnd:ListboxTextDisplay";
-      |                                                  ^
-31 warnings generated.
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/MessageStream/CommandXlat.cpp:2879:10: warning: expression result unused [-Wunused-value]
+ 2879 |                                 for( temp; temp != NULL; temp = temp->getPrevDrawable() )
+      |                                      ^~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/MessageStream/CommandXlat.cpp:2985:10: warning: expression result unused [-Wunused-value]
+ 2985 |                                 for( temp; temp != NULL; temp = temp->getPrevDrawable() )
+      |                                      ^~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/MessageStream/CommandXlat.cpp:3023:11: warning: expression result unused [-Wunused-value]
+ 3023 |                                         for( temp; temp != selectedDrawable; temp = temp->getNextDrawable() )
+      |                                              ^~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/MessageStream/CommandXlat.cpp:3180:10: warning: expression result unused [-Wunused-value]
+ 3180 |                                 for( temp; temp != NULL; temp = temp->getPrevDrawable() )
+      |                                      ^~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/MessageStream/CommandXlat.cpp:3287:10: warning: expression result unused [-Wunused-value]
+ 3287 |                                 for( temp; temp != NULL; temp = temp->getPrevDrawable() )
+      |                                      ^~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/MessageStream/CommandXlat.cpp:3325:11: warning: expression result unused [-Wunused-value]
+ 3325 |                                         for( temp; temp != selectedDrawable; temp = temp->getNextDrawable() )
+      |                                              ^~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/MessageStream/CommandXlat.cpp:6053:10: warning: 342 enumeration values not handled in switch: 'MSG_INVALID', 'MSG_RAW_MOUSE_BEGIN', 'MSG_RAW_MOUSE_POSITION'... [-Wswitch]
+ 6053 |         switch (msgType)
+      |                 ^~~~~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/MessageStream/CommandXlat.cpp:6053:10: note: add missing switch cases
+ 6053 |         switch (msgType)
+      |                 ^
+ 6054 |         {
+ 6055 |                 case GameMessage::MSG_DESTROY_SELECTED_GROUP:
+ 6056 |                 case GameMessage::MSG_LOGIC_CRC:
+ 6057 |                 case GameMessage::MSG_SET_REPLAY_CAMERA:
+ 6058 |                 case GameMessage::MSG_FRAME_TICK:
+ 6059 |                 /* A preference the logic itself posts once a second (Player::update), not an order.  Destroyed
+ 6060 |                          while a cinematic held input off, it got through or not on whether a client pass ran between
+ 6061 |                          the post and the script that disabled input, which is the machine's load: USA mission one read
+ 6062 |                          a different CRC in 2 of 10 runs, an AIGroup id short from the dispatch it never reached. */
+ 6063 |                 case GameMessage::MSG_ENABLE_RETALIATION_MODE:
+ 6064 |                         return TRUE;
+ 6065 |         }
+30 warnings generated.
