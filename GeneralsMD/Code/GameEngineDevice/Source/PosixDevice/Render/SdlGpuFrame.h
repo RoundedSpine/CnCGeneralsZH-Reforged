@@ -342,6 +342,14 @@ private:
 	unsigned int FlushesTotal;
 	unsigned int FlushInFlightMost;
 	unsigned int FlushWaits;
+	// Opt-in CPU-side profiling, aggregated at Take_Timing (not GPU elapsed time).
+	bool ParticleGpuPerf;
+	uint64_t ParticleGpuWaitNs;
+	uint64_t ParticleGpuSubmitNs;
+	unsigned int ParticleGpuSubmitCount;
+	unsigned int ParticleGpuPerfFrames;
+	unsigned int ParticleGpuPerfFlushStart;
+	unsigned int ParticleGpuPerfWaitStart;
 	/// The most draws one batch records before the next draw flushes it.  A Direct3D 9 driver submits a full
 	/// command buffer on its own, presented or not; a batch that only ended at Present grew without bound when
 	/// the game drew and did not present (a campaign quickstart's movie: minutes, in one command buffer).
