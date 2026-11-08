@@ -15,7 +15,8 @@ class IOSNetworkPermissions(unittest.TestCase):
         template=(CODE/'Platform/iOS/Reforged.entitlements').read_bytes()
         self.assertNotIn('com.apple.developer.networking.multicast',plistlib.loads(template))
         script=(CODE/'Tools/make-ios-ipa.sh').read_text()
-        self.assertIn('codesign -d --entitlements :- "$app" > "$BUILD/signed-entitlements.plist"', script)
+        self.assertIn('codesign -d --entitlements - "$app" > "$BUILD/signed-entitlements.plist"', script)
+        self.assertNotIn('codesign -d --entitlements :-', script)
         block=script.split('# IOS_NETWORK_ENTITLEMENTS_BEGIN\n',1)[1].split('# IOS_NETWORK_ENTITLEMENTS_END',1)[0]
         python=block.split("<<'PY'\n",1)[1].rsplit('\nPY',1)[0]
         for flag in ('0','1','invalid'):
