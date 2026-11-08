@@ -4509,7 +4509,7 @@ void AudioFileCache::releaseOpenAudioFile( OpenAudioFile *fileToRelease )
 			AIL_mem_free_lock(fileToRelease->m_file);
 		} else { 
 			// Otherwise, we read it, we own it, blow it away.
-			delete [] fileToRelease->m_file;
+			delete [] static_cast<char *>(fileToRelease->m_file);
 		}
 		fileToRelease->m_file = NULL;
 		fileToRelease->m_eventInfo = NULL;

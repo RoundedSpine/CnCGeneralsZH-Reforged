@@ -404,7 +404,7 @@ static Int moveRowsDown(ListboxData *list, Int startingRow)
 	char *buf = NEW char[copyLen];
 	memcpy(buf, list->listData + startingRow, copyLen);
 	memcpy(list->listData + startingRow + 1, buf, copyLen );
-	delete buf;
+	delete [] buf;
 
 	list->endPos ++;
 	list->insertPos = list->endPos;
