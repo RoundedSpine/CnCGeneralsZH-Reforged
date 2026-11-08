@@ -41,7 +41,9 @@ struct SdlGpuFrame {
     SDL_GPUDevice device;SDL_Window window;
     SDL_GPUDevice *GpuDevice=&device;SDL_Window *Window=&window;
     uint32_t PresentMode=SDL_GPU_PRESENTMODE_VSYNC;
-    bool Flush(){++flushes;return flushOk;}
+    enum FlushCause {FlushUnclassified,FlushMaintenance};
+    FlushCause lastFlushCause=FlushUnclassified;
+    bool Flush(FlushCause cause=FlushUnclassified){lastFlushCause=cause;++flushes;return flushOk;}
     bool Configure_VSync(bool enabled);
 };
 ''' + method + r'''
@@ -55,6 +57,7 @@ int main(){
             mailbox?SDL_GPU_PRESENTMODE_MAILBOX:SDL_GPU_PRESENTMODE_VSYNC;
         assert(frame.Configure_VSync(enabled));assert(frame.PresentMode==uint32_t(expected)&&actual==expected);
         assert(sets==unsigned(start!=uint32_t(expected))&&waits==sets&&flushes==sets);
+        if(flushes)assert(frame.lastFlushCause==SdlGpuFrame::FlushMaintenance);
         assert(queries==(enabled?0u:immediate?1u:2u));
         assert(frame.Configure_VSync(enabled));assert(sets<=1); // Reapplying does not recreate the swapchain.
         ++cases;
