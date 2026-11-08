@@ -72,6 +72,7 @@
 #include <memory>
 #include <cmath>
 #include <tuple>
+#include <string>
 #include <chrono>
 #include <cstdlib>
 #include <cstring>
@@ -94,6 +95,8 @@ static double particlePerfMs(ParticlePerfClock::time_point start)
 {
     return std::chrono::duration<double, std::milli>(ParticlePerfClock::now() - start).count();
 }
+struct ParticlePerfTemplate { double billboardMs = 0; unsigned long long drawn = 0, lighting = 0; };
+static std::map<std::string, ParticlePerfTemplate> s_particlePerfTemplates;
 struct ParticlePerfTotals {
     unsigned frames = 0;
     double fillMs = 0, lightsMs = 0, gpuSubmitMs = 0;
@@ -804,7 +807,10 @@ static const Int BILLBOARD_FILLS_PER_CLAIM = 4;
 static void fillBillboards( Int index, void *context )
 {
 	BillboardFillJob *job = (BillboardFillJob *)context;
-	W3DParticleSystemManager::BillboardFill &fill = job->fills[ index ];
+\tW3DParticleSystemManager::BillboardFill &fill = job->fills[ index ];
+    const bool perf = particlePerfEnabled();
+    const auto started = perf ? ParticlePerfClock::now() : ParticlePerfClock::time_point();
+    unsigned lightEvals = 0;
 	VertexFormatXYZNDUV2 *quad = fill.range.Vertices;
 	Int drawn = 0;
 	SmokeLight lights[ SMOKE_LIGHTS_PER_SYSTEM ];
@@ -832,6 +838,7 @@ static void fillBillboards( Int index, void *context )
 		Vector3 glow( 0.0f, 0.0f, 0.0f );
 		if (lightCount > 0)
 		{
+			if (perf) lightEvals += (unsigned)lightCount;
 			lightSmoke( pos, p->getAlpha(), lights, lightCount, red, green, blue );
 			if (job->glowAfterShade)
 			{
@@ -871,6 +878,8 @@ static void fillBillboards( Int index, void *context )
 	}
 
 	fill.drawn = drawn;
+    fill.perfBillboardMs = perf ? particlePerfMs(started) : 0.0;
+    fill.perfLightEvaluations = lightEvals;
 	fill.glow = job->glowAfterShade && lightCount > 0;
 }
 
@@ -2564,6 +2573,8 @@ void W3DParticleSystemManager::doParticles(RenderInfoClass &rinfo)
 		fill.capacity = (particles < (Int)MAX_POINTS_PER_GROUP) ? particles : (Int)MAX_POINTS_PER_GROUP;
 		fill.fieldIncrement = ( sys->getPriority() == AREA_EFFECT && sys->m_isGroundAligned != FALSE ) ? 1 : 0;
 		fill.drawn = 0;
+        fill.perfBillboardMs = 0;
+        fill.perfLightEvaluations = 0;
 		fill.pastLimit = 0;
 		fill.glow = FALSE;
 		fill.fire = sys->getTemplate()->isFireLook();
@@ -2652,6 +2663,14 @@ void W3DParticleSystemManager::doParticles(RenderInfoClass &rinfo)
 		|| SunShadow::OwnsSceneShadows(DX8Wrapper::_Get_D3D_Device());
 #endif
 	JobSystem::parallel_for( (Int)m_billboardFills.size(), BILLBOARD_FILLS_PER_CLAIM, fillBillboards, &fillJob );
+    if (perf) {
+        for (const BillboardFill &f : m_billboardFills) {
+            ParticlePerfTemplate &t = s_particlePerfTemplates[f.system->getTemplate()->getName().str()];
+            t.billboardMs += f.perfBillboardMs;
+            t.drawn += (unsigned)f.drawn;
+            t.lighting += f.perfLightEvaluations;
+        }
+    }
 
 	s_fieldPos.clear();
 	s_fieldUV.clear();
@@ -2973,6 +2992,12 @@ void W3DParticleSystemManager::doParticles(RenderInfoClass &rinfo)
             std::fprintf(stderr, "[PARTICLE_PERF] frames=%u cpu_render_ms=%.3f fire_smoke_gather_ms=%.3f gpu_submit_cpu_ms=%.3f active_systems=%.1f processed=%.1f drawn=%.1f native_live=%.1f smoke_light_candidates=%.1f gpu_elapsed_ms=unavailable depth_capture_ms=unavailable\n",
                 t.frames, t.fillMs * inv, t.lightsMs * inv, t.gpuSubmitMs * inv,
                 t.systems * inv, t.processed * inv, t.drawn * inv, t.native * inv, t.smokeLightCandidates * inv);
+            std::vector<std::pair<std::string, ParticlePerfTemplate>> tops(s_particlePerfTemplates.begin(), s_particlePerfTemplates.end());
+            std::sort(tops.begin(), tops.end(), [](const auto &a, const auto &b) { return a.second.billboardMs > b.second.billboardMs; });
+            for (size_t i = 0; i < tops.size() && i < 8; ++i)
+                std::fprintf(stderr, "[PARTICLE_COST] stage=billboard template=%s ms_per_frame=%.3f drawn_per_frame=%.1f smoke_light_tests_per_frame=%.1f\\n",
+                    tops[i].first.c_str(), tops[i].second.billboardMs * inv, tops[i].second.drawn * inv, tops[i].second.lighting * inv);
+            s_particlePerfTemplates.clear();
             t = ParticlePerfTotals();
         }
     }
