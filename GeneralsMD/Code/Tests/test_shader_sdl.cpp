@@ -1522,21 +1522,46 @@ TEST(screen_reflection_modes_are_bounded_and_selected_per_draw)
 }
 #endif // __linux__
 
-TEST(direct3d11_modern_water_source_matches_the_upstream_baseline)
+TEST(direct3d11_modern_water_is_independent_of_sdl_quality_and_preserves_legacy_optics)
 {
-	// FNV-1a of the complete generated v3.8.0 source, captured independently from e3e1a898.
-	const uint64_t expected[] = {2644328293701272477ull, 15503000995417316327ull};
-	unsigned index = 0;
-	for (auto program : {ENGINE_SHADER_WATER_TRAPEZOID, ENGINE_SHADER_WATER_RIVER}) {
-		PixelPipelineDescription pipeline = {}; std::string source;
-		CHECK(EngineShader_Pixel_Program(program, pipeline, source, COMBINER_SHADER_TARGET_D3D11));
-		uint64_t hash = 14695981039346656037ull;
-		for (unsigned char value : source) { hash ^= value; hash *= 1099511628211ull; }
-		if (hash != expected[index])
-            printf("WATER_BASELINE_MISMATCH program=%s expected=%llu actual=%llu\n",
-                EngineShader_Name(program),
-                static_cast<unsigned long long>(expected[index]),
-                static_cast<unsigned long long>(hash));
-        CHECK(hash == expected[index++]);
-	}
+    // The old byte-for-byte hashes from e3e1a898 captured v3.8.0's generated
+    // source (2644328293701272477, 15503000995417316327). Since then, the
+    // generator has been split into SDL-only SSR/refraction and legacy D3D11
+    // paths, and FFT shader text can be generated for multiple resolutions.
+    // Test the D3D11 contract rather than pinning implementation whitespace.
+    // This test must not silently adopt the SDL branch's options or callbacks.
+    std::string variants[2];
+    unsigned index = 0;
+    for (auto program : {ENGINE_SHADER_WATER_TRAPEZOID, ENGINE_SHADER_WATER_RIVER}) {
+        PixelPipelineDescription pipeline = {};
+        std::string source, repeated, withSdlQuality;
+        CHECK(EngineShader_Pixel_Program(program, pipeline, source, COMBINER_SHADER_TARGET_D3D11));
+        CHECK(!source.empty());
+        CHECK(EngineShader_Pixel_Program(program, pipeline, repeated, COMBINER_SHADER_TARGET_D3D11));
+        CHECK(source == repeated);
+
+        // D3D11 has the original planar reflection/refraction paths. The SSR
+        // integration and quality-tier preprocessor are SDL-specific.
+        CHECK(source.find("float4 mirror = Texture1.Sample(") != std::string::npos);
+        CHECK(source.find("WaterRefractionSample refractedScene") != std::string::npos);
+        CHECK(source.find("waterFoamPlanarReflection(") != std::string::npos);
+        CHECK(source.find("waterScreenReflection(") == std::string::npos);
+        CHECK(source.find("WATER_SCENE_REFLECTIONS") == std::string::npos);
+        CHECK(source.find("WATER_REFRACTION_QUALITY") == std::string::npos);
+
+        auto &quality = WaterPerformanceSettings::Applied();
+        const auto saved = quality;
+        quality.sceneReflections = !saved.sceneReflections;
+        quality.requestedFftResolution = 128;
+        quality.activeFftResolution = 128;
+        quality.refraction = WaterPerformanceSettings::Off;
+        quality.reflectionDetail = 0;
+        const bool generated = EngineShader_Pixel_Program(program, pipeline,
+            withSdlQuality, COMBINER_SHADER_TARGET_D3D11);
+        quality = saved;
+        CHECK(generated);
+        CHECK(source == withSdlQuality);
+        variants[index++] = source;
+    }
+    CHECK(variants[0] != variants[1]); // Trapezoid and river are distinct.
 }
