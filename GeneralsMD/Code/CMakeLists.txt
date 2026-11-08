@@ -275,31 +275,33 @@ elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU")
   # changes code.
   add_compile_options(-Wno-unknown-pragmas)
 
-  # Legacy diagnostic policy for the 2003 engine on modern Clang.
-  # These categories are intentional compatibility constructs rather than actionable port defects:
-  # - invalid offsetof: INI reflection stores offsets into polymorphic ModuleData/engine records.
-  # - switch: many retail switches deliberately handle only the subset relevant to that helper.
-  # - writable strings: legacy APIs and static name tables use char* for immutable literals.
-  # - deprecated declarations: Darwin annotates CRT compatibility calls retained for retail behavior.
-  # - deprecated non-prototype: bundled legacy C libraries use pre-C23 function definitions.
-  # - extra tokens/comment/null conversion: old preprocessor comments and NULL-as-zero sentinel style.
-  # - undefined var template: template statics are explicitly defined in owning translation units.
-  # - unused value: legacy diagnostic/debug macros intentionally evaluate-and-discard expressions.
-  # - enum compare: bundled GameSpy C code compares ABI-compatible enum domains.
-  # Keep inconsistent-missing-override enabled: W3DView now uses override explicitly so regressions surface.
-  add_compile_options(
-    -Wno-invalid-offsetof
-    -Wno-switch
-    -Wno-writable-strings
-    -Wno-deprecated-declarations
-    -Wno-deprecated-non-prototype
-    -Wno-extra-tokens
-    -Wno-null-conversion
-    -Wno-undefined-var-template
-    -Wno-unused-value
-    -Wno-comment
-    -Wno-enum-compare
-  )
+  if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    # Legacy diagnostic policy for the 2003 engine on modern Clang.
+    # These categories are intentional compatibility constructs rather than actionable port defects:
+    # - invalid offsetof: INI reflection stores offsets into polymorphic ModuleData/engine records.
+    # - switch: many retail switches deliberately handle only the subset relevant to that helper.
+    # - writable strings: legacy APIs and static name tables use char* for immutable literals.
+    # - deprecated declarations: Darwin annotates CRT compatibility calls retained for retail behavior.
+    # - deprecated non-prototype: bundled legacy C libraries use pre-C23 function definitions.
+    # - extra tokens/comment/null conversion: old preprocessor comments and NULL-as-zero sentinel style.
+    # - undefined var template: template statics are explicitly defined in owning translation units.
+    # - unused value: legacy diagnostic/debug macros intentionally evaluate-and-discard expressions.
+    # - enum compare: bundled GameSpy C code compares ABI-compatible enum domains.
+    # Keep inconsistent-missing-override enabled: W3DView now uses override explicitly so regressions surface.
+    add_compile_options(
+      -Wno-invalid-offsetof
+      -Wno-switch
+      -Wno-writable-strings
+      -Wno-deprecated-declarations
+      -Wno-deprecated-non-prototype
+      -Wno-extra-tokens
+      -Wno-null-conversion
+      -Wno-undefined-var-template
+      -Wno-unused-value
+      -Wno-comment
+      -Wno-enum-compare
+    )
+  endif()
   if(APPLE)
     # The static-library graph intentionally repeats archives to resolve legacy circular dependencies.
     # ld64 16+ warns about those harmless duplicates even though it discards them deterministically.
