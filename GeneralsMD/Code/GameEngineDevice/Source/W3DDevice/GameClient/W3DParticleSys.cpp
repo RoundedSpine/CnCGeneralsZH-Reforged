@@ -3022,6 +3022,24 @@ void W3DParticleSystemManager::doParticles(RenderInfoClass &rinfo)
                     tops[i].first.c_str(), tops[i].second.billboardMs * inv, tops[i].second.drawn * inv, tops[i].second.lighting * inv,
                     tops[i].second.pickMs * inv, tops[i].second.culled * inv,
                     tops[i].second.smokeMs * inv, tops[i].second.fireLookMs * inv, tops[i].second.fireLookParticles * inv);
+            // Rank by the measured stage, not only by total billboard work.
+            // These CPU wall times run in workers and are not additive frame critical-path times.
+            for (int stage = 0; stage != 2; ++stage) {
+                const bool smoke = stage == 0;
+                std::sort(tops.begin(), tops.end(), [smoke](const auto &a, const auto &b) {
+                    return (smoke ? a.second.smokeMs : a.second.fireLookMs) >
+                           (smoke ? b.second.smokeMs : b.second.fireLookMs);
+                });
+                for (size_t i = 0; i < tops.size() && i < 8; ++i) {
+                    const ParticlePerfTemplate &cost = tops[i].second;
+                    const double ms = smoke ? cost.smokeMs : cost.fireLookMs;
+                    if (ms <= 0.0) break;
+                    std::fprintf(stderr,
+                        "[PARTICLE_COST] stage=%s template=%s ms_per_frame=%.3f particles_per_frame=%.1f\\n",
+                        smoke ? "smoke_light_cpu" : "firelook_pack_cpu", tops[i].first.c_str(),
+                        ms * inv, (smoke ? cost.drawn : cost.fireLookParticles) * inv);
+                }
+            }
             s_particlePerfTemplates.clear();
             t = ParticlePerfTotals();
         }
