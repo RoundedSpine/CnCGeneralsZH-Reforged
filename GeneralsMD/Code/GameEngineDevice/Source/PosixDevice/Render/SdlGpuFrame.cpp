@@ -34,6 +34,14 @@
 #include <stdlib.h>
 #include <string.h>
 
+#if defined(__APPLE__)
+// Opt-in hook in our pinned SDL3 Metal backend, implemented by
+// Libraries/Source/sdl3-metal-gpu-timing.patch.
+extern "C" void ZH_SDL_Metal_SetTimingEnabled(bool enabled);
+extern "C" void ZH_SDL_Metal_TakeTiming(Uint64 *totalNs, Uint64 *maximumNs,
+                                         Uint32 *samples, Uint32 *unavailable);
+#endif
+
 // The back buffer's format.  D3D9's X8R8G8B8 and A8R8G8B8 are these bytes in this order.
 static const SDL_GPUTextureFormat BACK_BUFFER_FORMAT = SDL_GPU_TEXTUREFORMAT_B8G8R8A8_UNORM;
 
@@ -1025,15 +1033,33 @@ void SdlGpuFrame::Take_Timing(double & flush_ms, double & fence_ms, unsigned int
 	FenceMs = 0.0;
 	Flushes = 0;
 	AcquireMs = 0.0;
-	if (ParticlePerfToggle::enabled()) {
+	const bool profiling = ParticlePerfToggle::enabled();
+#if defined(__APPLE__)
+	const char *gpuDriver = GpuDevice ? SDL_GetGPUDeviceDriver(GpuDevice) : NULL;
+	const bool metalTimingAvailable = gpuDriver && strcmp(gpuDriver, "metal") == 0;
+	if (metalTimingAvailable) ZH_SDL_Metal_SetTimingEnabled(profiling);
+#else
+	const bool metalTimingAvailable = false;
+#endif
+	if (profiling) {
 		// A Take_Timing call normally represents one presentation interval. No per-frame stderr.
 		if (++ParticleGpuPerfFrames >= 120) {
-			fprintf(stderr, "[GPU_SYNC_PERF] intervals=%u flushes=%u ring_waits=%u ring_wait_cpu_ms=%.3f ring_wait_max_ms=%.3f waits_ge_1ms=%u waits_ge_5ms=%u waits_ge_16ms=%u submit_calls=%u submit_cpu_ms=%.3f note=cpu_wall_time_not_gpu_elapsed\n",
+			Uint64 gpuCompletedNs = 0, gpuMaximumNs = 0;
+			Uint32 gpuSamples = 0, gpuUnavailable = 0;
+#if defined(__APPLE__)
+			if (metalTimingAvailable)
+				ZH_SDL_Metal_TakeTiming(&gpuCompletedNs, &gpuMaximumNs,
+					&gpuSamples, &gpuUnavailable);
+#endif
+			fprintf(stderr, "[GPU_SYNC_PERF] intervals=%u flushes=%u ring_waits=%u ring_wait_cpu_ms=%.3f ring_wait_max_ms=%.3f waits_ge_1ms=%u waits_ge_5ms=%u waits_ge_16ms=%u submit_calls=%u submit_cpu_ms=%.3f gpu_cmd_completed=%u gpu_cmd_unavailable=%u gpu_cmd_total_ms=%.3f gpu_cmd_max_ms=%.3f gpu_time_source=%s note=gpu_time_is_async_completed_command_buffer_sum_not_per_frame\n",
 				ParticleGpuPerfFrames, FlushesTotal - ParticleGpuPerfFlushStart,
 				FlushWaits - ParticleGpuPerfWaitStart, double(ParticleGpuWaitNs) / 1.0e6,
 				double(ParticleGpuMaxWaitNs) / 1.0e6,
 				ParticleGpuWaitAbove1Ms, ParticleGpuWaitAbove5Ms, ParticleGpuWaitAbove16Ms,
-				ParticleGpuSubmitCount, double(ParticleGpuSubmitNs) / 1.0e6);
+				ParticleGpuSubmitCount, double(ParticleGpuSubmitNs) / 1.0e6,
+				gpuSamples, gpuUnavailable, double(gpuCompletedNs) / 1.0e6,
+				double(gpuMaximumNs) / 1.0e6,
+				metalTimingAvailable ? "metal_GPUStartTime_GPUEndTime" : "unavailable");
 			ParticleGpuPerfFrames = 0;
 			ParticleGpuPerfFlushStart = FlushesTotal;
 			ParticleGpuPerfWaitStart = FlushWaits;
