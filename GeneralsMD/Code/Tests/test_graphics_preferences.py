@@ -336,7 +336,9 @@ struct SdlGpuFrame {
     ~SdlGpuFrame(){delete Ao;}
     bool Supports_Scene_Depth(){return true;}
     bool Memory_Constrained(){return false;}
-    bool Flush(){++flushes;return true;}
+    enum FlushCause {FlushUnclassified,FlushAmbientOcclusion};
+    FlushCause lastFlushCause=FlushUnclassified;
+    bool Flush(FlushCause cause=FlushUnclassified){lastFlushCause=cause;++flushes;return true;}
     bool Create_Scene_Depth_Pipeline(){return true;}
     unsigned Scene_Format(){return 1;}
     bool Resolve_Scene_Depth(SDL_GPUCommandBuffer*,SDL_GPUTexture *source,SDL_GPUTexture *dest,unsigned,unsigned){assert(source==&depth && dest==&resolved);return resolveOK;}
@@ -367,6 +369,7 @@ int main() {
     assert(device.target.Colour!=frame.BackBuffer);
     assert(device.Ambient_Occlusion(nullptr,nullptr));
     assert(lastColour==&scene && frame.submits==1 && frame.invalidations==1);
+    assert(frame.flushes==1 && frame.lastFlushCause==SdlGpuFrame::FlushAmbientOcclusion);
     // Reflection/custom-scene exclusion remains effective.
     device.excluded=true;assert(!device.Ambient_Occlusion(nullptr,nullptr));
     device.excluded=false;device.SunActive=true;assert(!device.Ambient_Occlusion(nullptr,nullptr));
