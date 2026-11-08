@@ -34,3 +34,6 @@ patching file 'src/SDL_shadercross.c'
 [vendor] unpacking freetype
 [vendor] FreeType 2.14.3 -> Libraries/Source/freetype
 [vendor] downloading ffmpeg-8.1.2.tar.xz
+curl: (28) SSL connection timeout
+[vendor] FFmpeg 8.1.2 (source tarball) -> Libraries/Source/FFmpeg
+[vendor] downloading mbedtls-3.6.7.tar.bz2
