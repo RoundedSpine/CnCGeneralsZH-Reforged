@@ -1,7 +1,7 @@
 diff --git a/src/gpu/metal/SDL_gpu_metal.m b/src/gpu/metal/SDL_gpu_metal.m
 --- a/src/gpu/metal/SDL_gpu_metal.m
 +++ b/src/gpu/metal/SDL_gpu_metal.m
-@@ -29,7 +64,43 @@
+@@ -29,7 +64,63 @@
  #include "../SDL_sysgpu.h"
  
 +// Optional stage-boundary timestamps for render encoders (Apple tile GPUs).
@@ -12,6 +12,10 @@ diff --git a/src/gpu/metal/SDL_gpu_metal.m b/src/gpu/metal/SDL_gpu_metal.m
 +static Uint64 ZH_MetalPassMaxNs[4];
 +static Uint32 ZH_MetalPassCount[4];
 +static Uint32 ZH_MetalPassMissing[4];
++static Uint64 ZH_MetalFragmentInvocations[4];
++static Uint64 ZH_MetalFragmentsPassed[4];
++static Uint32 ZH_MetalStatisticsCount[4];
++static Uint32 ZH_MetalStatisticsMissing[4];
 +
 +void ZH_SDL_Metal_SetNextRenderPassTag(Uint32 category)
 +{
@@ -33,6 +37,22 @@ diff --git a/src/gpu/metal/SDL_gpu_metal.m b/src/gpu/metal/SDL_gpu_metal.m
 +    SDL_UnlockSpinlock(&ZH_MetalTimingLock);
 +}
 +
++void ZH_SDL_Metal_TakeFragmentStatistics(Uint64 *fragmentInvocations,
++                                          Uint64 *fragmentsPassed,
++                                          Uint32 *count, Uint32 *missing)
++{
++    SDL_LockSpinlock(&ZH_MetalTimingLock);
++    for (unsigned i=0; i<4; ++i) {
++        if (fragmentInvocations) fragmentInvocations[i] = ZH_MetalFragmentInvocations[i];
++        if (fragmentsPassed) fragmentsPassed[i] = ZH_MetalFragmentsPassed[i];
++        if (count) count[i] = ZH_MetalStatisticsCount[i];
++        if (missing) missing[i] = ZH_MetalStatisticsMissing[i];
++        ZH_MetalFragmentInvocations[i] = ZH_MetalFragmentsPassed[i] = 0;
++        ZH_MetalStatisticsCount[i] = ZH_MetalStatisticsMissing[i] = 0;
++    }
++    SDL_UnlockSpinlock(&ZH_MetalTimingLock);
++}
++
 +static void ZH_MetalRecordMissingPass(Uint32 category, Uint64 epoch)
 +{
 +    SDL_LockSpinlock(&ZH_MetalTimingLock);
@@ -45,7 +65,7 @@ diff --git a/src/gpu/metal/SDL_gpu_metal.m b/src/gpu/metal/SDL_gpu_metal.m
  #define METAL_FIRST_VERTEX_BUFFER_SLOT 14
  #define WINDOW_PROPERTY_DATA           "SDL.internal.gpu.metal.data"
  #define SDL_GPU_SHADERSTAGE_COMPUTE    2
-@@ -2345,7 +2416,71 @@
+@@ -2345,7 +2416,140 @@
              METAL_INTERNAL_TrackTexture(metalCommandBuffer, texture);
          }
  
@@ -109,6 +129,75 @@ diff --git a/src/gpu/metal/SDL_gpu_metal.m b/src/gpu/metal/SDL_gpu_metal.m
 +                } else {
 +                    ZH_MetalRecordMissingPass(passTag,timingEpoch);
 +                }
++            // Independent hardware statistics: fragment invocations and fragments
++            // that survive visibility tests. This is a pass-wide overdraw signal,
++            // not a transparent-only or per-pixel heatmap.
++            id<MTLCounterSet> statistics = nil;
++            if ([renderer->device supportsCounterSampling:MTLCounterSamplingPointAtStageBoundary]) {
++                for (id<MTLCounterSet> candidate in renderer->device.counterSets) {
++                    if ([candidate.name isEqualToString:MTLCommonCounterSetStatistic]) {
++                        statistics = candidate;
++                        break;
++                    }
++                }
++            }
++            if (statistics) {
++                MTLCounterSampleBufferDescriptor *statDescriptor = [MTLCounterSampleBufferDescriptor new];
++                statDescriptor.counterSet = statistics;
++                statDescriptor.sampleCount = 2;
++                statDescriptor.storageMode = MTLStorageModeShared;
++                id<MTLCounterSampleBuffer> statSamples =
++                    [renderer->device newCounterSampleBufferWithDescriptor:statDescriptor error:nil];
++                if (statSamples) {
++                    MTLRenderPassSampleBufferAttachmentDescriptor *attachment =
++                        passDescriptor.sampleBufferAttachments[1];
++                    attachment.sampleBuffer = statSamples;
++                    attachment.startOfVertexSampleIndex = 0;
++                    attachment.endOfVertexSampleIndex = MTLCounterDontSample;
++                    attachment.startOfFragmentSampleIndex = MTLCounterDontSample;
++                    attachment.endOfFragmentSampleIndex = 1;
++                    [metalCommandBuffer->handle addCompletedHandler:^(id<MTLCommandBuffer> completed) {
++                        NSData *resolved = [statSamples resolveCounterRange:NSMakeRange(0,2)];
++                        bool valid = resolved.length >= sizeof(MTLCounterResultStatistic) * 2;
++                        Uint64 invocations = 0, passed = 0;
++                        if (valid) {
++                            const MTLCounterResultStatistic *s = (const MTLCounterResultStatistic *)resolved.bytes;
++                            valid = s[0].fragmentInvocations != MTLCounterErrorValue &&
++                                    s[1].fragmentInvocations != MTLCounterErrorValue &&
++                                    s[0].fragmentsPassed != MTLCounterErrorValue &&
++                                    s[1].fragmentsPassed != MTLCounterErrorValue &&
++                                    s[1].fragmentInvocations >= s[0].fragmentInvocations &&
++                                    s[1].fragmentsPassed >= s[0].fragmentsPassed;
++                            if (valid) {
++                                invocations = s[1].fragmentInvocations - s[0].fragmentInvocations;
++                                passed = s[1].fragmentsPassed - s[0].fragmentsPassed;
++                            }
++                        }
++                        SDL_LockSpinlock(&ZH_MetalTimingLock);
++                        if (timingEpoch == ZH_MetalTimingEpoch &&
++                            SDL_GetAtomicInt(&ZH_MetalTimingEnabled)) {
++                            if (valid) {
++                                ZH_MetalFragmentInvocations[passTag] += invocations;
++                                ZH_MetalFragmentsPassed[passTag] += passed;
++                                ++ZH_MetalStatisticsCount[passTag];
++                            } else {
++                                ++ZH_MetalStatisticsMissing[passTag];
++                            }
++                        }
++                        SDL_UnlockSpinlock(&ZH_MetalTimingLock);
++                    }];
++                } else {
++                    SDL_LockSpinlock(&ZH_MetalTimingLock);
++                    if (timingEpoch == ZH_MetalTimingEpoch)
++                        ++ZH_MetalStatisticsMissing[passTag];
++                    SDL_UnlockSpinlock(&ZH_MetalTimingLock);
++                }
++            } else {
++                SDL_LockSpinlock(&ZH_MetalTimingLock);
++                if (timingEpoch == ZH_MetalTimingEpoch)
++                    ++ZH_MetalStatisticsMissing[passTag];
++                SDL_UnlockSpinlock(&ZH_MetalTimingLock);
++            }
 +            } else {
 +                ZH_MetalRecordMissingPass(passTag,timingEpoch);
 +            }
