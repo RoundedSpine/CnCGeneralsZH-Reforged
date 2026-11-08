@@ -22,6 +22,9 @@
 #include "SdlGpuFrame.h"
 #include "sdl3shadercompile.h"
 #include "Platform/ParticlePerfToggle.h"
+#if defined(__APPLE__)
+extern "C" void ZH_SDL_Metal_SetNextRenderPassTag(Uint32 category);
+#endif
 
 #include <SDL3/SDL.h>
 
@@ -391,6 +394,11 @@ bool SdlGpuFrame::Begin_Pass(SDL_GPUCommandBuffer * commands, const SdlTarget & 
 	depth.stencil_load_op = !has_stencil ? SDL_GPU_LOADOP_DONT_CARE
 		: clear_stencil ? SDL_GPU_LOADOP_CLEAR : SDL_GPU_LOADOP_LOAD;
 	depth.stencil_store_op = has_stencil ? SDL_GPU_STOREOP_STORE : SDL_GPU_STOREOP_DONT_CARE;
+#if defined(__APPLE__)
+	if (ParticlePerfToggle::enabled() && GpuDevice &&
+		strcmp(SDL_GetGPUDeviceDriver(GpuDevice), "metal") == 0)
+		ZH_SDL_Metal_SetNextRenderPassTag(!target.Colour ? 3u : (target.Colour == BackBuffer ? 1u : 2u));
+#endif
 	*pass = SDL_BeginGPURenderPass(commands, target.Colour ? &colour : NULL, target.Colour ? 1 : 0,
 		target.Depth ? &depth : NULL);
 	if (*pass && ParticlePerfToggle::enabled()) ++ParticleGpuRenderPasses;
