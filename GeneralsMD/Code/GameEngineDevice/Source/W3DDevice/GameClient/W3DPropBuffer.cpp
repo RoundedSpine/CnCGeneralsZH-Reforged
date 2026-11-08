@@ -398,7 +398,7 @@ void W3DPropBuffer::drawProps(RenderInfoClass &rinfo)
 		if (m_props[i].ss <= OBJECTSHROUD_INVALID) {
 			continue;
 		}
-		if (TheTerrainRenderObject->getShroud() && m_props[i].ss != CELLSHROUD_CLEAR) {
+		if (TheTerrainRenderObject->getShroud() && m_props[i].ss != (ObjectShroudStatus)CELLSHROUD_CLEAR) {
 			rinfo.Push_Material_Pass(m_propShroudMaterialPass);
 			m_props[i].m_robj->Render(rinfo);
 			rinfo.Pop_Material_Pass();

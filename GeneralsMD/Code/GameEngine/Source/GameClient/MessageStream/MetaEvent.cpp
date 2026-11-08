@@ -517,9 +517,9 @@ GameMessageDisposition MetaEventTranslator::translateGameMessage(const GameMessa
 		// had switched on stayed on.  Every key remembers the combinations it was pressed with, so
 		// a modifier release can finish them off in whatever order the player let go.
 		//
-		const Bool isModifierKey = ( key == KEY_LCTRL || key == KEY_RCTRL ||
-																 key == KEY_LSHIFT || key == KEY_RSHIFT ||
-																 key == KEY_LALT || key == KEY_RALT );
+		const Bool isModifierKey = ( key == (MappableKeyType)KEY_LCTRL || key == (MappableKeyType)KEY_RCTRL ||
+																 key == (MappableKeyType)KEY_LSHIFT || key == (MappableKeyType)KEY_RSHIFT ||
+																 key == (MappableKeyType)KEY_LALT || key == (MappableKeyType)KEY_RALT );
 
 		// one keystroke does one thing (HotKeyManager::strokeDown): a letter a showing button holds,
 		// as the press found the bar, is the button's on its release, and no command fires on it
@@ -709,7 +709,8 @@ GameMessageDisposition MetaEventTranslator::translateGameMessage(const GameMessa
 		}
 
 		// remember, or forget, that this key is held with these modifiers
-		if( !isModifierKey && newModState != NONE && key >= 0 && key < NUM_MAPPABLE_KEYS )
+		// MappableKeyType is defined as a subset of KeyDefType and fits the fixed 256-entry table.
+		if( !isModifierKey && newModState != NONE )
 		{
 			if( keyState & KEY_STATE_DOWN )
 				m_keyDownInfos[ key ].setModState( newModState );

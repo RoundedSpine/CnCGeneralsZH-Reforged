@@ -1046,7 +1046,7 @@ Bool ChinookAIUpdate::isAllowedToAdjustDestination() const
 //-------------------------------------------------------------------------------------------------
 ObjectID ChinookAIUpdate::getBuildingToNotPathAround() const 
 { 
-	if (getAIStateType() == MOVE_TO_COMBAT_DROP || getAIStateType() == DO_COMBAT_DROP)
+	if (getAIStateType() == (AIStateType)MOVE_TO_COMBAT_DROP || getAIStateType() == (AIStateType)DO_COMBAT_DROP)
 	{
 		const Object* goalObj = getStateMachine()->getGoalObject();
 		if (goalObj)
