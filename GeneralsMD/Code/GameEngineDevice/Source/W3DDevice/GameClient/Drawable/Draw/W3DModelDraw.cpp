@@ -2068,9 +2068,11 @@ static Bool fillShadowInfoFromTemplate(const ThingTemplate *tmplate, Shadow::Sha
 	graphics keeps the decal, which is what a palm stood on in 2003. */
 static Bool wantsModelShadow(const ThingTemplate *tmplate)
 {
+	// Classic keeps the round decal unless 3D shadows are on, which is when a tree should cast one.
+	const Bool classicDecalOnly = TheGlobalData->m_classicGraphics && !TheGlobalData->m_useShadowVolumes;
 	return tmplate->getShadowType() == SHADOW_DECAL &&
-					!TheGlobalData->m_classicGraphics &&
-					TheGlobalData->m_shadowsForProps &&
+					!classicDecalOnly &&
+					(TheGlobalData->m_shadowsForProps || TheGlobalData->m_classicGraphics) &&
 					(TheGlobalData->m_useShadowDecals || TheGlobalData->m_useShadowVolumes) &&
 					tmplate->isKindOf(KINDOF_SHRUBBERY) &&
 					tmplate->isKindOf(KINDOF_IMMOBILE);
@@ -2351,6 +2353,12 @@ void W3DModelDraw::adjustAnimSpeedToMovementSpeed()
 			}
 		}
 	}
+}
+
+//-------------------------------------------------------------------------------------------------
+Real W3DModelDraw::getHullHeadingLag() const
+{
+	return getDrawable()->getDrawnHeadingLag();
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -2952,8 +2960,9 @@ void W3DModelDraw::handleClientTurretPositioning()
 			if (obj)
 			{
 				const AIUpdateInterface* ai = obj->getAIUpdateInterface();
-				if (ai)
-					ai->getTurretRotAndPitch((WhichTurretType)tslot, &turretAngle, &turretPitch);
+				// a turret aims from the logic heading, which the drawn hull of a tank or car trails
+				if (ai && ai->getTurretRotAndPitch((WhichTurretType)tslot, &turretAngle, &turretPitch))
+					turretAngle -= getHullHeadingLag();
 			}
 
 			// do turret, if any
