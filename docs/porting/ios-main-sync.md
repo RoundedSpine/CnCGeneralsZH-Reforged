@@ -255,3 +255,153 @@ Metal rendering, gameplay, touch/safe-area behavior, lifecycle/audio recovery,
 memory pressure with the new faction assets, modern-water/hazard visual parity,
 LAN permission prompts and live relay/online sessions remain unverified and
 must not be inferred from the successful cross-build.
+
+## 2026-11-10: v4.0.0 / main sync on `particle-perf-test`
+
+Before the merge, `particle-perf-test` was
+`2b90ddbc802dec2cd0b627aecc6ea836b735c36f` ("Fix typo in print statement"),
+clean and matching `origin/particle-perf-test`. That SHA was pushed as
+`backup/particle-perf-test-pre-main-merge` and was not moved afterward.
+
+The merge-base with the previous sync is
+`6a651eb67c596d091fce2db0e9de76d296ef73ae`. Incoming RoundedSpine `main` is
+`b13d45b681cbcf6bffba3691c26b3eabd463531c`, which contains upstream
+`olcayseygan/CnCGeneralsZH-Reforged`
+`61dbc593fb4eecb7af891b80c4c491c3ad2b791d` (v4.0.0). The two-parent merge
+commit is `44043069a678099abde43703f4f519f8fe524107`.
+
+Fork-only files on RoundedSpine `main` versus upstream `main` were the seven
+`ios-*` diagnostic workflows, `helicopter-shadow.patch`, and
+`.github/workflows/build-ios.yml`. The diagnostic workflows and the helicopter
+patch were unchanged since the merge-base, so this merge does not reintroduce
+them. They are not on this branch. `build-ios.yml` was already this branch's
+workflow and stays.
+
+### Conflicts
+
+Eleven content conflicts, all resolved in `44043069`:
+
+- `CHANGELOG.md`: both histories kept (iOS notes, then the upstream 4.0 notes).
+- `Patch.str`: Particle Performance strings kept, then the upstream online
+  strings. Each block closes with its own `END`.
+- `OptionsMenuClassic.wnd`: Detailed Models at 288,322–512,346, HD Textures at
+  288,350–512,374, then the frame-rate label and combo. `CheckParticlePerfDiagnostics`
+  is the same checkbox as before, moved to 288,434–512,458 so it sits under the
+  combo and still ends inside the page (page content bottom is 462). Touch
+  size is unchanged.
+- `OptionsMenu.cpp`: upstream Detailed Models / HD Textures init and the
+  classic-next-start lighting and smoke restore. The Particle Performance
+  checkbox still reads and writes `ParticlePerfDiagnostics` and calls
+  `ParticlePerfToggle::setEnabled`.
+- `W3DParticleSys.h` `BillboardFill`: the performance fields and `hardEdge`.
+- `W3DParticleSys.cpp`: `Insert_Sorted_Billboards` passes both contact fade and
+  the mine hard edge. The iOS weapon-trail contact-fade exception is unchanged.
+  `fill.hardEdge` is `sys->isAttachedToMine()`.
+- `Win32BIGFileSystem.cpp`: `theClassicGraphics = getEarlyClassicGraphics()`
+  (not a raw `ClassicGraphics` default), then the early Detailed Models and
+  HD Textures options.
+- `pointgr.h` / `pointgr.cpp` / `sortingrenderer.h` / `sortingrenderer.cpp`:
+  one signature carries both `contactFade` (default true) and `hard_edge`
+  (default false). Same-run state hashes `contactFade` and not `hard_edge`,
+  which is what upstream did for the hard edge. Soft particles still follow
+  contact fade. Mine glints still write the plain-depth half-width.
+
+### Particle Performance
+
+These files are identical to `2b90ddbc`:
+
+- `Libraries/Include/Platform/ParticlePerfToggle.h`
+- `SdlGpuFrame.cpp`, `SdlGpuFrame.h`, `SdlGpuFrameBatch.cpp`, `PosixDevice9.cpp`
+- `sdl3-metal-windowless.patch`, `sdl3-metal-gpu-timing.patch`,
+  `sdl3-metal-pass-timing.patch`
+
+`vendor.sh` still applies those Metal patches in that order, after the
+windowless patch. `FlushLimit` still defaults to 6 (`ZH_GPU_FLUSH_LIMIT`).
+The Options.ini key is still `ParticlePerfDiagnostics`. The Display checkbox
+name, label and tooltip are unchanged. A host program that only includes the
+toggle header prints `default=0`, `on=1`, `off=0` with the environment unset.
+The `[PARTICLE_PERF]` and `[PARTICLE_COST]` `fprintf` lines were not edited.
+The merge adds no new `SdlGpuFrame::Flush` call site; altitude lines and lamp
+trays go through existing draws.
+
+`m_useShadowVolumesForSkins` is still present and still defaults to FALSE.
+Tree silhouette shadows and skinned volume meshes read the top HLOD
+(`Get_LOD_Count()-1`) because upstream stores the coarsest LOD first. That is
+the Nov 7 silhouette path updated for the new LOD order, not a reintroduction
+of the Nov 6 aircraft or skinned-volume experiment.
+
+### iOS adaptations
+
+Detailed Models and HD Textures stay visible and default on, matching upstream
+and `test_gameengine`'s `CHECK_EQ` of both to 1. `build-ios.sh` still calls
+`vendor.sh --skip-art`, so the optional archives are not downloaded.
+`mountOverRetail` mounts nothing when those files are absent, which is the
+current IPA. They are inert until someone bundles the archives. Device
+low-memory warnings were already recorded without these assets; adding the
+archives later is a separate memory decision. They are not hidden and not
+forced off.
+
+Archives outside the executable folder are still not mounted. No new static
+library was added. Online sources that were already linked stay linked.
+`test_package_link_libraries.py` still accepts the licensed onlineconnection
+and mbedTLS set and rejects an unknown library. The merge diff adds no thread
+and no `SDL_OpenURL`.
+
+The bridge vertex buffer is upstream's 32000 vertices (64000 indices, under
+65535), about 1 MB. That is not treated as an iOS memory change.
+
+`CFBundleShortVersionString` stays the hardcoded `0.1.0` in
+`Platform/iOS/Info.plist.in`. CMake's game version string is v4.0.0. The IPA
+version was not bumped to follow it.
+
+`SdlMouse` asks the cursor decoder for display content scale times 32. On an
+iOS scale of 2–3 that is 64–96, and the decoder picks the nearest of 32 and
+48. That is the drawn cursor only. Touch hit-testing was not device-checked.
+
+New wreck FX in `FXListReforged.ini` (`MortarDust`, `CarCrushDebris`,
+`JetExplosionGroundDust`, `JetExplosionGroundDebris`, `ArtilleryBarrageDust`,
+`AirF_AuroraDustRing`) use the existing particle path. They add event bursts,
+so earlier Particle Performance device numbers are not an A/B baseline against
+this build. Instrumentation strings are unchanged. Mines still skip GPU spawn.
+
+`optionsmenu_layout.py selfcheck` reports 75 catalog rows agreeing with the
+window and `Patch.str`. Particle Performance remains menu-only, not a catalog
+row. The fingerprint was regenerated in the merge commit: 4685 files,
+`--check` ok, including `ParticlePerfToggle.h` and the three Metal patches.
+
+### Host follow-up
+
+`test_native_particle_admission.py` extracts `spawnGpuParticle`, which casts
+to `size_t`. Debian g++ 12 does not put `size_t` in the global namespace from
+`<vector>` or `<cstdint>`. The harness now includes `<cstddef>` and
+`using std::size_t`. The production function is unchanged. The workflow test
+step runs `artpack.py selfcheck` (no retail archives) before
+`test_host_tools.py`.
+
+### Local validation
+
+This host has no iOS SDK, no CMake and no vendored SDL. Passed here: refpack
+(6 tests, 133025 checks; upstream `refencode.cpp` only warns about misleading
+indentation), every Python helper in the `build-ios.yml` test step except
+`test_host_tools.py` (it invokes `cmake`, which is not installed), the C++
+touch, camera-pan, feedback-diagnostic and startup-pump helpers, the options
+menu selfcheck (75 rows), `artpack.py selfcheck`, fingerprint `--check`
+(4685), and the Particle Performance toggle default/on/off program.
+
+Not run here, and not claimed: a `ZH_PLATFORM_IOS=1` engine compile, the
+shader suite, `test_gameengine`, the hazard-cloud and online CTest suites,
+Metal host GPU tests, and IPA packaging. Those are the macos-15 job.
+`test_host_tools.py` was not run. E1 replay pins were not remeasured and were
+not edited. There is no original game data here. Upstream gameplay (death
+momentum, jet break-off, missiles that fly on, bridge pathfinding,
+`DeathMomentumDriftShare`) can move replay CRCs. That movement is upstream's,
+not a resolution added in this merge.
+
+### CI
+
+The macos-15 ARM64 workflow result, its Actions URL and the unsigned IPA
+artifact name are filled in after the push of this sync. A green package does
+not establish on-device gameplay, touch or safe-area behavior, lifecycle or
+audio recovery, memory with the faction assets or the optional art archives,
+water or hazard visuals, or live online or LAN sessions.
+

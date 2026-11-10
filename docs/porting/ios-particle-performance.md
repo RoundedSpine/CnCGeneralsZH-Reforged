@@ -249,3 +249,23 @@ buffers per pass and uses asynchronous handlers, and can itself be expensive.
 
 Do not change blend/shader behavior or reduce particle quality on the basis
 of uncalibrated samples or scissor-derived overdraw estimates.
+
+## 4.0.0 wreck FX and earlier device numbers (2026-11-10)
+
+The v4.0.0 sync (merge `44043069`, upstream `61dbc593`) does not change
+Particle Performance instrumentation. `ParticlePerfToggle.h`, `SdlGpuFrame.cpp`,
+`SdlGpuFrame.h`, `SdlGpuFrameBatch.cpp`, `PosixDevice9.cpp` and the three
+pinned SDL Metal patches are identical to `2b90ddbc`. The Options.ini key,
+the Display checkbox, the default-off state, the six-submit `FlushLimit`, and
+the `[PARTICLE_PERF]`, `[PARTICLE_COST]`, `[GPU_SYNC_PERF]`, `[GPU_PASS_PERF]`,
+`[GPU_FLUSH_CAUSES]`, `[GPU_TRANSPARENCY_PERF]` and `[GPU_COUNTER_CALIBRATION]`
+formats are unchanged.
+
+Upstream added death and impact FX lists: `MortarDust`, `CarCrushDebris`,
+`JetExplosionGroundDust`, `JetExplosionGroundDebris`, `ArtilleryBarrageDust`
+and `AirF_AuroraDustRing`. They are ordinary event bursts on the existing
+particle path, including smoke-light and FireLook where those templates use
+them. Device numbers captured before this sync are not an A/B baseline against
+a 4.0.0 build. Compare only runs that both include these FX, on the same map,
+camera and graphics settings.
+

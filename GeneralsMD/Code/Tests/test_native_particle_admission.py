@@ -61,10 +61,11 @@ int main(){
         spawn = spawn[:spawn.rfind('}')+1]
         program = r'''
 #include <cassert>
+#include <cstddef>
 #include <vector>
 #include <cstdint>
 #include "Platform/ParticleBudget.h"
-using Bool=bool;using UnsignedInt=unsigned;constexpr bool TRUE=true,FALSE=false;
+using Bool=bool;using UnsignedInt=unsigned;using std::size_t;constexpr bool TRUE=true,FALSE=false;
 constexpr unsigned GPU_NO_SLOT=~0u,GPU_DEATH_FRAMES=65536;
 struct Global {bool m_classicGraphics=false;int asked=1<<20;int getEffectiveGpuParticleCapacity(){return asked;}} global;
 Global *TheGlobalData=&global;
