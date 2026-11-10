@@ -399,9 +399,39 @@ not a resolution added in this merge.
 
 ### CI
 
-The macos-15 ARM64 workflow result, its Actions URL and the unsigned IPA
-artifact name are filled in after the push of this sync. A green package does
-not establish on-device gameplay, touch or safe-area behavior, lifecycle or
-audio recovery, memory with the faction assets or the optional art archives,
-water or hazard visuals, or live online or LAN sessions.
+The macos-15 ARM64 job for `907cdee06e2dbc4a95d6f4fb3938f1b42472cbf2` finished
+**success** in 21m49s:
+
+https://github.com/RoundedSpine/CnCGeneralsZH-Reforged/actions/runs/42815421019
+
+Unsigned IPA artifact (not expired, 21968572 bytes):
+`Reforged-iOS-unsigned-907cdee06e2dbc4a95d6f4fb3938f1b42472cbf2`.
+Diagnostics: `Reforged-iOS-build-logs-42815421019`. The packaged file inside
+the job is `build/ios/Reforged-iOS-unsigned.ipa`. It is unsigned and still
+needs a sideloading tool. `signed-entitlements.plist` contains
+`com.apple.developer.kernel.extended-virtual-addressing` and
+`com.apple.developer.kernel.increased-memory-limit`.
+
+`build.log` has no `error:` lines. The host graphics pass reported 4 tests /
+44 checks / 0 failed, Metal 46/46 and 23/23, and 1034 linked program pairs.
+`spirv-val` was skipped because the runner has no spirv-tools. Shared-cloud
+checks reported 33 tests / 687507 checks / 0 failed. CTest passed all 4:
+`test_hazard_cloud_bake`, `test_hazard_cloud_shared`, `test_online`,
+`test_gameengine`. Host Metal readback reported `failures=0 backend=metal`
+for AO, atmosphere, firelight, lighting, heat, native effects, HDR, MSAA,
+post, and particles, and `posix_gpu_draw_selfcheck` passed. That is host
+GPU evidence, not a phone.
+
+The device pass reached `[1623/1624] Linking CXX executable generals.app/generals`
+and `iOS symbol map: 56339 text symbols`. `W3DParticleSys.cpp` compiled in
+that pass. The device symbol map contains `OnlineConnection` and
+`mbedtls_ssl_*`, so those libraries are in the executable, not only the host
+build. `libmbedtls.a` and `libonlineconnection.a` were linked in the device
+ninja pass (`[591/1624]` and `[740/1624]`).
+
+A green package does not establish on-device gameplay, touch or safe-area
+behavior, lifecycle or audio recovery, memory with the faction assets or the
+optional art archives, water or hazard visuals, particle frame time, or live
+online or LAN sessions. Earlier Particle Performance device numbers are not
+an A/B baseline against this build.
 
