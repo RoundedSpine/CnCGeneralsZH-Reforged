@@ -4,13 +4,16 @@
 # has to get them once. build.bat runs this before it configures; running it again when everything
 # is in place costs one directory check per library and nothing else.
 #
-#   -Force   re-fetch even what is already there
+#   -Force      re-fetch even what is already there
+#   -NoAddons   leave the art add-ons (rebuilt models, HD textures) out; ZHR_NO_ADDONS=1 does the
+#               same for build.bat, which passes no switch
 #
 # What it cannot get is the game itself: the .big files from a Zero Hour install go next to
 # generals.exe in GeneralsMD\Run, and the base game's in Run\ZH_Generals. The game says so on
 # startup when they are missing.
 [CmdletBinding()]
-param([switch] $Force)
+param([switch] $Force, [switch] $NoAddons)
+if ($env:ZHR_NO_ADDONS -eq '1') { $NoAddons = $true }
 
 $ErrorActionPreference = 'Stop'
 $ProgressPreference = 'SilentlyContinue'
@@ -179,7 +182,8 @@ function Install-Mbedtls {
   Step "mbedTLS 3.6.7 -> Libraries\Source\mbedtls"
 }
 
-# --- The fork's own upscaled art: every 3D texture at twice its size, and the ground. Not in git -
+# --- The fork's own upscaled art: every 3D texture at twice its size, and the ground, and the
+# rebuilt models, one Reforged<Side>.big per side that Tools\artpack.py packs. Not in git -
 # ReforgedTextures.big alone is a gigabyte, ten times
 # what GitHub takes in a file, and LFS in a fork is billed to the parent repository.
 #
@@ -225,7 +229,16 @@ function Get-ArtFromChannel {
     return @()
   }
   $release = $versions.game | Select-Object -First 1
-  @($release.files | Where-Object { $_.path -match $artPattern } | ForEach-Object {
+  # Every art archive is an add-on a player picks in the launcher (addons[].files; optional.models in
+  # the first release that split them out), none of them in the mandatory files any more. A developer
+  # gets them all unless -NoAddons, so a clone draws what the release draws. The game plays without
+  # any of them and they are out of the multiplayer checksum.
+  $files = @($release.files)
+  if (-not $NoAddons) {
+    $files += @($release.addons | Where-Object { $_ } | ForEach-Object { $_.files })
+    if ($release.optional) { $files += @($release.optional.PSObject.Properties | ForEach-Object { $_.Value }) }
+  }
+  @($files | Where-Object { $_ -and $_.path -match $artPattern } | ForEach-Object {
     [pscustomobject]@{
       name   = Split-Path -Leaf $_.path
       url    = "$channelUrl$($release.folder)/$($_.path -replace '\\', '/')"
@@ -252,8 +265,9 @@ function Get-ArtFromRelease {
 }
 
 function Install-Art {
+  if ($NoAddons) { Step 'skipping the art add-ons (-NoAddons or ZHR_NO_ADDONS): the game draws what it shipped with' }
   $wanted = @(Get-ArtFromChannel)
-  if ($wanted.Count -eq 0) { $wanted = @(Get-ArtFromRelease) }
+  if ($wanted.Count -eq 0 -and -not $NoAddons) { $wanted = @(Get-ArtFromRelease) }
   if ($wanted.Count -eq 0) {
     Step 'no upscaled art is published yet, so the game will use the textures it shipped with'
     return

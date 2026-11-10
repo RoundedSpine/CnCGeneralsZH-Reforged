@@ -639,6 +639,31 @@ static Mouse::MouseCursor placementCursor( Bool legal )
 }  // end placementCursor
 
 //-------------------------------------------------------------------------------------------------
+/** The friendly enter hint names the object under the pointer, and the cursor follows what will
+	* hold the unit: a building that takes a garrison gets the garrison cursor, anything else that is
+	* not a structure the board one (a transport), and the rest, tunnels and the like, the plain enter.
+	* A target that holds nothing is a passenger the selection is about to pick up (CommandXlat's
+	* boardingContainer), so the selection's first container decides instead. */
+//-------------------------------------------------------------------------------------------------
+static Mouse::MouseCursor enterCursor( const Object *target )
+{
+	const Object *holder = target;
+	if( holder != NULL && holder->getContain() == NULL )
+	{
+		const DrawableList *selected = TheInGameUI->getAllSelectedDrawables();
+		holder = selected->empty() ? NULL : selected->front()->getObject();
+	}
+	if( holder == NULL || holder->getContain() == NULL )
+		return Mouse::ENTER_FRIENDLY;
+	if( holder->getContain()->isGarrisonable() )
+		return Mouse::GARRISON;
+	if( !holder->isKindOf( KINDOF_STRUCTURE ) )
+		return Mouse::BOARD;
+	return Mouse::ENTER_FRIENDLY;
+
+}  // end enterCursor
+
+//-------------------------------------------------------------------------------------------------
 /// The InGameUI singleton instance.
 InGameUI *TheInGameUI = NULL;
 
@@ -4954,8 +4979,23 @@ Bool InGameUI::getQueuedOrderHint( const QueuedOrder& order, OrderHint& hint ) c
 			break;
 
 		case GameMessage::MSG_DO_REPAIR:
+		case GameMessage::MSG_RESUME_CONSTRUCTION:		// a building placed with shift, or a right click on one standing unfinished
 			hint.kind = ORDER_HINT_DO_REPAIR;
 			break;
+
+		case GameMessage::MSG_EVACUATE:
+			// pointed at a spot, the transport drives there to unload; otherwise it unloads where the
+			// step before leaves it, like an ability
+			hint.kind = ORDER_HINT_MOVE;
+			if( order.getDestination( &hint.to ) )
+				return TRUE;
+			hint.kind = ORDER_HINT_ABILITY;
+			return TRUE;
+
+		case GameMessage::MSG_EXIT:
+			// the object it names is the passenger, inside: one climbs out where the step before ends
+			hint.kind = ORDER_HINT_ABILITY;
+			return TRUE;
 
 		case GameMessage::MSG_DO_SPECIAL_POWER_AT_OBJECT:
 		{
@@ -5447,10 +5487,6 @@ void InGameUI::markNextOrderQueued( OrderQueueMode mode )
 //-------------------------------------------------------------------------------------------------
 void InGameUI::createMoveHint( const GameMessage *msg )
 {
-	// Order Lines off takes away everything drawn where an order lands, this ring included
-	if( !TheGlobalData->m_showOrderLines )
-		return;
-
 	if( getSelectCount() == 1 )
 	{
 		Drawable *draw = getFirstSelectedDrawable();
@@ -5797,7 +5833,14 @@ void InGameUI::createMouseoverHint( const GameMessage *msg )
 			setMouseCursor(Mouse::ARROW);
 		}
 	}
-	else if (m_mouseMode != MOUSEMODE_DEFAULT && m_mouseMode != MOUSEMODE_BUILD_PLACE )
+	else if( m_mouseMode == MOUSEMODE_BUILD_PLACE )
+	{
+		// Over something no order can be given to (a dozer over an enemy power plant) no command
+		// hint comes, only this one, so the pointer kept the build cursor the last spot of open
+		// ground left while the ghost had turned red.  It follows the ghost's legality here as well.
+		setMouseCursor( placementCursor( m_placementLegal ) );
+	}
+	else if (m_mouseMode != MOUSEMODE_DEFAULT)
 	{
 		setMouseCursor((Mouse::MouseCursor)m_mouseModeCursor);
 	}
@@ -5930,7 +5973,7 @@ void InGameUI::createCommandHint( const GameMessage *msg )
 										 ThePlayerList->getLocalPlayer()->hasRadar() == FALSE) )
 							setMouseCursor( Mouse::ARROW );
 						else if( isGuardArmed() )
-							setMouseCursor( Mouse::CROSS );	// the targeting cross, the cursor EA's own guard button arms
+							setMouseCursor( Mouse::GUARD );	// the guard buttons' own cursor (CommandSetReforged.ini)
 						else
 							setMouseCursor( Mouse::MOVETO );
 						break;
@@ -5972,12 +6015,16 @@ void InGameUI::createCommandHint( const GameMessage *msg )
 						setMouseCursor( Mouse::RESUME_CONSTRUCTION );
 						break;				
 					case GameMessage::MSG_ENTER_HINT:
-						setMouseCursor( Mouse::ENTER_FRIENDLY );
+						setMouseCursor( enterCursor( obj ) );
 						break;
 					case GameMessage::MSG_CONVERT_TO_CARBOMB_HINT:
+						setMouseCursor( Mouse::CAR_BOMB );
+						break;
 					case GameMessage::MSG_HIJACK_HINT:
+						setMouseCursor( Mouse::HIJACK );
+						break;
 					case GameMessage::MSG_SABOTAGE_HINT:
-						setMouseCursor( Mouse::ENTER_AGGRESSIVELY );
+						setMouseCursor( Mouse::SABOTAGE );
 						break;
 					case GameMessage::MSG_DEFECTOR_HINT:
 						setMouseCursor( Mouse::DEFECTOR );
@@ -11608,7 +11655,7 @@ void InGameUI::removeIdleWorker( Object *obj, Int playerNumber )
 	return;
 }
 
-// The camera stays put; the idle worker buttons look at what this returns, the hotkey does not.
+// The camera stays put, for the hotkey and the idle buttons alike.
 Object *InGameUI::selectNextIdleWorker( void )
 {
 	// the same walk the button's light comes from, so a lit button always has a worker to give
@@ -11775,9 +11822,38 @@ Object *InGameUI::selectNextIdleUnit( KindOfMaskType mustBeSet, KindOfMaskType m
 	teamMsg->appendBooleanArgument( TRUE );
 	teamMsg->appendObjectIDArgument( selectThisObject->getID() );
 
-	// the camera stays where the player has it; the idle buttons move it themselves
+	// the camera stays where the player has it
 	selectDrawable( selectThisObject->getDrawable() );
 	return selectThisObject;
+}
+
+// Shift on an idle button: every one the button's cycle would visit, as one new selection, across
+// the map and with the camera left alone.  A worker riding in something brings what carries it.
+Int InGameUI::selectAllIdleUnits( KindOfMaskType mustBeSet, KindOfMaskType mustBeClear )
+{
+	GameMessage *teamMsg = NULL;
+	Int count = 0;
+	for( Object *obj = TheGameLogic->getFirstObject(); obj; obj = obj->getNextObject() )
+	{
+		if( !isIdleOfKinds( obj, mustBeSet, mustBeClear ) )
+			continue;
+		Object *pick = obj->getContainedBy() ? obj->getContainedBy() : obj;
+		Drawable *draw = pick->getDrawable();
+		if( draw == NULL || draw->isSelected() )
+			continue;
+		if( getMaxSelectCount() > 0 && getSelectCount() >= getMaxSelectCount() )
+			break;
+		if( teamMsg == NULL )
+		{
+			deselectAllDrawables();
+			teamMsg = TheMessageStream->appendMessage( GameMessage::MSG_CREATE_SELECTED_GROUP );
+			teamMsg->appendBooleanArgument( TRUE );
+		}
+		teamMsg->appendObjectIDArgument( pick->getID() );
+		selectDrawable( draw );
+		count++;
+	}
+	return count;
 }
 
 void InGameUI::resetIdleWorker( void )
@@ -11924,9 +12000,13 @@ WindowMsgHandledType IdleWorkerSystem( GameWindow *window, UnsignedInt msg,
 			static NameKeyType buttonSelectID = NAMEKEY( "IdleWorker.wnd:ButtonSelectNextIdleWorker" );
 			if (control && control->winGetWindowId() == buttonSelectID)
 			{
-				Object *worker = TheInGameUI->selectNextIdleWorker( );
-				if( worker )	// every worker busy: nothing was selected
-					TheTacticalView->lookAt( worker->getPosition() );
+				// the same as the control bar's worker button: camera left alone, Shift for every idle worker
+				KindOfMaskType mustBeSet, mustBeClear;
+				InGameUI::idleUnitKinds( GameMessage::MSG_META_SELECT_NEXT_IDLE_WORKER, &mustBeSet, &mustBeClear );
+				if( TheKeyboard->isShift() )
+					TheInGameUI->selectAllIdleUnits( mustBeSet, mustBeClear );
+				else
+					TheInGameUI->selectNextIdleUnit( mustBeSet, mustBeClear );
 			}
 			break;
 

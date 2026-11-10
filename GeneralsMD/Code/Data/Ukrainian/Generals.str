@@ -4706,7 +4706,31 @@ CONTROLBAR:IdleWorker
 END
 
 CONTROLBAR:IdleWorkerDescription
-"Натисніть, щоб вибрати наступного вільного робітника"
+"Натисніть, щоб вибрати наступного вільного робітника. Shift-клік вибирає всіх."
+END
+
+CONTROLBAR:IdleInfantry
+"Вільна піхота"
+END
+
+CONTROLBAR:IdleInfantryDescription
+"Натисніть, щоб вибрати наступного вільного піхотинця. Shift-клік вибирає всіх."
+END
+
+CONTROLBAR:IdleVehicle
+"Вільна техніка"
+END
+
+CONTROLBAR:IdleVehicleDescription
+"Натисніть, щоб вибрати наступну вільну наземну техніку. Shift-клік вибирає всю."
+END
+
+CONTROLBAR:IdleAircraft
+"Вільна авіація"
+END
+
+CONTROLBAR:IdleAircraftDescription
+"Натисніть, щоб вибрати наступний вільний літак. Shift-клік вибирає всі."
 END
 
 CONTROLBAR:Beacon
@@ -8759,6 +8783,14 @@ END
 
 TOOLTIP:StagingPlayerInfo
 "\n Регіон: %ls \n Пінг: %d мс \n %d перемог/%d поразок \n %d відключень \n Улюблена армія: %ls"
+END
+
+TOOLTIP:OnlineStagingPlayerInfo
+"\n Пінг: %d мс \n %d перемог/%d поразок \n %d відключень \n Улюблена армія: %ls"
+END
+
+TOOLTIP:OnlinePlayerInfo
+"\n перемог: %d / поразок: %d"
 END
 
 GUI:CantBuildTooCloseToSupplies
@@ -16374,7 +16406,7 @@ GUI:OrderLines
 END
 
 TOOLTIP:OrderLines
-"Лінія від кожного вибраного підрозділу до місця призначення і далі крізь кожну точку в черзі. Вимк. — одиночний наказ без лінії та маркера, і клік не лишає кільця на землі; маршрут у черзі зберігає і лінію, і маркери."
+"Лінія від кожного вибраного підрозділу до місця призначення і далі крізь кожну точку в черзі. Вимк. — одиночний наказ без лінії, але маркер і кільце на місці кліку лишаються; маршрут у черзі зберігає лінію."
 END
 
 GUI:PlayerColors
@@ -16647,6 +16679,10 @@ END
 
 GUI:CantBuildTooManyDerrickDefenses
 "Ви вже маєте дві оборонні споруди навколо цих нафтових вишок."
+END
+
+TOOLTIP:TooltipProRulesBanUpgrade
+"Заборонено про-правилами"
 END
 
 GUI:HudStatArmy
