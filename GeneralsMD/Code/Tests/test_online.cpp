@@ -142,9 +142,13 @@ TEST(online_json_refuses_what_is_not_a_flat_object)
 		"{\"t\":\"x\",}",
 		"{\"t\":\"x\"} trailing",
 		"{\"t\":\"x\"}{}",
-		"{\"t\":{\"nested\":1}}",
+		"{\"t\":{\"a\":{\"b\":1}}}",				// an object in an object
+		"{\"t\":{\"a\":[{}]}}",
+		"{\"t\":[{\"a\":[{}]}]}",
+		"{\"t\":[{\"a\":{}}]}",
+		"{\"t\":{\"a\":1,\"a\":2}}",				// duplicate key inside
+		"{\"t\":{\"a\":1}",
 		"{\"t\":[1,[2]]}",
-		"{\"t\":[1,{}]}",
 		"{\"t\":[1,]}",
 		"{\"t\":[1 2]}",
 		"{\"t\":\"a\",\"t\":\"b\"}",		// duplicate key
@@ -189,6 +193,41 @@ TEST(online_json_refuses_what_is_not_a_flat_object)
 	const std::string withNul( "{\"t\":\"a\0b\"}", 11 );
 	OnlineMessage m;
 	CHECK( !parseText( withNul, m ) );
+}
+
+/* One level of object: a ladder's rows and own row, a match's opponents. */
+TEST(online_json_reads_one_level_of_objects)
+{
+	OnlineMessage m;
+	CHECK( parseText( "{\"t\":\"ladder\",\"offset\":20,\"rows\":[{\"rank\":21,\"nick\":\"Kim\",\"rating\":31,\"tier\":\"major\",\"wins\":5,\"losses\":2},"
+		"{\"rank\":22,\"nick\":\"Lee\",\"rating\":null,\"tier\":null,\"wins\":0,\"losses\":0}, 3],\"me\":{\"rank\":40,\"nick\":\"Tank\",\"tags\":[1,2]},\"none\":null}", m ) );
+	const std::vector<OnlineMessage> rows = m.getObjects( "rows" );
+	CHECK_EQ( rows.size(), (size_t)2 );		// the 3 is skipped
+	if (rows.size() == 2)
+	{
+		CHECK_EQ( rows[0].getInt( "rank" ), 21 );
+		CHECK_STR( rows[0].getString( "nick" ).c_str(), "Kim" );
+		CHECK_STR( rows[0].getString( "tier" ).c_str(), "major" );
+		CHECK( !rows[1].has( "rating" ) || rows[1].find( "rating" )->kind == OnlineValue::NUL );
+		CHECK_EQ( rows[1].getInt( "rating", -1 ), -1 );
+	}
+	OnlineMessage me;
+	CHECK( m.getObject( "me", me ) );
+	CHECK_EQ( me.getInt( "rank" ), 40 );
+	CHECK_EQ( me.getInts( "tags" ).size(), (size_t)2 );
+	CHECK( !m.getObject( "none", me ) );
+	CHECK_EQ( me.size(), (size_t)0 );
+	CHECK( !m.getObject( "rows", me ) );
+	CHECK( m.getObjects( "me" ).empty() );
+
+	CHECK( parseText( "{\"t\":{},\"u\":[{}]}", m ) );
+	CHECK( m.getObject( "t", me ) );
+	CHECK_EQ( m.getObjects( "u" ).size(), (size_t)1 );
+
+	// the client never sends one
+	std::string line;
+	CHECK( !m.toLine( line ) );
+	CHECK( line.empty() );
 }
 
 TEST(online_json_line_limit)
@@ -768,7 +807,11 @@ TEST(online_adapter_login_refusal_and_no_register)
 	CHECK_STR( rig.sentType( 0 ).c_str(), "login" );
 	CHECK_STR( rig.sent[0].getString( "email" ).c_str(), "tank@example.com" );
 
+	Int retry = -1;
+	CHECK( OnlineGetLoginFailure( &retry ).isEmpty() );
 	rig.feed( "{\"t\":\"auth.fail\",\"code\":\"badlogin\"}" );
+	CHECK_STR( OnlineGetLoginFailure( &retry ).str(), "badlogin" );		// the login screen words it
+	CHECK_EQ( retry, 0 );
 	std::vector<PeerResponse> r = rig.peerResponses();
 	CHECK_EQ( r.size(), (size_t)1 );
 	if (r.size() == 1)
@@ -784,6 +827,11 @@ TEST(online_adapter_login_refusal_and_no_register)
 	OnlineResume( "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef" );
 	CHECK_STR( rig.sentType( 1 ).c_str(), "resume" );
 	CHECK_EQ( rig.sent[1].getString( "token" ).size(), (size_t)64 );
+	CHECK( OnlineGetLoginFailure( &retry ).isEmpty() );		// a new login forgets the last refusal
+
+	rig.feed( "{\"t\":\"auth.fail\",\"code\":\"throttled\",\"retry\":42}" );
+	CHECK_STR( OnlineGetLoginFailure( &retry ).str(), "throttled" );
+	CHECK_EQ( retry, 42 );
 }
 
 TEST(online_adapter_room_and_chat)
@@ -1080,6 +1128,214 @@ TEST(online_adapter_quick_match)
 	CHECK_STR( OnlineSession::get().matchId.c_str(), "q1" );
 }
 
+/* A server that reveals: qm.matched shows the opponent, game.start launches; a qm.status in between
+	 (the opponent dropped) cancels and nothing starts. */
+TEST(online_adapter_quick_match_reveal_waits_for_game_start)
+{
+	AdapterRig rig;
+	rig.login();
+	const char *matchedLine = "{\"t\":\"qm.matched\",\"match\":\"q2\",\"seed\":5,\"mapIdx\":0,\"nicks\":[\"Tank\",\"Kim\"],\"ids\":[7,9],"
+		"\"vips\":[167772163,167772162],\"sides\":[-1,-1],\"colors\":[-1,-1],\"server\":\"Frankfurt\",\"revealMs\":3000,"
+		"\"opponents\":[{\"nick\":\"Kim\",\"rating\":31,\"tier\":\"major\"}]}";
+
+	rig.feed( matchedLine );
+	CHECK( rig.peerResponses().empty() );		// nothing launches on the reveal
+	OnlineMatchReveal rev;
+	CHECK( OnlineGetMatchReveal( rev ) );
+	CHECK_EQ( rev.revealMs, 3000 );
+	CHECK_STR( rev.server.str(), "Frankfurt" );
+	CHECK_EQ( rev.opponents.size(), (size_t)1 );
+	if (!rev.opponents.empty())
+	{
+		CHECK_STR( rev.opponents[0].nick.str(), "Kim" );
+		CHECK_EQ( rev.opponents[0].rating, 31 );
+		CHECK_STR( rev.opponents[0].tier.str(), "major" );
+	}
+	const UnsignedInt first = rev.serial;
+
+	// the opponent dropped: searching again, and the reveal is gone
+	rig.feed( "{\"t\":\"qm.status\",\"status\":\"searching\",\"pool\":3}" );
+	CHECK( !OnlineGetMatchReveal( rev ) );
+	std::vector<PeerResponse> r = rig.peerResponses();
+	CHECK( r.size() == 1 && r[0].qmStatus.status == QM_WORKING );
+	rig.feed( "{\"t\":\"game.start\",\"match\":\"q2\",\"ids\":[7,9],\"nicks\":[\"Tank\",\"Kim\"],\"vips\":[1,2]}" );
+	r = rig.peerResponses();
+	CHECK( r.size() == 1 && r[0].peerResponseType == PeerResponse::PEERRESPONSE_GAMESTART );		// no QM seats from a cancelled reveal
+
+	rig.feed( matchedLine );
+	CHECK( OnlineGetMatchReveal( rev ) );
+	CHECK( rev.serial != first );
+	rig.feed( "{\"t\":\"game.start\",\"match\":\"q2\",\"ids\":[7,9],\"nicks\":[\"Tank\",\"Kim\"],\"vips\":[167772163,167772170]}" );
+	CHECK( !OnlineGetMatchReveal( rev ) );
+	r = rig.peerResponses();
+	CHECK_EQ( r.size(), (size_t)1 );
+	if (r.size() == 1)
+	{
+		CHECK_EQ( (int)r[0].qmStatus.status, (int)QM_MATCHED );
+		CHECK_EQ( r[0].qmStatus.seed, 5 );
+		CHECK_STR( r[0].stagingRoomPlayerNames[1].c_str(), "Kim" );
+		CHECK_EQ( r[0].qmStatus.IP[1], 167772170u );		// game.start's address wins
+	}
+	CHECK_STR( OnlineSession::get().matchId.c_str(), "q2" );
+
+	OnlinePlayerInfo kim;
+	CHECK( OnlineGetPlayerInfo( "Kim", kim ) );
+	CHECK( kim.hasRating && kim.rating == 31 );
+}
+
+TEST(online_adapter_ping_ratings_stats_and_ladder)
+{
+	AdapterRig rig;
+	rig.login();
+
+	rig.feed( "{\"t\":\"ping\",\"n\":12}" );
+	CHECK_STR( rig.sentType( 0 ).c_str(), "pong" );
+	if (!rig.sent.empty())
+		CHECK_EQ( rig.sent[0].getInt( "n" ), 12 );
+	rig.sent.clear();
+
+	// a `player` for someone already in the room updates the numbers, it is not a second join
+	rig.feed( "{\"t\":\"room\",\"id\":\"lobby1\",\"ids\":[7,9],\"nicks\":[\"Tank\",\"Kim\"]}" );
+	rig.peerResponses();
+	rig.feed( "{\"t\":\"player\",\"room\":\"lobby1\",\"id\":9,\"nick\":\"Kim\",\"ping\":45,\"rating\":31.6,\"tier\":\"major\",\"games\":7}" );
+	CHECK( rig.peerResponses().empty() );
+	OnlinePlayerInfo kim;
+	CHECK( OnlineGetPlayerInfo( "Kim", kim ) );
+	CHECK_EQ( kim.ping, 45 );
+	CHECK( kim.hasRating );
+	CHECK_EQ( kim.rating, 32 );
+	CHECK_STR( kim.tier.str(), "major" );
+	CHECK_EQ( kim.games, 7 );
+	CHECK( !kim.hasStats );
+	rig.feed( "{\"t\":\"player\",\"room\":\"lobby1\",\"id\":11,\"nick\":\"Lee\"}" );
+	std::vector<PeerResponse> r = rig.peerResponses();
+	CHECK( r.size() == 1 && r[0].peerResponseType == PeerResponse::PEERRESPONSE_PLAYERJOIN );
+	rig.feed( "{\"t\":\"player.left\",\"room\":\"lobby1\",\"id\":11,\"nick\":\"Lee\"}" );
+	rig.feed( "{\"t\":\"player\",\"room\":\"lobby1\",\"id\":11,\"nick\":\"Lee\"}" );
+	r = rig.peerResponses();
+	CHECK_EQ( r.size(), (size_t)2 );		// left, then joined again
+
+	// stats{nick}, and a nick the server cannot find
+	const UnsignedInt before = OnlinePlayerInfoSerial();
+	OnlineRequestStats( "Kim" );
+	OnlineRequestStats( "Ghost" );
+	CHECK_STR( rig.sentType( 0 ).c_str(), "stats" );
+	if (!rig.sent.empty())
+		CHECK_STR( rig.sent[0].getString( "nick" ).c_str(), "Kim" );
+	rig.feed( "{\"t\":\"stats\",\"id\":9,\"kv\":\"\\\\wins\\\\5\",\"nick\":\"Kim\",\"rating\":null,\"tier\":null,\"wins\":5,\"losses\":2,\"games\":7,\"rank\":12}" );
+	rig.feed( "{\"t\":\"error\",\"for\":\"stats\",\"code\":\"noplayer\"}" );
+	CHECK( OnlinePlayerInfoSerial() != before );
+	CHECK( OnlineGetPlayerInfo( "Kim", kim ) );
+	CHECK( kim.hasStats );
+	CHECK( !kim.hasRating );		// null clears it
+	CHECK( kim.tier.isEmpty() );
+	CHECK_EQ( kim.wins, 5 );
+	CHECK_EQ( kim.losses, 2 );
+	CHECK_EQ( kim.rank, 12 );
+	OnlinePlayerInfo ghost;
+	CHECK( OnlineGetPlayerInfo( "Ghost", ghost ) );
+	CHECK( ghost.notOnline );
+	PSResponse ps;
+	CHECK( rig.ps->getResponse( ps ) );		// the kv still reaches EA's screens
+	CHECK_EQ( ps.player.id, 9 );
+
+	// the ladder
+	rig.sent.clear();
+	OnlineRequestLadder( 20 );
+	CHECK_STR( rig.sentType( 0 ).c_str(), "ladder" );
+	Int offset = -1;
+	std::vector<OnlineLadderRow> rows;
+	OnlineLadderRow me;
+	Bool hasMe = TRUE;
+	CHECK_EQ( (int)OnlineGetLadder( offset, rows, me, hasMe ), (int)ONLINE_LADDER_WAITING );
+	rig.feed( "{\"t\":\"ladder\",\"offset\":20,\"rows\":[{\"rank\":21,\"nick\":\"Kim\",\"rating\":31,\"tier\":\"major\",\"wins\":5,\"losses\":2}],"
+		"\"me\":{\"rank\":40,\"nick\":\"Tank\",\"rating\":null,\"tier\":null,\"wins\":1,\"losses\":3}}" );
+	CHECK_EQ( (int)OnlineGetLadder( offset, rows, me, hasMe ), (int)ONLINE_LADDER_READY );
+	CHECK_EQ( offset, 20 );
+	CHECK( rows.size() == 1 && rows[0].rank == 21 && rows[0].rating == 31 && rows[0].wins == 5 );
+	CHECK( hasMe && me.rank == 40 && !me.hasRating && me.losses == 3 );
+	OnlineRequestLadder( 40 );
+	rig.feed( "{\"t\":\"error\",\"for\":\"ladder\",\"code\":\"unavailable\"}" );
+	CHECK_EQ( (int)OnlineGetLadder( offset, rows, me, hasMe ), (int)ONLINE_LADDER_FAILED );
+
+	// the armies' win percentages
+	rig.sent.clear();
+	OnlineRequestArmies();
+	CHECK_STR( rig.sentType( 0 ).c_str(), "armies" );
+	std::vector<OnlineArmyRow> armies;
+	CHECK_EQ( (int)OnlineGetArmies( armies ), (int)ONLINE_LADDER_WAITING );
+	rig.feed( "{\"t\":\"armies\",\"sides\":[{\"side\":\"America\",\"games\":12,\"wins\":7},{\"side\":\"GLA\",\"games\":3,\"wins\":0}]}" );
+	CHECK_EQ( (int)OnlineGetArmies( armies ), (int)ONLINE_LADDER_READY );
+	CHECK( armies.size() == 2 && armies[0].side == "America" && armies[0].games == 12 && armies[0].wins == 7 );
+	CHECK( armies.size() == 2 && armies[1].side == "GLA" && armies[1].wins == 0 );
+	OnlineRequestArmies();
+	rig.feed( "{\"t\":\"error\",\"for\":\"armies\",\"code\":\"unavailable\"}" );
+	CHECK_EQ( (int)OnlineGetArmies( armies ), (int)ONLINE_LADDER_FAILED );
+	CHECK( armies.empty() );
+
+	// the verdict, for the match just played only
+	Bool rated = FALSE;
+	Real delta = 0, rating = 0;
+	AsciiString reason;
+	OnlineSession::get().matchId = "q7";
+	rig.feed( "{\"t\":\"rated\",\"match\":\"q6\",\"delta\":1.5,\"rating\":20}" );
+	CHECK( !OnlineGetMatchResult( rated, delta, rating, reason ) );
+	rig.feed( "{\"t\":\"rated\",\"match\":\"q7\",\"delta\":-1.25,\"rating\":18.5}" );
+	CHECK( OnlineGetMatchResult( rated, delta, rating, reason ) );
+	CHECK( rated );
+	CHECK_NEAR( delta, -1.25f, 0.001f );
+	CHECK_NEAR( rating, 18.5f, 0.001f );
+}
+
+/* proto 2 on login, the room snapshot's cards, nicks in any case, Stop ending a reveal at once. */
+TEST(online_adapter_proto2_room_cards_and_case)
+{
+	AdapterRig rig;
+	BuddyRequest req;
+	memset( &req, 0, sizeof(req) );
+	req.buddyRequestType = BuddyRequest::BUDDYREQUEST_LOGIN;
+	strcpy( req.arg.login.email, "tank@example.com" );
+	strcpy( req.arg.login.password, "secret" );
+	rig.buddy->addRequest( req );
+	CHECK( !rig.sent.empty() && rig.sent.back().getInt( "proto" ) == 2 );
+	rig.login();
+
+	rig.feed( "{\"t\":\"room\",\"id\":\"lobby1\",\"ids\":[7,9],\"nicks\":[\"Tank\",\"Kim\"],"
+		"\"players\":[{\"id\":7,\"nick\":\"Tank\",\"ping\":20},{\"id\":9,\"nick\":\"Kim\",\"ping\":45,\"rating\":31,\"tier\":\"major\"}]}" );
+	rig.peerResponses();
+	OnlinePlayerInfo kim;
+	CHECK( OnlineGetPlayerInfo( "kim", kim ) );		// any case
+	CHECK_EQ( kim.ping, 45 );
+	CHECK( kim.hasRating && kim.rating == 31 );
+	const UnsignedInt serial = kim.serial;
+	rig.feed( "{\"t\":\"player\",\"room\":\"lobby1\",\"id\":9,\"nick\":\"Kim\",\"ping\":45}" );
+	CHECK( OnlineGetPlayerInfo( "Kim", kim ) );
+	CHECK_EQ( kim.serial, serial );		// the same ping again changes nothing
+	rig.feed( "{\"t\":\"player\",\"room\":\"lobby1\",\"id\":9,\"nick\":\"Kim\",\"ping\":60}" );
+	CHECK( OnlineGetPlayerInfo( "Kim", kim ) );
+	CHECK( kim.serial != serial );
+
+	// asked as KIM, answered as Kim; the next noplayer then belongs to Ghost, not Kim
+	OnlineRequestStats( "KIM" );
+	OnlineRequestStats( "Ghost" );
+	rig.feed( "{\"t\":\"stats\",\"id\":9,\"nick\":\"Kim\",\"wins\":5,\"losses\":2,\"rank\":3}" );
+	rig.feed( "{\"t\":\"error\",\"for\":\"stats\",\"code\":\"noplayer\"}" );
+	CHECK( OnlineGetPlayerInfo( "Kim", kim ) );
+	CHECK( kim.hasStats && !kim.notOnline && kim.rank == 3 );
+	OnlinePlayerInfo ghost;
+	CHECK( OnlineGetPlayerInfo( "ghost", ghost ) && ghost.notOnline );
+
+	// Stop during a reveal ends it before the server's qm.status comes back
+	rig.feed( "{\"t\":\"qm.matched\",\"match\":\"q3\",\"seed\":1,\"mapIdx\":0,\"nicks\":[\"Tank\",\"Kim\"],\"ids\":[7,9],\"revealMs\":3000}" );
+	OnlineMatchReveal rev;
+	CHECK( OnlineGetMatchReveal( rev ) );
+	PeerRequest stop;
+	stop.peerRequestType = PeerRequest::PEERREQUEST_STOPQUICKMATCH;
+	rig.peer->addRequest( stop );
+	CHECK( !OnlineGetMatchReveal( rev ) );
+	CHECK_STR( rig.sent.back().type().c_str(), "qm.leave" );
+}
+
 /* GameLogic dereferences the template and the colour a seat names (getColor(999)->getColor() was a
 	 crash at Quick Match start), so whatever the server says is clamped before a seat sees it. */
 TEST(online_seat_side_and_color_are_clamped)
@@ -1344,8 +1600,11 @@ TEST(online_register_url_from_the_welcome_and_only_a_web_page_opens)
 	AdapterRig rig;
 	rig.feed( "{\"t\":\"welcome\",\"config\":\"\",\"motd\":\"\",\"relayPort\":8094}" );
 	CHECK( OnlineGetRegisterUrl().isEmpty() );		// none sent: Create Account hides
-	rig.feed( "{\"t\":\"welcome\",\"config\":\"\",\"motd\":\"\",\"relayPort\":8094,\"registerUrl\":\"https://example.test/register\"}" );
+	CHECK( OnlineGetResetUrl().isEmpty() );				// and Forgot Password
+	rig.feed( "{\"t\":\"welcome\",\"config\":\"\",\"motd\":\"\",\"relayPort\":8094,\"registerUrl\":\"https://example.test/register\","
+		"\"resetUrl\":\"https://example.test/forgot\"}" );
 	CHECK_STR( OnlineGetRegisterUrl().str(), "https://example.test/register" );
+	CHECK_STR( OnlineGetResetUrl().str(), "https://example.test/forgot" );
 	// a hostile server's address is refused before anything is asked to open it
 	CHECK( !OnlineOpenURL( "file:///C:/Windows/System32/calc.exe" ) );
 	CHECK( !OnlineOpenURL( "C:\\Windows\\notepad.exe" ) );

@@ -115,13 +115,14 @@ public:
 		UnsignedInt															pastLimit;				///< written by the job: on-screen particles past capacity
 		Bool																		glow;							///< written by the job: the fire's glow is in the normals, not the colour
 		Bool																		fire;							///< the template's FireLook: each particle's age and seed go in v2
-        double perfBillboardMs;             ///< CPU wall time for this fill job when enabled
-        double perfLightPickMs;             ///< CPU time choosing affected smoke lights
-        double perfSmokeMs;                 ///< CPU time inside smoke lighting
-        double perfFireLookMs;              ///< CPU time packing FireLook age and seed
-        unsigned perfFireLookParticles;     ///< FireLook billboards prepared
-        unsigned perfLightEvaluations;      ///< particle-light invocations
-        unsigned perfCulledParticles;       ///< visibility rejects in the fill loop
+		double perfBillboardMs;					///< CPU wall time for this fill job when enabled
+		double perfLightPickMs;					///< CPU time choosing affected smoke lights
+		double perfSmokeMs;						///< CPU time inside smoke lighting
+		double perfFireLookMs;					///< CPU time packing FireLook age and seed
+		unsigned perfFireLookParticles;			///< FireLook billboards prepared
+		unsigned perfLightEvaluations;			///< particle-light invocations
+		unsigned perfCulledParticles;			///< visibility rejects in the fill loop
+		Bool																		hardEdge;					///< ParticleSystem::isAttachedToMine: no soft particle fade (Insert_Sorted_Billboards)
 	};
 
 	/// One particle the sun's smoke map can take, as the last particle update left it.

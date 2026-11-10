@@ -35,6 +35,7 @@
 #include "zhio.h"
 
 #include <limits.h>
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -47,6 +48,8 @@ static const Int ONLINE_NAT_SIMPLE = 1;
 // The one chat room the login lists.  Its name is looked up as GUI:<name> for the lobby's combo box.
 static const Int ONLINE_LOBBY_ROOM = 1;
 static const char *ONLINE_LOBBY_NAME = "Lobby";
+// the protocol version login and resume announce
+static const Int ONLINE_PROTO = 2;
 
 UnsignedInt OnlineHostToNet( UnsignedInt v )
 {
@@ -124,7 +127,8 @@ OnlineSession &OnlineSession::get()
 }
 
 OnlineSession::OnlineSession() :
-	connection( NULL ), capture( NULL ), status( ONLINE_OFF ), relayPort( 0 ), testMode( FALSE ),
+	connection( NULL ), capture( NULL ), status( ONLINE_OFF ), relayPort( 0 ), testMode( FALSE ), failRetry( 0 ),
+	cardSerial( 0 ), ladderState( ONLINE_LADDER_FAILED ), armiesState( ONLINE_LADDER_FAILED ), revealing( FALSE ), revealSerial( 0 ),
 	peer( NULL ), buddy( NULL ), ps( NULL )
 {
 	forgetAccount();
@@ -151,6 +155,15 @@ void OnlineSession::forgetAccount()
 	hostLeftGame = 0;
 	hostLeftPumps = 0;
 	vips.clear();
+	cards.clear();
+	statsAsked.clear();
+	present.clear();
+	++cardSerial;
+	ladderState = ONLINE_LADDER_FAILED;
+	ladder.clear();
+	armiesState = ONLINE_LADDER_FAILED;
+	armies.clear();
+	revealing = FALSE;
 }
 
 void OnlineSession::beginTest( std::vector<OnlineMessage> *lines )
@@ -160,11 +173,15 @@ void OnlineSession::beginTest( std::vector<OnlineMessage> *lines )
 	matchId.clear();
 	reportedMatch.clear();
 	resultLine.clear();
+	result.clear();
 	motd.clear();
 	config.clear();
 	relayPort = 8094;
 	testMode = FALSE;
 	registerUrl.clear();
+	resetUrl.clear();
+	failCode.clear();
+	failRetry = 0;
 	status = lines ? ONLINE_WELCOMED : ONLINE_OFF;
 }
 
@@ -230,9 +247,15 @@ void OnlineSession::disconnect()
 	forgetAccount();
 }
 
-void OnlineSession::requestAuth( const OnlineMessage &m )
+void OnlineSession::requestAuth( const OnlineMessage &line )
 {
+	// proto 2: this exe reads object values (room.players, opponents, ladder rows) and answers ping;
+	// a server sends neither to an exe that does not say so
+	OnlineMessage m = line;
+	m.setInt( "proto", ONLINE_PROTO );
 	authWaiting = TRUE;
+	failCode.clear();
+	failRetry = 0;
 	if (status == ONLINE_WELCOMED)
 	{
 		send( m );
@@ -428,9 +451,87 @@ static void rememberVips( OnlineSession &s, const OnlineMessage &m )
 		s.vips[m.getInt( "id" )] = (UnsignedInt)m.getInt( "vip" );
 }
 
+/* A field the line carries replaces what the card had; null clears it; a field the line leaves out
+	 (an older server, a player the site has no record for) leaves it alone. */
+std::string OnlineNickKey( const std::string &nick )
+{
+	std::string key = nick;
+	for (size_t i = 0; i < key.size(); ++i)
+		if (key[i] >= 'A' && key[i] <= 'Z')
+			key[i] = (char)(key[i] - 'A' + 'a');
+	return key;
+}
+
+void OnlineSession::noteCard( const OnlineMessage &m )
+{
+	const std::string who = m.getString( "nick" );
+	if (who.empty())
+		return;
+	OnlineCard &c = cards[OnlineNickKey( who )];
+	const OnlineCard before = c;
+	const OnlineValue *v;
+	if ((v = m.find( "ping" )) != NULL)
+		c.ping = v->kind == OnlineValue::NUMBER ? m.getInt( "ping" ) : -1;
+	if ((v = m.find( "rating" )) != NULL)
+	{
+		c.hasRating = v->kind == OnlineValue::NUMBER;
+		c.rating = c.hasRating ? (long long)floor( m.getNumber( "rating" ) + 0.5 ) : 0;
+	}
+	if ((v = m.find( "tier" )) != NULL)
+		c.tier = m.getString( "tier" );
+	if ((v = m.find( "games" )) != NULL)
+		c.games = v->kind == OnlineValue::NUMBER ? m.getInt( "games" ) : -1;
+	if ((v = m.find( "wins" )) != NULL)
+		c.wins = v->kind == OnlineValue::NUMBER ? m.getInt( "wins" ) : -1;
+	if ((v = m.find( "losses" )) != NULL)
+		c.losses = v->kind == OnlineValue::NUMBER ? m.getInt( "losses" ) : -1;
+	if ((v = m.find( "rank" )) != NULL)
+		c.rank = v->kind == OnlineValue::NUMBER ? m.getInt( "rank" ) : 0;
+	if (m.type() == "stats")
+	{
+		c.hasStats = TRUE;
+		c.notOnline = FALSE;
+	}
+	// the serial moves only on a real change: a screen redraws on it, and the same ping again is no news
+	if (c.ping != before.ping || c.rating != before.rating || c.games != before.games || c.wins != before.wins
+		|| c.losses != before.losses || c.rank != before.rank || c.hasRating != before.hasRating
+		|| c.notOnline != before.notOnline || c.hasStats != before.hasStats || c.tier != before.tier || !before.serial)
+		c.serial = ++cardSerial;
+}
+
+void OnlineSession::matched( const OnlineMessage &m )
+{
+	PeerResponse r = makePeer( PeerResponse::PEERRESPONSE_QUICKMATCHSTATUS );
+	r.qmStatus.status = QM_MATCHED;
+	r.qmStatus.seed = (Int)m.getInt( "seed" );
+	r.qmStatus.mapIdx = (Int)m.getInt( "mapIdx" );
+	const std::vector<std::string> nicks = m.getStrings( "nicks" );
+	const std::vector<long long> v = m.getInts( "vips" ), sides = m.getInts( "sides" ), colors = m.getInts( "colors" );
+	for (size_t i = 0; i < nicks.size() && i < (size_t)MAX_SLOTS; ++i)
+	{
+		r.stagingRoomPlayerNames[i] = nicks[i];
+		r.qmStatus.IP[i] = i < v.size() ? (UnsignedInt)v[i] : 0;		// host order, as GameSpy's matchbot sent it
+		r.qmStatus.side[i] = i < sides.size() ? seatSide( sides[i] ) : -1;
+		r.qmStatus.color[i] = i < colors.size() ? seatColor( colors[i] ) : -1;
+		r.qmStatus.nat[i] = ONLINE_NAT_SIMPLE;
+	}
+	peerResponse( r );
+}
+
 void OnlineSession::dispatch( const OnlineMessage &m )
 {
 	const std::string t = m.type();
+
+	// the server's liveness check, answered before anything else
+	if (t == "ping")
+	{
+		OnlineMessage pong;
+		pong.setString( "t", "pong" );
+		if (const OnlineValue *n = m.find( "n" ))
+			pong.set( "n", *n );
+		send( pong );
+		return;
+	}
 
 	// A game removed under a guest is the host leaving, unless it was removed because it started.
 	if (hostLeftGame && t != "game.start")
@@ -443,6 +544,7 @@ void OnlineSession::dispatch( const OnlineMessage &m )
 		relayPort = (UnsignedShort)m.getInt( "relayPort" );
 		testMode = m.getBool( "testMode" );
 		registerUrl = m.getString( "registerUrl" );
+		resetUrl = m.getString( "resetUrl" );
 		status = ONLINE_WELCOMED;
 		if (hasPendingAuth)
 		{
@@ -461,6 +563,7 @@ void OnlineSession::dispatch( const OnlineMessage &m )
 		vip = 0;
 		if (!hexTicket( m.getString( "ticket" ), ticket ))
 			DEBUG_LOG(("online: auth.ok carries no usable relay ticket\n"));
+		noteCard( m );
 
 		if (buddy)
 		{
@@ -478,6 +581,8 @@ void OnlineSession::dispatch( const OnlineMessage &m )
 		DEBUG_LOG(("online: auth.fail %s\n", code.c_str()));
 		if (code == "already")
 			return;
+		failCode = code;
+		failRetry = (Int)m.getInt( "retry" );
 		Bool wasIn = authed;
 		forgetAccount();
 		if (code == "elsewhere" || wasIn)
@@ -530,6 +635,22 @@ void OnlineSession::dispatch( const OnlineMessage &m )
 			r.qmStatus.status = code == "norelay" ? QM_COULDNOTNEGOTIATEFIREWALLS : QM_COULDNOTFINDBOT;
 			peerResponse( r );
 		}
+		else if (what == "stats" && !statsAsked.empty())
+		{
+			OnlineCard &c = cards[statsAsked.front()];
+			statsAsked.pop_front();
+			c.notOnline = code == "noplayer";
+			c.hasStats = FALSE;
+			c.serial = ++cardSerial;
+		}
+		else if (what == "ladder")
+		{
+			ladderState = ONLINE_LADDER_FAILED;
+		}
+		else if (what == "armies")
+		{
+			armiesState = ONLINE_LADDER_FAILED;
+		}
 	}
 	else if (t == "room")
 	{
@@ -541,17 +662,36 @@ void OnlineSession::dispatch( const OnlineMessage &m )
 		peerResponse( r );
 		const std::vector<long long> ids = m.getInts( "ids" );
 		const std::vector<std::string> nicks = m.getStrings( "nicks" );
+		present.clear();
+		present.insert( ids.begin(), ids.end() );
+		// every member's ping and rating, as a `player` event would carry them (proto 2)
+		const std::vector<OnlineMessage> players = m.getObjects( "players" );
+		for (size_t i = 0; i < players.size(); ++i)
+			noteCard( players[i] );
 		for (size_t i = 0; i < ids.size() && i < nicks.size(); ++i)
 			playerResponse( *this, PeerResponse::PEERRESPONSE_PLAYERJOIN, GroupRoom, ids[i], nicks[i] );
 	}
 	else if (t == "player" || t == "player.left")
 	{
 		rememberVips( *this, m );
-		const Int type = t == "player" ? PeerResponse::PEERRESPONSE_PLAYERJOIN : PeerResponse::PEERRESPONSE_PLAYERLEFT;
+		if (t == "player")
+			noteCard( m );
+		const long long who = m.getInt( "id" );
+		RoomType roomType;
 		if (m.has( "game" ) && gameId && m.getInt( "game" ) == gameId)
-			playerResponse( *this, type, StagingRoom, m.getInt( "id" ), m.getString( "nick" ) );
+			roomType = StagingRoom;
 		else if (namesChatRoom( m, groupRoom ))
-			playerResponse( *this, type, GroupRoom, m.getInt( "id" ), m.getString( "nick" ) );
+			roomType = GroupRoom;
+		else
+			return;
+		// a `player` for someone already here is a new ping or rating, not a join: the staging room would
+		// seat the same joiner again
+		if (t == "player" && !present.insert( who ).second)
+			return;
+		if (t == "player.left")
+			present.erase( who );
+		playerResponse( *this, t == "player" ? PeerResponse::PEERRESPONSE_PLAYERJOIN : PeerResponse::PEERRESPONSE_PLAYERLEFT,
+			roomType, who, m.getString( "nick" ) );
 	}
 	else if (t == "said")
 	{
@@ -601,6 +741,11 @@ void OnlineSession::dispatch( const OnlineMessage &m )
 		rememberVips( *this, m );
 		const std::vector<long long> ids = m.getInts( "ids" );
 		const std::vector<std::string> nicks = m.getStrings( "nicks" );
+		present.clear();
+		present.insert( ids.begin(), ids.end() );
+		const std::vector<OnlineMessage> players = m.getObjects( "players" );
+		for (size_t i = 0; i < players.size(); ++i)
+			noteCard( players[i] );
 		if (hosting)
 		{
 			PeerResponse r = makePeer( PeerResponse::PEERRESPONSE_CREATESTAGINGROOM );
@@ -653,11 +798,23 @@ void OnlineSession::dispatch( const OnlineMessage &m )
 		}
 		peerResponse( r );
 	}
+	else if (t == "game.start" && revealing && m.getString( "match" ) == reveal.getString( "match" ))
+	{
+		// the Quick Match's reveal is over: qm.matched's seats, at the addresses game.start gives
+		revealing = FALSE;
+		matchId = m.getString( "match" );
+		rememberVips( *this, m );
+		OnlineMessage seats = reveal;
+		if (const OnlineValue *v = m.find( "vips" ))
+			seats.set( "vips", *v );
+		matched( seats );
+	}
 	else if (t == "game.start")
 	{
 		matchId = m.getString( "match" );
 		hostLeftGame = 0;
 		hostLeftPumps = 0;
+		present.clear();
 		rememberVips( *this, m );
 		const Bool wasHost = hosting;
 		gameId = 0;
@@ -668,6 +825,12 @@ void OnlineSession::dispatch( const OnlineMessage &m )
 	else if (t == "qm.status")
 	{
 		const std::string st = m.getString( "status" );
+		if (revealing)
+		{
+			// the opponent dropped in the reveal (searching again), or we left: nothing starts
+			DEBUG_LOG(("ONLINE REVEAL cancelled status=%s\n", st.c_str()));
+			revealing = FALSE;
+		}
 		PeerResponse r = makePeer( PeerResponse::PEERRESPONSE_QUICKMATCHSTATUS );
 		r.qmStatus.poolSize = (Int)m.getInt( "pool" );
 		if (st == "searching")
@@ -682,29 +845,51 @@ void OnlineSession::dispatch( const OnlineMessage &m )
 	{
 		matchId = m.getString( "match" );
 		rememberVips( *this, m );
-		PeerResponse r = makePeer( PeerResponse::PEERRESPONSE_QUICKMATCHSTATUS );
-		r.qmStatus.status = QM_MATCHED;
-		r.qmStatus.seed = (Int)m.getInt( "seed" );
-		r.qmStatus.mapIdx = (Int)m.getInt( "mapIdx" );
-		const std::vector<std::string> nicks = m.getStrings( "nicks" );
-		const std::vector<long long> v = m.getInts( "vips" ), sides = m.getInts( "sides" ), colors = m.getInts( "colors" );
-		for (size_t i = 0; i < nicks.size() && i < (size_t)MAX_SLOTS; ++i)
+		const std::vector<OnlineMessage> opponents = m.getObjects( "opponents" );
+		for (size_t i = 0; i < opponents.size(); ++i)
+			noteCard( opponents[i] );
+		if (m.has( "revealMs" ))
 		{
-			r.stagingRoomPlayerNames[i] = nicks[i];
-			r.qmStatus.IP[i] = i < v.size() ? (UnsignedInt)v[i] : 0;		// host order, as GameSpy's matchbot sent it
-			r.qmStatus.side[i] = i < sides.size() ? seatSide( sides[i] ) : -1;
-			r.qmStatus.color[i] = i < colors.size() ? seatColor( colors[i] ) : -1;
-			r.qmStatus.nat[i] = ONLINE_NAT_SIMPLE;
+			// a server that reveals first launches with game.start revealMs later
+			reveal = m;
+			revealing = TRUE;
+			++revealSerial;
+			DEBUG_LOG(("ONLINE REVEAL match=%s revealMs=%d\n", matchId.c_str(), (Int)m.getInt( "revealMs" )));
 		}
-		peerResponse( r );
+		else
+			matched( m );
 	}
 	else if (t == "stats")
 	{
-		if (ps)
+		if (ps && m.has( "kv" ))
 			ps->statsArrived( m.getInt( "id" ), m.getString( "kv" ) );
+		const std::string who = m.getString( "nick" );
+		if (!who.empty())
+		{
+			for (std::deque<std::string>::iterator it = statsAsked.begin(); it != statsAsked.end(); ++it)
+			{
+				if (*it == OnlineNickKey( who ))
+				{
+					statsAsked.erase( it );
+					break;
+				}
+			}
+			noteCard( m );
+		}
+	}
+	else if (t == "ladder")
+	{
+		ladder = m;
+		ladderState = ONLINE_LADDER_READY;
+	}
+	else if (t == "armies")
+	{
+		armies = m;
+		armiesState = ONLINE_LADDER_READY;
 	}
 	else if (t == "rated" || t == "unrated")
 	{
+		result = m;
 		// what the end-to-end check greps; the numbers as the server spelled them
 		const OnlineValue *delta = m.find( "delta" ), *rating = m.find( "rating" );
 		if (t == "rated")
@@ -780,6 +965,7 @@ static void leaveGame( OnlineSession &s )
 	s.joiningGame = 0;
 	s.hosting = FALSE;
 	s.hostLeftGame = 0;
+	s.present.clear();
 }
 
 /* Out of the chat room on the server too, as GameSpy left the group room for a staging room or Quick Match:
@@ -791,6 +977,7 @@ static void leaveChatRoom( OnlineSession &s )
 		OnlineMessage m;
 		m.setString( "t", "room.leave" );
 		s.send( m );
+		s.present.clear();
 	}
 	s.groupRoom = 0;
 }
@@ -963,6 +1150,8 @@ void OnlinePeerQueue::addRequest( const PeerRequest& req )
 		return;
 
 	case PeerRequest::PEERREQUEST_STOPQUICKMATCH:
+		// a reveal ends with our leaving, whatever the server's qm.status says on its way back
+		s.revealing = FALSE;
 		m.setString( "t", "qm.leave" );
 		s.send( m );
 		return;
@@ -1027,6 +1216,19 @@ Bool OnlineIsTestServer( void )
 AsciiString OnlineGetRegisterUrl( void )
 {
 	return OnlineSession::get().registerUrl.c_str();
+}
+
+AsciiString OnlineGetResetUrl( void )
+{
+	return OnlineSession::get().resetUrl.c_str();
+}
+
+AsciiString OnlineGetLoginFailure( Int *retrySeconds )
+{
+	const OnlineSession &s = OnlineSession::get();
+	if (retrySeconds)
+		*retrySeconds = s.failRetry > 0 ? s.failRetry : 0;
+	return s.failCode.c_str();
 }
 
 /* Only a web page: the address comes from the server, and ShellExecute would run a program path or open a

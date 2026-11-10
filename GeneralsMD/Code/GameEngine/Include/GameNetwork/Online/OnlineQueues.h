@@ -26,8 +26,11 @@
 #ifndef _ONLINE_QUEUES_H_
 #define _ONLINE_QUEUES_H_
 
+#include <vector>
+
 #include "Lib/BaseType.h"
 #include "Common/AsciiString.h"
+#include "Common/UnicodeString.h"
 #include "GameNetwork/NetworkDefs.h"
 
 class GameSpyPeerMessageQueueInterface;
@@ -71,6 +74,13 @@ Bool OnlineIsTestServer( void );
 /* welcome.registerUrl, the site's page where accounts are made (the game only logs in); empty when the
 	 server sent none, and the login screen then hides Create Account. */
 AsciiString OnlineGetRegisterUrl( void );
+/* welcome.resetUrl, the site's forgotten-password page; empty when the server sent none, and the login
+	 screen then hides Forgot Password. */
+AsciiString OnlineGetResetUrl( void );
+/* The code of the last login the server refused (auth.fail: badlogin, throttled, expired...), and its
+	 retry in seconds, 0 when it gave none.  Empty when the last login never reached a refusal (the
+	 connection failed), and cleared by the next login. */
+AsciiString OnlineGetLoginFailure( Int *retrySeconds );
 /* Opens an http or https address in the player's browser; FALSE when it is not one or nothing could open
 	 it.  Windows asks the shell; elsewhere the platform layer's hook, SDL_OpenURL, set by SdlGameEngine. */
 Bool OnlineOpenURL( const char *url );
@@ -117,5 +127,80 @@ struct OnlineReport
 	OnlineReport();
 };
 void OnlineSendReport( const OnlineReport &report );
+
+/* What the server has said about a player, by nick: the round trip to the server from `player` events
+	 (ping), the site's rating, tier and games from `player`, auth.ok and stats.  A number nobody sent is
+	 -1 (rank 0); hasRating is FALSE until a rating arrived.  An older server sends none of it, and the
+	 screens then show what they always showed. */
+struct OnlinePlayerInfo
+{
+	Int ping;
+	Bool hasRating;
+	Int rating;
+	AsciiString tier;					///< the site's tier key ("major"); OnlineTierName says it in words
+	Int games;
+	Int wins;
+	Int losses;
+	Int rank;									///< ladder position, 0 for none
+	Bool notOnline;						///< the last stats asked for this nick came back noplayer
+	Bool hasStats;						///< a stats answer for this nick arrived (wins and losses are then known)
+	UnsignedInt serial;				///< moves on whenever this player's numbers change: redraw on it, not on everyone's
+
+	OnlinePlayerInfo();
+};
+Bool OnlineGetPlayerInfo( const AsciiString &nick, OnlinePlayerInfo &out );		///< FALSE: nothing heard about the nick (any case)
+void OnlineRequestStats( const AsciiString &nick );		///< stats{nick}; the answer lands in OnlineGetPlayerInfo
+UnsignedInt OnlinePlayerInfoSerial( void );						///< moves on whenever a player's numbers change
+UnicodeString OnlineTierName( const AsciiString &tier );		///< GUI:OnlineTier_<key>, or the key itself
+UnicodeString OnlineRatingText( const OnlinePlayerInfo &info );	///< "Major, rating 21", "Rating 21", "Major", or empty
+
+/* The ladder, 20 rows a page: OnlineRequestLadder(offset) asks, OnlineGetLadder reads the last answer. */
+struct OnlineLadderRow
+{
+	Int rank;									///< 0 when the server sent none
+	AsciiString nick;
+	Bool hasRating;
+	Int rating;
+	AsciiString tier;
+	Int wins;
+	Int losses;
+
+	OnlineLadderRow();
+};
+enum OnlineLadderState
+{
+	ONLINE_LADDER_WAITING,		///< asked, no answer yet
+	ONLINE_LADDER_READY,
+	ONLINE_LADDER_FAILED,			///< error{for:ladder}
+};
+void OnlineRequestLadder( Int offset );
+OnlineLadderState OnlineGetLadder( Int &offset, std::vector<OnlineLadderRow> &rows, OnlineLadderRow &me, Bool &hasMe );
+
+/* Games and wins per army, for the hub's win percentages: OnlineRequestArmies asks, OnlineGetArmies reads
+	 the last answer, in the ladder's three states.  side is the PlayerTemplate side ("America"). */
+struct OnlineArmyRow
+{
+	AsciiString side;
+	Int games;
+	Int wins;
+};
+void OnlineRequestArmies( void );
+OnlineLadderState OnlineGetArmies( std::vector<OnlineArmyRow> &rows );
+
+/* A Quick Match found, between qm.matched and the game.start that launches it (revealMs apart).  A
+	 qm.status that follows instead (the opponent dropped, or we left) ends it.  serial tells one reveal from
+	 the next. */
+struct OnlineMatchReveal
+{
+	std::vector<OnlineLadderRow> opponents;		///< nick, rating and tier as qm.matched gave them
+	AsciiString server;
+	Int revealMs;
+	UnsignedInt serial;
+};
+Bool OnlineGetMatchReveal( OnlineMatchReveal &out );
+
+/* The server's verdict on the match the last game.start or qm.matched named: rated (delta, rating) or
+	 unrated (reason).  FALSE until it arrives. */
+Bool OnlineGetMatchResult( Bool &rated, Real &delta, Real &rating, AsciiString &reason );
 
 #endif // _ONLINE_QUEUES_H_

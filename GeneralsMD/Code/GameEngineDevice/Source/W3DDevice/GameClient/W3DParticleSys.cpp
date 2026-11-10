@@ -2589,13 +2589,17 @@ void W3DParticleSystemManager::doParticles(RenderInfoClass &rinfo)
 		fill.capacity = (particles < (Int)MAX_POINTS_PER_GROUP) ? particles : (Int)MAX_POINTS_PER_GROUP;
 		fill.fieldIncrement = ( sys->getPriority() == AREA_EFFECT && sys->m_isGroundAligned != FALSE ) ? 1 : 0;
 		fill.drawn = 0;
-        fill.perfBillboardMs = 0;
-        fill.perfLightPickMs = 0;
-        fill.perfLightEvaluations = 0;
-        fill.perfCulledParticles = 0;
+		fill.perfBillboardMs = 0;
+		fill.perfLightPickMs = 0;
+		fill.perfSmokeMs = 0;
+		fill.perfFireLookMs = 0;
+		fill.perfFireLookParticles = 0;
+		fill.perfLightEvaluations = 0;
+		fill.perfCulledParticles = 0;
 		fill.pastLimit = 0;
 		fill.glow = FALSE;
 		fill.fire = sys->getTemplate()->isFireLook();
+		fill.hardEdge = sys->isAttachedToMine();
 		fill.texture =W3DDisplay::m_assetManager->Get_Texture( sys->getParticleTypeName().str() );
 		PointGroupClass::Reserve_Sorted_Billboards( fill.capacity, &fill.range );
 		m_billboardFills.push_back( fill );
@@ -2733,7 +2737,7 @@ void W3DParticleSystemManager::doParticles(RenderInfoClass &rinfo)
 #endif
 
 			PointGroupClass::Insert_Sorted_Billboards( &fill.range, fill.drawn, fill.texture, fill.shader, fill.glow != FALSE, fill.fire != FALSE,
-				sys->getTemplate()->isEmissive() != FALSE,contactFade != FALSE );
+				sys->getTemplate()->isEmissive() != FALSE, contactFade != FALSE, fill.hardEdge != FALSE );
 			fill.texture->Release_Ref();	// the draw state took its own reference
 			m_fieldParticleCount += fill.fieldIncrement * fill.drawn;
 			m_onScreenParticleCount += fill.drawn;

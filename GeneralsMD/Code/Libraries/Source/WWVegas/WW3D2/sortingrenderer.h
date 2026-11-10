@@ -56,7 +56,8 @@ public:
 	/// the Direct3D 11 backend adds after the shade (Direct3D11_Set_Smoke_Glow).  fire: a fire or
 	/// explosion system's quads, each particle's age and seed in v2 (Direct3D11_Set_Fire_Look).
 	/// emissive: quads that take no shadow and no smoke shade (Direct3D11_Set_Emissive).
-    /// contactFade: blend into scene intersections; independent of quad sorting.
+	/// contactFade: blend into scene intersections; independent of quad sorting.
+	/// hard_edge: quads whose soft particle fade is a plain depth test (SOFT_PARTICLE_SAMPLING).
 	static void Insert_Quads(
 		unsigned short quad_count,
 		unsigned short min_vertex_index,
@@ -64,7 +65,8 @@ public:
 		bool glow = false,
 		bool fire = false,
 		bool emissive = false,
-		bool contactFade = true);
+		bool contactFade = true,
+		bool hard_edge = false);
 
 	static void Insert_VolumeParticle(
 		const SphereClass& bounding_sphere,

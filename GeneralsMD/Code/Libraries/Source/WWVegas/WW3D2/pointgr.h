@@ -239,10 +239,13 @@ public:
 	/// caller wrote each particle's age and seed into v2 for the fire look (ffshader.h,
 	/// FIRE_LOOK_SAMPLING).  emissive: an Emissive system's quads, which take no shadow and no
 	/// smoke shade (Direct3D11_Set_Emissive). contactFade controls scene-intersection
-    /// fading independently of the geometry and fire look. Render thread only.
+	/// fading independently of the geometry and fire look. hard_edge: quads that take no
+	/// soft particle fade and meet the scene depth as -d3d9 draws them (a mine's flare).
+	/// Render thread only.
 	static void				Insert_Sorted_Billboards(SortingBillboardRange *range, int quads,
 										TextureClass *texture, const ShaderClass &shader, bool glow = false,
-										bool fire = false, bool emissive = false, bool contactFade = true);
+										bool fire = false, bool emissive = false, bool contactFade = true,
+										bool hard_edge = false);
 
 	/// One billboard's four vertices: the transform, corner table and frame UVs Render uses for a
 	/// billboarded QUADS group with per-point sizes, orientations, colours and frames, written the
