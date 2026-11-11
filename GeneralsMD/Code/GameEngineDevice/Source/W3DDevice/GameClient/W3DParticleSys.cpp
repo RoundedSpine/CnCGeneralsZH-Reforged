@@ -3066,6 +3066,35 @@ void W3DParticleSystemManager::doParticles(RenderInfoClass &rinfo)
                         ms * inv, (smoke ? cost.drawn : cost.fireLookParticles) * inv);
                 }
             }
+            double lightingMs = 0.0, billboardMs = 0.0;
+            for (const auto &entry : s_particlePerfTemplates) {
+                lightingMs += entry.second.smokeMs;
+                billboardMs += entry.second.billboardMs;
+            }
+            std::sort(tops.begin(), tops.end(), [](const auto &a, const auto &b) {
+                return a.second.billboardMs > b.second.billboardMs;
+            });
+            for (size_t i = 0; i < tops.size() && i < 8; ++i) {
+                if (tops[i].second.billboardMs <= 0.0)
+                    break;
+                std::fprintf(stderr, "Particle cost: %s %.3fms / %.0f particles\n",
+                    tops[i].first.c_str(), tops[i].second.billboardMs * inv, tops[i].second.drawn * inv);
+            }
+            const ParticlePerfStats::GpuWindow &stageGpu = ParticlePerfStats::window();
+            const auto stageMs = [](double value) {
+                static char buf[32];
+                if (value < 0.0)
+                    return "unavailable";
+                std::snprintf(buf, sizeof(buf), "%.3f", value);
+                return buf;
+            };
+            char metalMs[32], depthStageMs[32], sceneOver[32], nativeOver[32];
+            std::snprintf(metalMs, sizeof(metalMs), "%s", stageMs(stageGpu.nativeParticleMs));
+            std::snprintf(depthStageMs, sizeof(depthStageMs), "%s", stageMs(stageGpu.depthCaptureMs));
+            std::snprintf(sceneOver, sizeof(sceneOver), "%s", stageMs(stageGpu.sceneOverdraw));
+            std::snprintf(nativeOver, sizeof(nativeOver), "%s", stageMs(stageGpu.nativeOverdraw));
+            std::fprintf(stderr, "[PARTICLE_STAGE] cpu_lighting_ms_per_frame=%.3f billboard_prep_ms_per_frame=%.3f metal_particle_window_ms=%s depth_capture_window_ms=%s scene_overdraw=%s native_particle_overdraw=%s note=billboard_prep_is_worker_wall_sum_gpu_fields_are_latest_metal_window\n",
+                lightingMs * inv, billboardMs * inv, metalMs, depthStageMs, sceneOver, nativeOver);
             s_particlePerfTemplates.clear();
             t = ParticlePerfTotals();
         }
