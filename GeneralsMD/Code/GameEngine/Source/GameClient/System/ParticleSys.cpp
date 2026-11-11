@@ -38,6 +38,8 @@
 #define DEFINE_PARTICLE_SYSTEM_NAMES
 
 #include "Common/FileSystem.h"
+#include "Platform/ParticleGpuClass.h"
+#include <cstdio>
 #include "Common/GameState.h"
 #include "Common/INI.h"
 #include "Common/PerfTimer.h"
@@ -2208,6 +2210,14 @@ Particle *ParticleSystem::createParticle( const ParticleInfo *info,
 		// ALWAYS_RENDER particles are exempt from all count limits, and are always created, regardless of LOD issues.
 		if (priority != ALWAYS_RENDER)
 		{
+			// Opt-in only (ZH_GPU_OFFLOAD_ADDITIVE=1). Eligible additive particles
+			// go to the native GPU path below the CPU cap as well as above it.
+			// A refusal (classic, full ring, infinite life, mine glint) falls
+			// through and the CPU particle is created as before.
+			if (ParticleGpuClass::additiveOffloadRequested() && m_gpuEligible
+					&& TheGlobalData->m_maxParticleCount != 0 && spawnOnGpu( info ))
+				return NULL;
+
 			// "-particlecap" stands in for the options slider, which the LOD manager applies long
 			// after the command line is parsed
 			Int shippedCap = TheGlobalData->getEffectiveParticleCap();
@@ -3835,23 +3845,39 @@ void ParticleSystemTemplate::forceSmokeBoost( const SmokeBoost &boost )
 	* ParticleBounce option forces it on all of them: the device rests those on the terrain instead
 	* (isGpuGroundClamped).  A lifetime of 0 (forever) is refused per spawn.  Slaves and controlled
 	* children qualify, being on their own after birth.  A system copies every field read here from
-	* its template unchanged, so the template answers for all its systems. */
+	* its template unchanged, so the template answers for all its systems.
+	* On native builds the extra refusals stay: weapon trails (the iOS contact-fade exemption is
+	* applied when the CPU billboards are inserted), emissive bodies (the GPU record has no emissive
+	* flag) and every non-additive shader (alpha smoke is lit and sorted with the CPU billboards).
+	* ZH_GPU_OFFLOAD_ADDITIVE=1 does not widen this set. It only admits particles that already pass
+	* isGpuEligible before the CPU cap is full. */
 // ------------------------------------------------------------------------------------------------
 Bool ParticleSystemTemplate::isGpuEligible( void ) const
 {
-	return m_particleType == PARTICLE
+	return gpuStayReasons() == 0;
+}
+
+unsigned ParticleSystemTemplate::gpuStayReasons( void ) const
+{
+	ParticleGpuClass::Input in;
+	in.isParticle = m_particleType == PARTICLE;
+	in.smudName = m_particleTypeName.startsWith( "SMUD" );
+	in.groundAligned = m_isGroundAligned != FALSE;
+	in.wind = m_windMotion != WIND_MOTION_NOT_USED;
+	in.attached = m_attachedSystemName.isEmpty() == false;
+	in.shaderAdditive = m_shaderType == ADDITIVE;
+	in.shaderAlpha = m_shaderType == ALPHA;
+	in.fireLook = m_fireLook != FALSE;
+	in.flipbook = m_flipbookGridLog2 != 0;
+	in.upEmitter = m_isParticleUpTowardsEmitter != FALSE;
+	in.weaponTrail = m_priority == WEAPON_TRAIL;
+	in.emissive = m_emissive != FALSE;
 #if !defined(_WIN32)
-        // Keep shell glows, emissive shading and smoke/fire lighting in their validated CPU path.
-        && m_priority != WEAPON_TRAIL && !m_emissive && m_shaderType == ADDITIVE
+	in.nativeConservative = true;
+#else
+	in.nativeConservative = false;
 #endif
-		&& !m_particleTypeName.startsWith( "SMUD" )
-		&& !m_isGroundAligned
-		&& m_windMotion == WIND_MOTION_NOT_USED
-		&& m_attachedSystemName.isEmpty()
-		&& ( m_shaderType == ALPHA || m_shaderType == ADDITIVE )
-		&& !m_fireLook
-		&& m_flipbookGridLog2 == 0
-		&& !m_isParticleUpTowardsEmitter;
+	return ParticleGpuClass::reasons( in );
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -3964,6 +3990,26 @@ void ParticleSystemManager::init( void )
 							 "size x%.2f\n", TheGlobalData->m_smokeThickness, boosted,
 							 (Int)m_templateMap.size(), smokeBoost.m_lifetimeScale, smokeBoost.m_alphaScale,
 							 smokeBoost.m_sizeScale));
+	}
+
+	{
+		unsigned templates = 0, eligible = 0;
+		unsigned reasonCount[12] = {};
+		for( TemplateMap::iterator it = m_templateMap.begin(); it != m_templateMap.end(); ++it )
+		{
+			++templates;
+			const unsigned why = it->second->gpuStayReasons();
+			if (why == 0)
+				++eligible;
+			for (unsigned bit = 0; bit < 12; ++bit)
+				if (why & (1u << bit))
+					++reasonCount[bit];
+		}
+		std::fprintf(stderr, "[GPU_PARTICLE_AUDIT] templates=%u eligible=%u not_particle=%u smud=%u ground=%u wind=%u attached=%u shader=%u firelook=%u flipbook=%u up_emitter=%u weapon_trail=%u emissive=%u alpha_lighting=%u offload_additive=%d note=native_keeps_alpha_smoke_weapon_trails_emissive_and_firelook_on_cpu\n",
+			templates, eligible,
+			reasonCount[0], reasonCount[1], reasonCount[2], reasonCount[3], reasonCount[4], reasonCount[5],
+			reasonCount[6], reasonCount[7], reasonCount[8], reasonCount[9], reasonCount[10], reasonCount[11],
+			ParticleGpuClass::additiveOffloadRequested() ? 1 : 0);
 	}
 
 	// sanity, our lists must be empty!!

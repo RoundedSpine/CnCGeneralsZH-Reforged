@@ -656,6 +656,9 @@ public:
 	/// Whether the GPU path's closed form can draw this template's particles (ParticleSys.cpp says why
 	/// each test is there); the manager still has to accept GPU particles at all.
 	Bool isGpuEligible( void ) const;
+	/// ParticleGpuClass::Reason bits. Zero means isGpuEligible. Native builds add weapon-trail,
+	/// emissive and alpha reasons that Windows does not.
+	unsigned gpuStayReasons( void ) const;
 	const AsciiString &getParticleTypeName( void ) const { return m_particleTypeName; }
 	Bool isFlipbookRandomStart( void ) const { return m_flipbookRandomStart; }
 

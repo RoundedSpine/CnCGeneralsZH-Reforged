@@ -1,5 +1,6 @@
 // GPL-3.0; see LICENSE.md. Opt-in bounded overflow, while the device's normal particles stay on CPU.
 #include "W3DDevice/GameClient/GpuParticles.h"
+#include "Platform/ParticleGpuClass.h"
 #include "Common/GlobalData.h"
 #include "dx8wrapper.h"
 #include "PosixDevice9.h"
@@ -10,14 +11,17 @@ namespace {
 PosixDevice9 *device(){return static_cast<PosixDevice9*>(DX8Wrapper::_Get_D3D_Device());}
 SdlGpuFrame *frame(){auto *d=device();return d?d->Get_Gpu():nullptr;}
 bool requested(){
-    if(TheGlobalData&&TheGlobalData->m_gpuParticleCapacityOverride>=0)return TheGlobalData->m_gpuParticleCapacityOverride>0;
+    // -gpuparticles 0 is an explicit off switch and wins over the offload env.
+    if(TheGlobalData&&TheGlobalData->m_gpuParticleCapacityOverride==0)return false;
+    if(TheGlobalData&&TheGlobalData->m_gpuParticleCapacityOverride>0)return true;
+    if(ParticleGpuClass::additiveOffloadRequested())return true;
     const char *value=std::getenv("ZH_GPU_PARTICLES");return value&&value[0]=='1'&&value[1]=='\0';
 }
 }
 namespace GpuParticles {
 bool Supported(){auto *f=frame();const bool asked=requested(),active=asked&&f&&f->Particles_Available();
     static unsigned last=~0u;const unsigned status=unsigned(asked)*2+unsigned(active);
-    if(last!=status){last=status;fprintf(stderr,"[SDL_PARTICLES] requested=%d available=%d max_records=%u CPU_alpha_and_weapon_trails=1\n",int(asked),int(active),NativeParticleBudget::Records);}
+    if(last!=status){last=status;fprintf(stderr,"[SDL_PARTICLES] requested=%d available=%d max_records=%u CPU_alpha_and_weapon_trails=1 offload_additive=%d\n",int(asked),int(active),NativeParticleBudget::Records,ParticleGpuClass::additiveOffloadRequested()?1:0);}
     return active;
 }
 bool Prepare(unsigned capacity,bool *fresh){auto *f=frame();if(fresh)*fresh=false;return Supported()&&f->Prepare_Particles(capacity,fresh);}
