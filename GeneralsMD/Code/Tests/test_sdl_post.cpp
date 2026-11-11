@@ -46,6 +46,24 @@ int main(){
     ScenePost::Parse("sharpen",chain);CHECK(frame->Upload_Back_Buffer(pixels));CHECK(frame->Post_Process(target,rect,0,&chain));
     CHECK(frame->Read_Back(target.Colour,33,23,out));
     if(out.size()==pixels.size())for(unsigned i=0;i<out.size();i+=4){CHECK(out[i]>=10&&out[i]<=240);CHECK(out[i+3]==pixels[i+3]);}
+    // FXAA directly followed by sharpen runs as one merged pass: it costs no more flushes than FXAA alone, keeps alpha,
+    // stays inside the local range, and still changes the edge field.
+    {
+        ScenePost::Parse("fxaa",chain);CHECK(frame->Upload_Back_Buffer(pixels));
+        const unsigned beforeFxaa=frame->Flushes_Total();CHECK(frame->Post_Process(target,rect,0,&chain));
+        const unsigned fxaaFlushes=frame->Flushes_Total()-beforeFxaa;
+        ScenePost::Parse("fxaa,sharpen",chain);CHECK(frame->Upload_Back_Buffer(pixels));
+        const unsigned beforeMerged=frame->Flushes_Total();CHECK(frame->Post_Process(target,rect,0,&chain));
+        CHECK(frame->Flushes_Total()-beforeMerged==fxaaFlushes);
+        CHECK(frame->Read_Back(target.Colour,33,23,out));unsigned changedMerged=0;
+        if(out.size()==pixels.size())for(unsigned i=0;i<out.size();i+=4){changedMerged+=out[i]!=pixels[i];CHECK(out[i]>=10&&out[i]<=240);CHECK(out[i+3]==pixels[i+3]);}
+        CHECK(changedMerged>0);
+        // The colour grade folds into that pass; on a flat field the result equals the stand-alone grade pass.
+        std::vector<uint8_t> flat(33*23*4,96),graded,folded;for(unsigned i=3;i<flat.size();i+=4)flat[i]=67;
+        CHECK(frame->Upload_Back_Buffer(flat));CHECK(frame->Post_Process(target,rect,1));CHECK(frame->Read_Back(target.Colour,33,23,graded));
+        CHECK(frame->Upload_Back_Buffer(flat));CHECK(frame->Post_Process(target,rect,1,&chain));CHECK(frame->Read_Back(target.Colour,33,23,folded));
+        CHECK(graded.size()==flat.size()&&graded!=flat);CHECK(folded==graded);
+    }
     // Bright adjacent view content must not bleed into the selected constant-grey viewport.
     for(unsigned y=0;y<23;++y)for(unsigned x=0;x<33;++x){const unsigned at=(y*33+x)*4;
         const bool inside=x>=5&&x<25&&y>=4&&y<17;

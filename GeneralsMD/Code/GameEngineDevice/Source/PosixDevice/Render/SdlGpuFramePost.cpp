@@ -47,25 +47,30 @@ bool SdlGpuFrame::Post_Process(const SdlTarget &target,const float rect[4],float
     for(unsigned i=0;i<4;++i)if(!std::isfinite(rect[i]))return false;
     if(rect[0]<0||rect[1]<0||rect[2]<=0||rect[3]<=0||rect[0]+rect[2]>target.Width||rect[1]+rect[3]>target.Height)return false;
     if(MemoryConstrained)grade=0;
-    unsigned active=0,status=unsigned(HdrActive)|(unsigned(MemoryConstrained)<<1)|(SampleCount<<2);
+    unsigned active=0,passes=0,modes[4]={},status=unsigned(HdrActive)|(unsigned(MemoryConstrained)<<1)|(SampleCount<<2);
     if(chain)for(unsigned i=0;i<chain->Count;++i){
         const auto effect=chain->Effects[i];status=status*31+unsigned(effect)+1;
-        if(ScenePost::Active(effect,SampleCount,MemoryConstrained))++active;
-    }
-    if(status!=PostStatus){PostStatus=status;fprintf(stderr,"[SDL_POST] selected_filters=%u samples=%u hdr=%d constrained=%d\n",active,SampleCount,int(HdrActive),int(MemoryConstrained));}
-    if(HdrActive||grade>0)if(!Run_Post_Pass(target,rect,grade,0,0))return false;
-    if(chain)for(unsigned i=0;i<chain->Count;++i){
-        const auto effect=chain->Effects[i];
         if(!ScenePost::Active(effect,SampleCount,MemoryConstrained))continue;
-        if(!Run_Post_Pass(target,rect,0,effect==ScenePost::FXAA?1:2,SampleCount>1?-0.25f:0.35f))return false;
+        ++active;
+        // Filter modes: 1 FXAA, 2 sharpen, 3 FXAA directly followed by sharpen (one pass, one frame copy).
+        if(effect==ScenePost::Sharpen&&passes&&modes[passes-1]==1)modes[passes-1]=3;
+        else modes[passes++]=effect==ScenePost::FXAA?1:2;
     }
+    // HDR tone mapping has to precede filtering, so it keeps its own pass. Without HDR the colour grade is folded
+    // into the first filter pass, and only gets a pass of its own when no filter is active.
+    const bool foldGrade=!HdrActive&&grade>0&&passes>0;
+    if(status!=PostStatus){PostStatus=status;fprintf(stderr,"[SDL_POST] selected_filters=%u passes=%u samples=%u hdr=%d constrained=%d grade_folded=%d\n",active,passes+((HdrActive||grade>0)&&!foldGrade?1u:0u),SampleCount,int(HdrActive),int(MemoryConstrained),int(foldGrade));}
+    if((HdrActive||grade>0)&&!foldGrade)if(!Run_Post_Pass(target,rect,grade,0,0))return false;
+    for(unsigned i=0;i<passes;++i)
+        if(!Run_Post_Pass(target,rect,i==0&&foldGrade?grade:0,modes[i],SampleCount>1?-0.25f:0.35f))return false;
     return true;
 }
 bool SdlGpuFrame::Run_Post_Pass(const SdlTarget &target,const float rect[4],float grade,unsigned filter,float amount){
     if(!Prepare_Post())return false;
     std::string error;auto *source=Capture_Heat_Background(target,error);if(!source)return false;
     ZH_IOS_WaitForForeground();auto *commands=SDL_AcquireGPUCommandBuffer(GpuDevice);if(!commands)return false;
-    SDL_GPUColorTargetInfo colour={};colour.texture=target.Colour;colour.load_op=SDL_GPU_LOADOP_LOAD;colour.store_op=SDL_GPU_STOREOP_STORE;
+    SDL_GPUColorTargetInfo colour={};colour.texture=target.Colour;const bool covers=rect[0]==0&&rect[1]==0&&rect[2]==float(target.Width)&&rect[3]==float(target.Height);
+    colour.load_op=covers?SDL_GPU_LOADOP_DONT_CARE:SDL_GPU_LOADOP_LOAD;colour.store_op=SDL_GPU_STOREOP_STORE; // every pixel is rewritten when the rect covers the target
     #if defined(__APPLE__)
 ZH_SDL_Metal_SetNextRenderPassTag(8u);
 #endif

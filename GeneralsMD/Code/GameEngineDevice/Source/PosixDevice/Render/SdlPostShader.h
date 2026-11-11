@@ -49,12 +49,17 @@ float3 grade(float3 colour){
 float4 main(float4 pos:SV_Position):SV_Target{
     if(any(pos.xy<Rect.xy)||any(pos.xy>=Rect.xy+Rect.zw))discard;
     float2 uv=pos.xy*Options.zw;float4 c=read_colour(uv);
-    if(Filter.x>1.5)c.rgb=sharpen(uv,c.rgb);
+    // Filter.x: 0 tone/grade, 1 FXAA, 2 sharpen, 3 FXAA then sharpen in one pass (the sharpen taps read the
+    // unfiltered source, so the pair costs one full-frame read instead of two).
+    if(Filter.x>2.5)c.rgb=sharpen(uv,fxaa(uv));
+    else if(Filter.x>1.5)c.rgb=sharpen(uv,c.rgb);
     else if(Filter.x>0.5)c.rgb=fxaa(uv);
     else {
         if(Options.x>0.5)c.rgb=tone(max(c.rgb,0));
         if(Options.y>0)c.rgb=grade(c.rgb);
     }
+    // Colour grade folded into a filter pass (non-HDR only); the tone/grade pass above already applied it.
+    if(Filter.x>0.5&&Options.y>0)c.rgb=grade(c.rgb);
     return c;
 }
 )";}
