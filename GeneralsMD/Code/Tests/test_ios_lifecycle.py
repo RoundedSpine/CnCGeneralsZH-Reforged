@@ -48,6 +48,7 @@ struct SdlGpuFrame {
     bool SerializeSubmits=false;
     SDL_GPUDevice *GpuDevice=nullptr;
     double FenceMs=0;
+    uint64_t SubmitCallsTotal=0;
     bool Submit(SDL_GPUCommandBuffer *commands);
 };
 bool SDL_SubmitGPUCommandBuffer(SDL_GPUCommandBuffer *) { assert(!background); ++submits; return true; }
@@ -109,7 +110,7 @@ int main(int argc,char **argv) {
         emit(SDL_EVENT_WILL_ENTER_BACKGROUND);
         assert(frame.Submit(&commands)); assert(pumps==2 && !background);
     }
-    assert(submits==2);
+    assert(submits==2 && frame.SubmitCallsTotal==2);
     const int oldDrains=drains;
     ZH_IOS_UnregisterGPU(&device);
     pumps=waits=0;
