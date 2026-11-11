@@ -28,11 +28,29 @@ int main(){
     std::unique_ptr<SdlGpuFrame> frame(SdlGpuFrame::Create(nullptr,33,23,error));
     if(!frame){printf("SKIP POST GPU: %s\n",error.c_str());SDL_Quit();return 77;}
     auto target=frame->Back_Buffer_Target();const float rect[4]={0,0,33,23};
+    {
+        const uint64_t submits=frame->Submit_Calls_Total();
+        const unsigned flushes=frame->Flushes_Total();
+        CHECK(frame->Flush());
+        CHECK(frame->Submit_Calls_Total()==submits);
+        CHECK(frame->Flushes_Total()==flushes+1);
+    }
     std::vector<uint8_t> pixels(33*23*4,96),out;
     for(unsigned i=3;i<pixels.size();i+=4)pixels[i]=67;
     ScenePost::Parse("fxaa,sharpen",chain);
     CHECK(frame->Upload_Back_Buffer(pixels));CHECK(frame->Post_Process(target,rect,0,&chain));
     CHECK(frame->Read_Back(target.Colour,33,23,out));CHECK(out==pixels); // Flat fields, including alpha.
+    CHECK(frame->Upload_Back_Buffer(pixels));
+    frame->Clear_Rect(0,0,33,23,true,false,false,0xff606060,1,0);
+    const uint64_t beforeSceneAndPost=frame->Submit_Calls_Total();
+    const unsigned beforeSceneAndPostFlushes=frame->Flushes_Total();
+    CHECK(frame->Post_Process(target,rect,0,&chain));
+    CHECK(frame->Submit_Calls_Total()-beforeSceneAndPost==1);
+    CHECK(frame->Flushes_Total()==beforeSceneAndPostFlushes);
+    CHECK(frame->Read_Back(target.Colour,33,23,out));
+    if(out.size()==pixels.size())for(unsigned i=0;i<out.size();i+=4){
+        CHECK(out[i]==96&&out[i+1]==96&&out[i+2]==96&&out[i+3]==255);
+    }
     for(unsigned y=0;y<23;++y)for(unsigned x=0;x<33;++x){
         const unsigned at=(y*33+x)*4;const uint8_t colour=x*2>y*3?240:10;
         pixels[at]=pixels[at+1]=pixels[at+2]=colour;pixels[at+3]=uint8_t(30+(x*7+y)%180);
@@ -50,18 +68,26 @@ int main(){
     // stays inside the local range, and still changes the edge field.
     {
         ScenePost::Parse("fxaa",chain);CHECK(frame->Upload_Back_Buffer(pixels));
-        const unsigned beforeFxaa=frame->Flushes_Total();CHECK(frame->Post_Process(target,rect,0,&chain));
-        const unsigned fxaaFlushes=frame->Flushes_Total()-beforeFxaa;
+        const uint64_t beforeFxaa=frame->Submit_Calls_Total();const unsigned beforeFxaaFlushes=frame->Flushes_Total();
+        CHECK(frame->Post_Process(target,rect,0,&chain));
+        CHECK(frame->Submit_Calls_Total()-beforeFxaa==1);
+        CHECK(frame->Flushes_Total()==beforeFxaaFlushes);
         ScenePost::Parse("fxaa,sharpen",chain);CHECK(frame->Upload_Back_Buffer(pixels));
-        const unsigned beforeMerged=frame->Flushes_Total();CHECK(frame->Post_Process(target,rect,0,&chain));
-        CHECK(frame->Flushes_Total()-beforeMerged==fxaaFlushes);
+        const uint64_t beforeMerged=frame->Submit_Calls_Total();const unsigned beforeMergedFlushes=frame->Flushes_Total();
+        CHECK(frame->Post_Process(target,rect,0,&chain));
+        CHECK(frame->Submit_Calls_Total()-beforeMerged==1);
+        CHECK(frame->Flushes_Total()==beforeMergedFlushes);
         CHECK(frame->Read_Back(target.Colour,33,23,out));unsigned changedMerged=0;
         if(out.size()==pixels.size())for(unsigned i=0;i<out.size();i+=4){changedMerged+=out[i]!=pixels[i];CHECK(out[i]>=10&&out[i]<=240);CHECK(out[i+3]==pixels[i+3]);}
         CHECK(changedMerged>0);
         // The colour grade folds into that pass; on a flat field the result equals the stand-alone grade pass.
         std::vector<uint8_t> flat(33*23*4,96),graded,folded;for(unsigned i=3;i<flat.size();i+=4)flat[i]=67;
-        CHECK(frame->Upload_Back_Buffer(flat));CHECK(frame->Post_Process(target,rect,1));CHECK(frame->Read_Back(target.Colour,33,23,graded));
-        CHECK(frame->Upload_Back_Buffer(flat));CHECK(frame->Post_Process(target,rect,1,&chain));CHECK(frame->Read_Back(target.Colour,33,23,folded));
+        CHECK(frame->Upload_Back_Buffer(flat));const uint64_t beforeGrade=frame->Submit_Calls_Total();
+        CHECK(frame->Post_Process(target,rect,1));CHECK(frame->Submit_Calls_Total()-beforeGrade==1);
+        CHECK(frame->Read_Back(target.Colour,33,23,graded));
+        CHECK(frame->Upload_Back_Buffer(flat));const uint64_t beforeFolded=frame->Submit_Calls_Total();
+        CHECK(frame->Post_Process(target,rect,1,&chain));CHECK(frame->Submit_Calls_Total()-beforeFolded==1);
+        CHECK(frame->Read_Back(target.Colour,33,23,folded));
         CHECK(graded.size()==flat.size()&&graded!=flat);CHECK(folded==graded);
     }
     // Bright adjacent view content must not bleed into the selected constant-grey viewport.

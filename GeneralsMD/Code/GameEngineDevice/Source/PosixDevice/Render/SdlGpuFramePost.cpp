@@ -60,27 +60,73 @@ bool SdlGpuFrame::Post_Process(const SdlTarget &target,const float rect[4],float
     // into the first filter pass, and only gets a pass of its own when no filter is active.
     const bool foldGrade=!HdrActive&&grade>0&&passes>0;
     if(status!=PostStatus){PostStatus=status;fprintf(stderr,"[SDL_POST] selected_filters=%u passes=%u samples=%u hdr=%d constrained=%d grade_folded=%d\n",active,passes+((HdrActive||grade>0)&&!foldGrade?1u:0u),SampleCount,int(HdrActive),int(MemoryConstrained),int(foldGrade));}
-    if((HdrActive||grade>0)&&!foldGrade)if(!Run_Post_Pass(target,rect,grade,0,0))return false;
-    for(unsigned i=0;i<passes;++i)
-        if(!Run_Post_Pass(target,rect,i==0&&foldGrade?grade:0,modes[i],SampleCount>1?-0.25f:0.35f))return false;
-    return true;
-}
-bool SdlGpuFrame::Run_Post_Pass(const SdlTarget &target,const float rect[4],float grade,unsigned filter,float amount){
+    const unsigned totalPasses=passes+((HdrActive||grade>0)&&!foldGrade?1u:0u);
+    if(!totalPasses)return true;
     if(!Prepare_Post())return false;
-    std::string error;auto *source=Capture_Heat_Background(target,error);if(!source)return false;
-    ZH_IOS_WaitForForeground();auto *commands=SDL_AcquireGPUCommandBuffer(GpuDevice);if(!commands)return false;
-    SDL_GPUColorTargetInfo colour={};colour.texture=target.Colour;const bool covers=rect[0]==0&&rect[1]==0&&rect[2]==float(target.Width)&&rect[3]==float(target.Height);
-    colour.load_op=covers?SDL_GPU_LOADOP_DONT_CARE:SDL_GPU_LOADOP_LOAD;colour.store_op=SDL_GPU_STOREOP_STORE; // every pixel is rewritten when the rect covers the target
+    const auto failHeat=[&](const char *reason) {
+        HeatFailed=true;fprintf(stderr,"[SDL_HEAT] disabled reason=%s\n",reason);return false;
+    };
+    if(!GpuDevice||!target.Colour||!target.Width||!target.Height||HeatFailed)return false;
+    if(HeatBackground==target.Colour)return failHeat("capture source aliases destination");
+    const bool resized=HeatBackground&&(HeatWidth!=target.Width||HeatHeight!=target.Height);
+    if(resized&&!Flush(FlushHeat))return failHeat("scene flush failed");
+    std::string error;
+    if(!Ensure_Heat_Background(target,error)) {
+        const std::string reason=error.empty()?SDL_GetError():error;
+        if(!resized&&!Flush(FlushHeat))
+            fprintf(stderr,"[SDL_HEAT] scene flush failed after capture allocation failure\n");
+        return failHeat(reason.c_str());
+    }
+
+    // Keep scene draws and each source-copy/filter pair ordered in one submission.
+    ZH_IOS_WaitForForeground();
+    SDL_GPUCommandBuffer *commands=SDL_AcquireGPUCommandBuffer(GpuDevice);
+    if(!commands) {
+        const std::string reason=SDL_GetError();
+        if(!Flush(FlushHeat))fprintf(stderr,"[SDL_POST] scene flush failed after command acquisition failure\n");
+        return failHeat(reason.c_str());
+    }
+    bool recorded=Record_Batch(commands);
+    bool postWritten=false;
+    const auto recordPost=[&](float passGrade,unsigned filter,float amount) {
+        if(!Record_Heat_Background(commands,target,error)) {
+            HeatFailed=true;fprintf(stderr,"[SDL_HEAT] disabled reason=%s\n",error.c_str());return false;
+        }
+        return Record_Post_Pass(commands,target,HeatBackground,rect,passGrade,filter,amount);
+    };
+    if(recorded&&((HdrActive||grade>0)&&!foldGrade)) {
+        recorded=recordPost(grade,0,0);
+        postWritten=recorded;
+    }
+    for(unsigned i=0;recorded&&i<passes;++i) {
+        recorded=recordPost(i==0&&foldGrade?grade:0,modes[i],SampleCount>1?-0.25f:0.35f);
+        postWritten=postWritten||recorded;
+    }
+    if(!recorded) {
+        const char *reason=error.empty()?SDL_GetError():error.c_str();
+        fprintf(stderr,"[SDL_POST] pass recording failed: %s\n",reason);
+    }
+    const bool submitted=SerializeSubmits?Submit(commands):Submit_Flush(commands);
+    End_Batch();
+    if(submitted&&postWritten) {
+        External_Colour_Write(target.Colour);
+        Invalidate_Water_Snapshots(target.Colour,nullptr);
+    }
+    return recorded&&submitted;
+}
+bool SdlGpuFrame::Record_Post_Pass(SDL_GPUCommandBuffer *commands,const SdlTarget &target,SDL_GPUTexture *source,
+    const float rect[4],float grade,unsigned filter,float amount){
+    SDL_GPUColorTargetInfo colour={};colour.texture=target.Colour;
+    // The pipeline writes RGB only; LOAD preserves the scene alpha even when the viewport covers the target.
+    colour.load_op=SDL_GPU_LOADOP_LOAD;colour.store_op=SDL_GPU_STOREOP_STORE;
     #if defined(__APPLE__)
 ZH_SDL_Metal_SetNextRenderPassTag(8u);
 #endif
-auto *pass=SDL_BeginGPURenderPass(commands,&colour,1,nullptr);if(!pass){SDL_CancelGPUCommandBuffer(commands);return false;}
+auto *pass=SDL_BeginGPURenderPass(commands,&colour,1,nullptr);if(!pass)return false;
     SDL_BindGPUGraphicsPipeline(pass,PostPipeline);SDL_GPUTextureSamplerBinding binding={source,PostSampler};SDL_BindGPUFragmentSamplers(pass,0,&binding,1);
     const float constants[12]={rect[0],rect[1],rect[2],rect[3],HdrActive?1.0f:0.0f,grade,1.0f/target.Width,1.0f/target.Height,float(filter),amount,0,0};
     SDL_PushGPUFragmentUniformData(commands,0,constants,sizeof(constants));
     const SDL_GPUViewport viewport={0,0,float(target.Width),float(target.Height),0,1};SDL_SetGPUViewport(pass,&viewport);
     SDL_DrawGPUPrimitives(pass,3,1,0,0);SDL_EndGPURenderPass(pass);
-    const bool ok=SerializeSubmits?Submit(commands):Submit_Flush(commands);
-    if(ok){External_Colour_Write(target.Colour);Invalidate_Water_Snapshots(target.Colour,nullptr);}
-    return ok;
+    return true;
 }

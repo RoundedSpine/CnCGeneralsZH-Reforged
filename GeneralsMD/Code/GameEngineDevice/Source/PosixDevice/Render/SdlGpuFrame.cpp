@@ -135,6 +135,7 @@ SdlGpuFrame::SdlGpuFrame() :
 	ShownHeight(0),
 	FlushLimit(6),
 	FlushesTotal(0),
+	SubmitCallsTotal(0),
 	FlushInFlightMost(0),
 	FlushWaits(0),
 	ParticleGpuWaitNs(0),
@@ -918,6 +919,13 @@ bool SdlGpuFrame::Flush(FlushCause cause)
 		++ParticleGpuFlushReasons[cause];
 	const Uint64 start = SDL_GetTicksNS();
 	ZH_IOS_WaitForForeground();
+	if (Commands.empty() && Uploads.empty()) {
+		End_Batch();
+		FlushMs += (double)(SDL_GetTicksNS() - start) / 1.0e6;
+		++Flushes;
+		++FlushesTotal;
+		return true;
+	}
 	SDL_GPUCommandBuffer * commands = SDL_AcquireGPUCommandBuffer(GpuDevice);
 	if (commands == NULL) {
 		return false;
@@ -940,6 +948,7 @@ bool SdlGpuFrame::Submit_Flush(SDL_GPUCommandBuffer * commands)
 	const bool profile = ParticlePerfToggle::enabled();
 	const Uint64 submitStart = profile ? SDL_GetTicksNS() : 0;
 	SDL_GPUFence * fence = SDL_SubmitGPUCommandBufferAndAcquireFence(commands);
+	++SubmitCallsTotal;
 	if (profile) {
 		ParticleGpuSubmitNs += SDL_GetTicksNS() - submitStart;
 		++ParticleGpuSubmitCount;
@@ -986,10 +995,12 @@ bool SdlGpuFrame::Submit(SDL_GPUCommandBuffer * commands)
 {
 	if (!SerializeSubmits) {
 		ZH_IOS_WaitForForeground();
+		++SubmitCallsTotal;
 		return SDL_SubmitGPUCommandBuffer(commands);
 	}
 	ZH_IOS_WaitForForeground();
 	SDL_GPUFence * fence = SDL_SubmitGPUCommandBufferAndAcquireFence(commands);
+	++SubmitCallsTotal;
 	if (fence == NULL) {
 		return false;
 	}
@@ -1016,6 +1027,7 @@ bool SdlGpuFrame::Submit_Offscreen(SDL_GPUCommandBuffer * commands)
 	}
 	ZH_IOS_WaitForForeground();
 	SDL_GPUFence * fence = SDL_SubmitGPUCommandBufferAndAcquireFence(commands);
+	++SubmitCallsTotal;
 	if (fence == NULL) {
 		return false;
 	}
@@ -1485,6 +1497,7 @@ bool SdlGpuFrame::Upload_Back_Buffer(const std::vector<uint8_t> & bgra)
 	SDL_UploadToGPUTexture(copy, &source, &region, false);
 	SDL_EndGPUCopyPass(copy);
 	ZH_IOS_WaitForForeground();
+	++SubmitCallsTotal;
 	const bool ok = SDL_SubmitGPUCommandBuffer(commands);
 	SDL_ReleaseGPUTransferBuffer(GpuDevice, transfer);
 	return ok;
@@ -1523,6 +1536,7 @@ bool SdlGpuFrame::Read_Bytes(SDL_GPUTexture * texture, unsigned int width, unsig
 	SDL_EndGPUCopyPass(copy);
 	ZH_IOS_WaitForForeground();
 	SDL_GPUFence * fence = SDL_SubmitGPUCommandBufferAndAcquireFence(commands);
+	++SubmitCallsTotal;
 	bool ok = fence != NULL && SDL_WaitForGPUFences(GpuDevice, true, &fence, 1);
 	if (fence != NULL) {
 		SDL_ReleaseGPUFence(GpuDevice, fence);

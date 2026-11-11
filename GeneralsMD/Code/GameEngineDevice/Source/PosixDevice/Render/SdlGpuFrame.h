@@ -174,7 +174,8 @@ public:
 		FlushNativeParticles, FlushSmoke, FlushSunShadow, FlushMaintenance,
 		FlushCauseCount
 	};
-	/// Runs what is recorded into the back buffer. False when the GPU refused the work.
+	/// Runs what is recorded into the back buffer; an empty batch is retired without a GPU submission.
+	/// False when the GPU refused the work.
 	bool Flush(FlushCause cause = FlushUnclassified);
 
 	// ---- The batch (A3c).  Offsets are into this batch only: a flush starts the next one empty.
@@ -252,6 +253,8 @@ public:
 	/// Mid-frame flushes (Flush) since the frame was made, the most that were ever submitted and not yet done
 	/// at once, and how many times a flush waited because the ring was full (Flush_Limit).
 	unsigned int Flushes_Total() const { return FlushesTotal; }
+	/// SDL command-buffer submit API calls made by this frame since creation.
+	uint64_t Submit_Calls_Total() const { return SubmitCallsTotal; }
 	unsigned int Flushes_In_Flight_Most() const { return FlushInFlightMost; }
 	unsigned int Flush_Waits() const { return FlushWaits; }
 	unsigned int Flush_Limit() const { return FlushLimit; }
@@ -349,6 +352,7 @@ private:
 	std::vector<struct SDL_GPUFence *> FlushFences;
 	unsigned int FlushLimit;			///< the most allowed in flight (ZH_GPU_FLUSH_LIMIT; 0: no limit)
 	unsigned int FlushesTotal;
+	uint64_t SubmitCallsTotal;
 	unsigned int FlushInFlightMost;
 	unsigned int FlushWaits;
 	// Opt-in CPU-side profiling, aggregated at Take_Timing (not GPU elapsed time).
@@ -413,7 +417,8 @@ private:
     SDL_GPUSampler *PostSampler=nullptr;
     unsigned PostStatus=~0u;
     bool Prepare_Post();
-    bool Run_Post_Pass(const SdlTarget&,const float rect[4],float grade,unsigned filter,float amount);
+    bool Record_Post_Pass(struct SDL_GPUCommandBuffer*,const SdlTarget&,SDL_GPUTexture*,const float rect[4],
+        float grade,unsigned filter,float amount);
     SdlParticleState *Particles=nullptr;
     bool ParticlesFailed=false;
     bool Particle_Failure(const char*);
@@ -452,6 +457,8 @@ private:
 	bool Prepare_Heat(unsigned width,unsigned height);
 	void Release_Heat();
 	void Release_Heat_Background();
+	bool Ensure_Heat_Background(const SdlTarget&,std::string &error);
+	bool Record_Heat_Background(struct SDL_GPUCommandBuffer*,const SdlTarget&,std::string &error);
 	void Release_Atmosphere();
 	SDL_GPUTexture *SunShadowTexture = NULL;
 	unsigned SunShadowSize = 0;

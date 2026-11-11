@@ -180,6 +180,7 @@ bool SdlGpuFrame::Read_Sun_Smoke(std::vector<float> &moments)
     SDL_EndGPUCopyPass(copy);
     ZH_IOS_WaitForForeground();
     SDL_GPUFence *fence = SDL_SubmitGPUCommandBufferAndAcquireFence(commands);
+    ++SubmitCallsTotal;
     bool ok = fence && SDL_WaitForGPUFences(GpuDevice,true,&fence,1);
     if (fence) SDL_ReleaseGPUFence(GpuDevice,fence);
     if (ok) {

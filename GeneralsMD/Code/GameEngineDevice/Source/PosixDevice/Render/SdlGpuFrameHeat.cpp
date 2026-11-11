@@ -163,6 +163,33 @@ bool SdlGpuFrame::Prepare_Heat(unsigned width,unsigned height)
     return true;
 }
 
+bool SdlGpuFrame::Ensure_Heat_Background(const SdlTarget &target,std::string &error)
+{
+    error.clear();
+    if(!GpuDevice||HeatFailed||!target.Colour||!target.Width||!target.Height)return false;
+    if(HeatBackground==target.Colour){error="capture source aliases destination";return false;}
+    if(HeatWidth!=target.Width||HeatHeight!=target.Height) {
+        Release_Heat_Background();SDL_GPUTextureCreateInfo info={};info.type=SDL_GPU_TEXTURETYPE_2D;
+        info.format=(SDL_GPUTextureFormat)Scene_Format();info.usage=SDL_GPU_TEXTUREUSAGE_SAMPLER|SDL_GPU_TEXTUREUSAGE_COLOR_TARGET;
+        info.width=target.Width;info.height=target.Height;info.layer_count_or_depth=info.num_levels=1;
+        HeatBackground=SDL_CreateGPUTexture(GpuDevice,&info);Track_Colour(HeatBackground);
+        if(!HeatBackground){error=SDL_GetError();return false;}
+        HeatWidth=target.Width;HeatHeight=target.Height;
+        fprintf(stderr,"[SDL_HEAT] ready size=%ux%u\n",HeatWidth,HeatHeight);
+    }
+    return true;
+}
+
+bool SdlGpuFrame::Record_Heat_Background(SDL_GPUCommandBuffer *commands,const SdlTarget &target,std::string &error)
+{
+    if(!Ensure_Heat_Background(target,error))return false;
+    auto *copy=SDL_BeginGPUCopyPass(commands);
+    if(!copy){error=SDL_GetError();return false;}
+    SDL_GPUTextureLocation source={},destination={};source.texture=target.Colour;destination.texture=HeatBackground;
+    SDL_CopyGPUTextureToTexture(copy,&source,&destination,HeatWidth,HeatHeight,1,false);SDL_EndGPUCopyPass(copy);
+    return true;
+}
+
 SDL_GPUTexture *SdlGpuFrame::Capture_Heat_Background(const SdlTarget &target,std::string &error)
 {
     if(!GpuDevice||HeatFailed||!target.Colour||!target.Width||!target.Height)return nullptr;
@@ -171,20 +198,10 @@ SDL_GPUTexture *SdlGpuFrame::Capture_Heat_Background(const SdlTarget &target,std
     };
     if(HeatBackground==target.Colour)return fail("capture source aliases destination");
     if(!Flush(FlushHeat))return fail("scene flush failed");
-    if(HeatWidth!=target.Width||HeatHeight!=target.Height) {
-        Release_Heat_Background();SDL_GPUTextureCreateInfo info={};info.type=SDL_GPU_TEXTURETYPE_2D;
-        info.format=(SDL_GPUTextureFormat)Scene_Format();info.usage=SDL_GPU_TEXTUREUSAGE_SAMPLER|SDL_GPU_TEXTUREUSAGE_COLOR_TARGET;
-        info.width=target.Width;info.height=target.Height;info.layer_count_or_depth=info.num_levels=1;
-        HeatBackground=SDL_CreateGPUTexture(GpuDevice,&info);Track_Colour(HeatBackground);if(!HeatBackground)return fail(SDL_GetError());
-        HeatWidth=target.Width;HeatHeight=target.Height;
-        fprintf(stderr,"[SDL_HEAT] ready size=%ux%u\n",HeatWidth,HeatHeight);
-    }
+    if(!Ensure_Heat_Background(target,error))return fail(error.c_str());
     ZH_IOS_WaitForForeground();auto *commands=SDL_AcquireGPUCommandBuffer(GpuDevice);
     if(!commands)return fail(SDL_GetError());
-    auto *copy=SDL_BeginGPUCopyPass(commands);
-    if(!copy){SDL_CancelGPUCommandBuffer(commands);return fail(SDL_GetError());}
-    SDL_GPUTextureLocation source={},destination={};source.texture=target.Colour;destination.texture=HeatBackground;
-    SDL_CopyGPUTextureToTexture(copy,&source,&destination,HeatWidth,HeatHeight,1,false);SDL_EndGPUCopyPass(copy);
+    if(!Record_Heat_Background(commands,target,error)){SDL_CancelGPUCommandBuffer(commands);return fail(error.c_str());}
     if(!(SerializeSubmits?Submit(commands):Submit_Flush(commands)))return fail("capture submission failed");
     return HeatBackground;
 }

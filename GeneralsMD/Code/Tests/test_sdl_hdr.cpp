@@ -29,7 +29,9 @@ int main(){
     clear();std::vector<float> raw;CHECK(frame->Read_Float_Colour(target.Colour,17,11,raw));
     if(!raw.empty()){CHECK(raw[0]>3.99f&&raw[1]>1.99f);CHECK(std::abs(raw[3]-0.6f)<0.001f);}
     ScenePost::Chain filters;CHECK(ScenePost::Parse("fxaa,sharpen",filters));
-    const float rectangle[4]={0,0,17,11};CHECK(frame->Post_Process(target,rectangle,0,&filters));
+    const float rectangle[4]={0,0,17,11};const uint64_t beforePost=frame->Submit_Calls_Total();
+    CHECK(frame->Post_Process(target,rectangle,0,&filters));
+    CHECK(frame->Submit_Calls_Total()-beforePost==1);
     CHECK(frame->Read_Float_Colour(target.Colour,17,11,raw));
     if(!raw.empty()){CHECK(raw[0]>0.98f&&raw[0]<=1&&raw[0]>raw[1]&&raw[1]>raw[2]);CHECK(std::abs(raw[3]-0.6f)<0.001f);}
     // UI drawn after scene tone mapping retains its white, without a second tone pass.
@@ -39,7 +41,8 @@ int main(){
     std::vector<uint8_t> pattern(17*11*4,90);for(unsigned i=3;i<pattern.size();i+=4)pattern[i]=255;
     CHECK(frame->Upload_Back_Buffer(pattern));CHECK(frame->Read_Back(target.Colour,17,11,bgra));CHECK(pattern==bgra);
     CHECK(frame->Trim_Transient_Memory());CHECK(frame->Resize(31,19));target=frame->Back_Buffer_Target();clear();
-    const float cropped[4]={3,2,20,12};CHECK(frame->Post_Process(target,cropped,1));
+    const float cropped[4]={3,2,20,12};const uint64_t beforeCroppedPost=frame->Submit_Calls_Total();
+    CHECK(frame->Post_Process(target,cropped,1));CHECK(frame->Submit_Calls_Total()-beforeCroppedPost==1);
     CHECK(frame->Read_Float_Colour(target.Colour,31,19,raw));
     if(!raw.empty()){CHECK(raw[0]>3.99f);CHECK(raw[(4*31+5)*4]<=1);}
     printf("HDR: failures=%u backend=%s\n",failures,SDL_GetGPUDeviceDriver(frame->Device()));
