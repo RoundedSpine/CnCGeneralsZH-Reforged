@@ -2869,6 +2869,12 @@ set_target_properties(test_userfolders PROPERTIES CXX_STANDARD 17)
 target_link_libraries(test_userfolders PRIVATE test_harness wwlib wwdebug)
 add_test(NAME test_userfolders COMMAND test_userfolders)
 
+# Particle draw budget, GPU eligibility and FireLook packing. Headers only.
+add_executable(test_particle_perf_policy ${TESTS}/test_particle_perf_policy.cpp)
+target_include_directories(test_particle_perf_policy PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/Libraries/Include)
+set_target_properties(test_particle_perf_policy PROPERTIES CXX_STANDARD 17)
+add_test(NAME test_particle_perf_policy COMMAND test_particle_perf_policy)
+
 # EarlyCommandLine.h off Windows: the options read before the parser exists, from the process's own
 # argv, before main and after (C2).  The arguments are the test's input; see the test file.
 add_executable(test_early_command_line ${TESTS}/test_early_command_line.cpp ${TESTS}/gcc_eager_vtable_stubs.cpp)

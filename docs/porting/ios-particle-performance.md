@@ -2,6 +2,8 @@
 
 Branch: `particle-perf-test` (based on `Claude-update` at `e4d3f7a8b4c87b397429587d5cc926f2a89b3625`)
 
+The code pass dated 2026-11-11 is at the bottom of this file (`Phases 1–6 code pass`). The notes above it describe the branch through the 4.0.0 sync and the device logs captured before that pass. Do not treat those logs as an after-measurement of the new commits.
+
 ## Status and measurement integrity
 
 This is an **instrumentation-first** investigation. The previous device report noted `constrained=0`, headroom in available memory, and zero GPU ring waits; those observations do not prove that Metal shader/fragment work is cheap. **No controlled baseline-versus-optimized FPS result is available in this branch yet.** Do not infer a speedup from the counters.
@@ -268,4 +270,64 @@ particle path, including smoke-light and FireLook where those templates use
 them. Device numbers captured before this sync are not an A/B baseline against
 a 4.0.0 build. Compare only runs that both include these FX, on the same map,
 camera and graphics settings.
+
+## Phases 1–6 code pass (2026-11-11)
+
+No new on-device FPS numbers were captured for these commits. The host check
+`test_particle_perf_policy` passes. It does not execute Metal. The unsigned
+device IPA was not rebuilt in this environment; the existing macOS IPA job is
+unchanged aside from these sources. Do not quote a speedup.
+
+The earlier device captures still stand as the **baseline**, and only for
+builds before this pass. Peak interval in `generals-stderr(4).log`: about
+1.63 ms average CPU particle render, 0.37 ms fire/smoke gather, 0 native
+particles, and smoke-light CPU under 0.01 ms on the hottest template. Shutdown
+showed on the order of 15k GPU ring waits and ~1,280 recorded draws per
+present. That is a submission/GPU signal, not a smoke-light CPU signal.
+`native_live` was 0 because the native path was not requested.
+
+| Phase | What changed | Bottleneck it can address | A/B | Measured after |
+|---|---|---|---|---|
+| 1 | `[PARTICLE_PERF]` now includes smoke-light evaluations, CPU heat-gather time, present interval, and calibrated Metal native-particle / depth / heat totals when a profiling window has them | CPU vs GPU attribution | `ZH_PARTICLE_PERF=1` or the Display checkbox. Off has no log and no per-particle timers | Not re-run on device |
+| 2 | `Particle cost: NAME ms / particles` plus `[PARTICLE_STAGE]` for CPU lighting, billboard prep, Metal particles, depth, overdraw | Finding the worst template and stage | Same diagnostic flag | Not re-run. Previous worst CPU templates were `CarpetBombExplosionShockwave` and `BuggyNewAirDeathSubExplosionSmoke`, under 0.1 ms |
+| 3 | One unscaled flame moment per system per frame, shared by fire lights, heat splats and smoke lights | CPU fire-light gathering. Exact, not an approximation | `ZH_FIRE_MOMENT_SHARE=0` restores the three walks. Default is share on. `fire_moment_reuses` counts hits | Not re-run |
+| 4 | Eligibility reasons logged once. No new template class was moved by default | GPU offload of safe additive cards, only if opted in | `ZH_GPU_OFFLOAD_ADDITIVE=1` admits already-eligible additive spawns below the CPU cap and turns the native path on. `-gpuparticles 0` forces it off | Not re-run. Default picture is unchanged |
+| 5 | FireLook age/seed is written inside `Write_Billboard`. Formula unchanged. Still forbidden on the GPU path | Removes a second 4-vertex touch. Does not touch the fragment shader | None beyond the diagnostic stage timer. There is no FireLook GPU switch | Not re-run. Prior pack cost was ~0.004 ms |
+| 6 | Draw budget | GPU transparent overdraw, by not shading cards that cannot show, then small cards and small alpha filler when presents miss 60 Hz | `ZH_PARTICLE_BUDGET=0` disables it. Default on | Not re-run. Until a present interval exists, only the exact invisible cull runs |
+
+### Approximations
+
+- Phase 3 is exact. Callers scale a copy of the shared moment. `ZH_FIRE_MOMENT_SHARE=0` is the control.
+- Phase 4 default does not change which particles are born on the CPU. The offload flag can change composite order: native additive draws are not in the CPU sorted-billboard pool, so overlapping smoke can cover a GPU flame differently. That is why it is off.
+- Phase 5 is exact. FireLook is not moved to the GPU because the native particle pixel shader does not sample the age/seed in `v2`. Removing `!m_fireLook` would flatten the flame noise. The fragment cost is still inside the mixed scene pass.
+- Phase 6 invisible cull (alpha 0, or additive vertex color 0) does not change the picture. `ALWAYS_RENDER` is never cut. Sub-pixel cull and alpha density cull start only after the present interval exceeds 16.7 ms and 20 ms. Density keeps the large cards in an alpha system and drops ones smaller than a fraction of that system's largest visible particle (down to half, at a 60 ms present). Very small particles are culled rather than merged: a merged quad would change the sort key and the cover. There is no global particle-count cap and no effect is removed while the frame is on time.
+
+### What stays on the CPU, and why
+
+`[GPU_PARTICLE_AUDIT]` prints the template counts at startup. A template can carry more than one reason.
+
+| Reason | Why it stays |
+|---|---|
+| not_particle, smud, ground, wind, attached, shader, flipbook, up_emitter | The GPU closed form does not evaluate or draw these |
+| firelook | Needs the CPU `v2` age/seed. See phase 5 |
+| weapon_trail | iOS contact-fade exemption is applied when CPU billboards are inserted |
+| emissive | The GPU record has no emissive flag |
+| alpha_lighting | Alpha smoke is smoke-lit and sorted with the other CPU billboards. The native alpha draw is a separate newest-first pass and does not run `lightSmoke` |
+
+Eligible native templates remain finite-lifetime, non-emissive, non-trail **additive** particles without FireLook, flipbooks, wind, ground alignment, smudge names or attached children. Below the CPU cap they still spawn on the CPU unless `ZH_GPU_OFFLOAD_ADDITIVE=1`.
+
+### What to run on device
+
+1. Build the unsigned ARM64 IPA from `particle-perf-test` the same way as before. Confirm the log still shows the online libraries linked and `[IOS_BUILD]`.
+2. Turn on **Particle Performance** in Display (or `ZH_PARTICLE_PERF=1`). Leave `ZH_PARTICLE_BUDGET` unset and `ZH_GPU_OFFLOAD_ADDITIVE` unset for the first capture. Play the same heavy fire/smoke beat as the baseline, then an idle beat.
+3. Read, every 120 particle renders:
+   - `[PARTICLE_PERF]` — `cpu_render_ms` and `fire_smoke_gather_ms` are per-frame averages. `smoke_light_evals` is particle-light pairs. `fire_moment_reuses` should be > 0 when fires are also lighting smoke or heat. `budget_invisible` may be > 0; `budget_small` and `budget_density` should stay 0 while `present_ms` is about 16.7.
+   - `gpu_elapsed_ms`, `depth_capture_ms`, `heat_gpu_ms` — `unavailable` until `[GPU_COUNTER_CALIBRATION] valid=1`. After that they are **sums over the latest Metal window**, not this CPU interval's average. Do not add them to `cpu_render_ms`.
+   - `Particle cost:` — worst billboard templates. `[PARTICLE_STAGE]` — `billboard_prep_ms_per_frame` is worker wall time and can exceed the frame. `scene_overdraw` is fragment invocations per passed fragment for the whole scene pass, not smoke-only.
+   - `[GPU_PARTICLE_AUDIT]` once at startup, and `[SDL_PARTICLES] requested=0` unless the offload or `-gpuparticles` / `ZH_GPU_PARTICLES=1` is set.
+4. Repeat with `ZH_PARTICLE_BUDGET=0` if you need the old draw of zero-alpha cards. Repeat a slow scene with the budget left on and compare `budget_small` / `budget_density` against `present_ms`.
+5. Only after that, try `ZH_GPU_OFFLOAD_ADDITIVE=1` on the same camera. Expect `requested=1`, `offload_additive=1`, and `native_live` above 0 in a fight. Screenshot additive flames against alpha smoke before trusting it. `ZH_FIRE_MOMENT_SHARE=0` is the lighting control; the picture should match the default.
+
+Anything still open: device A/B numbers, a particle-only GPU timestamp (the native bucket is the particle pass, the scene bucket is mixed), fragment statistics if the A18 Pro again reports `stats_completed=0`, and a safe way to draw offloaded additive particles inside the CPU sort instead of underneath it.
+
 

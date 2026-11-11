@@ -63,6 +63,7 @@
 #include "Platform/ParticlePerfToggle.h"
 #include "Platform/ParticlePerfStats.h"
 #include "Platform/FireLookPack.h"
+#include "Platform/ParticleDrawBudget.h"
 #include <map>
 #include "Common/ThingTemplate.h"
 #include "GameClient/Drawable.h"
@@ -100,6 +101,7 @@ struct ParticlePerfTotals {
     unsigned frames = 0;
     double fillMs = 0, lightsMs = 0, heatGatherMs = 0, gpuSubmitMs = 0;
     unsigned long long systems = 0, processed = 0, drawn = 0, native = 0, smokeLightCandidates = 0, smokeLightEvals = 0, fireMomentReuses = 0;
+    unsigned long long budgetInvisible = 0, budgetSmall = 0, budgetDensity = 0;
 };
 static ParticlePerfTotals s_particlePerfTotals;
 }
@@ -824,6 +826,10 @@ struct BillboardFillJob
 	/// it after the sun's shadow and the smoke's own shade, which dimmed a fire seen through the far
 	/// side of a plume when it was in the colour.  Direct3D 9 shades nothing and keeps it baked.
 	Bool																			glowAfterShade;
+	Bool																			budget;						///< ZH_PARTICLE_BUDGET, default on
+	float																			pixelScale;				///< pixels * view-depth / world size; 0 if unknown
+	float																			pixelFloor;				///< 0 unless the present interval missed the target
+	float																			smokeKeep;				///< 1 keeps every size; lower drops small alpha filler
 };
 
 /// systems a pool thread claims at once; a system is a few hundred particles, so one claim a system
@@ -842,6 +848,7 @@ static void fillBillboards( Int index, void *context )
     const auto started = perf ? ParticlePerfClock::now() : ParticlePerfClock::time_point();
     unsigned lightEvals = 0;
     unsigned visibilityRejects = 0;
+    unsigned budgetInvisible = 0, budgetSmall = 0, budgetDensity = 0;
     double smokeMs = 0.0, fireLookMs = 0.0;
     unsigned fireLookParticles = 0;
 	VertexFormatXYZNDUV2 *quad = fill.range.Vertices;
@@ -852,6 +859,25 @@ static void fillBillboards( Int index, void *context )
     fill.perfLightPickMs = perf ? particlePerfMs(pickStart) : 0.0;
 	const ParticleSystemInfo::ParticleShaderType shaderType = fill.system->getShaderType();
 	const UnsignedInt flipbookLog2 = fill.system->getTemplate()->getFlipbookGridLog2();
+	const bool protect = fill.system->getPriority() == ALWAYS_RENDER;
+	float minKeepSize = 0.0f;
+	if (job->budget && job->smokeKeep < 1.0f && !protect && !fill.fire
+			&& shaderType == ParticleSystemInfo::ALPHA)
+	{
+		float maxSize = 0.0f;
+		for (Particle *p = fill.system->getFirstParticle(); p; p = p->m_systemNext)
+		{
+			const Coord3D *pos = p->getPosition();
+			const Real psize = p->getSize();
+			if (WWMath::Fabs(pos->x - job->centerX) > (job->extentX + psize)
+					|| WWMath::Fabs(pos->y - job->centerY) > (job->extentY + psize)
+					|| WWMath::Fabs(pos->z - job->centerZ) > (job->extentZ + psize))
+				continue;
+			if (psize > maxSize)
+				maxSize = psize;
+		}
+		minKeepSize = maxSize * (1.0f - job->smokeKeep);
+	}
 
 	for (Particle *p = fill.system->getFirstParticle(); p; p = p->m_systemNext)
 	{
@@ -875,6 +901,35 @@ static void fillBillboards( Int index, void *context )
         }
 
 		const RGBColor *color = p->getColor();
+		const Real baseAlpha = p->getAlpha();
+		if (job->budget)
+		{
+			float pixels = 0.0f;
+			bool pixelsKnown = false;
+			if (job->pixelFloor > 0.0f && job->pixelScale > 0.0f)
+			{
+				const Vector4 viewPos = job->view * Vector3( pos->x, pos->y, pos->z );
+				float depth = viewPos.Z < 0.0f ? -viewPos.Z : viewPos.Z;
+				if (depth < 1.0f)
+					depth = 1.0f;
+				pixels = psize * job->pixelScale / depth;
+				pixelsKnown = true;
+			}
+			const ParticleDrawBudget::Decision decision = ParticleDrawBudget::classify(
+				shaderType == ParticleSystemInfo::ADDITIVE, color->red, color->green, color->blue, baseAlpha,
+				pixels, pixelsKnown, job->pixelFloor, psize, minKeepSize, protect );
+			if (decision != ParticleDrawBudget::Keep)
+			{
+				if (decision == ParticleDrawBudget::CullInvisible)
+					++budgetInvisible;
+				else if (decision == ParticleDrawBudget::CullSmall)
+					++budgetSmall;
+				else
+					++budgetDensity;
+				continue;
+			}
+		}
+
 		Real red = color->red, green = color->green, blue = color->blue;
 		Vector3 glow( 0.0f, 0.0f, 0.0f );
 		if (lightCount > 0)
@@ -925,6 +980,9 @@ static void fillBillboards( Int index, void *context )
     fill.perfFireLookParticles = fireLookParticles;
     fill.perfLightEvaluations = lightEvals;
     fill.perfCulledParticles = visibilityRejects;
+    fill.perfBudgetInvisible = budgetInvisible;
+    fill.perfBudgetSmall = budgetSmall;
+    fill.perfBudgetDensity = budgetDensity;
 	fill.glow = job->glowAfterShade && lightCount > 0;
 }
 
@@ -2626,6 +2684,9 @@ void W3DParticleSystemManager::doParticles(RenderInfoClass &rinfo)
 		fill.perfFireLookParticles = 0;
 		fill.perfLightEvaluations = 0;
 		fill.perfCulledParticles = 0;
+		fill.perfBudgetInvisible = 0;
+		fill.perfBudgetSmall = 0;
+		fill.perfBudgetDensity = 0;
 		fill.pastLimit = 0;
 		fill.glow = FALSE;
 		fill.fire = sys->getTemplate()->isFireLook();
@@ -2720,7 +2781,31 @@ void W3DParticleSystemManager::doParticles(RenderInfoClass &rinfo)
 	fillJob.glowAfterShade = fillJob.glowAfterShade
 		|| SunShadow::OwnsSceneShadows(DX8Wrapper::_Get_D3D_Device());
 #endif
+	{
+		const char *budgetEnv = std::getenv( "ZH_PARTICLE_BUDGET" );
+		fillJob.budget = !(budgetEnv && budgetEnv[ 0 ] == '0' && budgetEnv[ 1 ] == '\0');
+		fillJob.pixelScale = 0.0f;
+		fillJob.pixelFloor = 0.0f;
+		fillJob.smokeKeep = 1.0f;
+		if (fillJob.budget)
+		{
+			Matrix4x4 projection;
+			rinfo.Camera.Get_D3D_Projection_Matrix( &projection );
+			const ViewportClass &viewport = rinfo.Camera.Get_Viewport();
+			const float viewFrac = viewport.Max.Y - viewport.Min.Y;
+			const unsigned height = TheDisplay ? TheDisplay->getHeight() : 0;
+			if (height && viewFrac > 0.0f && projection[ 1 ][ 1 ] > 0.0f)
+				fillJob.pixelScale = height * viewFrac * 0.5f * projection[ 1 ][ 1 ];
+			const double presentMs = ParticlePerfStats::window().presentIntervalMs;
+			if (presentMs >= 0.0)
+			{
+				fillJob.pixelFloor = ParticleDrawBudget::pixelFloor( presentMs );
+				fillJob.smokeKeep = ParticleDrawBudget::smokeKeepFraction( presentMs );
+			}
+		}
+	}
 	JobSystem::parallel_for( (Int)m_billboardFills.size(), BILLBOARD_FILLS_PER_CLAIM, fillBillboards, &fillJob );
+    unsigned frameBudgetInvisible = 0, frameBudgetSmall = 0, frameBudgetDensity = 0;
     if (perf) {
         for (const BillboardFill &f : m_billboardFills) {
             ParticlePerfTemplate &t = s_particlePerfTemplates[f.system->getTemplate()->getName().str()];
@@ -2732,6 +2817,9 @@ void W3DParticleSystemManager::doParticles(RenderInfoClass &rinfo)
             t.drawn += (unsigned)f.drawn;
             t.lighting += f.perfLightEvaluations;
             t.culled += f.perfCulledParticles;
+            frameBudgetInvisible += f.perfBudgetInvisible;
+            frameBudgetSmall += f.perfBudgetSmall;
+            frameBudgetDensity += f.perfBudgetDensity;
         }
     }
 
@@ -2751,6 +2839,7 @@ void W3DParticleSystemManager::doParticles(RenderInfoClass &rinfo)
 	drawGroundFields();
 
 	size_t nextFill = 0;
+	unsigned serialBudgetInvisible = 0, serialBudgetSmall = 0, serialBudgetDensity = 0;
 	for (size_t v = 0; v < m_frameView.size(); ++v)
 	{
 		ParticleSystem *sys = m_frameView[ v ].system;
@@ -2844,6 +2933,25 @@ void W3DParticleSystemManager::doParticles(RenderInfoClass &rinfo)
 			( sys->getPriority() == AREA_EFFECT && sys->m_isGroundAligned != FALSE ) ? 1 : 0;
 		SmokeLight lights[ SMOKE_LIGHTS_PER_SYSTEM ];
 		const Int lightCount = pickSmokeLights( sys, fillJob.lights, fillJob.lightCount, lights );
+		const bool serialProtect = sys->getPriority() == ALWAYS_RENDER;
+		float serialMinKeep = 0.0f;
+		if (fillJob.budget && fillJob.smokeKeep < 1.0f && !serialProtect && !sys->getTemplate()->isFireLook()
+				&& sys->getShaderType() == ParticleSystemInfo::ALPHA)
+		{
+			float maxSize = 0.0f;
+			for (Particle *p = sys->getFirstParticle(); p; p = p->m_systemNext)
+			{
+				const Coord3D *at = p->getPosition();
+				const Real size = p->getSize();
+				if (WWMath::Fabs( at->x - bcX ) > ( beX + size )
+						|| WWMath::Fabs( at->y - bcY ) > ( beY + size )
+						|| WWMath::Fabs( at->z - bcZ ) > ( beZ + size ))
+					continue;
+				if (size > maxSize)
+					maxSize = size;
+			}
+			serialMinKeep = maxSize * (1.0f - fillJob.smokeKeep);
+		}
 
 
 
@@ -2864,6 +2972,35 @@ void W3DParticleSystemManager::doParticles(RenderInfoClass &rinfo)
 			if (WWMath::Fabs(pos->z - bcZ) > (beZ + psize))
 				continue;
 
+			color = p->getColor();
+			if (fillJob.budget)
+			{
+				float pixels = 0.0f;
+				bool pixelsKnown = false;
+				if (fillJob.pixelFloor > 0.0f && fillJob.pixelScale > 0.0f)
+				{
+					const Vector4 viewPos = fillJob.view * Vector3( pos->x, pos->y, pos->z );
+					float depth = viewPos.Z < 0.0f ? -viewPos.Z : viewPos.Z;
+					if (depth < 1.0f)
+						depth = 1.0f;
+					pixels = psize * fillJob.pixelScale / depth;
+					pixelsKnown = true;
+				}
+				const ParticleDrawBudget::Decision decision = ParticleDrawBudget::classify(
+					sys->getShaderType() == ParticleSystemInfo::ADDITIVE, color->red, color->green, color->blue,
+					p->getAlpha(), pixels, pixelsKnown, fillJob.pixelFloor, psize, serialMinKeep, serialProtect );
+				if (decision != ParticleDrawBudget::Keep)
+				{
+					if (decision == ParticleDrawBudget::CullInvisible)
+						++serialBudgetInvisible;
+					else if (decision == ParticleDrawBudget::CullSmall)
+						++serialBudgetSmall;
+					else
+						++serialBudgetDensity;
+					continue;
+				}
+			}
+
 			m_fieldParticleCount += fieldParticleIncrement;
 			
 			//@todo lorenzen sez: use pointer arithmetic for these arrays
@@ -2877,7 +3014,6 @@ void W3DParticleSystemManager::doParticles(RenderInfoClass &rinfo)
 			if (flipbookLog2)
 				frameArray[count] = (uint8)p->getFlipbookFrame();
 
-			color = p->getColor();
 			RGBAArray[count].X = color->red;
 			RGBAArray[count].Y = color->green;
 			RGBAArray[count].Z = color->blue;
@@ -3052,6 +3188,9 @@ void W3DParticleSystemManager::doParticles(RenderInfoClass &rinfo)
         t.native += m_gpuLive;
         t.smokeLightCandidates += (unsigned long long)fillJob.lightCount;
         t.fireMomentReuses += flameMomentReuses();
+        t.budgetInvisible += frameBudgetInvisible + serialBudgetInvisible;
+        t.budgetSmall += frameBudgetSmall + serialBudgetSmall;
+        t.budgetDensity += frameBudgetDensity + serialBudgetDensity;
         for (const BillboardFill &f : m_billboardFills)
             t.smokeLightEvals += f.perfLightEvaluations;
         if (t.frames == 120) {
@@ -3070,10 +3209,11 @@ void W3DParticleSystemManager::doParticles(RenderInfoClass &rinfo)
             std::snprintf(depthMs, sizeof(depthMs), "%s", msField(gpu.depthCaptureMs));
             std::snprintf(heatGpu, sizeof(heatGpu), "%s", msField(gpu.heatPassMs));
             std::snprintf(presentMs, sizeof(presentMs), "%s", msField(gpu.presentIntervalMs));
-            std::fprintf(stderr, "[PARTICLE_PERF] frames=%u cpu_render_ms=%.3f fire_smoke_gather_ms=%.3f heat_gather_cpu_ms=%.3f gpu_submit_cpu_ms=%.3f active_systems=%.1f processed=%.1f drawn=%.1f native_live=%.1f smoke_light_candidates=%.1f smoke_light_evals=%.1f fire_moment_reuses=%.1f gpu_elapsed_ms=%s depth_capture_ms=%s heat_gpu_ms=%s present_ms=%s note=gpu_ms_is_latest_metal_window_sum_not_this_cpu_interval\n",
+            std::fprintf(stderr, "[PARTICLE_PERF] frames=%u cpu_render_ms=%.3f fire_smoke_gather_ms=%.3f heat_gather_cpu_ms=%.3f gpu_submit_cpu_ms=%.3f active_systems=%.1f processed=%.1f drawn=%.1f native_live=%.1f smoke_light_candidates=%.1f smoke_light_evals=%.1f fire_moment_reuses=%.1f budget_invisible=%.1f budget_small=%.1f budget_density=%.1f gpu_elapsed_ms=%s depth_capture_ms=%s heat_gpu_ms=%s present_ms=%s note=gpu_ms_is_latest_metal_window_sum_not_this_cpu_interval\n",
                 t.frames, t.fillMs * inv, t.lightsMs * inv, t.heatGatherMs * inv, t.gpuSubmitMs * inv,
                 t.systems * inv, t.processed * inv, t.drawn * inv, t.native * inv, t.smokeLightCandidates * inv,
-                t.smokeLightEvals * inv, t.fireMomentReuses * inv, nativeMs, depthMs, heatGpu, presentMs);
+                t.smokeLightEvals * inv, t.fireMomentReuses * inv, t.budgetInvisible * inv, t.budgetSmall * inv,
+                t.budgetDensity * inv, nativeMs, depthMs, heatGpu, presentMs);
             std::vector<std::pair<std::string, ParticlePerfTemplate>> tops(s_particlePerfTemplates.begin(), s_particlePerfTemplates.end());
             std::sort(tops.begin(), tops.end(), [](const auto &a, const auto &b) { return a.second.billboardMs > b.second.billboardMs; });
             for (size_t i = 0; i < tops.size() && i < 8; ++i)

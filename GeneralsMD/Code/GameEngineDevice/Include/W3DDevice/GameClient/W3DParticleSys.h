@@ -122,6 +122,9 @@ public:
 		unsigned perfFireLookParticles;			///< FireLook billboards prepared
 		unsigned perfLightEvaluations;			///< particle-light invocations
 		unsigned perfCulledParticles;			///< visibility rejects in the fill loop
+		unsigned perfBudgetInvisible;			///< alpha or additive cards that cannot change the picture
+		unsigned perfBudgetSmall;					///< below the frame-time pixel floor
+		unsigned perfBudgetDensity;				///< alpha filler below the slow-frame size fraction
 		Bool																		hardEdge;					///< ParticleSystem::isAttachedToMine: no soft particle fade (Insert_Sorted_Billboards)
 	};
 
