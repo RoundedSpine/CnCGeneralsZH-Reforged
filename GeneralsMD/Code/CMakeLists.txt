@@ -2127,7 +2127,8 @@ if(ZH_PLATFORM_POSIX)
 
   add_executable(generals ${CMAKE_CURRENT_SOURCE_DIR}/Main/PosixMain.cpp)
   if(ZH_PLATFORM_IOS)
-    target_sources(generals PRIVATE Platform/iOS/IOSBootstrap.mm)
+    target_sources(generals PRIVATE Platform/iOS/IOSBootstrap.mm Platform/iOS/IOSTouchChrome.mm)
+    target_include_directories(generals PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/GameEngineDevice/Include)
     execute_process(COMMAND git rev-parse --short=12 HEAD WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
       OUTPUT_VARIABLE ZH_IOS_REVISION OUTPUT_STRIP_TRAILING_WHITESPACE)
     target_compile_definitions(generals PRIVATE ZH_IOS_REVISION="${ZH_IOS_REVISION}")

@@ -51,7 +51,7 @@ public:
 	/// scrolling, turning or tilting the camera by hand, with the mouse or the keys, right now
 	Bool isMovingCamera( void ) const { return m_isScrolling || m_isRotating || m_isPitching
 #if defined(ZH_PLATFORM_IOS)
-		|| m_touchPanArmed || m_touchPan.hasMotion()
+		|| m_touchPanArmed || m_touchPan.hasMotion() || m_touchMomentum.active()
 #endif
 		; }
 	void setCurrentPos( const ICoord2D& pos );
@@ -61,15 +61,22 @@ public:
 #if defined(ZH_PLATFORM_IOS)
 	void beginTouchPan( ScreenPan::Point at );
 	void queueTouchPan( ScreenPan::Point from, ScreenPan::Point to );
+	void beginTouchFling( ScreenPan::Point at, float vx, float vy, float tau );
 	void endTouchPan() { m_touchPanArmed = FALSE; }
-	void cancelTouchPan() { m_touchPanArmed = FALSE; m_touchPan.clear(); }
+	// A new finger, a cancel, or a mode reset. The ordinary lift uses endTouchPan and keeps gliding.
+	void stopTouchFling() { m_touchMomentum.stop(); m_touchEdgeValid = false; }
+	void cancelTouchPan() { m_touchPanArmed = FALSE; m_touchPan.clear(); stopTouchFling(); }
 #endif
 	void resetModes(); //Used when disabling input, so when we reenable it we aren't stuck in a mode.
 
 private:
 #if defined(ZH_PLATFORM_IOS)
 	ScreenPan::Pending m_touchPan;
+	ScreenPan::Momentum m_touchMomentum;
 	Bool m_touchPanArmed = FALSE, m_touchPanFirst = FALSE;
+	bool m_touchEdgeValid = false;
+	float m_touchEdgeFromX = 0, m_touchEdgeFromY = 0, m_touchEdgeRequested = 0;
+	unsigned long long m_touchMomentumNs = 0;
 #endif
 	enum
 	{

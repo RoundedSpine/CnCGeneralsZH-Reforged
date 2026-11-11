@@ -14,9 +14,9 @@ found and fixed, EA's own, not port damage.**
   The port uses SDL GPU's native Metal renderer, shared Documents folders and
   bundled Liberation fonts. Original Generals and Zero Hour data stay separate.
   Device compilation and gameplay validation are still in progress.
-- Initial iOS touch controls support tapping, selection drags, a held or two-finger
-  secondary click, pinch zoom and a three-finger tap for the menu. Instructions
-  appear alongside the game-data folders in Files.
+- Initial iOS touch controls support tapping, selection drags, a long-press or
+  two-finger secondary click, a double tap, pinch zoom and a three-finger tap
+  for the menu. Instructions appear alongside the game-data folders in Files.
 
 ## iOS interruptions and multiplayer stability
 
@@ -45,10 +45,13 @@ found and fixed, EA's own, not port damage.**
 
 ## Drag the map with two fingers on iOS
 
-- Dragging two fingers together now moves the camera with the map under them.
-  One-finger dragging keeps its selection box, and pinching keeps its zoom.
-  Lift both fingers to switch between the two gestures. Camera panning does not
-  issue unit orders and stops when a finger lifts or the app loses focus.
+- Dragging two fingers moves the camera with the map under them. One-finger
+  dragging keeps its selection box, and pinching keeps its zoom. A pan and a
+  pinch can be the same gesture, and a fast pan glides to a stop. Camera
+  panning does not issue unit orders. The glide stops when you touch the
+  screen again, at a map edge, or when a cinematic or a unit follow owns the
+  camera. A column of buttons on the left sends Shift, Ctrl, attack-move,
+  stop, guard and control groups.
 
 ## Identify the skipped rendering pass
 

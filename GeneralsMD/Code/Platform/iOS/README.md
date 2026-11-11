@@ -43,12 +43,19 @@ Reforged overlay, bundled Liberation fonts and dependency licenses. It contains
 no original game data or bulk Reforged art download. Keep your existing working
 game installation and saves separate while testing.
 
-Initial touch controls: tap to left click, drag to select, hold a stationary finger
-for at least 0.55 seconds then release to right click, or tap with two fingers
-(the first finger sets the target). **Drag two fingers together to pan the camera**;
-pinch to zoom. Lift both fingers before switching between panning and pinching.
-The gesture begins over the map; menus and command-bar panels do not initiate a
-camera pan. A three-finger tap sends Escape for the menu. Hardware mouse and keyboard
+Initial touch controls, Classic mouse (a tap orders; a long-press is the right click,
+which deselects): tap to left click, drag to select, hold a stationary finger for
+0.55 seconds to right click while it is still down (a short ring and a haptic mark
+the moment; lifting does not click again). A second tap within 0.3 seconds and
+30 points is a double click. Or tap with two fingers (the first finger sets the
+target). **Drag two fingers to pan the camera**; pinch to zoom, including in the
+same gesture, about the point between the fingers. The gesture begins over the map;
+menus and command-bar panels do not start a pan. A fast pan keeps gliding and
+stops when you touch the screen again. A three-finger tap sends Escape for the menu.
+A strip on the left (inside the safe area) has sticky Shift and Ctrl, attack-move,
+stop, guard and control-group numbers. Set `ZH_IOS_COMMAND_BAR=0` to hide it,
+`ZH_IOS_HOLD_MS` (200–2000), `ZH_IOS_MOMENTUM=off|short|normal` and
+`ZH_IOS_ONE_FINGER_PAN=1` (one finger pans instead of selecting). Hardware mouse and keyboard
 input and the minimap remain available. Touch controls and background/resume behavior still need device validation. Some Windows Direct3D 11 effects remain outside the SDL renderer's capabilities;
 see `docs/porting/ios-feature-audit.md` at the repository root.
 

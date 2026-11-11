@@ -68,12 +68,14 @@ extern "C" bool ZH_IOS_Bootstrap()
             "Both games are required. Keep .big files directly in those folders.\n"
             "Optional Reforged*.big art archives belong in UserData/ReforgedArt.\n"
             "Saves, options and logs are in UserData. Startup output is in generals-stderr.log.\n\n"
-            "Controls: tap = left click; drag = selection.\n"
-            "Hold still for 0.55 seconds and release, or tap with two fingers = right click.\n"
-            "With two fingers, the first finger sets the click target.\n"
-            "Two-finger drag = camera pan; pinch = zoom.\n"
-            "Lift both fingers before switching between panning and pinching.\n"
-            "Three-finger tap = Escape/menu. The minimap also moves the camera.\n";
+            "Controls: tap = left click (orders, Classic mouse); drag = selection.\n"
+            "Hold still for 0.55 seconds = right click, while the finger is still down.\n"
+            "A second tap within 0.3 seconds = double click.\n"
+            "Or tap with two fingers = right click. The first finger sets the target.\n"
+            "Two-finger drag = camera pan; pinch = zoom. One gesture can do both.\n"
+            "A fast pan keeps moving and stops when you touch again.\n"
+            "Three-finger tap = Escape/menu. The minimap also moves the camera.\n"
+            "The left-edge buttons are Shift, Ctrl, attack-move, stop, guard and groups.\n";
         [guide writeToURL:[documents URLByAppendingPathComponent:@"READ-ME.txt"] atomically:YES
                encoding:NSUTF8StringEncoding error:nullptr];
         ZH_IOS_InstallWindowDiagnostics();

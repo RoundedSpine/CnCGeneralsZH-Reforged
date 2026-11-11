@@ -1,7 +1,7 @@
 name: Build iOS unsigned IPA
 on:
   push:
-    branches: [experiment/ios-port, Claude-update, particle-perf-test]
+    branches: [experiment/ios-port, Claude-update, particle-perf-test, ios-touch-controls]
   workflow_dispatch:
     inputs:
       host_runner:

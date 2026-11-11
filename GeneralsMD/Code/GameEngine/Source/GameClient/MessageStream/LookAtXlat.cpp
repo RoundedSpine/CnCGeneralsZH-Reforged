@@ -59,6 +59,11 @@
 
 #include "Common/GlobalData.h"			// for camera pitch angle only
 
+#if defined(ZH_PLATFORM_IOS)
+#include <math.h>
+#include <time.h>
+#endif
+
 LookAtTranslator *TheLookAtTranslator = NULL;
 
 enum
@@ -223,6 +228,39 @@ LookAtTranslator::LookAtTranslator() :
 }
 
 #if defined(ZH_PLATFORM_IOS)
+static unsigned long long touchMonoNs( void )
+{
+	timespec ts;
+	clock_gettime( CLOCK_MONOTONIC, &ts );
+	return (unsigned long long)ts.tv_sec * 1000000000ULL + (unsigned long long)ts.tv_nsec;
+}
+
+// A glide is not a scripted move and it is not a selection. A unit follow that is
+// still held, or a cinematic that owns the camera, stops it. The first segment of
+// a pan still clears a follow, below, which is the existing pan rule.
+static Bool touchCameraAllowed( void )
+{
+	if( !TheTacticalView || !TheInGameUI || !TheInGameUI->getInputEnabled() )
+		return FALSE;
+	if( TheInGameUI->isSelecting() )
+		return FALSE;
+	if( TheShell && TheShell->isShellActive() )
+		return FALSE;
+	if( TheTacticalView->isTimeFrozen() || TheTacticalView->isCameraMoving() )
+		return FALSE;
+	return TRUE;
+}
+
+void LookAtTranslator::beginTouchFling( ScreenPan::Point at, float vx, float vy, float tau )
+{
+	if( !m_touchMomentum.start( at, vx, vy, tau ) )
+		return;
+	m_touchMomentumNs = touchMonoNs();
+	m_touchEdgeValid = false;
+}
+#endif
+
+#if defined(ZH_PLATFORM_IOS)
 void LookAtTranslator::beginTouchPan( ScreenPan::Point at )
 {
 	cancelTouchPan();
@@ -255,30 +293,70 @@ void LookAtTranslator::scrollView( void )
 #if defined(ZH_PLATFORM_IOS)
 	// SDL only queues this client input. Apply it here with the other camera
 	// changes, including on render passes beside a logic tick. No terrain query.
-	if (m_touchPanArmed || m_touchPan.hasMotion())
+	// A glide's dt comes from a monotonic clock, so an extra picture in the same
+	// frame adds only the time that actually passed.
+	if( m_touchMomentum.active() && (m_isScrolling || m_isRotating || m_isPitching || !touchCameraAllowed()) )
+		stopTouchFling();
+	if( m_touchPanArmed || m_touchPan.hasMotion() || m_touchMomentum.active() )
 	{
 		ScreenPan::Segment segment;
 		const Bool moved = m_touchPan.take(segment);
-		if (TheTacticalView && TheInGameUI && TheInGameUI->getInputEnabled()
-				&& !TheInGameUI->isSelecting() && !(TheShell && TheShell->isShellActive())
-				&& !TheTacticalView->isTimeFrozen())
+		if( !touchCameraAllowed() )
+			cancelTouchPan();
+		else
 		{
-			if (m_isScrolling) stopScrolling();
+			if( (m_touchPanArmed || moved) && m_isScrolling )
+				stopScrolling();
 			m_rightPanArmed = FALSE;
-			if (moved)
+			if( m_touchEdgeValid && m_touchMomentum.active() && TheTacticalView )
 			{
-				if (m_touchPanFirst)
+				Coord3D now;
+				TheTacticalView->getPosition( &now );
+				const float dx = now.x - m_touchEdgeFromX, dy = now.y - m_touchEdgeFromY;
+				const float achieved = sqrtf( dx * dx + dy * dy );
+				// The constraint writes the clamped look point back on the draw after
+				// the step. A later scrollView, including one before the next real
+				// dt, compares that with what this step asked for.
+				if( ScreenPan::edgeBlocked( m_touchEdgeRequested, achieved ) )
+					stopTouchFling();
+			}
+			if( moved || m_touchMomentum.active() )
+			{
+				if( m_touchPanFirst )
 				{
-					TheTacticalView->setCameraLock(INVALID_ID);
-					TheTacticalView->setCameraLockDrawable(NULL);
-					if (TheGlobalData->m_useCameraConstraints && TheGlobalData->m_cameraBoundaryMargin > 0)
+					TheTacticalView->setCameraLock( INVALID_ID );
+					TheTacticalView->setCameraLockDrawable( NULL );
+					if( TheGlobalData->m_useCameraConstraints && TheGlobalData->m_cameraBoundaryMargin > 0 )
 						TheTacticalView->forceCameraConstraintRecalc();
 					m_touchPanFirst = FALSE;
 				}
-				TheTacticalView->panByScreenPoints(segment.from.x, segment.from.y, segment.to.x, segment.to.y);
+				else if( TheTacticalView->getCameraLock() != INVALID_ID || TheTacticalView->getCameraLockDrawable() != NULL )
+					stopTouchFling(); // a follow that came back after the pan started owns the camera again
+			}
+			if( moved )
+				TheTacticalView->panByScreenPoints( segment.from.x, segment.from.y, segment.to.x, segment.to.y );
+			if( m_touchMomentum.active() && TheTacticalView )
+			{
+				const unsigned long long nowNs = touchMonoNs();
+				float dt = 0.f;
+				if( m_touchMomentumNs != 0 && nowNs > m_touchMomentumNs )
+					dt = (nowNs - m_touchMomentumNs) * 1e-9f;
+				m_touchMomentumNs = nowNs;
+				ScreenPan::Segment glide;
+				if( m_touchMomentum.step( dt, glide ) )
+				{
+					Coord3D before, after;
+					TheTacticalView->getPosition( &before );
+					TheTacticalView->panByScreenPoints( glide.from.x, glide.from.y, glide.to.x, glide.to.y );
+					TheTacticalView->getPosition( &after );
+					const float dx = after.x - before.x, dy = after.y - before.y;
+					m_touchEdgeFromX = before.x;
+					m_touchEdgeFromY = before.y;
+					m_touchEdgeRequested = sqrtf( dx * dx + dy * dy );
+					m_touchEdgeValid = true;
+				}
 			}
 		}
-		else cancelTouchPan();
 		if (TheInGameUI) TheInGameUI->setScrollAmount(offset);
 		if (TheTacticalView) TheTacticalView->scrollBy(&offset);
 		return;
