@@ -98,7 +98,7 @@ static std::map<std::string, ParticlePerfTemplate> s_particlePerfTemplates;
 struct ParticlePerfTotals {
     unsigned frames = 0;
     double fillMs = 0, lightsMs = 0, heatGatherMs = 0, gpuSubmitMs = 0;
-    unsigned long long systems = 0, processed = 0, drawn = 0, native = 0, smokeLightCandidates = 0, smokeLightEvals = 0;
+    unsigned long long systems = 0, processed = 0, drawn = 0, native = 0, smokeLightCandidates = 0, smokeLightEvals = 0, fireMomentReuses = 0;
 };
 static ParticlePerfTotals s_particlePerfTotals;
 }
@@ -318,11 +318,44 @@ static void sumFlames( ParticleSystem *sys, FireLights::Flames &flames )
 	}
 }
 
+// sumFlames walks every particle. Fire lights, heat haze and smoke lights all
+// want that same moment, so one frame can share it. The cached value is not
+// scaled; callers scale a copy. ZH_FIRE_MOMENT_SHARE=0 restores the old walks.
+static bool s_shareFlameMoments = false;
+static unsigned s_flameMomentReuses = 0;
+static std::map<ParticleSystem *, FireLights::Flames> s_flameMoments;
+
+static void beginFlameMoments( bool share )
+{
+	s_shareFlameMoments = share;
+	s_flameMomentReuses = 0;
+	s_flameMoments.clear();
+}
+
+static unsigned flameMomentReuses( void ) { return s_flameMomentReuses; }
+
+static FireLights::Flames flameMoments( ParticleSystem *sys )
+{
+	if (s_shareFlameMoments)
+	{
+		std::map<ParticleSystem *, FireLights::Flames>::iterator known = s_flameMoments.find( sys );
+		if (known != s_flameMoments.end())
+		{
+			++s_flameMomentReuses;
+			return known->second;
+		}
+	}
+	FireLights::Flames flames;
+	sumFlames( sys, flames );
+	if (s_shareFlameMoments)
+		s_flameMoments.insert( std::make_pair( sys, flames ) );
+	return flames;
+}
+
 /** One additive or Emissive system as a point light, if it is bright enough. */
 static void gatherFireLight( ParticleSystem *sys, Real fade )
 {
-	FireLights::Flames flames;
-	sumFlames( sys, flames );
+	const FireLights::Flames flames = flameMoments( sys );
 	addFireLight( flames.w, flames.x, flames.y, flames.z, flames.sq, fade );
 }
 
@@ -353,8 +386,7 @@ static void gatherFirelights( const AABoxClass &view, UnsignedInt frame, const s
 				|| WWMath::Fabs( first->getPosition()->x - view.Center.X ) > view.Extent.X + FireLights::MAX_REACH
 				|| WWMath::Fabs( first->getPosition()->y - view.Center.Y ) > view.Extent.Y + FireLights::MAX_REACH)
 			continue;
-		FireLights::Flames flames;
-		sumFlames( systems[ i ], flames );
+		FireLights::Flames flames = flameMoments( systems[ i ] );
 		flames.scale( fades[ i ] );
 		s_firelightGroups.add( flames );
 	}
@@ -448,8 +480,7 @@ static void gatherHeatHaze( CameraClass &camera, const std::vector<ParticleSyste
 	for (size_t i = 0; i < ( kind ? exhausts : fires ).size() && count < (Int)DIRECT3D11_HEAT_SPLAT_LIMIT; ++i)
 	{
 		const HeatLook &look = HEAT_LOOKS[ kind ];
-		FireLights::Flames flames;
-		sumFlames( ( kind ? exhausts : fires )[ i ], flames );
+		FireLights::Flames flames = flameMoments( ( kind ? exhausts : fires )[ i ] );
 		if (flames.w <= 0.0f)
 			continue;
 		Real strength = flames.w * ( kind ? exhaustFades : fireFades )[ i ] / look.full;
@@ -2617,6 +2648,10 @@ void W3DParticleSystemManager::doParticles(RenderInfoClass &rinfo)
 	fillJob.extentY = beY;
 	fillJob.extentZ = beZ;
 	fillJob.lightCount = 0;
+	{
+		const char *shareEnv = std::getenv( "ZH_FIRE_MOMENT_SHARE" );
+		beginFlameMoments( !(shareEnv && shareEnv[ 0 ] == '0' && shareEnv[ 1 ] == '\0') );
+	}
     const auto perfLightStart = perf ? ParticlePerfClock::now() : ParticlePerfClock::time_point();
 	// A reflecting water's mirror comes here first with its own, smaller box; the picks are the frame's.
 	if (!ShaderClass::Is_Backface_Culling_Inverted())
@@ -3019,6 +3054,7 @@ void W3DParticleSystemManager::doParticles(RenderInfoClass &rinfo)
         t.drawn += (unsigned long long)m_onScreenParticleCount;
         t.native += m_gpuLive;
         t.smokeLightCandidates += (unsigned long long)fillJob.lightCount;
+        t.fireMomentReuses += flameMomentReuses();
         for (const BillboardFill &f : m_billboardFills)
             t.smokeLightEvals += f.perfLightEvaluations;
         if (t.frames == 120) {
@@ -3037,10 +3073,10 @@ void W3DParticleSystemManager::doParticles(RenderInfoClass &rinfo)
             std::snprintf(depthMs, sizeof(depthMs), "%s", msField(gpu.depthCaptureMs));
             std::snprintf(heatGpu, sizeof(heatGpu), "%s", msField(gpu.heatPassMs));
             std::snprintf(presentMs, sizeof(presentMs), "%s", msField(gpu.presentIntervalMs));
-            std::fprintf(stderr, "[PARTICLE_PERF] frames=%u cpu_render_ms=%.3f fire_smoke_gather_ms=%.3f heat_gather_cpu_ms=%.3f gpu_submit_cpu_ms=%.3f active_systems=%.1f processed=%.1f drawn=%.1f native_live=%.1f smoke_light_candidates=%.1f smoke_light_evals=%.1f gpu_elapsed_ms=%s depth_capture_ms=%s heat_gpu_ms=%s present_ms=%s note=gpu_ms_is_latest_metal_window_sum_not_this_cpu_interval\n",
+            std::fprintf(stderr, "[PARTICLE_PERF] frames=%u cpu_render_ms=%.3f fire_smoke_gather_ms=%.3f heat_gather_cpu_ms=%.3f gpu_submit_cpu_ms=%.3f active_systems=%.1f processed=%.1f drawn=%.1f native_live=%.1f smoke_light_candidates=%.1f smoke_light_evals=%.1f fire_moment_reuses=%.1f gpu_elapsed_ms=%s depth_capture_ms=%s heat_gpu_ms=%s present_ms=%s note=gpu_ms_is_latest_metal_window_sum_not_this_cpu_interval\n",
                 t.frames, t.fillMs * inv, t.lightsMs * inv, t.heatGatherMs * inv, t.gpuSubmitMs * inv,
                 t.systems * inv, t.processed * inv, t.drawn * inv, t.native * inv, t.smokeLightCandidates * inv,
-                t.smokeLightEvals * inv, nativeMs, depthMs, heatGpu, presentMs);
+                t.smokeLightEvals * inv, t.fireMomentReuses * inv, nativeMs, depthMs, heatGpu, presentMs);
             std::vector<std::pair<std::string, ParticlePerfTemplate>> tops(s_particlePerfTemplates.begin(), s_particlePerfTemplates.end());
             std::sort(tops.begin(), tops.end(), [](const auto &a, const auto &b) { return a.second.billboardMs > b.second.billboardMs; });
             for (size_t i = 0; i < tops.size() && i < 8; ++i)
