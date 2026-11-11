@@ -62,6 +62,7 @@
 #include "Platform/WaterFoamParticlePolicy.h"
 #include "Platform/ParticlePerfToggle.h"
 #include "Platform/ParticlePerfStats.h"
+#include "Platform/FireLookPack.h"
 #include <map>
 #include "Common/ThingTemplate.h"
 #include "GameClient/Drawable.h"
@@ -896,22 +897,18 @@ static void fillBillboards( Int index, void *context )
 		const unsigned packed = DX8Wrapper::Convert_Color_Clamp( Vector4( red, green, blue, alpha ) );
 		// The orientation table's index wraps, as it did on Windows (Platform/MsvcFloatCasts.h).
 		const uint8 orientation = floatToByteAsMsvc( p->getAngle() * 255.0f / (2.0f * PI) );
-		PointGroupClass::Write_Billboard( quad, job->view, Vector3( pos->x, pos->y, pos->z ), psize,
-			orientation, packed, glow, flipbookLog2, flipbookLog2 ? p->getFlipbookFrame() : 0 );
+		// FireLook stays off the GPU path: the native draw does not sample v2. The age/seed is
+		// written here, in the same vertex loop, instead of a second pass over the quad.
+		float fireAgeSeed = 0.0f;
 		if (fill.fire)
 		{
-            const auto fireStarted = perf ? ParticlePerfClock::now() : ParticlePerfClock::time_point();
-			// FIRE_LOOK_SAMPLING's packing: a whole number below 256, the seed times eight plus the
-			// flipbook's log2 frames a side, so the noise bends a flipbook frame inside its own cell;
-			// then the age held off the whole numbers on both sides, so the interpolated value never
-			// floors to the next one.  Lifetime 0 is a particle that never dies (four retail
-			// systems), which stays young.
-			const Real age = p->m_lifetime ? 1.0f - (Real)p->getLifetimeLeft() / (Real)p->m_lifetime : 0.0f;
-			const Real fireAgeSeed = (Real)( ( ( ( p->getPersonality() * 97u ) & 31u ) << 3 ) | flipbookLog2 ) + 0.01f + 0.98f * age;
-			for (Int k = 0; k < 4; ++k)
-				quad[ k ].v2 = fireAgeSeed;
-            if (perf) { fireLookMs += particlePerfMs(fireStarted); ++fireLookParticles; }
+			const auto fireStarted = perf ? ParticlePerfClock::now() : ParticlePerfClock::time_point();
+			fireAgeSeed = FireLookPack::ageSeed( p->getPersonality(), p->m_lifetime, p->getLifetimeLeft(), flipbookLog2 );
+			if (perf) { fireLookMs += particlePerfMs(fireStarted); ++fireLookParticles; }
 		}
+		PointGroupClass::Write_Billboard( quad, job->view, Vector3( pos->x, pos->y, pos->z ), psize,
+			orientation, packed, glow, flipbookLog2, flipbookLog2 ? p->getFlipbookFrame() : 0,
+			fireAgeSeed, fill.fire != FALSE );
 		quad += 4;
 
 		if (++drawn == fill.capacity)

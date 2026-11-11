@@ -254,9 +254,12 @@ public:
 	/// otherwise read.  frame_log2 and frame pick one cell of a square atlas, as
 	/// Set_Frame_Row_Column_Count_Log2 and the frame array do; 0 and 0 are the whole texture.
 	/// Touches nothing but its arguments and the static tables, so any thread may call it.
+	/// writeFireAge stores fireAgeSeed in v2 while the quad is being written. The value is the
+	/// FireLook age/seed (FireLookPack::ageSeed). Leaving it off matches the old uninitialized v2.
 	static inline void		Write_Billboard(VertexFormatXYZNDUV2 *quad, const Matrix4x4 &view,
 										const Vector3 &world, float size, unsigned char orientation, unsigned color,
-										const Vector3 &glow, unsigned frame_log2=0, unsigned frame=0)
+										const Vector3 &glow, unsigned frame_log2=0, unsigned frame=0,
+										float fireAgeSeed=0.0f, bool writeFireAge=false)
 	{
 		const Vector4 result=view*world;
 		const Vector3 point(result.X,result.Y,result.Z);
@@ -274,6 +277,8 @@ public:
 			quad[k].diffuse=color;
 			quad[k].u1=uv[k].X;
 			quad[k].v1=uv[k].Y;
+			if (writeFireAge)
+				quad[k].v2=fireAgeSeed;
 		}
 	}
 
