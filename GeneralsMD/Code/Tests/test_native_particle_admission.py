@@ -11,21 +11,28 @@ CODE = Path(__file__).resolve().parents[1]
 class Admission(unittest.TestCase):
     def test_native_eligibility_retains_sensitive_effects_on_cpu(self):
         source=(CODE/'GameEngine/Source/GameClient/System/ParticleSys.cpp').read_text()
+        # isGpuEligible is a one-line wrapper. The stay reasons sit in the next
+        # function, before the following section rule, and that is the code this
+        # check has to compile.
         method='Bool ParticleSystemTemplate::isGpuEligible( void ) const'+source.split(
             'Bool ParticleSystemTemplate::isGpuEligible( void ) const',1)[1].split(
                 '// ------------------------------------------------------------------------------------------------',1)[0]
+        self.assertIn('ParticleSystemTemplate::gpuStayReasons', method)
         program=r'''
 #include <cassert>
 #include <string>
+#include "Platform/ParticleGpuClass.h"
 #undef _WIN32
 using Bool=bool;
+constexpr bool FALSE=false;
 enum {PARTICLE=1,ALPHA=2,ADDITIVE=3,WIND_MOTION_NOT_USED=0,WEAPON_TRAIL=5};
 struct Name {std::string value;bool isEmpty()const{return value.empty();}bool startsWith(const char *v)const{return value.rfind(v,0)==0;}};
 struct ParticleSystemTemplate {
     int m_particleType=PARTICLE,m_priority=0,m_shaderType=ADDITIVE,m_windMotion=WIND_MOTION_NOT_USED;
     bool m_emissive=false,m_isGroundAligned=false,m_fireLook=false,m_isParticleUpTowardsEmitter=false;
     unsigned m_flipbookGridLog2=0;Name m_particleTypeName,m_attachedSystemName;
-    Bool isGpuEligible()const;
+    Bool isGpuEligible(void) const;
+    unsigned gpuStayReasons(void) const;
 };
 '''+method+r'''
 int main(){
@@ -36,6 +43,10 @@ int main(){
     auto fire=normal;fire.m_fireLook=true;assert(!fire.isGpuEligible());
     auto flip=normal;flip.m_flipbookGridLog2=2;assert(!flip.isGpuEligible());
     auto wind=normal;wind.m_windMotion=1;assert(!wind.isGpuEligible());
+    auto ground=normal;ground.m_isGroundAligned=true;assert(!ground.isGpuEligible());
+    auto up=normal;up.m_isParticleUpTowardsEmitter=true;assert(!up.isGpuEligible());
+    auto smud=normal;smud.m_particleTypeName.value="SMUDHeat";assert(!smud.isGpuEligible());
+    auto attached=normal;attached.m_attachedSystemName.value="Child";assert(!attached.isGpuEligible());
 }
 '''
         self.compile_run(program)

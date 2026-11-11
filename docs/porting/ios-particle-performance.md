@@ -274,9 +274,16 @@ camera and graphics settings.
 ## Phases 1–6 code pass (2026-11-11)
 
 No new on-device FPS numbers were captured for these commits. The host check
-`test_particle_perf_policy` passes. It does not execute Metal. The unsigned
-device IPA was not rebuilt in this environment; the existing macOS IPA job is
-unchanged aside from these sources. Do not quote a speedup.
+`test_particle_perf_policy` passes and is run by the unsigned IPA job before
+cmake. It does not execute Metal. Run `42958526043` on `f3d51940` stopped in
+that host step: `test_native_particle_admission` still compiled only the old
+`isGpuEligible` wrapper, which now calls `gpuStayReasons` and
+`ParticleGpuClass`. The harness compiles both production functions and still
+requires weapon trails, alpha smoke, emissive bodies, FireLook, flipbooks,
+wind, ground-aligned cards, up-towards-emitter cards, SMUD names and attached
+children to stay on the CPU. The same step would next have rejected
+`BuildFingerprint.manifest`, which did not list the five new policy files.
+The unsigned device IPA was not produced by that run. Do not quote a speedup.
 
 The earlier device captures still stand as the **baseline**, and only for
 builds before this pass. Peak interval in `generals-stderr(4).log`: about

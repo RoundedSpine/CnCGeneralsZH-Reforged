@@ -2355,6 +2355,7 @@ Libraries/Include/Platform/D3D9Posix.h
 Libraries/Include/Platform/D3D9PosixMath.h
 Libraries/Include/Platform/DoubleClickTime.h
 Libraries/Include/Platform/EngineShaderName.h
+Libraries/Include/Platform/FireLookPack.h
 Libraries/Include/Platform/HazardCloud.h
 Libraries/Include/Platform/HazardCloudBake.h
 Libraries/Include/Platform/HazardCloudCore.h
@@ -2376,6 +2377,9 @@ Libraries/Include/Platform/ModernWaterConfig.h
 Libraries/Include/Platform/ModernWaterMaterial.h
 Libraries/Include/Platform/MsvcFloatCasts.h
 Libraries/Include/Platform/ParticleBudget.h
+Libraries/Include/Platform/ParticleDrawBudget.h
+Libraries/Include/Platform/ParticleGpuClass.h
+Libraries/Include/Platform/ParticlePerfStats.h
 Libraries/Include/Platform/ParticlePerfToggle.h
 Libraries/Include/Platform/ParticleShaders.h
 Libraries/Include/Platform/PosixD3D9/d3d9.h
@@ -3601,6 +3605,7 @@ Tests/test_native_particle_admission.py
 Tests/test_observer_camera.inc
 Tests/test_online.cpp
 Tests/test_package_link_libraries.py
+Tests/test_particle_perf_policy.cpp
 Tests/test_pixelcentre.cpp
 Tests/test_posix_draw_resolve.cpp
 Tests/test_posix_gpu_draw.cpp
