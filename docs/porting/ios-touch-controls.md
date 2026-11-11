@@ -82,21 +82,13 @@ picture late and was not executed here.
 A tap that stops a glide is still a click. The finger-down hook runs before
 the recognizer.
 
-## On-screen controls (open question 7)
+## On-screen controls
 
-Modifier and command keys are read as keyboard state (`TheKeyboard->isShift`,
-`isCtrl`, and the command-button hotkeys). Escape already injects an SDL key
-down and up. The strip does the same. Shift and Ctrl are sticky. Attack-move,
-stop and guard send A, S and G, the fixed defaults in the `HotKey.cpp` test
-`hotkeys_every_fixed_order_takes_the_players_letter`. Group buttons are the
-number row, so Ctrl (the sticky button) plus a number assigns and a number
-alone recalls. Scatter has no fixed letter in that table; `CommandMap.ini` is
-game data and is not in this repo, so Scatter is not on the strip.
-
-The strip is a 44 pt column on the left, inside `safeAreaInsets`. It does not
-move the engine command card. `ZH_IOS_COMMAND_BAR=0` hides it. A Hotkeys.ini
-rebind is not consulted. Needs device validation, including overlap with the
-notch side in landscape.
+The left-edge strip (sticky Shift and Ctrl, attack-move, stop, guard, groups)
+was removed. It covered the map and was not needed next to the game's own
+command card. Orders, modifiers and control groups are the command card, a
+hardware keyboard, or a hardware mouse. `ZH_IOS_COMMAND_BAR` is no longer read.
+The long-press haptic and ring stay.
 
 ## What was not changed, and why
 
@@ -112,8 +104,7 @@ notch side in landscape.
   controller. It was not swizzled.
 - Command-card hit targets are the window rectangles in
   `GameWindowManager::getWindowUnderCursor`. Widening them changes mouse
-  picking on every platform. The new strip uses 44 pt buttons; the retail
-  command card was left alone.
+  picking on every platform. The retail command card was left alone.
 - `ZH_IOS_ONE_FINGER_PAN=1` makes one finger pan instead of drag-select. The
   default is off, so the existing drag-box tests stay valid.
 
@@ -128,9 +119,6 @@ Needs device validation, on an iPhone and an iPad:
 - Momentum off, short and normal: release at different speeds, touch to stop
   (the touch should still click), glide into a map edge, glide while the
   camera is locked to a unit, during a cinematic, in a replay.
-- The left strip: Shift queues, Ctrl force-fire and groups, A/S/G, hide with
-  `ZH_IOS_COMMAND_BAR=0`. Overlap with the notch and the home indicator.
 - Swipe up from the bottom edge near the command card.
 - Incoming call, notification shade, background and resume mid-gesture.
-- Hardware keyboard and mouse together with the strip, and the software
-  keyboard in chat.
+- Hardware keyboard and mouse, and the software keyboard in chat.

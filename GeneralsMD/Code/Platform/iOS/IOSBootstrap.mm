@@ -74,8 +74,7 @@ extern "C" bool ZH_IOS_Bootstrap()
             "Or tap with two fingers = right click. The first finger sets the target.\n"
             "Two-finger drag = camera pan; pinch = zoom. One gesture can do both.\n"
             "A fast pan keeps moving and stops when you touch again.\n"
-            "Three-finger tap = Escape/menu. The minimap also moves the camera.\n"
-            "The left-edge buttons are Shift, Ctrl, attack-move, stop, guard and groups.\n";
+            "Three-finger tap = Escape/menu. The minimap also moves the camera.\n";
         [guide writeToURL:[documents URLByAppendingPathComponent:@"READ-ME.txt"] atomically:YES
                encoding:NSUTF8StringEncoding error:nullptr];
         ZH_IOS_InstallWindowDiagnostics();

@@ -83,17 +83,4 @@ int main() {
       assert(f.count(ActionKind::LeftDown)==2);
       bool doubled = false; for (auto a : f.out) if (a.clicks==2) doubled = true;
       assert(!doubled); }
-    // Sticky modifiers stay down. A command is a press and a release. Hidden eats both.
-    { Controls controls; std::vector<std::pair<Key,bool>> keys;
-      auto sink = [&](Key key, bool down){ keys.push_back({key, down}); };
-      controls.press(ZH_IOS_CONTROL_SHIFT, sink);
-      controls.press(ZH_IOS_CONTROL_STOP, sink);
-      assert(controls.shiftHeld());
-      assert(keys.size()==3 && keys[0].first==Key::LShift && keys[0].second);
-      assert(keys[1].first==Key::S && keys[1].second && keys[2].first==Key::S && !keys[2].second);
-      controls.press(ZH_IOS_CONTROL_SHIFT, sink);
-      assert(!controls.shiftHeld() && keys.back().first==Key::LShift && !keys.back().second);
-      controls.setHidden(true);
-      controls.press(ZH_IOS_CONTROL_CTRL, sink);
-      assert(!controls.ctrlHeld()); }
 }

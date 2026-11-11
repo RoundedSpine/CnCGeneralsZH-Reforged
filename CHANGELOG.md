@@ -17,6 +17,7 @@ found and fixed, EA's own, not port damage.**
 - Initial iOS touch controls support tapping, selection drags, a long-press or
   two-finger secondary click, a double tap, pinch zoom and a three-finger tap
   for the menu. Instructions appear alongside the game-data folders in Files.
+  The extra column of buttons on the left edge is not part of this build.
 
 ## iOS interruptions and multiplayer stability
 

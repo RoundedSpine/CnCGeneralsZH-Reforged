@@ -1,6 +1,7 @@
 #include "PreRTS.h"
 #if defined(ZH_PLATFORM_IOS)
 #include "SdlDevice/GameClient/IOSTouch.h"
+#include "SdlDevice/GameClient/IOSTouchChrome.h"
 #include "SdlDevice/GameClient/SdlInput.h"
 #include "GameClient/Display.h"
 #include "GameClient/LookAtXlat.h"
@@ -11,55 +12,9 @@
 
 namespace {
 IOSTouch::State gestures;
-IOSTouch::Controls controls;
 void (*touchFeedback)(int, float, float, float, float) = nullptr;
-int showCommandBar = 1;
 bool configured = false;
 bool chromeInstalled = false;
-
-void dispatchKey(SDL_Scancode code, SDL_Keycode key, bool down, Uint64 timestamp, SDL_WindowID windowID)
-{
-    SDL_Event event;
-    SDL_zero(event);
-    event.common.timestamp = timestamp;
-    event.type = down ? SDL_EVENT_KEY_DOWN : SDL_EVENT_KEY_UP;
-    event.key.windowID = windowID;
-    event.key.scancode = code;
-    event.key.key = key;
-    event.key.down = down;
-    SdlInput_dispatch(event);
-}
-
-void onControl(int id)
-{
-    SDL_Window *window = SdlInput_gameWindow();
-    const SDL_WindowID windowID = window ? SDL_GetWindowID(window) : 0;
-    const Uint64 now = SDL_GetTicksNS();
-    controls.press(id, [&](IOSTouch::Key key, bool down) {
-        SDL_Scancode code = SDL_SCANCODE_UNKNOWN;
-        SDL_Keycode symbol = SDLK_UNKNOWN;
-        switch (key) {
-            case IOSTouch::Key::LShift: code = SDL_SCANCODE_LSHIFT; symbol = SDLK_LSHIFT; break;
-            case IOSTouch::Key::LCtrl: code = SDL_SCANCODE_LCTRL; symbol = SDLK_LCTRL; break;
-            case IOSTouch::Key::A: code = SDL_SCANCODE_A; symbol = SDLK_A; break;
-            case IOSTouch::Key::S: code = SDL_SCANCODE_S; symbol = SDLK_S; break;
-            case IOSTouch::Key::G: code = SDL_SCANCODE_G; symbol = SDLK_G; break;
-            case IOSTouch::Key::D0: code = SDL_SCANCODE_0; symbol = SDLK_0; break;
-            case IOSTouch::Key::D1: code = SDL_SCANCODE_1; symbol = SDLK_1; break;
-            case IOSTouch::Key::D2: code = SDL_SCANCODE_2; symbol = SDLK_2; break;
-            case IOSTouch::Key::D3: code = SDL_SCANCODE_3; symbol = SDLK_3; break;
-            case IOSTouch::Key::D4: code = SDL_SCANCODE_4; symbol = SDLK_4; break;
-            case IOSTouch::Key::D5: code = SDL_SCANCODE_5; symbol = SDLK_5; break;
-            case IOSTouch::Key::D6: code = SDL_SCANCODE_6; symbol = SDLK_6; break;
-            case IOSTouch::Key::D7: code = SDL_SCANCODE_7; symbol = SDLK_7; break;
-            case IOSTouch::Key::D8: code = SDL_SCANCODE_8; symbol = SDLK_8; break;
-            case IOSTouch::Key::D9: code = SDL_SCANCODE_9; symbol = SDLK_9; break;
-        }
-        if (code == SDL_SCANCODE_UNKNOWN) return;
-        dispatchKey(code, symbol, down, now, windowID);
-    });
-    fprintf(stderr, "[IOS_TOUCH] control=%d shift=%d ctrl=%d\n", id, (int)controls.shiftHeld(), (int)controls.ctrlHeld());
-}
 
 void configure()
 {
@@ -76,14 +31,9 @@ void configure()
     }
     if (const char *pan = std::getenv("ZH_IOS_ONE_FINGER_PAN"))
         gestures.setOneFingerPan(pan[0] == '1');
-    if (const char *bar = std::getenv("ZH_IOS_COMMAND_BAR")) {
-        showCommandBar = bar[0] != '0';
-        controls.setHidden(showCommandBar == 0);
-    }
-    ZH_IOS_SetControlHandler(onControl);
-    fprintf(stderr, "[IOS_TOUCH] hold_ms=%llu momentum=%d one_finger_pan=%d command_bar=%d\n",
+    fprintf(stderr, "[IOS_TOUCH] hold_ms=%llu momentum=%d one_finger_pan=%d\n",
         (unsigned long long)(gestures.holdDelayNs() / 1000000ULL), (int)gestures.momentumMode(),
-        (int)gestures.oneFingerPanEnabled(), showCommandBar);
+        (int)gestures.oneFingerPanEnabled());
 }
 
 void dispatchAction(IOSTouch::Action action, Uint64 timestamp, SDL_WindowID windowID)
@@ -178,7 +128,7 @@ void SdlInput_flushIOSTouch()
     SDL_Window *window = SdlInput_gameWindow();
     if (!window) return;
     if (!chromeInstalled) {
-        chromeInstalled = ZH_IOS_InstallTouchChrome(window, showCommandBar) != 0;
+        chromeInstalled = ZH_IOS_InstallTouchChrome(window) != 0;
     }
     const SDL_WindowID id = SDL_GetWindowID(window);
     const Uint64 now = SDL_GetTicksNS();

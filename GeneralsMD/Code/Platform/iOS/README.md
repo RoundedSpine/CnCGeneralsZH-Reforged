@@ -52,8 +52,6 @@ target). **Drag two fingers to pan the camera**; pinch to zoom, including in the
 same gesture, about the point between the fingers. The gesture begins over the map;
 menus and command-bar panels do not start a pan. A fast pan keeps gliding and
 stops when you touch the screen again. A three-finger tap sends Escape for the menu.
-A strip on the left (inside the safe area) has sticky Shift and Ctrl, attack-move,
-stop, guard and control-group numbers. Set `ZH_IOS_COMMAND_BAR=0` to hide it,
 `ZH_IOS_HOLD_MS` (200–2000), `ZH_IOS_MOMENTUM=off|short|normal` and
 `ZH_IOS_ONE_FINGER_PAN=1` (one finger pans instead of selecting). Hardware mouse and keyboard
 input and the minimap remain available. Touch controls and background/resume behavior still need device validation. Some Windows Direct3D 11 effects remain outside the SDL renderer's capabilities;

@@ -1,7 +1,6 @@
 // Bounded, platform-independent iOS gesture state. Coordinates are window points.
 // Output goes directly to the existing input dispatcher; it does not queue SDL events.
 #pragma once
-#include "SdlDevice/GameClient/IOSTouchChrome.h"
 #include <cmath>
 #include <cstdint>
 
@@ -12,7 +11,6 @@ enum class ActionKind {
     HoldArmed, // the long-press threshold was crossed while the finger was still down
     PanFling   // the pan lifted fast enough to glide; vx, vy are points per second
 };
-enum class Key { LShift, LCtrl, A, S, G, D0, D1, D2, D3, D4, D5, D6, D7, D8, D9 };
 enum class Momentum { Off, Short, Normal };
 
 struct Action {
@@ -21,45 +19,6 @@ struct Action {
     float dx = 0, dy = 0;
     int clicks = 1;
     float vx = 0, vy = 0;
-};
-
-// On-screen buttons inject the same keys a hardware keyboard would. Letters are the
-// fixed defaults HotKey.cpp tests (attack-move A, stop S, guard G). Scatter has no
-// fixed letter in that table; its binding lives in CommandMap.ini, which is game
-// data, so it is not on the bar. Group keys are the number row: Ctrl held (the
-// sticky Ctrl button) assigns, a bare number recalls. A player rebind in
-// Hotkeys.ini is not read here.
-class Controls {
-    bool shift = false, ctrl = false, hidden = false;
-public:
-    void setHidden(bool hide) { hidden = hide; }
-    bool isHidden() const { return hidden; }
-    bool shiftHeld() const { return shift; }
-    bool ctrlHeld() const { return ctrl; }
-    template<class Sink> void press(int id, Sink sink) {
-        if (hidden) return;
-        if (id == ZH_IOS_CONTROL_SHIFT) { shift = !shift; sink(Key::LShift, shift); return; }
-        if (id == ZH_IOS_CONTROL_CTRL) { ctrl = !ctrl; sink(Key::LCtrl, ctrl); return; }
-        Key key;
-        switch (id) {
-            case ZH_IOS_CONTROL_ATTACK_MOVE: key = Key::A; break;
-            case ZH_IOS_CONTROL_STOP: key = Key::S; break;
-            case ZH_IOS_CONTROL_GUARD: key = Key::G; break;
-            case ZH_IOS_CONTROL_GROUP_1: key = Key::D1; break;
-            case ZH_IOS_CONTROL_GROUP_2: key = Key::D2; break;
-            case ZH_IOS_CONTROL_GROUP_3: key = Key::D3; break;
-            case ZH_IOS_CONTROL_GROUP_4: key = Key::D4; break;
-            case ZH_IOS_CONTROL_GROUP_5: key = Key::D5; break;
-            case ZH_IOS_CONTROL_GROUP_6: key = Key::D6; break;
-            case ZH_IOS_CONTROL_GROUP_7: key = Key::D7; break;
-            case ZH_IOS_CONTROL_GROUP_8: key = Key::D8; break;
-            case ZH_IOS_CONTROL_GROUP_9: key = Key::D9; break;
-            case ZH_IOS_CONTROL_GROUP_0: key = Key::D0; break;
-            default: return;
-        }
-        sink(key, true);
-        sink(key, false);
-    }
 };
 
 class State {
