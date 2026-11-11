@@ -288,8 +288,9 @@ Run `42959476221` on `33cd24e` passed that host step and compiled through
 Apple clang rejects the log lambdas that return both `"unavailable"`
 (`const char *`) and the scratch buffer (`char *`). Both now return
 `const char *`. Callers still copy the result before the next format, so the
-static buffer is not reused across a line. The unsigned device IPA was not
-produced by either run. Do not quote a speedup.
+static buffer is not reused across a line. `023ddae` then ran on device;
+that capture is below. Do not quote a speedup against the older log: lighting
+was off, and the old log is a different scene.
 
 The earlier device captures still stand as the **baseline**, and only for
 builds before this pass. Peak interval in `generals-stderr(4).log`: about
@@ -301,12 +302,58 @@ present. That is a submission/GPU signal, not a smoke-light CPU signal.
 
 | Phase | What changed | Bottleneck it can address | A/B | Measured after |
 |---|---|---|---|---|
-| 1 | `[PARTICLE_PERF]` now includes smoke-light evaluations, CPU heat-gather time, present interval, and calibrated Metal native-particle / depth / heat totals when a profiling window has them | CPU vs GPU attribution | `ZH_PARTICLE_PERF=1` or the Display checkbox. Off has no log and no per-particle timers | Not re-run on device |
-| 2 | `Particle cost: NAME ms / particles` plus `[PARTICLE_STAGE]` for CPU lighting, billboard prep, Metal particles, depth, overdraw | Finding the worst template and stage | Same diagnostic flag | Not re-run. Previous worst CPU templates were `CarpetBombExplosionShockwave` and `BuggyNewAirDeathSubExplosionSmoke`, under 0.1 ms |
-| 3 | One unscaled flame moment per system per frame, shared by fire lights, heat splats and smoke lights | CPU fire-light gathering. Exact, not an approximation | `ZH_FIRE_MOMENT_SHARE=0` restores the three walks. Default is share on. `fire_moment_reuses` counts hits | Not re-run |
-| 4 | Eligibility reasons logged once. No new template class was moved by default | GPU offload of safe additive cards, only if opted in | `ZH_GPU_OFFLOAD_ADDITIVE=1` admits already-eligible additive spawns below the CPU cap and turns the native path on. `-gpuparticles 0` forces it off | Not re-run. Default picture is unchanged |
-| 5 | FireLook age/seed is written inside `Write_Billboard`. Formula unchanged. Still forbidden on the GPU path | Removes a second 4-vertex touch. Does not touch the fragment shader | None beyond the diagnostic stage timer. There is no FireLook GPU switch | Not re-run. Prior pack cost was ~0.004 ms |
-| 6 | Draw budget | GPU transparent overdraw, by not shading cards that cannot show, then small cards and small alpha filler when presents miss 60 Hz | `ZH_PARTICLE_BUDGET=0` disables it. Default on | Not re-run. Until a present interval exists, only the exact invisible cull runs |
+| 1 | `[PARTICLE_PERF]` now includes smoke-light evaluations, CPU heat-gather time, present interval, and calibrated Metal native-particle / depth / heat totals when a profiling window has them | CPU vs GPU attribution | `ZH_PARTICLE_PERF=1` or the Display checkbox. Off has no log and no per-particle timers | `generals-stderr 2.log` on `023ddae`. See the capture section |
+| 2 | `Particle cost: NAME ms / particles` plus `[PARTICLE_STAGE]` for CPU lighting, billboard prep, Metal particles, depth, overdraw | Finding the worst template and stage | Same diagnostic flag | Hottest CPU template 0.092 ms. Overdraw ratio still unavailable (`stats_completed=0`) |
+| 3 | One unscaled flame moment per system per frame, shared by fire lights, heat splats and smoke lights | CPU fire-light gathering. Exact, not an approximation | `ZH_FIRE_MOMENT_SHARE=0` restores the three walks. Default is share on. `fire_moment_reuses` counts hits | Not exercised. Lighting was off, so gather, smoke-light evals and reuses stayed 0 |
+| 4 | Eligibility reasons logged once. No new template class was moved by default | GPU offload of safe additive cards, only if opted in | `ZH_GPU_OFFLOAD_ADDITIVE=1` admits already-eligible additive spawns below the CPU cap and turns the native path on. `-gpuparticles 0` forces it off | Audit printed. Native path was not requested, so `native_live` stayed 0 |
+| 5 | FireLook age/seed is written inside `Write_Billboard`. Formula unchanged. Still forbidden on the GPU path | Removes a second 4-vertex touch. Does not touch the fragment shader | None beyond the diagnostic stage timer. There is no FireLook GPU switch | FireLook pack peaked at 0.005 ms on one template. Fragment cost was not separated |
+| 6 | Draw budget | GPU transparent overdraw, by not shading cards that cannot show, then small cards and small alpha filler when presents miss 60 Hz | `ZH_PARTICLE_BUDGET=0` disables it. Default on | Invisible culls ran throughout. Small and density culls rose only after presents left 60 Hz. They did not pull the frame back |
+
+## Device capture `generals-stderr 2.log` (`023ddae`, 2026-11-11)
+
+One run, diagnostic on, 2868×1320, Metal, `ns_per_gpu_tick=1` and `valid=1`.
+Options.ini had `lighting=0` and volumetric smoke off. `[SDL_PARTICLES]`
+reported `requested=0 available=0 offload_additive=0`. The GPU audit was
+`templates=1143 eligible=185` with FireLook 182, alpha-kept 520, weapon trails
+61, ground-aligned 152, attached 129. Memory stayed unconstrained
+(footprint about 2.4 GiB, about 3.7 GiB still available).
+
+`present_ms` is the wall time between presents, including vsync (requested off,
+fallback on). It is smoothed upward, but a 120-frame window cannot finish near
+80 ms because of one spike. Early windows sat at 17–20 ms. The last windows sat
+at 75–87 ms. CPU particle render across 76 windows of 120 calls: mean 0.32 ms,
+max 0.87 ms. Billboard preparation peaked at 0.57 ms. Fire gather, heat gather,
+smoke-light evaluations and flame-moment reuses were all 0, because lighting
+was off, so phases 3 and 5 were not on the screen. The hottest CPU template was
+`BuggyNewAirDeathSubExplosionSmoke` at 0.092 ms and about 111 drawn. FireLook
+packing peaked at 0.005 ms. The draw budget dropped up to about 122 invisible
+cards a frame all session, and up to about 27 small plus 29 alpha-filler cards
+only once presents were already slow.
+
+GPU pass `gpu_ms` is a sum of completed passes in that 120-present window, not
+a per-frame cost, and the sums are larger than the wall clock, so they must not
+be added up into one frame. Per-pass average (`gpu_ms / completed`) and the
+worst single pass in the last window:
+
+| Bucket | Passes | Average | Worst |
+|---|---:|---:|---:|
+| scene_backbuffer | 600 | 22.9 ms | 49.4 ms |
+| intermediate | 480 | 23.5 ms | 49.1 ms |
+| unlabelled | 480 | 21.4 ms | 46.0 ms |
+| postprocess | 241 | 24.1 ms | 40.3 ms |
+| depth_only | 120 | 1.5 ms | 1.8 ms |
+| heat, native particles, msaa, ocean, gamma, sun shadow | 0 | | |
+
+Depth is one cheap pass a present. Heat was flushed about twice a present
+(`GPU_FLUSH_CAUSES heat=240`) but no pass was tagged `heat`, so that time sits
+in another bucket. Native particles did not run. Fragment counters never
+completed (`stats_completed=0` on all 480 pass lines), so
+`scene_overdraw` stays `unavailable`. The blended-scissor figure is only an
+upper bound and is nearly one fullscreen rect per blended draw, so it does not
+measure overdraw. Ring-wait CPU time grew from about 1 ms a present to about
+49 ms, with waits over 16 ms only in the slow windows (max single wait 33 ms).
+That is the GPU ring stalling the CPU. The frame left 60 Hz in the scene,
+intermediate, unlabelled and post passes, not in particle CPU work.
 
 ### Approximations
 
