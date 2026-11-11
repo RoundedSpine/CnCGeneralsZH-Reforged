@@ -363,6 +363,9 @@ private:
 	unsigned int ParticleGpuWaitAbove16Ms;
 	uint64_t ParticleGpuSubmitNs;
 	unsigned int ParticleGpuSubmitCount;
+	unsigned int ParticleGpuFlushRequests;
+	unsigned int ParticleGpuEmptyFlushes;
+	unsigned int ParticleGpuWorkFlushes;
 	// CPU-side counts of recorded GPU operations, not GPU execution statistics.
 	uint64_t ParticleGpuBlendedDraws;
 	uint64_t ParticleGpuAdditiveDraws;

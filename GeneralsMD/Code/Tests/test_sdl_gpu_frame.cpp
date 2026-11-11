@@ -360,10 +360,41 @@ static void check_scene_depth(SdlGpuFrame *frame)
 	uint64_t readySerial=123;
 	CHECK(frame->Ready_Scene_Depth(scene,readySerial)==NULL && readySerial==0);
 	object.Draw(scene, 0.3f);
+	const uint64_t submitsBeforeSnapshot=frame->Submit_Calls_Total();
 	SDL_GPUTexture *depth = frame->Scene_Depth(scene);
 	CHECK(depth != NULL && depth != scene.Depth && depth != scene.Colour);
+	CHECK(frame->Submit_Calls_Total()==submitsBeforeSnapshot);
 	CHECK(frame->Ready_Scene_Depth(scene,readySerial)==depth && readySerial!=0);
 	const uint64_t originalSerial=readySerial;
+	SDL_GPUTextureCreateInfo consumerInfo = {};
+	consumerInfo.type = SDL_GPU_TEXTURETYPE_2D;
+	consumerInfo.format = (SDL_GPUTextureFormat)frame->Target_Format();
+	consumerInfo.usage = SDL_GPU_TEXTUREUSAGE_COLOR_TARGET | SDL_GPU_TEXTUREUSAGE_SAMPLER;
+	consumerInfo.width = scene.Width; consumerInfo.height = scene.Height;
+	consumerInfo.layer_count_or_depth = consumerInfo.num_levels = 1;
+	SDL_GPUTexture *consumerColour = SDL_CreateGPUTexture(frame->Device(), &consumerInfo);
+	consumerInfo.format = (SDL_GPUTextureFormat)frame->Depth_Format();
+	consumerInfo.usage = frame->Depth_Usage();
+	SDL_GPUTexture *consumerDepth = SDL_CreateGPUTexture(frame->Device(), &consumerInfo);
+	CHECK(consumerColour != NULL && consumerDepth != NULL);
+	if (consumerColour && consumerDepth) {
+		const SdlTarget consumer = { consumerColour, consumerDepth, scene.Width, scene.Height };
+		frame->Set_Target(consumer);
+		frame->Clear_Back_Buffer(true, true, true, 0xFF000000u, 1.0f, 0);
+		DepthObject sampledDepth(frame, false, true);
+		sampledDepth.Draw(consumer, 0.0f, depth);
+		CHECK(frame->Submit_Calls_Total()==submitsBeforeSnapshot);
+		std::vector<uint8_t> consumerPixels;
+		CHECK(frame->Read_Back(consumer.Colour, scene.Width, scene.Height, consumerPixels));
+		const size_t centre=(size_t(scene.Height/2)*scene.Width+scene.Width/2)*4;
+		CHECK(centre+2<consumerPixels.size() && (consumerPixels[centre]!=0 || consumerPixels[centre+1]!=0
+			|| consumerPixels[centre+2]!=0));
+		frame->Release_After_Batch(consumerColour, consumerDepth);
+		frame->Set_Target(scene);
+	} else {
+		if (consumerColour) SDL_ReleaseGPUTexture(frame->Device(), consumerColour);
+		if (consumerDepth) SDL_ReleaseGPUTexture(frame->Device(), consumerDepth);
+	}
 	std::vector<uint8_t> sampled;
 	CHECK(frame->Read_Back(depth, scene.Width, scene.Height, sampled));
 	CHECK(fabs(depth_at(sampled, scene.Width, 32, 24) - 0.3f) < 0.00001f);

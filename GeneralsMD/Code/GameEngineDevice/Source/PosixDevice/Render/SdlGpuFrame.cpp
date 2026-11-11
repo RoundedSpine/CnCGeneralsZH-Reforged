@@ -145,6 +145,9 @@ SdlGpuFrame::SdlGpuFrame() :
 	ParticleGpuWaitAbove16Ms(0),
 	ParticleGpuSubmitNs(0),
 	ParticleGpuSubmitCount(0),
+	ParticleGpuFlushRequests(0),
+	ParticleGpuEmptyFlushes(0),
+	ParticleGpuWorkFlushes(0),
 	ParticleGpuBlendedDraws(0),
 	ParticleGpuAdditiveDraws(0),
 	ParticleGpuBlendScissorPixels(0),
@@ -770,12 +773,8 @@ SDL_GPUTexture *SdlGpuFrame::Scene_Depth(const SdlTarget &source)
 	Prepare_Water_Snapshot(source,WaterPerformanceSettings::Applied().sceneColourRequired,true);
 	SDL_GPUTexture *depth = Water_Depth(source);
 	if (!depth) return NULL;
-	// Publish the depth-to-colour capture before recording consumers. Queue ordering is enough;
-	// do not wait for GPU idle.
-	if (!Flush(FlushSceneDepth)) {
-		Invalidate_Water_Snapshots(source.Colour, source.Depth);
-		return NULL;
-	}
+	// Record_Batch ends the scene pass for the snapshot copy and starts a later pass
+	// for its consumers. Queue order keeps both operations correct in the same submission.
 	return depth;
 }
 
@@ -915,16 +914,26 @@ void SdlGpuFrame::Clear_Back_Buffer(bool colour, bool depth, bool stencil, uint3
 
 bool SdlGpuFrame::Flush(FlushCause cause)
 {
-	if (ParticlePerfToggle::enabled() && cause < FlushCauseCount)
+	const bool profile = ParticlePerfToggle::enabled();
+	if (profile) {
+		++ParticleGpuFlushRequests;
+	}
+	if (profile && cause < FlushCauseCount)
 		++ParticleGpuFlushReasons[cause];
 	const Uint64 start = SDL_GetTicksNS();
 	ZH_IOS_WaitForForeground();
 	if (Commands.empty() && Uploads.empty()) {
+		if (profile) {
+			++ParticleGpuEmptyFlushes;
+		}
 		End_Batch();
 		FlushMs += (double)(SDL_GetTicksNS() - start) / 1.0e6;
 		++Flushes;
 		++FlushesTotal;
 		return true;
+	}
+	if (profile) {
+		++ParticleGpuWorkFlushes;
 	}
 	SDL_GPUCommandBuffer * commands = SDL_AcquireGPUCommandBuffer(GpuDevice);
 	if (commands == NULL) {
@@ -1140,8 +1149,9 @@ void SdlGpuFrame::Take_Timing(double & flush_ms, double & fence_ms, unsigned int
 				overdraw(fragmentInvocations[7], fragmentsPassed[7], statsSamples[7]),
 				ParticleGpuPerfFrames);
 #endif
-			fprintf(stderr, "[GPU_SYNC_PERF] intervals=%u flush_limit=%u flushes=%u ring_waits=%u ring_wait_cpu_ms=%.3f ring_wait_max_ms=%.3f waits_ge_1ms=%u waits_ge_5ms=%u waits_ge_16ms=%u submit_calls=%u submit_cpu_ms=%.3f gpu_cmd_completed=%u gpu_cmd_unavailable=%u gpu_cmd_total_ms=%.3f gpu_cmd_max_ms=%.3f gpu_time_source=%s render_passes=%u depth_snapshots=%u blits=%u copy_passes=%u recorded_draws=%llu upload_mib=%.3f note=gpu_time_is_async_completed_command_buffer_sum_not_per_frame\n",
+			fprintf(stderr, "[GPU_SYNC_PERF] intervals=%u flush_limit=%u flushes=%u flush_requests=%u flush_empty=%u flush_work=%u ring_waits=%u ring_wait_cpu_ms=%.3f ring_wait_max_ms=%.3f waits_ge_1ms=%u waits_ge_5ms=%u waits_ge_16ms=%u submit_calls=%u submit_cpu_ms=%.3f gpu_cmd_completed=%u gpu_cmd_unavailable=%u gpu_cmd_total_ms=%.3f gpu_cmd_max_ms=%.3f gpu_time_source=%s render_passes=%u depth_snapshots=%u blits=%u copy_passes=%u recorded_draws=%llu upload_mib=%.3f note=gpu_ms_is_async_completed_command_buffer_sum_not_per_frame_ring_waits_include_direct_fenced_submits\n",
 				ParticleGpuPerfFrames, FlushLimit, FlushesTotal - ParticleGpuPerfFlushStart,
+				ParticleGpuFlushRequests, ParticleGpuEmptyFlushes, ParticleGpuWorkFlushes,
 				FlushWaits - ParticleGpuPerfWaitStart, double(ParticleGpuWaitNs) / 1.0e6,
 				double(ParticleGpuMaxWaitNs) / 1.0e6,
 				ParticleGpuWaitAbove1Ms, ParticleGpuWaitAbove5Ms, ParticleGpuWaitAbove16Ms,
@@ -1175,6 +1185,7 @@ void SdlGpuFrame::Take_Timing(double & flush_ms, double & fence_ms, unsigned int
 			ParticleGpuWaitNs = ParticleGpuMaxWaitNs = ParticleGpuSubmitNs = 0;
 			ParticleGpuWaitAbove1Ms = ParticleGpuWaitAbove5Ms = ParticleGpuWaitAbove16Ms = 0;
 			ParticleGpuSubmitCount = 0;
+			ParticleGpuFlushRequests = ParticleGpuEmptyFlushes = ParticleGpuWorkFlushes = 0;
 		ParticleGpuRecordedDraws = ParticleGpuUploadBytes = 0;
 		ParticleGpuBlendedDraws = ParticleGpuAdditiveDraws = 0;
 		ParticleGpuBlendScissorPixels = 0;
@@ -1189,6 +1200,7 @@ void SdlGpuFrame::Take_Timing(double & flush_ms, double & fence_ms, unsigned int
 		ParticleGpuWaitNs = ParticleGpuMaxWaitNs = ParticleGpuSubmitNs = 0;
 		ParticleGpuWaitAbove1Ms = ParticleGpuWaitAbove5Ms = ParticleGpuWaitAbove16Ms = 0;
 		ParticleGpuSubmitCount = 0;
+		ParticleGpuFlushRequests = ParticleGpuEmptyFlushes = ParticleGpuWorkFlushes = 0;
 		ParticleGpuRecordedDraws = ParticleGpuUploadBytes = 0;
 		ParticleGpuBlendedDraws = ParticleGpuAdditiveDraws = 0;
 		ParticleGpuBlendScissorPixels = 0;
