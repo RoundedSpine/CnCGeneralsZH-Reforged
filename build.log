@@ -1,300 +1,300 @@
-[1382/1656] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/bitmaphandler.cpp.o
-[1383/1656] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/bmp2d.cpp.o
-[1384/1656] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/bwrender.cpp.o
-[1385/1656] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/boxrobj.cpp.o
-[1386/1656] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/camera.cpp.o
-[1387/1656] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/coltest.cpp.o
-[1388/1656] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/collect.cpp.o
-[1389/1656] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/composite.cpp.o
-[1390/1656] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/dazzle.cpp.o
-[1391/1656] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/ddsfile.cpp.o
-[1392/1656] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/decalmsh.cpp.o
-[1393/1656] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/decalsys.cpp.o
-[1394/1656] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/distlod.cpp.o
-[1395/1656] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/dx8caps.cpp.o
-[1396/1656] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/dx8fvf.cpp.o
-[1397/1656] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/dx8indexbuffer.cpp.o
-[1398/1656] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/dx8polygonrenderer.cpp.o
-[1399/1656] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/dx8rendererdebugger.cpp.o
-[1400/1656] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/dx8renderer.cpp.o
-[1401/1656] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/dx8texman.cpp.o
-[1402/1656] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/dx8vertexbuffer.cpp.o
-[1403/1656] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/dx8wrapper.cpp.o
-[1404/1656] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/dynamesh.cpp.o
-[1405/1656] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/ffprobe.cpp.o
-[1406/1656] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/ffshadercache.cpp.o
-[1407/1656] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/font3d.cpp.o
-[1408/1656] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/formconv.cpp.o
-[1409/1656] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/hanim.cpp.o
-[1410/1656] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/hanimmgr.cpp.o
-[1411/1656] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/hcanim.cpp.o
-[1412/1656] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/hmdldef.cpp.o
-[1413/1656] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/hlod.cpp.o
-[1414/1656] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/hmorphanim.cpp.o
-[1415/1656] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/hrawanim.cpp.o
-[1416/1656] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/htree.cpp.o
-[1417/1656] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/htreemgr.cpp.o
-[1418/1656] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/intersec.cpp.o
-[1419/1656] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/layer.cpp.o
-[1420/1656] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/light.cpp.o
-[1421/1656] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/lightenvironment.cpp.o
-[1422/1656] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/line3d.cpp.o
-[1423/1656] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/linegrp.cpp.o
-[1424/1656] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/matinfo.cpp.o
-[1425/1656] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/mapper.cpp.o
-[1426/1656] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/matpass.cpp.o
-[1427/1656] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/matrixmapper.cpp.o
-[1428/1656] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/meshbuild.cpp.o
-[1429/1656] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/meshdam.cpp.o
-[1430/1656] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/mesh.cpp.o
-[1431/1656] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/meshgeometry.cpp.o
-[1432/1656] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/meshmatdesc.cpp.o
-[1433/1656] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/meshmdl.cpp.o
-[1434/1656] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/meshmdlio.cpp.o
-[1435/1656] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/metalmap.cpp.o
-[1436/1656] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/missingtexture.cpp.o
-[1437/1656] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/motchan.cpp.o
-[1438/1656] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/nullrobj.cpp.o
-[1439/1656] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/part_buf.cpp.o
-[1440/1656] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/part_emt.cpp.o
-[1441/1656] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/pivot.cpp.o
-[1442/1656] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/part_ldr.cpp.o
-[1443/1656] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/pointgr.cpp.o
-[1444/1656] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/polyinfo.cpp.o
-[1445/1656] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/prim_anim.cpp.o
-[1446/1656] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/predlod.cpp.o
-[1447/1656] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/projector.cpp.o
-[1448/1656] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/proto.cpp.o
-[1449/1656] Building FFmpeg 8.1.2's Bink decoders for the movies (V1)
-ffmpeg-build-posix: FFmpeg 8.1.2 installed into /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/build/ios/host-graphics/ffmpeg
-[1450/1656] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/render2d.cpp.o
-[1451/1656] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/renderobjectrecycler.cpp.o
-[1452/1656] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/render2dsentence.cpp.o
-[1453/1656] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/rendobj.cpp.o
-[1454/1656] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/rinfo.cpp.o
-[1455/1656] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/ringobj.cpp.o
-[1456/1656] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/scene.cpp.o
-[1457/1656] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/segline.cpp.o
-[1458/1656] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/shader.cpp.o
-[1459/1656] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/seglinerenderer.cpp.o
-[1460/1656] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/snappts.cpp.o
-[1461/1656] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/soundrobj.cpp.o
-[1462/1656] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/shattersystem.cpp.o
-[1463/1656] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/sortingrenderer.cpp.o
-[1464/1656] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/sphereobj.cpp.o
-[1465/1656] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/static_sort_list.cpp.o
-[1466/1656] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/statistics.cpp.o
-[1467/1656] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/streak.cpp.o
-[1468/1656] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/stripoptimizer.cpp.o
-[1469/1656] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/streakRender.cpp.o
-[1470/1656] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/texfcach.cpp.o
-[1471/1656] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/surfaceclass.cpp.o
-[1472/1656] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/texproject.cpp.o
-[1473/1656] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/texture.cpp.o
-[1474/1656] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/texturefilter.cpp.o
-[1475/1656] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/texturethumbnail.cpp.o
-[1476/1656] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/textureloader.cpp.o
-[1477/1656] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/txt.cpp.o
-[1478/1656] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/vertmaterial.cpp.o
-[1479/1656] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/visrasterizer.cpp.o
-[1480/1656] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/w3d_dep.cpp.o
-[1481/1656] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/w3d_util.cpp.o
-[1482/1656] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/w3dexclusionlist.cpp.o
-[1483/1656] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/ww3d.cpp.o
-[1484/1656] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/ww3dformat.cpp.o
-[1485/1656] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/dx11runtime_posix.cpp.o
-[1486/1656] Building CXX object CMakeFiles/sdlinput.dir/GameEngineDevice/Source/SdlDevice/GameClient/SdlIOSTouch.cpp.o
-[1487/1656] Building CXX object CMakeFiles/sdlinput.dir/GameEngineDevice/Source/SdlDevice/GameClient/AniCursor.cpp.o
-[1488/1656] Building CXX object CMakeFiles/sdlinput.dir/GameEngineDevice/Source/SdlDevice/GameClient/SdlInput.cpp.o
-[1489/1656] Building CXX object CMakeFiles/sdlinput.dir/GameEngineDevice/Source/SdlDevice/GameClient/SdlKeyTable.cpp.o
-[1490/1656] Building CXX object CMakeFiles/sdlinput.dir/GameEngineDevice/Source/SdlDevice/GameClient/SdlKeyboard.cpp.o
-[1491/1656] Building CXX object CMakeFiles/binkvideo.dir/Libraries/Source/WWVegas/Bink/ffmpeg/bink_ffmpeg.cpp.o
-[1492/1656] Building CXX object CMakeFiles/sdlinput.dir/GameEngineDevice/Source/SdlDevice/GameClient/SdlMouse.cpp.o
-[1493/1656] Building CXX object CMakeFiles/posixdevice.dir/GameEngineDevice/Source/PosixDevice/Common/PosixCDManager.cpp.o
-[1494/1656] Building CXX object CMakeFiles/posixdevice.dir/GameEngineDevice/Source/PosixDevice/Common/PosixFileResolutionDump.cpp.o
-[1495/1656] Building CXX object CMakeFiles/posixdevice.dir/GameEngineDevice/Source/PosixDevice/Common/PosixLocalFile.cpp.o
-[1496/1656] Building CXX object CMakeFiles/posixdevice.dir/GameEngineDevice/Source/PosixDevice/Common/PosixGameEngine.cpp.o
-[1497/1656] Building CXX object CMakeFiles/posixdevice.dir/GameEngineDevice/Source/PosixDevice/Common/PosixLocalFileSystem.cpp.o
-[1498/1656] Linking CXX static library libww3d2.a
-[1499/1656] Building CXX object CMakeFiles/posixdevice.dir/GameEngineDevice/Source/Win32Device/Common/Win32BIGFile.cpp.o
-[1500/1656] Linking CXX static library libbinkvideo.a
-[1501/1656] Building CXX object CMakeFiles/posixdevice.dir/GameEngineDevice/Source/Win32Device/Common/Win32BIGFileSystem.cpp.o
-[1502/1656] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/Common/System/W3DFunctionLexicon.cpp.o
-[1503/1656] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/Common/Thing/W3DModuleFactory.cpp.o
-[1504/1656] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/Common/System/W3DRadar.cpp.o
-[1505/1656] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/Common/Thing/W3DThingFactory.cpp.o
-[1506/1656] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/Common/W3DConvert.cpp.o
-[1507/1656] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/Drawable/Draw/W3DDebrisDraw.cpp.o
-[1508/1656] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/Drawable/Draw/W3DDefaultDraw.cpp.o
-[1509/1656] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/BaseHeightMap.cpp.o
-[1510/1656] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/Drawable/Draw/W3DDependencyModelDraw.cpp.o
-[1511/1656] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/Drawable/Draw/W3DLaserDraw.cpp.o
-[1512/1656] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/Drawable/Draw/W3DOverlordAircraftDraw.cpp.o
-[1513/1656] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/Drawable/Draw/W3DOverlordTankDraw.cpp.o
-[1514/1656] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/Drawable/Draw/W3DOverlordTruckDraw.cpp.o
-[1515/1656] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/Drawable/Draw/W3DPoliceCarDraw.cpp.o
-[1516/1656] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/Drawable/Draw/W3DModelDraw.cpp.o
-[1517/1656] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/Drawable/Draw/W3DProjectileStreamDraw.cpp.o
-[1518/1656] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/Drawable/Draw/W3DPropDraw.cpp.o
-[1519/1656] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/Drawable/Draw/W3DRopeDraw.cpp.o
-[1520/1656] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/Drawable/Draw/W3DScienceModelDraw.cpp.o
-[1521/1656] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/Drawable/Draw/W3DSupplyDraw.cpp.o
-[1522/1656] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/Drawable/Draw/W3DTracerDraw.cpp.o
-[1523/1656] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/Drawable/Draw/W3DTankTruckDraw.cpp.o
-[1524/1656] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/Drawable/Draw/W3DTankDraw.cpp.o
-[1525/1656] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/Drawable/Draw/W3DTreeDraw.cpp.o
-[1526/1656] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/FlatHeightMap.cpp.o
-[1527/1656] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/Drawable/Draw/W3DTruckDraw.cpp.o
-[1528/1656] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/GUI/GUICallbacks/W3DControlBar.cpp.o
-[1529/1656] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/GUI/GUICallbacks/W3DMOTD.cpp.o
-[1530/1656] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/GUI/Gadget/W3DCheckBox.cpp.o
-[1531/1656] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/GUI/GUICallbacks/W3DMainMenu.cpp.o
-[1532/1656] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/GUI/Gadget/W3DComboBox.cpp.o
-[1533/1656] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/GUI/Gadget/W3DHorizontalSlider.cpp.o
-[1534/1656] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/GUI/Gadget/W3DListBox.cpp.o
-[1535/1656] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/GUI/Gadget/W3DProgressBar.cpp.o
-[1536/1656] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/GUI/Gadget/W3DPushButton.cpp.o
-[1537/1656] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/GUI/Gadget/W3DRadioButton.cpp.o
-[1538/1656] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/GUI/Gadget/W3DStaticText.cpp.o
-[1539/1656] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/GUI/Gadget/W3DTabControl.cpp.o
-[1540/1656] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/GUI/Gadget/W3DTextEntry.cpp.o
-[1541/1656] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/GUI/Gadget/W3DVerticalSlider.cpp.o
-[1542/1656] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/GUI/W3DGameFont.cpp.o
-[1543/1656] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/GUI/W3DGameWindow.cpp.o
-[1544/1656] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/GUI/W3DGameWindowManager.cpp.o
-[1545/1656] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/HazardCloudFlow.cpp.o
-[1546/1656] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/HazardCloud.cpp.o
-[1547/1656] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/HazardCloudCore.cpp.o
-[1548/1656] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/HazardCloudShader.cpp.o
-[1549/1656] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/HazardCloudSharedModel.cpp.o
-[1550/1656] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/Shadow/W3DBufferManager.cpp.o
-[1551/1656] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/SdlGpuParticles.cpp.o
-[1552/1656] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/HeightMap.cpp.o
-[1553/1656] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/Shadow/W3DShadow.cpp.o
-[1554/1656] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/Shadow/W3DProjectedShadow.cpp.o
-[1555/1656] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/StructureCollapse.cpp.o
-[1556/1656] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/TerrainTex.cpp.o
-[1557/1656] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/TileData.cpp.o
-[1558/1656] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/Shadow/W3DVolumetricShadow.cpp.o
-[1559/1656] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/W3DAssetManager.cpp.o
-[1560/1656] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/W3DAssetManagerExposed.cpp.o
-[1561/1656] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/W3DBibBuffer.cpp.o
-[1562/1656] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/W3DCustomEdging.cpp.o
-[1563/1656] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/W3DDebugDisplay.cpp.o
-[1564/1656] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/W3DBridgeBuffer.cpp.o
-[1565/1656] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/W3DDebugIcons.cpp.o
-[1566/1656] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/W3DDisplayString.cpp.o
-[1567/1656] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/W3DDisplayStringManager.cpp.o
-[1568/1656] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/W3DDynamicLight.cpp.o
-[1569/1656] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/W3DFileSystem.cpp.o
-[1570/1656] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/W3DGranny.cpp.o
-[1571/1656] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/W3DDisplay.cpp.o
-[1572/1656] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/W3DInGameUI.cpp.o
-[1573/1656] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/W3DMouse.cpp.o
-[1574/1656] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/W3DGameClient.cpp.o
-[1575/1656] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/W3DPoly.cpp.o
-[1576/1656] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/W3DPropBuffer.cpp.o
-[1577/1656] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/W3DReachOverlay.cpp.o
-[1578/1656] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/W3DRoadBuffer.cpp.o
-[1579/1656] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/W3DScene.cpp.o
-[1580/1656] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/W3DParticleSys.cpp.o
-[1581/1656] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/W3DShaderManager.cpp.o
-[1582/1656] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/W3DShroud.cpp.o
-[1583/1656] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/W3DSmudge.cpp.o
-[1584/1656] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/W3DSnow.cpp.o
-[1585/1656] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/W3DStatusCircle.cpp.o
-[1586/1656] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/W3DTerrainBackground.cpp.o
-[1587/1656] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/W3DTerrainTracks.cpp.o
-[1588/1656] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/W3DVideoBuffer.cpp.o
-[1589/1656] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/W3DTerrainVisual.cpp.o
-[1590/1656] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/W3DTreeBuffer.cpp.o
-[1591/1656] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/W3DView.cpp.o
-[1592/1656] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/W3dWaypointBuffer.cpp.o
-[1593/1656] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/Water/W3DWaterTracks.cpp.o
-[1594/1656] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/WorldHeightMap.cpp.o
-[1595/1656] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameLogic/W3DGameLogic.cpp.o
-[1596/1656] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/Water/W3DWater.cpp.o
-[1597/1656] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/camerashakesystem.cpp.o
-[1598/1656] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameLogic/W3DTerrainLogic.cpp.o
-[1599/1656] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameLogic/W3DGhostObject.cpp.o
-[1600/1656] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/VideoDevice/Bink/BinkVideoPlayer.cpp.o
-[1601/1656] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/PosixDevice/Render/SdlHazardCloud.cpp.o
-[1602/1656] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/PosixDevice/Render/SdlHazardCloudEmbers.cpp.o
-[1603/1656] Linking CXX static library libsdlinput.a
-[1604/1656] Building CXX object CMakeFiles/test_harness.dir/Tests/test_main.cpp.o
-[1605/1656] Linking CXX static library libposixdevice.a
-[1606/1656] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/PosixDevice/Render/SdlHazardCloudShared.cpp.o
-[1607/1656] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/PosixDevice/Render/SdlHazardCloudSharedShader.cpp.o
-[1608/1656] Building CXX object CMakeFiles/test_sdl_ao.dir/GameEngineDevice/Source/PosixDevice/Render/SdlAmbientOcclusion.cpp.o
-[1609/1656] Building CXX object CMakeFiles/test_sdl_ao.dir/GameEngineDevice/Source/PosixDevice/Render/SdlAtmosphere.cpp.o
-[1610/1656] Building CXX object CMakeFiles/test_sdl_heat.dir/Tests/test_sdl_heat.cpp.o
-[1611/1656] Building CXX object CMakeFiles/test_sdl_ao.dir/Tests/test_sdl_ao.cpp.o
-[1612/1656] Building CXX object CMakeFiles/test_sdl_hdr.dir/Tests/test_sdl_hdr.cpp.o
-[1613/1656] Building CXX object CMakeFiles/test_sdl_msaa.dir/Tests/test_sdl_msaa.cpp.o
-[1614/1656] Building CXX object CMakeFiles/test_sdl_native_effects.dir/Tests/test_sdl_native_effects.cpp.o
-[1615/1656] Building CXX object CMakeFiles/test_sdl_post.dir/Tests/test_sdl_post.cpp.o
-[1616/1656] Linking CXX static library libw3ddevice.a
-[1617/1656] Linking CXX static library libtest_harness.a
-[1618/1656] Building CXX object CMakeFiles/test_sdl_particles.dir/Tests/test_sdl_particles.cpp.o
-[1619/1656] Building CXX object CMakeFiles/test_hazard_cloud_bake.dir/Tests/test_user_data_guard.cpp.o
-[1620/1656] Building CXX object CMakeFiles/posix_gpu_draw_selfcheck.dir/Tests/test_posix_gpu_draw.cpp.o
-[1621/1656] Building CXX object CMakeFiles/test_hazard_cloud_bake.dir/Tests/test_hazard_cloud_bake.cpp.o
-[1622/1656] Building CXX object CMakeFiles/test_hazard_cloud_shared.dir/GameEngineDevice/Source/W3DDevice/GameClient/HazardCloudSharedModel.cpp.o
-[1623/1656] Building CXX object CMakeFiles/test_hazard_cloud_shared.dir/GameEngineDevice/Source/W3DDevice/GameClient/HazardCloud.cpp.o
-[1624/1656] Building CXX object CMakeFiles/test_hazard_cloud_shared.dir/GameEngineDevice/Source/W3DDevice/GameClient/HazardCloudCore.cpp.o
-[1625/1656] Building CXX object CMakeFiles/test_hazard_cloud_shared.dir/GameEngineDevice/Source/W3DDevice/GameClient/HazardCloudShader.cpp.o
-[1626/1656] Building CXX object CMakeFiles/test_hazard_cloud_shared.dir/GameEngineDevice/Source/W3DDevice/GameClient/HazardCloudFlow.cpp.o
-[1627/1656] Building CXX object CMakeFiles/test_hazard_cloud_shared.dir/Tests/test_user_data_guard.cpp.o
-[1628/1656] Building CXX object CMakeFiles/test_hazard_cloud_shared.dir/Tests/test_hazard_cloud_shared.cpp.o
-[1629/1656] Building CXX object CMakeFiles/test_hazard_cloud_shared.dir/GameEngineDevice/Source/W3DDevice/GameClient/HazardCloudUnsupported.cpp.o
-[1630/1656] Building CXX object CMakeFiles/test_online.dir/Tests/test_user_data_guard.cpp.o
-[1631/1656] Building CXX object CMakeFiles/test_online.dir/Tests/test_gameengine_stubs.cpp.o
-[1632/1656] Building CXX object CMakeFiles/test_gameengine.dir/Tests/test_gameengine_stubs.cpp.o
-[1633/1656] Building CXX object CMakeFiles/test_gameengine.dir/Tests/test_user_data_guard.cpp.o
-[1634/1656] Building CXX object CMakeFiles/test_userfolders.dir/Tests/test_userfolders.cpp.o
-[1635/1656] Building CXX object CMakeFiles/test_userfolders.dir/Tests/test_user_data_guard.cpp.o
-[1636/1656] Building CXX object CMakeFiles/test_online.dir/Tests/test_online.cpp.o
-[1637/1656] Building CXX object CMakeFiles/test_shader_sdl.dir/GameEngineDevice/Source/W3DDevice/GameClient/HazardCloudShader.cpp.o
-[1638/1656] Building CXX object CMakeFiles/test_shader_sdl.dir/GameEngineDevice/Source/PosixDevice/Render/SdlHazardCloudSharedShader.cpp.o
-[1639/1656] Building CXX object CMakeFiles/test_shader_sdl.dir/Tests/test_user_data_guard.cpp.o
-[1640/1656] Linking CXX executable test_sdl_ao
-[1641/1656] Linking CXX executable test_sdl_heat
-[1642/1656] Linking CXX executable test_sdl_native_effects
-[1643/1656] Linking CXX executable test_sdl_hdr
-[1644/1656] Linking CXX executable test_sdl_msaa
-[1645/1656] Linking CXX executable test_sdl_post
-[1646/1656] Linking CXX executable test_sdl_particles
-[1647/1656] Linking CXX executable posix_gpu_draw_selfcheck
-[1648/1656] Linking CXX executable test_hazard_cloud_bake
-[1649/1656] Linking CXX executable test_hazard_cloud_shared
-[1650/1656] Building CXX object CMakeFiles/test_shader_sdl.dir/Tests/test_shader_sdl.cpp.o
-[1651/1656] Linking CXX executable test_userfolders
-[1652/1656] Linking CXX executable test_shader_sdl
-[1653/1656] Linking CXX executable test_online
-[1654/1656] Building CXX object CMakeFiles/test_gameengine.dir/Tests/test_gameengine.cpp.o
-[1655/1656] Linking CXX executable test_gameengine
-4 tests, 44 checks, 0 failed
-  FFT bands: height RMS 1.5/0.75/0.18; slope RMS 0.025095042/0.067304427/0.086043521; long power >512 38.311%
-  FFT unresolved slope power: independent discrete box error 1.42108547e-14; per-cascade zero-LOD and bounded mip hierarchy checked
-  SKIPPED spirv-val: ZH_SPIRV_VAL is not set (CMake found no spirv-val; install spirv-tools)
-  reference set    46 programs: generated 46, compiled 46, spirv-val SKIPPED, MSL 46 (slots kept 46), Metal 46/46
-  beyond it        23 programs: generated 23, compiled 23, spirv-val SKIPPED, MSL 23 (slots kept 23), Metal 23/23
-  23 vertex x 46 pixel programs: 1034 pairs the game can form, 1034 linked on Metal
-  foam environment constant/linear maximum finite-bin losses 0.0626234/0.0518354
-SKIPPED shared cloud spirv-val: validator unavailable
-SKIPPED shared cloud spirv-val: validator unavailable
-SKIPPED shared cloud spirv-val: validator unavailable
-SKIPPED shared cloud spirv-val: validator unavailable
-SKIPPED shared cloud spirv-val: validator unavailable
-SKIPPED shared cloud spirv-val: validator unavailable
-SKIPPED shared cloud spirv-val: validator unavailable
-SKIPPED shared cloud spirv-val: validator unavailable
-33 tests, 687507 checks, 0 failed
-Test project /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/build/ios/host-graphics
-    Start 56: test_hazard_cloud_bake
-1/4 Test #56: test_hazard_cloud_bake ...........   Passed    0.01 sec
-    Start 57: test_hazard_cloud_shared
-2/4 Test #57: test_hazard_cloud_shared .........   Passed    0.01 sec
-    Start 67: test_online
-3/4 Test #67: test_online ......................   Passed    0.37 sec
-    Start 70: test_gameengine
+-- Performing Test HAVE_GCC_WDOCUMENTATION - Success
+-- Performing Test HAVE_GCC_WDOCUMENTATION_UNKNOWN_COMMAND
+-- Performing Test HAVE_GCC_WDOCUMENTATION_UNKNOWN_COMMAND - Success
+-- Performing Test HAVE_GCC_COMMENT_BLOCK_COMMANDS
+-- Performing Test HAVE_GCC_COMMENT_BLOCK_COMMANDS - Success
+-- Performing Test HAVE_GCC_WSHADOW
+-- Performing Test HAVE_GCC_WSHADOW - Success
+-- Performing Test HAVE_GCC_WUNUSED_LOCAL_TYPEDEFS
+-- Performing Test HAVE_GCC_WUNUSED_LOCAL_TYPEDEFS - Success
+-- Performing Test HAVE_GCC_WIMPLICIT_FALLTHROUGH
+-- Performing Test HAVE_GCC_WIMPLICIT_FALLTHROUGH - Success
+-- Performing Test COMPILER_SUPPORTS_FCOLOR_DIAGNOSTICS
+-- Performing Test COMPILER_SUPPORTS_FCOLOR_DIAGNOSTICS - Success
+-- Looking for __GLIBC__
+-- Looking for __GLIBC__ - not found
+-- Performing Test HAVE_WL_VERSION_SCRIPT
+-- Performing Test HAVE_WL_VERSION_SCRIPT - Failed
+-- Performing Test COMPILER_SUPPORTS_GCC_ATOMICS
+-- Performing Test COMPILER_SUPPORTS_GCC_ATOMICS - Success
+-- Performing Test HAVE_GCC_FVISIBILITY
+-- Performing Test HAVE_GCC_FVISIBILITY - Success
+-- Performing Test COMPILER_SUPPORTS_WNO_ERROR_DEPRECATED_DECLARATIONS
+-- Performing Test COMPILER_SUPPORTS_WNO_ERROR_DEPRECATED_DECLARATIONS - Success
+-- Performing Test COMPILER_SUPPORTS_WNO_DEPRECATED_DECLARATIONS
+-- Performing Test COMPILER_SUPPORTS_WNO_DEPRECATED_DECLARATIONS - Success
+-- Performing Test LINKER_SUPPORTS_WL_NO_UNDEFINED
+-- Performing Test LINKER_SUPPORTS_WL_NO_UNDEFINED - Failed
+-- Performing Test COMPILER_SUPPORTS_ARMNEON
+-- Performing Test COMPILER_SUPPORTS_ARMNEON - Success
+-- Looking for alloca.h
+-- Looking for alloca.h - found
+-- Looking for float.h
+-- Looking for float.h - found
+-- Looking for iconv.h
+-- Looking for iconv.h - found
+-- Looking for inttypes.h
+-- Looking for inttypes.h - found
+-- Looking for limits.h
+-- Looking for limits.h - found
+-- Looking for malloc.h
+-- Looking for malloc.h - not found
+-- Looking for math.h
+-- Looking for math.h - found
+-- Looking for memory.h
+-- Looking for memory.h - found
+-- Looking for signal.h
+-- Looking for signal.h - found
+-- Looking for stdarg.h
+-- Looking for stdarg.h - found
+-- Looking for stdbool.h
+-- Looking for stdbool.h - found
+-- Looking for stddef.h
+-- Looking for stddef.h - found
+-- Looking for stdint.h
+-- Looking for stdint.h - found
+-- Looking for stdio.h
+-- Looking for stdio.h - found
+-- Looking for stdlib.h
+-- Looking for stdlib.h - found
+-- Looking for string.h
+-- Looking for string.h - found
+-- Looking for strings.h
+-- Looking for strings.h - found
+-- Looking for sys/types.h
+-- Looking for sys/types.h - found
+-- Looking for time.h
+-- Looking for time.h - found
+-- Looking for wchar.h
+-- Looking for wchar.h - found
+-- Looking for pow in m
+-- Looking for pow in m - found
+-- Looking for abs
+-- Looking for abs - found
+-- Looking for acos
+-- Looking for acos - found
+-- Looking for acosf
+-- Looking for acosf - found
+-- Looking for asin
+-- Looking for asin - found
+-- Looking for asinf
+-- Looking for asinf - found
+-- Looking for atan
+-- Looking for atan - found
+-- Looking for atan2
+-- Looking for atan2 - found
+-- Looking for atan2f
+-- Looking for atan2f - found
+-- Looking for atanf
+-- Looking for atanf - found
+-- Looking for atof
+-- Looking for atof - found
+-- Looking for atoi
+-- Looking for atoi - found
+-- Looking for bcopy
+-- Looking for bcopy - found
+-- Looking for ceil
+-- Looking for ceil - found
+-- Looking for ceilf
+-- Looking for ceilf - found
+-- Looking for copysign
+-- Looking for copysign - found
+-- Looking for copysignf
+-- Looking for copysignf - found
+-- Looking for cos
+-- Looking for cos - found
+-- Looking for cosf
+-- Looking for cosf - found
+-- Looking for _Exit
+-- Looking for _Exit - found
+-- Looking for exp
+-- Looking for exp - found
+-- Looking for expf
+-- Looking for expf - found
+-- Looking for fabs
+-- Looking for fabs - found
+-- Looking for fabsf
+-- Looking for fabsf - found
+-- Looking for floor
+-- Looking for floor - found
+-- Looking for floorf
+-- Looking for floorf - found
+-- Looking for fmod
+-- Looking for fmod - found
+-- Looking for fmodf
+-- Looking for fmodf - found
+-- Looking for fopen64
+-- Looking for fopen64 - not found
+-- Looking for fseeko
+-- Looking for fseeko - found
+-- Looking for fseeko64
+-- Looking for fseeko64 - not found
+-- Looking for getenv
+-- Looking for getenv - found
+-- Looking for _i64toa
+-- Looking for _i64toa - not found
+-- Looking for index
+-- Looking for index - found
+-- Looking for itoa
+-- Looking for itoa - not found
+-- Looking for log
+-- Looking for log - found
+-- Looking for log10
+-- Looking for log10 - found
+-- Looking for log10f
+-- Looking for log10f - found
+-- Looking for logf
+-- Looking for logf - found
+-- Looking for lround
+-- Looking for lround - found
+-- Looking for lroundf
+-- Looking for lroundf - found
+-- Looking for _ltoa
+-- Looking for _ltoa - not found
+-- Looking for malloc
+-- Looking for malloc - found
+-- Looking for memcmp
+-- Looking for memcmp - found
+-- Looking for memcpy
+-- Looking for memcpy - found
+-- Looking for memmove
+-- Looking for memmove - found
+-- Looking for memset
+-- Looking for memset - found
+-- Looking for modf
+-- Looking for modf - found
+-- Looking for modff
+-- Looking for modff - found
+-- Looking for pow
+-- Looking for pow - found
+-- Looking for powf
+-- Looking for powf - found
+-- Looking for putenv
+-- Looking for putenv - found
+-- Looking for rindex
+-- Looking for rindex - found
+-- Looking for round
+-- Looking for round - found
+-- Looking for roundf
+-- Looking for roundf - found
+-- Looking for scalbn
+-- Looking for scalbn - found
+-- Looking for scalbnf
+-- Looking for scalbnf - found
+-- Looking for setenv
+-- Looking for setenv - found
+-- Looking for sin
+-- Looking for sin - found
+-- Looking for sinf
+-- Looking for sinf - found
+-- Looking for sqr
+-- Looking for sqr - not found
+-- Looking for sqrt
+-- Looking for sqrt - found
+-- Looking for sqrtf
+-- Looking for sqrtf - found
+-- Looking for sscanf
+-- Looking for sscanf - found
+-- Looking for strchr
+-- Looking for strchr - found
+-- Looking for strcmp
+-- Looking for strcmp - found
+-- Looking for strlcat
+-- Looking for strlcat - found
+-- Looking for strlcpy
+-- Looking for strlcpy - found
+-- Looking for strlen
+-- Looking for strlen - found
+-- Looking for strncmp
+-- Looking for strncmp - found
+-- Looking for strnlen
+-- Looking for strnlen - found
+-- Looking for strpbrk
+-- Looking for strpbrk - found
+-- Looking for strrchr
+-- Looking for strrchr - found
+-- Looking for strstr
+-- Looking for strstr - found
+-- Looking for strnstr
+-- Looking for strnstr - found
+-- Looking for strtod
+-- Looking for strtod - found
+-- Looking for strtok_r
+-- Looking for strtok_r - found
+-- Looking for strtol
+-- Looking for strtol - found
+-- Looking for strtoll
+-- Looking for strtoll - found
+-- Looking for strtoul
+-- Looking for strtoul - found
+-- Looking for strtoull
+-- Looking for strtoull - found
+-- Looking for tan
+-- Looking for tan - found
+-- Looking for tanf
+-- Looking for tanf - found
+-- Looking for trunc
+-- Looking for trunc - found
+-- Looking for truncf
+-- Looking for truncf - found
+-- Looking for unsetenv
+-- Looking for unsetenv - found
+-- Looking for vsnprintf
+-- Looking for vsnprintf - found
+-- Looking for vsscanf
+-- Looking for vsscanf - found
+-- Looking for wcsnlen
+-- Looking for wcsnlen - found
+-- Looking for wcscmp
+-- Looking for wcscmp - found
+-- Looking for wcsdup
+-- Looking for wcsdup - found
+-- Looking for wcslcat
+-- Looking for wcslcat - found
+-- Looking for wcslcpy
+-- Looking for wcslcpy - found
+-- Looking for wcslen
+-- Looking for wcslen - found
+-- Looking for wcsncmp
+-- Looking for wcsncmp - found
+-- Looking for wcsstr
+-- Looking for wcsstr - found
+-- Looking for wcstol
+-- Looking for wcstol - found
+-- Looking for strcasestr
+-- Looking for strcasestr - found
+-- Performing Test LIBC_HAS_ISINF
+-- Performing Test LIBC_HAS_ISINF - Success
+-- Performing Test LIBC_ISINF_HANDLES_FLOAT
+-- Performing Test LIBC_ISINF_HANDLES_FLOAT - Success
+-- Performing Test LIBC_HAS_ISINFF
+-- Performing Test LIBC_HAS_ISINFF - Failed
+-- Performing Test LIBC_HAS_ISNAN
+-- Performing Test LIBC_HAS_ISNAN - Success
+-- Performing Test LIBC_ISNAN_HANDLES_FLOAT
+-- Performing Test LIBC_ISNAN_HANDLES_FLOAT - Success
+-- Performing Test LIBC_HAS_ISNANF
+-- Performing Test LIBC_HAS_ISNANF - Failed
+-- Looking for fdatasync
+-- Looking for fdatasync - not found
+-- Looking for gethostname
+-- Looking for gethostname - found
+-- Looking for getpagesize
+-- Looking for getpagesize - found
+-- Looking for getresgid
+-- Looking for getresgid - not found
+-- Looking for getresuid
+-- Looking for getresuid - not found
+-- Looking for sigaction
+-- Looking for sigaction - found
+-- Looking for sigtimedwait
+-- Looking for sigtimedwait - not found
+-- Looking for setjmp
+-- Looking for setjmp - found
+-- Looking for nanosleep
+-- Looking for nanosleep - found
+-- Looking for gmtime_r
+-- Looking for gmtime_r - found
+-- Looking for localtime_r
+-- Looking for localtime_r - found
+-- Looking for nl_langinfo
