@@ -56,10 +56,6 @@ static int refcompress(unsigned char *from, int len, unsigned char *dest, int ma
     unsigned char *cptr;
     unsigned char *to;
     unsigned char *rptr;
-    int countliterals=0;
-    int countshort=0;
-    int countint=0;
-    int countvint=0;
     int hash;
     int hoffset;
     int minhoffset;
@@ -152,20 +148,17 @@ static int refcompress(unsigned char *from, int len, unsigned char *dest, int ma
                 memcpy(to,rptr,tlen);
                 rptr += tlen;
                 to += tlen;
-                ++countliterals;
             }
             if (bcost==2)                   /* two byte int form */
             {
                 *to++ = (unsigned char) (((boffset>>8)<<5) + ((blen-3)<<2) + run);
                 *to++ = (unsigned char) boffset;
-                ++countshort;
             }
             else if (bcost==3)              /* three byte int form */
             {
                 *to++ = (unsigned char) (0x80 + (blen-4));
                 *to++ = (unsigned char) ((run<<6) + (boffset>>8));
                 *to++ = (unsigned char) boffset;
-                ++countint;
             }
             else                            /* four byte very int form */
             {
@@ -173,7 +166,6 @@ static int refcompress(unsigned char *from, int len, unsigned char *dest, int ma
                 *to++ = (unsigned char) (boffset>>8);
                 *to++ = (unsigned char) (boffset);
                 *to++ = (unsigned char) (blen-5);
-                ++countvint;
             }
             if (run)
             {
@@ -234,7 +226,7 @@ static int refcompress(unsigned char *from, int len, unsigned char *dest, int ma
 /*  Encode Function                                             */
 /****************************************************************/
 
-int GCALL REF_encode(void *compresseddata, const void *source, int sourcesize, int *opts)
+int GCALL REF_encode(void *compresseddata, const void *source, int sourcesize, int *)
 {
     int    maxback=131072;
     int     quick=0;
@@ -261,4 +253,3 @@ int GCALL REF_encode(void *compresseddata, const void *source, int sourcesize, i
 }
 
 #endif
-

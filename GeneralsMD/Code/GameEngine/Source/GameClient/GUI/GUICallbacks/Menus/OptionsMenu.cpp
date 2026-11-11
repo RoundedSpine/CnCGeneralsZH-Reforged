@@ -1242,6 +1242,8 @@ static Int rendererOptionHigh(const OptionDef &def)
 }
 static Bool rendererOptionEntrySupported(const OptionDef &def,Int value)
 {
+    (void)def;
+    (void)value;
 #if !defined(_WIN32)
     if(strcmp(def.iniKey,"MSAA")==0)return SceneEffects::SupportsSamples(msaaSamplesForLevel(value));
 #endif

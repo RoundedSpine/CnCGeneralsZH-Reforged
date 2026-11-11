@@ -16,7 +16,7 @@ class SmudgeSupport(unittest.TestCase):
                 path=Path(folder)
                 program=r'''
 #include <cassert>
-using Bool=bool;constexpr Bool FALSE=false;
+using Bool=bool;
 enum{SMUDGE_SUPPORT_UNKNOWN,SMUDGE_SUPPORT_NO,SMUDGE_SUPPORT_YES};
 namespace SceneEffects{bool available=true;bool SupportsHeatHaze(){return available;}}
 struct W3DSmudgeManager{int m_hardwareSupportStatus=SMUDGE_SUPPORT_UNKNOWN,probes=0;Bool testHardwareSupport();};
