@@ -283,7 +283,13 @@ requires weapon trails, alpha smoke, emissive bodies, FireLook, flipbooks,
 wind, ground-aligned cards, up-towards-emitter cards, SMUD names and attached
 children to stay on the CPU. The same step would next have rejected
 `BuildFingerprint.manifest`, which did not list the five new policy files.
-The unsigned device IPA was not produced by that run. Do not quote a speedup.
+Run `42959476221` on `33cd24e` passed that host step and compiled through
+`ParticleSys.cpp` and `SdlGpuFrame.cpp`, then stopped in `W3DParticleSys.cpp`:
+Apple clang rejects the log lambdas that return both `"unavailable"`
+(`const char *`) and the scratch buffer (`char *`). Both now return
+`const char *`. Callers still copy the result before the next format, so the
+static buffer is not reused across a line. The unsigned device IPA was not
+produced by either run. Do not quote a speedup.
 
 The earlier device captures still stand as the **baseline**, and only for
 builds before this pass. Peak interval in `generals-stderr(4).log`: about

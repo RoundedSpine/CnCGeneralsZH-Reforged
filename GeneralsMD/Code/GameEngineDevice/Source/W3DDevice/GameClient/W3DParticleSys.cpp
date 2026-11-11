@@ -3196,7 +3196,7 @@ void W3DParticleSystemManager::doParticles(RenderInfoClass &rinfo)
         if (t.frames == 120) {
             const double inv = 1.0 / t.frames;
             const ParticlePerfStats::GpuWindow &gpu = ParticlePerfStats::window();
-            const auto msField = [](double value) {
+            const auto msField = [](double value) -> const char * {
                 static char buf[32];
                 if (value < 0.0) return "unavailable";
                 std::snprintf(buf, sizeof(buf), "%.3f", value);
@@ -3254,7 +3254,7 @@ void W3DParticleSystemManager::doParticles(RenderInfoClass &rinfo)
                     tops[i].first.c_str(), tops[i].second.billboardMs * inv, tops[i].second.drawn * inv);
             }
             const ParticlePerfStats::GpuWindow &stageGpu = ParticlePerfStats::window();
-            const auto stageMs = [](double value) {
+            const auto stageMs = [](double value) -> const char * {
                 static char buf[32];
                 if (value < 0.0)
                     return "unavailable";
