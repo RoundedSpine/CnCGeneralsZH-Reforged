@@ -61,6 +61,7 @@
 #include "GameClient/Drawable.h"
 #include "Platform/WaterFoamParticlePolicy.h"
 #include "Platform/ParticlePerfToggle.h"
+#include "Platform/ParticlePerfStats.h"
 #include <map>
 #include "Common/ThingTemplate.h"
 #include "GameClient/Drawable.h"
@@ -96,8 +97,8 @@ struct ParticlePerfTemplate { double billboardMs = 0, pickMs = 0, smokeMs = 0, f
 static std::map<std::string, ParticlePerfTemplate> s_particlePerfTemplates;
 struct ParticlePerfTotals {
     unsigned frames = 0;
-    double fillMs = 0, lightsMs = 0, gpuSubmitMs = 0;
-    unsigned long long systems = 0, processed = 0, drawn = 0, native = 0, smokeLightCandidates = 0;
+    double fillMs = 0, lightsMs = 0, heatGatherMs = 0, gpuSubmitMs = 0;
+    unsigned long long systems = 0, processed = 0, drawn = 0, native = 0, smokeLightCandidates = 0, smokeLightEvals = 0;
 };
 static ParticlePerfTotals s_particlePerfTotals;
 }
@@ -2509,6 +2510,7 @@ void W3DParticleSystemManager::doParticles(RenderInfoClass &rinfo)
     const bool perf = particlePerfEnabled();
     const auto perfFrameStart = perf ? ParticlePerfClock::now() : ParticlePerfClock::time_point();
     double perfLightsMs = 0.0;
+    double perfHeatMs = 0.0;
     unsigned long long perfProcessed = 0;
 
 	if (m_readyToRender == false)
@@ -2632,10 +2634,12 @@ void W3DParticleSystemManager::doParticles(RenderInfoClass &rinfo)
 #else
 			SceneEffects::SupportsHeatHaze( DX8Wrapper::_Get_D3D_Device() );
 #endif
+		const auto perfHeatStart = perf ? ParticlePerfClock::now() : ParticlePerfClock::time_point();
 		if (TheGlobalData->m_heatHaze && !TheGlobalData->m_classicGraphics && heatHazeAvailable)
 			gatherHeatHaze( rinfo.Camera, m_frameFires, m_frameFireFades, m_frameExhausts, m_frameExhaustFades );
 		else
 			Direct3D11_Set_Heat_Splats( NULL, 0 );
+		if (perf) perfHeatMs = particlePerfMs(perfHeatStart);
 	}
 	// Only a CPU drawn smoke system takes a light (pickSmokeLights); with none, the walk over every
 	// fire, a GPU one's samples aged in closed form, is a third of a frame thrown away.
@@ -3008,17 +3012,35 @@ void W3DParticleSystemManager::doParticles(RenderInfoClass &rinfo)
         t.frames++;
         t.fillMs += perfFillMs;
         t.lightsMs += perfLightsMs;
+        t.heatGatherMs += perfHeatMs;
         t.gpuSubmitMs += particlePerfMs(perfGpuStart);
         t.systems += m_frameView.size();
         t.processed += perfProcessed;
         t.drawn += (unsigned long long)m_onScreenParticleCount;
         t.native += m_gpuLive;
         t.smokeLightCandidates += (unsigned long long)fillJob.lightCount;
+        for (const BillboardFill &f : m_billboardFills)
+            t.smokeLightEvals += f.perfLightEvaluations;
         if (t.frames == 120) {
             const double inv = 1.0 / t.frames;
-            std::fprintf(stderr, "[PARTICLE_PERF] frames=%u cpu_render_ms=%.3f fire_smoke_gather_ms=%.3f gpu_submit_cpu_ms=%.3f active_systems=%.1f processed=%.1f drawn=%.1f native_live=%.1f smoke_light_candidates=%.1f gpu_elapsed_ms=unavailable depth_capture_ms=unavailable\n",
-                t.frames, t.fillMs * inv, t.lightsMs * inv, t.gpuSubmitMs * inv,
-                t.systems * inv, t.processed * inv, t.drawn * inv, t.native * inv, t.smokeLightCandidates * inv);
+            const ParticlePerfStats::GpuWindow &gpu = ParticlePerfStats::window();
+            const auto msField = [](double value) {
+                static char buf[32];
+                if (value < 0.0) return "unavailable";
+                std::snprintf(buf, sizeof(buf), "%.3f", value);
+                return buf;
+            };
+            // gpu_elapsed_ms is the native particle pass, depth_capture_ms the depth
+            // passes, both summed over the latest Metal window (not this CPU interval).
+            char nativeMs[32], depthMs[32], heatGpu[32], presentMs[32];
+            std::snprintf(nativeMs, sizeof(nativeMs), "%s", msField(gpu.nativeParticleMs));
+            std::snprintf(depthMs, sizeof(depthMs), "%s", msField(gpu.depthCaptureMs));
+            std::snprintf(heatGpu, sizeof(heatGpu), "%s", msField(gpu.heatPassMs));
+            std::snprintf(presentMs, sizeof(presentMs), "%s", msField(gpu.presentIntervalMs));
+            std::fprintf(stderr, "[PARTICLE_PERF] frames=%u cpu_render_ms=%.3f fire_smoke_gather_ms=%.3f heat_gather_cpu_ms=%.3f gpu_submit_cpu_ms=%.3f active_systems=%.1f processed=%.1f drawn=%.1f native_live=%.1f smoke_light_candidates=%.1f smoke_light_evals=%.1f gpu_elapsed_ms=%s depth_capture_ms=%s heat_gpu_ms=%s present_ms=%s note=gpu_ms_is_latest_metal_window_sum_not_this_cpu_interval\n",
+                t.frames, t.fillMs * inv, t.lightsMs * inv, t.heatGatherMs * inv, t.gpuSubmitMs * inv,
+                t.systems * inv, t.processed * inv, t.drawn * inv, t.native * inv, t.smokeLightCandidates * inv,
+                t.smokeLightEvals * inv, nativeMs, depthMs, heatGpu, presentMs);
             std::vector<std::pair<std::string, ParticlePerfTemplate>> tops(s_particlePerfTemplates.begin(), s_particlePerfTemplates.end());
             std::sort(tops.begin(), tops.end(), [](const auto &a, const auto &b) { return a.second.billboardMs > b.second.billboardMs; });
             for (size_t i = 0; i < tops.size() && i < 8; ++i)

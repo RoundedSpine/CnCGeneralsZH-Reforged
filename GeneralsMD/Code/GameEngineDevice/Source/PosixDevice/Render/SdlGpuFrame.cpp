@@ -20,6 +20,7 @@
 
 #include "SdlGpuFrame.h"
 #include "Platform/ParticlePerfToggle.h"
+#include "Platform/ParticlePerfStats.h"
 #include "SdlColour.h"
 #include "SdlGpuDepthFormat.h"
 #include "sdl3shadercompile.h"
@@ -1047,6 +1048,15 @@ bool SdlGpuFrame::Submit_Offscreen(SDL_GPUCommandBuffer * commands)
 void SdlGpuFrame::Take_Timing(double & flush_ms, double & fence_ms, unsigned int & flushes, double & acquire_ms,
 	double & offscreen_ms, unsigned int & not_visible, unsigned int & not_shown)
 {
+	// Present spacing, including vsync. A few stores; the draw budget reads it
+	// even when the particle log is off. Not a GPU-elapsed measurement.
+	{
+		static uint64_t lastPresentNs = 0;
+		const uint64_t nowNs = SDL_GetTicksNS();
+		if (lastPresentNs != 0 && nowNs > lastPresentNs)
+			ParticlePerfStats::notePresentInterval(double(nowNs - lastPresentNs) / 1.0e6);
+		lastPresentNs = nowNs;
+	}
 	flush_ms = FlushMs;
 	fence_ms = FenceMs;
 	flushes = Flushes;
@@ -1106,6 +1116,17 @@ void SdlGpuFrame::Take_Timing(double & flush_ms, double & fence_ms, unsigned int
 					static_cast<unsigned long long>(fragmentsPassed[p]),
 					fragmentsPassed[p] ? double(fragmentInvocations[p]) / double(fragmentsPassed[p]) : 0.0);
 			}
+			const bool passTimes = nanosecondsPerGpuTick > 0.0;
+			const auto overdraw = [](uint64_t invocations, uint64_t passed, uint32_t samples) {
+				return (samples && passed) ? double(invocations) / double(passed) : -1.0;
+			};
+			ParticlePerfStats::publishGpuWindow(
+				passTimes ? double(passNs[7]) / 1.0e6 : -1.0,
+				passTimes ? double(passNs[3] + passNs[11]) / 1.0e6 : -1.0,
+				passTimes ? double(passNs[5]) / 1.0e6 : -1.0,
+				overdraw(fragmentInvocations[1], fragmentsPassed[1], statsSamples[1]),
+				overdraw(fragmentInvocations[7], fragmentsPassed[7], statsSamples[7]),
+				ParticleGpuPerfFrames);
 #endif
 			fprintf(stderr, "[GPU_SYNC_PERF] intervals=%u flush_limit=%u flushes=%u ring_waits=%u ring_wait_cpu_ms=%.3f ring_wait_max_ms=%.3f waits_ge_1ms=%u waits_ge_5ms=%u waits_ge_16ms=%u submit_calls=%u submit_cpu_ms=%.3f gpu_cmd_completed=%u gpu_cmd_unavailable=%u gpu_cmd_total_ms=%.3f gpu_cmd_max_ms=%.3f gpu_time_source=%s render_passes=%u depth_snapshots=%u blits=%u copy_passes=%u recorded_draws=%llu upload_mib=%.3f note=gpu_time_is_async_completed_command_buffer_sum_not_per_frame\n",
 				ParticleGpuPerfFrames, FlushLimit, FlushesTotal - ParticleGpuPerfFlushStart,
