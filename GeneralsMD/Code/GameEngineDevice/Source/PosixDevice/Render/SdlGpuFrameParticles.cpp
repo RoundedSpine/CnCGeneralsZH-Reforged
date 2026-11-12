@@ -142,7 +142,11 @@ bool SdlGpuFrame::Particle_Slice(unsigned slice,SDL_GPUTexture *texture,unsigned
     auto *cmd=SDL_AcquireGPUCommandBuffer(GpuDevice);if(!cmd)return Particle_Failure("slice command");
     SDL_GPUBlitInfo blit={};blit.source.texture=texture;blit.source.w=width;blit.source.h=height;
     blit.destination.texture=p.Atlas;blit.destination.layer_or_depth_plane=slice;blit.destination.w=blit.destination.h=SpriteSize;
-    blit.load_op=SDL_GPU_LOADOP_DONT_CARE;blit.filter=SDL_GPU_FILTER_LINEAR;SDL_BlitGPUTexture(cmd,&blit);
+    blit.load_op=SDL_GPU_LOADOP_DONT_CARE;blit.filter=SDL_GPU_FILTER_LINEAR;
+#if defined(__APPLE__)
+    ZH_SDL_Metal_SetNextRenderPassTag(19u);
+#endif
+    SDL_BlitGPUTexture(cmd,&blit);
     SDL_GenerateMipmapsForGPUTexture(cmd,p.Atlas);if(!Submit_Flush(cmd))return Particle_Failure("slice submit");
     p.Sources[slice]=texture;return true;
 }

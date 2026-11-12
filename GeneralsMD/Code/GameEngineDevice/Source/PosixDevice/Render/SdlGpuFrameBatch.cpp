@@ -551,6 +551,9 @@ bool SdlGpuFrame::Record_Passes(SDL_GPUCommandBuffer * commands, SDL_GPUBuffer *
 			blit.destination.h = (Uint32)command->BlitRect[3];
 			blit.load_op = SDL_GPU_LOADOP_LOAD;
 			blit.filter = command->BlitLinear ? SDL_GPU_FILTER_LINEAR : SDL_GPU_FILTER_NEAREST;
+			#if defined(__APPLE__)
+			ZH_SDL_Metal_SetNextRenderPassTag(16u);
+			#endif
 			SDL_BlitGPUTexture(commands, &blit);
             External_Colour_Write(command->BlitDestination);
             pushed_vertex=pushed_water_vertex=pushed_pixel=0xFFFFFFFFu;memset(pushed_water_pixel,0xFF,sizeof(pushed_water_pixel));

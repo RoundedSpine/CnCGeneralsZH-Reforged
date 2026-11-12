@@ -1112,12 +1112,12 @@ void SdlGpuFrame::Take_Timing(double & flush_ms, double & fence_ms, unsigned int
 			if (metalTimingAvailable)
 				ZH_SDL_Metal_TakeTiming(&gpuCompletedNs, &gpuMaximumNs,
 					&gpuSamples, &gpuUnavailable);
-			Uint64 passNs[16] = {}, passMaxNs[16] = {};
-			Uint32 passCounts[16] = {}, passMissing[16] = {};
+			Uint64 passNs[20] = {}, passMaxNs[20] = {};
+			Uint32 passCounts[20] = {}, passMissing[20] = {};
 			if (metalTimingAvailable)
 				ZH_SDL_Metal_TakePassTiming(passNs, passMaxNs, passCounts, passMissing);
-			Uint64 fragmentInvocations[16] = {}, fragmentsPassed[16] = {};
-			Uint32 statsSamples[16] = {}, statsMissing[16] = {};
+			Uint64 fragmentInvocations[20] = {}, fragmentsPassed[20] = {};
+			Uint32 statsSamples[20] = {}, statsMissing[20] = {};
 			if (metalTimingAvailable)
 				ZH_SDL_Metal_TakeFragmentStatistics(fragmentInvocations,
 					fragmentsPassed, statsSamples, statsMissing);
@@ -1126,13 +1126,15 @@ void SdlGpuFrame::Take_Timing(double & flush_ms, double & fence_ms, unsigned int
 				ZH_SDL_Metal_GetTimestampScale(&nanosecondsPerGpuTick);
 			fprintf(stderr, "[GPU_COUNTER_CALIBRATION] ns_per_gpu_tick=%.9f valid=%u source=Metal_sampleTimestamps_cpu_gpu_pairs note=pass_times_converted_only_when_valid\n",
 				nanosecondsPerGpuTick, nanosecondsPerGpuTick > 0.0 ? 1u : 0u);
-			const char *passNames[16] = {
+			const char *passNames[20] = {
 				"unlabelled", "scene_backbuffer", "intermediate", "depth_only",
 				"ocean_fft", "heat", "msaa_colour", "native_particles",
 				"postprocess", "sun_smoke_shadow", "gamma", "msaa_depth",
-				"ambient_occlusion", "atmosphere", "firelight", "msaa_depth_clear"
+				"ambient_occlusion", "atmosphere", "firelight", "msaa_depth_clear",
+				"queued_texture_blit", "frame_front_copy", "frame_present_blit",
+				"particle_atlas_blit"
 			};
-			for (unsigned p = 0; p < 16; ++p) {
+			for (unsigned p = 0; p < 20; ++p) {
 				fprintf(stderr, "[GPU_PASS_PERF] bucket=%s completed=%u unavailable=%u gpu_ms=%.3f max_ms=%.3f stats_completed=%u stats_unavailable=%u fragment_invocations=%llu fragments_passed=%llu fragment_invocations_per_passed=%.3f note=async_gpu_stage_counters_pass_wide_not_transparent_only\n",
 					passNames[p], passCounts[p], passMissing[p],
 					double(passNs[p]) / 1.0e6, double(passMaxNs[p]) / 1.0e6,
@@ -1343,6 +1345,9 @@ bool SdlGpuFrame::Present_Into(SDL_GPUCommandBuffer * commands, SDL_GPUTexture *
 		blit.destination.h = height;
 		blit.load_op = SDL_GPU_LOADOP_DONT_CARE;
 		blit.filter = SDL_GPU_FILTER_LINEAR;
+		#if defined(__APPLE__)
+		ZH_SDL_Metal_SetNextRenderPassTag(18u);
+		#endif
 		SDL_BlitGPUTexture(commands, &blit);
 		return true;
 	}
@@ -1387,6 +1392,9 @@ bool SdlGpuFrame::Copy_To_Front(SDL_GPUCommandBuffer * commands)
 	blit.destination.h = BackHeight;
 	blit.load_op = SDL_GPU_LOADOP_DONT_CARE;
 	blit.filter = SDL_GPU_FILTER_NEAREST;
+	#if defined(__APPLE__)
+	ZH_SDL_Metal_SetNextRenderPassTag(17u);
+	#endif
 	SDL_BlitGPUTexture(commands, &blit);
 	return true;
 }

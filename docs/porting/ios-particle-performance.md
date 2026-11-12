@@ -231,10 +231,12 @@ patch now calls `MTLDevice sampleTimestamps:gpuTimestamp:` twice at least
   `GPU_PASS_PERF.gpu_ms` as calibrated time only when `valid=1`.
   Samples recorded before the scale is ready are counted unavailable.
   Asynchronous callback arrivals mean adjacent 120-call buckets need not match.
-- `[GPU_PASS_PERF]` now has 16 buckets: unlabelled, scene backbuffer,
+- `[GPU_PASS_PERF]` now has 20 buckets: unlabelled, scene backbuffer,
   intermediate, depth only, ocean FFT, heat, MSAA colour, native particles,
   post-processing, sun smoke shadow, gamma, MSAA depth, ambient occlusion,
-  atmosphere, firelight, and MSAA depth clear. These are
+  atmosphere, firelight, MSAA depth clear, queued texture blit, frame front
+  copy, frame present blit, and particle atlas blit. SDL texture blits use an
+  internal render pass, so tag the blit call before invoking SDL. These are
   *render-pass sites*, not exact per-shader GPU times. Some mixed/unknown passes
   remain unlabelled; compare the bucket counts against actual pass activity
   before interpreting an empty bucket.
