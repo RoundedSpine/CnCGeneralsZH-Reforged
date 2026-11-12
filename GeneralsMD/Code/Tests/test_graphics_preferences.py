@@ -334,6 +334,8 @@ struct SdlGpuFrame {
     void *GpuDevice=this;bool AoFailed=false,SerializeSubmits=false;SdlAo::Renderer *Ao=nullptr;
     SDL_GPUTexture *BackBuffer=&back;unsigned flushes=0,submits=0,invalidations=0;
     ~SdlGpuFrame(){delete Ao;}
+    bool Is_Scene_Target(const SdlTarget&)const{return false;}
+    unsigned Width()const{return 257;}unsigned Height()const{return 193;}
     bool Supports_Scene_Depth(){return true;}
     bool Memory_Constrained(){return false;}
     enum FlushCause {FlushUnclassified,FlushAmbientOcclusion};
@@ -349,6 +351,10 @@ struct SdlGpuFrame {
     bool Ambient_Occlusion(const SdlTarget&,const SdlAo::Constants&,SDL_GPUTexture*);
 };
 struct Matrix {float _11=1,_12=0,_13=0,_14=0,_21=0,_22=1,_23=0,_24=0,_31=0,_32=0,_33=1,_34=0,_41=0,_42=0,_43=0,_44=1;};
+struct Posix_Scene_Viewport {
+    template<class Viewport>
+    Posix_Scene_Viewport(Viewport&,const SdlGpuFrame*,const SdlTarget&){}
+};
 enum {D3DTS_VIEW,D3DTS_PROJECTION};
 struct Mirror {SDL_GPUTexture *Texture(IDirect3DBaseTexture9*,std::string&){return &fog;}} mirror;
 struct PosixDevice9 {
