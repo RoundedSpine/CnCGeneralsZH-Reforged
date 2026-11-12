@@ -2,6 +2,9 @@
 #include "sdl3shadercompile.h"
 #include <cstdio>
 #include <vector>
+#if defined(__APPLE__)
+extern "C" void ZH_SDL_Metal_SetNextRenderPassTag(Uint32 category);
+#endif
 namespace SdlAo {
 void Renderer::ReleaseTargets() {
     if(ResolvedDepth) SDL_ReleaseGPUTexture(Device,ResolvedDepth);
@@ -101,6 +104,9 @@ bool Renderer::Render(SDL_GPUCommandBuffer *commands,SDL_GPUTexture *colour,cons
         target.texture=passIndex==3?colour:Ping[passIndex==1?1:0];
         target.load_op=passIndex==3?SDL_GPU_LOADOP_LOAD:SDL_GPU_LOADOP_DONT_CARE;
         target.store_op=SDL_GPU_STOREOP_STORE;
+#if defined(__APPLE__)
+        ZH_SDL_Metal_SetNextRenderPassTag(12u);
+#endif
         SDL_GPURenderPass *pass=SDL_BeginGPURenderPass(commands,&target,1,nullptr);
         if(!pass) return false;
         SDL_BindGPUGraphicsPipeline(pass,Pipelines[shader]);

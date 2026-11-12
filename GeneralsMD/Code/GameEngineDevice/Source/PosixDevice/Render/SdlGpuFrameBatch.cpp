@@ -364,6 +364,9 @@ bool SdlGpuFrame::Begin_Pass(SDL_GPUCommandBuffer * commands, const SdlTarget & 
             single.load_op=clear_depth?SDL_GPU_LOADOP_CLEAR:SDL_GPU_LOADOP_LOAD;single.store_op=SDL_GPU_STOREOP_STORE;
             single.stencil_load_op=!has?SDL_GPU_LOADOP_DONT_CARE:clear_stencil?SDL_GPU_LOADOP_CLEAR:SDL_GPU_LOADOP_LOAD;
             single.stencil_store_op=has?SDL_GPU_STOREOP_STORE:SDL_GPU_STOREOP_DONT_CARE;
+#if defined(__APPLE__)
+            ZH_SDL_Metal_SetNextRenderPassTag(15u);
+#endif
             auto *clear=SDL_BeginGPURenderPass(commands,nullptr,0,&single);if(!clear)return false;
             if (ParticlePerfToggle::enabled()) ++ParticleGpuRenderPasses;
             SDL_EndGPURenderPass(clear);

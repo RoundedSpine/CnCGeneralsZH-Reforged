@@ -9,9 +9,8 @@ float4 read_colour(float2 uv){
     return Source.SampleLevel(Point,clamp(uv,(Rect.xy+0.5)*Options.zw,(Rect.xy+Rect.zw-0.5)*Options.zw),0);
 }
 float luminance(float3 c){return dot(c,float3(0.299,0.587,0.114));}
-float3 fxaa(float2 uv){
+float3 fxaa(float2 uv,float3 c){
     float2 t=Options.zw;
-    float3 c=read_colour(uv).rgb;
     float nw=luminance(read_colour(uv+float2(-t.x,-t.y)).rgb);
     float ne=luminance(read_colour(uv+float2(t.x,-t.y)).rgb);
     float sw=luminance(read_colour(uv+float2(-t.x,t.y)).rgb);
@@ -51,9 +50,9 @@ float4 main(float4 pos:SV_Position):SV_Target{
     float2 uv=pos.xy*Options.zw;float4 c=read_colour(uv);
     // Filter.x: 0 tone/grade, 1 FXAA, 2 sharpen, 3 FXAA then sharpen in one pass (the sharpen taps read the
     // unfiltered source, so the pair costs one full-frame read instead of two).
-    if(Filter.x>2.5)c.rgb=sharpen(uv,fxaa(uv));
+    if(Filter.x>2.5)c.rgb=sharpen(uv,fxaa(uv,c.rgb));
     else if(Filter.x>1.5)c.rgb=sharpen(uv,c.rgb);
-    else if(Filter.x>0.5)c.rgb=fxaa(uv);
+    else if(Filter.x>0.5)c.rgb=fxaa(uv,c.rgb);
     else {
         if(Options.x>0.5)c.rgb=tone(max(c.rgb,0));
         if(Options.y>0)c.rgb=grade(c.rgb);

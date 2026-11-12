@@ -151,8 +151,10 @@ pass boundaries, or normal resource lifetime. The profiler adds counter-sample
 buffer allocations and completion callbacks; measure its own overhead with a
 profiling-disabled control.
 
-The engine labels render passes as `scene_backbuffer`, `intermediate`,
-`depth_only`, or `unlabelled`. Every 120 `Take_Timing` intervals the
+The engine labels common render-pass sites as `scene_backbuffer`, `intermediate`,
+`depth_only`, `ambient_occlusion`, `atmosphere`, `firelight`, or other named
+effect buckets, with `unlabelled` retained as a fallback for external or missed
+sites. Every 120 `Take_Timing` intervals the
 `[GPU_PASS_PERF]` lines report:
 
 - `completed`, `unavailable`, `gpu_ms`, `max_ms`: real, **asynchronously completed**
@@ -229,11 +231,15 @@ patch now calls `MTLDevice sampleTimestamps:gpuTimestamp:` twice at least
   `GPU_PASS_PERF.gpu_ms` as calibrated time only when `valid=1`.
   Samples recorded before the scale is ready are counted unavailable.
   Asynchronous callback arrivals mean adjacent 120-call buckets need not match.
-- `[GPU_PASS_PERF]` now has 12 buckets: unlabelled, scene backbuffer,
+- `[GPU_PASS_PERF]` now has 16 buckets: unlabelled, scene backbuffer,
   intermediate, depth only, ocean FFT, heat, MSAA colour, native particles,
-  post-processing, sun smoke shadow, gamma, and MSAA depth. These are
+  post-processing, sun smoke shadow, gamma, MSAA depth, ambient occlusion,
+  atmosphere, firelight, and MSAA depth clear. These are
   *render-pass sites*, not exact per-shader GPU times. Some mixed/unknown passes
-  remain unlabelled.
+  remain unlabelled; compare the bucket counts against actual pass activity
+  before interpreting an empty bucket.
+- The FXAA shader reuses the already sampled centre texel, avoiding a redundant
+  texture read while preserving the fused FXAA/sharpen pass and its output.
 - `[GPU_FLUSH_CAUSES]` counts calls to `SdlGpuFrame::Flush` by explicit
   originating subsystem: unclassified, batch limit, ocean, scene depth,
   ambient occlusion, atmosphere, heat, MSAA, native particles, smoke,

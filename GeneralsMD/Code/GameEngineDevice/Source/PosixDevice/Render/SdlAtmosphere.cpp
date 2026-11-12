@@ -3,6 +3,9 @@
 #include "sdl3shadercompile.h"
 #include <cstdio>
 #include <vector>
+#if defined(__APPLE__)
+extern "C" void ZH_SDL_Metal_SetNextRenderPassTag(Uint32 category);
+#endif
 namespace SdlAtmosphere {
 Renderer::~Renderer() {
     if(ResolvedDepth) SDL_ReleaseGPUTexture(Device,ResolvedDepth);
@@ -101,6 +104,9 @@ bool Renderer::PrepareFirelight(unsigned width,unsigned height,unsigned format,s
 bool Renderer::RenderFirelight(SDL_GPUCommandBuffer *commands,SDL_GPUTexture *colour,const SdlFirelight::Constants &constants) {
     if(!commands||!colour||!FirePipeline||!ResolvedDepth||colour==ResolvedDepth)return false;
     SDL_GPUColorTargetInfo target={};target.texture=colour;target.load_op=SDL_GPU_LOADOP_LOAD;target.store_op=SDL_GPU_STOREOP_STORE;
+#if defined(__APPLE__)
+    ZH_SDL_Metal_SetNextRenderPassTag(14u);
+#endif
     auto *pass=SDL_BeginGPURenderPass(commands,&target,1,nullptr);if(!pass)return false;
     SDL_BindGPUGraphicsPipeline(pass,FirePipeline);SDL_GPUTextureSamplerBinding depth={ResolvedDepth,Point};
     SDL_BindGPUFragmentSamplers(pass,0,&depth,1);
@@ -114,6 +120,9 @@ bool Renderer::Render(SDL_GPUCommandBuffer *commands,SDL_GPUTexture *colour,cons
     if(!commands||!colour||!Pipeline||!ResolvedDepth||colour==ResolvedDepth||colour==sky||colour==shroud
         ||(constants.Flags[0]!=0&&!shroud)||(constants.Flags[1]!=0&&!sky))return false;
     SDL_GPUColorTargetInfo target={};target.texture=colour;target.load_op=SDL_GPU_LOADOP_LOAD;target.store_op=SDL_GPU_STOREOP_STORE;
+#if defined(__APPLE__)
+    ZH_SDL_Metal_SetNextRenderPassTag(13u);
+#endif
     auto *pass=SDL_BeginGPURenderPass(commands,&target,1,nullptr);if(!pass)return false;
     SDL_BindGPUGraphicsPipeline(pass,Pipeline);
     SDL_GPUTextureSamplerBinding bindings[3]={{ResolvedDepth,Point},{shroud?shroud:ResolvedDepth,shroud?Linear:Point},
