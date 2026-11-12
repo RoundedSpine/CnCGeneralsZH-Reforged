@@ -668,9 +668,14 @@ GlobalData::GlobalData()
 	m_noFrameRateCap = FALSE;
 	m_direct3D11 = TRUE;
 	m_direct3D11DumpPath.clear();
-	// The Direct3D 11 frame gets every effect the backend has unless -dx11post names a chain of its
-	// own; "-dx11post off" is the faithful 2003 picture that dx11-check.ps1 compares against.
+	// Full-resolution edge filtering is too costly at the iOS render size, while bloom and AO retain
+	// their separate native paths. An explicit -dx11post chain can still opt into FXAA or sharpening.
+#if defined(ZH_PLATFORM_IOS)
+	m_direct3D11PostChain = "bloom,ao";
+#else
+	// The desktop Direct3D 11 frame gets every effect unless -dx11post names its own chain.
 	m_direct3D11PostChain = "bloom,ao,fxaa,sharpen";
+#endif
 	m_xResolution = 800;
 	m_yResolution = 600;
 	m_maxShellScreens = 0;

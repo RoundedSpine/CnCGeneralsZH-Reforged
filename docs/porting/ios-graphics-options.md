@@ -119,11 +119,13 @@ Source anchors, relative to `GeneralsMD/Code`:
 Additional renderer settings outside these 44 generated controls: the saved VSync
 request now configures the SDL swapchain during creation/reset. Uncapped mode is
 capability-dependent; `[SDL_PRESENT]` reports the actual mode and fallback. The
-post-chain string now selects native FXAA/sharpen filters. Shared bloom, native AO
-and native tone/colour grading have independent paths. Filtering preserves alpha,
-clamps to the world viewport and precedes UI. MSAA skips FXAA and selects a mild
-softening amount; memory pressure pauses optional filters. `[SDL_POST]` reports
-requested and selected passes. See [port status](ios-feature-audit.md).
+post-chain string can select native FXAA/sharpen filters, but the iOS default
+omits both to avoid their full-resolution sampling cost. Shared bloom, native AO
+and native tone/colour grading have independent paths. An explicit `-dx11post`
+chain can opt back into either filter. Filtering preserves alpha, clamps to the
+world viewport and precedes UI. MSAA skips FXAA and selects a mild softening
+amount; memory pressure pauses optional filters. `[SDL_POST]` reports requested
+and selected passes. See [port status](ios-feature-audit.md).
 
 ## Validation limits and device checks
 
