@@ -1,180 +1,3 @@
--- Looking for getauxval
--- Looking for getauxval - not found
--- Looking for elf_aux_info
--- Looking for elf_aux_info - not found
--- Looking for ppoll
--- Looking for ppoll - not found
--- Looking for memfd_create
--- Looking for memfd_create - not found
--- Looking for posix_fallocate
--- Looking for posix_fallocate - not found
--- Looking for posix_spawn_file_actions_addchdir
--- Looking for posix_spawn_file_actions_addchdir - not found
--- Looking for posix_spawn_file_actions_addchdir_np
--- Looking for posix_spawn_file_actions_addchdir_np - not found
--- Looking for dlopen
--- Looking for dlopen - found
--- Performing Test HAVE_O_CLOEXEC
--- Performing Test HAVE_O_CLOEXEC - Success
--- Performing Test HAVE_FRAMEWORK_METAL
--- Performing Test HAVE_FRAMEWORK_METAL - Success
--- Performing Test HAVE_PTHREADS
--- Performing Test HAVE_PTHREADS - Success
--- Performing Test HAVE_RECURSIVE_MUTEXES
--- Performing Test HAVE_RECURSIVE_MUTEXES - Success
--- Performing Test HAVE_PTHREADS_SEM
--- Performing Test HAVE_PTHREADS_SEM - Success
--- Performing Test COMPILER_HAS_SEM_TIMEDWAIT
--- Performing Test COMPILER_HAS_SEM_TIMEDWAIT - Failed
--- Looking for pthread.h
--- Looking for pthread.h - found
--- Looking for pthread_np.h
--- Looking for pthread_np.h - not found
--- Performing Test HAVE_PTHREAD_SETNAME_NP
--- Performing Test HAVE_PTHREAD_SETNAME_NP - Success
--- Performing Test HAVE_POSIX_SPAWN
--- Performing Test HAVE_POSIX_SPAWN - Success
--- Performing Test COMPILER_SUPPORTS_FOBJC_ARC
--- Performing Test COMPILER_SUPPORTS_FOBJC_ARC - Success
--- 
--- SDL3 was configured with the following options:
--- 
--- Platform: iOS
--- 64-bit:   TRUE
--- Compiler: /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang
--- Revision: SDL-3.4.16-HEAD-HASH-NOTFOUND
--- Vendor:   
--- 
--- Subsystems:
---   Audio:    OFF
---   Video:    ON
---   GPU:      ON
---   Render:   OFF
---   Camera:   OFF
---   Joystick: OFF
---   Haptic:   OFF
---   Hidapi:   OFF
---   Power:    OFF
---   Sensor:   OFF
---   Dialog:   OFF
---   Tray:     OFF
--- 
--- Options:
---   SDL_ALSA                    (Wanted: OFF): OFF
---   SDL_ALSA_SHARED             (Wanted: OFF): OFF
---   SDL_ALTIVEC                 (Wanted: OFF): OFF
---   SDL_ARMNEON                 (Wanted: ON): ON
---   SDL_ASAN                    (Wanted: OFF): OFF
---   SDL_ASSEMBLY                (Wanted: ON): ON
---   SDL_ASSERTIONS              (Wanted: auto): auto
---   SDL_AVX                     (Wanted: OFF): OFF
---   SDL_AVX2                    (Wanted: OFF): OFF
---   SDL_AVX512F                 (Wanted: OFF): OFF
---   SDL_BACKGROUNDING_SIGNAL    (Wanted: OFF): OFF
---   SDL_CCACHE                  (Wanted: OFF): OFF
---   SDL_CLANG_TIDY              (Wanted: OFF): OFF
---   SDL_CLOCK_GETTIME           (Wanted: OFF): OFF
---   SDL_COCOA                   (Wanted: ON): OFF
---   SDL_DBUS                    (Wanted: OFF): OFF
---   SDL_DEPS_SHARED             (Wanted: ON): OFF
---   SDL_DIRECTX                 (Wanted: OFF): OFF
---   SDL_DISKAUDIO               (Wanted: OFF): OFF
---   SDL_DLOPEN_NOTES            (Wanted: OFF): OFF
---   SDL_DUMMYAUDIO              (Wanted: OFF): OFF
---   SDL_DUMMYCAMERA             (Wanted: OFF): OFF
---   SDL_DUMMYVIDEO              (Wanted: ON): ON
---   SDL_EXAMPLES                (Wanted: OFF): OFF
---   SDL_EXAMPLES_LINK_SHARED    (Wanted: OFF): OFF
---   SDL_FOREGROUNDING_SIGNAL    (Wanted: OFF): OFF
---   SDL_FRIBIDI                 (Wanted: OFF): OFF
---   SDL_FRIBIDI_SHARED          (Wanted: OFF): OFF
---   SDL_GCC_ATOMICS             (Wanted: ON): ON
---   SDL_HIDAPI                  (Wanted: OFF): OFF
---   SDL_HIDAPI_JOYSTICK         (Wanted: OFF): OFF
---   SDL_HIDAPI_LIBUSB           (Wanted: OFF): OFF
---   SDL_HIDAPI_LIBUSB_SHARED    (Wanted: OFF): OFF
---   SDL_IBUS                    (Wanted: OFF): OFF
---   SDL_INSTALL                 (Wanted: OFF): OFF
---   SDL_INSTALL_TESTS           (Wanted: OFF): OFF
---   SDL_JACK                    (Wanted: OFF): OFF
---   SDL_JACK_SHARED             (Wanted: OFF): OFF
---   SDL_KMSDRM                  (Wanted: OFF): OFF
---   SDL_KMSDRM_SHARED           (Wanted: OFF): OFF
---   SDL_LASX                    (Wanted: OFF): OFF
---   SDL_LIBC                    (Wanted: ON): ON
---   SDL_LIBICONV                (Wanted: OFF): OFF
---   SDL_LIBTHAI                 (Wanted: OFF): OFF
---   SDL_LIBTHAI_SHARED          (Wanted: OFF): OFF
---   SDL_LIBUDEV                 (Wanted: ON): OFF
---   SDL_LIBURING                (Wanted: OFF): OFF
---   SDL_LSX                     (Wanted: OFF): OFF
---   SDL_METAL                   (Wanted: ON): ON
---   SDL_MMX                     (Wanted: OFF): OFF
---   SDL_OFFSCREEN               (Wanted: ON): ON
---   SDL_OPENGL                  (Wanted: OFF): OFF
---   SDL_OPENGLES                (Wanted: OFF): OFF
---   SDL_OPENVR                  (Wanted: OFF): OFF
---   SDL_OSS                     (Wanted: OFF): OFF
---   SDL_PIPEWIRE                (Wanted: OFF): OFF
---   SDL_PIPEWIRE_SHARED         (Wanted: OFF): OFF
---   SDL_PTHREADS                (Wanted: ON): ON
---   SDL_PTHREADS_SEM            (Wanted: ON): ON
---   SDL_PULSEAUDIO              (Wanted: OFF): OFF
---   SDL_PULSEAUDIO_SHARED       (Wanted: OFF): OFF
---   SDL_RENDER_D3D              (Wanted: OFF): OFF
---   SDL_RENDER_D3D11            (Wanted: OFF): OFF
---   SDL_RENDER_D3D12            (Wanted: OFF): OFF
---   SDL_RENDER_GPU              (Wanted: OFF): OFF
---   SDL_RENDER_METAL            (Wanted: OFF): OFF
---   SDL_RENDER_VULKAN           (Wanted: OFF): OFF
---   SDL_ROCKCHIP                (Wanted: OFF): OFF
---   SDL_RPATH                   (Wanted: ON): OFF
---   SDL_RPI                     (Wanted: OFF): OFF
---   SDL_SNDIO                   (Wanted: OFF): OFF
---   SDL_SNDIO_SHARED            (Wanted: OFF): OFF
---   SDL_SSE                     (Wanted: OFF): OFF
---   SDL_SSE2                    (Wanted: OFF): OFF
---   SDL_SSE3                    (Wanted: OFF): OFF
---   SDL_SSE4_1                  (Wanted: OFF): OFF
---   SDL_SSE4_2                  (Wanted: OFF): OFF
---   SDL_SYSTEM_ICONV            (Wanted: OFF): OFF
---   SDL_TESTS                   (Wanted: OFF): OFF
---   SDL_TESTS_LINK_SHARED       (Wanted: OFF): OFF
---   SDL_UNINSTALL               (Wanted: OFF): OFF
---   SDL_VIRTUAL_JOYSTICK        (Wanted: OFF): OFF
---   SDL_VIVANTE                 (Wanted: OFF): OFF
---   SDL_VULKAN                  (Wanted: ON): ON
---   SDL_WASAPI                  (Wanted: OFF): OFF
---   SDL_WAYLAND                 (Wanted: OFF): OFF
---   SDL_WAYLAND_LIBDECOR        (Wanted: OFF): OFF
---   SDL_WAYLAND_LIBDECOR_SHARED (Wanted: OFF): OFF
---   SDL_WAYLAND_SHARED          (Wanted: OFF): OFF
---   SDL_X11                     (Wanted: OFF): OFF
---   SDL_X11_SHARED              (Wanted: OFF): OFF
---   SDL_X11_XCURSOR             (Wanted: OFF): OFF
---   SDL_X11_XDBE                (Wanted: OFF): OFF
---   SDL_X11_XFIXES              (Wanted: OFF): OFF
---   SDL_X11_XINPUT              (Wanted: OFF): OFF
---   SDL_X11_XRANDR              (Wanted: OFF): OFF
---   SDL_X11_XSCRNSAVER          (Wanted: OFF): OFF
---   SDL_X11_XSHAPE              (Wanted: OFF): OFF
---   SDL_X11_XSYNC               (Wanted: OFF): OFF
---   SDL_X11_XTEST               (Wanted: OFF): OFF
---   SDL_XINPUT                  (Wanted: OFF): OFF
--- 
---  Build Shared Library: OFF
---  Build Static Library: ON
---  Build libraries as Apple Framework: OFF
--- 
--- Enabled backends:
---   Video drivers: dummy offscreen uikit
---   Render drivers: 
---   GPU drivers: metal vulkan
---   Audio drivers: dummy
---   Joystick drivers: disabled dummy
---   Camera drivers: dummy
--- 
--- If something was not detected, although the libraries
 -- were installed, then make sure you have set the
 -- CMAKE_C_FLAGS and CMAKE_PREFIX_PATH CMake variables correctly.
 -- 
@@ -298,3 +121,180 @@ to suppress it.
 [99/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/stdlib/SDL_getenv.c.o
 [100/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/stdlib/SDL_iconv.c.o
 [101/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/stdlib/SDL_malloc.c.o
+[102/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/stdlib/SDL_memcpy.c.o
+[103/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/stdlib/SDL_memmove.c.o
+[104/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/stdlib/SDL_memset.c.o
+[105/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/stdlib/SDL_mslibc.c.o
+[106/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/stdlib/SDL_murmur3.c.o
+[107/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/stdlib/SDL_qsort.c.o
+[108/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/stdlib/SDL_random.c.o
+[109/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/stdlib/SDL_stdlib.c.o
+[110/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/stdlib/SDL_string.c.o
+[111/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/stdlib/SDL_strtokr.c.o
+[112/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/storage/SDL_storage.c.o
+[113/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/thread/SDL_thread.c.o
+[114/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/time/SDL_time.c.o
+[115/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/timer/SDL_timer.c.o
+[116/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/SDL_RLEaccel.c.o
+[117/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/SDL_blit.c.o
+[118/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/SDL_blit_0.c.o
+[119/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/SDL_blit_1.c.o
+[120/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/SDL_blit_A.c.o
+[121/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/SDL_blit_N.c.o
+[122/1624] Building CXX object SPIRV-Cross/CMakeFiles/spirv-cross-glsl.dir/spirv_glsl.cpp.o
+[123/1624] Linking CXX static library SPIRV-Cross/libspirv-cross-glsl.a
+[124/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/SDL_blit_copy.c.o
+[125/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/SDL_blit_slow.c.o
+[126/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/SDL_bmp.c.o
+[127/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/SDL_clipboard.c.o
+[128/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/SDL_egl.c.o
+[129/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/SDL_fillrect.c.o
+[130/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/SDL_pixels.c.o
+[131/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/SDL_rect.c.o
+[132/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/SDL_blit_auto.c.o
+[133/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/SDL_rotate.c.o
+[134/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/SDL_stretch.c.o
+[135/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/SDL_surface.c.o
+[136/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/SDL_video.c.o
+[137/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/SDL_video_unsupported.c.o
+[138/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/SDL_vulkan_utils.c.o
+[139/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/SDL_stb.c.o
+[140/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/SDL_yuv.c.o
+[141/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/yuv2rgb/yuv_rgb_lsx.c.o
+[142/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/yuv2rgb/yuv_rgb_sse.c.o
+[143/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/e_atan2.c.o
+[144/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/e_exp.c.o
+[145/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/e_fmod.c.o
+[146/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/e_log.c.o
+[147/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/e_log10.c.o
+[148/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/e_pow.c.o
+[149/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/e_rem_pio2.c.o
+[150/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/e_sqrt.c.o
+[151/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/yuv2rgb/yuv_rgb_std.c.o
+[152/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/k_cos.c.o
+[153/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/k_sin.c.o
+[154/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/k_tan.c.o
+[155/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/k_rem_pio2.c.o
+[156/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/s_atan.c.o
+[157/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/s_copysign.c.o
+[158/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/s_cos.c.o
+[159/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/s_fabs.c.o
+[160/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/s_isinf.c.o
+[161/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/s_floor.c.o
+[162/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/s_isinff.c.o
+[163/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/s_isnan.c.o
+[164/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/s_isnanf.c.o
+[165/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/s_modf.c.o
+[166/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/s_scalbn.c.o
+[167/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/s_sin.c.o
+[168/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/s_tan.c.o
+[169/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/loadso/dlopen/SDL_sysloadso.c.o
+[170/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/dummy/SDL_nullevents.c.o
+[171/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/dummy/SDL_nullframebuffer.c.o
+[172/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/dummy/SDL_nullvideo.c.o
+[173/1624] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/main/ios/SDL_sysmain_callbacks.m.o
+[174/1624] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/misc/ios/SDL_sysurl.m.o
+[175/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/time/unix/SDL_systime.c.o
+[176/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/timer/unix/SDL_systimer.c.o
+[177/1624] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/locale/macos/SDL_syslocale.m.o
+[178/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/storage/generic/SDL_genericstorage.c.o
+[179/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/filesystem/posix/SDL_sysfsops.c.o
+[180/1624] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/filesystem/cocoa/SDL_sysfilesystem.m.o
+[181/1624] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/video/uikit/SDL_uikitappdelegate.m.o
+[182/1624] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/video/uikit/SDL_uikitclipboard.m.o
+[183/1624] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/video/uikit/SDL_uikitmessagebox.m.o
+[184/1624] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/video/uikit/SDL_uikitevents.m.o
+[185/1624] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/video/uikit/SDL_uikitmetalview.m.o
+[186/1624] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/video/uikit/SDL_uikitmodes.m.o
+[187/1624] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/video/uikit/SDL_uikitopengles.m.o
+[188/1624] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/video/uikit/SDL_uikitopenglview.m.o
+[189/1624] Building CXX object SPIRV-Cross/CMakeFiles/spirv-cross-msl.dir/spirv_msl.cpp.o
+[190/1624] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/video/uikit/SDL_uikitpen.m.o
+[191/1624] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/video/uikit/SDL_uikitvideo.m.o
+[192/1624] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/video/uikit/SDL_uikitview.m.o
+[193/1624] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/video/uikit/SDL_uikitviewcontroller.m.o
+[194/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/thread/pthread/SDL_systhread.c.o
+[195/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/thread/pthread/SDL_sysmutex.c.o
+[196/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/thread/pthread/SDL_syscond.c.o
+[197/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/thread/pthread/SDL_sysrwlock.c.o
+[198/1624] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/video/uikit/SDL_uikitvulkan.m.o
+[199/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/thread/pthread/SDL_systls.c.o
+[200/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/thread/pthread/SDL_syssem.c.o
+[201/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/dialog/SDL_dialog.c.o
+[202/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/process/SDL_process.c.o
+[203/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/process/posix/SDL_posixprocess.c.o
+[204/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/offscreen/SDL_offscreenevents.c.o
+[205/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/offscreen/SDL_offscreenopengles.c.o
+[206/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/offscreen/SDL_offscreenframebuffer.c.o
+[207/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/offscreen/SDL_offscreenvideo.c.o
+[208/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/offscreen/SDL_offscreenvulkan.c.o
+[209/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/offscreen/SDL_offscreenwindow.c.o
+[210/1624] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/video/uikit/SDL_uikitwindow.m.o
+[211/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/tray/SDL_tray_utils.c.o
+[212/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/audio/dummy/SDL_dummyaudio.c.o
+[213/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/joystick/dummy/SDL_sysjoystick.c.o
+[214/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/haptic/dummy/SDL_syshaptic.c.o
+[215/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/sensor/dummy/SDL_dummysensor.c.o
+[216/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/dialog/dummy/SDL_dummydialog.c.o
+[217/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/tray/dummy/SDL_tray.c.o
+[218/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/camera/dummy/SDL_camera_dummy.c.o
+[219/1624] Linking CXX static library SPIRV-Cross/libspirv-cross-msl.a
+[220/1624] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/gpu/metal/SDL_gpu_metal.m.o
+[221/1624] Building CXX object CMakeFiles/wwdebug.dir/Libraries/Source/WWVegas/WWDebug/wwdebug.cpp.o
+[222/1624] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/gpu/vulkan/SDL_gpu_vulkan.c.o
+[223/1624] Building CXX object CMakeFiles/wwdebug.dir/Libraries/Source/WWVegas/WWDebug/wwmemlog.cpp.o
+[224/1624] Building CXX object CMakeFiles/wwdebug.dir/Libraries/Source/WWVegas/WWDebug/wwprofile.cpp.o
+[225/1624] Building C object CMakeFiles/sdl3_shadercross.dir/Libraries/Source/SDL_shadercross/src/SDL_shadercross.c.o
+[226/1624] Linking C static library SDL3/libSDL3.a
+[227/1624] Building CXX object SPIRV-Cross/CMakeFiles/spirv-cross-c.dir/spirv_cross_c.cpp.o
+[228/1624] Building CXX object CMakeFiles/ffshader.dir/Libraries/Source/WWVegas/WW3D2/ffshader.cpp.o
+[229/1624] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/GenericCodeGen/CodeGen.cpp.o
+[230/1624] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/OSDependent/Unix/ossource.cpp.o
+[231/1624] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/GenericCodeGen/Link.cpp.o
+[232/1624] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/CInterface/glslang_c_interface.cpp.o
+[233/1624] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/attribute.cpp.o
+[234/1624] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/Constant.cpp.o
+[235/1624] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/InfoSink.cpp.o
+[236/1624] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/glslang_tab.cpp.o
+[237/1624] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/IntermTraverse.cpp.o
+[238/1624] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/iomapper.cpp.o
+[239/1624] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/Intermediate.cpp.o
+[240/1624] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/Initialize.cpp.o
+[241/1624] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/ParseContextBase.cpp.o
+[242/1624] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/PoolAlloc.cpp.o
+[243/1624] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/RemoveTree.cpp.o
+[244/1624] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/Scan.cpp.o
+[245/1624] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/ShaderLang.cpp.o
+[246/1624] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/SpirvIntrinsics.cpp.o
+[247/1624] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/ParseHelper.cpp.o
+[248/1624] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/SymbolTable.cpp.o
+[249/1624] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/intermOut.cpp.o
+[250/1624] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/Versions.cpp.o
+[251/1624] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/limits.cpp.o
+[252/1624] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/parseConst.cpp.o
+[253/1624] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/linkValidate.cpp.o
+[254/1624] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/reflection.cpp.o
+[255/1624] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/preprocessor/Pp.cpp.o
+[256/1624] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/preprocessor/PpAtom.cpp.o
+[257/1624] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/preprocessor/PpContext.cpp.o
+[258/1624] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/preprocessor/PpScanner.cpp.o
+[259/1624] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/preprocessor/PpTokens.cpp.o
+[260/1624] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/propagateNoContraction.cpp.o
+[261/1624] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/HLSL/hlslAttributes.cpp.o
+[262/1624] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/HLSL/hlslScanContext.cpp.o
+[263/1624] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/HLSL/hlslOpMap.cpp.o
+[264/1624] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/HLSL/hlslTokenStream.cpp.o
+[265/1624] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/HLSL/hlslGrammar.cpp.o
+[266/1624] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/HLSL/hlslParseables.cpp.o
+[267/1624] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/HLSL/hlslParseHelper.cpp.o
+[268/1624] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/__/SPIRV/InReadableOrder.cpp.o
+[269/1624] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/__/SPIRV/Logger.cpp.o
+[270/1624] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/__/SPIRV/SpvPostProcess.cpp.o
+[271/1624] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/__/SPIRV/doc.cpp.o
+[272/1624] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/__/SPIRV/SpvTools.cpp.o
+[273/1624] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/__/SPIRV/SpvBuilder.cpp.o
+[274/1624] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/__/SPIRV/disassemble.cpp.o
+[275/1624] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/__/SPIRV/CInterface/spirv_c_interface.cpp.o
+[276/1624] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/__/SPIRV/GlslangToSpv.cpp.o
+[277/1624] Linking CXX static library SPIRV-Cross/libspirv-cross-c.a
+[278/1624] Linking CXX static library libwwdebug.a
