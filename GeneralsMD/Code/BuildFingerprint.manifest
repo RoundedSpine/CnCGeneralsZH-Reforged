@@ -2151,6 +2151,7 @@ GameEngineDevice/Source/PosixDevice/Render/PosixDevice9Capture.cpp
 GameEngineDevice/Source/PosixDevice/Render/PosixDevice9Draw.cpp
 GameEngineDevice/Source/PosixDevice/Render/PosixDevice9Particles.cpp
 GameEngineDevice/Source/PosixDevice/Render/PosixDevice9Resources.cpp
+GameEngineDevice/Source/PosixDevice/Render/PosixDevice9Scale.h
 GameEngineDevice/Source/PosixDevice/Render/PosixDevice9SceneEffects.cpp
 GameEngineDevice/Source/PosixDevice/Render/PosixDevice9SunShadow.cpp
 GameEngineDevice/Source/PosixDevice/Render/PosixDevice9Timing.cpp
@@ -2385,6 +2386,7 @@ Libraries/Include/Platform/ParticleShaders.h
 Libraries/Include/Platform/PosixD3D9/d3d9.h
 Libraries/Include/Platform/PosixD3D9/d3d9caps.h
 Libraries/Include/Platform/PosixD3D9/d3d9types.h
+Libraries/Include/Platform/RenderResolution.h
 Libraries/Include/Platform/RenderTypes.h
 Libraries/Include/Platform/RendererName.h
 Libraries/Include/Platform/SceneEffects.h
