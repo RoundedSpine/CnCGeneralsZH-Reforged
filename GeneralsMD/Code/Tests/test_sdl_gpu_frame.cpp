@@ -363,7 +363,8 @@ static void check_scene_depth(SdlGpuFrame *frame)
 	const uint64_t submitsBeforeSnapshot=frame->Submit_Calls_Total();
 	SDL_GPUTexture *depth = frame->Scene_Depth(scene);
 	CHECK(depth != NULL && depth != scene.Depth && depth != scene.Colour);
-	CHECK(frame->Submit_Calls_Total()==submitsBeforeSnapshot);
+	const uint64_t submitsAfterSnapshot=frame->Submit_Calls_Total();
+	CHECK(submitsAfterSnapshot==submitsBeforeSnapshot+1);
 	CHECK(frame->Ready_Scene_Depth(scene,readySerial)==depth && readySerial!=0);
 	const uint64_t originalSerial=readySerial;
 	SDL_GPUTextureCreateInfo consumerInfo = {};
@@ -383,7 +384,7 @@ static void check_scene_depth(SdlGpuFrame *frame)
 		frame->Clear_Back_Buffer(true, true, true, 0xFF000000u, 1.0f, 0);
 		DepthObject sampledDepth(frame, false, true);
 		sampledDepth.Draw(consumer, 0.0f, depth);
-		CHECK(frame->Submit_Calls_Total()==submitsBeforeSnapshot);
+		CHECK(frame->Submit_Calls_Total()==submitsAfterSnapshot);
 		std::vector<uint8_t> consumerPixels;
 		CHECK(frame->Read_Back(consumer.Colour, scene.Width, scene.Height, consumerPixels));
 		const size_t centre=(size_t(scene.Height/2)*scene.Width+scene.Width/2)*4;

@@ -239,6 +239,8 @@ patch now calls `MTLDevice sampleTimestamps:gpuTimestamp:` twice at least
   ambient occlusion, atmosphere, heat, MSAA, native particles, smoke,
   sun shadow and maintenance. Counts are attempts, including failures; do
   not interpret them as time spent or as a safe list of flushes to remove.
+  Scene-depth snapshots are submitted before consumers to bound queued scene
+  work; do not remove that boundary without checking memory and GPU-wait impact.
 
 **Next controlled comparison:** Allow the main menu to cycle several times
 with profiling enabled, keeping lighting, resolution, and thermal state

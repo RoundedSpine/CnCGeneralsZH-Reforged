@@ -773,8 +773,11 @@ SDL_GPUTexture *SdlGpuFrame::Scene_Depth(const SdlTarget &source)
 	Prepare_Water_Snapshot(source,WaterPerformanceSettings::Applied().sceneColourRequired,true);
 	SDL_GPUTexture *depth = Water_Depth(source);
 	if (!depth) return NULL;
-	// Record_Batch ends the scene pass for the snapshot copy and starts a later pass
-	// for its consumers. Queue order keeps both operations correct in the same submission.
+	// Submit the snapshot before consumers so scene work cannot accumulate behind it.
+	if (!Flush(FlushSceneDepth)) {
+		Invalidate_Water_Snapshots(source.Colour, source.Depth);
+		return NULL;
+	}
 	return depth;
 }
 
