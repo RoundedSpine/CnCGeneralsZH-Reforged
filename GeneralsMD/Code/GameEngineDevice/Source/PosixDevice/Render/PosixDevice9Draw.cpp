@@ -30,6 +30,7 @@
 #include "SdlConstants.h"
 #include "SdlCreationLog.h"
 #include "SdlGpuFrame.h"
+#include "PosixDevice9Scale.h"
 #include "SdlPipelineCache.h"
 #include "SdlProgramCache.h"
 #include "SdlResourceMirror.h"
@@ -1021,6 +1022,7 @@ RenderResult PosixDevice9::Gpu_Draw(const DrawCall &call)
 		Refuse_Draw("the render target: " + target_refusal);
 		return D3D_OK;
 	}
+	Posix_Scene_Viewport scaledViewport(Viewport, Gpu, target);
 
 
     // A missing depth snapshot retains the original-water program rather than

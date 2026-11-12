@@ -1,5 +1,6 @@
 // Distributed under the repository's GPL-3.0 terms; see LICENSE.md.
 #include "PosixDevice9.h"
+#include "PosixDevice9Scale.h"
 #include "SdlGpuFrame.h"
 #include "SdlAtmosphereShader.h"
 #include "SdlFirelightShader.h"
@@ -29,16 +30,49 @@ bool PosixDevice9::Copy_Scene(IDirect3DBaseTexture9 *texture,int x,int y,int wid
     SdlTarget target;std::string error;if(!Resolve_Target(target,error))return false;
     auto *source=Mirrors->Texture(texture,error);
     if(!source||source==target.Colour||!Gpu->Is_Hdr_Texture(source)||!Gpu->Is_Hdr_Texture(target.Colour))return false;
+    if(Gpu->Is_Scene_Target(target)) {
+        const unsigned int sourceWidth=Gpu->Width(),sourceHeight=Gpu->Height();
+        const int32_t sourceRect[4]={x,y,width,height};
+        const int32_t destinationRect[4]={
+            Posix_Scale_Rectangle_Value(x,sourceWidth,target.Width),
+            Posix_Scale_Rectangle_Value(y,sourceHeight,target.Height),
+            Posix_Scale_Rectangle_Value(width,sourceWidth,target.Width),
+            Posix_Scale_Rectangle_Value(height,sourceHeight,target.Height)
+        };
+        if(x<0||y<0||width<=0||height<=0
+            ||unsigned(x)+unsigned(width)>sourceWidth||unsigned(y)+unsigned(height)>sourceHeight
+            ||unsigned(destinationRect[0]+destinationRect[2])>target.Width
+            ||unsigned(destinationRect[1]+destinationRect[3])>target.Height)return false;
+        Gpu->Record_Blit(source,sourceRect,target.Colour,destinationRect,false);
+        return true;
+    }
     if(unsigned(x)+unsigned(width)>target.Width||unsigned(y)+unsigned(height)>target.Height)return false;
     const int32_t rect[4]={x,y,width,height};Gpu->Record_Blit(source,rect,target.Colour,rect,false);return true;
 }
 void PosixDevice9::Set_Post_Grade(float amount){PostGrade=std::isfinite(amount)?std::clamp(amount,0.0f,1.0f):0;}
 void PosixDevice9::Finish_Scene(){
-    if(!Gpu||FinishedSceneSerial==SceneSerial||!ModernLighting||!EffectsAllowed||SunActive||Sun_Scene_Excluded())return;
-    SdlTarget target;std::string error;if(!Resolve_Target(target,error))return;
-    FinishedSceneSerial=SceneSerial;
-    if(!Gpu->Heat_Haze_Scene(target))fprintf(stderr,"[SDL_HEAT] scene finish failed\n");
-    if(!Gpu->Post_Process(target,PostRect,PostGrade,&SceneEffects::RequestedPostChain()))fprintf(stderr,"[SDL_POST] scene finish failed\n");
+    if(!Gpu)return;
+    const bool renderScaleActive=Gpu->Render_Scale()<100;
+    const bool finishEffects=FinishedSceneSerial!=SceneSerial&&ModernLighting&&EffectsAllowed
+        &&!SunActive&&!Sun_Scene_Excluded();
+    if(finishEffects) {
+        SdlTarget target;std::string error;
+        if(!Resolve_Target(target,error)) {
+            fprintf(stderr,"[SDL_POST] scene target unavailable: %s\n",error.c_str());
+        } else {
+            FinishedSceneSerial=SceneSerial;
+            if(!Gpu->Heat_Haze_Scene(target))fprintf(stderr,"[SDL_HEAT] scene finish failed\n");
+            float rect[4];
+            const bool sceneTarget=Gpu->Is_Scene_Target(target);
+            const float scaleX=sceneTarget?float(target.Width)/float(Gpu->Width()):1.0f;
+            const float scaleY=sceneTarget?float(target.Height)/float(Gpu->Height()):1.0f;
+            for(unsigned i=0;i<4;++i)rect[i]=PostRect[i]*(i%2==0?scaleX:scaleY);
+            if(!Gpu->Post_Process(target,rect,PostGrade,&SceneEffects::RequestedPostChain()))
+                fprintf(stderr,"[SDL_POST] scene finish failed\n");
+        }
+    }
+    if(renderScaleActive&&!Gpu->Finish_Scene())
+        fprintf(stderr,"[SDL_RENDER_SCALE] scene composition failed\n");
 }
 bool PosixDevice9::Lights_Per_Pixel() const
 {
@@ -132,6 +166,7 @@ bool PosixDevice9::Firelight(const SceneEffects::PointLight *lights,unsigned cou
         for(unsigned c=0;c<3;++c)if(lights[i].Diffuse[c]<0||lights[i].Ambient[c]<0)return false;
     }
     SdlTarget target;std::string error;if(!Resolve_Target(target,error))return false;
+    Posix_Scene_Viewport scaledViewport(Viewport,Gpu,target);
     SdlFirelight::Constants constants={};float clip[16];
     multiply(&Transforms[D3DTS_VIEW]._11,&Transforms[D3DTS_PROJECTION]._11,clip);
     if(!render_inverse(clip,constants.WorldFromClip))return false;
@@ -174,6 +209,7 @@ bool PosixDevice9::Atmosphere(const SceneEffects::AtmosphereParameters &paramete
     if(parameters.Haze[1]<=0||parameters.Haze[3]<=0||parameters.Fade[1]<=0
         ||(parameters.Fade[2]>0&&(!sky||parameters.MapSize[0]<=0||parameters.MapSize[1]<=0)))return false;
     SdlTarget target;std::string error;if(!Resolve_Target(target,error))return false;
+    Posix_Scene_Viewport scaledViewport(Viewport,Gpu,target);
     SdlAtmosphere::Constants constants={};constants.Parameters=parameters;
     float clip[16];multiply(&Transforms[D3DTS_VIEW]._11,&Transforms[D3DTS_PROJECTION]._11,clip);
     if(!render_inverse(clip,constants.WorldFromClip))return false;
@@ -190,12 +226,19 @@ bool PosixDevice9::Atmosphere(const SceneEffects::AtmosphereParameters &paramete
         for(unsigned i=0;i<4;++i)if(!std::isfinite(shroudRect[i]))return false;
         if(shroudRect[2]<=0||shroudRect[3]<=0)return false;
         shroudTexture=Mirrors->Texture(shroud,error);if(!shroudTexture)return false;
-        std::memcpy(constants.ShroudRect,shroudRect,sizeof(constants.ShroudRect));constants.Flags[0]=1;
+        std::memcpy(constants.ShroudRect,shroudRect,sizeof(constants.ShroudRect));
+        if(Gpu->Is_Scene_Target(target)) {
+            const float scaleX=float(target.Width)/float(Gpu->Width());
+            const float scaleY=float(target.Height)/float(Gpu->Height());
+            constants.ShroudRect[0]*=scaleX;constants.ShroudRect[1]*=scaleY;
+            constants.ShroudRect[2]/=scaleX;constants.ShroudRect[3]/=scaleY;
+        }
+        constants.Flags[0]=1;
     }
     return Gpu->Atmosphere(target,constants,skyTexture,shroudTexture);
 }
 namespace SceneEffects {
-namespace {bool requestedHdr=false;unsigned requestedSamples=0;ScenePost::Chain postChain;std::string postDiagnostic="native world filters off; bloom/AO routed separately";}
+namespace {bool requestedHdr=false;unsigned requestedSamples=0,requestedRenderScale=100;ScenePost::Chain postChain;std::string postDiagnostic="native world filters off; bloom/AO routed separately";}
 bool SetPostChain(const char *text){
     const bool ok=ScenePost::Parse(text,postChain);
     postDiagnostic=ok?"native world filters requested; bloom/AO routed separately":"native world filter chain rejected";
@@ -205,9 +248,13 @@ bool SetPostChain(const char *text){
 }
 const ScenePost::Chain &RequestedPostChain(){return postChain;}
 const char *PostDiagnostic(){return postDiagnostic.c_str();}
-void RequestDisplay(bool hdr,unsigned samples){requestedHdr=hdr;requestedSamples=samples;}
+void RequestDisplay(bool hdr,unsigned samples,unsigned renderScale){
+    requestedHdr=hdr;requestedSamples=samples;
+    requestedRenderScale=renderScale==75||renderScale==67||renderScale==50?renderScale:100;
+}
 bool RequestedHdr(){return requestedHdr;}
 unsigned RequestedSamples(){return requestedSamples;}
+unsigned RequestedRenderScale(){return requestedRenderScale;}
 unsigned MaxSamples(IDirect3DDevice9*d){auto *gpu=d?static_cast<PosixDevice9*>(d)->Get_Gpu():nullptr;return gpu?gpu->Max_Samples():1;}
 bool SupportsSamples(IDirect3DDevice9*d,unsigned count){auto *gpu=d?static_cast<PosixDevice9*>(d)->Get_Gpu():nullptr;return count<=1||(gpu&&gpu->Supports_Samples(count));}
 unsigned ActiveSamples(IDirect3DDevice9*d){auto *gpu=d?static_cast<PosixDevice9*>(d)->Get_Gpu():nullptr;return gpu&&gpu->Sample_Count()>1?gpu->Sample_Count():0;}

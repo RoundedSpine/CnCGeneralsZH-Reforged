@@ -38,10 +38,12 @@
 #include "../Libraries/Source/WWVegas/WW3D2/sdl3target.h"
 #include "../Libraries/Source/WWVegas/WW3D2/engineshader.h"
 #include "Platform/WaterSurfaceModel.h"
+#include "Platform/RenderResolution.h"
 #include "Platform/WaterOpticalModel.h"
 #include "Platform/WaterHullModel.h"
 #include "Platform/WaterHullVisual.h"
 #include <limits>
+#include <memory>
 #include "Platform/WaterFftSpectrum.h"
 #include "Platform/WaterFftSampling.h"
 #include "Platform/WaterPerformanceSettings.h"
@@ -7034,6 +7036,18 @@ float4 main(float4 pixel:SV_Position):SV_Target0 {
 
 int main()
 {
+	unsigned int scaledWidth = 0, scaledHeight = 0;
+	CHECK(RenderResolution::Dimensions(2868, 1320, RenderResolution::NATIVE, &scaledWidth, &scaledHeight)
+		&& scaledWidth == 2868 && scaledHeight == 1320);
+	CHECK(RenderResolution::Dimensions(2868, 1320, RenderResolution::HIGH, &scaledWidth, &scaledHeight)
+		&& scaledWidth == 2151 && scaledHeight == 990);
+	CHECK(RenderResolution::Dimensions(2868, 1320, RenderResolution::BALANCED, &scaledWidth, &scaledHeight)
+		&& scaledWidth == 1912 && scaledHeight == 880);
+	CHECK(RenderResolution::Dimensions(2868, 1320, RenderResolution::PERFORMANCE, &scaledWidth, &scaledHeight)
+		&& scaledWidth == 1434 && scaledHeight == 660);
+	CHECK(!RenderResolution::Dimensions(2868, 1320, 60, &scaledWidth, &scaledHeight));
+	if (failures != 0)
+		return 1;
 	if (!SDL_Init(SDL_INIT_VIDEO)) {
 		printf("sdl_gpu_frame_selfcheck: SKIP - SDL_Init: %s\n", SDL_GetError());
 		return 77;
@@ -7044,6 +7058,26 @@ int main()
 		printf("sdl_gpu_frame_selfcheck: SKIP - no GPU device here: %s\n", error.c_str());
 		SDL_Quit();
 		return 77;
+	}
+	std::unique_ptr<SdlGpuFrame> scaledFrame(SdlGpuFrame::Create(NULL, 8, 4, error, false, 0,
+		RenderResolution::PERFORMANCE));
+	CHECK(scaledFrame != NULL);
+	if (scaledFrame) {
+		CHECK(scaledFrame->Render_Scale() == RenderResolution::PERFORMANCE);
+		CHECK(scaledFrame->Is_Scene_Target(scaledFrame->Back_Buffer_Target()));
+		scaledFrame->Clear_Back_Buffer(true, false, false, 0xFFFF0000u, 1.0f, 0);
+		CHECK(scaledFrame->Finish_Scene());
+		CHECK(!scaledFrame->Is_Scene_Target(scaledFrame->Back_Buffer_Target()));
+		scaledFrame->Clear_Rect(0, 0, 1, 1, true, false, false, 0xFF0000FFu, 1.0f, 0);
+		CHECK(scaledFrame->Present(NULL));
+		std::vector<uint8_t> scaledPixels;
+		CHECK(scaledFrame->Read_Back(scaledFrame->Front_Copy(), 8, 4, scaledPixels));
+		CHECK(scaledPixels.size() == 8 * 4 * 4 && scaledPixels[0] == 0xFF
+			&& scaledPixels[1] == 0 && scaledPixels[2] == 0 && scaledPixels[3] == 0xFF);
+		CHECK(scaledPixels.size() == 8 * 4 * 4 && scaledPixels[(3 * 8 + 7) * 4] == 0
+			&& scaledPixels[(3 * 8 + 7) * 4 + 1] == 0
+			&& scaledPixels[(3 * 8 + 7) * 4 + 2] == 0xFF
+			&& scaledPixels[(3 * 8 + 7) * 4 + 3] == 0xFF);
 	}
 	printf("sdl_gpu_frame_selfcheck: %s\n", SDL_GetGPUDeviceDriver(frame->Device()));
 	check_colour_only_target(frame);

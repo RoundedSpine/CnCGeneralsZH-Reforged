@@ -409,8 +409,28 @@ bool SdlGpuFrame::Begin_Pass(SDL_GPUCommandBuffer * commands, const SdlTarget & 
 
 SdlTarget SdlGpuFrame::Back_Buffer_Target() const
 {
+	if (SceneActive && SceneBuffer != NULL) {
+		SdlTarget scene = { SceneBuffer, SceneDepth, SceneWidth, SceneHeight, DepthFormat };
+		return scene;
+	}
 	SdlTarget target = { BackBuffer, DepthStencil, BackWidth, BackHeight, DepthFormat };
 	return target;
+}
+
+bool SdlGpuFrame::Finish_Scene()
+{
+	if (!SceneActive || SceneBuffer == NULL)
+		return true;
+
+	const int32_t source[4] = { 0, 0, (int32_t)SceneWidth, (int32_t)SceneHeight };
+	const int32_t destination[4] = { 0, 0, (int32_t)BackWidth, (int32_t)BackHeight };
+	Record_Blit(SceneBuffer, source, BackBuffer, destination, true);
+	if (!Flush(FlushMaintenance))
+		return false;
+
+	SceneActive = false;
+	TargetSet = false;
+	return true;
 }
 
 unsigned int SdlGpuFrame::Target_Depth_Format(const SdlTarget &target) const

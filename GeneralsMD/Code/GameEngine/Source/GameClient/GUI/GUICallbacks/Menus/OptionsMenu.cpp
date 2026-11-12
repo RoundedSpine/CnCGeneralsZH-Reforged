@@ -41,6 +41,7 @@
 #include "Common/UserPreferences.h"
 #include "Common/GameLOD.h"
 #include "Common/Monitors.h"
+#include "Platform/RenderResolution.h"
 #include "Common/EarlyOptions.h"
 #include "Common/OptionsCatalog.h"
 #include "Common/Registry.h"
@@ -1477,6 +1478,42 @@ static MonitorEntry selectedMonitor( void )
 //-------------------------------------------------------------------------------------------------
 static void fillResolutionList( const MonitorEntry &monitor, Int wantedWidth, Int wantedHeight )
 {
+#if defined(ZH_PLATFORM_IOS)
+	const unsigned int scales[] = {
+		RenderResolution::NATIVE, RenderResolution::HIGH,
+		RenderResolution::BALANCED, RenderResolution::PERFORMANCE
+	};
+	const unsigned int nativeWidth = TheDisplay->getWidth();
+	const unsigned int nativeHeight = TheDisplay->getHeight();
+	menuModeCount = 0;
+	Int selected = 0;
+	GadgetComboBoxReset( comboBoxResolution );
+	for( unsigned int index = 0; index < sizeof(scales) / sizeof(scales[0])
+		&& index < MAX_DISPLAY_MODE_ENTRIES; ++index )
+	{
+		unsigned int width = 0, height = 0;
+		if( !RenderResolution::Dimensions( nativeWidth, nativeHeight, scales[index], &width, &height ) )
+			continue;
+		menuModes[ menuModeCount ].width = width;
+		menuModes[ menuModeCount ].height = height;
+		UnicodeString text;
+		if( scales[index] == RenderResolution::NATIVE )
+			text.format( u"Native  (%d x %d)", static_cast<Int>(width), static_cast<Int>(height) );
+		else
+			text.format( u"%d%%  (%d x %d)", static_cast<Int>(scales[index]),
+				static_cast<Int>(width), static_cast<Int>(height) );
+		GadgetComboBoxAddEntry( comboBoxResolution, text, MENU_ENTRY_COLOR );
+		if( scales[index] == static_cast<unsigned int>(TheGlobalData->m_renderScale) )
+			selected = menuModeCount;
+		++menuModeCount;
+	}
+	if( menuModeCount > 0 )
+		GadgetComboBoxSetSelectedPos( comboBoxResolution, selected );
+	(void)monitor;
+	(void)wantedWidth;
+	(void)wantedHeight;
+	return;
+#else
 	const Int desktopWidth = monitor.rect.right - monitor.rect.left;
 	const Int desktopHeight = monitor.rect.bottom - monitor.rect.top;
 
@@ -1498,6 +1535,7 @@ static void fillResolutionList( const MonitorEntry &monitor, Int wantedWidth, In
 			desktop = index;
 	}
 	GadgetComboBoxSetSelectedPos( comboBoxResolution, wanted >= 0 ? wanted : desktop );
+#endif
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -1539,6 +1577,11 @@ static void updateResolutionEnabled( void )
 	if( comboBoxResolution == NULL )
 		return;
 
+#if defined(ZH_PLATFORM_IOS)
+	comboBoxResolution->winEnable( TRUE );
+	return;
+#endif
+
 	const OptionDef *mode = findOptionDef( "WindowMode" );
 	GameWindow *modeWidget = mode ? findOptionWidget( *mode ) : NULL;
 
@@ -1560,6 +1603,11 @@ static void updateResolutionNote( void )
 	GameWindow *note = TheWindowManager->winGetWindowFromId( NULL, NAMEKEY( "OptionsMenu.wnd:ResolutionNote" ) );
 	if( note == NULL || comboBoxResolution == NULL )
 		return;
+
+#if defined(ZH_PLATFORM_IOS)
+	GadgetStaticTextSetText( note, UnicodeString::TheEmptyString );
+	return;
+#endif
 
 	Int index = -1;
 	GadgetComboBoxGetSelectedPos( comboBoxResolution, &index );
@@ -1731,6 +1779,9 @@ static void saveOptions( void )
 	const Bool oldVSync = TheGlobalData->m_vsync;
 	const Int oldScaling = TheGlobalData->m_fullscreenScaling;
 	const MonitorEntry oldMonitor = findMonitor( TheGlobalData->m_monitor.str() );
+#if defined(ZH_PLATFORM_IOS)
+	const Int oldRenderScale = TheGlobalData->m_renderScale;
+#endif
 
 	//-------------------------------------------------------------------------------------------------
 	// The catalog's controls, read back into GlobalData and onto Options.ini where the player changed
@@ -1927,11 +1978,21 @@ static void saveOptions( void )
 	xres = TheGlobalData->m_xResolution;
 	yres = TheGlobalData->m_yResolution;
 	bitDepth = TheDisplay->getBitDepth();
+#if defined(ZH_PLATFORM_IOS)
+	if( index >= 0 && index < menuModeCount )
+	{
+		static const Int renderScales[] = { 100, 75, 67, 50 };
+		TheWritableGlobalData->m_renderScale = renderScales[ index ];
+	}
+	xres = oldDispSettings.xRes;
+	yres = oldDispSettings.yRes;
+#else
 	if( TheGlobalData->m_windowMode != WINDOW_MODE_BORDERLESS && index >= 0 && index < menuModeCount )
 	{
 		xres = menuModes[ index ].width;
 		yres = menuModes[ index ].height;
 	}
+#endif
 
 	//
 	// Not the windowed flag: borderless and windowed are both windowed devices, and a switch between
@@ -1942,14 +2003,29 @@ static void saveOptions( void )
 	const Bool vsyncChanged = ( oldVSync != TheGlobalData->m_vsync );
 	const Bool monitorChanged = ( ::strcasecmp( oldMonitor.device, monitor.device ) != 0 );
 	const Bool scalingChanged = ( oldScaling != TheGlobalData->m_fullscreenScaling );
+#if defined(ZH_PLATFORM_IOS)
+	const Bool renderScaleChanged = ( oldRenderScale != TheGlobalData->m_renderScale );
+#endif
 
-	if( sizeChanged || modeChanged || vsyncChanged || monitorChanged || scalingChanged )
+	if( sizeChanged || modeChanged || vsyncChanged || monitorChanged || scalingChanged
+#if defined(ZH_PLATFORM_IOS)
+		|| renderScaleChanged
+#endif
+	)
 	{
 		if( !TheDisplay->setDisplayMode( xres, yres, bitDepth, TheGlobalData->m_windowed ) )
 		{
 			// the game is still where it was, so the window's next move must not go anywhere else
 			TheWritableGlobalData->m_monitor = oldMonitor.device;
 			applyWindowMode();
+#if defined(ZH_PLATFORM_IOS)
+			TheWritableGlobalData->m_renderScale = oldRenderScale;
+			if( renderScaleChanged
+				&& !TheDisplay->setDisplayMode( oldDispSettings.xRes, oldDispSettings.yRes,
+					oldDispSettings.bitDepth, TheGlobalData->m_windowed ) )
+				fprintf( stderr, "[IOS_OPTIONS] failed to restore render scale %d after a rejected change\n",
+					oldRenderScale );
+#endif
 		}
 		else
 		{
@@ -1963,6 +2039,11 @@ static void saveOptions( void )
 			AsciiString prefString;
 			prefString.format("%d %d", xres, yres );
 			(*pref)["Resolution"] = prefString;
+#if defined(ZH_PLATFORM_IOS)
+			AsciiString renderScaleString;
+			renderScaleString.format( "%d", TheGlobalData->m_renderScale );
+			(*pref)["RenderScale"] = renderScaleString;
+#endif
 
 			//
 			// Every window on screen was laid out against the old size, so the shell is rebuilt from

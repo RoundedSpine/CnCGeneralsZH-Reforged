@@ -127,6 +127,15 @@ world viewport and precedes UI. MSAA skips FXAA and selects a mild softening
 amount; memory pressure pauses optional filters. `[SDL_POST]` reports requested
 and selected passes. See [port status](ios-feature-audit.md).
 
+The iOS Resolution dropdown selects the internal world-render size while the
+display, swapchain, and UI remain at native resolution. Presets are Native,
+75%, two-thirds (shown as 67%), and 50%; dimensions are calculated from the
+device display size, preserving its aspect ratio. On an iPhone 16 Pro Max
+(2868x1320), these are 2868x1320, 2151x990, 1912x880, and 1434x660. The
+scaled world is composed before native-resolution UI and is saved as
+`RenderScale` in `Options.ini`. On iOS, the display size is taken from the
+device rather than a previously saved `Resolution` value.
+
 ## Validation limits and device checks
 
 `test_graphics_preferences.py` exercises the actual save logic, both platform

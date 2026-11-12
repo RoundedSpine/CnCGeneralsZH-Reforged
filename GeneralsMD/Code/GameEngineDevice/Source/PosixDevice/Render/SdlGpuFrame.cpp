@@ -19,6 +19,7 @@
 // The device's frame on SDL3 GPU (decision 7, phase A3a).  See SdlGpuFrame.h.
 
 #include "SdlGpuFrame.h"
+#include "Platform/RenderResolution.h"
 #include "Platform/ParticlePerfToggle.h"
 #include "Platform/ParticlePerfStats.h"
 #include "SdlColour.h"
@@ -210,7 +211,8 @@ SdlGpuFrame::SdlGpuFrame() :
 	TargetSet = false;
 }
 
-SdlGpuFrame * SdlGpuFrame::Create(RenderWindow window, unsigned int width, unsigned int height, std::string & error, bool hdr,unsigned samples)
+SdlGpuFrame * SdlGpuFrame::Create(RenderWindow window, unsigned int width, unsigned int height,
+	std::string & error, bool hdr,unsigned samples,unsigned renderScale)
 {
 	ZH_IOS_WaitForForeground();
 	SdlGpuFrame * frame = new SdlGpuFrame();
@@ -258,7 +260,7 @@ SdlGpuFrame * SdlGpuFrame::Create(RenderWindow window, unsigned int width, unsig
     }
     if(frame->SampleCount>1&&!frame->Prepare_Multisampling()){frame->MsaaFailed=true;frame->SampleCount=1;}
     fprintf(stderr,"[SDL_MSAA] requested=%u active=%u\n",samples,frame->SampleCount);
-	if (!frame->Create_Targets(width, height)) {
+	if (!frame->Create_Targets(width, height, renderScale)) {
 		error = std::string("the back buffer: ") + SDL_GetError();
 		delete frame;
 		return NULL;
@@ -341,8 +343,14 @@ SdlGpuFrame::~SdlGpuFrame()
 	SDL_DestroyGPUDevice(GpuDevice);
 }
 
-bool SdlGpuFrame::Create_Targets(unsigned int width, unsigned int height)
+bool SdlGpuFrame::Create_Targets(unsigned int width, unsigned int height, unsigned int renderScale)
 {
+	if (renderScale != RenderResolution::NATIVE && renderScale != RenderResolution::HIGH
+		&& renderScale != RenderResolution::BALANCED && renderScale != RenderResolution::PERFORMANCE)
+		renderScale = RenderResolution::NATIVE;
+	unsigned int sceneWidth = 0, sceneHeight = 0;
+	if (!RenderResolution::Dimensions(width, height, renderScale, &sceneWidth, &sceneHeight))
+		return false;
 	SDL_GPUTextureCreateInfo info;
 	SDL_zero(info);
 	info.type = SDL_GPU_TEXTURETYPE_2D;
@@ -358,20 +366,41 @@ bool SdlGpuFrame::Create_Targets(unsigned int width, unsigned int height)
 	info.format = (SDL_GPUTextureFormat)DepthFormat;
 	info.usage = Depth_Usage();
 	SDL_GPUTexture *depth = SDL_CreateGPUTexture(GpuDevice, &info);
-	if (!back || !front || !depth) {
+	SDL_GPUTexture *scene = NULL, *sceneDepth = NULL;
+	if (renderScale != RenderResolution::NATIVE) {
+		info.format = (SDL_GPUTextureFormat)Scene_Format();
+		info.usage = SDL_GPU_TEXTUREUSAGE_COLOR_TARGET | SDL_GPU_TEXTUREUSAGE_SAMPLER;
+		info.width = sceneWidth;
+		info.height = sceneHeight;
+		scene = SDL_CreateGPUTexture(GpuDevice, &info);
+		info.format = (SDL_GPUTextureFormat)DepthFormat;
+		info.usage = Depth_Usage();
+		sceneDepth = SDL_CreateGPUTexture(GpuDevice, &info);
+	}
+	if (!back || !front || !depth || (renderScale != RenderResolution::NATIVE && (!scene || !sceneDepth))) {
 		if (back) Release_Texture(back);
 		if (front) Release_Texture(front);
 		if (depth) Release_Texture(depth);
+		if (scene) Release_Texture(scene);
+		if (sceneDepth) Release_Texture(sceneDepth);
 		return false;
 	}
 	// Keep the old attachments, scratch depths and snapshots until every replacement exists.
 	Release_Targets();
 	BackBuffer = back;
 	FrontCopy = front;
-    Track_Colour(back);Track_Colour(front);
+	Track_Colour(back);
+	Track_Colour(front);
+	Track_Colour(scene);
 	DepthStencil = depth;
 	BackWidth = width;
 	BackHeight = height;
+	SceneBuffer = scene;
+	SceneDepth = sceneDepth;
+	SceneWidth = sceneWidth;
+	SceneHeight = sceneHeight;
+	RenderScale = renderScale;
+	SceneActive = true;
 	return true;
 }
 
@@ -426,11 +455,16 @@ void SdlGpuFrame::Release_Targets()
 	if (BackBuffer != NULL) Release_Texture(BackBuffer);
 	if (DepthStencil != NULL) Release_Texture(DepthStencil);
 	if (FrontCopy != NULL) Release_Texture(FrontCopy);
+	if (SceneBuffer != NULL) Release_Texture(SceneBuffer);
+	if (SceneDepth != NULL) Release_Texture(SceneDepth);
 	if (DisplayTexture != NULL) Release_Texture(DisplayTexture);
 	BackBuffer = NULL;
 	DepthStencil = NULL;
 	FrontCopy = NULL;
+	SceneBuffer = NULL;
+	SceneDepth = NULL;
 	DisplayTexture = NULL;		// made again at the new size by the next offscreen Present
+	SceneWidth = SceneHeight = 0;
 }
 
 // Private native float targets bypass the legacy BGRA texture mirror. The field is independent of
@@ -875,7 +909,7 @@ SDL_GPURenderPass *pass = SDL_BeginGPURenderPass(commands, &colour, 1, NULL);
 	return true;
 }
 
-bool SdlGpuFrame::Resize(unsigned int width, unsigned int height, ResizeFailure *failure)
+bool SdlGpuFrame::Resize(unsigned int width, unsigned int height, ResizeFailure *failure, unsigned int renderScale)
 {
 	if (failure) *failure = RESIZE_NONE;
 	if (!width || !height) {
@@ -887,11 +921,12 @@ bool SdlGpuFrame::Resize(unsigned int width, unsigned int height, ResizeFailure 
 		if (failure) *failure = RESIZE_FLUSH_FAILED;
 		return false;
 	}
-	if (!Create_Targets(width, height)) {
+	if (!Create_Targets(width, height, renderScale)) {
 		if (failure) *failure = RESIZE_ALLOCATION_FAILED;
 		return false;
 	}
 	TargetSet = false;
+	SceneActive = true;
 	return true;
 }
 
@@ -1401,6 +1436,10 @@ bool SdlGpuFrame::Copy_To_Front(SDL_GPUCommandBuffer * commands)
 
 bool SdlGpuFrame::Present(const uint16_t (*ramp)[256])
 {
+	if (SceneActive && SceneBuffer != NULL && !Finish_Scene()) {
+		fprintf(stderr, "SdlGpuFrame: could not scale the scene into the native back buffer\n");
+		return false;
+	}
 	Refresh_Water_Snapshots();
 	ZH_IOS_WaitForForeground();
 	SDL_GPUCommandBuffer * commands = SDL_AcquireGPUCommandBuffer(GpuDevice);
@@ -1457,10 +1496,12 @@ bool SdlGpuFrame::Present(const uint16_t (*ramp)[256])
 		}
 		const bool submitted = Submit_Offscreen(commands);
 		End_Batch();
+		SceneActive = true;
 		return submitted && ok && DisplayTexture != NULL;
 	}
 	const bool submitted = Submit(commands);
 	End_Batch();
+	SceneActive = true;
 	return submitted && ok;
 }
 

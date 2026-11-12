@@ -860,7 +860,12 @@ static void pushDirect3D11PostChain( void )
 {
 #if !defined(_WIN32)
     SceneEffects::RequestDisplay(!TheGlobalData->m_classicGraphics&&TheGlobalData->m_internalHdr,
-        msaaSamplesForLevel(TheGlobalData->m_msaaLevel));
+        msaaSamplesForLevel(TheGlobalData->m_msaaLevel),
+#if defined(ZH_PLATFORM_IOS)
+        static_cast<unsigned>(TheGlobalData->m_renderScale));
+#else
+        100);
+#endif
 #endif
 	// Classic graphics is the game's own picture, which is what -d3d9 draws: hard edged sprites.
 	Direct3D11_Allow_Soft_Particles( !TheGlobalData->m_classicGraphics );

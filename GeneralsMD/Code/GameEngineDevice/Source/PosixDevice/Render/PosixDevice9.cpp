@@ -32,6 +32,7 @@
 #include "PosixImageOps.h"
 #include "PosixResources9.h"
 #include "SdlGpuFrame.h"
+#include "PosixDevice9Scale.h"
 #include "SdlPipelineCache.h"
 #include "SdlProgramCache.h"
 #include "SdlResourceMirror.h"
@@ -222,7 +223,8 @@ RenderResult PosixDevice9::Create_Gpu_Frame(bool offscreen)
 		return D3D_OK;		// -headless: no GPU device at all
 	}
 	std::string error;
-	Gpu = SdlGpuFrame::Create(Window, Parameters.BackBufferWidth, Parameters.BackBufferHeight, error,SceneEffects::RequestedHdr(),SceneEffects::RequestedSamples());
+	Gpu = SdlGpuFrame::Create(Window, Parameters.BackBufferWidth, Parameters.BackBufferHeight, error,
+		SceneEffects::RequestedHdr(), SceneEffects::RequestedSamples(), SceneEffects::RequestedRenderScale());
 	if (Gpu == NULL) {
 		fprintf(stderr, "PosixDevice9: a window, and no SDL3 GPU device for it: %s\n", error.c_str());
 		return D3DERR_NOTAVAILABLE;
@@ -269,6 +271,7 @@ RenderResult PosixDevice9::Gpu_Clear(RenderUInt32 count, const D3DRECT *rects, R
 		return D3DERR_INVALIDCALL;
 	}
 	Gpu->Set_Target(target);
+	Posix_Scene_Viewport scaledViewport(Viewport, Gpu, target);
 	const bool colour = (flags & D3DCLEAR_TARGET) != 0;
 	const bool depth = (flags & D3DCLEAR_ZBUFFER) != 0;
 	const bool stencil_too = (flags & D3DCLEAR_STENCIL) != 0;
@@ -281,10 +284,17 @@ RenderResult PosixDevice9::Gpu_Clear(RenderUInt32 count, const D3DRECT *rects, R
 		int left = (int)Viewport.X, top = (int)Viewport.Y;
 		int right = left + (int)Viewport.Width, bottom = top + (int)Viewport.Height;
 		if (count != 0 && rects != NULL) {
-			if (rects[index].x1 > left) left = rects[index].x1;
-			if (rects[index].y1 > top) top = rects[index].y1;
-			if (rects[index].x2 < right) right = rects[index].x2;
-			if (rects[index].y2 < bottom) bottom = rects[index].y2;
+			D3DRECT rect = rects[index];
+			if (Gpu->Is_Scene_Target(target)) {
+				rect.x1 = Posix_Scale_Rectangle_Value(rect.x1, Gpu->Width(), target.Width);
+				rect.x2 = Posix_Scale_Rectangle_Value(rect.x2, Gpu->Width(), target.Width);
+				rect.y1 = Posix_Scale_Rectangle_Value(rect.y1, Gpu->Height(), target.Height);
+				rect.y2 = Posix_Scale_Rectangle_Value(rect.y2, Gpu->Height(), target.Height);
+			}
+			if (rect.x1 > left) left = rect.x1;
+			if (rect.y1 > top) top = rect.y1;
+			if (rect.x2 < right) right = rect.x2;
+			if (rect.y2 < bottom) bottom = rect.y2;
 		}
 		if (left < 0) left = 0;
 		if (top < 0) top = 0;
@@ -544,7 +554,7 @@ RenderResult PosixDevice9::Reset(D3DPRESENT_PARAMETERS *parameters)
 	bool capture_submitted = true;
 	if (SunActive) End_Sun_Shadow(&capture_submitted);
 	if (!capture_submitted || (Gpu != NULL && !Gpu->Resize(parameters->BackBufferWidth,
-		parameters->BackBufferHeight, &failure))) {
+		parameters->BackBufferHeight, &failure, SceneEffects::RequestedRenderScale()))) {
 		back->Release();
 		if (depth) depth->Release();
 		return !capture_submitted || failure == SdlGpuFrame::RESIZE_FLUSH_FAILED

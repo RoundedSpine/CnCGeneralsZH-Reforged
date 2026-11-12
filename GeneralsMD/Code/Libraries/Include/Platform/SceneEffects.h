@@ -11,9 +11,10 @@ struct AtmosphereParameters {
     float Fade[4] = {0,1,0,0}; // start, scale, strength, ground height
     float Horizon[4] = {}, Tint[4] = {}, MapSize[4] = {};
 };
-void RequestDisplay(bool hdr,unsigned samples);
+void RequestDisplay(bool hdr,unsigned samples,unsigned renderScale=100);
 bool RequestedHdr();
 unsigned RequestedSamples();
+unsigned RequestedRenderScale();
 unsigned MaxSamples();
 bool SupportsSamples(unsigned);
 unsigned MaxSamples(IDirect3DDevice9*);

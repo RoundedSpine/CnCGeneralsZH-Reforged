@@ -185,6 +185,7 @@ public:
 	Bool m_direct3D11;			///< draw and present through the Direct3D 11 backend; -d3d9 and -headless turn it off
 	AsciiString m_direct3D11DumpPath;	///< -dx11dump: where to write each generated program
 	AsciiString m_direct3D11PostChain;	///< -dx11post: the effects run over the finished D3D11 frame
+	Int m_renderScale;						///< iOS world-render resolution as a percentage of the native display
 	Int m_xResolution;
 	Int m_yResolution;
 	Int m_maxShellScreens;  ///< this many shells layouts can be loaded at once

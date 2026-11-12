@@ -126,20 +126,25 @@ public:
 	/// The device, with the window claimed when there is one.  A null window makes an offscreen frame,
 	/// which is what the tests use: Present then needs a target of the caller's (Present_To).  Null, with
 	/// the reason, when SDL has no GPU device to give.
-	static SdlGpuFrame * Create(RenderWindow window, unsigned int width, unsigned int height, std::string & error, bool hdr=false,unsigned samples=0);
+	static SdlGpuFrame * Create(RenderWindow window, unsigned int width, unsigned int height, std::string & error,
+		bool hdr=false,unsigned samples=0,unsigned renderScale=100);
 	~SdlGpuFrame();
 
 	/// A failed flush or allocation retains the old attachments and dimensions.
 	/// Recording/submission failures still have Flush's batch-consumption semantics.
 	enum ResizeFailure { RESIZE_NONE, RESIZE_INVALID_SIZE, RESIZE_FLUSH_FAILED, RESIZE_ALLOCATION_FAILED };
-	bool Resize(unsigned int width, unsigned int height, ResizeFailure *failure = NULL);
+	bool Resize(unsigned int width, unsigned int height, ResizeFailure *failure = NULL, unsigned int renderScale=100);
 	/// Apply presentation pacing to the claimed window; unsupported uncapped modes retain VSync.
 	/// A failed change leaves the existing swapchain usable. Offscreen pacing is independent.
 	bool Configure_VSync(bool enabled);
 
-	/// Where the clears and draws recorded from now on go (A3d); the back buffer until told otherwise.
+	/// Where the clears and draws recorded from now on go; the scaled scene until Finish_Scene, then
+	/// the native-resolution back buffer for UI composition.
 	void Set_Target(const SdlTarget & target);
 	SdlTarget Back_Buffer_Target() const;
+	bool Is_Scene_Target(const SdlTarget &target) const { return SceneBuffer != NULL && target.Colour == SceneBuffer; }
+	unsigned int Render_Scale() const { return RenderScale; }
+	bool Finish_Scene();
 	unsigned int Target_Depth_Format(const SdlTarget &target) const;
 	/// Sampleable sun depth, retired only after previously recorded readers are submitted.
 	bool Ambient_Occlusion(const SdlTarget &target, const SdlAo::Constants &constants, SDL_GPUTexture *shroud);
@@ -397,7 +402,7 @@ private:
 	bool Submit_Flush(struct SDL_GPUCommandBuffer * commands);
 
 	SdlGpuFrame();
-	bool Create_Targets(unsigned int width, unsigned int height);
+	bool Create_Targets(unsigned int width, unsigned int height, unsigned int renderScale);
 	void Release_Targets();
     struct SampleTexture {SDL_GPUTexture *Texture=nullptr;unsigned Width=0,Height=0;bool Current=false;};
     unsigned SampleCount=1;
@@ -446,6 +451,10 @@ private:
 	SDL_GPUTexture * BackBuffer;
 	SDL_GPUTexture * DepthStencil;
 	SDL_GPUTexture * FrontCopy;			///< the last presented picture
+	SDL_GPUTexture * SceneBuffer = NULL;
+	SDL_GPUTexture * SceneDepth = NULL;
+	unsigned int SceneWidth = 0, SceneHeight = 0, RenderScale = 100;
+	bool SceneActive = true;
 	SdlAo::Renderer *Ao = nullptr;
 	bool AoFailed = false;
 	void Release_Ambient_Occlusion();

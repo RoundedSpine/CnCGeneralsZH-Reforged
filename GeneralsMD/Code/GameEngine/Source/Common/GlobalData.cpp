@@ -678,6 +678,7 @@ GlobalData::GlobalData()
 #endif
 	m_xResolution = 800;
 	m_yResolution = 600;
+	m_renderScale = 100;
 	m_maxShellScreens = 0;
 	m_useCloudMap = FALSE;
 	m_use3WayTerrainBlends = 1;
@@ -1644,7 +1645,11 @@ void GlobalData::parseGameDataDefinition( INI* ini )
 	TheWritableGlobalData->m_xResolution = xres;
 	TheWritableGlobalData->m_yResolution = yres;
 	TheWritableGlobalData->m_monitor = optionPref["Monitor"];
-#if !defined(_WIN32)
+#if defined(ZH_PLATFORM_IOS)
+	// iOS has a fixed native output size; Resolution is no longer a render-quality control.
+	firstRunResolution( TheWritableGlobalData->m_monitor.str(),
+		&TheWritableGlobalData->m_xResolution, &TheWritableGlobalData->m_yResolution );
+#elif !defined(_WIN32)
 	// A first run: Options.ini names no resolution, so start at the monitor's own size (Monitors.h).
 	// The platform layer's displays are up by now: SdlGameEngine starts its video before this INI loads.
 	if (optionPref.find( "Resolution" ) == optionPref.end())
@@ -1658,6 +1663,15 @@ void GlobalData::parseGameDataDefinition( INI* ini )
 	// TheWritableGlobalData is being constructed, which is before parseCommandLine, so the command
 	// line still wins over the preferences file.  setOptionPreferences runs after it and would not.
 	loadOptionsFromPreferences( optionPref );
+#if defined(ZH_PLATFORM_IOS)
+	if (optionPref.find("RenderScale") != optionPref.end()) {
+		const Int savedScale = atoi(optionPref["RenderScale"].str());
+		if (savedScale == 100 || savedScale == 75 || savedScale == 67 || savedScale == 50)
+			TheWritableGlobalData->m_renderScale = savedScale;
+		else
+			fprintf(stderr, "[IOS_OPTIONS] invalid RenderScale=%d; using native resolution\n", savedScale);
+	}
+#endif
 
 	// Classic graphics takes the stencil shadows and the unfiltered picture back here, before the
 	// command line, so -dx11post still names a chain for the one run it is given.  The rest of the
@@ -1699,4 +1713,3 @@ void applyWindowMode( void )
 		TheWritableGlobalData->m_edgeScrollInWindowedMode = TRUE;
 	}
 }
-
