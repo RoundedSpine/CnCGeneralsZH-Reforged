@@ -946,6 +946,10 @@ if(ZH_PLATFORM_POSIX)
   endif()
   add_subdirectory(${LIBSRC}/SDL3 ${CMAKE_CURRENT_BINARY_DIR}/SDL3)
 
+  if(ZH_PLATFORM_IOS)
+    target_link_libraries(SDL3-static PRIVATE "-framework MetalFX")
+  endif()
+
   # miniaudio: one C file.  Its own CMakeLists builds extras and examples this does not want.
   # It opens the platform's audio libraries at run time by default, so the static library needs
   # nothing at link beyond threads, libm and libdl, which are its consumers' to carry.

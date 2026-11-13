@@ -498,6 +498,24 @@ install_sdl3_gpu_timing_patch() {
   step "sdl3-metal-gpu-timing.patch -> Libraries/Source/SDL3"
 }
 
+# MetalFX spatial upscaling for the iOS Metal backend.
+install_sdl3_metalfx_patch() {
+  local destination="$libraries/Source/SDL3"
+  local source="$destination/src/gpu/metal/SDL_gpu_metal.m"
+  if grep -q 'ZH_SDL_MetalFX_Encode' "$source" 2>/dev/null; then return 0; fi
+  local patch="$libraries/Source/sdl3-metalfx-spatial.patch"
+  GIT_CEILING_DIRECTORIES="$libraries/Source" \
+    git -C "$destination" -c core.autocrlf=false apply "$patch" || {
+      echo "[vendor] sdl3-metalfx-spatial.patch failed to apply" >&2
+      exit 1
+    }
+  grep -q 'ZH_SDL_MetalFX_Encode' "$source" || {
+    echo "[vendor] MetalFX spatial hook missing after patch" >&2
+    exit 1
+  }
+  step "sdl3-metalfx-spatial.patch -> Libraries/Source/SDL3"
+}
+
 # Stage-boundary Metal render-pass timestamps, opt-in and unsupported-device safe.
 install_sdl3_pass_timing_patch() {
   local destination="$libraries/Source/SDL3"
@@ -804,6 +822,7 @@ install_gamespy_unix_patch
 install_sdl3
 install_sdl3_patch
 install_sdl3_gpu_timing_patch
+install_sdl3_metalfx_patch
 install_sdl3_pass_timing_patch
 install_miniaudio
 install_glslang

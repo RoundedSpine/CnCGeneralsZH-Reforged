@@ -137,6 +137,14 @@ target, which is composed before native-resolution UI. The selected scale is
 saved as `RenderScale` in `Options.ini`. On iOS, the display size is taken from
 the device rather than a previously saved `Resolution` value.
 
+For non-native render scales, supported iOS devices use MetalFX spatial
+upscaling when its texture formats and usage requirements are available.
+Unsupported devices and failed scaler setup keep the existing linear upscale;
+native-resolution rendering does not invoke MetalFX. The output remains at
+native display resolution, and the UI is rendered afterward at native
+resolution. Device-side image-quality, performance and fallback checks remain
+required.
+
 ## Validation limits and device checks
 
 `test_graphics_preferences.py` exercises the actual save logic, both platform

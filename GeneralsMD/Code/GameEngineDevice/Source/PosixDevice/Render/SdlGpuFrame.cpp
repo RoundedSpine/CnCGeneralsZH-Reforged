@@ -356,12 +356,25 @@ bool SdlGpuFrame::Create_Targets(unsigned int width, unsigned int height, unsign
 	info.type = SDL_GPU_TEXTURETYPE_2D;
 	info.format = (SDL_GPUTextureFormat)Scene_Format();
 	info.usage = SDL_GPU_TEXTUREUSAGE_COLOR_TARGET | SDL_GPU_TEXTUREUSAGE_SAMPLER;
+#if defined(ZH_PLATFORM_IOS)
+	info.usage |= SDL_GPU_TEXTUREUSAGE_COMPUTE_STORAGE_WRITE;
+#endif
 	info.width = width;
 	info.height = height;
 	info.layer_count_or_depth = 1;
 	info.num_levels = 1;
 	info.sample_count = SDL_GPU_SAMPLECOUNT_1;
 	SDL_GPUTexture *back = SDL_CreateGPUTexture(GpuDevice, &info);
+#if defined(ZH_PLATFORM_IOS)
+	if (back == NULL) {
+		const char *storageError = SDL_GetError();
+		fprintf(stderr, "[SDL_METALFX] output storage usage unavailable; retrying without it: %s\n",
+			storageError != NULL ? storageError : "unknown error");
+		info.usage = SDL_GPU_TEXTUREUSAGE_COLOR_TARGET | SDL_GPU_TEXTUREUSAGE_SAMPLER;
+		back = SDL_CreateGPUTexture(GpuDevice, &info);
+	}
+#endif
+	info.usage = SDL_GPU_TEXTUREUSAGE_COLOR_TARGET | SDL_GPU_TEXTUREUSAGE_SAMPLER;
 	SDL_GPUTexture *front = SDL_CreateGPUTexture(GpuDevice, &info);
 	info.format = (SDL_GPUTextureFormat)DepthFormat;
 	info.usage = Depth_Usage();

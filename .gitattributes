@@ -10,6 +10,8 @@ GeneralsMD/Code/Libraries/Source/lzhl-*.patch text eol=lf
 
 # So are SDL3's, and the same holds for its patches.
 GeneralsMD/Code/Libraries/Source/sdl3-*.patch text eol=lf
+# A unified diff's empty context lines carry the patch marker as a space.
+GeneralsMD/Code/Libraries/Source/sdl3-metalfx-spatial.patch whitespace=-blank-at-eol
 
 # FFmpeg's own files, committed as they came out of its build: no line ending conversion on the
 # headers, and the DLLs and import libraries are binary.

@@ -303,8 +303,8 @@ Install-Miniaudio
 Install-Mbedtls
 # SDL3 is the platform layer for everything that is not Windows (decision 3 in PORTING.md). Windows
 # keeps Win32Device, so it is not fetched here; vendor.sh fetches it, and says it skips DirectX the
-# same way. The same holds for SDL3's Metal patch, Libraries\Source\sdl3-metal-windowless.patch:
-# vendor.sh applies it, and there is nothing here to apply.
+# same way. SDL3's Metal patches (including Libraries\Source\sdl3-metalfx-spatial.patch) are applied
+# by vendor.sh, and there is nothing here to apply.
 Step 'skipping SDL3: not Windows, and vendor.sh is what fetches it'
 # glslang, SPIRV-Cross and SDL_shadercross compile the shader generators' SDL3 GPU target (decision 4).
 # Windows compiles the D3D11 target with d3dcompiler_47.dll, so they are not fetched here.

@@ -22,6 +22,9 @@
 #include "SdlGpuFrame.h"
 #include "sdl3shadercompile.h"
 #include "Platform/ParticlePerfToggle.h"
+#if defined(ZH_PLATFORM_IOS)
+#include "SdlMetalFx.h"
+#endif
 #include <SDL3/SDL.h>
 #if defined(__APPLE__)
 extern "C" void ZH_SDL_Metal_SetNextRenderPassTag(Uint32 category);
@@ -422,6 +425,21 @@ bool SdlGpuFrame::Finish_Scene()
 	if (!SceneActive || SceneBuffer == NULL)
 		return true;
 
+#if defined(ZH_PLATFORM_IOS)
+	const char *driver = SDL_GetGPUDeviceDriver(GpuDevice);
+	if (RenderScale < 100 && driver && strcmp(driver, "metal") == 0
+		&& ZH_SDL_MetalFX_Prepare(GpuDevice, SceneBuffer, BackBuffer)) {
+		if (!Flush(FlushMaintenance))
+			return false;
+		if (ZH_SDL_MetalFX_Encode(GpuDevice, SceneBuffer, BackBuffer)) {
+			Invalidate_Water_Snapshots(BackBuffer, NULL);
+			External_Colour_Write(BackBuffer);
+			SceneActive = false;
+			TargetSet = false;
+			return true;
+		}
+	}
+#endif
 	const int32_t source[4] = { 0, 0, (int32_t)SceneWidth, (int32_t)SceneHeight };
 	const int32_t destination[4] = { 0, 0, (int32_t)BackWidth, (int32_t)BackHeight };
 	Record_Blit(SceneBuffer, source, BackBuffer, destination, true);

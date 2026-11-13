@@ -2192,6 +2192,7 @@ GameEngineDevice/Source/PosixDevice/Render/SdlHazardCloudEmbers.h
 GameEngineDevice/Source/PosixDevice/Render/SdlHazardCloudShared.cpp
 GameEngineDevice/Source/PosixDevice/Render/SdlHazardCloudSharedShader.cpp
 GameEngineDevice/Source/PosixDevice/Render/SdlHazardCloudSharedShader.h
+GameEngineDevice/Source/PosixDevice/Render/SdlMetalFx.h
 GameEngineDevice/Source/PosixDevice/Render/SdlPipelineCache.cpp
 GameEngineDevice/Source/PosixDevice/Render/SdlPipelineCache.h
 GameEngineDevice/Source/PosixDevice/Render/SdlPostShader.h
@@ -3440,6 +3441,7 @@ Libraries/Source/profile/test1/test1.dsp
 Libraries/Source/sdl3-metal-gpu-timing.patch
 Libraries/Source/sdl3-metal-pass-timing.patch
 Libraries/Source/sdl3-metal-windowless.patch
+Libraries/Source/sdl3-metalfx-spatial.patch
 Libraries/Source/template.cpp
 Libraries/Source/template.h
 Main/Generals.ico
