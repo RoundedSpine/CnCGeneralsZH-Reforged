@@ -21,7 +21,7 @@ diff --git a/src/gpu/metal/SDL_gpu_metal.m b/src/gpu/metal/SDL_gpu_metal.m
  static void METAL_INTERNAL_DestroyBlitResources(SDL_GPURenderer *driverData);
  
  // Conversions
-@@ -630,6 +637,16 @@ struct MetalRenderer
+@@ -630,6 +637,17 @@ struct MetalRenderer
      id<MTLDevice> device;
      id<MTLCommandQueue> queue;
  
@@ -33,12 +33,13 @@ diff --git a/src/gpu/metal/SDL_gpu_metal.m b/src/gpu/metal/SDL_gpu_metal.m
 +    bool zhSpatialSupportChecked;
 +    bool zhSpatialSupported;
 +    bool zhSpatialFailure;
++    bool zhSpatialActivationLogged;
 +#endif
 +
      bool debugMode;
      SDL_PropertiesID props;
      Uint32 allowedFramesInFlight;
-@@ -689,6 +707,204 @@ struct MetalRenderer
+@@ -689,6 +707,212 @@ struct MetalRenderer
      SDL_Mutex *windowLock;
  };
  
@@ -52,6 +53,7 @@ diff --git a/src/gpu/metal/SDL_gpu_metal.m b/src/gpu/metal/SDL_gpu_metal.m
 +    renderer->zhSpatialOutputHeight = 0;
 +    renderer->zhSpatialFormat = MTLPixelFormatInvalid;
 +    renderer->zhSpatialFailure = false;
++    renderer->zhSpatialActivationLogged = false;
 +}
 +
 +static bool ZH_MetalFX_TrackTexture(MetalCommandBuffer *commandBuffer, MetalTexture *texture)
@@ -235,6 +237,13 @@ diff --git a/src/gpu/metal/SDL_gpu_metal.m b/src/gpu/metal/SDL_gpu_metal.m
 +            SDL_LogError(SDL_LOG_CATEGORY_GPU, "MetalFX spatial scaler command buffer submission failed");
 +            return false;
 +        }
++        if (!renderer->zhSpatialActivationLogged) {
++            SDL_Log("[SDL_METALFX] spatial=active input=%ux%u output=%ux%u format=%s",
++                renderer->zhSpatialInputWidth, renderer->zhSpatialInputHeight,
++                renderer->zhSpatialOutputWidth, renderer->zhSpatialOutputHeight,
++                renderer->zhSpatialFormat == MTLPixelFormatBGRA8Unorm ? "BGRA8Unorm" : "RGBA16Float");
++            renderer->zhSpatialActivationLogged = true;
++        }
 +        return true;
 +    }
 +}
@@ -243,7 +252,7 @@ diff --git a/src/gpu/metal/SDL_gpu_metal.m b/src/gpu/metal/SDL_gpu_metal.m
  // Helper Functions
  
  // FIXME: This should be moved into SDL_sysgpu.h
-@@ -704,6 +909,10 @@ static void METAL_DestroyDevice(SDL_GPUDevice *device)
+@@ -704,6 +917,10 @@ static void METAL_DestroyDevice(SDL_GPUDevice *device)
      // Flush any remaining GPU work...
      METAL_Wait(device->driverData);
  
