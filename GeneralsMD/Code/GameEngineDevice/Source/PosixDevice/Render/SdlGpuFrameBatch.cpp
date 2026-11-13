@@ -31,6 +31,7 @@ extern "C" void ZH_SDL_Metal_SetNextRenderPassTag(Uint32 category);
 #endif
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 // Past this much staged or uploaded data the next draw flushes first, so one batch never needs an
@@ -427,7 +428,9 @@ bool SdlGpuFrame::Finish_Scene()
 
 #if defined(ZH_PLATFORM_IOS)
 	const char *driver = SDL_GetGPUDeviceDriver(GpuDevice);
-	if (RenderScale < 100 && driver && strcmp(driver, "metal") == 0
+	const char *metalFxSetting = getenv("ZH_METALFX_SPATIAL");
+	if (RenderScale < 100 && metalFxSetting != NULL && strcmp(metalFxSetting, "1") == 0
+		&& driver && strcmp(driver, "metal") == 0
 		&& ZH_SDL_MetalFX_Prepare(GpuDevice, SceneBuffer, BackBuffer)) {
 		if (!Flush(FlushMaintenance))
 			return false;
@@ -437,6 +440,13 @@ bool SdlGpuFrame::Finish_Scene()
 			SceneActive = false;
 			TargetSet = false;
 			return true;
+		}
+	}
+	else if (RenderScale < 100 && (metalFxSetting == NULL || strcmp(metalFxSetting, "1") != 0)) {
+		static bool loggedLinearFallback = false;
+		if (!loggedLinearFallback) {
+			fprintf(stderr, "[SDL_METALFX] spatial=disabled reason=opt-in-required; using linear upscale\n");
+			loggedLinearFallback = true;
 		}
 	}
 #endif

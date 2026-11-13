@@ -137,13 +137,14 @@ target, which is composed before native-resolution UI. The selected scale is
 saved as `RenderScale` in `Options.ini`. On iOS, the display size is taken from
 the device rather than a previously saved `Resolution` value.
 
-For non-native render scales, supported iOS devices use MetalFX spatial
-upscaling when its texture formats and usage requirements are available.
-Unsupported devices and failed scaler setup keep the existing linear upscale;
-native-resolution rendering does not invoke MetalFX. The output remains at
-native display resolution, and the UI is rendered afterward at native
-resolution. Device-side image-quality, performance and fallback checks remain
-required.
+For non-native render scales, the existing linear upscale is the default.
+MetalFX spatial scaling is currently opt-in with `ZH_METALFX_SPATIAL=1` while
+visual artifacts in particle-heavy scenes are investigated. On supported iOS
+devices it uses the MetalFX scaler when texture formats and usage requirements
+are available; unsupported devices and failed setup retain the linear upscale.
+Native-resolution rendering does not invoke MetalFX. Device-side image-quality,
+performance and stability checks, including nuclear explosions and nuke-cannon
+effects, are required before considering enabling it by default.
 
 ## Validation limits and device checks
 
