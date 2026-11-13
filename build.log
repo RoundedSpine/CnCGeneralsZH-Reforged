@@ -1,3 +1,1449 @@
+[vendor] downloading zlib-1.1.4.tar.gz
+[vendor] unpacking zlib
+[vendor] unguarded zlib Byte typedef for Apple (see the comment in this script)
+[vendor] narrowed zlib Classic Mac branch to Classic Mac (see the comment in this script)
+[vendor] zlib 1.1.4 -> Libraries/Source/Compression/ZLib
+[vendor] downloading lzhl.zip
+[vendor] unpacking lzhl
+[vendor] LZH-Light 1.0 -> Libraries/Source/Compression/LZHCompress
+[vendor] lzhl-clear-history.patch -> Libraries/Source/Compression/LZHCompress
+[vendor] skipping the DirectX 8 SDK: Windows only, and vendor.ps1 is what fetches it
+[vendor] downloading gamespy.zip
+[vendor] unpacking gamespy
+[vendor] GamespySDK -> Libraries/Source/GameSpy
+[vendor] gamespy-strlwr-c-only.patch -> Libraries/Source/GameSpy
+[vendor] gamespy-gsi-unix.patch -> Libraries/Source/GameSpy
+[vendor] downloading SDL3-3.4.16.zip
+[vendor] unpacking SDL3
+[vendor] SDL3 3.4.16 -> Libraries/Source/SDL3
+[vendor] sdl3-metal-windowless.patch -> Libraries/Source/SDL3
+[vendor] sdl3-metal-gpu-timing.patch -> Libraries/Source/SDL3
+[vendor] sdl3-metalfx-spatial.patch -> Libraries/Source/SDL3
+[vendor] sdl3-metal-pass-timing.patch -> Libraries/Source/SDL3
+[vendor] downloading miniaudio-0.11.25.zip
+[vendor] unpacking miniaudio
+[vendor] miniaudio 0.11.25 -> Libraries/Source/miniaudio
+[vendor] downloading glslang-vulkan-sdk-1.4.357.0.zip
+[vendor] unpacking glslang
+[vendor] glslang vulkan-sdk-1.4.357.0 -> Libraries/Source/glslang
+[vendor] downloading SPIRV-Cross-1a616956.zip
+[vendor] unpacking SPIRV-Cross
+[vendor] SPIRV-Cross 1a616956 -> Libraries/Source/SPIRV-Cross
+[vendor] downloading SDL_shadercross-1ff05bec.zip
+[vendor] unpacking SDL_shadercross
+[vendor] SDL_shadercross 1ff05bec -> Libraries/Source/SDL_shadercross
+patching file 'src/SDL_shadercross.c'
+[vendor] downloading freetype-2.14.3.zip
+[vendor] unpacking freetype
+[vendor] FreeType 2.14.3 -> Libraries/Source/freetype
+[vendor] downloading ffmpeg-8.1.2.tar.xz
+[vendor] FFmpeg 8.1.2 (source tarball) -> Libraries/Source/FFmpeg
+[vendor] downloading mbedtls-3.6.7.tar.bz2
+[vendor] unpacking mbedtls
+[vendor] mbedTLS 3.6.7 -> Libraries/Source/mbedtls
+[vendor] everything the build needs is in place
+.
+----------------------------------------------------------------------
+Ran 1 test in 7.150s
+
+OK
+-- 
+-- SDL3 was configured with the following options:
+-- 
+-- Platform: Darwin-24.6.0
+-- 64-bit:   TRUE
+-- Compiler: /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang
+-- Revision: SDL-3.4.16-HEAD-HASH-NOTFOUND
+-- Vendor:   
+-- 
+-- Subsystems:
+--   Audio:    OFF
+--   Video:    ON
+--   GPU:      ON
+--   Render:   OFF
+--   Camera:   OFF
+--   Joystick: OFF
+--   Haptic:   OFF
+--   Hidapi:   OFF
+--   Power:    OFF
+--   Sensor:   OFF
+--   Dialog:   ON
+--   Tray:     OFF
+-- 
+-- Options:
+--   SDL_ALSA                    (Wanted: OFF): OFF
+--   SDL_ALSA_SHARED             (Wanted: OFF): OFF
+--   SDL_ALTIVEC                 (Wanted: OFF): OFF
+--   SDL_ARMNEON                 (Wanted: ON): ON
+--   SDL_ASAN                    (Wanted: OFF): OFF
+--   SDL_ASSEMBLY                (Wanted: ON): ON
+--   SDL_ASSERTIONS              (Wanted: auto): auto
+--   SDL_AVX                     (Wanted: OFF): OFF
+--   SDL_AVX2                    (Wanted: OFF): OFF
+--   SDL_AVX512F                 (Wanted: OFF): OFF
+--   SDL_BACKGROUNDING_SIGNAL    (Wanted: OFF): OFF
+--   SDL_CCACHE                  (Wanted: OFF): OFF
+--   SDL_CLANG_TIDY              (Wanted: OFF): OFF
+--   SDL_CLOCK_GETTIME           (Wanted: OFF): OFF
+--   SDL_COCOA                   (Wanted: ON): ON
+--   SDL_DBUS                    (Wanted: OFF): OFF
+--   SDL_DEPS_SHARED             (Wanted: ON): OFF
+--   SDL_DIRECTX                 (Wanted: OFF): OFF
+--   SDL_DISKAUDIO               (Wanted: OFF): OFF
+--   SDL_DLOPEN_NOTES            (Wanted: OFF): OFF
+--   SDL_DUMMYAUDIO              (Wanted: OFF): OFF
+--   SDL_DUMMYCAMERA             (Wanted: OFF): OFF
+--   SDL_DUMMYVIDEO              (Wanted: ON): ON
+--   SDL_EXAMPLES                (Wanted: OFF): OFF
+--   SDL_EXAMPLES_LINK_SHARED    (Wanted: OFF): OFF
+--   SDL_FOREGROUNDING_SIGNAL    (Wanted: OFF): OFF
+--   SDL_FRIBIDI                 (Wanted: OFF): OFF
+--   SDL_FRIBIDI_SHARED          (Wanted: OFF): OFF
+--   SDL_GCC_ATOMICS             (Wanted: ON): ON
+--   SDL_HIDAPI                  (Wanted: OFF): OFF
+--   SDL_HIDAPI_JOYSTICK         (Wanted: OFF): OFF
+--   SDL_HIDAPI_LIBUSB           (Wanted: OFF): OFF
+--   SDL_HIDAPI_LIBUSB_SHARED    (Wanted: OFF): OFF
+--   SDL_IBUS                    (Wanted: OFF): OFF
+--   SDL_INSTALL                 (Wanted: OFF): OFF
+--   SDL_INSTALL_TESTS           (Wanted: OFF): OFF
+--   SDL_JACK                    (Wanted: OFF): OFF
+--   SDL_JACK_SHARED             (Wanted: OFF): OFF
+--   SDL_KMSDRM                  (Wanted: OFF): OFF
+--   SDL_KMSDRM_SHARED           (Wanted: OFF): OFF
+--   SDL_LASX                    (Wanted: OFF): OFF
+--   SDL_LIBC                    (Wanted: ON): ON
+--   SDL_LIBICONV                (Wanted: OFF): OFF
+--   SDL_LIBTHAI                 (Wanted: OFF): OFF
+--   SDL_LIBTHAI_SHARED          (Wanted: OFF): OFF
+--   SDL_LIBUDEV                 (Wanted: ON): OFF
+--   SDL_LIBURING                (Wanted: OFF): OFF
+--   SDL_LSX                     (Wanted: OFF): OFF
+--   SDL_METAL                   (Wanted: ON): ON
+--   SDL_MMX                     (Wanted: OFF): OFF
+--   SDL_OFFSCREEN               (Wanted: ON): ON
+--   SDL_OPENGL                  (Wanted: OFF): OFF
+--   SDL_OPENGLES                (Wanted: OFF): OFF
+--   SDL_OPENVR                  (Wanted: OFF): OFF
+--   SDL_OSS                     (Wanted: OFF): OFF
+--   SDL_PIPEWIRE                (Wanted: OFF): OFF
+--   SDL_PIPEWIRE_SHARED         (Wanted: OFF): OFF
+--   SDL_PTHREADS                (Wanted: ON): ON
+--   SDL_PTHREADS_SEM            (Wanted: ON): ON
+--   SDL_PULSEAUDIO              (Wanted: OFF): OFF
+--   SDL_PULSEAUDIO_SHARED       (Wanted: OFF): OFF
+--   SDL_RENDER_D3D              (Wanted: OFF): OFF
+--   SDL_RENDER_D3D11            (Wanted: OFF): OFF
+--   SDL_RENDER_D3D12            (Wanted: OFF): OFF
+--   SDL_RENDER_GPU              (Wanted: OFF): OFF
+--   SDL_RENDER_METAL            (Wanted: OFF): OFF
+--   SDL_RENDER_VULKAN           (Wanted: OFF): OFF
+--   SDL_ROCKCHIP                (Wanted: OFF): OFF
+--   SDL_RPATH                   (Wanted: ON): OFF
+--   SDL_RPI                     (Wanted: OFF): OFF
+--   SDL_SNDIO                   (Wanted: OFF): OFF
+--   SDL_SNDIO_SHARED            (Wanted: OFF): OFF
+--   SDL_SSE                     (Wanted: OFF): OFF
+--   SDL_SSE2                    (Wanted: OFF): OFF
+--   SDL_SSE3                    (Wanted: OFF): OFF
+--   SDL_SSE4_1                  (Wanted: OFF): OFF
+--   SDL_SSE4_2                  (Wanted: OFF): OFF
+--   SDL_SYSTEM_ICONV            (Wanted: OFF): OFF
+--   SDL_TESTS                   (Wanted: OFF): OFF
+--   SDL_TESTS_LINK_SHARED       (Wanted: OFF): OFF
+--   SDL_UNINSTALL               (Wanted: OFF): OFF
+--   SDL_VIRTUAL_JOYSTICK        (Wanted: OFF): OFF
+--   SDL_VIVANTE                 (Wanted: OFF): OFF
+--   SDL_VULKAN                  (Wanted: ON): ON
+--   SDL_WASAPI                  (Wanted: OFF): OFF
+--   SDL_WAYLAND                 (Wanted: OFF): OFF
+--   SDL_WAYLAND_LIBDECOR        (Wanted: OFF): OFF
+--   SDL_WAYLAND_LIBDECOR_SHARED (Wanted: OFF): OFF
+--   SDL_WAYLAND_SHARED          (Wanted: OFF): OFF
+--   SDL_X11                     (Wanted: OFF): OFF
+--   SDL_X11_SHARED              (Wanted: OFF): OFF
+--   SDL_X11_XCURSOR             (Wanted: OFF): OFF
+--   SDL_X11_XDBE                (Wanted: OFF): OFF
+--   SDL_X11_XFIXES              (Wanted: OFF): OFF
+--   SDL_X11_XINPUT              (Wanted: OFF): OFF
+--   SDL_X11_XRANDR              (Wanted: OFF): OFF
+--   SDL_X11_XSCRNSAVER          (Wanted: OFF): OFF
+--   SDL_X11_XSHAPE              (Wanted: OFF): OFF
+--   SDL_X11_XSYNC               (Wanted: OFF): OFF
+--   SDL_X11_XTEST               (Wanted: OFF): OFF
+--   SDL_XINPUT                  (Wanted: OFF): OFF
+-- 
+--  Build Shared Library: OFF
+--  Build Static Library: ON
+--  Build libraries as Apple Framework: OFF
+-- 
+-- Enabled backends:
+--   Video drivers: cocoa dummy offscreen
+--   Render drivers: 
+--   GPU drivers: metal vulkan
+--   Audio drivers: dummy
+--   Joystick drivers: disabled dummy
+--   Camera drivers: dummy
+-- 
+-- If something was not detected, although the libraries
+-- were installed, then make sure you have set the
+-- CMAKE_C_FLAGS and CMAKE_PREFIX_PATH CMake variables correctly.
+-- 
+CMake Warning (deprecated) at Libraries/Source/glslang/CMakeLists.txt:111 (message):
+  ENABLE_HLSL is deprecated.  The HLSL front-end will be removed in a future
+  major release of glslang.  See
+  https://github.com/KhronosGroup/glslang/issues/4210 for details.
+This warning is for project developers.  Use -Wno-author or -Wno-deprecated
+to suppress it.
+
+-- spirv-tools not linked - illegal SPIRV may be generated for HLSL
+-- SPIRV-Cross: Finding Git version for SPIRV-Cross.
+-- SPIRV-Cross: Git hash: ff68768
+-- Configuring done (1.6s)
+-- Generating done (0.4s)
+-- Build files have been written to: /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/build/ios/host-graphics
+[0/2] Re-checking globbed directories...
+[1/1657] Building CXX object SPIRV-Cross/CMakeFiles/spirv-cross-core.dir/spirv_parser.cpp.o
+[2/1657] Building CXX object SPIRV-Cross/CMakeFiles/spirv-cross-core.dir/spirv_cross_parsed_ir.cpp.o
+[3/1657] Building CXX object SPIRV-Cross/CMakeFiles/spirv-cross-core.dir/spirv_cross.cpp.o
+[4/1657] Building CXX object SPIRV-Cross/CMakeFiles/spirv-cross-core.dir/spirv_cfg.cpp.o
+[5/1657] Building CXX object SPIRV-Cross/CMakeFiles/spirv-cross-glsl.dir/spirv_glsl.cpp.o
+[6/1657] Linking CXX static library SPIRV-Cross/libspirv-cross-core.a
+[7/1657] Building CXX object SPIRV-Cross/CMakeFiles/spirv-cross-msl.dir/spirv_msl.cpp.o
+[8/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/dynapi/SDL_dynapi.c.o
+[9/1657] Linking CXX static library SPIRV-Cross/libspirv-cross-glsl.a
+[10/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/cmake_pch.h.pch
+[11/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/SDL.c.o
+[12/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/SDL_assert.c.o
+[13/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/SDL_error.c.o
+[14/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/SDL_guid.c.o
+[15/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/SDL_hashtable.c.o
+[16/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/SDL_hints.c.o
+[17/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/SDL_list.c.o
+[18/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/SDL_log.c.o
+[19/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/SDL_properties.c.o
+[20/1657] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/locale/macos/SDL_syslocale.m.o
+[21/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/atomic/SDL_atomic.c.o
+[22/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/SDL_utils.c.o
+[23/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/atomic/SDL_spinlock.c.o
+[24/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/audio/SDL_audio.c.o
+[25/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/audio/SDL_audiodev.c.o
+[26/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/audio/SDL_audioqueue.c.o
+[27/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/audio/SDL_audiocvt.c.o
+[28/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/audio/SDL_audioresample.c.o
+[29/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/audio/SDL_audiotypecvt.c.o
+[30/1657] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/misc/macos/SDL_sysurl.m.o
+[31/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/audio/SDL_mixer.c.o
+[32/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/core/SDL_core_unsupported.c.o
+[33/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/cpuinfo/SDL_cpuinfo.c.o
+[34/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/camera/SDL_camera.c.o
+[35/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/events/SDL_categories.c.o
+[36/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/audio/SDL_wave.c.o
+[37/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/events/SDL_clipboardevents.c.o
+[38/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/events/SDL_displayevents.c.o
+[39/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/events/SDL_dropevents.c.o
+[40/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/events/SDL_eventwatch.c.o
+[41/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/events/SDL_keyboard.c.o
+[42/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/events/SDL_keymap.c.o
+[43/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/events/SDL_events.c.o
+[44/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/events/SDL_keysym_to_keycode.c.o
+[45/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/events/SDL_keysym_to_scancode.c.o
+[46/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/events/SDL_quit.c.o
+[47/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/events/SDL_scancode_tables.c.o
+[48/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/events/SDL_pen.c.o
+[49/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/events/SDL_windowevents.c.o
+[50/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/events/SDL_touch.c.o
+[51/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/events/imKStoUCS.c.o
+[52/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/events/SDL_mouse.c.o
+[53/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/filesystem/SDL_filesystem.c.o
+[54/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/hidapi/SDL_hidapi.c.o
+[55/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/haptic/SDL_haptic.c.o
+[56/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/io/SDL_asyncio.c.o
+[57/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/io/generic/SDL_asyncio_generic.c.o
+[58/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/io/SDL_iostream.c.o
+[59/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/gpu/SDL_gpu.c.o
+[60/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/joystick/SDL_steam_virtual_gamepad.c.o
+[61/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/joystick/controller_type.c.o
+[62/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/locale/SDL_locale.c.o
+[63/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/main/SDL_main_callbacks.c.o
+[64/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/main/SDL_runapp.c.o
+[65/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/misc/SDL_libusb.c.o
+[66/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/joystick/SDL_gamepad.c.o
+[67/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/misc/SDL_url.c.o
+[68/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/power/SDL_power.c.o
+[69/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/joystick/SDL_joystick.c.o
+[70/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/render/SDL_render_unsupported.c.o
+[71/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/render/SDL_yuv_sw.c.o
+[72/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/render/direct3d/SDL_render_d3d.c.o
+[73/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/render/direct3d/SDL_shaders_d3d.c.o
+[74/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/render/direct3d11/SDL_render_d3d11.c.o
+[75/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/render/direct3d11/SDL_shaders_d3d11.c.o
+[76/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/render/direct3d12/SDL_render_d3d12.c.o
+[77/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/render/direct3d12/SDL_shaders_d3d12.c.o
+[78/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/render/gpu/SDL_pipeline_gpu.c.o
+[79/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/render/gpu/SDL_shaders_gpu.c.o
+[80/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/render/gpu/SDL_render_gpu.c.o
+[81/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/render/ngage/SDL_render_ngage.c.o
+[82/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/render/opengl/SDL_render_gl.c.o
+[83/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/render/opengl/SDL_shaders_gl.c.o
+[84/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/render/opengles2/SDL_render_gles2.c.o
+[85/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/render/opengles2/SDL_shaders_gles2.c.o
+[86/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/render/ps2/SDL_render_ps2.c.o
+[87/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/render/psp/SDL_render_psp.c.o
+[88/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/render/software/SDL_blendfillrect.c.o
+[89/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/render/software/SDL_blendline.c.o
+[90/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/render/software/SDL_blendpoint.c.o
+[91/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/render/software/SDL_drawline.c.o
+[92/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/render/software/SDL_drawpoint.c.o
+[93/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/render/software/SDL_render_sw.c.o
+[94/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/render/software/SDL_triangle.c.o
+[95/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/render/vitagxm/SDL_render_vita_gxm.c.o
+[96/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/render/vitagxm/SDL_render_vita_gxm_memory.c.o
+[97/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/render/vulkan/SDL_render_vulkan.c.o
+[98/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/render/vitagxm/SDL_render_vita_gxm_tools.c.o
+[99/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/render/vulkan/SDL_shaders_vulkan.c.o
+[100/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/stdlib/SDL_crc16.c.o
+[101/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/sensor/SDL_sensor.c.o
+[102/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/stdlib/SDL_crc32.c.o
+[103/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/stdlib/SDL_getenv.c.o
+[104/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/stdlib/SDL_iconv.c.o
+[105/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/stdlib/SDL_malloc.c.o
+[106/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/stdlib/SDL_memcpy.c.o
+[107/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/stdlib/SDL_memmove.c.o
+[108/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/stdlib/SDL_memset.c.o
+[109/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/stdlib/SDL_mslibc.c.o
+[110/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/render/SDL_render.c.o
+[111/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/stdlib/SDL_murmur3.c.o
+[112/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/stdlib/SDL_random.c.o
+[113/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/stdlib/SDL_stdlib.c.o
+[114/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/stdlib/SDL_strtokr.c.o
+[115/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/storage/SDL_storage.c.o
+[116/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/thread/SDL_thread.c.o
+[117/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/stdlib/SDL_string.c.o
+[118/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/stdlib/SDL_qsort.c.o
+[119/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/time/SDL_time.c.o
+[120/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/SDL_blit.c.o
+[121/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/timer/SDL_timer.c.o
+[122/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/SDL_blit_1.c.o
+[123/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/SDL_blit_0.c.o
+[124/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/SDL_RLEaccel.c.o
+[125/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/SDL_blit_A.c.o
+[126/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/SDL_blit_copy.c.o
+[127/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/SDL_blit_N.c.o
+[128/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/SDL_bmp.c.o
+[129/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/SDL_blit_slow.c.o
+[130/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/SDL_egl.c.o
+[131/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/SDL_clipboard.c.o
+[132/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/SDL_fillrect.c.o
+[133/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/SDL_rect.c.o
+[134/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/SDL_pixels.c.o
+[135/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/SDL_rotate.c.o
+[136/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/SDL_stretch.c.o
+[137/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/SDL_surface.c.o
+[138/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/SDL_video.c.o
+[139/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/SDL_video_unsupported.c.o
+[140/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/SDL_blit_auto.c.o
+[141/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/SDL_vulkan_utils.c.o
+[142/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/yuv2rgb/yuv_rgb_lsx.c.o
+[143/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/yuv2rgb/yuv_rgb_sse.c.o
+[144/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/SDL_yuv.c.o
+[145/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/e_atan2.c.o
+[146/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/SDL_stb.c.o
+[147/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/e_exp.c.o
+[148/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/e_fmod.c.o
+[149/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/yuv2rgb/yuv_rgb_std.c.o
+[150/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/e_log.c.o
+[151/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/e_log10.c.o
+[152/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/e_rem_pio2.c.o
+[153/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/e_pow.c.o
+[154/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/k_cos.c.o
+[155/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/e_sqrt.c.o
+[156/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/k_sin.c.o
+[157/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/k_tan.c.o
+[158/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/k_rem_pio2.c.o
+[159/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/s_atan.c.o
+[160/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/s_copysign.c.o
+[161/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/s_cos.c.o
+[162/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/s_fabs.c.o
+[163/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/s_floor.c.o
+[164/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/s_isinf.c.o
+[165/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/s_isinff.c.o
+[166/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/s_isnan.c.o
+[167/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/s_isnanf.c.o
+[168/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/s_modf.c.o
+[169/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/s_sin.c.o
+[170/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/s_scalbn.c.o
+[171/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/libm/s_tan.c.o
+[172/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/loadso/dlopen/SDL_sysloadso.c.o
+[173/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/dummy/SDL_nullevents.c.o
+[174/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/dummy/SDL_nullframebuffer.c.o
+[175/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/dummy/SDL_nullvideo.c.o
+[176/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/timer/unix/SDL_systimer.c.o
+[177/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/time/unix/SDL_systime.c.o
+[178/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/storage/generic/SDL_genericstorage.c.o
+[179/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/storage/steam/SDL_steamstorage.c.o
+[180/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/filesystem/posix/SDL_sysfsops.c.o
+[181/1657] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/filesystem/cocoa/SDL_sysfilesystem.m.o
+[182/1657] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/video/cocoa/SDL_cocoaclipboard.m.o
+[183/1657] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/video/cocoa/SDL_cocoaevents.m.o
+[184/1657] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/video/cocoa/SDL_cocoakeyboard.m.o
+[185/1657] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/video/cocoa/SDL_cocoamessagebox.m.o
+[186/1657] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/video/cocoa/SDL_cocoametalview.m.o
+[187/1657] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/video/cocoa/SDL_cocoaopengl.m.o
+[188/1657] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/video/cocoa/SDL_cocoaopengles.m.o
+[189/1657] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/video/cocoa/SDL_cocoamodes.m.o
+[190/1657] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/video/cocoa/SDL_cocoamouse.m.o
+[191/1657] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/video/cocoa/SDL_cocoapen.m.o
+[192/1657] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/video/cocoa/SDL_cocoashape.m.o
+[193/1657] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/video/cocoa/SDL_cocoavideo.m.o
+[194/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/thread/pthread/SDL_systhread.c.o
+[195/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/thread/pthread/SDL_sysmutex.c.o
+[196/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/thread/pthread/SDL_syscond.c.o
+[197/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/thread/pthread/SDL_sysrwlock.c.o
+[198/1657] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/video/cocoa/SDL_cocoavulkan.m.o
+[199/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/thread/pthread/SDL_systls.c.o
+[200/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/thread/pthread/SDL_syssem.c.o
+[201/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/dialog/SDL_dialog.c.o
+[202/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/dialog/SDL_dialog_utils.c.o
+[203/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/process/SDL_process.c.o
+[204/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/process/posix/SDL_posixprocess.c.o
+[205/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/offscreen/SDL_offscreenevents.c.o
+[206/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/offscreen/SDL_offscreenframebuffer.c.o
+[207/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/offscreen/SDL_offscreenopengles.c.o
+[208/1657] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/video/cocoa/SDL_cocoawindow.m.o
+[209/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/offscreen/SDL_offscreenvideo.c.o
+[210/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/offscreen/SDL_offscreenvulkan.c.o
+[211/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/video/offscreen/SDL_offscreenwindow.c.o
+[212/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/tray/SDL_tray_utils.c.o
+[213/1657] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/dialog/cocoa/SDL_cocoadialog.m.o
+[214/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/audio/dummy/SDL_dummyaudio.c.o
+[215/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/joystick/dummy/SDL_sysjoystick.c.o
+[216/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/haptic/dummy/SDL_syshaptic.c.o
+[217/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/sensor/dummy/SDL_dummysensor.c.o
+[218/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/tray/dummy/SDL_tray.c.o
+[219/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/camera/dummy/SDL_camera_dummy.c.o
+[220/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/main/generic/SDL_sysmain_callbacks.c.o
+[221/1657] Linking CXX static library SPIRV-Cross/libspirv-cross-msl.a
+[222/1657] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/gpu/metal/SDL_gpu_metal.m.o
+[223/1657] Building CXX object CMakeFiles/wwdebug.dir/Libraries/Source/WWVegas/WWDebug/wwdebug.cpp.o
+[224/1657] Building CXX object CMakeFiles/wwdebug.dir/Libraries/Source/WWVegas/WWDebug/wwmemlog.cpp.o
+[225/1657] Building CXX object CMakeFiles/wwdebug.dir/Libraries/Source/WWVegas/WWDebug/wwprofile.cpp.o
+[226/1657] Building CXX object CMakeFiles/ffshader.dir/Libraries/Source/WWVegas/WW3D2/ffshader.cpp.o
+[227/1657] Building C object CMakeFiles/sdl3_shadercross.dir/Libraries/Source/SDL_shadercross/src/SDL_shadercross.c.o
+[228/1657] Building CXX object CMakeFiles/build_fingerprint.dir/Tools/fingerprint/build_fingerprint.cpp.o
+[229/1657] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/CInterface/glslang_c_interface.cpp.o
+[230/1657] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/GenericCodeGen/CodeGen.cpp.o
+[231/1657] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/GenericCodeGen/Link.cpp.o
+[232/1657] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/OSDependent/Unix/ossource.cpp.o
+[233/1657] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/glslang_tab.cpp.o
+[234/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/gpu/vulkan/SDL_gpu_vulkan.c.o
+[235/1657] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/attribute.cpp.o
+[236/1657] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/Constant.cpp.o
+[237/1657] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/iomapper.cpp.o
+[238/1657] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/InfoSink.cpp.o
+[239/1657] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/Initialize.cpp.o
+[240/1657] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/IntermTraverse.cpp.o
+[241/1657] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/Intermediate.cpp.o
+[242/1657] Linking C static library SDL3/libSDL3.a
+[243/1657] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/ParseContextBase.cpp.o
+[244/1657] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/ParseHelper.cpp.o
+[245/1657] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/PoolAlloc.cpp.o
+[246/1657] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/RemoveTree.cpp.o
+[247/1657] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/ShaderLang.cpp.o
+[248/1657] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/SpirvIntrinsics.cpp.o
+[249/1657] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/SymbolTable.cpp.o
+[250/1657] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/Versions.cpp.o
+[251/1657] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/intermOut.cpp.o
+[252/1657] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/limits.cpp.o
+[253/1657] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/Scan.cpp.o
+[254/1657] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/linkValidate.cpp.o
+[255/1657] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/parseConst.cpp.o
+[256/1657] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/reflection.cpp.o
+[257/1657] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/preprocessor/Pp.cpp.o
+[258/1657] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/preprocessor/PpAtom.cpp.o
+[259/1657] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/preprocessor/PpContext.cpp.o
+[260/1657] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/preprocessor/PpScanner.cpp.o
+[261/1657] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/preprocessor/PpTokens.cpp.o
+[262/1657] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/propagateNoContraction.cpp.o
+[263/1657] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/HLSL/hlslAttributes.cpp.o
+[264/1657] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/HLSL/hlslParseHelper.cpp.o
+[265/1657] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/HLSL/hlslOpMap.cpp.o
+[266/1657] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/HLSL/hlslScanContext.cpp.o
+[267/1657] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/HLSL/hlslTokenStream.cpp.o
+[268/1657] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/HLSL/hlslGrammar.cpp.o
+[269/1657] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/HLSL/hlslParseables.cpp.o
+[270/1657] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/__/SPIRV/GlslangToSpv.cpp.o
+[271/1657] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/__/SPIRV/Logger.cpp.o
+[272/1657] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/__/SPIRV/InReadableOrder.cpp.o
+[273/1657] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/__/SPIRV/SpvPostProcess.cpp.o
+[274/1657] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/__/SPIRV/SpvBuilder.cpp.o
+[275/1657] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/__/SPIRV/SpvTools.cpp.o
+[276/1657] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/__/SPIRV/doc.cpp.o
+[277/1657] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/__/SPIRV/disassemble.cpp.o
+[278/1657] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/__/SPIRV/CInterface/spirv_c_interface.cpp.o
+[279/1657] Building CXX object glslang/glslang/CMakeFiles/glslang-default-resource-limits.dir/ResourceLimits/ResourceLimits.cpp.o
+[280/1657] Building CXX object glslang/glslang/CMakeFiles/glslang-default-resource-limits.dir/ResourceLimits/resource_limits_c.cpp.o
+[281/1657] Building CXX object CMakeFiles/wwmath.dir/Libraries/Source/WWVegas/WWMath/aabox.cpp.o
+[282/1657] Linking CXX static library libwwdebug.a
+[283/1657] Building CXX object CMakeFiles/wwmath.dir/Libraries/Source/WWVegas/WWMath/aabtreecull.cpp.o
+[284/1657] Building CXX object CMakeFiles/wwmath.dir/Libraries/Source/WWVegas/WWMath/cardinalspline.cpp.o
+[285/1657] Building CXX object CMakeFiles/wwmath.dir/Libraries/Source/WWVegas/WWMath/catmullromspline.cpp.o
+[286/1657] Building CXX object CMakeFiles/wwmath.dir/Libraries/Source/WWVegas/WWMath/colmath.cpp.o
+[287/1657] Building CXX object CMakeFiles/wwmath.dir/Libraries/Source/WWVegas/WWMath/colmathaabox.cpp.o
+[288/1657] Building CXX object CMakeFiles/wwmath.dir/Libraries/Source/WWVegas/WWMath/colmathaabtri.cpp.o
+[289/1657] Building CXX object CMakeFiles/wwmath.dir/Libraries/Source/WWVegas/WWMath/colmathfrustum.cpp.o
+[290/1657] Building CXX object CMakeFiles/wwmath.dir/Libraries/Source/WWVegas/WWMath/colmathline.cpp.o
+[291/1657] Building CXX object CMakeFiles/wwmath.dir/Libraries/Source/WWVegas/WWMath/colmathobbobb.cpp.o
+[292/1657] Building CXX object CMakeFiles/wwmath.dir/Libraries/Source/WWVegas/WWMath/colmathobbox.cpp.o
+[293/1657] Building CXX object CMakeFiles/wwmath.dir/Libraries/Source/WWVegas/WWMath/colmathobbtri.cpp.o
+[294/1657] Building CXX object CMakeFiles/wwmath.dir/Libraries/Source/WWVegas/WWMath/colmathplane.cpp.o
+[295/1657] Building CXX object CMakeFiles/wwmath.dir/Libraries/Source/WWVegas/WWMath/colmathsphere.cpp.o
+[296/1657] Building CXX object CMakeFiles/wwmath.dir/Libraries/Source/WWVegas/WWMath/cullsys.cpp.o
+[297/1657] Building CXX object CMakeFiles/wwmath.dir/Libraries/Source/WWVegas/WWMath/curve.cpp.o
+[298/1657] Building CXX object CMakeFiles/wwmath.dir/Libraries/Source/WWVegas/WWMath/dettrig.cpp.o
+[299/1657] Building CXX object CMakeFiles/wwmath.dir/Libraries/Source/WWVegas/WWMath/euler.cpp.o
+[300/1657] Building CXX object CMakeFiles/wwmath.dir/Libraries/Source/WWVegas/WWMath/frustum.cpp.o
+[301/1657] Building CXX object CMakeFiles/wwmath.dir/Libraries/Source/WWVegas/WWMath/gridcull.cpp.o
+[302/1657] Building CXX object CMakeFiles/wwmath.dir/Libraries/Source/WWVegas/WWMath/hermitespline.cpp.o
+[303/1657] Building CXX object CMakeFiles/wwmath.dir/Libraries/Source/WWVegas/WWMath/lineseg.cpp.o
+[304/1657] Building CXX object CMakeFiles/wwmath.dir/Libraries/Source/WWVegas/WWMath/lookuptable.cpp.o
+[305/1657] Building CXX object CMakeFiles/wwmath.dir/Libraries/Source/WWVegas/WWMath/matrix3.cpp.o
+[306/1657] Building CXX object CMakeFiles/wwmath.dir/Libraries/Source/WWVegas/WWMath/matrix3d.cpp.o
+[307/1657] Building CXX object CMakeFiles/wwmath.dir/Libraries/Source/WWVegas/WWMath/matrix4.cpp.o
+[308/1657] Building CXX object CMakeFiles/wwmath.dir/Libraries/Source/WWVegas/WWMath/obbox.cpp.o
+[309/1657] Building CXX object CMakeFiles/wwmath.dir/Libraries/Source/WWVegas/WWMath/ode.cpp.o
+[310/1657] Building CXX object CMakeFiles/wwmath.dir/Libraries/Source/WWVegas/WWMath/pot.cpp.o
+[311/1657] Building CXX object CMakeFiles/wwmath.dir/Libraries/Source/WWVegas/WWMath/quat.cpp.o
+[312/1657] Building CXX object CMakeFiles/wwmath.dir/Libraries/Source/WWVegas/WWMath/tcbspline.cpp.o
+[313/1657] Building CXX object CMakeFiles/wwmath.dir/Libraries/Source/WWVegas/WWMath/tri.cpp.o
+[314/1657] Building CXX object CMakeFiles/wwmath.dir/Libraries/Source/WWVegas/WWMath/v3_rnd.cpp.o
+[315/1657] Building CXX object CMakeFiles/wwmath.dir/Libraries/Source/WWVegas/WWMath/vehiclecurve.cpp.o
+[316/1657] Building CXX object CMakeFiles/wwmath.dir/Libraries/Source/WWVegas/WWMath/vp.cpp.o
+[317/1657] Building CXX object SPIRV-Cross/CMakeFiles/spirv-cross-c.dir/spirv_cross_c.cpp.o
+[318/1657] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/_convert.cpp.o
+[319/1657] Building CXX object CMakeFiles/wwmath.dir/Libraries/Source/WWVegas/WWMath/wwmath.cpp.o
+[320/1657] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/argv.cpp.o
+[321/1657] Linking CXX static library SPIRV-Cross/libspirv-cross-c.a
+[322/1657] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/b64pipe.cpp.o
+[323/1657] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/b64straw.cpp.o
+[324/1657] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/base64.cpp.o
+[325/1657] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/blit.cpp.o
+[326/1657] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/blowfish.cpp.o
+[327/1657] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/buff.cpp.o
+[328/1657] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/bufffile.cpp.o
+[329/1657] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/chunkio.cpp.o
+[330/1657] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/cstraw.cpp.o
+[331/1657] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/crc.cpp.o
+[332/1657] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/cpudetect.cpp.o
+[333/1657] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/Except.cpp.o
+[334/1657] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/FastAllocator.cpp.o
+[335/1657] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/fixed.cpp.o
+[336/1657] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/md5.cpp.o
+[337/1657] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/ffactory.cpp.o
+[338/1657] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/gcd_lcm.cpp.o
+[339/1657] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/hash.cpp.o
+[340/1657] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/hsv.cpp.o
+[341/1657] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/int.cpp.o
+[342/1657] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/jshell.cpp.o
+[343/1657] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/ini.cpp.o
+[344/1657] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/load.cpp.o
+[345/1657] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/lcw.cpp.o
+[346/1657] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/mixfile.cpp.o
+[347/1657] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/mpmath.cpp.o
+[348/1657] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/multilist.cpp.o
+[349/1657] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/nstrdup.cpp.o
+[350/1657] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/mutex.cpp.o
+[351/1657] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/palette.cpp.o
+[352/1657] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/pcx.cpp.o
+[353/1657] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/pipe.cpp.o
+[354/1657] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/pk.cpp.o
+[355/1657] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/ramfile.cpp.o
+[356/1657] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/random.cpp.o
+[357/1657] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/rc4.cpp.o
+[358/1657] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/rawfile.cpp.o
+[359/1657] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/readline.cpp.o
+[360/1657] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/realcrc.cpp.o
+[361/1657] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/rgb.cpp.o
+[362/1657] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/refcount.cpp.o
+[363/1657] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/rle.cpp.o
+[364/1657] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/sampler.cpp.o
+[365/1657] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/sha.cpp.o
+[366/1657] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/rndstrng.cpp.o
+[367/1657] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/stimer.cpp.o
+[368/1657] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/slnode.cpp.o
+[369/1657] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/straw.cpp.o
+[370/1657] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/strtok_r.cpp.o
+[371/1657] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/systimer.cpp.o
+[372/1657] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/tagblock.cpp.o
+[373/1657] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/tgatodxt.cpp.o
+[374/1657] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/TARGA.CPP.o
+[375/1657] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/textfile.cpp.o
+[376/1657] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/trim.cpp.o
+[377/1657] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/vector.cpp.o
+[378/1657] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/thread.cpp.o
+[379/1657] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/wwfile.cpp.o
+[380/1657] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/widestring.cpp.o
+[381/1657] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/wwfont.cpp.o
+[382/1657] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/xpipe.cpp.o
+[383/1657] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/xstraw.cpp.o
+[384/1657] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/wwstring.cpp.o
+[385/1657] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/xsurface.cpp.o
+[386/1657] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/aes.c.o
+[387/1657] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/posixpath.cpp.o
+[388/1657] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/aesce.c.o
+[389/1657] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/aesni.c.o
+[390/1657] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/aria.c.o
+[391/1657] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/asn1parse.c.o
+[392/1657] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/asn1write.c.o
+[393/1657] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/base64.c.o
+[394/1657] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/bignum.c.o
+[395/1657] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/bignum_core.c.o
+[396/1657] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/bignum_mod.c.o
+[397/1657] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/bignum_mod_raw.c.o
+[398/1657] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/block_cipher.c.o
+[399/1657] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/camellia.c.o
+[400/1657] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/ccm.c.o
+[401/1657] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/chachapoly.c.o
+[402/1657] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/chacha20.c.o
+[403/1657] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/cipher.c.o
+[404/1657] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/cipher_wrap.c.o
+[405/1657] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/cmac.c.o
+[406/1657] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/constant_time.c.o
+[407/1657] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/ctr_drbg.c.o
+[408/1657] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/des.c.o
+[409/1657] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/debug.c.o
+[410/1657] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/dhm.c.o
+[411/1657] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/ecdh.c.o
+[412/1657] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/ecdsa.c.o
+[413/1657] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/ecjpake.c.o
+[414/1657] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/ecp.c.o
+[415/1657] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/ecp_curves.c.o
+[416/1657] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/ecp_curves_new.c.o
+[417/1657] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/entropy.c.o
+[418/1657] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/entropy_poll.c.o
+[419/1657] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/error.c.o
+[420/1657] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/gcm.c.o
+[421/1657] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/hkdf.c.o
+[422/1657] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/hmac_drbg.c.o
+[423/1657] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/lmots.c.o
+[424/1657] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/lms.c.o
+[425/1657] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/md.c.o
+[426/1657] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/md5.c.o
+[427/1657] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/memory_buffer_alloc.c.o
+[428/1657] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/mps_reader.c.o
+[429/1657] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/mps_trace.c.o
+[430/1657] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/net_sockets.c.o
+[431/1657] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/nist_kw.c.o
+[432/1657] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/oid.c.o
+[433/1657] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/padlock.c.o
+[434/1657] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/pem.c.o
+[435/1657] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/pk_wrap.c.o
+[436/1657] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/pk_ecc.c.o
+[437/1657] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/pk.c.o
+[438/1657] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/pkcs5.c.o
+[439/1657] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/pkcs12.c.o
+[440/1657] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/pkcs7.c.o
+[441/1657] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/platform.c.o
+[442/1657] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/pkparse.c.o
+[443/1657] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/pkwrite.c.o
+[444/1657] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/platform_util.c.o
+[445/1657] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/poly1305.c.o
+[446/1657] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/psa_crypto.c.o
+[447/1657] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/psa_crypto_aead.c.o
+[448/1657] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/psa_crypto_cipher.c.o
+[449/1657] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/psa_crypto_client.c.o
+[450/1657] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/psa_crypto_driver_wrappers_no_static.c.o
+[451/1657] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/psa_crypto_ecp.c.o
+[452/1657] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/psa_crypto_ffdh.c.o
+[453/1657] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/psa_crypto_hash.c.o
+[454/1657] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/psa_crypto_mac.c.o
+[455/1657] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/psa_crypto_pake.c.o
+[456/1657] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/psa_crypto_rsa.c.o
+[457/1657] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/psa_crypto_se.c.o
+[458/1657] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/psa_crypto_random.c.o
+[459/1657] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/psa_its_file.c.o
+[460/1657] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/psa_crypto_slot_management.c.o
+[461/1657] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/psa_crypto_storage.c.o
+[462/1657] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/rsa.c.o
+[463/1657] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/psa_util.c.o
+[464/1657] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/ripemd160.c.o
+[465/1657] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/rsa_alt_helpers.c.o
+[466/1657] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/sha256.c.o
+[467/1657] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/sha1.c.o
+[468/1657] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/sha3.c.o
+[469/1657] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/ssl_cache.c.o
+[470/1657] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/sha512.c.o
+[471/1657] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/ssl_ciphersuites.c.o
+[472/1657] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/ssl_cookie.c.o
+[473/1657] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/ssl_client.c.o
+[474/1657] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/ssl_debug_helpers_generated.c.o
+[475/1657] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/ssl_msg.c.o
+[476/1657] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/ssl_ticket.c.o
+[477/1657] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/ssl_tls.c.o
+[478/1657] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/ssl_tls12_client.c.o
+[479/1657] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/ssl_tls12_server.c.o
+[480/1657] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/ssl_tls13_generic.c.o
+[481/1657] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/ssl_tls13_client.c.o
+[482/1657] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/ssl_tls13_keys.c.o
+[483/1657] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/ssl_tls13_server.c.o
+[484/1657] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/threading.c.o
+[485/1657] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/timing.c.o
+[486/1657] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/version.c.o
+[487/1657] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/version_features.c.o
+[488/1657] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/x509.c.o
+[489/1657] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/x509_create.c.o
+[490/1657] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/x509_crl.c.o
+[491/1657] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/x509_csr.c.o
+[492/1657] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/x509_crt.c.o
+[493/1657] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/x509write.c.o
+[494/1657] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/x509write_crt.c.o
+[495/1657] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/x509write_csr.c.o
+[496/1657] Building CXX object CMakeFiles/ffvertex.dir/Libraries/Source/WWVegas/WW3D2/ffvertex.cpp.o
+[497/1657] Building CXX object CMakeFiles/engineshader.dir/Libraries/Source/WWVegas/WW3D2/engineshader.cpp.o
+[498/1657] Linking CXX static library libffshader.a
+[499/1657] Linking CXX static library libsdl3_shadercross.a
+[500/1657] Building CXX object CMakeFiles/sdl3shadercompile.dir/Libraries/Source/WWVegas/WW3D2/sdl3shadercompile.cpp.o
+[501/1657] Linking CXX executable build_fingerprint
+[502/1657] Building C object freetype/CMakeFiles/freetype.dir/src/autofit/autofit.c.o
+[503/1657] Building C object freetype/CMakeFiles/freetype.dir/src/base/ftbase.c.o
+[504/1657] Building C object freetype/CMakeFiles/freetype.dir/src/base/ftbbox.c.o
+[505/1657] Building C object freetype/CMakeFiles/freetype.dir/src/base/ftbdf.c.o
+[506/1657] Building C object freetype/CMakeFiles/freetype.dir/src/base/ftbitmap.c.o
+[507/1657] Building C object freetype/CMakeFiles/freetype.dir/src/base/ftcid.c.o
+[508/1657] Building C object freetype/CMakeFiles/freetype.dir/src/base/ftfstype.c.o
+[509/1657] Building C object freetype/CMakeFiles/freetype.dir/src/base/ftgasp.c.o
+[510/1657] Building C object freetype/CMakeFiles/freetype.dir/src/base/ftglyph.c.o
+[511/1657] Building C object freetype/CMakeFiles/freetype.dir/src/base/ftgxval.c.o
+[512/1657] Building C object freetype/CMakeFiles/freetype.dir/src/base/ftinit.c.o
+[513/1657] Building C object freetype/CMakeFiles/freetype.dir/src/base/ftmm.c.o
+[514/1657] Building C object freetype/CMakeFiles/freetype.dir/src/base/ftotval.c.o
+[515/1657] Building C object freetype/CMakeFiles/freetype.dir/src/base/ftpatent.c.o
+[516/1657] Building C object freetype/CMakeFiles/freetype.dir/src/base/ftpfr.c.o
+[517/1657] Building C object freetype/CMakeFiles/freetype.dir/src/base/ftstroke.c.o
+[518/1657] Building C object freetype/CMakeFiles/freetype.dir/src/base/ftsynth.c.o
+[519/1657] Building C object freetype/CMakeFiles/freetype.dir/src/base/fttype1.c.o
+[520/1657] Building C object freetype/CMakeFiles/freetype.dir/src/base/ftwinfnt.c.o
+[521/1657] Building C object freetype/CMakeFiles/freetype.dir/src/bdf/bdf.c.o
+[522/1657] Building C object freetype/CMakeFiles/freetype.dir/src/cache/ftcache.c.o
+[523/1657] Building C object freetype/CMakeFiles/freetype.dir/src/bzip2/ftbzip2.c.o
+[524/1657] Building C object freetype/CMakeFiles/freetype.dir/src/cff/cff.c.o
+[525/1657] Building C object freetype/CMakeFiles/freetype.dir/src/gzip/ftgzip.c.o
+[526/1657] Building C object freetype/CMakeFiles/freetype.dir/src/cid/type1cid.c.o
+[527/1657] Building C object freetype/CMakeFiles/freetype.dir/src/lzw/ftlzw.c.o
+[528/1657] Building C object freetype/CMakeFiles/freetype.dir/src/pfr/pfr.c.o
+[529/1657] Building C object freetype/CMakeFiles/freetype.dir/src/pcf/pcf.c.o
+[530/1657] Building C object freetype/CMakeFiles/freetype.dir/src/psaux/psaux.c.o
+[531/1657] Building C object freetype/CMakeFiles/freetype.dir/src/pshinter/pshinter.c.o
+[532/1657] Building C object freetype/CMakeFiles/freetype.dir/src/psnames/psnames.c.o
+[533/1657] Building C object freetype/CMakeFiles/freetype.dir/src/raster/raster.c.o
+[534/1657] Building C object freetype/CMakeFiles/freetype.dir/src/sdf/sdf.c.o
+[535/1657] Building C object freetype/CMakeFiles/freetype.dir/src/sfnt/sfnt.c.o
+[536/1657] Building C object freetype/CMakeFiles/freetype.dir/src/smooth/smooth.c.o
+[537/1657] Building C object freetype/CMakeFiles/freetype.dir/src/svg/svg.c.o
+[538/1657] Building C object freetype/CMakeFiles/freetype.dir/src/type1/type1.c.o
+[539/1657] Building C object freetype/CMakeFiles/freetype.dir/src/truetype/truetype.c.o
+[540/1657] Building C object freetype/CMakeFiles/freetype.dir/src/type42/type42.c.o
+[541/1657] Building C object freetype/CMakeFiles/freetype.dir/src/winfonts/winfnt.c.o
+[542/1657] Building C object freetype/CMakeFiles/freetype.dir/builds/unix/ftsystem.c.o
+[543/1657] Building C object freetype/CMakeFiles/freetype.dir/src/base/ftdebug.c.o
+[544/1657] Linking CXX static library glslang/glslang/libglslang-default-resource-limits.a
+[545/1657] Building CXX object CMakeFiles/wwutil.dir/Libraries/Source/WWVegas/Wwutil/mathutil.cpp.o
+[546/1657] Building CXX object CMakeFiles/wwutil.dir/Libraries/Source/WWVegas/Wwutil/miscutil.cpp.o
+[547/1657] Building CXX object CMakeFiles/compression.dir/Libraries/Source/Compression/CompressionManager.cpp.o
+[548/1657] Linking CXX static library libwwmath.a
+[549/1657] Building CXX object CMakeFiles/compression.dir/Libraries/Source/Compression/EAC/btreeabout.cpp.o
+[550/1657] Building CXX object CMakeFiles/compression.dir/Libraries/Source/Compression/EAC/btreedecode.cpp.o
+[551/1657] Building CXX object CMakeFiles/compression.dir/Libraries/Source/Compression/EAC/btreeencode.cpp.o
+[552/1657] Building CXX object CMakeFiles/compression.dir/Libraries/Source/Compression/EAC/huffabout.cpp.o
+[553/1657] Building CXX object CMakeFiles/compression.dir/Libraries/Source/Compression/EAC/huffdecode.cpp.o
+[554/1657] Building CXX object CMakeFiles/compression.dir/Libraries/Source/Compression/EAC/huffencode.cpp.o
+[555/1657] Building CXX object CMakeFiles/compression.dir/Libraries/Source/Compression/EAC/refabout.cpp.o
+[556/1657] Building CXX object CMakeFiles/compression.dir/Libraries/Source/Compression/EAC/refdecode.cpp.o
+[557/1657] Building CXX object CMakeFiles/compression.dir/Libraries/Source/Compression/EAC/refencode.cpp.o
+[558/1657] Building CXX object CMakeFiles/compression.dir/Libraries/Source/Compression/LZHCompress/NoxCompress.cpp.o
+[559/1657] Building CXX object CMakeFiles/compression.dir/Libraries/Source/Compression/LZHCompress/CompLibSource/Huff.cpp.o
+[560/1657] Building CXX object CMakeFiles/compression.dir/Libraries/Source/Compression/LZHCompress/CompLibSource/Lz.cpp.o
+[561/1657] Building C object CMakeFiles/compression.dir/Libraries/Source/Compression/ZLib/adler32.c.o
+[562/1657] Building CXX object CMakeFiles/compression.dir/Libraries/Source/Compression/LZHCompress/CompLibSource/Lzhl.cpp.o
+[563/1657] Building C object CMakeFiles/compression.dir/Libraries/Source/Compression/ZLib/crc32.c.o
+[564/1657] Building C object CMakeFiles/compression.dir/Libraries/Source/Compression/ZLib/compress.c.o
+[565/1657] Building C object CMakeFiles/compression.dir/Libraries/Source/Compression/ZLib/gzio.c.o
+[566/1657] Building C object CMakeFiles/compression.dir/Libraries/Source/Compression/ZLib/deflate.c.o
+[567/1657] Building C object CMakeFiles/compression.dir/Libraries/Source/Compression/ZLib/infcodes.c.o
+[568/1657] Building C object CMakeFiles/compression.dir/Libraries/Source/Compression/ZLib/infblock.c.o
+[569/1657] Building C object CMakeFiles/compression.dir/Libraries/Source/Compression/ZLib/inffast.c.o
+[570/1657] Building C object CMakeFiles/compression.dir/Libraries/Source/Compression/ZLib/inflate.c.o
+[571/1657] Building C object CMakeFiles/compression.dir/Libraries/Source/Compression/ZLib/inftrees.c.o
+[572/1657] Building C object CMakeFiles/compression.dir/Libraries/Source/Compression/ZLib/infutil.c.o
+[573/1657] Building C object CMakeFiles/compression.dir/Libraries/Source/Compression/ZLib/trees.c.o
+[574/1657] Building C object CMakeFiles/compression.dir/Libraries/Source/Compression/ZLib/uncompr.c.o
+[575/1657] Building C object CMakeFiles/compression.dir/Libraries/Source/Compression/ZLib/zutil.c.o
+[576/1657] Building CXX object CMakeFiles/wwsaveload.dir/Libraries/Source/WWVegas/WWSaveLoad/definition.cpp.o
+[577/1657] Building CXX object CMakeFiles/wwsaveload.dir/Libraries/Source/WWVegas/WWSaveLoad/definitionfactory.cpp.o
+[578/1657] Building CXX object CMakeFiles/wwsaveload.dir/Libraries/Source/WWVegas/WWSaveLoad/definitionfactorymgr.cpp.o
+[579/1657] Linking CXX static library libwwlib.a
+[580/1657] Building CXX object CMakeFiles/wwsaveload.dir/Libraries/Source/WWVegas/WWSaveLoad/definitionmgr.cpp.o
+[581/1657] Linking CXX static library glslang/glslang/libglslang.a
+[582/1657] Building CXX object CMakeFiles/wwsaveload.dir/Libraries/Source/WWVegas/WWSaveLoad/parameter.cpp.o
+[583/1657] Building CXX object CMakeFiles/wwsaveload.dir/Libraries/Source/WWVegas/WWSaveLoad/pointerremap.cpp.o
+[584/1657] Building CXX object CMakeFiles/wwsaveload.dir/Libraries/Source/WWVegas/WWSaveLoad/persistfactory.cpp.o
+[585/1657] Building CXX object CMakeFiles/wwsaveload.dir/Libraries/Source/WWVegas/WWSaveLoad/saveload.cpp.o
+[586/1657] Building CXX object CMakeFiles/wwsaveload.dir/Libraries/Source/WWVegas/WWSaveLoad/saveloadsubsystem.cpp.o
+[587/1657] Building CXX object CMakeFiles/wwsaveload.dir/Libraries/Source/WWVegas/WWSaveLoad/saveloadstatus.cpp.o
+[588/1657] Building C object CMakeFiles/benchmark.dir/Libraries/Source/Benchmark/benchmark_stub.c.o
+[589/1657] Building CXX object CMakeFiles/wwsaveload.dir/Libraries/Source/WWVegas/WWSaveLoad/twiddler.cpp.o
+[590/1657] Building CXX object CMakeFiles/wwsaveload.dir/Libraries/Source/WWVegas/WWSaveLoad/wwsaveload.cpp.o
+[591/1657] Linking CXX static library libffvertex.a
+[592/1657] Linking C static library libmbedtls.a
+[593/1657] Building C object CMakeFiles/miniaudio.dir/Libraries/Source/miniaudio/miniaudio.c.o
+[594/1657] Linking CXX static library libengineshader.a
+[595/1657] Building CXX object CMakeFiles/glyphrasteriser.dir/Libraries/Source/WWVegas/WW3D2/glyphrasteriser.cpp.o
+[596/1657] Linking CXX static library libsdl3shadercompile.a
+[597/1657] Building CXX object CMakeFiles/onlineconnection.dir/GameEngine/Source/GameNetwork/Online/OnlineConnection.cpp.o
+[598/1657] Building CXX object CMakeFiles/posixd3d9.dir/GameEngineDevice/Source/PosixDevice/Render/PosixD3D9Caps.cpp.o
+[599/1657] Building CXX object CMakeFiles/posixd3d9.dir/GameEngineDevice/Source/PosixDevice/Render/PosixDevice9.cpp.o
+[600/1657] Building CXX object CMakeFiles/posixd3d9.dir/GameEngineDevice/Source/PosixDevice/Render/PosixDevice9AmbientOcclusion.cpp.o
+[601/1657] Building CXX object CMakeFiles/posixd3d9.dir/GameEngineDevice/Source/PosixDevice/Render/PosixDevice9Capture.cpp.o
+[602/1657] Building CXX object CMakeFiles/posixd3d9.dir/GameEngineDevice/Source/PosixDevice/Render/PosixDevice9Draw.cpp.o
+[603/1657] Building CXX object CMakeFiles/posixd3d9.dir/GameEngineDevice/Source/PosixDevice/Render/PosixDevice9Particles.cpp.o
+[604/1657] Building CXX object CMakeFiles/posixd3d9.dir/GameEngineDevice/Source/PosixDevice/Render/PosixDevice9Resources.cpp.o
+[605/1657] Building CXX object CMakeFiles/posixd3d9.dir/GameEngineDevice/Source/PosixDevice/Render/PosixDevice9SceneEffects.cpp.o
+[606/1657] Building CXX object CMakeFiles/posixd3d9.dir/GameEngineDevice/Source/PosixDevice/Render/PosixDevice9Timing.cpp.o
+[607/1657] Building CXX object CMakeFiles/posixd3d9.dir/GameEngineDevice/Source/PosixDevice/Render/PosixDevice9SunShadow.cpp.o
+[608/1657] Building CXX object CMakeFiles/posixd3d9.dir/GameEngineDevice/Source/PosixDevice/Render/PosixDirect3D9.cpp.o
+[609/1657] Building CXX object CMakeFiles/posixd3d9.dir/GameEngineDevice/Source/PosixDevice/Render/PosixImage.cpp.o
+[610/1657] Building CXX object CMakeFiles/posixd3d9.dir/GameEngineDevice/Source/PosixDevice/Render/PosixPixelCodec.cpp.o
+[611/1657] Building CXX object CMakeFiles/posixd3d9.dir/GameEngineDevice/Source/PosixDevice/Render/PosixImageOps.cpp.o
+[612/1657] Building CXX object CMakeFiles/posixd3d9.dir/GameEngineDevice/Source/PosixDevice/Render/PosixResources9.cpp.o
+[613/1657] Building CXX object CMakeFiles/posixd3d9.dir/GameEngineDevice/Source/PosixDevice/Render/SdlAmbientOcclusion.cpp.o
+[614/1657] Building CXX object CMakeFiles/posixd3d9.dir/GameEngineDevice/Source/PosixDevice/Render/SdlAtmosphere.cpp.o
+[615/1657] Building CXX object CMakeFiles/posixd3d9.dir/GameEngineDevice/Source/PosixDevice/Render/SdlGpuFrame.cpp.o
+[616/1657] Building CXX object CMakeFiles/posixd3d9.dir/GameEngineDevice/Source/PosixDevice/Render/SdlGpuFrameAmbientOcclusion.cpp.o
+[617/1657] Building CXX object CMakeFiles/posixd3d9.dir/GameEngineDevice/Source/PosixDevice/Render/SdlGpuFrameAtmosphere.cpp.o
+[618/1657] Building CXX object CMakeFiles/posixd3d9.dir/GameEngineDevice/Source/PosixDevice/Render/SdlGpuFrameBatch.cpp.o
+[619/1657] Building CXX object CMakeFiles/posixd3d9.dir/GameEngineDevice/Source/PosixDevice/Render/SdlGpuFrameHeat.cpp.o
+[620/1657] Building CXX object CMakeFiles/posixd3d9.dir/GameEngineDevice/Source/PosixDevice/Render/SdlGpuFrameMsaa.cpp.o
+[621/1657] Building CXX object CMakeFiles/posixd3d9.dir/GameEngineDevice/Source/PosixDevice/Render/SdlGpuFrameParticles.cpp.o
+[622/1657] Building CXX object CMakeFiles/posixd3d9.dir/GameEngineDevice/Source/PosixDevice/Render/SdlGpuFramePost.cpp.o
+[623/1657] Building CXX object CMakeFiles/posixd3d9.dir/GameEngineDevice/Source/PosixDevice/Render/SdlGpuFrameSmoke.cpp.o
+[624/1657] Building CXX object CMakeFiles/posixd3d9.dir/GameEngineDevice/Source/PosixDevice/Render/SdlGpuFrameSunShadow.cpp.o
+[625/1657] Building CXX object CMakeFiles/posixd3d9.dir/GameEngineDevice/Source/PosixDevice/Render/SdlPipelineCache.cpp.o
+[626/1657] Building CXX object CMakeFiles/posixd3d9.dir/GameEngineDevice/Source/PosixDevice/Render/SdlProgramCache.cpp.o
+[627/1657] Building CXX object CMakeFiles/posixd3d9.dir/GameEngineDevice/Source/PosixDevice/Render/SdlResourceMirror.cpp.o
+[628/1657] Building C object gamespy/src/common/CMakeFiles/gscommon.dir/darray.c.o
+[629/1657] Building C object gamespy/src/common/CMakeFiles/gscommon.dir/gsassert.c.o
+[630/1657] Building C object gamespy/src/common/CMakeFiles/gscommon.dir/gsavailable.c.o
+[631/1657] Building C object gamespy/src/common/CMakeFiles/gscommon.dir/gscore.c.o
+[632/1657] Building C object gamespy/src/common/CMakeFiles/gscommon.dir/gscrypt.c.o
+[633/1657] Building C object gamespy/src/common/CMakeFiles/gscommon.dir/gsdebug.c.o
+[634/1657] Building C object gamespy/src/common/CMakeFiles/gscommon.dir/gslargeint.c.o
+[635/1657] Building C object gamespy/src/common/CMakeFiles/gscommon.dir/gsmemory.c.o
+[636/1657] Building C object gamespy/src/common/CMakeFiles/gscommon.dir/gsplatformsocket.c.o
+[637/1657] Building C object gamespy/src/common/CMakeFiles/gscommon.dir/gsplatform.c.o
+[638/1657] Building C object gamespy/src/common/CMakeFiles/gscommon.dir/gsplatformutil.c.o
+[639/1657] Building C object gamespy/src/common/CMakeFiles/gscommon.dir/gsplatformthread.c.o
+[640/1657] Building C object gamespy/src/common/CMakeFiles/gscommon.dir/gssha1.c.o
+[641/1657] Building C object gamespy/src/common/CMakeFiles/gscommon.dir/gsrc4.c.o
+[642/1657] Building C object gamespy/src/common/CMakeFiles/gscommon.dir/gsssl.c.o
+[643/1657] Building C object gamespy/src/common/CMakeFiles/gscommon.dir/gsstringutil.c.o
+[644/1657] Building C object gamespy/src/common/CMakeFiles/gscommon.dir/gsxml.c.o
+[645/1657] Building C object gamespy/src/common/CMakeFiles/gscommon.dir/hashtable.c.o
+[646/1657] Building C object gamespy/src/common/CMakeFiles/gscommon.dir/md5c.c.o
+[647/1657] Building C object gamespy/src/chat/CMakeFiles/gschat.dir/chatcallbacks.c.o
+[648/1657] Building C object gamespy/src/chat/CMakeFiles/gschat.dir/chatchannel.c.o
+[649/1657] Building C object gamespy/src/chat/CMakeFiles/gschat.dir/chatcrypt.c.o
+[650/1657] Building C object gamespy/src/chat/CMakeFiles/gschat.dir/chathandlers.c.o
+[651/1657] Building C object gamespy/src/chat/CMakeFiles/gschat.dir/chatmain.c.o
+[652/1657] Building C object gamespy/src/chat/CMakeFiles/gschat.dir/chatsocket.c.o
+[653/1657] Building C object gamespy/src/natneg/CMakeFiles/gsnatneg.dir/natify.c.o
+[654/1657] Building C object gamespy/src/natneg/CMakeFiles/gsnatneg.dir/natneg.c.o
+[655/1657] Building C object gamespy/src/qr/CMakeFiles/gsqr.dir/gqueryreporting.c.o
+[656/1657] Building C object gamespy/src/qr2/CMakeFiles/gsqr2.dir/qr2regkeys.c.o
+[657/1657] Building C object gamespy/src/qr2/CMakeFiles/gsqr2.dir/qr2.c.o
+[658/1657] Building C object gamespy/src/gcdkey/CMakeFiles/gscdkey.dir/gcdkeyc.c.o
+[659/1657] Building C object gamespy/src/gcdkey/CMakeFiles/gscdkey.dir/gcdkeys.c.o
+[660/1657] Building C object gamespy/src/ghttp/CMakeFiles/gshttp.dir/ghttpbuffer.c.o
+[661/1657] Building C object gamespy/src/ghttp/CMakeFiles/gshttp.dir/ghttpcallbacks.c.o
+[662/1657] Building C object gamespy/src/ghttp/CMakeFiles/gshttp.dir/ghttpconnection.c.o
+[663/1657] Building C object gamespy/src/ghttp/CMakeFiles/gshttp.dir/ghttpcommon.c.o
+[664/1657] Building C object gamespy/src/ghttp/CMakeFiles/gshttp.dir/ghttpencryption.c.o
+[665/1657] Building C object gamespy/src/ghttp/CMakeFiles/gshttp.dir/ghttpmain.c.o
+[666/1657] Building C object gamespy/src/ghttp/CMakeFiles/gshttp.dir/ghttppost.c.o
+[667/1657] Building C object gamespy/src/ghttp/CMakeFiles/gshttp.dir/ghttpprocess.c.o
+[668/1657] Building C object gamespy/src/ghttp/CMakeFiles/gshttp.dir/gssoap.c.o
+[669/1657] Building C object gamespy/src/gt2/CMakeFiles/gsgt2.dir/gsudpengine.c.o
+[670/1657] Building C object gamespy/src/gt2/CMakeFiles/gsgt2.dir/gt2buffer.c.o
+[671/1657] Building C object gamespy/src/gt2/CMakeFiles/gsgt2.dir/gt2auth.c.o
+[672/1657] Building C object gamespy/src/gt2/CMakeFiles/gsgt2.dir/gt2callback.c.o
+[673/1657] Building C object gamespy/src/gt2/CMakeFiles/gsgt2.dir/gt2connection.c.o
+[674/1657] Building C object gamespy/src/gt2/CMakeFiles/gsgt2.dir/gt2encode.c.o
+[675/1657] Building C object gamespy/src/gt2/CMakeFiles/gsgt2.dir/gt2filter.c.o
+[676/1657] Building C object gamespy/src/gt2/CMakeFiles/gsgt2.dir/gt2message.c.o
+[677/1657] Building C object gamespy/src/gt2/CMakeFiles/gsgt2.dir/gt2main.c.o
+[678/1657] Building C object gamespy/src/gt2/CMakeFiles/gsgt2.dir/gt2socket.c.o
+[679/1657] Building C object gamespy/src/gt2/CMakeFiles/gsgt2.dir/gt2utility.c.o
+[680/1657] Building C object gamespy/src/gp/CMakeFiles/gsgp.dir/gpi.c.o
+[681/1657] Building C object gamespy/src/gp/CMakeFiles/gsgp.dir/gp.c.o
+[682/1657] Building C object gamespy/src/gp/CMakeFiles/gsgp.dir/gpibuddy.c.o
+[683/1657] Building C object gamespy/src/gp/CMakeFiles/gsgp.dir/gpibuffer.c.o
+[684/1657] Building C object gamespy/src/gp/CMakeFiles/gsgp.dir/gpicallback.c.o
+[685/1657] Building C object gamespy/src/gp/CMakeFiles/gsgp.dir/gpiconnect.c.o
+[686/1657] Building C object gamespy/src/gp/CMakeFiles/gsgp.dir/gpiinfo.c.o
+[687/1657] Building C object gamespy/src/gp/CMakeFiles/gsgp.dir/gpikeys.c.o
+[688/1657] Building C object gamespy/src/gp/CMakeFiles/gsgp.dir/gpipeer.c.o
+[689/1657] Building C object gamespy/src/gp/CMakeFiles/gsgp.dir/gpioperation.c.o
+[690/1657] Building C object gamespy/src/gp/CMakeFiles/gsgp.dir/gpips3.c.o
+[691/1657] Building C object gamespy/src/gp/CMakeFiles/gsgp.dir/gpiprofile.c.o
+[692/1657] Building C object gamespy/src/gp/CMakeFiles/gsgp.dir/gpisearch.c.o
+[693/1657] Building C object gamespy/src/gp/CMakeFiles/gsgp.dir/gpitransfer.c.o
+[694/1657] Building C object gamespy/src/gp/CMakeFiles/gsgp.dir/gpiunique.c.o
+[695/1657] Building C object gamespy/src/gp/CMakeFiles/gsgp.dir/gpiutility.c.o
+[696/1657] Building C object gamespy/src/gstats/CMakeFiles/gsgstats.dir/gbucket.c.o
+[697/1657] Building C object gamespy/src/gstats/CMakeFiles/gsgstats.dir/gstats.c.o
+[698/1657] Building C object gamespy/src/pinger/CMakeFiles/gspinger.dir/pingermain.c.o
+[699/1657] Building C object gamespy/src/serverbrowsing/CMakeFiles/gsserverbrowsing.dir/sb_crypt.c.o
+[700/1657] Building C object gamespy/src/serverbrowsing/CMakeFiles/gsserverbrowsing.dir/sb_queryengine.c.o
+[701/1657] Building C object gamespy/src/serverbrowsing/CMakeFiles/gsserverbrowsing.dir/sb_server.c.o
+[702/1657] Building C object gamespy/src/serverbrowsing/CMakeFiles/gsserverbrowsing.dir/sb_serverbrowsing.c.o
+[703/1657] Building C object gamespy/src/serverbrowsing/CMakeFiles/gsserverbrowsing.dir/sb_serverlist.c.o
+[704/1657] Building C object gamespy/src/peer/CMakeFiles/gspeer.dir/peerautomatch.c.o
+[705/1657] Building C object gamespy/src/peer/CMakeFiles/gspeer.dir/peercallbacks.c.o
+[706/1657] Building C object gamespy/src/peer/CMakeFiles/gspeer.dir/peerhost.c.o
+[707/1657] Building C object gamespy/src/peer/CMakeFiles/gspeer.dir/peerglobalcallbacks.c.o
+[708/1657] Building C object gamespy/src/peer/CMakeFiles/gspeer.dir/peerkeys.c.o
+[709/1657] Building C object gamespy/src/peer/CMakeFiles/gspeer.dir/peermain.c.o
+[710/1657] Building C object gamespy/src/peer/CMakeFiles/gspeer.dir/peermangle.c.o
+[711/1657] Building C object gamespy/src/peer/CMakeFiles/gspeer.dir/peeroperations.c.o
+[712/1657] Building C object gamespy/src/peer/CMakeFiles/gspeer.dir/peerping.c.o
+[713/1657] Building C object gamespy/src/peer/CMakeFiles/gspeer.dir/peerplayers.c.o
+[714/1657] Building C object gamespy/src/peer/CMakeFiles/gspeer.dir/peerqr.c.o
+[715/1657] Building C object gamespy/src/peer/CMakeFiles/gspeer.dir/peerrooms.c.o
+[716/1657] Building C object gamespy/src/peer/CMakeFiles/gspeer.dir/peersb.c.o
+[717/1657] Building C object gamespy/src/pt/CMakeFiles/gspt.dir/ptmain.c.o
+[718/1657] Building C object gamespy/src/sake/CMakeFiles/gssake.dir/sakemain.c.o
+[719/1657] Building C object gamespy/src/sake/CMakeFiles/gssake.dir/sakerequest.c.o
+[720/1657] Building C object gamespy/src/sake/CMakeFiles/gssake.dir/sakerequestmisc.c.o
+[721/1657] Building C object gamespy/src/sake/CMakeFiles/gssake.dir/sakerequestmodify.c.o
+[722/1657] Building C object gamespy/src/sake/CMakeFiles/gssake.dir/sakerequestread.c.o
+[723/1657] Building C object gamespy/src/webservices/CMakeFiles/gswebservices.dir/authservice.c.o
+[724/1657] Building C object gamespy/src/sc/CMakeFiles/gssc.dir/sciinterface.c.o
+[725/1657] Building C object gamespy/src/sc/CMakeFiles/gssc.dir/scimain.c.o
+[726/1657] Building C object gamespy/src/sc/CMakeFiles/gssc.dir/scireport.c.o
+[727/1657] Building C object gamespy/src/sc/CMakeFiles/gssc.dir/sciserialize.c.o
+[728/1657] Building C object gamespy/src/sc/CMakeFiles/gssc.dir/sciwebservices.c.o
+[729/1657] Linking CXX static library libwwutil.a
+[730/1657] Linking C static library freetype/libfreetype.a
+[731/1657] Linking CXX static library libcompression.a
+[732/1657] Linking CXX static library libwwsaveload.a
+[733/1657] Linking C static library libbenchmark.a
+[734/1657] Linking CXX static library libglyphrasteriser.a
+[735/1657] Linking C static library libminiaudio.a
+[736/1657] Building CXX object CMakeFiles/milesaudio.dir/Libraries/Source/WWVegas/Miles6/miniaudio/miles_miniaudio.cpp.o
+[737/1657] Linking CXX static library libonlineconnection.a
+[738/1657] Building CXX object CMakeFiles/d3dx9runtime.dir/Libraries/Source/WWVegas/WW3D2/d3dx9posix.cpp.o
+[739/1657] Building CXX object CMakeFiles/d3dx9runtime.dir/Libraries/Source/WWVegas/WW3D2/d3dx9posix_texture.cpp.o
+[740/1657] Building CXX object CMakeFiles/d3dx9runtime.dir/Libraries/Source/WWVegas/WW3D2/d3dx9portable.cpp.o
+[741/1657] Building CXX object CMakeFiles/d3dx9runtime.dir/Libraries/Source/WWVegas/WW3D2/d3d8shadertranslate.cpp.o
+[742/1657] Build fingerprint over the tracked sources (N1)
+[743/1657] Linking CXX static library libposixd3d9.a
+[744/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/Audio/AudioRequest.cpp.o
+[745/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/Audio/AudioEventRTS.cpp.o
+[746/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/Audio/DynamicAudioEventInfo.cpp.o
+[747/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/Audio/GameAudio.cpp.o
+[748/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/Audio/GameMusic.cpp.o
+[749/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/Audio/GameSounds.cpp.o
+[750/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/Bezier/BezFwdIterator.cpp.o
+[751/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/Bezier/BezierSegment.cpp.o
+[752/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/BitFlags.cpp.o
+[753/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/CRCDebug.cpp.o
+[754/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/DamageFX.cpp.o
+[755/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/CommandLine.cpp.o
+[756/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/Dict.cpp.o
+[757/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/DiscreteCircle.cpp.o
+[758/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/DrawnPath.cpp.o
+[759/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/GameEngine.cpp.o
+[760/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/GameLOD.cpp.o
+[761/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/GameMain.cpp.o
+[762/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/INI/INI.cpp.o
+[763/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/INI/INIAiData.cpp.o
+[764/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/INI/INIAnimation.cpp.o
+[765/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/INI/INIAudioEventInfo.cpp.o
+[766/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/INI/INICommandButton.cpp.o
+[767/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/INI/INICommandSet.cpp.o
+[768/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/INI/INIControlBarScheme.cpp.o
+[769/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/INI/INICrate.cpp.o
+[770/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/INI/INIDamageFX.cpp.o
+[771/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/INI/INIDrawGroupInfo.cpp.o
+[772/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/INI/INIGameData.cpp.o
+[773/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/INI/INIMapCache.cpp.o
+[774/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/INI/INIMapData.cpp.o
+[775/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/INI/INIMappedImage.cpp.o
+[776/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/INI/INIMiscAudio.cpp.o
+[777/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/INI/INIModel.cpp.o
+[778/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/INI/INIMultiplayer.cpp.o
+[779/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/INI/INIObject.cpp.o
+[780/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/INI/INIParticleSys.cpp.o
+[781/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/INI/INISpecialPower.cpp.o
+[782/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/INI/INITerrain.cpp.o
+[783/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/INI/INITerrainBridge.cpp.o
+[784/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/INI/INITerrainRoad.cpp.o
+[785/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/INI/INIUpgrade.cpp.o
+[786/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/INI/INIVideo.cpp.o
+[787/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/INI/INIWater.cpp.o
+[788/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/INI/INIWeapon.cpp.o
+[789/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/INI/INIWebpageURL.cpp.o
+[790/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/Language.cpp.o
+[791/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/MapObject.cpp.o
+[792/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/MessageStream.cpp.o
+[793/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/MiniLog.cpp.o
+[794/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/MultiplayerSettings.cpp.o
+[795/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/NameKeyGenerator.cpp.o
+[796/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/OptionsCatalog.cpp.o
+[797/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/PartitionSolver.cpp.o
+[798/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/PerfTimer.cpp.o
+[799/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/RTS/AcademyStats.cpp.o
+[800/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/RTS/ActionManager.cpp.o
+[801/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/RTS/Energy.cpp.o
+[802/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/RTS/Handicap.cpp.o
+[803/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/RTS/MatchHistory.cpp.o
+[804/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/RTS/MissionStats.cpp.o
+[805/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/RTS/Money.cpp.o
+[806/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/RTS/Player.cpp.o
+[807/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/RTS/PlayerList.cpp.o
+[808/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/RTS/PlayerTemplate.cpp.o
+[809/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/RTS/ProductionPrerequisite.cpp.o
+[810/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/RTS/ResourceGatheringManager.cpp.o
+[811/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/RTS/Science.cpp.o
+[812/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/RTS/ScoreKeeper.cpp.o
+[813/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/RTS/SpecialPower.cpp.o
+[814/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/RTS/Team.cpp.o
+[815/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/RTS/TunnelTracker.cpp.o
+[816/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/RandomMapGenerator.cpp.o
+[817/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/GlobalData.cpp.o
+[818/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/RandomMapTemplate.cpp.o
+[819/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/RandomValue.cpp.o
+[820/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/Recorder.cpp.o
+[821/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/SkirmishBattleHonors.cpp.o
+[822/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/StateMachine.cpp.o
+[823/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/StatsCollector.cpp.o
+[824/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/System/ArchiveFile.cpp.o
+[825/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/System/ArchiveFileSystem.cpp.o
+[826/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/System/AsciiString.cpp.o
+[827/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/System/BuildAssistant.cpp.o
+[828/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/System/CDManager.cpp.o
+[829/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/System/CommandStore.cpp.o
+[830/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/System/Compression.cpp.o
+[831/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/System/ControlServer.cpp.o
+[832/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/System/CopyProtection.cpp.o
+[833/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/System/CrashHandlerPosix.cpp.o
+[834/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/System/CriticalSection.cpp.o
+[835/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/System/DataChunk.cpp.o
+[836/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/System/Debug.cpp.o
+[837/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/System/Directory.cpp.o
+[838/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/System/DisabledTypes.cpp.o
+[839/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/System/ExecutableDirectory.cpp.o
+[840/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/System/File.cpp.o
+[841/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/System/FileSystem.cpp.o
+[842/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/System/FileWriteQueue.cpp.o
+[843/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/System/GameCommon.cpp.o
+[844/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/System/FunctionLexicon.cpp.o
+[845/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/System/GameType.cpp.o
+[846/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/System/Geometry.cpp.o
+[847/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/System/JobSystem.cpp.o
+[848/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/System/KindOf.cpp.o
+[849/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/System/List.cpp.o
+[850/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/System/LocalFile.cpp.o
+[851/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/System/LocalFileSystem.cpp.o
+[852/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/System/LogicThread.cpp.o
+[853/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/System/MemoryInit.cpp.o
+[854/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/System/ObjectStatusTypes.cpp.o
+[855/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/System/QuickTrig.cpp.o
+[856/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/System/QuotedPrintable.cpp.o
+[857/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/System/RAMFile.cpp.o
+[858/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/System/Radar.cpp.o
+[859/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/System/RadarShroudCache.cpp.o
+[860/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/System/SaveGame/GameState.cpp.o
+[861/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/System/SaveGame/GameStateMap.cpp.o
+[862/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/System/SimulationMathCrc.cpp.o
+[863/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/System/Snapshot.cpp.o
+[864/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/System/StackDumpPosix.cpp.o
+[865/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/System/StreamingArchiveFile.cpp.o
+[866/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/System/String.cpp.o
+[867/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/System/SubsystemInterface.cpp.o
+[868/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/System/Trig.cpp.o
+[869/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/System/UnicodeString.cpp.o
+[870/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/System/Upgrade.cpp.o
+[871/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/System/WWDownloadRegistryPosix.cpp.o
+[872/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/System/WideCharFns.cpp.o
+[873/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/System/Xfer.cpp.o
+[874/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/System/XferCRC.cpp.o
+[875/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/System/XferLoad.cpp.o
+[876/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/System/XferSave.cpp.o
+[877/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/System/encrypt.cpp.o
+[878/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/System/registry.cpp.o
+[879/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/TerrainTypes.cpp.o
+[880/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/Thing/DrawModule.cpp.o
+[881/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/Thing/Module.cpp.o
+[882/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/Thing/ModuleFactory.cpp.o
+[883/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/Thing/Thing.cpp.o
+[884/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/Thing/ThingFactory.cpp.o
+[885/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/Thing/ThingTemplate.cpp.o
+[886/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/UserPreferences.cpp.o
+[887/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/WellKnownKeys.cpp.o
+[888/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/crc.cpp.o
+[889/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/version.cpp.o
+[890/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/ChromaKeyboard.cpp.o
+[891/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/CinemaDirector.cpp.o
+[892/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/Color.cpp.o
+[893/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/Credits.cpp.o
+[894/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/Display.cpp.o
+[895/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/DisplayString.cpp.o
+[896/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/DisplayStringManager.cpp.o
+[897/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/DrawGroupInfo.cpp.o
+[898/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/Drawable.cpp.o
+[899/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/Drawable/DrawableManager.cpp.o
+[900/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/Drawable/Update/AnimatedParticleSysBoneClientUpdate.cpp.o
+[901/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/Drawable/Update/BeaconClientUpdate.cpp.o
+[902/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/Drawable/Update/SwayClientUpdate.cpp.o
+[903/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/Eva.cpp.o
+[904/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/FXList.cpp.o
+[905/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/AnimateWindowManager.cpp.o
+[906/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/System/GameMemory.cpp.o
+[907/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/ChallengeGenerals.cpp.o
+[908/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/ControlBar/ControlBar.cpp.o
+[909/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/ControlBar/ControlBarBeacon.cpp.o
+[910/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/ControlBar/ControlBarCommand.cpp.o
+[911/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/ControlBar/ControlBarCommandProcessing.cpp.o
+[912/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/ControlBar/ControlBarMultiSelect.cpp.o
+[913/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/ControlBar/ControlBarOCLTimer.cpp.o
+[914/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/ControlBar/ControlBarObserver.cpp.o
+[915/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/ControlBar/ControlBarScheme.cpp.o
+[916/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/ControlBar/ControlBarStructureInventory.cpp.o
+[917/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/ControlBar/ControlBarUnderConstruction.cpp.o
+[918/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/DisconnectMenu/DisconnectMenu.cpp.o
+[919/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/FactionPicker.cpp.o
+[920/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/EstablishConnectionsMenu/EstablishConnectionsMenu.cpp.o
+[921/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/GUICallbacks/ControlBarCallback.cpp.o
+[922/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/GUICallbacks/ControlBarPopupDescription.cpp.o
+[923/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/GUICallbacks/Diplomacy.cpp.o
+[924/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/GUICallbacks/ExtendedMessageBox.cpp.o
+[925/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/GUICallbacks/IMECandidate.cpp.o
+[926/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/GUICallbacks/GeneralsExpPoints.cpp.o
+[927/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/GUICallbacks/InGameChat.cpp.o
+[928/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/GUICallbacks/InGamePopupMessage.cpp.o
+[929/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/GUICallbacks/Menus/ChallengeMenu.cpp.o
+[930/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/GUICallbacks/Menus/CreditsMenu.cpp.o
+[931/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/GUICallbacks/Menus/DisconnectWindow.cpp.o
+[932/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/GUICallbacks/Menus/DifficultySelect.cpp.o
+[933/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/GUICallbacks/Menus/DownloadMenu.cpp.o
+[934/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/GUICallbacks/Menus/EstablishConnectionsWindow.cpp.o
+[935/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/GUICallbacks/Menus/GameInfoWindow.cpp.o
+[936/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/GUICallbacks/Menus/LanGameOptionsMenu.cpp.o
+[937/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/GUICallbacks/Menus/LanLobbyMenu.cpp.o
+[938/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/GUICallbacks/Menus/LanMapSelectMenu.cpp.o
+[939/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/GUICallbacks/Menus/MainMenu.cpp.o
+[940/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/GUICallbacks/Menus/MapSelectMenu.cpp.o
+[941/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/GUICallbacks/Menus/NetworkDirectConnect.cpp.o
+[942/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/GUICallbacks/Menus/OptionsMenu.cpp.o
+[943/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/GUICallbacks/Menus/OptionsMenuHotkeys.cpp.o
+[944/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/GUICallbacks/Menus/PopupCommunicator.cpp.o
+[945/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/GUICallbacks/Menus/PopupHostGame.cpp.o
+[946/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/GUICallbacks/Menus/PopupJoinGame.cpp.o
+[947/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/GUICallbacks/Menus/PopupLadderSelect.cpp.o
+[948/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/GUICallbacks/Menus/PopupPlayerInfo.cpp.o
+[949/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/GUICallbacks/Menus/PopupReplay.cpp.o
+[950/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/GUICallbacks/Menus/PopupSaveLoad.cpp.o
+[951/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/GUICallbacks/Menus/QuitMenu.cpp.o
+[952/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/GUICallbacks/Menus/ReplayMenu.cpp.o
+[953/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/GUICallbacks/Menus/ScoreScreen.cpp.o
+[954/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/GUICallbacks/Menus/ScoreScreenGraphs.cpp.o
+[955/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/GUICallbacks/Menus/SkirmishGameOptionsMenu.cpp.o
+[956/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/GUICallbacks/Menus/SinglePlayerMenu.cpp.o
+[957/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/GUICallbacks/Menus/SkirmishMapSelectMenu.cpp.o
+[958/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/GUICallbacks/Menus/WOLBuddyOverlay.cpp.o
+[959/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/GUICallbacks/Menus/WOLCustomScoreScreen.cpp.o
+[960/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/GUICallbacks/Menus/WOLGameSetupMenu.cpp.o
+[961/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/GUICallbacks/Menus/WOLLadderScreen.cpp.o
+[962/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/GUICallbacks/Menus/WOLLobbyMenu.cpp.o
+[963/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/GUICallbacks/Menus/WOLLocaleSelectPopup.cpp.o
+[964/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/GUICallbacks/Menus/WOLLoginMenu.cpp.o
+[965/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/GUICallbacks/Menus/WOLMapSelectMenu.cpp.o
+[966/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/GUICallbacks/Menus/WOLMessageWindow.cpp.o
+[967/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/GUICallbacks/Menus/WOLQMScoreScreen.cpp.o
+[968/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/GUICallbacks/Menus/WOLQuickMatchMenu.cpp.o
+[969/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/GUICallbacks/Menus/WOLStatusMenu.cpp.o
+[970/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/GUICallbacks/Menus/WOLWelcomeMenu.cpp.o
+[971/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/GUICallbacks/MessageBox.cpp.o
+[972/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/GUICallbacks/ReplayControls.cpp.o
+[973/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/Gadget/GadgetCheckBox.cpp.o
+[974/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/Gadget/GadgetComboBox.cpp.o
+[975/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/Gadget/GadgetHorizontalSlider.cpp.o
+[976/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/Gadget/GadgetListBox.cpp.o
+[977/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/Gadget/GadgetProgressBar.cpp.o
+[978/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/Gadget/GadgetPushButton.cpp.o
+[979/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/Gadget/GadgetRadioButton.cpp.o
+[980/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/Gadget/GadgetStaticText.cpp.o
+[981/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/Gadget/GadgetTabControl.cpp.o
+[982/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/Gadget/GadgetTextEntry.cpp.o
+[983/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/GameFont.cpp.o
+[984/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/Gadget/GadgetVerticalSlider.cpp.o
+[985/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/GameWindowGlobal.cpp.o
+[986/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/GameWindow.cpp.o
+[987/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/GameWindowManager.cpp.o
+[988/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/GameWindowManagerScript.cpp.o
+[989/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/GameWindowTransitions.cpp.o
+[990/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/GameWindowTransitionsStyles.cpp.o
+[991/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/HeaderTemplate.cpp.o
+[992/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/IMEManagerPosix.cpp.o
+[993/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/LoadScreen.cpp.o
+[994/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/ProcessAnimateWindow.cpp.o
+[995/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/Shell/Shell.cpp.o
+[996/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/Shell/ShellMenuScheme.cpp.o
+[997/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/UIStyle.cpp.o
+[998/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/WinInstanceData.cpp.o
+[999/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/WindowLayout.cpp.o
+[1000/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/WindowVideoManager.cpp.o
+[1001/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GameClient.cpp.o
+[1002/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GameClientDispatch.cpp.o
+[1003/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GameConsole.cpp.o
+[1004/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GameText.cpp.o
+[1005/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GlobalLanguage.cpp.o
+[1006/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GraphDraw.cpp.o
+[1007/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GroupPanel.cpp.o
+[1008/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/Input/Keyboard.cpp.o
+[1009/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/InGameUI.cpp.o
+[1010/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/Input/Mouse.cpp.o
+[1011/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/LanguageFilter.cpp.o
+[1012/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/Line2D.cpp.o
+[1013/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/MapUtil.cpp.o
+[1014/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/MessageStream/CommandXlat.cpp.o
+[1015/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/MessageStream/GUICommandTranslator.cpp.o
+[1016/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/MessageStream/HintSpy.cpp.o
+[1017/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/MessageStream/HotKey.cpp.o
+[1018/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/MessageStream/LookAtXlat.cpp.o
+[1019/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/MessageStream/MetaEvent.cpp.o
+[1020/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/MessageStream/PlaceEventTranslator.cpp.o
+[1021/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/MessageStream/WindowXlat.cpp.o
+[1022/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/MessageStream/SelectionXlat.cpp.o
+[1023/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/ParabolicEase.cpp.o
+[1024/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/ObserverCamera.cpp.o
+[1025/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/RadarContactMarks.cpp.o
+[1026/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/PlayerColorScheme.cpp.o
+[1027/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/RadiusDecal.cpp.o
+[1028/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/ReachOverlay.cpp.o
+[1029/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/SelectionInfo.cpp.o
+[1030/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/Snow.cpp.o
+[1031/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/Statistics.cpp.o
+[1032/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/System/Anim2D.cpp.o
+[1033/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/System/CampaignManager.cpp.o
+[1034/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/System/Debug_Displayers/AudioDebugDisplay.cpp.o
+[1035/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/System/DebugDisplay.cpp.o
+[1036/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/System/Image.cpp.o
+[1037/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/System/ParticleSys.cpp.o
+[1038/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/System/RayEffect.cpp.o
+[1039/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/System/Smudge.cpp.o
+[1040/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/Terrain/TerrainRoads.cpp.o
+[1041/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/Terrain/TerrainVisual.cpp.o
+[1042/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/VideoPlayer.cpp.o
+[1043/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/View.cpp.o
+[1044/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/Water.cpp.o
+[1045/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/AI/AI.cpp.o
+[1046/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/AI/AIDock.cpp.o
+[1047/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/AI/AIGroup.cpp.o
+[1048/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/AI/AIGuard.cpp.o
+[1049/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/AI/AIGuardRetaliate.cpp.o
+[1050/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/AI/AIInfluenceMap.cpp.o
+[1051/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/AI/AIPathfind.cpp.o
+[1052/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/AI/AIPlayer.cpp.o
+[1053/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/AI/AISkirmishPlayer.cpp.o
+[1054/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/AI/AITNGuard.cpp.o
+[1055/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/AI/AIStates.cpp.o
+[1056/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/AI/OrderQueue.cpp.o
+[1057/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/AI/CrowdModel.cpp.o
+[1058/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/AI/Squad.cpp.o
+[1059/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/AI/TurretAI.cpp.o
+[1060/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Map/PolygonTrigger.cpp.o
+[1061/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Map/SidesList.cpp.o
+[1062/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Map/TerrainHeightSampling.cpp.o
+[1063/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Map/TerrainLogic.cpp.o
+[1064/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Map/WaterGridMotion.cpp.o
+[1065/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Map/WorldHeightMapData.cpp.o
+[1066/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Armor.cpp.o
+[1067/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Behavior/AutoHealBehavior.cpp.o
+[1068/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Behavior/BehaviorModule.cpp.o
+[1069/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Behavior/BattleBusSlowDeathBehavior.cpp.o
+[1070/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Behavior/BridgeBehavior.cpp.o
+[1071/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Behavior/BridgeScaffoldBehavior.cpp.o
+[1072/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Behavior/BridgeTowerBehavior.cpp.o
+[1073/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Behavior/BunkerBusterBehavior.cpp.o
+[1074/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Behavior/CountermeasuresBehavior.cpp.o
+[1075/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Behavior/DumbProjectileBehavior.cpp.o
+[1076/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Behavior/FireWeaponWhenDamagedBehavior.cpp.o
+[1077/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Behavior/FireWeaponWhenDeadBehavior.cpp.o
+[1078/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Behavior/FlightDeckBehavior.cpp.o
+[1079/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Behavior/GenerateMinefieldBehavior.cpp.o
+[1080/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Behavior/GrantStealthBehavior.cpp.o
+[1081/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Behavior/InstantDeathBehavior.cpp.o
+[1082/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Behavior/JetSlowDeathBehavior.cpp.o
+[1083/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Behavior/MinefieldBehavior.cpp.o
+[1084/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Behavior/NeutonBlastBehavior.cpp.o
+[1085/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Behavior/OverchargeBehavior.cpp.o
+[1086/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Behavior/POWTruckBehavior.cpp.o
+[1087/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Behavior/ParkingPlaceBehavior.cpp.o
+[1088/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Behavior/PoisonedBehavior.cpp.o
+[1089/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Behavior/PrisonBehavior.cpp.o
+[1090/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Behavior/PropagandaCenterBehavior.cpp.o
+[1091/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Behavior/PropagandaTowerBehavior.cpp.o
+[1092/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Behavior/RadarCoverageBehavior.cpp.o
+[1093/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Behavior/RebuildHoleBehavior.cpp.o
+[1094/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Behavior/SlowDeathBehavior.cpp.o
+[1095/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Behavior/SpawnBehavior.cpp.o
+[1096/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Behavior/SupplyWarehouseCripplingBehavior.cpp.o
+[1097/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Behavior/TechBuildingBehavior.cpp.o
+[1098/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Body/ActiveBody.cpp.o
+[1099/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Body/BodyModule.cpp.o
+[1100/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Body/HighlanderBody.cpp.o
+[1101/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Body/HiveStructureBody.cpp.o
+[1102/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Body/ImmortalBody.cpp.o
+[1103/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Body/InactiveBody.cpp.o
+[1104/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Body/StructureBody.cpp.o
+[1105/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Body/UndeadBody.cpp.o
+[1106/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Collide/CollideModule.cpp.o
+[1107/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Collide/CrateCollide/ConvertToCarBombCrateCollide.cpp.o
+[1108/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Collide/CrateCollide/CrateCollide.cpp.o
+[1109/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Collide/CrateCollide/ConvertToHijackedVehicleCrateCollide.cpp.o
+[1110/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Collide/CrateCollide/HealCrateCollide.cpp.o
+[1111/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Collide/CrateCollide/MoneyCrateCollide.cpp.o
+[1112/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Collide/CrateCollide/SabotageCommandCenterCrateCollide.cpp.o
+[1113/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Collide/CrateCollide/SabotageFakeBuilding.cpp.o
+[1114/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Collide/CrateCollide/SabotageMilitaryFactoryCrateCollide.cpp.o
+[1115/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Collide/CrateCollide/SabotageInternetCenterCrateCollide.cpp.o
+[1116/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Collide/CrateCollide/SabotageSuperweaponCrateCollide.cpp.o
+[1117/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Collide/CrateCollide/SabotagePowerPlantCrateCollide.cpp.o
+[1118/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Collide/CrateCollide/SabotageSupplyCenterCrateCollide.cpp.o
+[1119/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Collide/CrateCollide/SabotageSupplyDropzoneCrateCollide.cpp.o
+[1120/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Collide/CrateCollide/ShroudCrateCollide.cpp.o
+[1121/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Collide/CrateCollide/SalvageCrateCollide.cpp.o
+[1122/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Collide/CrateCollide/VeterancyCrateCollide.cpp.o
+[1123/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Collide/CrateCollide/UnitCrateCollide.cpp.o
+[1124/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Collide/FireWeaponCollide.cpp.o
+[1125/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Collide/SquishCollide.cpp.o
+[1126/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Contain/CaveContain.cpp.o
+[1127/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Contain/HealContain.cpp.o
+[1128/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Contain/GarrisonContain.cpp.o
+[1129/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Contain/HelixContain.cpp.o
+[1130/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Contain/InternetHackContain.cpp.o
+[1131/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Contain/OpenContain.cpp.o
+[1132/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Contain/MobNexusContain.cpp.o
+[1133/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Contain/OverlordContain.cpp.o
+[1134/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Contain/ParachuteContain.cpp.o
+[1135/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Contain/RailedTransportContain.cpp.o
+[1136/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Contain/RiderChangeContain.cpp.o
+[1137/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Contain/TransportContain.cpp.o
+[1138/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Contain/TunnelContain.cpp.o
+[1139/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Create/CreateModule.cpp.o
+[1140/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Create/GrantUpgradeCreate.cpp.o
+[1141/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Create/LockWeaponCreate.cpp.o
+[1142/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Create/PreorderCreate.cpp.o
+[1143/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Create/SpecialPowerCreate.cpp.o
+[1144/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Create/SupplyCenterCreate.cpp.o
+[1145/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Create/SupplyWarehouseCreate.cpp.o
+[1146/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Create/VeterancyGainCreate.cpp.o
+[1147/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Damage/BoneFXDamage.cpp.o
+[1148/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Damage/DamageModule.cpp.o
+[1149/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Damage/TransitionDamageFX.cpp.o
+[1150/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Destroy/DestroyModule.cpp.o
+[1151/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Die/CreateObjectDie.cpp.o
+[1152/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Die/CreateCrateDie.cpp.o
+[1153/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Die/DamDie.cpp.o
+[1154/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Die/CrushDie.cpp.o
+[1155/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Die/DestroyDie.cpp.o
+[1156/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Die/DieModule.cpp.o
+[1157/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Die/EjectPilotDie.cpp.o
+[1158/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Die/FXListDie.cpp.o
+[1159/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Die/KeepObjectDie.cpp.o
+[1160/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Die/RebuildHoleExposeDie.cpp.o
+[1161/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Die/SpecialPowerCompletionDie.cpp.o
+[1162/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Die/UpgradeDie.cpp.o
+[1163/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/ExperienceTracker.cpp.o
+[1164/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/FiringTracker.cpp.o
+[1165/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/GhostObject.cpp.o
+[1166/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Helper/ObjectDefectionHelper.cpp.o
+[1167/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Helper/ObjectHelper.cpp.o
+[1168/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Helper/ObjectRepulsorHelper.cpp.o
+[1169/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Helper/ObjectSMCHelper.cpp.o
+[1170/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Helper/StatusDamageHelper.cpp.o
+[1171/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Helper/ObjectWeaponStatusHelper.cpp.o
+[1172/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Helper/SubdualDamageHelper.cpp.o
+[1173/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Helper/TempWeaponBonusHelper.cpp.o
+[1174/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Locomotor.cpp.o
+[1175/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Object.cpp.o
+[1176/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/ObjectCreationList.cpp.o
+[1177/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/ObjectTypes.cpp.o
+[1178/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/PartitionManager.cpp.o
+[1179/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/SimpleObjectIterator.cpp.o
+[1180/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/SpecialPower/BaikonurLaunchPower.cpp.o
+[1181/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/SpecialPower/CashBountyPower.cpp.o
+[1182/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/SpecialPower/CashHackSpecialPower.cpp.o
+[1183/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/SpecialPower/CleanupAreaPower.cpp.o
+[1184/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/SpecialPower/DefectorSpecialPower.cpp.o
+[1185/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/SpecialPower/DemoralizeSpecialPower.cpp.o
+[1186/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/SpecialPower/FireWeaponPower.cpp.o
+[1187/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/SpecialPower/OCLSpecialPower.cpp.o
+[1188/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/SpecialPower/RadarJamSpecialPower.cpp.o
+[1189/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/SpecialPower/SpecialAbility.cpp.o
+[1190/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/SpecialPower/SpecialPowerModule.cpp.o
+[1191/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/SpecialPower/SpyVisionSpecialPower.cpp.o
+[1192/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/SpecialPower/SwarmStrikeSpecialPower.cpp.o
+[1193/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Update/AIUpdate.cpp.o
+[1194/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Update/AIUpdate/AssaultTransportAIUpdate.cpp.o
+[1195/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Update/AIUpdate/ChinookAIUpdate.cpp.o
+[1196/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Update/AIUpdate/DeliverPayloadAIUpdate.cpp.o
+[1197/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Update/AIUpdate/DeployStyleAIUpdate.cpp.o
+[1198/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Update/AIUpdate/DozerAIUpdate.cpp.o
+[1199/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Update/AIUpdate/HackInternetAIUpdate.cpp.o
+[1200/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Update/AIUpdate/JetAIUpdate.cpp.o
+[1201/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Update/AIUpdate/MissileAIUpdate.cpp.o
+[1202/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Update/AIUpdate/POWTruckAIUpdate.cpp.o
+[1203/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Update/AIUpdate/RailedTransportAIUpdate.cpp.o
+[1204/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Update/AIUpdate/RailroadGuideAIUpdate.cpp.o
+[1205/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Update/AIUpdate/SupplyTruckAIUpdate.cpp.o
+[1206/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Update/AIUpdate/TransportAIUpdate.cpp.o
+[1207/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Update/AIUpdate/WanderAIUpdate.cpp.o
+[1208/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Update/AIUpdate/WorkerAIUpdate.cpp.o
+[1209/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Update/AnimationSteeringUpdate.cpp.o
+[1210/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Update/AssistedTargetingUpdate.cpp.o
+[1211/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Update/AutoDepositUpdate.cpp.o
+[1212/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Update/AutoFindHealingUpdate.cpp.o
+[1213/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Update/BaseRenerateUpdate.cpp.o
+[1214/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Update/BattlePlanUpdate.cpp.o
+[1215/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Update/BoneFXUpdate.cpp.o
+[1216/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Update/CheckpointUpdate.cpp.o
+[1217/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Update/CleanupHazardUpdate.cpp.o
+[1218/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Update/CommandButtonHuntUpdate.cpp.o
+[1219/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Update/DeletionUpdate.cpp.o
+[1220/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Update/DemoTrapUpdate.cpp.o
+[1221/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Update/DockUpdate/DockUpdate.cpp.o
+[1222/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Update/DockUpdate/PrisonDockUpdate.cpp.o
+[1223/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Update/DockUpdate/RailedTransportDockUpdate.cpp.o
+[1224/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Update/DockUpdate/RepairDockUpdate.cpp.o
+[1225/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Update/DockUpdate/SupplyCenterDockUpdate.cpp.o
+[1226/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Update/DockUpdate/SupplyWarehouseDockUpdate.cpp.o
+[1227/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Update/DynamicShroudClearingRangeUpdate.cpp.o
+[1228/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Update/DynamicGeometryInfoUpdate.cpp.o
+[1229/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Update/EMPUpdate.cpp.o
+[1230/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Update/EnemyNearUpdate.cpp.o
+[1231/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Update/FireOCLAfterWeaponCooldownUpdate.cpp.o
+[1232/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Update/FireSpreadUpdate.cpp.o
+[1233/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Update/FireWeaponUpdate.cpp.o
+[1234/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Update/FirestormDynamicGeometryInfoUpdate.cpp.o
+[1235/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Update/FlammableUpdate.cpp.o
+[1236/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Update/FloatUpdate.cpp.o
+[1237/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Update/HeightDieUpdate.cpp.o
+[1238/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Update/HelicopterSlowDeathUpdate.cpp.o
+[1239/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Update/HijackerUpdate.cpp.o
+[1240/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Update/HordeUpdate.cpp.o
+[1241/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Update/JammerUpdate.cpp.o
 [1242/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Update/IdleHackerUpdate.cpp.o
 [1243/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Update/LaserUpdate.cpp.o
 [1244/1657] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Update/LifetimeUpdate.cpp.o
@@ -298,3 +1744,205 @@
 [1539/1657] Linking CXX static library libgameengine.a
 [1540/1657] Linking CXX static library libsdlinput.a
 [1541/1657] Linking CXX static library libposixdevice.a
+[1542/1657] Building FFmpeg 8.1.2's Bink decoders for the movies (V1)
+ffmpeg-build-posix: FFmpeg 8.1.2 installed into /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/build/ios/host-graphics/ffmpeg
+[1543/1657] Building CXX object CMakeFiles/binkvideo.dir/Libraries/Source/WWVegas/Bink/ffmpeg/bink_ffmpeg.cpp.o
+[1544/1657] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/Common/System/W3DFunctionLexicon.cpp.o
+[1545/1657] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/Common/System/W3DRadar.cpp.o
+[1546/1657] Linking CXX static library libbinkvideo.a
+[1547/1657] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/Common/Thing/W3DModuleFactory.cpp.o
+[1548/1657] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/Common/Thing/W3DThingFactory.cpp.o
+[1549/1657] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/Common/W3DConvert.cpp.o
+[1550/1657] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/Drawable/Draw/W3DDebrisDraw.cpp.o
+[1551/1657] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/BaseHeightMap.cpp.o
+[1552/1657] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/Drawable/Draw/W3DDefaultDraw.cpp.o
+[1553/1657] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/Drawable/Draw/W3DDependencyModelDraw.cpp.o
+[1554/1657] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/Drawable/Draw/W3DLaserDraw.cpp.o
+[1555/1657] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/Drawable/Draw/W3DModelDraw.cpp.o
+[1556/1657] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/Drawable/Draw/W3DOverlordAircraftDraw.cpp.o
+[1557/1657] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/Drawable/Draw/W3DOverlordTankDraw.cpp.o
+[1558/1657] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/Drawable/Draw/W3DPoliceCarDraw.cpp.o
+[1559/1657] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/Drawable/Draw/W3DOverlordTruckDraw.cpp.o
+[1560/1657] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/Drawable/Draw/W3DProjectileStreamDraw.cpp.o
+[1561/1657] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/Drawable/Draw/W3DRopeDraw.cpp.o
+[1562/1657] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/Drawable/Draw/W3DPropDraw.cpp.o
+[1563/1657] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/Drawable/Draw/W3DScienceModelDraw.cpp.o
+[1564/1657] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/Drawable/Draw/W3DSupplyDraw.cpp.o
+[1565/1657] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/Drawable/Draw/W3DTankTruckDraw.cpp.o
+[1566/1657] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/Drawable/Draw/W3DTankDraw.cpp.o
+[1567/1657] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/Drawable/Draw/W3DTracerDraw.cpp.o
+[1568/1657] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/Drawable/Draw/W3DTreeDraw.cpp.o
+[1569/1657] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/Drawable/Draw/W3DTruckDraw.cpp.o
+[1570/1657] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/GUI/GUICallbacks/W3DControlBar.cpp.o
+[1571/1657] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/FlatHeightMap.cpp.o
+[1572/1657] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/GUI/GUICallbacks/W3DMOTD.cpp.o
+[1573/1657] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/GUI/Gadget/W3DCheckBox.cpp.o
+[1574/1657] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/GUI/GUICallbacks/W3DMainMenu.cpp.o
+[1575/1657] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/GUI/Gadget/W3DComboBox.cpp.o
+[1576/1657] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/GUI/Gadget/W3DHorizontalSlider.cpp.o
+[1577/1657] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/GUI/Gadget/W3DListBox.cpp.o
+[1578/1657] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/GUI/Gadget/W3DProgressBar.cpp.o
+[1579/1657] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/GUI/Gadget/W3DPushButton.cpp.o
+[1580/1657] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/GUI/Gadget/W3DRadioButton.cpp.o
+[1581/1657] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/GUI/Gadget/W3DStaticText.cpp.o
+[1582/1657] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/GUI/Gadget/W3DTabControl.cpp.o
+[1583/1657] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/GUI/Gadget/W3DTextEntry.cpp.o
+[1584/1657] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/GUI/Gadget/W3DVerticalSlider.cpp.o
+[1585/1657] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/GUI/W3DGameFont.cpp.o
+[1586/1657] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/GUI/W3DGameWindow.cpp.o
+[1587/1657] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/GUI/W3DGameWindowManager.cpp.o
+[1588/1657] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/HazardCloud.cpp.o
+[1589/1657] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/HazardCloudCore.cpp.o
+[1590/1657] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/HazardCloudFlow.cpp.o
+[1591/1657] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/HazardCloudSharedModel.cpp.o
+[1592/1657] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/HazardCloudShader.cpp.o
+[1593/1657] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/HeightMap.cpp.o
+[1594/1657] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/SdlGpuParticles.cpp.o
+[1595/1657] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/Shadow/W3DBufferManager.cpp.o
+[1596/1657] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/Shadow/W3DShadow.cpp.o
+[1597/1657] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/Shadow/W3DProjectedShadow.cpp.o
+[1598/1657] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/StructureCollapse.cpp.o
+[1599/1657] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/Shadow/W3DVolumetricShadow.cpp.o
+[1600/1657] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/TerrainTex.cpp.o
+[1601/1657] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/W3DAssetManagerExposed.cpp.o
+[1602/1657] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/W3DAssetManager.cpp.o
+[1603/1657] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/TileData.cpp.o
+[1604/1657] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/W3DBibBuffer.cpp.o
+[1605/1657] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/W3DCustomEdging.cpp.o
+[1606/1657] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/W3DBridgeBuffer.cpp.o
+[1607/1657] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/W3DDebugDisplay.cpp.o
+[1608/1657] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/W3DDebugIcons.cpp.o
+[1609/1657] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/W3DDisplay.cpp.o
+[1610/1657] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/W3DDisplayString.cpp.o
+[1611/1657] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/W3DDisplayStringManager.cpp.o
+[1612/1657] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/W3DDynamicLight.cpp.o
+[1613/1657] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/W3DFileSystem.cpp.o
+[1614/1657] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/W3DGameClient.cpp.o
+[1615/1657] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/W3DGranny.cpp.o
+[1616/1657] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/W3DInGameUI.cpp.o
+[1617/1657] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/W3DMouse.cpp.o
+[1618/1657] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/W3DParticleSys.cpp.o
+[1619/1657] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/W3DPoly.cpp.o
+[1620/1657] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/W3DPropBuffer.cpp.o
+[1621/1657] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/W3DReachOverlay.cpp.o
+[1622/1657] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/W3DRoadBuffer.cpp.o
+[1623/1657] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/W3DScene.cpp.o
+[1624/1657] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/W3DShaderManager.cpp.o
+[1625/1657] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/W3DShroud.cpp.o
+[1626/1657] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/W3DSmudge.cpp.o
+[1627/1657] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/W3DSnow.cpp.o
+[1628/1657] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/W3DStatusCircle.cpp.o
+[1629/1657] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/W3DTerrainBackground.cpp.o
+[1630/1657] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/W3DTerrainTracks.cpp.o
+[1631/1657] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/W3DTerrainVisual.cpp.o
+[1632/1657] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/W3DTreeBuffer.cpp.o
+[1633/1657] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/W3DVideoBuffer.cpp.o
+[1634/1657] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/W3DView.cpp.o
+[1635/1657] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/W3dWaypointBuffer.cpp.o
+[1636/1657] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/Water/W3DWater.cpp.o
+[1637/1657] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/Water/W3DWaterTracks.cpp.o
+[1638/1657] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/WorldHeightMap.cpp.o
+[1639/1657] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameLogic/W3DGameLogic.cpp.o
+[1640/1657] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/camerashakesystem.cpp.o
+[1641/1657] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/VideoDevice/Bink/BinkVideoPlayer.cpp.o
+[1642/1657] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameLogic/W3DGhostObject.cpp.o
+[1643/1657] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameLogic/W3DTerrainLogic.cpp.o
+[1644/1657] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/PosixDevice/Render/SdlHazardCloud.cpp.o
+[1645/1657] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/PosixDevice/Render/SdlHazardCloudEmbers.cpp.o
+[1646/1657] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/PosixDevice/Render/SdlHazardCloudShared.cpp.o
+[1647/1657] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/PosixDevice/Render/SdlHazardCloudSharedShader.cpp.o
+[1648/1657] Building CXX object CMakeFiles/test_online.dir/Tests/test_online.cpp.o
+[1649/1657] Building CXX object CMakeFiles/test_online.dir/Tests/test_gameengine_stubs.cpp.o
+[1650/1657] Building CXX object CMakeFiles/test_online.dir/Tests/test_user_data_guard.cpp.o
+[1651/1657] Building CXX object CMakeFiles/test_gameengine.dir/Tests/test_gameengine_stubs.cpp.o
+[1652/1657] Building CXX object CMakeFiles/test_gameengine.dir/Tests/test_user_data_guard.cpp.o
+[1653/1657] Building CXX object CMakeFiles/test_gameengine.dir/Tests/test_gameengine.cpp.o
+[1654/1657] Linking CXX static library libw3ddevice.a
+[1655/1657] Linking CXX executable test_gameengine
+[1656/1657] Linking CXX executable test_online
+4 tests, 44 checks, 0 failed
+  FFT bands: height RMS 1.5/0.75/0.18; slope RMS 0.025095042/0.067304427/0.086043521; long power >512 38.311%
+  FFT unresolved slope power: independent discrete box error 1.42108547e-14; per-cascade zero-LOD and bounded mip hierarchy checked
+  SKIPPED spirv-val: ZH_SPIRV_VAL is not set (CMake found no spirv-val; install spirv-tools)
+  reference set    46 programs: generated 46, compiled 46, spirv-val SKIPPED, MSL 46 (slots kept 46), Metal 46/46
+  beyond it        23 programs: generated 23, compiled 23, spirv-val SKIPPED, MSL 23 (slots kept 23), Metal 23/23
+  23 vertex x 46 pixel programs: 1034 pairs the game can form, 1034 linked on Metal
+  foam environment constant/linear maximum finite-bin losses 0.0626234/0.0518354
+SKIPPED shared cloud spirv-val: validator unavailable
+SKIPPED shared cloud spirv-val: validator unavailable
+SKIPPED shared cloud spirv-val: validator unavailable
+SKIPPED shared cloud spirv-val: validator unavailable
+SKIPPED shared cloud spirv-val: validator unavailable
+SKIPPED shared cloud spirv-val: validator unavailable
+SKIPPED shared cloud spirv-val: validator unavailable
+SKIPPED shared cloud spirv-val: validator unavailable
+33 tests, 687507 checks, 0 failed
+Test project /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/build/ios/host-graphics
+    Start 56: test_hazard_cloud_bake
+1/4 Test #56: test_hazard_cloud_bake ...........   Passed    0.00 sec
+    Start 57: test_hazard_cloud_shared
+2/4 Test #57: test_hazard_cloud_shared .........   Passed    0.01 sec
+    Start 67: test_online
+3/4 Test #67: test_online ......................   Passed    0.47 sec
+    Start 70: test_gameengine
+4/4 Test #70: test_gameengine ..................***Exception: SegFault  0.14 sec
+RUN  boot_memory_manager
+DONE boot_memory_manager 0.0 s
+RUN  bittest_macro_is_the_games_not_the_intrinsics
+DONE bittest_macro_is_the_games_not_the_intrinsics 0.0 s
+RUN  release_version_matches_the_tag_form
+DONE release_version_matches_the_tag_form 0.0 s
+RUN  name_key_generator_round_trips
+DONE name_key_generator_round_trips 0.0 s
+RUN  namekey_lowercase_then_exact_lookup_makes_a_second_key_DEFECT_3082
+DONE namekey_lowercase_then_exact_lookup_makes_a_second_key_DEFECT_3082 0.0 s
+RUN  asciistring_tolower_survives_a_string_longer_than_the_old_buffer
+DONE asciistring_tolower_survives_a_string_longer_than_the_old_buffer 0.0 s
+RUN  asciistring_hash_is_by_content
+DONE asciistring_hash_is_by_content 0.0 s
+RUN  ini_loads_a_waterset_block
+DONE ini_loads_a_waterset_block 0.0 s
+RUN  ini_second_load_overwrites_the_same_record
+DONE ini_second_load_overwrites_the_same_record 0.0 s
+RUN  ini_missing_file_throws
+DONE ini_missing_file_throws 0.0 s
+RUN  installed_language_falls_back_to_english_when_its_data_is_missing
+DONE installed_language_falls_back_to_english_when_its_data_is_missing 0.0 s
+RUN  zero_hour_language_is_the_one_its_language_archive_names
+DONE zero_hour_language_is_the_one_its_language_archive_names 0.0 s
+RUN  ini_unknown_block_aborts_the_file
+  INI threw: Error parsing INI file 'test_gameengine_tmp.ini' (line 1: unknown block 'ThisBlockTypeDoesNotExist')
+
+DONE ini_unknown_block_aborts_the_file 0.0 s
+RUN  ini_utf8_bom_is_skipped
+DONE ini_utf8_bom_is_skipped 0.0 s
+RUN  ini_unknown_field_is_skipped_only_when_asked
+  INI threw: Error parsing INI file 'test_gameengine_tmp.ini' (Line: 'WaterSet EVENING ', reached line 2: '  ThreatLevel')
+
+DONE ini_unknown_field_is_skipped_only_when_asked 0.0 s
+RUN  balance_patch_edits_a_weapon_in_place
+DONE balance_patch_edits_a_weapon_in_place 0.0 s
+RUN  weapon_reforged_ini_makes_the_paladin_infantry_laser_without_eas_weapons
+fatal signal in test runner
+0   test_gameengine                     0x0000000100df6b00 _ZN12_GLOBAL__N_111fatalSignalEi + 52
+1   libsystem_platform.dylib            0x000000018d03d6a4 _sigtramp + 56
+2   test_gameengine                     0x0000000100e001a8 _ZNKSt3__112__hash_tableINS_17__hash_value_typeI11AsciiStringP22ParticleSystemTemplateEENS_22__unordered_map_hasherIS2_S5_N3rts4hashIS2_EENS7_8equal_toIS2_EELb1EEENS_21__unordered_map_equalIS2_S5_SB_S9_Lb1EEENS_9allocatorIS5_EEE4findIS2_EENS_21__hash_const_iteratorIPNS_11__hash_nodeIS5_PvEEEERKT_ + 96
+3   test_gameengine                     0x000000010114b810 _ZNK21ParticleSystemManager12findTemplateERK11AsciiString + 16
+4   test_gameengine                     0x0000000100e26770 _ZN3INI27parseParticleSystemTemplateEPS_PvS1_PKv + 108
+5   test_gameengine                     0x000000010138d62c _ZL21parseAllVetLevelsPSysP3INIPvS1_PKv + 40
+6   test_gameengine                     0x0000000100e27160 _ZN3INI16initFromINIMultiEPvRK18MultiIniFieldParse + 128
+7   test_gameengine                     0x0000000100e270d4 _ZN3INI11initFromINIEPvPK10FieldParse + 52
+8   test_gameengine                     0x0000000101392fac _ZN11WeaponStore29parseWeaponTemplateDefinitionEP3INI + 976
+9   test_gameengine                     0x0000000100e230a4 _ZN3INI4loadE11AsciiString11INILoadTypeP4Xfer + 1120
+10  test_gameengine                     0x0000000100d2812c _ZL72weapon_reforged_ini_makes_the_paladin_infantry_laser_without_eas_weaponsv + 548
+11  test_gameengine                     0x0000000100df6e04 main + 432
+12  dyld                                0x000000018cc62b98 start + 6076
+
+
+75% tests passed, 1 tests failed out of 4
+
+Total Test time (real) =   0.72 sec
+
+The following tests FAILED:
+	 70 - test_gameengine (SEGFAULT)
+Errors while running CTest
