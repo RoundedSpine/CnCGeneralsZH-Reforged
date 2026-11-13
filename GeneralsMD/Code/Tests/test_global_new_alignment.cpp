@@ -23,8 +23,9 @@
 	 Vulkan drivers and the libLLVM they load among them.  The memory manager's blocks are 4-byte
 	 aligned (MEM_BOUND_ALIGNMENT), and libLLVM's static constructors store to what they get with movaps:
 	 the game died with SIGSEGV inside SDL_CreateGPUDevice on a Radeon Vega with Pardus 23 (Debian 12,
-	 Mesa 22.3), or ran, depending on where the blocks happened to land.  The real GameMemory.cpp and MemoryInit.cpp, and the
-	 strings they name. */
+	 Mesa 22.3), or ran, depending on where the blocks happened to land.  Apple uses the same calloc
+	 path: the iOS device and the macOS host (arm64 stores that assume the 16-byte ABI).  The real
+	 GameMemory.cpp and MemoryInit.cpp, and the strings they name. */
 
 #include "PreRTS.h"
 

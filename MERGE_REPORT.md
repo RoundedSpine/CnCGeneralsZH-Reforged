@@ -108,13 +108,23 @@ Failed only because the tool is absent: `test_host_tools.py` (`cmake` not instal
 
 Could not run: iOS configure/compile/link/IPA, host graphics ctests (`test_sdl_ao`, heat, native effects, HDR, MSAA, post, particles, `test_gameengine`, hazard cloud, `test_online`), and any desktop `generals` target. `cmake` is not installed and the SDK is not Darwin.
 
+## Host ctest failure (run 43388513757)
+
+Dispatched **Build iOS unsigned IPA** on this branch at `d0307767`. Shader and GPU checks passed (33 tests, 687507 checks). `test_hazard_cloud_bake`, `test_hazard_cloud_shared`, and `test_online` passed. `test_gameengine` was `***Exception: SegFault` in 0.10s with no test output, and the device cross-compile never started. The same test on `post-single-pass` (run 43365500015) passed in 46.87s. The failing binary is the macOS host, not the iOS device.
+
+`ZH_SYSTEM_GLOBAL_NEW` (calloc/free, 16-byte aligned) was on for Linux and for `ZH_PLATFORM_IOS` only. The host is `__APPLE__` and does not define `ZH_PLATFORM_IOS`, so its global `operator new` still came from `TheDynamicMemoryAllocator`, whose blocks are 4-byte aligned. arm64 Clang stores into that pointer as if it had the ABI's 16-byte alignment. A block that lands 4-mod-16 is a SIGSEGV before any `CHECK` prints. `main`'s libc++ use (vectors, maps, function objects) is what made a previously lucky host run fault immediately. Pools and `AsciiString` still allocate from the engine allocator by name. iOS device code takes the same path it already did.
+
+The host `ctest` now sets `ZH_TEST_PROGRESS=1`. The test runner installs a `SIGSEGV`/`SIGBUS` handler (constructor priority 102) that writes a backtrace and re-raises, so a miss still shows up as SegFault. Neither change weakens a check or a warning.
+
+This machine still cannot run the host suite or produce the IPA. Re-dispatch the workflow on this branch after the fix is pushed. `post-single-pass` is still `ad8bd2d8`.
+
 ## Must-preserve diff
 
 `git diff post-single-pass HEAD` is the incoming `main` work (355 files, +31968/−4855) plus the four conflict resolutions. No file that existed on `post-single-pass` was deleted. iOS platform, workflow, and CMake files do not appear in that diff. The iOS-touching engine files that do appear are the rows above; each difference is an upstream feature layered onto the existing Apple code, not a replacement of it.
 
 ## On-device checklist
 
-- [ ] Dispatch **Build iOS unsigned IPA** on `merge-main-into-post-single-pass` (push will not start it).
+- [ ] Re-dispatch **Build iOS unsigned IPA** on `merge-main-into-post-single-pass` after the macOS-host `operator new` fix (push will not start it). The previous dispatch, run 43388513757 at `d0307767`, died in host `test_gameengine` (SIGSEGV, 0.10s) before the device build.
 - [ ] Install the unsigned IPA. Cold launch to the main menu.
 - [ ] Background during a menu, and during a match. Resume. Confirm GPU work stops and touch does not stick.
 - [ ] Metal: particles, sun shadows, water, an explosion, a cloaked blended prop (Stealth yard emblem). Optional: MetalFX and a non-native render scale.
@@ -125,6 +135,7 @@ Could not run: iOS configure/compile/link/IPA, host graphics ctests (`test_sdl_a
 ## Risks and follow-ups
 
 - The logic tick always runs on its own thread, including on iOS, overlapped with the single-pass renderer. Upstream's lock and census are in the tree; they have not been timed on a phone. A suspend during an overlapped tick is the main device risk.
+- The macOS host `operator new` fix is in `GameMemory.cpp` and has not been executed here. If the next dispatch still SIGSEGVs, the log should now name the test (`ZH_TEST_PROGRESS`) or print `fatal signal in test runner` plus a backtrace. Do not treat a green host ctest as an on-device pass.
 - Match slots are wider than 8. Network and save/replay compatibility with older builds changes, as `main`'s changelog already says.
 - Squads, talent cards, and the larger minimap are new HUD. They were not laid out against the iOS touch UI.
 - `commit-messages.yml` rejects merge commits on pull requests. This branch is a merge on purpose. Do not rebase it away without a new review.

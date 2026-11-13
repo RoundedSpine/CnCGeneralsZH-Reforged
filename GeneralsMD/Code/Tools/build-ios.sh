@@ -31,7 +31,9 @@ if [ "${ZH_IOS_GRAPHICS_TESTS:-0}" = 1 ]; then
   # Main-branch gameplay/memory changes and the new portable hazard/online layers
   # run on the Apple host before the device cross-compile. test_online uses a local
   # TLS loopback server; it does not require an external service or iOS entitlement.
-  ctest --test-dir "$host" -R '^(test_gameengine|test_hazard_cloud_bake|test_hazard_cloud_shared|test_online)$' --output-on-failure
+  # Name each test as it starts. A SIGSEGV before the first RUN is static init;
+  # the runner prints a backtrace and still dies with the signal.
+  ZH_TEST_PROGRESS=1 ctest --test-dir "$host" -R '^(test_gameengine|test_hazard_cloud_bake|test_hazard_cloud_shared|test_online)$' --output-on-failure
   for graphics_test in test_sdl_ao test_sdl_heat test_sdl_native_effects test_sdl_hdr test_sdl_msaa test_sdl_post test_sdl_particles posix_gpu_draw_selfcheck; do
     if "$host/$graphics_test"; then
       echo "Graphics shader/GPU readback checks passed: $graphics_test."

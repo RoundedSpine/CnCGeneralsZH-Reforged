@@ -3510,8 +3510,8 @@ void STLSpecialAlloc::deallocate(void* __p, size_t)
 	runtime's frees accepts.  calloc, not malloc, because this operator new zeroes (allocateBytes), and the
 	engine reads members nothing else set: with the sanitizer's own unzeroed new the game crashed loading
 	its .big files.  The pools stay (MemoryPoolObject classes have operators of their own), and so do the
-	strings, which allocate from TheDynamicMemoryAllocator by name.  Without the define, as in every
-	normal build, this file is what it was.
+	strings, which allocate from TheDynamicMemoryAllocator by name.  Without the define, as in a
+	normal Windows build, this file is what it was.
 
 	Linux takes the same calloc and free in every build.  There the executable's operator new is the one
 	every shared library in the process gets, and Mesa's Vulkan drivers load libLLVM, whose static
@@ -3520,10 +3520,18 @@ void STLSpecialAlloc::deallocate(void* __p, size_t)
 	(MEM_BOUND_ALIGNMENT), so the game died with SIGSEGV inside SDL_CreateGPUDevice on a Radeon Vega with
 	Pardus 23 (Debian 12, Mesa 22.3), or ran, depending on where the blocks happened to land.  glibc's
 	calloc gives 16.  See Tests/test_global_new_alignment.cpp.
+
+	Apple takes it in every build as well, the iOS device and the macOS host.  arm64 promises the same
+	16 bytes, and Clang emits aligned stores into what operator new returns; a block that lands 4-mod-16
+	is a SIGSEGV with no message.  The device already defined ZH_PLATFORM_IOS.  The host that runs
+	test_gameengine before the device cross-compile is __APPLE__ and not that define, so it was still on
+	the pool.  Darwin's malloc is 16-aligned, as glibc's is.  Frameworks do not pick up this operator
+	(two-level namespace); only the game's own new and the standard library compiled into it do.  Pools
+	and the strings are unchanged.
 */
-// iOS arm64 needs 16-byte alignment from global new as well. Reuse the
+// iOS and the macOS host both need 16-byte alignment from global new. Reuse the
 // zero-initialized system allocation path; explicit engine pools stay unchanged.
-#if defined(ZH_SANITIZER_BUILD) || defined(__linux__) || defined(ZH_PLATFORM_IOS)
+#if defined(ZH_SANITIZER_BUILD) || defined(__linux__) || defined(ZH_PLATFORM_IOS) || defined(__APPLE__)
 #define ZH_SYSTEM_GLOBAL_NEW
 #endif
 #ifndef ZH_SYSTEM_GLOBAL_NEW

@@ -10,6 +10,41 @@
 #include <stdlib.h>
 #include <chrono>
 
+#if !defined(_WIN32)
+#include <execinfo.h>
+#include <signal.h>
+#include <string.h>
+#include <unistd.h>
+
+/* A host ctest SegFault prints nothing: checks stay quiet until one fails, and a fault in a static
+   initialiser never reaches main.  Print the stack, then die on the same signal so ctest still
+   records SegFault.  Priority 102 is after the user-data guard (101) and before C++ statics. */
+namespace
+{
+	void fatalSignal(int sig)
+	{
+		void *frames[32];
+		const int n = backtrace(frames, 32);
+		static const char hdr[] = "fatal signal in test runner\n";
+		(void)write(STDERR_FILENO, hdr, sizeof(hdr) - 1);
+		backtrace_symbols_fd(frames, n, STDERR_FILENO);
+		raise(sig);
+	}
+
+	__attribute__((constructor(102))) void installFatalSignalTrace(void)
+	{
+		struct sigaction sa;
+		memset(&sa, 0, sizeof(sa));
+		sa.sa_handler = fatalSignal;
+		sigemptyset(&sa.sa_mask);
+		/* Reset to SIG_DFL on entry, and don't mask the signal, so raise() delivers it. */
+		sa.sa_flags = SA_RESETHAND | SA_NODEFER;
+		sigaction(SIGSEGV, &sa, 0);
+		sigaction(SIGBUS, &sa, 0);
+	}
+}
+#endif
+
 namespace
 {
 	/* Fixed-capacity registry: static-init order is unspecified, so a
