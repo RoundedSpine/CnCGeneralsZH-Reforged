@@ -1,5 +1,6 @@
 // Render-only sun capture. The snapshot owns COM references across caster queue flushes.
 #include "PosixDevice9.h"
+#include "PosixDevice9Scale.h"
 #include "SdlGpuFrame.h"
 #include "SdlConstants.h"
 #include "SdlPipelineCache.h"
@@ -259,12 +260,25 @@ bool PosixDevice9::Sun_Camera_Space() const
         && std::memcmp(&Transforms[D3DTS_VIEW],identity,sizeof(identity))==0;
 }
 
+static bool sun_viewport_matches(const D3DVIEWPORT9 &current, const D3DVIEWPORT9 &scene,
+    const SdlGpuFrame *gpu, const SdlTarget &target)
+{
+    if (std::memcmp(&current,&scene,sizeof(current)) == 0) return true;
+    if (!gpu || !gpu->Is_Scene_Target(target)) return false;
+    D3DVIEWPORT9 scaled = scene;
+    scaled.X = Posix_Scale_Viewport_Value(scene.X,gpu->Width(),target.Width);
+    scaled.Y = Posix_Scale_Viewport_Value(scene.Y,gpu->Height(),target.Height);
+    scaled.Width = Posix_Scale_Viewport_Value(scene.Width,gpu->Width(),target.Width);
+    scaled.Height = Posix_Scale_Viewport_Value(scene.Height,gpu->Height(),target.Height);
+    return std::memcmp(&current,&scaled,sizeof(current)) == 0;
+}
+
 bool PosixDevice9::Sun_Receives_Target(const SdlTarget &target) const
 {
     return Sun && SunReady && Sun->Receiving && !SunActive && !SunSceneExclusions
         && target.Colour == Sun->Scene.Colour && target.Depth == Sun->Scene.Depth
         && target.Width == Sun->Scene.Width && target.Height == Sun->Scene.Height
-        && std::memcmp(&Viewport,&Sun->SceneViewport,sizeof(Viewport)) == 0
+        && sun_viewport_matches(Viewport,Sun->SceneViewport,Gpu,target)
         && (Sun_Camera_Space() || std::memcmp(&Transforms[D3DTS_VIEW],&Sun->SceneView,sizeof(D3DMATRIX)) == 0)
         && std::memcmp(&Transforms[D3DTS_PROJECTION],&Sun->SceneProjection,sizeof(D3DMATRIX)) == 0;
 }
@@ -308,7 +322,7 @@ bool PosixDevice9::Sun_Owns_Scene_Shadows()
         && Resolve_Target(target,error)
         && target.Colour == Sun->Scene.Colour && target.Depth == Sun->Scene.Depth
         && target.Width == Sun->Scene.Width && target.Height == Sun->Scene.Height
-        && std::memcmp(&Viewport,&Sun->SceneViewport,sizeof(Viewport)) == 0;
+        && sun_viewport_matches(Viewport,Sun->SceneViewport,Gpu,target);
 }
 
 void PosixDevice9::Exclude_Sun_Receivers(bool exclude)

@@ -42,6 +42,7 @@
 #include "SdlSunShadowDebug.h"
 #include "Platform/SunShadow.h"
 #include "Platform/SunSmoke.h"
+#include "Platform/SceneEffects.h"
 #include "../Libraries/Source/WWVegas/WW3D2/ffshader.h"
 #include "Platform/EngineShaderName.h"
 
@@ -834,6 +835,55 @@ static void check_sun_receivers(PosixDevice9 *device)
     printf("sun receivers: shared filter, offset/depth-range matrix, exclusions, nested scenes, targets and empty replacement checked\n");
 }
 
+static void check_scaled_sun_receivers(PosixDevice9 *device)
+{
+    D3DPRESENT_PARAMETERS parameters = device->Get_Present_Parameters();
+    SceneEffects::RequestDisplay(false,0,50);
+    CHECK(device->Reset(&parameters) == D3D_OK);
+    SceneEffects::RequestDisplay(false,0,100);
+    SdlGpuFrame *gpu = device->Get_Gpu();
+    CHECK(gpu && gpu->Render_Scale() == 50);
+    if (gpu && gpu->Render_Scale() == 50) {
+        SunShadow::SceneScope scene(device,true);
+        D3DMATRIX identity = {}; identity._11=identity._22=identity._33=identity._44=1;
+        device->SetTransform(D3DTS_WORLD,&identity);
+        device->SetTransform(D3DTS_VIEW,&identity);
+        device->SetTransform(D3DTS_PROJECTION,&identity);
+        D3DVIEWPORT9 viewport={0,0,SIZE,SIZE,0,1}; device->SetViewport(&viewport);
+        begin(device,BLUE);
+        device->SetRenderState(D3DRS_ZENABLE,1);
+        device->SetRenderState(D3DRS_ZWRITEENABLE,1);
+        device->SetRenderState(D3DRS_ZFUNC,D3DCMP_LESSEQUAL);
+        device->SetRenderState(D3DRS_CULLMODE,D3DCULL_NONE);
+        device->SetRenderState(D3DRS_ALPHABLENDENABLE,0);
+        device->SetRenderState(D3DRS_ALPHATESTENABLE,0);
+        device->SetFVF(D3DFVF_XYZ|D3DFVF_DIFFUSE);
+        struct V { float x,y,z; uint32_t color; };
+        const V caster[]={{-1,1,.25f,WHITE},{0,1,.25f,WHITE},{-1,-1,.25f,WHITE},
+            {0,1,.25f,WHITE},{0,-1,.25f,WHITE},{-1,-1,.25f,WHITE}};
+        const V receiver[]={{-1,1,.75f,WHITE},{1,1,.75f,WHITE},{-1,-1,.75f,WHITE},
+            {1,1,.75f,WHITE},{1,-1,.75f,WHITE},{-1,-1,.75f,WHITE}};
+        CHECK(SunShadow::Begin(device,32));
+        CHECK(device->DrawPrimitiveUP(D3DPT_TRIANGLELIST,2,caster,sizeof(V)) == D3D_OK);
+        CHECK(SunShadow::End(device));
+        CHECK(SunShadow::Parameters(device,0,.5f,0,0,0,1,0));
+        CHECK(SunShadow::OwnsSceneShadows(device));
+        D3DVIEWPORT9 scaledViewport={0,0,SIZE/2,SIZE/2,0,1};
+        device->SetViewport(&scaledViewport);
+        CHECK(SunShadow::ReceivesView(device));
+        CHECK(SunShadow::OwnsSceneShadows(device));
+        device->SetViewport(&viewport);
+        CHECK(device->DrawPrimitiveUP(D3DPT_TRIANGLELIST,2,receiver,sizeof(V)) == D3D_OK);
+        CHECK(SunShadow::OwnsSceneShadows(device));
+        CHECK(gpu->Finish_Scene());
+        read_back(device);
+        CHECK_PIXEL(8,16,0xFF808080);
+        CHECK_PIXEL(24,16,WHITE);
+    }
+    CHECK(device->Reset(&parameters) == D3D_OK);
+    printf("sun receivers: non-native scene scale retains shadow ownership and receiver shading\n");
+}
+
 
 // Analytic two-sphere moments, then the production sampler/constant/camera paths.
 static void check_sun_smoke(PosixDevice9 *device)
@@ -1434,6 +1484,7 @@ int main()
 #if defined(__linux__)
 	check_sun_capture(device);
 	check_sun_receivers(device);
+	check_scaled_sun_receivers(device);
 	check_sun_smoke(device);
 	check_sun_trees(device);
 	check_sun_reset(device);
