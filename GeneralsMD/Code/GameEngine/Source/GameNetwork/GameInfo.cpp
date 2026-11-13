@@ -42,6 +42,7 @@
 #include "GameClient/ChallengeGenerals.h"
 #include "GameClient/GameText.h"
 #include "GameClient/MapUtil.h"
+#include "GameClient/TankSkin.h"
 #include "GameLogic/AI.h"
 #include "Common/MultiplayerSettings.h"
 #include "Common/PlayerTemplate.h"
@@ -227,6 +228,7 @@ void GameSlot::reset()
 	m_teamNumber = -1;
 	m_aiPersonality = AIPERSONA_NORMAL;
 	m_handicap = HANDICAP_FULL;
+	m_skins = 0;
 	m_NATBehavior = FirewallHelperClass::FIREWALL_TYPE_SIMPLE;
 	m_lastFrameInGame = 0;
 	m_disconnected = FALSE;
@@ -382,6 +384,20 @@ Bool IsAISlotState( SlotState state )
 	}
 }
 
+/** GameSpy's profile IDs were nine digits and never met a SlotState.  Our site's account IDs count from
+	* 1, so the player with ID 2 hosted a room that every joiner's lobby read as an Easy AI in seat 0: no
+	* host name, the join's host check failed, and the joiner left the moment the host seated him. */
+SlotState ListedSeatState( const char *name, Int profileID )
+{
+	const Bool hasName = name != NULL && name[0] != 0;
+	const Bool aiCode = hasName && name[0] == 'C' && name[1] != 0 && strchr( "EMH", name[1] ) != NULL && name[2] == 0;
+	if( hasName && !aiCode )
+		return SLOT_PLAYER;
+	if( IsAISlotState( (SlotState)profileID ) )
+		return (SlotState)profileID;
+	return hasName ? SLOT_PLAYER : SLOT_OPEN;
+}
+
 /** The one letter an AI seat is written as in the options string the host sends round.
 	*
 	* 'E', 'M' and 'H' are EA's own and keep their meaning - 'H' is Brutal, from when the menu called
@@ -456,6 +472,7 @@ void GameSlot::setState( SlotState state, UnicodeString name, UnsignedInt IP )
 		m_teamNumber = -1;
 		m_aiPersonality = AIPERSONA_NORMAL;
 		m_handicap = HANDICAP_FULL;
+		m_skins = 0;
 
 		if (state == SLOT_OPEN && TheGameSpyGame && TheGameSpyGame->getConstSlot(0) == this)
 		{
@@ -559,7 +576,7 @@ void GameInfo::reset( void )
   m_incomeSharing = INCOME_SHARING_OFF;
   m_techRespawn = 0;
   m_supplyPileLimit = 0;
-  m_turbo = FALSE;
+  m_gameSpeedPercent = PLAYER_GAME_SPEED_PERCENT_DEFAULT;
 
 	//
 
@@ -1431,7 +1448,8 @@ static AsciiString buildGameInfoAsciiString( const GameInfo *game, const AsciiSt
 	concatOptionUnlessZero(optionsString, "IS", game->getIncomeSharing());
 	concatOptionUnlessZero(optionsString, "TR", game->getTechRespawn());
 	concatOptionUnlessZero(optionsString, "PL", game->getSupplyPileLimit());
-	concatOptionUnlessZero(optionsString, "TB", game->getTurbo() ? 1 : 0);
+	// the game speed is not in the string: a network game always plays the native speed, and a skirmish's
+	// reaches its replay as the header's GS= field.  Turbo's "TB" key is no longer written
 
 	//add player info for each slot
 	optionsString.concat(slotListID);
@@ -1443,6 +1461,14 @@ static AsciiString buildGameInfoAsciiString( const GameInfo *game, const AsciiSt
 		AsciiString str;
 		if (slot && slot->isHuman())
 		{
+			// skins need the handicap before them, at full health too
+			AsciiString tail = HandicapSlotField(slot->getHandicap());
+			if (slot->getSkins() != 0)
+			{
+				tail.format(",%d", slot->getHandicap());
+				tail.concat(TankSkin_slotField(slot->getSkins()));
+			}
+
 			AsciiString tmp;  //all this data goes after name
 			tmp.format( ",%X,%d,%c%c,%d,%s,%d,%d,%d%s:",
 				slot->getIP(), slot->getPort(),
@@ -1451,7 +1477,7 @@ static AsciiString buildGameInfoAsciiString( const GameInfo *game, const AsciiSt
 				slot->getColor(), PlayerTemplateSlotField(slot->getPlayerTemplate()).str(),
 				slot->getStartPos(), slot->getTeamNumber(),
 				slot->getNATBehavior(),
-				HandicapSlotField(slot->getHandicap()).str() );
+				tail.str() );
 
 			str.format( "H%s%s", playerNames[i].str(), tmp.str() );
 		}
@@ -1538,6 +1564,23 @@ Bool ApplyHandicapRequest( GameInfo *game, GameSlot *slot, Int handicap )
 	return TRUE;
 }
 
+void GameInfoDropSkins( GameInfo *game )
+{
+	for (Int i = 0; i < MAX_SLOTS; ++i)
+		if (GameSlot *slot = game->getSlot(i))
+			slot->setSkins(0);
+}
+
+Bool ApplySkinRequest( GameInfo *game, GameSlot *slot, UnsignedInt64 skins )
+{
+	if (skins == slot->getSkins() || !slot->isHuman())
+		return FALSE;
+	const UnsignedInt64 was = slot->getSkins();
+	slot->setSkins(skins);
+	if (GameInfoToAsciiString(game).isEmpty())
+		slot->setSkins(was);
+	return TRUE;
+}
 static Int grabHexInt(const char *s)
 {
 	char tmp[5] = "0xff";
@@ -1570,7 +1613,6 @@ Bool ParseAsciiStringToGameInfo(GameInfo *game, AsciiString options)
   Int incomeSharing = INCOME_SHARING_OFF; // the same
   Int techRespawn = 0; // the same
   Int supplyPileLimit = 0; // the same
-  Bool turbo = FALSE; // the same
 
 	Bool sawMap, sawMapCRC, sawMapSize, sawSeed, sawSlotlist, sawUseStats, sawSuperweaponRestriction, sawStartingCash, sawOldFactions;
 	sawMap = sawMapCRC = sawMapSize = sawSeed = sawSlotlist = sawUseStats = sawSuperweaponRestriction = sawStartingCash = sawOldFactions = FALSE;
@@ -1684,7 +1726,8 @@ Bool ParseAsciiStringToGameInfo(GameInfo *game, AsciiString options)
     }
     else if (key.compare("TB") == 0 )
     {
-      turbo = atoi(val.str()) != 0;
+      // turbo mode, gone: read and dropped, so an old lobby's or replay's string is refused by the
+      // game speed and version checks with their own message rather than here as an unknown key
     }
 		else if (key.getLength() == 1 && *key.str() == slotListID)
 		{
@@ -1866,6 +1909,9 @@ Bool ParseAsciiStringToGameInfo(GameInfo *game, AsciiString options)
 
 							//Read the optional handicap
 							newSlot[i].setHandicap(HandicapFromSlotField(strtok_r(NULL,",",&slotPos)));
+
+							//Read the optional skin loadout; drawing only, the logic never reads it
+							newSlot[i].setSkins(TankSkin_fromSlotField(strtok_r(NULL,",",&slotPos)));
 						}// case 'H':
 						break;
 						case 'C':
@@ -2046,7 +2092,6 @@ Bool ParseAsciiStringToGameInfo(GameInfo *game, AsciiString options)
     game->setIncomeSharing( incomeSharing );
     game->setTechRespawn( techRespawn );
     game->setSupplyPileLimit( supplyPileLimit );
-    game->setTurbo( turbo );
 
 		return true;
 	}

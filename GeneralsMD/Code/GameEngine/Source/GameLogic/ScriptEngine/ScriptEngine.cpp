@@ -152,9 +152,9 @@ enum { K_SCRIPTS_DATA_VERSION_1 = 1 };
 enum { MAX_SPIN_COUNT = 20 };
 #define NONE_STRING "<none>"
 
-static const Int FRAMES_TO_SHOW_WIN_LOSE_MESSAGE = ConvertRetailFrames(120);
+#define FRAMES_TO_SHOW_WIN_LOSE_MESSAGE ((Int)(ConvertRetailFrames(120)))
 
-static const Int FRAMES_TO_FADE_IN_AT_START = ConvertRetailFrames(33);
+#define FRAMES_TO_FADE_IN_AT_START ((Int)(ConvertRetailFrames(33)))
 
 
 //------------------------------------------------------------------------------ Performance Timers 
@@ -5349,6 +5349,9 @@ void ScriptEngine::reset( void )
 		m_counters[i].value = 0;
 		m_counters[i].isCountdownTimer = false;
 		m_counters[i].name.clear();
+		m_counters[i].valueBeforeTick = 0;
+		m_counters[i].valueAfterTick = 0;
+		m_counters[i].countdownFrame = 0xFFFFFFFF;
 	}
 	for (i=0; i<MAX_FLAGS; i++) {
 		m_flags[i].value = false;
@@ -5362,7 +5365,7 @@ void ScriptEngine::reset( void )
 	m_breezeInfo.m_directionVec.y = Cos(m_breezeInfo.m_direction);
 	m_breezeInfo.m_intensity = 0.07f*PI/4;
 	m_breezeInfo.m_lean = 0.07f*PI/4;
-	m_breezeInfo.m_breezePeriod = LOGICFRAMES_PER_SECOND * 5;
+	m_breezeInfo.m_breezePeriod = LOGICFRAMES_PER_GAME_SECOND * 5;
 	m_breezeInfo.m_randomness = 0.2f;
 	m_breezeInfo.m_breezeVersion = 0;
 
@@ -5481,6 +5484,10 @@ void ScriptEngine::reset( void )
 //-------------------------------------------------------------------------------------------------
 void ScriptEngine::newMap( void )
 {
+	/* The default breeze, five seconds of this match's game time.  reset() set it too, but reset runs as
+		 the last match clears, before MSG_NEW_GAME sets this one's speed; a save's own period loads after. */
+	m_breezeInfo.m_breezePeriod = LOGICFRAMES_PER_GAME_SECOND * 5;
+
 	// a new map means a new set of scripts, so the name index is stale
 	m_scriptNameCacheValid = FALSE;
 	m_scriptsByName.clear();
@@ -5492,6 +5499,9 @@ void ScriptEngine::newMap( void )
 		m_counters[i].value = 0;
 		m_counters[i].isCountdownTimer = false;
 		m_counters[i].name.clear();
+		m_counters[i].valueBeforeTick = 0;
+		m_counters[i].valueAfterTick = 0;
+		m_counters[i].countdownFrame = 0xFFFFFFFF;
 	}
 	m_numFlags = 1;
 	for (i=0; i<MAX_FLAGS; i++) {
@@ -5769,18 +5779,32 @@ void ScriptEngine::update( void )
 		TheScriptConditions->update();
 	}
 	SCRIPT_PHASE_END( SCRIPT_PHASE_CONDITIONS );
-	// Update any countdown timers.  They count retail 30 Hz frames, one every other logic frame,
-	// because maps compare a running timer's value with numbers written for 30 Hz ("timer < 1700").
+	// Update any countdown timers.  They count retail 30 Hz frames of game time, because maps compare
+	// a running timer's value with numbers written for 30 Hz ("timer < 1700").  This frame's share is
+	// the retail frames whose start falls inside it: at the retail rate one a frame, at twice it one
+	// every other frame (the even ones), and at a game speed above the wall's sometimes two.
 	Int i;
-	const Bool retailTick = (TheGameLogic->getFrame() % LOGICFRAMES_PER_RETAIL_FRAME) == 0;
+	const UnsignedInt frameNow = TheGameLogic->getFrame();
+	const Int retailTicks = (Int)( ( (UnsignedInt64)( frameNow + 1 ) * RETAIL_LOGICFRAMES_PER_SECOND + LOGICFRAMES_PER_GAME_SECOND - 1 ) / LOGICFRAMES_PER_GAME_SECOND
+		- ( (UnsignedInt64)frameNow * RETAIL_LOGICFRAMES_PER_SECOND + LOGICFRAMES_PER_GAME_SECOND - 1 ) / LOGICFRAMES_PER_GAME_SECOND );
 	// Note - counters start at 1.  0 means not assigned.
-	for (i=1; retailTick && i<m_numCounters; i++) {
-		if (m_counters[i].isCountdownTimer) {
-			// If counter has any time left, decrement.  Counters go to -1 and stop.
-			if (m_counters[i].value >= 0) {
-				m_counters[i].value--;
+	for (i=1; i<m_numCounters; i++) {
+		m_counters[i].valueBeforeTick = m_counters[i].value;
+	}
+	for (Int tick = 0; tick < retailTicks; ++tick) {
+		for (i=1; i<m_numCounters; i++) {
+			if (m_counters[i].isCountdownTimer) {
+				// If counter has any time left, decrement.  Counters go to -1 and stop.
+				if (m_counters[i].value >= 0) {
+					m_counters[i].value--;
+				}
 			}
 		}
+	}
+	// what this tick's countdown passed over, for an EQUAL condition (evaluateCounter)
+	for (i=1; i<m_numCounters; i++) {
+		m_counters[i].valueAfterTick = m_counters[i].value;
+		m_counters[i].countdownFrame = frameNow;
 	}
 
 	// Evaluate the scripts.
@@ -6566,7 +6590,18 @@ Bool ScriptEngine::evaluateCounter( Condition *pCondition )
 	switch (pCondition->getParameter(1)->getInt()) {
 		case Parameter::LESS_THAN: return m_counters[counterNdx].value < value;
 		case Parameter::LESS_EQUAL: return m_counters[counterNdx].value <= value;
-		case Parameter::EQUAL: return m_counters[counterNdx].value == value;
+		case Parameter::EQUAL:
+		{
+			/* A countdown timer steps two retail frames on some ticks at a game speed above the wall's,
+				 so "timer == 300" would never see 300.  It also holds on the tick the countdown passed the
+				 number, as long as nothing has set the timer since.  A plain counter is untouched. */
+			const TCounter &counter = m_counters[counterNdx];
+			if (counter.value == value)
+				return true;
+			return counter.isCountdownTimer && counter.countdownFrame == TheGameLogic->getFrame()
+				&& counter.value == counter.valueAfterTick
+				&& ScriptEngine_countdownPassed( counter.valueBeforeTick, counter.valueAfterTick, value );
+		}
 		case Parameter::GREATER_EQUAL: return m_counters[counterNdx].value >= value;
 		case Parameter::GREATER: return m_counters[counterNdx].value > value;
 		case Parameter::NOT_EQUAL: return m_counters[counterNdx].value != value;
@@ -7140,7 +7175,7 @@ void ScriptEngine::checkConditionsForTeamNames(Script *pScript)
 
 	if (pScript->getDelayEvalSeconds()>0) {
 		// Offset by a random number of frames
-		pScript->setFrameToEvaluate(GameLogicRandomValue(0,2*LOGICFRAMES_PER_SECOND));
+		pScript->setFrameToEvaluate(GameLogicRandomValue(0,2*LOGICFRAMES_PER_GAME_SECOND));
 	} else {
 		pScript->setFrameToEvaluate(0);
 	}
@@ -7221,7 +7256,7 @@ void ScriptEngine::executeScript( Script *pScript )
 	Int delaySeconds = pScript->getDelayEvalSeconds();
 
 	if (delaySeconds>0) {
-		pScript->setFrameToEvaluate(TheGameLogic->getFrame()+delaySeconds*LOGICFRAMES_PER_SECOND);
+		pScript->setFrameToEvaluate(TheGameLogic->getFrame()+delaySeconds*LOGICFRAMES_PER_GAME_SECOND);
 	}
 #ifdef DEBUG_LOGGING
 #ifdef SPECIAL_SCRIPT_PROFILING
@@ -10150,19 +10185,19 @@ void _writeSingleParticleSystem( File *out, ParticleSystemTemplate *templ )
 	sprintf(buff2, FORMAT_STRING, templ->m_angleZ.getMaximumValue());
 	thisEntry.append(SEP_HEAD).append(F_ANGLEZ).append(EQ_WITH_SPACES).append(buff1).append(SEP_SPACE).append(buff2).append(SEP_EOL);
 
-	sprintf(buff1, FORMAT_STRING, templ->m_angularRateZ.getMinimumValue());
-	sprintf(buff2, FORMAT_STRING, templ->m_angularRateZ.getMaximumValue());
+	sprintf(buff1, FORMAT_STRING, templ->m_angularRateZ.raw().getMinimumValue());
+	sprintf(buff2, FORMAT_STRING, templ->m_angularRateZ.raw().getMaximumValue());
 	thisEntry.append(SEP_HEAD).append(F_ANGLERATEZ).append(EQ_WITH_SPACES).append(buff1).append(SEP_SPACE).append(buff2).append(SEP_EOL);
 
-	sprintf(buff1, FORMAT_STRING, templ->m_angularDamping.getMinimumValue());
-	sprintf(buff2, FORMAT_STRING, templ->m_angularDamping.getMaximumValue());
+	sprintf(buff1, FORMAT_STRING, templ->m_angularDamping.raw().getMinimumValue());
+	sprintf(buff2, FORMAT_STRING, templ->m_angularDamping.raw().getMaximumValue());
 	thisEntry.append(SEP_HEAD).append(F_ANGLEDAMP).append(EQ_WITH_SPACES).append(buff1).append(SEP_SPACE).append(buff2).append(SEP_EOL);
 
-	sprintf(buff1, FORMAT_STRING, templ->m_velDamping.getMinimumValue());
-	sprintf(buff2, FORMAT_STRING, templ->m_velDamping.getMaximumValue());
+	sprintf(buff1, FORMAT_STRING, templ->m_velDamping.raw().getMinimumValue());
+	sprintf(buff2, FORMAT_STRING, templ->m_velDamping.raw().getMaximumValue());
 	thisEntry.append(SEP_HEAD).append(F_VELOCITYDAMP).append(EQ_WITH_SPACES).append(buff1).append(SEP_SPACE).append(buff2).append(SEP_EOL);
 	
-	sprintf(buff1, FORMAT_STRING, templ->m_gravity);
+	sprintf(buff1, FORMAT_STRING, templ->m_gravity.raw() );
 	thisEntry.append(SEP_HEAD).append(F_GRAVITY).append(EQ_WITH_SPACES).append(buff1).append(SEP_EOL);
 	if (!templ->m_slaveSystemName.isEmpty()) {
 		thisEntry.append(SEP_HEAD).append(F_SLAVESYSTEM).append(EQ_WITH_SPACES).append(templ->m_slaveSystemName.str()).append(SEP_EOL);
@@ -10176,11 +10211,11 @@ void _writeSingleParticleSystem( File *out, ParticleSystemTemplate *templ )
 		thisEntry.append(SEP_HEAD).append(F_ATTACHED).append(EQ_WITH_SPACES).append(templ->m_attachedSystemName.str()).append(SEP_EOL);
 	}
 
-	sprintf(buff1, FORMAT_STRING, templ->m_lifetime.getMinimumValue());
-	sprintf(buff2, FORMAT_STRING, templ->m_lifetime.getMaximumValue());
+	sprintf(buff1, FORMAT_STRING, templ->m_lifetime.raw().getMinimumValue());
+	sprintf(buff2, FORMAT_STRING, templ->m_lifetime.raw().getMaximumValue());
 	thisEntry.append(SEP_HEAD).append(F_LIFETIME).append(EQ_WITH_SPACES).append(buff1).append(SEP_SPACE).append(buff2).append(SEP_EOL);
 
-	sprintf(buff1, "%d", templ->m_systemLifetime);
+	sprintf(buff1, "%d", templ->m_systemLifetime.raw());
 	thisEntry.append(SEP_HEAD).append(F_SYSLIFETIME).append(EQ_WITH_SPACES).append(buff1).append(SEP_EOL);
 
 	sprintf(buff1, FORMAT_STRING, templ->m_startSize.getMinimumValue());
@@ -10191,164 +10226,164 @@ void _writeSingleParticleSystem( File *out, ParticleSystemTemplate *templ )
 	sprintf(buff2, FORMAT_STRING, templ->m_startSizeRate.getMaximumValue());
 	thisEntry.append(SEP_HEAD).append(F_STARTSIZERATE).append(EQ_WITH_SPACES).append(buff1).append(SEP_SPACE).append(buff2).append(SEP_EOL);
 	
-	sprintf(buff1, FORMAT_STRING, templ->m_sizeRate.getMinimumValue());
-	sprintf(buff2, FORMAT_STRING, templ->m_sizeRate.getMaximumValue());
+	sprintf(buff1, FORMAT_STRING, templ->m_sizeRate.raw().getMinimumValue());
+	sprintf(buff2, FORMAT_STRING, templ->m_sizeRate.raw().getMaximumValue());
 	thisEntry.append(SEP_HEAD).append(F_SIZERATE).append(EQ_WITH_SPACES).append(buff1).append(SEP_SPACE).append(buff2).append(SEP_EOL);
 	
-	sprintf(buff1, FORMAT_STRING, templ->m_sizeRateDamping.getMinimumValue());
-	sprintf(buff2, FORMAT_STRING, templ->m_sizeRateDamping.getMaximumValue());
+	sprintf(buff1, FORMAT_STRING, templ->m_sizeRateDamping.raw().getMinimumValue());
+	sprintf(buff2, FORMAT_STRING, templ->m_sizeRateDamping.raw().getMaximumValue());
 	thisEntry.append(SEP_HEAD).append(F_SIZERATEDAMP).append(EQ_WITH_SPACES).append(buff1).append(SEP_SPACE).append(buff2).append(SEP_EOL);
 
 	sprintf(buff1, FORMAT_STRING, templ->m_alphaKey[0].var.getMinimumValue());
 	sprintf(buff2, FORMAT_STRING, templ->m_alphaKey[0].var.getMaximumValue());
-	sprintf(buff3, "%d", templ->m_alphaKey[0].frame);
+	sprintf(buff3, "%d", templ->m_alphaKey[0].frame.raw());
 	thisEntry.append(SEP_HEAD).append(F_ALPHA1).append(EQ_WITH_SPACES).append(buff1).append(SEP_SPACE).append(buff2).append(SEP_SPACE).append(buff3).append(SEP_EOL);
 
 	sprintf(buff1, FORMAT_STRING, templ->m_alphaKey[1].var.getMinimumValue());
 	sprintf(buff2, FORMAT_STRING, templ->m_alphaKey[1].var.getMaximumValue());
-	sprintf(buff3, "%d", templ->m_alphaKey[1].frame);
+	sprintf(buff3, "%d", templ->m_alphaKey[1].frame.raw());
 	thisEntry.append(SEP_HEAD).append(F_ALPHA2).append(EQ_WITH_SPACES).append(buff1).append(SEP_SPACE).append(buff2).append(SEP_SPACE).append(buff3).append(SEP_EOL);
 
 	sprintf(buff1, FORMAT_STRING, templ->m_alphaKey[2].var.getMinimumValue());
 	sprintf(buff2, FORMAT_STRING, templ->m_alphaKey[2].var.getMaximumValue());
-	sprintf(buff3, "%d", templ->m_alphaKey[2].frame);
+	sprintf(buff3, "%d", templ->m_alphaKey[2].frame.raw());
 	thisEntry.append(SEP_HEAD).append(F_ALPHA3).append(EQ_WITH_SPACES).append(buff1).append(SEP_SPACE).append(buff2).append(SEP_SPACE).append(buff3).append(SEP_EOL);
 	
 	sprintf(buff1, FORMAT_STRING, templ->m_alphaKey[3].var.getMinimumValue());
 	sprintf(buff2, FORMAT_STRING, templ->m_alphaKey[3].var.getMaximumValue());
-	sprintf(buff3, "%d", templ->m_alphaKey[3].frame);
+	sprintf(buff3, "%d", templ->m_alphaKey[3].frame.raw());
 	thisEntry.append(SEP_HEAD).append(F_ALPHA4).append(EQ_WITH_SPACES).append(buff1).append(SEP_SPACE).append(buff2).append(SEP_SPACE).append(buff3).append(SEP_EOL);
 	
 	sprintf(buff1, FORMAT_STRING, templ->m_alphaKey[4].var.getMinimumValue());
 	sprintf(buff2, FORMAT_STRING, templ->m_alphaKey[4].var.getMaximumValue());
-	sprintf(buff3, "%d", templ->m_alphaKey[4].frame);
+	sprintf(buff3, "%d", templ->m_alphaKey[4].frame.raw());
 	thisEntry.append(SEP_HEAD).append(F_ALPHA5).append(EQ_WITH_SPACES).append(buff1).append(SEP_SPACE).append(buff2).append(SEP_SPACE).append(buff3).append(SEP_EOL);
 	
 	sprintf(buff1, FORMAT_STRING, templ->m_alphaKey[5].var.getMinimumValue());
 	sprintf(buff2, FORMAT_STRING, templ->m_alphaKey[5].var.getMaximumValue());
-	sprintf(buff3, "%d", templ->m_alphaKey[5].frame);
+	sprintf(buff3, "%d", templ->m_alphaKey[5].frame.raw());
 	thisEntry.append(SEP_HEAD).append(F_ALPHA6).append(EQ_WITH_SPACES).append(buff1).append(SEP_SPACE).append(buff2).append(SEP_SPACE).append(buff3).append(SEP_EOL);
 	
 	sprintf(buff1, FORMAT_STRING, templ->m_alphaKey[6].var.getMinimumValue());
 	sprintf(buff2, FORMAT_STRING, templ->m_alphaKey[6].var.getMaximumValue());
-	sprintf(buff3, "%d", templ->m_alphaKey[6].frame);
+	sprintf(buff3, "%d", templ->m_alphaKey[6].frame.raw());
 	thisEntry.append(SEP_HEAD).append(F_ALPHA7).append(EQ_WITH_SPACES).append(buff1).append(SEP_SPACE).append(buff2).append(SEP_SPACE).append(buff3).append(SEP_EOL);
 	
 	sprintf(buff1, FORMAT_STRING, templ->m_alphaKey[7].var.getMinimumValue());
 	sprintf(buff2, FORMAT_STRING, templ->m_alphaKey[7].var.getMaximumValue());
-	sprintf(buff3, "%d", templ->m_alphaKey[7].frame);
+	sprintf(buff3, "%d", templ->m_alphaKey[7].frame.raw());
 	thisEntry.append(SEP_HEAD).append(F_ALPHA8).append(EQ_WITH_SPACES).append(buff1).append(SEP_SPACE).append(buff2).append(SEP_SPACE).append(buff3).append(SEP_EOL);
 
 	sprintf(buff1, "%s%d", STR_R.c_str(), REAL_TO_INT(templ->m_colorKey[0].color.red * 255 + 0.5));
 	sprintf(buff2, "%s%d", STR_G.c_str(), REAL_TO_INT(templ->m_colorKey[0].color.green * 255 + 0.5));
 	sprintf(buff3, "%s%d", STR_B.c_str(), REAL_TO_INT(templ->m_colorKey[0].color.blue * 255 + 0.5));
-	sprintf(buff4, "%d", templ->m_colorKey[0].frame);
+	sprintf(buff4, "%d", templ->m_colorKey[0].frame.raw());
 	thisEntry.append(SEP_HEAD).append(F_COLOR1).append(EQ_WITH_SPACES).append(buff1).append(SEP_SPACE).append(buff2).append(SEP_SPACE).append(buff3).append(SEP_SPACE).append(buff4).append(SEP_EOL);
 
 	sprintf(buff1, "%s%d", STR_R.c_str(), REAL_TO_INT(templ->m_colorKey[1].color.red * 255 + 0.5));
 	sprintf(buff2, "%s%d", STR_G.c_str(), REAL_TO_INT(templ->m_colorKey[1].color.green * 255 + 0.5));
 	sprintf(buff3, "%s%d", STR_B.c_str(), REAL_TO_INT(templ->m_colorKey[1].color.blue * 255 + 0.5));
-	sprintf(buff4, "%d", templ->m_colorKey[1].frame);
+	sprintf(buff4, "%d", templ->m_colorKey[1].frame.raw());
 	thisEntry.append(SEP_HEAD).append(F_COLOR2).append(EQ_WITH_SPACES).append(buff1).append(SEP_SPACE).append(buff2).append(SEP_SPACE).append(buff3).append(SEP_SPACE).append(buff4).append(SEP_EOL);
 
 	sprintf(buff1, "%s%d", STR_R.c_str(), REAL_TO_INT(templ->m_colorKey[2].color.red * 255 + 0.5));
 	sprintf(buff2, "%s%d", STR_G.c_str(), REAL_TO_INT(templ->m_colorKey[2].color.green * 255 + 0.5));
 	sprintf(buff3, "%s%d", STR_B.c_str(), REAL_TO_INT(templ->m_colorKey[2].color.blue * 255 + 0.5));
-	sprintf(buff4, "%d", templ->m_colorKey[2].frame);
+	sprintf(buff4, "%d", templ->m_colorKey[2].frame.raw());
 	thisEntry.append(SEP_HEAD).append(F_COLOR3).append(EQ_WITH_SPACES).append(buff1).append(SEP_SPACE).append(buff2).append(SEP_SPACE).append(buff3).append(SEP_SPACE).append(buff4).append(SEP_EOL);
 	
 	sprintf(buff1, "%s%d", STR_R.c_str(), REAL_TO_INT(templ->m_colorKey[3].color.red * 255 + 0.5));
 	sprintf(buff2, "%s%d", STR_G.c_str(), REAL_TO_INT(templ->m_colorKey[3].color.green * 255 + 0.5));
 	sprintf(buff3, "%s%d", STR_B.c_str(), REAL_TO_INT(templ->m_colorKey[3].color.blue * 255 + 0.5));
-	sprintf(buff4, "%d", templ->m_colorKey[3].frame);
+	sprintf(buff4, "%d", templ->m_colorKey[3].frame.raw());
 	thisEntry.append(SEP_HEAD).append(F_COLOR4).append(EQ_WITH_SPACES).append(buff1).append(SEP_SPACE).append(buff2).append(SEP_SPACE).append(buff3).append(SEP_SPACE).append(buff4).append(SEP_EOL);
 	
 	sprintf(buff1, "%s%d", STR_R.c_str(), REAL_TO_INT(templ->m_colorKey[4].color.red * 255 + 0.5));
 	sprintf(buff2, "%s%d", STR_G.c_str(), REAL_TO_INT(templ->m_colorKey[4].color.green * 255 + 0.5));
 	sprintf(buff3, "%s%d", STR_B.c_str(), REAL_TO_INT(templ->m_colorKey[4].color.blue * 255 + 0.5));
-	sprintf(buff4, "%d", templ->m_colorKey[4].frame);
+	sprintf(buff4, "%d", templ->m_colorKey[4].frame.raw());
 	thisEntry.append(SEP_HEAD).append(F_COLOR5).append(EQ_WITH_SPACES).append(buff1).append(SEP_SPACE).append(buff2).append(SEP_SPACE).append(buff3).append(SEP_SPACE).append(buff4).append(SEP_EOL);
 	
 	sprintf(buff1, "%s%d", STR_R.c_str(), REAL_TO_INT(templ->m_colorKey[5].color.red * 255 + 0.5));
 	sprintf(buff2, "%s%d", STR_G.c_str(), REAL_TO_INT(templ->m_colorKey[5].color.green * 255 + 0.5));
 	sprintf(buff3, "%s%d", STR_B.c_str(), REAL_TO_INT(templ->m_colorKey[5].color.blue * 255 + 0.5));
-	sprintf(buff4, "%d", templ->m_colorKey[5].frame);
+	sprintf(buff4, "%d", templ->m_colorKey[5].frame.raw());
 	thisEntry.append(SEP_HEAD).append(F_COLOR6).append(EQ_WITH_SPACES).append(buff1).append(SEP_SPACE).append(buff2).append(SEP_SPACE).append(buff3).append(SEP_SPACE).append(buff4).append(SEP_EOL);
 	
 	sprintf(buff1, "%s%d", STR_R.c_str(), REAL_TO_INT(templ->m_colorKey[6].color.red * 255 + 0.5));
 	sprintf(buff2, "%s%d", STR_G.c_str(), REAL_TO_INT(templ->m_colorKey[6].color.green * 255 + 0.5));
 	sprintf(buff3, "%s%d", STR_B.c_str(), REAL_TO_INT(templ->m_colorKey[6].color.blue * 255 + 0.5));
-	sprintf(buff4, "%d", templ->m_colorKey[6].frame);
+	sprintf(buff4, "%d", templ->m_colorKey[6].frame.raw());
 	thisEntry.append(SEP_HEAD).append(F_COLOR7).append(EQ_WITH_SPACES).append(buff1).append(SEP_SPACE).append(buff2).append(SEP_SPACE).append(buff3).append(SEP_SPACE).append(buff4).append(SEP_EOL);
 	
 	sprintf(buff1, "%s%d", STR_R.c_str(), REAL_TO_INT(templ->m_colorKey[7].color.red * 255 + 0.5));
 	sprintf(buff2, "%s%d", STR_G.c_str(), REAL_TO_INT(templ->m_colorKey[7].color.green * 255 + 0.5));
 	sprintf(buff3, "%s%d", STR_B.c_str(), REAL_TO_INT(templ->m_colorKey[7].color.blue * 255 + 0.5));
-	sprintf(buff4, "%d", templ->m_colorKey[7].frame);
+	sprintf(buff4, "%d", templ->m_colorKey[7].frame.raw());
 	thisEntry.append(SEP_HEAD).append(F_COLOR8).append(EQ_WITH_SPACES).append(buff1).append(SEP_SPACE).append(buff2).append(SEP_SPACE).append(buff3).append(SEP_SPACE).append(buff4).append(SEP_EOL);
 	
-	sprintf(buff1, FORMAT_STRING, templ->m_colorScale.getMinimumValue());
-	sprintf(buff2, FORMAT_STRING, templ->m_colorScale.getMaximumValue());
+	sprintf(buff1, FORMAT_STRING, templ->m_colorScale.raw().getMinimumValue());
+	sprintf(buff2, FORMAT_STRING, templ->m_colorScale.raw().getMaximumValue());
 	thisEntry.append(SEP_HEAD).append(F_COLORSCALE).append(EQ_WITH_SPACES).append(buff1).append(SEP_SPACE).append(buff2).append(SEP_EOL);
 	
-	sprintf(buff1, FORMAT_STRING, templ->m_burstDelay.getMinimumValue());
-	sprintf(buff2, FORMAT_STRING, templ->m_burstDelay.getMaximumValue());
+	sprintf(buff1, FORMAT_STRING, templ->m_burstDelay.raw().getMinimumValue());
+	sprintf(buff2, FORMAT_STRING, templ->m_burstDelay.raw().getMaximumValue());
 	thisEntry.append(SEP_HEAD).append(F_BURSTDELAY).append(EQ_WITH_SPACES).append(buff1).append(SEP_SPACE).append(buff2).append(SEP_EOL);
 	
 	sprintf(buff1, FORMAT_STRING, templ->m_burstCount.getMinimumValue());
 	sprintf(buff2, FORMAT_STRING, templ->m_burstCount.getMaximumValue());
 	thisEntry.append(SEP_HEAD).append(F_BURSTCOUNT).append(EQ_WITH_SPACES).append(buff1).append(SEP_SPACE).append(buff2).append(SEP_EOL);
 	
-	sprintf(buff1, FORMAT_STRING, templ->m_initialDelay.getMinimumValue());
-	sprintf(buff2, FORMAT_STRING, templ->m_initialDelay.getMaximumValue());
+	sprintf(buff1, FORMAT_STRING, templ->m_initialDelay.raw().getMinimumValue());
+	sprintf(buff2, FORMAT_STRING, templ->m_initialDelay.raw().getMaximumValue());
 	thisEntry.append(SEP_HEAD).append(F_INITIALDELAY).append(EQ_WITH_SPACES).append(buff1).append(SEP_SPACE).append(buff2).append(SEP_EOL);
 	
-	sprintf(buff1, FORMAT_STRING_LEADING_STRING, STR_X.c_str(), templ->m_driftVelocity.x);
-	sprintf(buff2, FORMAT_STRING_LEADING_STRING, STR_Y.c_str(), templ->m_driftVelocity.y);
-	sprintf(buff3, FORMAT_STRING_LEADING_STRING, STR_Z.c_str(), templ->m_driftVelocity.z);
+	sprintf(buff1, FORMAT_STRING_LEADING_STRING, STR_X.c_str(), templ->m_driftVelocity.raw().x);
+	sprintf(buff2, FORMAT_STRING_LEADING_STRING, STR_Y.c_str(), templ->m_driftVelocity.raw().y);
+	sprintf(buff3, FORMAT_STRING_LEADING_STRING, STR_Z.c_str(), templ->m_driftVelocity.raw().z);
 	thisEntry.append(SEP_HEAD).append(F_DRIFTVELOCITY).append(EQ_WITH_SPACES).append(buff1).append(SEP_SPACE).append(buff2).append(SEP_SPACE).append(buff3).append(SEP_EOL);
 
 	thisEntry.append(SEP_HEAD).append(F_VELOCITYTYPE).append(EQ_WITH_SPACES).append(EmissionVelocityTypeNames[templ->m_emissionVelocityType]).append(SEP_EOL);
 
 	if (templ->m_emissionVelocityType == ParticleSystemInfo::ORTHO) {
 
-		sprintf(buff1, FORMAT_STRING, templ->m_emissionVelocity.ortho.x.getMinimumValue());
-		sprintf(buff2, FORMAT_STRING, templ->m_emissionVelocity.ortho.x.getMaximumValue());
+		sprintf(buff1, FORMAT_STRING, templ->m_emissionVelocity.ortho.x.raw().getMinimumValue());
+		sprintf(buff2, FORMAT_STRING, templ->m_emissionVelocity.ortho.x.raw().getMaximumValue());
 		thisEntry.append(SEP_HEAD).append(F_VELORTHOX).append(EQ_WITH_SPACES).append(buff1).append(SEP_SPACE).append(buff2).append(SEP_EOL);
 		
-		sprintf(buff1, FORMAT_STRING, templ->m_emissionVelocity.ortho.y.getMinimumValue());
-		sprintf(buff2, FORMAT_STRING, templ->m_emissionVelocity.ortho.y.getMaximumValue());
+		sprintf(buff1, FORMAT_STRING, templ->m_emissionVelocity.ortho.y.raw().getMinimumValue());
+		sprintf(buff2, FORMAT_STRING, templ->m_emissionVelocity.ortho.y.raw().getMaximumValue());
 		thisEntry.append(SEP_HEAD).append(F_VELORTHOY).append(EQ_WITH_SPACES).append(buff1).append(SEP_SPACE).append(buff2).append(SEP_EOL);
 		
-		sprintf(buff1, FORMAT_STRING, templ->m_emissionVelocity.ortho.z.getMinimumValue());
-		sprintf(buff2, FORMAT_STRING, templ->m_emissionVelocity.ortho.z.getMaximumValue());
+		sprintf(buff1, FORMAT_STRING, templ->m_emissionVelocity.ortho.z.raw().getMinimumValue());
+		sprintf(buff2, FORMAT_STRING, templ->m_emissionVelocity.ortho.z.raw().getMaximumValue());
 		thisEntry.append(SEP_HEAD).append(F_VELORTHOZ).append(EQ_WITH_SPACES).append(buff1).append(SEP_SPACE).append(buff2).append(SEP_EOL);
 	} else if (templ->m_emissionVelocityType == ParticleSystemInfo::SPHERICAL) {
-		sprintf(buff1, FORMAT_STRING, templ->m_emissionVelocity.spherical.speed.getMinimumValue());
-		sprintf(buff2, FORMAT_STRING, templ->m_emissionVelocity.spherical.speed.getMaximumValue());
+		sprintf(buff1, FORMAT_STRING, templ->m_emissionVelocity.spherical.speed.raw().getMinimumValue());
+		sprintf(buff2, FORMAT_STRING, templ->m_emissionVelocity.spherical.speed.raw().getMaximumValue());
 		thisEntry.append(SEP_HEAD).append(F_VELSPHERE).append(EQ_WITH_SPACES).append(buff1).append(SEP_SPACE).append(buff2).append(SEP_EOL);
 
 	} else if (templ->m_emissionVelocityType == ParticleSystemInfo::HEMISPHERICAL) {
-		sprintf(buff1, FORMAT_STRING, templ->m_emissionVelocity.hemispherical.speed.getMinimumValue());
-		sprintf(buff2, FORMAT_STRING, templ->m_emissionVelocity.hemispherical.speed.getMaximumValue());
+		sprintf(buff1, FORMAT_STRING, templ->m_emissionVelocity.hemispherical.speed.raw().getMinimumValue());
+		sprintf(buff2, FORMAT_STRING, templ->m_emissionVelocity.hemispherical.speed.raw().getMaximumValue());
 		thisEntry.append(SEP_HEAD).append(F_HEMISPHERE).append(EQ_WITH_SPACES).append(buff1).append(SEP_SPACE).append(buff2).append(SEP_EOL);
 
 	} else if (templ->m_emissionVelocityType == ParticleSystemInfo::CYLINDRICAL) {
-		sprintf(buff1, FORMAT_STRING, templ->m_emissionVelocity.cylindrical.radial.getMinimumValue());
-		sprintf(buff2, FORMAT_STRING, templ->m_emissionVelocity.cylindrical.radial.getMaximumValue());
+		sprintf(buff1, FORMAT_STRING, templ->m_emissionVelocity.cylindrical.radial.raw().getMinimumValue());
+		sprintf(buff2, FORMAT_STRING, templ->m_emissionVelocity.cylindrical.radial.raw().getMaximumValue());
 		thisEntry.append(SEP_HEAD).append(F_VELCYLRAD).append(EQ_WITH_SPACES).append(buff1).append(SEP_SPACE).append(buff2).append(SEP_EOL);
 
-		sprintf(buff1, FORMAT_STRING, templ->m_emissionVelocity.cylindrical.normal.getMinimumValue());
-		sprintf(buff2, FORMAT_STRING, templ->m_emissionVelocity.cylindrical.normal.getMaximumValue());
+		sprintf(buff1, FORMAT_STRING, templ->m_emissionVelocity.cylindrical.normal.raw().getMinimumValue());
+		sprintf(buff2, FORMAT_STRING, templ->m_emissionVelocity.cylindrical.normal.raw().getMaximumValue());
 		thisEntry.append(SEP_HEAD).append(F_VELCYLNOR).append(EQ_WITH_SPACES).append(buff1).append(SEP_SPACE).append(buff2).append(SEP_EOL);
 
 	} else if (templ->m_emissionVelocityType == ParticleSystemInfo::OUTWARD) {
-		sprintf(buff1, FORMAT_STRING, templ->m_emissionVelocity.outward.speed.getMinimumValue());
-		sprintf(buff2, FORMAT_STRING, templ->m_emissionVelocity.outward.speed.getMaximumValue());
+		sprintf(buff1, FORMAT_STRING, templ->m_emissionVelocity.outward.speed.raw().getMinimumValue());
+		sprintf(buff2, FORMAT_STRING, templ->m_emissionVelocity.outward.speed.raw().getMaximumValue());
 		thisEntry.append(SEP_HEAD).append(F_VELOUTWARD).append(EQ_WITH_SPACES).append(buff1).append(SEP_SPACE).append(buff2).append(SEP_EOL);
 
-		sprintf(buff1, FORMAT_STRING, templ->m_emissionVelocity.outward.otherSpeed.getMinimumValue());
-		sprintf(buff2, FORMAT_STRING, templ->m_emissionVelocity.outward.otherSpeed.getMaximumValue());
+		sprintf(buff1, FORMAT_STRING, templ->m_emissionVelocity.outward.otherSpeed.raw().getMinimumValue());
+		sprintf(buff2, FORMAT_STRING, templ->m_emissionVelocity.outward.otherSpeed.raw().getMaximumValue());
 		thisEntry.append(SEP_HEAD).append(F_VELOUTOTHER).append(EQ_WITH_SPACES).append(buff1).append(SEP_SPACE).append(buff2).append(SEP_EOL);
 	}	
 
@@ -10393,9 +10428,9 @@ void _writeSingleParticleSystem( File *out, ParticleSystemTemplate *templ )
 	// wind angle and stuff
 	thisEntry.append(SEP_HEAD).append(F_WINDMOTION).append(EQ_WITH_SPACES).append(WindMotionNames[templ->m_windMotion]).append(SEP_EOL);
 
-	sprintf( buff1, "%f", templ->m_windAngleChangeMin );
+	sprintf( buff1, "%f", templ->m_windAngleChangeMin.raw() );
 	thisEntry.append(SEP_HEAD).append(F_WINDANGLECHANGEMIN).append(EQ_WITH_SPACES).append(buff1).append(SEP_EOL);
-	sprintf( buff1, "%f", templ->m_windAngleChangeMax );
+	sprintf( buff1, "%f", templ->m_windAngleChangeMax.raw() );
 	thisEntry.append(SEP_HEAD).append(F_WINDANGLECHANGEMAX).append(EQ_WITH_SPACES).append(buff1).append(SEP_EOL);
 
 	sprintf( buff1, "%f", templ->m_windMotionStartAngleMin );

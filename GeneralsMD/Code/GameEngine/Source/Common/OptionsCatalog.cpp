@@ -99,14 +99,24 @@ static void set_m_masterVolume( Int value )
 OPTION_BOOL_ACCESSORS( m_dynamicMusic )
 OPTION_BOOL_ACCESSORS( m_legacySound )
 OPTION_BOOL_ACCESSORS( m_muteInBackground )
-// The catalog loads before there is a game; the menu's Accept during a mission changes its speed
-// on the spot, which only the pacing reads.
-static Int get_m_turboMode( void ) { return TheGlobalData->m_turboMode ? 1 : 0; }
-static void set_m_turboMode( Int value )
+// The missions' game speed, in percent of retail; Options.ini and the combo hold the index.  The
+// catalog loads before there is a game.  It is the game time a tick advances, fixed when a mission
+// starts, so the menu's Accept during a mission takes effect from the next one.
+// a literal in the header because optionsmenu_layout.py's selfcheck reads it from there
+static_assert( MISSION_GAME_SPEED_COUNT == PLAYER_GAME_SPEED_COUNT, "the missions' combo offers every player game speed" );
+static Int get_missionGameSpeed( void )
 {
-	TheWritableGlobalData->m_turboMode = (value != 0);
-	if (TheGameLogic && TheGameLogic->isInSinglePlayerGame())
-		TheGameEngine->setFramesPerSecondLimit( GameEngine_matchFramesPerSecond( value != 0 ) );
+	const Int percent = ClampPlayerGameSpeedPercent( TheGlobalData->m_missionGameSpeedPercent );
+	for( Int i = 0; i < MISSION_GAME_SPEED_COUNT; ++i )
+		if( PLAYER_GAME_SPEED_PERCENTS[ i ] == percent )
+			return i;
+	return 0;
+}
+static void set_missionGameSpeed( Int level )
+{
+	if( level < 0 || level >= MISSION_GAME_SPEED_COUNT )
+		level = 0;
+	TheWritableGlobalData->m_missionGameSpeedPercent = PLAYER_GAME_SPEED_PERCENTS[ level ];
 }
 OPTION_BOOL_ACCESSORS( m_formationDrag )
 OPTION_BOOL_ACCESSORS( m_buildWithoutWorker )
@@ -356,12 +366,13 @@ const OptionDef TheOptionCatalog[] =
 		OPTION_BOOL, APPLY_LIVE, 0, 1,
 		get_m_startAtMaxZoom, set_m_startAtMaxZoom },
 
-	// Turbo mode for the campaign and the generals' challenge: twice the logic frames a second, each
-	// the same as at normal speed.  A skirmish or network lobby has its own box, the host's for the
-	// whole room, so this one never touches a skirmish or a multiplayer match.  On Options > Interface.
-	{ "TurboMode",								OPT_WND( "CheckTurboModeMissions" ), "GUI:TurboModeMissions",
-		OPTION_BOOL, APPLY_LIVE, 0, 1,
-		get_m_turboMode, set_m_turboMode },
+	// Game speed for the campaign and the generals' challenge: 1.0x, 1.25x, 1.5x or 2.0x, the game
+	// time each of the same 30 ticks a second advances, set when a mission starts.  The skirmish lobby
+	// has its own combo and a multiplayer match always plays at 1.5x, so this one never touches either.
+	// On Options > Interface.
+	{ "MissionGameSpeed",					OPT_WND( "ComboGameSpeedMissions" ), "GUI:GameSpeedMissions",
+		OPTION_ENUM, APPLY_LIVE, 0, MISSION_GAME_SPEED_COUNT - 1,
+		get_missionGameSpeed, set_missionGameSpeed },
 
 	// Pixels the pointer may travel with a button held before the press stops being a click and
 	// starts a selection box, a camera drag or a formation line.  Mouse.ini says 25, which is the
@@ -761,8 +772,9 @@ const OptionDef TheOptionCatalog[] =
 		OPTION_BOOL, APPLY_LIVE, 0, 1,
 		get_m_structureCollapse, set_m_structureCollapse },
 
-	// Models drawn between their last two logic ticks on a display faster than the logic; a 60 Hz screen
-	// shows no change.  Read every picture by W3DDisplay's smoothMotionBegin, and no sim reads it.  The
+	// Models drawn between their last two logic ticks on a display faster than the logic; a display no
+	// faster than the logic shows no change.  On by default while the logic ticks slower than 60 a second
+	// (GlobalData.cpp).  Read every picture by W3DDisplay's smoothMotionBegin, and no sim reads it.  The
 	// key is the one the launcher offered once; a line it left behind is the player's choice.
 	// -nosmoothmotion and -smoothmotion beat it for a run.  On Options > Display, under Picture.
 	{ "SmoothMotion",							OPT_WND( "CheckSmoothMotion" ), "GUI:SmoothMotion",

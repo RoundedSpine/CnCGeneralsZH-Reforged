@@ -103,6 +103,10 @@ static void considerBuilder( Object *candidate, BuilderPick *pick )
 		return;
 	if( !TheBuildAssistant->isPossibleToMakeUnit( candidate, pick->place ) )
 		return;
+	// the button the player pressed: a mission's script-only build or one an upgrade still locks is
+	// not on this builder's bar, so a forged or stale order cannot raise it
+	if( !TheBuildAssistant->offersPlayerBuildButton( candidate, pick->place ) )
+		return;
 
 	Real dx = candidate->getPosition()->x - pick->loc.x;
 	Real dy = candidate->getPosition()->y - pick->loc.y;
@@ -769,7 +773,8 @@ void GameLogic::logicMessageDispatcher( GameMessage *msg, AIGroup *orderedGroup 
 			if ( msg->getArgumentCount() >= 3 )
 				rankPoints = msg->getArgument( 2 )->integer;
 			
-			if ( msg->getArgumentCount() >= 4 )
+			// 0 leaves the pace alone (a replay that recorded none)
+			if ( msg->getArgumentCount() >= 4 && msg->getArgument( 3 )->integer != 0 )
 			{
 				Int maxFPS = msg->getArgument( 3 )->integer;
 				if (maxFPS < 1 || maxFPS > 1000)
@@ -787,6 +792,15 @@ void GameLogic::logicMessageDispatcher( GameMessage *msg, AIGroup *orderedGroup 
 				 run once more on the freshly seeded stream - a draw a copy with -noshellmap, or a replay
 				 started from the command line, never made.  The recorder writes this same number. */
 			InitRandom( GetGameLogicRandomSeed() );
+
+			/* The game time a tick advances, for the whole match: before the map loads, since the map's
+				 objects read it from their first frame.  A start without the argument (the shell map, -file)
+				 plays the native speed, as does any percent that is not one of the player's. */
+			Int gameSpeedPercent = NATIVE_GAME_SPEED_PERCENT;
+			if ( msg->getArgumentCount() >= 5 && GameSpeed_isAllowed( msg->getArgument( 4 )->integer ) )
+				gameSpeedPercent = msg->getArgument( 4 )->integer;
+			GameSpeed_set( gameSpeedPercent );
+			DEBUG_LOG(("MSG_NEW_GAME: mode %d at game speed %d, %d ticks a game second\n", gameMode, gameSpeedPercent, (Int)LOGICFRAMES_PER_GAME_SECOND));
 
 			// prepare for new game
 			prepareNewGame( gameMode, diff, rankPoints );
@@ -2120,7 +2134,9 @@ void GameLogic::logicMessageDispatcher( GameMessage *msg, AIGroup *orderedGroup 
 		// Group panel (fork): (Int template ID, Int squad 0-9).  No factory travels with it: the logic
 		// picks one among the sender's that can queue the unit now (Player::findFactoryForGroupUnit),
 		// and the unit joins that hotkey squad when it comes out.  A squad with nobody in it takes
-		// nothing.  The arguments came over the network, so their shape is checked.
+		// nothing.  Squad -1 is the command bar's unit tabs: no squad, the unit comes out to the
+		// factory's rally point as any other, and the factory with the shortest queue takes it.
+		// The arguments came over the network, so their shape is checked.
 		case GameMessage::MSG_QUEUE_UNIT_FOR_GROUP:
 		{
 			if( thisPlayer == NULL || msg->getArgumentCount() < 2
@@ -2130,14 +2146,15 @@ void GameLogic::logicMessageDispatcher( GameMessage *msg, AIGroup *orderedGroup 
 
 			const ThingTemplate *whatToCreate = TheThingFactory->findByTemplateID( msg->getArgument( 0 )->integer );
 			const Int squad = msg->getArgument( 1 )->integer;
-			if( whatToCreate == NULL || whatToCreate->isKindOf( KINDOF_STRUCTURE ) || !isValidHotkeySquadIndex( squad ) )
+			if( whatToCreate == NULL || whatToCreate->isKindOf( KINDOF_STRUCTURE )
+					|| ( squad != -1 && !isValidHotkeySquadIndex( squad ) ) )
 				break;
 
 			Coord3D centre;
-			if( !thisPlayer->getHotkeySquadCentroid( squad, &centre ) )
+			if( squad != -1 && !thisPlayer->getHotkeySquadCentroid( squad, &centre ) )
 				break;
 
-			Object *factory = thisPlayer->findFactoryForGroupUnit( whatToCreate, &centre );
+			Object *factory = thisPlayer->findFactoryForGroupUnit( whatToCreate, squad != -1 ? &centre : NULL );
 			if( factory == NULL )
 				break;
 
@@ -2279,13 +2296,31 @@ void GameLogic::logicMessageDispatcher( GameMessage *msg, AIGroup *orderedGroup 
 			// third of a second apart and refusing an order for that would be a new bug.  The line
 			// build checks every tile after the first for itself (buildTiledLocations).
 			//
+			// The trainer's build anywhere asks only that it lands on the map and inside nothing else
+			const Bool anywhere = thisPlayer->hasCheat( CHEAT_BUILD_ANYWHERE );
 			if( TheBuildAssistant->isLocationLegalToBuild( &loc, place, angle,
-																										BuildAssistant::TERRAIN_RESTRICTIONS |
+																										( anywhere ? 0 : BuildAssistant::TERRAIN_RESTRICTIONS ) |
 																										BuildAssistant::NO_OBJECT_OVERLAP,
 																										constructorObject, NULL ) != LBC_OK )
 				break;
 
-			if( msg->getType() == GameMessage::MSG_DOZER_CONSTRUCT )
+			//
+			// and puts it up finished on the spot, paid for, the builder left where it stands: the
+			// computer player's instant structure (AIPlayer::buildStructureNow), in the side the
+			// builder's button names
+			//
+			if( anywhere && msg->getType() == GameMessage::MSG_DOZER_CONSTRUCT )
+			{
+				const ThingTemplate *what = TheBuildAssistant->findBuildButtonTemplate( constructorObject, place );
+				Object *site = TheBuildAssistant->buildObjectNow( NULL, what, &loc, angle, thisPlayer );
+				if( site )
+				{
+					thisPlayer->getMoney()->withdraw( what->calcCostToBuild( thisPlayer ) );
+					site->clearStatus( MAKE_OBJECT_STATUS_MASK2( OBJECT_STATUS_UNDER_CONSTRUCTION, OBJECT_STATUS_RECONSTRUCTING ) );
+					site->updateUpgradeModules();
+				}
+			}
+			else if( msg->getType() == GameMessage::MSG_DOZER_CONSTRUCT )
 			{
 
 				//
@@ -2628,7 +2663,7 @@ void GameLogic::logicMessageDispatcher( GameMessage *msg, AIGroup *orderedGroup 
 				smoke->setFiniteSystemLifetime( SIGNAL_HALF_FRAMES );
 				smoke->setLifetimeRange( SIGNAL_HALF_FRAMES, SIGNAL_HALF_FRAMES );
 				// the template's second alpha key is its fade to nothing, timed for a five second puff
-				smoke->m_alphaKey[ 1 ].frame = SIGNAL_HALF_FRAMES;
+				smoke->m_alphaKey[ 1 ].frame.setRaw( ConvertFramesToRetail( SIGNAL_HALF_FRAMES ) );	// the template keeps retail frames
 				smoke->m_alphaKey[ 0 ].var.setRange( SIGNAL_SMOKE_ALPHA_MIN, SIGNAL_SMOKE_ALPHA_MAX );
 				smoke->setSizeMultiplier( SIGNAL_SMOKE_SIZE_SCALE );
 				smoke->setBurstCountMultiplier( SIGNAL_SMOKE_DENSITY_SCALE );
@@ -2697,7 +2732,15 @@ void GameLogic::logicMessageDispatcher( GameMessage *msg, AIGroup *orderedGroup 
 				case CHEAT_GOD_MODE:
 				case CHEAT_INSTANT_BUILD:
 				case CHEAT_ONE_HIT_KILL:
+				case CHEAT_BUILD_ANYWHERE:
 					thisPlayer->toggleCheat( kind );
+					break;
+
+				// a point in hand on the way in, so the general's button lights; purchases then spend none
+				case CHEAT_UNLIMITED_POINTS:
+					thisPlayer->toggleCheat( kind );
+					if( thisPlayer->hasCheat( kind ) && thisPlayer->getSciencePurchasePoints() < 1 )
+						thisPlayer->addSciencePurchasePoints( 1 );
 					break;
 
 				/* The logic half of takeControlOfPlayer, a message so the recording has it: the AIPlayer

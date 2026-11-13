@@ -302,17 +302,11 @@ public:
 	UnicodeString		m_text;											///< the text we're displaying
 	DisplayString*	m_dString;									///< The display string
 	Coord3D					m_pos3D;													///< the 3d position in game coords
-	Int							m_frameTimeOut;												///< when we want this thing to disappear
-	Int							m_frameCount;													///< how many frames have we been displaying text?
+	UnsignedInt			m_bornMs;													///< wall clock it appeared at: the pop, rise and fade run on it
 };
 
 typedef std::list<FloatingTextData *> FloatingTextList;
 typedef FloatingTextList::iterator	FloatingTextListIt;
-
-enum 
-{
-	DEFAULT_FLOATING_TEXT_TIMEOUT = LOGICFRAMES_PER_SECOND/3,
-};
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1169,6 +1163,7 @@ public:  // ********************************************************************
 	void armSignal( SignalKind kind ) { m_armedSignal = kind; }
 	void disarmSignal( void ) { m_armedSignal = SIGNAL_KIND_COUNT; }
 	Bool isSignalArmed( void ) const { return m_armedSignal != SIGNAL_KIND_COUNT; }
+	SignalKind getArmedSignal( void ) const { return m_armedSignal; }	///< SIGNAL_KIND_COUNT for none
 	/// sends the armed signal to `world` and disarms; FALSE, doing nothing, when none is armed
 	Bool placeArmedSignal( const Coord3D &world );
 
@@ -1581,6 +1576,8 @@ protected:
 	IRegion2D										m_productionListPlace[ PRODUCTION_LIST_CELLS ];
 	Int													m_productionListCells;		///< cells drawn
 	IRegion2D										m_productionListTab;
+	ObjectID										m_hero;										///< the local player's living hero, the sweep's, INVALID_ID for none
+	IRegion2D										m_heroCell;								///< the hero's cell over the queue, empty when not drawn
 	IRegion2D										m_superweaponPlace[ SUPERWEAPON_LIST_CELLS ];
 	ObjectID										m_superweaponJump[ SUPERWEAPON_LIST_CELLS ];	///< the building a click looks at, INVALID_ID for none
 	Int													m_superweaponCells;				///< cells drawn
@@ -1617,7 +1614,7 @@ protected:
 	Int													m_rackTextRoom[ RACK_TEXT_COUNT ];
 
 	Coord2D											m_superweaponPosition;
-	Real												m_superweaponFlashDuration;
+	DurationFramesReal												m_superweaponFlashDuration;
 	
 	// superweapon timer font info
 	AsciiString									m_superweaponNormalFont;
@@ -1633,7 +1630,7 @@ protected:
 
 	NamedTimerMap								m_namedTimers;
 	Coord2D											m_namedTimerPosition;
-	Real												m_namedTimerFlashDuration;
+	DurationFramesReal												m_namedTimerFlashDuration;
 	Int													m_namedTimerLastFlashFrame;
 	Color												m_namedTimerFlashColor;
 	Bool												m_namedTimerUsedFlashColor;
@@ -1687,7 +1684,7 @@ protected:
 	Bool												m_militaryCaptionBold;
 
 	Bool												m_militaryCaptionRandomizeTyping;
-	Int													m_militaryCaptionSpeed;
+	RetailFramesInt													m_militaryCaptionSpeed;
 
 	RadiusDecalTemplate					m_radiusCursors[RADIUSCURSOR_COUNT];
 	RadiusDecal									m_curRadiusCursor;
@@ -1696,9 +1693,11 @@ protected:
 
 	//Floating Text Data
 	FloatingTextList						m_floatingTextList;				///< Our list of floating text
-	UnsignedInt									m_floatingTextTimeOut;									///< Ini value of our floating text timeout
-	Real												m_floatingTextMoveUpSpeed;							///< INI value of our Move up speed
-	Real												m_floatingTextMoveVanishRate;					///< INI value of our move vanish rate
+	// the three INI values are still parsed so InGameUI.ini loads, and no longer read: the money pop
+	// keeps its own wall-clock timing (drawFloatingText)
+	DurationFrames									m_floatingTextTimeOut;									///< Ini value of our floating text timeout
+	VelocityPerFrame												m_floatingTextMoveUpSpeed;							///< INI value of our Move up speed
+	VelocityPerFrame												m_floatingTextMoveVanishRate;					///< INI value of our move vanish rate
 
 	PopupMessageData *					m_popupMessageData;
 	Color												m_popupMessageColor;

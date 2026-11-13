@@ -799,7 +799,7 @@ void Player::update()
 	if( TheGlobalData->m_moneyPerMinute > 0 && isPlayableSide() && isPlayerActive() )
 	{
 		const UnsignedInt now = TheGameLogic->getFrame();
-		const UnsignedInt minute = LOGICFRAMES_PER_SECOND * 60;
+		const UnsignedInt minute = LOGICFRAMES_PER_GAME_SECOND * 60;
 
 		if( now > 0 && (now % minute) == 0 )
 			m_money.deposit( (UnsignedInt)TheGlobalData->m_moneyPerMinute, FALSE );
@@ -2997,7 +2997,8 @@ Bool Player::attemptToPurchaseScience(ScienceType science)
 	else
 	{
 		Int cost = TheScienceStore->getSciencePurchaseCost(science);
-		addSciencePurchasePoints(-cost);
+		if (!hasCheat(CHEAT_UNLIMITED_POINTS))
+			addSciencePurchasePoints(-cost);
 		addScience(science);
 
 		getAcademyStats()->recordGeneralsPointsSpent( cost );
@@ -3074,8 +3075,8 @@ Bool Player::isCapableOfPurchasingScience(ScienceType science) const
 	}
 
 	Int cost = TheScienceStore->getSciencePurchaseCost(science);
-	// purchase cost of zero means "not purchasable!"
-	if (cost == 0 || cost > getSciencePurchasePoints())
+	// purchase cost of zero means "not purchasable!"; the trainer's unlimited points pay for the rest
+	if (cost == 0 || (cost > getSciencePurchasePoints() && !hasCheat(CHEAT_UNLIMITED_POINTS)))
 	{
 		return false;
 	}
@@ -4873,10 +4874,15 @@ static void findGroupFactory( Object *obj, void *userData )
 	ProductionUpdateInterface *pu = obj->getProductionUpdateInterface();
 	if( pu == NULL || TheBuildAssistant->canMakeUnit( obj, s->unit ) != CANMAKE_OK )
 		return;
+	// and the factory's bar offers the player the button: a mission's script-only build, or one an
+	// upgrade still locks, is refused here as the bar hides or greys it
+	if( !TheBuildAssistant->offersPlayerBuildButton( obj, s->unit ) )
+		return;
 
+	// with no squad there is no centre, and the shortest queue with the lowest ObjectID wins
 	const UnsignedInt queue = pu->getProductionCount();
-	const Real dx = obj->getPosition()->x - s->centre->x;
-	const Real dy = obj->getPosition()->y - s->centre->y;
+	const Real dx = s->centre ? obj->getPosition()->x - s->centre->x : 0.0f;
+	const Real dy = s->centre ? obj->getPosition()->y - s->centre->y : 0.0f;
 	const Real distSqr = dx * dx + dy * dy;
 	if( s->best != NULL )
 	{
@@ -4900,7 +4906,7 @@ static void findGroupFactory( Object *obj, void *userData )
 
 Object *Player::findFactoryForGroupUnit( const ThingTemplate *unit, const Coord3D *squadCentre ) const
 {
-	if( unit == NULL || squadCentre == NULL )
+	if( unit == NULL )
 		return NULL;
 
 	GroupFactorySearch search;

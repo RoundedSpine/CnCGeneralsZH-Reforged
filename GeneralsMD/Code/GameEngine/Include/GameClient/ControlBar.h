@@ -71,6 +71,19 @@ class ProductionUpdateInterface;
 class GameWindowTransitionsHandler;
 class DisplayString;
 
+/// one line of a code-drawn window's text (the talents, the trainer), laid out again only when its
+/// text, size or well changes
+struct FittedLabel
+{
+	DisplayString *string;
+	UnicodeString text;
+	Int points, wellW, wellH;
+};
+enum { FITTED_ALIGN_LEFT = -1, FITTED_ALIGN_CENTRE = 0, FITTED_ALIGN_RIGHT = 1 };
+/// draw text in a well, centred unless told, wrapped to its width when asked, shrunk a point at a time until it fits
+void drawFittedLabel( FittedLabel &label, const UnicodeString &text, Int points, const IRegion2D &well, Color color,
+											Bool wrap, Int align = FITTED_ALIGN_CENTRE );
+
 enum ProductionID : Int;
 
 enum CommandSourceType : Int;
@@ -504,6 +517,28 @@ Int ControlBar_commandGroup( const class CommandButton *command );
 	* abilities along Q, or along A under a set's production.  A row fills left to right in slot order;
 	* what does not fit goes on in the next row down with room, then in the rows above. */
 Bool ControlBar_commandPlaces( const Int *types, const Int *groups, const Int *pinned, Int count, Int *places );
+
+/** A command tab's scroll: 'count' units on a grid of 'cells' in columns of 'rows'.  A list that fits
+	* takes every cell and never scrolls; one that does not gives two cells to the arrows when 'arrows'
+	* has room for them (a grid of fewer than three keeps every cell), so 'perView' units show at once.
+	* The list then scrolls a column at a time, from column 0 to 'lastColumn'.  ControlBarCommand.cpp. */
+void ControlBar_commandTabScroll( Int count, Int cells, Int rows, Bool arrows, Int *perView, Int *lastColumn );
+
+/** 'step' columns on from 'column', held to 0..'lastColumn'; 'back' and 'on' say whether the left and
+	* right arrows still have somewhere to go from there (each is greyed out where it has not). */
+Int ControlBar_commandTabStep( Int column, Int step, Int lastColumn, Bool *back, Bool *on );
+
+/** The builder behind a buildings tab cell that another side's builder fills (a captured dozer's
+	* structure the stand-in's own set lacks, the tab then paged as the unit tabs are): its
+	* availability is read on it and it places the structure.  NULL for every other cell.
+	* ControlBarCommand.cpp. */
+class Object *ControlBar_foreignBuilder( const GameWindow *win );
+
+/** " (Alt+Z)" for the key the player's command map gives a meta event in a match, empty for none
+	* (ControlBarPopupDescription.cpp). */
+UnicodeString ControlBar_metaKeySuffix( Int meta );
+/// `label` formatted with that suffix for its %s: the command tabs' tooltips
+UnicodeString ControlBar_withMetaKey( const UnicodeString& label, Int meta );
 
 /** The page's keys past attack, hold position and move, which no command set has a button for either. */
 enum OrderKeyExtra
@@ -1258,7 +1293,73 @@ public:
 	// get method for list of commandbuttons
 	const CommandButton *getCommandButtons( void ) { return TheCommandStore->getCommandButtons(); }
 
-	Drawable *findStandInBuilder( Bool freeOnly );				///< with BuildWithoutWorker on, the local player's free builder (or, unless freeOnly, any builder) to stand in for an empty selection
+	Drawable *findStandInBuilder( Bool freeOnly );				///< with BuildWithoutWorker on or the buildings tab open, the local player's free builder (or, unless freeOnly, any builder) to stand in
+
+	//
+	// The command bar's tabs (ControlBarCommand.cpp): three buttons made in code over the command
+	// grid's top left corner.  Buildings shows what a builder offers with nothing selected (the
+	// stand-in builder's bar), ground units and aircraft show every unit the player's working
+	// factories can build now, queued at a factory the logic picks (MSG_QUEUE_UNIT_FOR_GROUP with no
+	// squad).  A tab stays open until its button is pressed again or the selection changes.
+	//
+	enum CommandTab
+	{
+		COMMAND_TAB_NONE = -1,
+		COMMAND_TAB_BUILDINGS = 0,
+		COMMAND_TAB_GROUND,
+		COMMAND_TAB_AIRCRAFT,
+		COMMAND_TAB_COUNT
+	};
+	Int getCommandTab( void ) const { return m_commandTab; }
+	/// a tab is open and 'win' is one of the command grid's cells it fills: no hotkey shows or works there
+	Bool commandTabCovers( const GameWindow *win ) const;
+	void toggleCommandTab( Int tab );							///< a tab button's press: open it, or close it when it is the one open
+	void closeCommandTab( void );									///< no tab: the bar shows the selection again
+	/// the wheel over the command grid while a unit tab's list runs past the grid: TRUE when it was the list's (a column a notch)
+	Bool scrollCommandTab( const ICoord2D *mouse, Bool up );
+
+protected:
+	void updateCommandTabButtons( void );					///< every client frame: where the tab buttons stand, their look, whether they show
+	/// a scheme with no seats: the tabs' row worked out from the bar's windows; the parent's screen
+	/// rect in 'row', each tab relative to it in 'place'
+	void layoutCommandTabRow( const IRegion2D &grid, IRegion2D *row, IRegion2D *place );
+	/// the page arrows of a unit tab whose list does not fit (ControlBarCommand.cpp)
+	Bool findCommandTabArrowSlots( Int *next, Int *prev ) const;
+	Int commandTabCells( Int *slots, Int *rows ) const;	///< the grid's cells column by column, left to right, each top down
+	void commandTabLayout( Int count, Int *perView, Int *lastColumn, Int *next, Int *prev, Bool *arrows ) const;
+	void setCommandTabArrow( Int arrow, Int slot );
+	void restoreCommandTabArrows( void );
+	Bool turnCommandTabColumn( Int step );
+public:
+	Bool pressCommandTabArrow( GameWindow *win );	///< a click on a page arrow scrolls a column: TRUE, else FALSE
+	Bool isCommandTabArrow( const GameWindow *win ) const;	///< 'win' is a page arrow now
+protected:
+	/// the smoke signal keys on the radar's top edge (ControlBarCommand.cpp), in the scheme's seats;
+	/// a scheme naming none has none.  Every client frame: where they stand, enabled or not, armed
+	void updateSignalKeys( void );
+	GameWindow *m_signalParent;										///< the keys' plate window, checked against the window manager before use
+	Bool m_signalPlateShown;											///< the plate stands on screen now, at m_signalPlateRect
+	IRegion2D m_signalPlateRect;									///< the plate as placed, screen pixels, a grown radar's lift included
+	Int m_signalPlateFoot;												///< the plate's foot as the painting maps it, before any lift: the ledge
+	enum { SIGNAL_KEYS = 3 };											///< InGameUI.h's SIGNAL_KIND_COUNT, in SignalKind order
+	GameWindow *m_signalKeys[ SIGNAL_KEYS ];
+public:
+	/// a signal key's press: arm that smoke signal, or disarm it when it is the one armed
+	void pressSignalKey( Int kind );
+	/// the signal keys' plate where it stands now, FALSE while it is not on screen
+	Bool getSignalPlateRect( IRegion2D *rect ) const { if( !m_signalPlateShown ) return FALSE; *rect = m_signalPlateRect; return TRUE; }
+protected:
+	Int m_commandTabArrowSlot[ 2 ];								///< the cells that are the next and previous arrows now, -1 for none
+	enum { TAB_ARROW_DRAW_STATES = 7 };
+	const Image *m_commandTabArrowSaved[ 2 ][ 3 ][ TAB_ARROW_DRAW_STATES ];	///< what each arrow's cell wore before: enabled, hilite and disabled draw data
+	ICoord2D m_commandTabArrowSize[ 2 ];						///< each arrow's cell's size before it was squared to its height
+	void populateCommandTab( Bool full );					///< a unit tab's page into the grid; full after a context switch, else the states only
+	Bool getCommandGridRect( IRegion2D *rect ) const;	///< the command windows' screen extent
+
+	Int m_commandTab;															///< CommandTab open, COMMAND_TAB_NONE for none
+	Int m_commandTabColumn;												///< a unit tab's first column shown
+	GameWindow *m_commandTabParent;								///< the tabs' code-made parent, checked against the window manager before use
+	GameWindow *m_commandTabButtons[ COMMAND_TAB_COUNT ];
 
 protected:
 

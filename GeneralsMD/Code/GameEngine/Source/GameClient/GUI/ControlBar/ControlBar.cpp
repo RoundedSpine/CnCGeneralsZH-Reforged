@@ -84,6 +84,7 @@
 #include "GameClient/GameFont.h"
 #include "GameClient/GameWindowManager.h"
 #include "GameClient/GameText.h"
+#include "GameClient/GroupPanel.h"
 #include "GameClient/GadgetPushButton.h"
 #include "GameClient/GadgetProgressBar.h"
 #include "GameClient/GadgetStaticText.h"
@@ -465,6 +466,10 @@ ControlBar::PressOutcome ControlBar::peekCommandButtonPress( Int place, GameWind
 {
 	*button = NULL;
 
+	// an open command tab's grid takes no keys (pressCommandButton)
+	if( m_commandTab != COMMAND_TAB_NONE )
+		return PRESS_DOES_NOTHING;
+
 	const Int slot = resolveCommandSlot( place );
 	if( slot == SLOT_NOTHING )
 		return PRESS_DOES_NOTHING;
@@ -484,6 +489,12 @@ ControlBar::PressOutcome ControlBar::peekCommandButtonPress( Int place, GameWind
 void ControlBar::pressCommandButton( Int place )
 {
 	if( place < 0 || place >= COMMAND_PLACE_COUNT )
+		return;
+
+	// an open command tab covers the grid and takes no keys: not its cells, and not the shared orders
+	// (stop, attack move, guard, hold, the stance) the places would send to a selection whose own bar
+	// the tab hides.  The key does nothing until the tab closes
+	if( m_commandTab != COMMAND_TAB_NONE )
 		return;
 
 	// the page's stance key stands where no button does
@@ -730,6 +741,38 @@ void ControlBar::populatePurchaseScienceRank( Player *player, const CommandSet *
 // The plates are invisible push buttons over pieces the window's own draw lays down, so a press,
 // a tooltip and a disabled plate behave like any button's.
 //-------------------------------------------------------------------------------------------------
+void drawFittedLabel( FittedLabel &label, const UnicodeString &text, Int points, const IRegion2D &well, Color color,
+											Bool wrap, Int align )
+{
+	if( text.isEmpty() )
+		return;
+	const Int wellW = well.hi.x - well.lo.x, wellH = well.hi.y - well.lo.y;
+	if( label.string == NULL )
+		label.string = TheDisplayStringManager->newDisplayString();
+	if( label.text.compare( text ) != 0 || label.points != points || label.wellW != wellW || label.wellH != wellH )
+	{
+		label.text = text;
+		label.points = points;
+		label.wellW = wellW;
+		label.wellH = wellH;
+		label.string->setWordWrap( wrap ? wellW : 0 );
+		label.string->setWordWrapCentered( wrap );
+		label.string->setText( text );
+		for( Int p = MAX( points, 6 ); p >= 6; p-- )
+		{
+			label.string->setFont( TheFontLibrary->getFont( "Arial", p, TRUE ) );
+			Int w, h;
+			label.string->getSize( &w, &h );
+			if( w <= wellW && h <= wellH )
+				break;
+		}
+	}
+	Int w, h;
+	label.string->getSize( &w, &h );
+	const Int x = align == FITTED_ALIGN_LEFT ? well.lo.x : ( align == FITTED_ALIGN_RIGHT ? well.hi.x - w : ( well.lo.x + well.hi.x - w ) / 2 );
+	label.string->draw( x, ( well.lo.y + well.hi.y - h ) / 2, color, GameMakeColor( 0, 0, 0, 255 ) );
+}
+
 namespace
 {
 	enum { TALENT_DESIGN_W = 1084, TALENT_DESIGN_H = 598, POWERS_DESIGN_W = 542, TALENT_ROW_COUNT = TALENT_SCIENCE_COUNT / 2 };
@@ -749,16 +792,10 @@ namespace
 	const Int theRankLabel[ 4 ] = { 451, 481, 509, 496 };		// the left panel's old close socket
 	const Int theRankNumeral[ 4 ] = { 451, 499, 509, 529 };
 
-	/// one line of the window's own text, laid out again only when its text or size changes
-	struct TalentLabel
-	{
-		DisplayString *string;
-		UnicodeString text;
-		Int points, wellW, wellH;
-	};
+	/// the window's own text, one FittedLabel a line
 	enum { LABEL_PLATE = 0, LABEL_NODE = TALENT_SCIENCE_COUNT, LABEL_CAPTION = LABEL_NODE + TALENT_ROW_COUNT,
 				 LABEL_WAITING, LABEL_HINT, LABEL_RANK, LABEL_RANK_NUMERAL, LABEL_COUNT };
-	TalentLabel theTalentLabels[ LABEL_COUNT ];
+	FittedLabel theTalentLabels[ LABEL_COUNT ];
 
 	/// where the window's design rect lands on the screen
 	struct TalentMap
@@ -815,40 +852,12 @@ namespace
 		return out;
 	}
 
-	enum { ALIGN_LEFT = -1, ALIGN_CENTRE = 0, ALIGN_RIGHT = 1 };
+	enum { ALIGN_LEFT = FITTED_ALIGN_LEFT, ALIGN_CENTRE = FITTED_ALIGN_CENTRE, ALIGN_RIGHT = FITTED_ALIGN_RIGHT };
 
-	/// draw text in a well, centred unless told, wrapped to its width when asked, shrunk a point at a time until it fits
 	void drawTalentLabel( Int which, const UnicodeString &text, Int points, const IRegion2D &well, Color color, Bool wrap,
 												Int align = ALIGN_CENTRE )
 	{
-		if( text.isEmpty() )
-			return;
-		TalentLabel &label = theTalentLabels[ which ];
-		const Int wellW = well.hi.x - well.lo.x, wellH = well.hi.y - well.lo.y;
-		if( label.string == NULL )
-			label.string = TheDisplayStringManager->newDisplayString();
-		if( label.text.compare( text ) != 0 || label.points != points || label.wellW != wellW || label.wellH != wellH )
-		{
-			label.text = text;
-			label.points = points;
-			label.wellW = wellW;
-			label.wellH = wellH;
-			label.string->setWordWrap( wrap ? wellW : 0 );
-			label.string->setWordWrapCentered( wrap );
-			label.string->setText( text );
-			for( Int p = MAX( points, 6 ); p >= 6; p-- )
-			{
-				label.string->setFont( TheFontLibrary->getFont( "Arial", p, TRUE ) );
-				Int w, h;
-				label.string->getSize( &w, &h );
-				if( w <= wellW && h <= wellH )
-					break;
-			}
-		}
-		Int w, h;
-		label.string->getSize( &w, &h );
-		const Int x = align == ALIGN_LEFT ? well.lo.x : ( align == ALIGN_RIGHT ? well.hi.x - w : ( well.lo.x + well.hi.x - w ) / 2 );
-		label.string->draw( x, ( well.lo.y + well.hi.y - h ) / 2, color, GameMakeColor( 0, 0, 0, 255 ) );
+		drawFittedLabel( theTalentLabels[ which ], text, points, well, color, wrap, align );
 	}
 
 	void drawTalentNothing( GameWindow *window, WinInstanceData *instData )
@@ -1670,6 +1679,24 @@ ControlBar::ControlBar( void )
 	m_animTime = 0;
 
 	m_currContext = CB_CONTEXT_NONE;
+	m_commandTab = COMMAND_TAB_NONE;
+	m_commandTabColumn = 0;
+	m_commandTabParent = NULL;
+	for( i = 0; i < COMMAND_TAB_COUNT; i++ )
+		m_commandTabButtons[ i ] = NULL;
+	m_signalParent = NULL;
+	m_signalPlateShown = FALSE;
+	m_signalPlateRect.lo.x = m_signalPlateRect.lo.y = m_signalPlateRect.hi.x = m_signalPlateRect.hi.y = 0;
+	m_signalPlateFoot = 0;
+	for( i = 0; i < SIGNAL_KEYS; i++ )
+		m_signalKeys[ i ] = NULL;
+	for( i = 0; i < 2; i++ )
+	{
+		m_commandTabArrowSlot[ i ] = -1;
+		for( Int k = 0; k < 3; k++ )
+			for( Int s = 0; s < TAB_ARROW_DRAW_STATES; s++ )
+				m_commandTabArrowSaved[ i ][ k ][ s ] = NULL;
+	}
 	m_defaultControlBarPosition.x = m_defaultControlBarPosition.y = 0;
 	m_genStarFlash = FALSE;
 	m_purchaseScienceOpen = FALSE;
@@ -2305,7 +2332,7 @@ void ControlBar::triggerRadarAttackGlow( void )
 	LOGIC_CENSUS( CENSUS_CONTROLBAR );
 	if( m_radarAttackGlowWindow == NULL )
 		return;
-	m_remainingRadarAttackGlowFrames = ConvertRetailFrames( 150 );
+	m_remainingRadarAttackGlowFrames = ConvertRetailFramesWall( 150 );
 	m_radarAttackGlowWindow->winEnable( FALSE );
 }
 
@@ -2338,6 +2365,22 @@ Bool ControlBar::letsClickThrough( GameWindow *window, Int x, Int y )
 		return FALSE;
 
 	const char *shortName = shortWindowName( window );
+
+	// The radar's blocker reaches up to the signal keys' plate (BlockRadar), so what stands on the
+	// radar's top clears it; the plate is narrower than the radar's box, and the battlefield beside it,
+	// up to the ledge the blocker stopped at before, stays the world's.  The plate's own window and a
+	// grown radar's frame keep theirs
+	if( strcmp( shortName, "ControlBarProBlockInputRadar" ) == 0 )
+	{
+		IRegion2D outer, inner;
+		Bool lit;
+		const Bool overFrame = getGrownRadarFrame( &outer, &inner, &lit )
+			&& x >= outer.lo.x && x < outer.hi.x && y >= outer.lo.y && y < outer.hi.y;
+		const Bool overPlate = m_signalPlateShown && x >= m_signalPlateRect.lo.x && x < m_signalPlateRect.hi.x
+			&& y >= m_signalPlateRect.lo.y && y < m_signalPlateRect.hi.y;
+		return m_signalPlateShown && y < m_signalPlateFoot && !overFrame && !overPlate;
+	}
+
 	if( shortName[ 0 ] != 0 && strcmp( shortName, "CenterBackground" ) != 0 )
 		return FALSE;
 
@@ -2729,6 +2772,10 @@ void ControlBar::fitRadarToMap( Bool fromLayout )
 	GameWindow *parent = m_contextParent[ CP_MASTER ];
 	if( parent == NULL || windows[ RADAR_FIT_RADAR ] == NULL )
 		return;
+	// EA's under-attack lamp shows wherever it stands, unless fitSquareRadar finds the side's own grown
+	// frame and puts it away below
+	if( windows[ RADAR_FIT_LAMP ] != NULL )
+		windows[ RADAR_FIT_LAMP ]->winHide( FALSE );
 	ICoord2D origin;
 	parent->winGetScreenPosition( &origin.x, &origin.y );
 
@@ -2898,11 +2945,17 @@ void ControlBar::fitSquareRadar( GameWindow *const *windows, const IRegion2D *bo
 	const Int edge = MAX( 3, REAL_TO_INT( ControlBarHudScale() * 8.0f + 0.5f ) );
 	m_radarGrownFrame = edge;
 
+	// the side's own frame (GrownRadarImage) is laid round the painted glass from the screen's left edge
+	// to its foot: the picture keeps the box's bottom left corner exactly, and the right lip is the
+	// frame's own (grown_compose)
+	const Image *const *pieces = m_controlBarSchemeManager ? m_controlBarSchemeManager->getGrownRadarPieces() : NULL;
+	const Int lip = pieces ? m_controlBarSchemeManager->getGrownRadarRight() : edge;
+
 	// the picture's bottom left corner stays on the box's, far enough in that the frame stays on screen
 	enum { RADAR_BEZEL = 1 };	// W3DLeftHUDDraw paints the radar a pixel inside the window
 	IRegion2D fit;
-	fit.lo.x = MAX( square.lo.x, edge );
-	fit.hi.y = MIN( square.hi.y, displayHeight - edge );
+	fit.lo.x = pieces ? square.lo.x : MAX( square.lo.x, edge );
+	fit.hi.y = pieces ? square.hi.y : MIN( square.hi.y, displayHeight - edge );
 
 	// The window takes the map's own shape, so no black bands: the height grows by the percent, the
 	// width follows the map, and a map too wide for the room before the production plate is cut
@@ -2920,7 +2973,7 @@ void ControlBar::fitSquareRadar( GameWindow *const *windows, const IRegion2D *bo
 		ICoord2D at;
 		next->winGetScreenPosition( &at.x, &at.y );
 		plateX = at.x;
-		widthCap = at.x - 1 - edge - fit.lo.x - 2 * RADAR_BEZEL;
+		widthCap = at.x - 1 - lip - fit.lo.x - 2 * RADAR_BEZEL;
 	}
 	const Int insideWidth = MAX( 1, MIN( REAL_TO_INT( insideHeight * aspect + 0.5f ), widthCap ) );
 	insideHeight = MAX( 1, MIN( insideHeight, REAL_TO_INT( insideWidth / aspect + 0.5f ) ) );
@@ -2940,6 +2993,30 @@ void ControlBar::fitSquareRadar( GameWindow *const *windows, const IRegion2D *bo
 	blocker.lo.y = MIN( block.lo.y, frame.lo.y );
 	blocker.hi.x = MIN( MAX( block.hi.x, frame.hi.x ), plateX - 1 );
 	blocker.hi.y = MAX( block.hi.y, frame.hi.y );
+
+	//
+	// The side's own frame: the glass well is the picture joined with the painted glass, the frame
+	// runs from the screen's left edge to the right lip's outside and from the ledge to the screen's
+	// foot, and the blocker is that box joined with the signal plate, which goes up with the well's top
+	// (the box's blocker stands from the plate's top: BlockRadar)
+	//
+	if( pieces != NULL )
+	{
+		IRegion2D well;
+		well.lo.x = MIN( fit.lo.x, square.lo.x );
+		well.lo.y = MIN( fit.lo.y, square.lo.y );
+		well.hi.x = MAX( fit.hi.x, square.hi.x );
+		well.hi.y = MAX( fit.hi.y, square.hi.y );
+		frame.lo.x = 0;
+		frame.lo.y = well.lo.y - m_controlBarSchemeManager->getGrownRadarLedge();
+		frame.hi.x = well.hi.x + lip;
+		frame.hi.y = displayHeight;
+		const Int lift = well.lo.y - square.lo.y;
+		blocker.lo.x = MIN( block.lo.x, frame.lo.x );
+		blocker.lo.y = MIN( frame.lo.y, block.lo.y + lift );
+		blocker.hi.x = MIN( frame.hi.x, plateX - 1 );
+		blocker.hi.y = displayHeight;
+	}
 	placeWindowAt( windows[ RADAR_FIT_BLOCK ], blocker );
 
 	// EA's lamp stands on the frame's top right corner; the frame itself flashes with it
@@ -2950,6 +3027,12 @@ void ControlBar::fitSquareRadar( GameWindow *const *windows, const IRegion2D *bo
 	lamp.lo.y = frame.lo.y;
 	lamp.hi.y = lamp.lo.y + lampHeight;
 	placeWindowAt( windows[ RADAR_FIT_LAMP ], lamp );
+	// The lamp's lit picture is shaped for the painted box's corner, and over the side's own frame it
+	// stood in the air off the frame's top right.  There the frame itself reddens with the lamp
+	// (drawGrownRadarPieces), so the lamp is put away; its window has no input, and its lit state,
+	// which getGrownRadarFrame reads, still runs.  fitRadarToMap shows it again on every other fit
+	if( pieces != NULL && windows[ RADAR_FIT_LAMP ] != NULL )
+		windows[ RADAR_FIT_LAMP ]->winHide( TRUE );
 
 	m_radarSquareGrown = TRUE;
 	setRaisedRadarRect( frame );
@@ -2988,13 +3071,38 @@ Bool ControlBar::getGrownRadarFrame( IRegion2D *outer, IRegion2D *inner, Bool *l
 	radar->winGetSize( &inner->hi.x, &inner->hi.y );
 	inner->hi.x += inner->lo.x;
 	inner->hi.y += inner->lo.y;
+	// winEnable(FALSE) is EA's lit lamp (triggerRadarAttackGlow)
+	*lit = m_radarAttackGlowWindow != NULL && m_remainingRadarAttackGlowFrames > 0
+		&& !BitTest( m_radarAttackGlowWindow->winGetStatus(), WIN_STATUS_ENABLED );
+
+	//
+	// The side's own frame (GrownRadarImage): 'inner' is the glass well, the picture joined with the
+	// painted glass (the radar's box as the layout put it, travelling with the bar), so the frame
+	// always covers the painted box (hud_command_bar.py's grown_glass); 'outer' is the frame's box
+	// from the screen's left edge, its top on the ledge where what stands on the radar stands, to the
+	// right lip's outside and the screen's foot
+	//
+	const Image *const *pieces = m_controlBarSchemeManager ? m_controlBarSchemeManager->getGrownRadarPieces() : NULL;
+	if( pieces != NULL && m_contextParent[ CP_MASTER ] != NULL )
+	{
+		ICoord2D origin;
+		m_contextParent[ CP_MASTER ]->winGetScreenPosition( &origin.x, &origin.y );
+		const IRegion2D &box = m_radarFitBox[ RADAR_FIT_RADAR ];
+		inner->lo.x = MIN( inner->lo.x, box.lo.x + origin.x );
+		inner->lo.y = MIN( inner->lo.y, box.lo.y + origin.y );
+		inner->hi.x = MAX( inner->hi.x, box.hi.x + origin.x );
+		inner->hi.y = MAX( inner->hi.y, box.hi.y + origin.y );
+		outer->lo.x = 0;
+		outer->lo.y = inner->lo.y - m_controlBarSchemeManager->getGrownRadarLedge();
+		outer->hi.x = inner->hi.x + m_controlBarSchemeManager->getGrownRadarRight();
+		outer->hi.y = TheDisplay ? TheDisplay->getHeight() : inner->hi.y;
+		return TRUE;
+	}
+
 	outer->lo.x = inner->lo.x - m_radarGrownFrame;
 	outer->lo.y = inner->lo.y - m_radarGrownFrame;
 	outer->hi.x = inner->hi.x + m_radarGrownFrame;
 	outer->hi.y = MIN( inner->hi.y + m_radarGrownFrame, TheDisplay ? TheDisplay->getHeight() : inner->hi.y + m_radarGrownFrame );
-	// winEnable(FALSE) is EA's lit lamp (triggerRadarAttackGlow)
-	*lit = m_radarAttackGlowWindow != NULL && m_remainingRadarAttackGlowFrames > 0
-		&& !BitTest( m_radarAttackGlowWindow->winGetStatus(), WIN_STATUS_ENABLED );
 	return TRUE;
 }
 
@@ -3027,6 +3135,9 @@ void ControlBar::init( void )
 void ControlBar::shutdownWindows( void )
 {
 	Int i;
+
+	// the cells are going: no arrow is left to give back, and what was saved belonged to them
+	m_commandTabArrowSlot[ 0 ] = m_commandTabArrowSlot[ 1 ] = -1;
 
 	// the next layout's fitRadarToMap places the radar again
 	m_radarRaised = FALSE;
@@ -3293,8 +3404,9 @@ void ControlBar::initWindows( void )
 			{ "ControlBar.wnd:ButtonIdleInfantry", "NonCommand_IdleInfantry" },
 			{ "ControlBar.wnd:ButtonIdleVehicle", "NonCommand_IdleVehicle" },
 			{ "ControlBar.wnd:ButtonIdleAircraft", "NonCommand_IdleAircraft" },
+			{ "ControlBar.wnd:ButtonSelectArmy", "NonCommand_SelectArmy" },
 		};
-		for( Int idle = 0; idle < 3; idle++ )
+		for( Int idle = 0; idle < 4; idle++ )
 		{
 			win = TheWindowManager->winGetWindowFromId( NULL, TheNameKeyGenerator->nameToKey( idleButtons[ idle ][ 0 ] ) );
 			const CommandButton *idleCommand = findCommandButton( idleButtons[ idle ][ 1 ] );
@@ -3302,6 +3414,14 @@ void ControlBar::initWindows( void )
 			{
 				setControlCommand( win, idleCommand );
 				win->winSetTooltipFunc( commandButtonTooltip );
+				// the three idle kinds take a right click for every one of their kind; both copies of the
+				// status word (see the command windows above).  Only while lit: updateIdleUnitButtons keeps
+				// them lit while the player owns any of the kind, idle or not, so a dark one is dead
+				if( idle < 3 )
+				{
+					win->winSetStatus( WIN_STATUS_RIGHT_CLICK );
+					BitSet( win->winGetInstanceData()->m_status, WIN_STATUS_RIGHT_CLICK );
+				}
 			}
 		}
 		win = TheWindowManager->winGetWindowFromId(NULL,TheNameKeyGenerator->nameToKey("ControlBar.wnd:ButtonPlaceBeacon"));
@@ -3394,6 +3514,10 @@ void ControlBar::reset( void )
 	// do not destroy the rally drawable, it will get destroyed with everythign else during a reset
 	m_rallyPointDrawableID = INVALID_DRAWABLE_ID;
 	m_standInBuilderID = INVALID_DRAWABLE_ID;
+	m_commandTab = COMMAND_TAB_NONE;
+	m_commandTabColumn = 0;
+	// the cells outlive the match: arrow cells get back what they wore before the next one
+	restoreCommandTabArrows();
 
 	m_displayedConstructPercent = -1.0f;
 	m_displayedOCLTimerSeconds = 0;
@@ -3441,6 +3565,13 @@ void ControlBar::reset( void )
 	m_genStarFlash = TRUE;
 }  // end reset
 
+/// a builder stands in for an empty selection: the BuildWithoutWorker option, or the trainer's build anywhere
+static Bool buildsWithoutWorker( void )
+{
+	const Player *local = ThePlayerList ? ThePlayerList->getLocalPlayer() : NULL;
+	return TheGlobalData->m_buildWithoutWorker || ( local && local->hasCheat( CHEAT_BUILD_ANYWHERE ) );
+}
+
 //-------------------------------------------------------------------------------------------------
 /** Update phase, we can track if our selected object is destroyed, update button
 	* percentages, status, enabled status etc */
@@ -3474,7 +3605,7 @@ void ControlBar::update( void )
 		{
 			if( --m_remainingRadarAttackGlowFrames <= 0 )
 				m_radarAttackGlowWindow->winEnable( TRUE );
-			else if( m_remainingRadarAttackGlowFrames % ConvertRetailFrames( 15 ) == 0 )
+			else if( m_remainingRadarAttackGlowFrames % ConvertRetailFramesWall( 15 ) == 0 )
 				m_radarAttackGlowWindow->winEnable( !BitTest( m_radarAttackGlowWindow->winGetStatus(), WIN_STATUS_ENABLED ) );
 		}
 	}
@@ -3550,6 +3681,11 @@ void ControlBar::update( void )
 		hideBuildTooltipLayout();
 	}*/
 
+	// the command bar's tabs follow the grid wherever the scheme, the HUD scale or the minimise put it
+	updateCommandTabButtons();
+	// and the signal keys the radar, grown or not
+	updateSignalKeys();
+
 	// walks every shortcut button and asks the player for its most ready special power object
 	if( logicTick )
 		updateSpecialPowerShortcut();
@@ -3600,7 +3736,7 @@ void ControlBar::update( void )
 	}
 		
 
-	const Bool flashTick = logicTick && (logicNow % ConvertRetailFrames( 10U ) == 0);
+	const Bool flashTick = logicTick && (logicNow % ConvertRetailFramesWall( 10U ) == 0);
 
 	// check flashing
 	if( m_flash )
@@ -3649,12 +3785,14 @@ void ControlBar::update( void )
 	// selection arrives or when BuildWithoutWorker is switched off; re-evaluate ourselves before
 	// anything touches its drawable
 	//
+	// the buildings tab asks for one whatever the option and the selection say
+	const Bool buildingsTab = m_commandTab == COMMAND_TAB_BUILDINGS;
 	if( m_standInBuilderID != INVALID_DRAWABLE_ID )
 	{
 		Drawable *standIn = TheGameClient->findDrawableByID( m_standInBuilderID );
 		Object *standInObj = standIn ? standIn->getObject() : NULL;
-		if( TheInGameUI->getSelectCount() > 0 || standInObj == NULL || standInObj->isEffectivelyDead()
-				|| !TheGlobalData->m_buildWithoutWorker )
+		if( ( TheInGameUI->getSelectCount() > 0 && !buildingsTab ) || standInObj == NULL || standInObj->isEffectivelyDead()
+				|| ( !buildsWithoutWorker() && !buildingsTab ) )
 		{
 			m_standInBuilderID = INVALID_DRAWABLE_ID;
 			m_currentSelectedDrawable = NULL;
@@ -3665,7 +3803,8 @@ void ControlBar::update( void )
 	// nothing selected and nothing standing in: a builder that is made or bought later, or the
 	// option switched on, gets the bar, which no selection event would announce either
 	//
-	else if( logicTick && ( logicNow % LOGICFRAMES_PER_SECOND ) == 0 && TheInGameUI->getSelectCount() == 0
+	else if( logicTick && ( logicNow % LOGICFRAMES_PER_SECOND ) == 0
+					 && ( buildingsTab || ( TheInGameUI->getSelectCount() == 0 && m_commandTab == COMMAND_TAB_NONE ) )
 					 && m_currentSelectedDrawable == NULL && findStandInBuilder( FALSE ) )
 	{
 		markUIDirty();
@@ -3685,36 +3824,23 @@ void ControlBar::update( void )
 	}
 
 	// nothing below here can change without either a logic tick or a rebuilt UI, and the rest
-	// of it is the expensive half: a full object count for the beacon cap and then a pass over
-	// every command button in the current context
+	// of it is the expensive half: a pass over every command button in the current context.
+	// ButtonPlaceBeacon is the last alert key now and never dims; the beacon key checks its own cap.
 	if( !logicTick && !wasUIDirty )
 		return;
-
-	// enable/disable the beacon button depending on if the max has been reached
-	if (ThePlayerList && ThePlayerList->getLocalPlayer() && ThePlayerList->getLocalPlayer()->getPlayerTemplate())
-	{
-		Int count;
-		const ThingTemplate *thing = TheThingFactory->findTemplate( ThePlayerList->getLocalPlayer()->getPlayerTemplate()->getBeaconTemplate() );
-		ThePlayerList->getLocalPlayer()->countObjectsByThingTemplate( 1, &thing, false, &count );
-		static NameKeyType beaconPlacementButtonID = NAMEKEY("ControlBar.wnd:ButtonPlaceBeacon");
-		GameWindow *win = TheWindowManager->winGetWindowFromId(NULL, beaconPlacementButtonID);
-		if (win)
-		{
-			if (count < TheMultiplayerSettings->getMaxBeaconsPerPlayer())
-			{
-				win->winEnable(TRUE);
-			}
-			else
-			{
-				win->winEnable(FALSE);
-			}
-		}
-	}
 
 	//
 	// most control bar contexts have one selected thing that we switch on and update
 	// based on if that thing changed in some way ... the exception is when multi selected
 	//
+	// a unit tab's grid answers to no drawable: it follows the player's factories, once a tick
+	if( m_commandTab == COMMAND_TAB_GROUND || m_commandTab == COMMAND_TAB_AIRCRAFT )
+	{
+		if( !wasUIDirty )
+			populateCommandTab( FALSE );
+		return;
+	}
+
 	if( m_currContext == CB_CONTEXT_MULTI_SELECT )
 	{
 
@@ -3791,6 +3917,9 @@ void ControlBar::update( void )
 void ControlBar::onDrawableSelected( Drawable *draw )
 {
 
+	// a new selection closes the command bar's tab, so the bar shows what was picked
+	m_commandTab = COMMAND_TAB_NONE;
+
 	// set a dirty flag so next time we update we can reconstruct the UI
 	markUIDirty();
 
@@ -3804,6 +3933,9 @@ void ControlBar::onDrawableSelected( Drawable *draw )
 //-------------------------------------------------------------------------------------------------
 void ControlBar::onDrawableDeselected( Drawable *draw )
 {
+
+	// a selected unit dying, garrisoning or boarding leaves the command bar's tab open; only a
+	// selection the player makes closes it (onDrawableSelected)
 
 	// set a dirty flag so next time we update we can reconstruct the UI
 	markUIDirty();
@@ -3822,9 +3954,11 @@ void ControlBar::onDrawableDeselected( Drawable *draw )
 	//
 	// always when becoming unselected should we remove any build placement icons because if
 	// we have some and are in the middle of a build process, it must obiously be over now
-	// because we are no longer selecting the dozer or worker
+	// because we are no longer selecting the dozer or worker.  One picked from the buildings tab came
+	// from the stand-in builder, which nobody selected, so it stays on the cursor
 	//
-	TheInGameUI->placeBuildAvailable( NULL, NULL );
+	if( m_commandTab != COMMAND_TAB_BUILDINGS )
+		TheInGameUI->placeBuildAvailable( NULL, NULL );
 
 }  // end onDrawableDeselected
 
@@ -3918,6 +4052,9 @@ void ControlBar::evaluateContextUI( void )
 	if( isPurchaseScienceVisible() )
 		populatePurchaseScience( getWatchedPlayer() );
 
+	// a unit tab's page arrows give their cells back before anything fills them again
+	restoreCommandTabArrows();
+
 	// erase any current state of the GUI by switching out to the empty context
 	switchToContext( CB_CONTEXT_NONE, NULL );
 
@@ -3928,7 +4065,18 @@ void ControlBar::evaluateContextUI( void )
 	// 1.04 had it.  m_standInBuilderID is not cleared first: findStandInBuilder reads it to keep
 	// the builder it is already showing.
 	//
-	if( TheInGameUI->getSelectCount() == 0 && !m_isObserverCommandBar )
+	// a unit tab: every unit the player's factories offer, in pages over the grid
+	if( ( m_commandTab == COMMAND_TAB_GROUND || m_commandTab == COMMAND_TAB_AIRCRAFT ) && !m_isObserverCommandBar )
+	{
+		m_standInBuilderID = INVALID_DRAWABLE_ID;
+		m_contextParent[ CP_COMMAND ]->winHide( FALSE );
+		populateCommandTab( TRUE );
+		return;
+	}
+
+	// the buildings tab is the stand-in builder's bar, whatever is selected and whatever
+	// BuildWithoutWorker says: the tab is the player asking for it
+	if( ( TheInGameUI->getSelectCount() == 0 || m_commandTab == COMMAND_TAB_BUILDINGS ) && !m_isObserverCommandBar )
 	{
 		Drawable *builder = findStandInBuilder( FALSE );
 		m_standInBuilderID = builder ? builder->getID() : INVALID_DRAWABLE_ID;
@@ -4167,6 +4315,34 @@ CBCommandStatus ControlBar::processContextSensitiveButtonClick( GameWindow *butt
 	//
 	clearSpecialPowerShortcutRow();
 
+	// the buildings tab pages too once a captured or foreign builder adds its structures
+	if( m_commandTab == COMMAND_TAB_BUILDINGS
+			&& ( gadgetMessage == GBM_SELECTED ? pressCommandTabArrow( button ) : isCommandTabArrow( button ) ) )
+		return CBC_COMMAND_USED;
+
+	//
+	// a unit tab's grid belongs to no factory: the logic picks one for each unit the click asks for.
+	// The right button takes nothing back, since no one queue is the tab's
+	//
+	if( m_commandTab == COMMAND_TAB_GROUND || m_commandTab == COMMAND_TAB_AIRCRAFT )
+	{
+		// a page arrow scrolls a column on a left click, takes a right one for nothing, and never reaches
+		// the queue
+		if( gadgetMessage == GBM_SELECTED ? pressCommandTabArrow( button ) : isCommandTabArrow( button ) )
+			return CBC_COMMAND_USED;
+
+		Bool onGrid = FALSE;
+		for( Int slot = 0; slot < MAX_COMMANDS_PER_SET; slot++ )
+			onGrid = onGrid || ( m_commandWindows[ slot ] != NULL && m_commandWindows[ slot ] == button );
+		const CommandButton *command = onGrid ? (const CommandButton *)GadgetButtonGetData( button ) : NULL;
+		if( command != NULL && command->getCommandType() == GUI_COMMAND_UNIT_BUILD && command->getThingTemplate() != NULL )
+		{
+			if( gadgetMessage == GBM_SELECTED )
+				GroupPanel_queueUnit( command->getThingTemplate(), -1 );
+			return CBC_COMMAND_USED;
+		}
+	}
+
 	//
 	// The right button only ever takes things back out of a queue - the build queue panel no
 	// longer sits in the right HUD to click on. It never runs the command: firing a build or a
@@ -4305,6 +4481,7 @@ struct StandInBuilderSearch
 {
 	Object *idle;
 	Object *any;
+	Bool ownOnly;		///< the player's own side's builders only: their set is the buildings tab's base
 };
 
 static void findStandInBuilderProc( Object *obj, void *userData )
@@ -4312,7 +4489,14 @@ static void findStandInBuilderProc( Object *obj, void *userData )
 	StandInBuilderSearch *s = (StandInBuilderSearch *)userData;
 	if( obj->isEffectivelyDead() || obj->getDrawable() == NULL )
 		return;
+	if( s->ownOnly && !GroupPanel_isOwnSide( obj->getTemplate(), obj->getControllingPlayer() ) )
+		return;
 	if( obj->testStatus( OBJECT_STATUS_UNDER_CONSTRUCTION ) || obj->testStatus( OBJECT_STATUS_SOLD ) )
+		return;
+	// a builder a mission's script switched off, or an unmanned one, has every button hidden
+	// (getCommandAvailability): it would stand in with an empty bar while another could build
+	if( obj->testScriptStatusBit( OBJECT_STATUS_SCRIPT_DISABLED ) || obj->testScriptStatusBit( OBJECT_STATUS_SCRIPT_UNPOWERED )
+			|| obj->isDisabledByType( DISABLED_UNMANNED ) )
 		return;
 	AIUpdateInterface *ai = obj->getAI();
 	DozerAIInterface *dozer = ai ? ai->getDozerAIInterface() : NULL;
@@ -4328,8 +4512,9 @@ static void findStandInBuilderProc( Object *obj, void *userData )
 
 Drawable *ControlBar::findStandInBuilder( Bool freeOnly )
 {
-	// off, the bar is 1.04's: nothing selected is an empty bar, and a build needs a selected worker
-	if( !TheGlobalData->m_buildWithoutWorker )
+	// off, the bar is 1.04's: nothing selected is an empty bar, and a build needs a selected worker,
+	// unless the player opened the buildings tab and asked for the builder's bar
+	if( !buildsWithoutWorker() && m_commandTab != COMMAND_TAB_BUILDINGS )
 		return NULL;
 
 	Player *player = ThePlayerList->getLocalPlayer();
@@ -4353,6 +4538,7 @@ Drawable *ControlBar::findStandInBuilder( Bool freeOnly )
 			StandInBuilderSearch check;
 			check.idle = NULL;
 			check.any = NULL;
+			check.ownOnly = FALSE;
 			findStandInBuilderProc( obj, &check );
 			if( check.any && ( !freeOnly || check.idle ) )
 				return held;
@@ -4360,11 +4546,17 @@ Drawable *ControlBar::findStandInBuilder( Bool freeOnly )
 	}
 
 	StandInBuilderSearch s;
-	s.idle = NULL;
-	s.any = NULL;
-	player->iterateObjects( findStandInBuilderProc, &s );
-
-	Object *pick = s.idle ? s.idle : ( freeOnly ? NULL : s.any );
+	// the player's own side's builder first, so its copy of a structure a captured builder shares is
+	// the one the buildings tab shows; a captured one stands in only when it is all there is
+	Object *pick = NULL;
+	for( Int pass = 0; pass < 2 && pick == NULL; pass++ )
+	{
+		s.idle = NULL;
+		s.any = NULL;
+		s.ownOnly = pass == 0;
+		player->iterateObjects( findStandInBuilderProc, &s );
+		pick = s.idle ? s.idle : ( freeOnly ? NULL : s.any );
+	}
 	return pick ? pick->getDrawable() : NULL;
 
 }  // end findStandInBuilder
@@ -4936,6 +5128,9 @@ void ControlBar::setControlCommand( GameWindow *button, const CommandButton *com
 			commandButton->getCommandType(), barSlot, barSlot >= 0 ? m_commandUpgradeRank[ barSlot ] : -1 );
 		if( standIn && letter != 0 && HotKeyManager::commandMapHolds( HotKeyManager::nameOf( letter ) ) )
 			letter = 0;
+		// an open command tab's cells take no key at all: no badge, nothing registered to fire them
+		if( commandTabCovers( button ) )
+			letter = 0;
 		// the badge shows a letter only while this window holds the key: one that lost it to a
 		// stronger or earlier button shows none, and one that takes it wipes the badge it took it from
 		GameWindow *displaced = NULL;
@@ -5235,14 +5430,15 @@ void ControlBar::showRallyPoint( const Coord3D *loc )
 // ------------------------------------------------------------------------------------------------
 void ControlBar::showIdleButtons( Bool show )
 {
-	static const NameKeyType ids[ 4 ] =
+	static const NameKeyType ids[ 5 ] =
 	{
 		NAMEKEY( "ControlBar.wnd:ButtonIdleWorker" ),
 		NAMEKEY( "ControlBar.wnd:ButtonIdleInfantry" ),
 		NAMEKEY( "ControlBar.wnd:ButtonIdleVehicle" ),
 		NAMEKEY( "ControlBar.wnd:ButtonIdleAircraft" ),
+		NAMEKEY( "ControlBar.wnd:ButtonSelectArmy" ),
 	};
-	for( Int i = 0; i < 4; i++ )
+	for( Int i = 0; i < 5; i++ )
 	{
 		GameWindow *win = TheWindowManager->winGetWindowFromId( NULL, ids[ i ] );
 		if( win )

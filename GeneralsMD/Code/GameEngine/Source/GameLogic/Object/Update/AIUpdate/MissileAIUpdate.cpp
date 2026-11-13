@@ -77,9 +77,9 @@ static Real turnEaseDistance(const MissileAIUpdateModuleData* d)
 MissileAIUpdateModuleData::MissileAIUpdateModuleData()
 {
 	m_tryToFollowTarget = true;
-	m_fuelLifetime = 0;
-	m_ignitionDelay = 0;
-	m_initialVel = 0;
+	m_fuelLifetime.setRaw( 0 );
+	m_ignitionDelay.setRaw( 0 );
+	m_initialVel.setRaw( 0 );
 	m_initialDist = 0.0f;
 	m_diveDistance = 0.0f;
 	m_ignitionFX = NULL;
@@ -90,7 +90,7 @@ MissileAIUpdateModuleData::MissileAIUpdateModuleData()
 	m_lockDistance = 75.0f;	
 	m_distanceScatterWhenJammed = 75.0f;
     m_detonateCallsKill = FALSE;
-    m_killSelfDelay   = ConvertRetailFrames(3); // just long enough for the contrail to catch up to me
+    m_killSelfDelay.setRaw( 100 );	// msec, ConvertRetailFrames(3) at the native speed: // just long enough for the contrail to catch up to me
 }
 
 //-----------------------------------------------------------------------------
@@ -101,9 +101,9 @@ void MissileAIUpdateModuleData::buildFieldParse(MultiIniFieldParse& p)
 	static const FieldParse dataFieldParse[] = 
 	{
 		{ "TryToFollowTarget",			INI::parseBool,		NULL, offsetof( MissileAIUpdateModuleData, m_tryToFollowTarget ) },
-		{ "FuelLifetime",						INI::parseDurationUnsignedInt,		NULL, offsetof( MissileAIUpdateModuleData, m_fuelLifetime ) },
-		{ "IgnitionDelay",					INI::parseDurationUnsignedInt,		NULL, offsetof( MissileAIUpdateModuleData, m_ignitionDelay ) },
-		{ "InitialVelocity",				INI::parseVelocityReal,		NULL, offsetof( MissileAIUpdateModuleData, m_initialVel) },
+		{ "FuelLifetime",						SPEED_FIELD( MissileAIUpdateModuleData, m_fuelLifetime ) },
+		{ "IgnitionDelay",					SPEED_FIELD( MissileAIUpdateModuleData, m_ignitionDelay ) },
+		{ "InitialVelocity",				SPEED_FIELD( MissileAIUpdateModuleData, m_initialVel ) },
 		{ "DistanceToTravelBeforeTurning",	INI::parseReal,		NULL, offsetof( MissileAIUpdateModuleData, m_initialDist ) },
 		{ "DistanceToTargetBeforeDiving",		INI::parseReal,		NULL, offsetof( MissileAIUpdateModuleData, m_diveDistance ) },
 		{ "DistanceToTargetForLock",INI::parseReal,		NULL, offsetof( MissileAIUpdateModuleData, m_lockDistance ) },
@@ -117,7 +117,7 @@ void MissileAIUpdateModuleData::buildFieldParse(MultiIniFieldParse& p)
 		{ "GarrisonHitKillCount", INI::parseUnsignedInt, NULL, offsetof( MissileAIUpdateModuleData, m_garrisonHitKillCount ) },
 		{ "GarrisonHitKillFX", INI::parseFXList, NULL, offsetof( MissileAIUpdateModuleData, m_garrisonHitKillFX ) },
     { "DetonateCallsKill", INI::parseBool,   NULL, offsetof( MissileAIUpdateModuleData, m_detonateCallsKill ) },
-    { "KillSelfDelay",     INI::parseDurationUnsignedInt, NULL, offsetof( MissileAIUpdateModuleData, m_killSelfDelay ) },
+    { "KillSelfDelay",     SPEED_FIELD( MissileAIUpdateModuleData, m_killSelfDelay ) },
     { 0, 0, 0, 0 }
 	};
 
@@ -613,7 +613,7 @@ void MissileAIUpdate::doAttackState(Bool turnOK)
 		PhysicsBehavior* physics = getObject()->getPhysics();
 		if (m_isSpent && physics && physics->getVelocityMagnitude() > 0.0f)
 		{
-			const Real SPENT_DRAG = 0.25f / LOGICFRAMES_PER_SECOND;	// of the velocity, each frame
+			const Real SPENT_DRAG = 0.25f / LOGICFRAMES_PER_GAME_SECOND;	// of the velocity, each frame
 			const Coord3D* vel = physics->getVelocity();
 			Real dragMass = -SPENT_DRAG * physics->getMass();
 			Coord3D drag;
@@ -803,9 +803,9 @@ void MissileAIUpdate::doDeadState()
 void MissileAIUpdate::updateChaseOffset()
 {
 	const Real SWAY_ANGLE = 0.08f;					// radians of aim either side, between four and five degrees
-	const Real SWAY_PERIOD = 60.0f;					// logic frames for one swing and back
-	const Real SWAY_FADE_IN = 30.0f;				// logic frames from the start of the attack
-	const Real SWAY_FADE_FAR = 150.0f;
+	const Real SWAY_PERIOD = LOGICFRAMES_PER_GAME_SECOND_REAL;					// logic frames for one swing and back, a second
+	const Real SWAY_FADE_IN = LOGICFRAMES_PER_GAME_SECOND_REAL * 0.5f;		// logic frames from the start of the attack, half a second
+	const Real SWAY_FADE_FAR = 150.0f;			// distances to the goal, not frames
 	const Real SWAY_FADE_NEAR = 60.0f;
 
 	// a missile can come without a locomotor and fly on its launch force alone; nothing to steer
@@ -995,7 +995,7 @@ Also determines whether objects are blocked, and if so, if they are stuck.  jba.
 //-------------------------------------------------------------------------------------------------
 void MissileAIUpdate::airborneTargetGone()
 {
-	const Real AHEAD_FRAMES = LOGICFRAMES_PER_SECOND * 0.5f;
+	const Real AHEAD_FRAMES = LOGICFRAMES_PER_GAME_SECOND * 0.5f;
 
 	Object *obj = getObject();
 	const Coord3D *pos = obj->getPosition();

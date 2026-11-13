@@ -84,16 +84,17 @@ public:
 	ObjectStatusMaskType m_forbiddenStatus;
 	FXList				*m_disguiseRevealFX;
 	FXList				*m_disguiseFX;
-	Real					m_stealthSpeed;
+	VelocityPerFrame					m_stealthSpeed;
 	Real					m_friendlyOpacityMin;
-	Real					m_friendlyOpacityMax;
+	Real					m_friendlyOpacityMax;			///< read only with m_pulseToFriendlyOpacityMax: retail's pulse always ran up to 1
+	Bool					m_pulseToFriendlyOpacityMax;	///< PulseToFriendlyOpacityMax: the friendly pulse stops at the max, not at full paint
 	Real					m_revealDistanceFromTarget;
-	UnsignedInt		m_disguiseTransitionFrames;
-	UnsignedInt		m_disguiseRevealTransitionFrames;
-	UnsignedInt		m_pulseFrames;
-	UnsignedInt		m_stealthDelay;
+	DurationFrames		m_disguiseTransitionFrames;
+	DurationFrames		m_disguiseRevealTransitionFrames;
+	DurationFrames		m_pulseFrames;
+	DurationFrames		m_stealthDelay;
 	UnsignedInt		m_stealthLevel;
-	UnsignedInt		m_blackMarketCheckFrames;
+	DurationFrames		m_blackMarketCheckFrames;
   EvaMessage    m_enemyDetectionEvaEvent;
   EvaMessage    m_ownDetectionEvaEvent;
   Bool					m_innateStealth;

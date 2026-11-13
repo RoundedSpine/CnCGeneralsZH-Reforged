@@ -248,7 +248,7 @@ const FieldParse ThingTemplate::s_objectFieldParseTable[] =
 	{ "ShadowOffsetX",				INI::parseReal,						NULL,	offsetof( ThingTemplate, m_shadowOffsetX ) },
 	{ "ShadowOffsetY",				INI::parseReal,						NULL,	offsetof( ThingTemplate, m_shadowOffsetY ) },
 	{ "ShadowTexture",				INI::parseAsciiString,		NULL,	offsetof( ThingTemplate, m_shadowTextureName ) },
-	{ "OcclusionDelay",					INI::parseDurationUnsignedInt,		NULL, offsetof( ThingTemplate, m_occlusionDelay ) },
+	{ "OcclusionDelay",					SPEED_FIELD( ThingTemplate, m_occlusionDelay ) },
 	{ "AddModule",						ThingTemplate::parseAddModule,			NULL, 0 },
 	{ "RemoveModule",					ThingTemplate::parseRemoveModule,		NULL, 0 },
 	{ "ReplaceModule",				ThingTemplate::parseReplaceModule,	NULL, 0 },
@@ -1738,7 +1738,7 @@ Real ThingTemplate::calcMaxHealth( void ) const
 //-------------------------------------------------------------------------------------------------
 Int ThingTemplate::calcTimeToBuild( const Player* player) const
 {
-	Int buildTime = getBuildTime() * LOGICFRAMES_PER_SECOND;
+	Int buildTime = getBuildTime() * LOGICFRAMES_PER_GAME_SECOND;
 	buildTime *= player->getHandicap()->getHandicap(Handicap::BUILDTIME, this);
 
 	Real factionModifier = 1 + player->getProductionTimeChangePercent( getNameKey() );

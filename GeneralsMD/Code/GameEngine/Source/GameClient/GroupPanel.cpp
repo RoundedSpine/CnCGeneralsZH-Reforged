@@ -185,12 +185,7 @@ namespace
 		IRegion2D box;							///< the row, set by the draw, taken by a click
 	};
 
-	struct Buildable
-	{
-		const ThingTemplate *thing;
-		const CommandButton *button;	///< the first factory's, for the picture and the tooltip
-		CommandAvailability best;			///< over every factory that offers it
-	};
+	typedef GroupPanelBuildable Buildable;
 
 	Pieces s_pieces;
 	SquadRow s_rows[ NUM_HOTKEY_SQUADS ];
@@ -606,9 +601,42 @@ static void gatherSquads( Player *player )
 }
 
 //-------------------------------------------------------------------------------------------------
+Bool GroupPanel_isPlayerBuildButton( Int commandType, UnsignedInt options, Bool onBar )
+{
+	return commandType == GUI_COMMAND_UNIT_BUILD && onBar && !BitTest( options, SCRIPT_ONLY );
+}
+
+/// slot i of a factory's set as its bar has it: a unit build button the player can see there
+static Bool GroupPanel_isPlayerBuildSlot( const CommandButton *button, Int i )
+{
+	return button != NULL && GroupPanel_isPlayerBuildButton( button->getCommandType(), button->getOptions(),
+		TheControlBar->hasCommandWindow( i ) );
+}
+
+//-------------------------------------------------------------------------------------------------
 /** One unit type per entry for every unit build button any of the player's finished factories
 	* carries, with the best availability the command bar would give it on any of them. */
 //-------------------------------------------------------------------------------------------------
+Bool GroupPanel_isSameBuild( const CommandButton *a, const CommandButton *b )
+{
+	const ThingTemplate *ta = a ? a->getThingTemplate() : NULL;
+	const ThingTemplate *tb = b ? b->getThingTemplate() : NULL;
+	if( ta == NULL || tb == NULL )
+		return FALSE;
+	if( ta->isEquivalentTo( tb ) )
+		return TRUE;
+	// the generals' copies are whole objects of their own (Lazr_AmericaVehicleHumvee) that keep the
+	// original's name and picture (OBJECT:Humvee, SAHummer); a unit of their own has its own name
+	// (OBJECT:Lazr_Tank), and another side's namesake its own picture (SACWeaponsfact, SNWarFact)
+	return !ta->getDisplayName().isEmpty() && ta->getDisplayName() == tb->getDisplayName()
+		&& a->getButtonImage() != NULL && a->getButtonImage() == b->getButtonImage();
+}
+
+Bool GroupPanel_isOwnSide( const ThingTemplate *thing, const Player *player )
+{
+	return thing != NULL && player != NULL && thing->getDefaultOwningSide() == player->getSide();
+}
+
 static Bool isWorkingFactory( Object *obj )
 {
 	return !obj->isEffectivelyDead() && !obj->testStatus( OBJECT_STATUS_UNDER_CONSTRUCTION )
@@ -627,7 +655,7 @@ static void gatherBuildable( Object *obj, void *userData )
 	for( Int i = 0; i < MAX_COMMANDS_PER_SET; i++ )
 	{
 		const CommandButton *button = set->getCommandButton( i );
-		if( button == NULL || button->getCommandType() != GUI_COMMAND_UNIT_BUILD )
+		if( !GroupPanel_isPlayerBuildSlot( button, i ) )
 			continue;
 		const ThingTemplate *thing = button->getThingTemplate();
 		if( thing == NULL )
@@ -639,13 +667,57 @@ static void gatherBuildable( Object *obj, void *userData )
 		size_t at = 0;
 		while( at < list->size() && (*list)[ at ].thing != thing )
 			at++;
-		if( at == list->size() )
+		if( at < list->size() )
 		{
-			const Buildable added = { thing, button, now };
-			list->push_back( added );
+			if( ControlBar::commandAvailabilityRank( now ) > ControlBar::commandAvailabilityRank( (*list)[ at ].best ) )
+				(*list)[ at ].best = now;
+			continue;
 		}
-		else if( ControlBar::commandAvailabilityRank( now ) > ControlBar::commandAvailabilityRank( (*list)[ at ].best ) )
-			(*list)[ at ].best = now;
+
+		// another side's copy of a unit already listed (a captured factory, a general's twin): one
+		// entry, the player's own side's when either is.  A click queues the entry's template, so the
+		// logic only ever picks a factory that builds that one.
+		at = 0;
+		while( at < list->size() && !GroupPanel_isSameBuild( (*list)[ at ].button, button ) )
+			at++;
+		const Buildable added = { thing, button, now };
+		if( at == list->size() )
+			list->push_back( added );
+		else if( GroupPanel_isOwnSide( thing, obj->getControllingPlayer() )
+				&& !GroupPanel_isOwnSide( (*list)[ at ].thing, obj->getControllingPlayer() ) )
+			(*list)[ at ] = added;
+	}
+}
+
+void GroupPanel_gatherBuildable( Player *player, std::vector< GroupPanelBuildable > &out )
+{
+	out.clear();
+	if( player != NULL )
+		player->iterateObjects( gatherBuildable, &out );
+}
+
+/// the command bar's own reading of an availability (ControlBar::updateContextCommand)
+void GroupPanel_showAvailability( GameWindow *button, CommandAvailability availability )
+{
+	button->winClearStatus( WIN_STATUS_NOT_READY );
+	button->winClearStatus( WIN_STATUS_ALWAYS_COLOR );
+	switch( availability )
+	{
+		case COMMAND_AVAILABLE:
+		case COMMAND_ACTIVE:
+			button->winEnable( TRUE );
+			break;
+		case COMMAND_NOT_READY:
+			button->winEnable( FALSE );
+			button->winSetStatus( WIN_STATUS_NOT_READY );
+			break;
+		case COMMAND_CANT_AFFORD:
+			button->winEnable( FALSE );
+			button->winSetStatus( WIN_STATUS_ALWAYS_COLOR );
+			break;
+		default:
+			button->winEnable( FALSE );
+			break;
 	}
 }
 
@@ -668,7 +740,7 @@ static void countFreeSlots( Object *obj, void *userData )
 	for( Int i = 0; i < MAX_COMMANDS_PER_SET; i++ )
 	{
 		const CommandButton *button = set->getCommandButton( i );
-		if( button == NULL || button->getCommandType() != GUI_COMMAND_UNIT_BUILD )
+		if( !GroupPanel_isPlayerBuildSlot( button, i ) )
 			continue;
 		const ThingTemplate *thing = button->getThingTemplate();
 		if( thing != slots->thing )
@@ -688,7 +760,7 @@ static void countFreeSlots( Object *obj, void *userData )
 	* ctrl ask for, cut to what the bank pays for and the queues hold, so a ctrl+shift click does not
 	* send a hundred orders the logic would refuse.  The logic picks the factory for each. */
 //-------------------------------------------------------------------------------------------------
-static void queueForSquad( const ThingTemplate *thing, Int squad )
+void GroupPanel_queueUnit( const ThingTemplate *thing, Int squad )
 {
 	Player *player = ThePlayerList->getLocalPlayer();
 	FreeSlots slots = { thing, 0 };
@@ -740,7 +812,7 @@ static WindowMsgHandledType panelSystem( GameWindow *window, UnsignedInt msg, Wi
 
 	const CommandButton *command = (const CommandButton *)GadgetButtonGetData( (GameWindow *)mData1 );
 	if( command != NULL && command->getThingTemplate() != NULL && isValidHotkeySquadIndex( s_shownSquad ) )
-		queueForSquad( command->getThingTemplate(), s_shownSquad );
+		GroupPanel_queueUnit( command->getThingTemplate(), s_shownSquad );
 	return MSG_HANDLED;
 }
 
@@ -1225,27 +1297,7 @@ static void drawTray( Int top )
 			GadgetButtonSetData( button, (void *)entry.button );
 		}
 
-		// the command bar's own reading of an availability (ControlBar::updateContextCommand)
-		button->winClearStatus( WIN_STATUS_NOT_READY );
-		button->winClearStatus( WIN_STATUS_ALWAYS_COLOR );
-		switch( entry.best )
-		{
-			case COMMAND_AVAILABLE:
-			case COMMAND_ACTIVE:
-				button->winEnable( TRUE );
-				break;
-			case COMMAND_NOT_READY:
-				button->winEnable( FALSE );
-				button->winSetStatus( WIN_STATUS_NOT_READY );
-				break;
-			case COMMAND_CANT_AFFORD:
-				button->winEnable( FALSE );
-				button->winSetStatus( WIN_STATUS_ALWAYS_COLOR );
-				break;
-			default:
-				button->winEnable( FALSE );
-				break;
-		}
+		GroupPanel_showAvailability( button, entry.best );
 		button->winHide( FALSE );
 	}
 	panel->winHide( FALSE );

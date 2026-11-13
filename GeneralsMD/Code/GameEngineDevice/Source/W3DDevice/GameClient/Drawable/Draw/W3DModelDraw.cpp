@@ -53,6 +53,8 @@
 #include "GameClient/ObserverCamera.h"
 #include "GameClient/PlayerColorScheme.h"
 #include "GameClient/Shadow.h"
+#include "GameClient/TankSkin.h"
+#include "GameNetwork/GameInfo.h"
 #include "GameLogic/GameLogic.h"		// for real-time frame
 #include "GameLogic/GhostObject.h"
 #include "GameLogic/PartitionManager.h"
@@ -258,6 +260,7 @@ enum ACBits
 	MAINTAIN_FRAME_ACROSS_STATES2,
 	MAINTAIN_FRAME_ACROSS_STATES3,
 	MAINTAIN_FRAME_ACROSS_STATES4,
+	PREATTACK_RESTARTS,
 };
 
 static const char *ACBitsNames[] =
@@ -272,7 +275,8 @@ static const char *ACBitsNames[] =
 	"MAINTAIN_FRAME_ACROSS_STATES2",
 	"MAINTAIN_FRAME_ACROSS_STATES3",
 	"MAINTAIN_FRAME_ACROSS_STATES4",
-	
+	"PREATTACK_RESTARTS",
+
 	NULL
 };
 
@@ -1075,8 +1079,8 @@ W3DModelDrawModuleData::W3DModelDrawModuleData() :
 	m_quadMaxTilt(0.0f),
 	m_quadTiltGravity(400.0f),
 	m_quadTiltDrag(1.0f),
-	m_quadTiltTime(ConvertDurationFromMsecsToFrames(120.0f)),
-	m_quadYawTime(ConvertDurationFromMsecsToFrames(300.0f)),
+	m_quadTiltTime(DurationFramesReal::fromRaw(120.0f)),
+	m_quadYawTime(DurationFramesReal::fromRaw(300.0f)),
 	m_quadMaxDiveTilt(0.0f),
 #ifdef CACHE_ATTACH_BONE
 	m_attachToDrawableBoneOffsetValid(false),
@@ -1087,13 +1091,13 @@ W3DModelDrawModuleData::W3DModelDrawModuleData() :
 	const Real MAX_SHIFT = 3.0f;			
 	const Real INITIAL_RECOIL_RATE = 2.0f;	
 	const Real RECOIL_DAMPING = 0.4f;	
-	const Real SETTLE_RATE = 0.065f;		
+	const Real SETTLE_RATE_PER_SEC = 1.9499999f;		// ConvertRetailPerFrameRate( 0.065f ) a frame at the native speed
 
 	m_projectileBoneFeedbackEnabledSlots = 0;
-	m_initialRecoil = ConvertRetailPerFrameRate(INITIAL_RECOIL_RATE);
+	m_initialRecoil.setRaw( INITIAL_RECOIL_RATE * (Real)RETAIL_LOGICFRAMES_PER_SECOND );	// per second: 60, ConvertRetailPerFrameRate's 3.0f at the native speed
 	m_maxRecoil = MAX_SHIFT;
-	m_recoilDamping = ConvertRetailPerFrameFactor(RECOIL_DAMPING);
-	m_recoilSettle = ConvertRetailPerFrameRate(SETTLE_RATE);
+	m_recoilDamping.setRaw( RECOIL_DAMPING );
+	m_recoilSettle.setRaw( SETTLE_RATE_PER_SEC );
 
 
   m_receivesDynamicLights = TRUE;
@@ -1267,10 +1271,10 @@ void W3DModelDrawModuleData::buildFieldParse(MultiIniFieldParse& p)
 
 	static const FieldParse dataFieldParse[] = 
 	{
-		{ "InitialRecoilSpeed",	INI::parseVelocityReal, NULL, offsetof(W3DModelDrawModuleData, m_initialRecoil) },
+		{ "InitialRecoilSpeed",	SPEED_FIELD( W3DModelDrawModuleData, m_initialRecoil ) },
 		{ "MaxRecoilDistance",	INI::parseReal, NULL, offsetof(W3DModelDrawModuleData, m_maxRecoil) },
-		{ "RecoilDamping",	INI::parseRetailPerFrameFactorReal, NULL, offsetof(W3DModelDrawModuleData, m_recoilDamping) },
-		{ "RecoilSettleSpeed",	INI::parseVelocityReal, NULL, offsetof(W3DModelDrawModuleData, m_recoilSettle) },
+		{ "RecoilDamping",	SPEED_FIELD( W3DModelDrawModuleData, m_recoilDamping ) },
+		{ "RecoilSettleSpeed",	SPEED_FIELD( W3DModelDrawModuleData, m_recoilSettle ) },
 		{ "OkToChangeModelColor",	INI::parseBool, NULL, offsetof(W3DModelDrawModuleData, m_okToChangeModelColor) },
 		{ "AnimationsRequirePower",	INI::parseBool, NULL, offsetof(W3DModelDrawModuleData, m_animationsRequirePower) },
 		{ "StabilizedTurretPitch",	INI::parseBool, NULL, offsetof(W3DModelDrawModuleData, m_stabilizedTurretPitch) },
@@ -1280,8 +1284,8 @@ void W3DModelDrawModuleData::buildFieldParse(MultiIniFieldParse& p)
 		{ "QuadMaxTilt",	INI::parseAngleReal, NULL, offsetof(W3DModelDrawModuleData, m_quadMaxTilt) },
 		{ "QuadTiltGravity",	INI::parseReal, NULL, offsetof(W3DModelDrawModuleData, m_quadTiltGravity) },
 		{ "QuadTiltDrag",	INI::parseReal, NULL, offsetof(W3DModelDrawModuleData, m_quadTiltDrag) },
-		{ "QuadTiltTime",	INI::parseDurationReal, NULL, offsetof(W3DModelDrawModuleData, m_quadTiltTime) },
-		{ "QuadYawTime",	INI::parseDurationReal, NULL, offsetof(W3DModelDrawModuleData, m_quadYawTime) },
+		{ "QuadTiltTime",	SPEED_FIELD( W3DModelDrawModuleData, m_quadTiltTime ) },
+		{ "QuadYawTime",	SPEED_FIELD( W3DModelDrawModuleData, m_quadYawTime ) },
 		{ "QuadMaxDiveTilt",	INI::parseAngleReal, NULL, offsetof(W3DModelDrawModuleData, m_quadMaxDiveTilt) },
 		{ "ParticlesAttachedToAnimatedBones",	INI::parseBool, NULL, offsetof(W3DModelDrawModuleData, m_particlesAttachedToAnimatedBones) },
 		{ "MinLODRequired",		INI::parseStaticGameLODLevel,	NULL,	offsetof(W3DModelDrawModuleData, m_minLODRequired) },
@@ -1799,6 +1803,20 @@ const ModelConditionInfo* W3DModelDrawModuleData::findBestInfo(const ModelCondit
 //-------------------------------------------------------------------------------------------------
 
 //-------------------------------------------------------------------------------------------------
+/** The skin id this model wears for this machine, 0 for none: the owner's lobby seat's, or a disguised
+	unit's apparent owner's (TankSkin_seenPlayerIndex).  Inside the render's overlap window the object
+	may be changing or going away beside it, so the player comes from the copy taken at the sync point. */
+//-------------------------------------------------------------------------------------------------
+static Int ownerSkin( const Drawable *draw, const AsciiString &modelName )
+{
+	if (TheGameInfo == NULL)
+		return 0;		// a mission: nobody wears a skin, so no owner to look up
+	const Int playerIndex = LogicThread::isInsideWindow() ? draw->getObjectForDraw().skinPlayerIndex
+		: TankSkin_seenPlayerIndex(draw->getObject());
+	return TankSkin_forModel(TankSkin_ofPlayer(playerIndex), modelName.str());
+}
+
+//-------------------------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------------------------
 W3DModelDraw::W3DModelDraw(Thing *thing, const ModuleData* moduleData) : DrawModule(thing, moduleData)
 {
@@ -1812,6 +1830,7 @@ W3DModelDraw::W3DModelDraw(Thing *thing, const ModuleData* moduleData) : DrawMod
 	m_curState = NULL;
 	forgetProjectileShown();
 	m_hexColor = 0;
+	m_skin = 0;
 	m_renderObject = NULL;
 	m_shadow = NULL;
 	m_contactShadow = NULL;
@@ -2362,7 +2381,7 @@ void W3DModelDraw::adjustAnimSpeedToMovementSpeed()
 				{
 					// if distance-covered is specified for this anim, adjust the frame rate
 					// so it appears to sync with our unit speed
-					Real desiredDurationInMsec = dist / speed * MSEC_PER_LOGICFRAME_REAL;
+					Real desiredDurationInMsec = dist / speed * GAME_MSEC_PER_LOGICFRAME_REAL;	// the W3D clock runs game time
 					setCurAnimDurationInMsec(desiredDurationInMsec);
 				}
 			}
@@ -2844,7 +2863,7 @@ void W3DModelDraw::applyQuadAttitude(Matrix3D& mtx)
 		}
 		else
 		{
-			const Real perSecond = (Real)LOGICFRAMES_PER_SECOND / (Real)frames;
+			const Real perSecond = (Real)LOGICFRAMES_PER_GAME_SECOND / (Real)frames;
 			const Real ease = d->m_quadTiltTime > (Real)frames ? (Real)frames / d->m_quadTiltTime : 1.0f;
 			const Real rawX = (pos->x - m_quad.pos.x) * perSecond;
 			const Real rawY = (pos->y - m_quad.pos.y) * perSecond;
@@ -2926,11 +2945,16 @@ void W3DModelDraw::applyQuadAttitude(Matrix3D& mtx)
 	const Real pitch = m_quad.leanX * c + m_quad.leanY * s;		// toward the nose: nose down
 	const Real roll = m_quad.leanY * c - m_quad.leanX * s;		// toward the left side: left side down
 	const Vector3 at = mtx.Get_Translation();
+	// a uniform scale the drawable carries in (its instance matrix: the Beret's Kargu, drawn at the
+	// size of the one in his hands while it stands on the ground) survives the new attitude
+	const Real scale = mtx.Get_X_Vector().Length();
 	mtx.Make_Identity();
 	mtx.Set_Translation(at);
 	mtx.Rotate_Z(m_quad.yaw);
 	mtx.Rotate_Y(pitch);
 	mtx.Rotate_X(-roll);
+	if (fabs(scale - 1.0f) > 0.001f)
+		mtx.Scale(scale);
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -3849,10 +3873,15 @@ void W3DModelDraw::setModelState(const ModelConditionInfo* newState)
 			// he's already got one, you see
 			return;
 		} 
-		// check for allow-to-finish implicit transitions
+		// check for allow-to-finish implicit transitions; a PREATTACK_RESTARTS animation also plays out
+		// before a transition from it (the Beret's last placing finishes before he stands up through
+		// KGU), and a state with no transition from it (walking, dying) still cuts it off
 		else if (newState != m_curState &&
-							newState->m_allowToFinishKey != NAMEKEY_INVALID &&
-							newState->m_allowToFinishKey == m_curState->m_transitionKey &&
+							((newState->m_allowToFinishKey != NAMEKEY_INVALID &&
+								newState->m_allowToFinishKey == m_curState->m_transitionKey) ||
+							 (testFlagBit(m_curState->m_flags, PREATTACK_RESTARTS) &&
+								m_curState->m_transitionKey != NAMEKEY_INVALID && newState->m_transitionKey != NAMEKEY_INVALID &&
+								findTransitionForSig(buildTransitionSig(m_curState->m_transitionKey, newState->m_transitionKey)) != NULL)) &&
 							m_renderObject &&
 							!isAnimationComplete(m_renderObject))
 		{
@@ -3929,9 +3958,11 @@ void W3DModelDraw::setModelState(const ModelConditionInfo* newState)
 		{
 			const W3DModelDrawModuleData* data = getW3DModelDrawModuleData();
 			Bool swapsTexture = !data->m_replaceTextureOld.isEmpty();
+			// the owner's cosmetic skin; an owner change comes back through replaceIndicatorColor
+			m_skin = ownerSkin(draw, newState->m_modelName);
 			LOGIC_CENSUS( CENSUS_ASSET_LOAD );
 			m_renderObject = W3DDisplay::m_assetManager->Create_Render_Obj(newState->m_modelName.str(), draw->getScale(), m_hexColor,
-				swapsTexture ? data->m_replaceTextureOld.str() : NULL, swapsTexture ? data->m_replaceTextureNew.str() : NULL);
+				swapsTexture ? data->m_replaceTextureOld.str() : NULL, swapsTexture ? data->m_replaceTextureNew.str() : NULL, m_skin);
 			DEBUG_ASSERTCRASH(m_renderObject, ("*** ASSET ERROR: Model %s not found!\n",newState->m_modelName.str()));
 		}
 
@@ -4126,9 +4157,11 @@ void W3DModelDraw::replaceIndicatorColor(Color color)
 		return;
 
 	if (getRenderObject())
-	{	
+	{
 		Int newColor = (color == 0) ? 0 : (color | 0xFF000000);
-		if (newColor != m_hexColor)
+		// a new owner of the same colour (a relationship colour scheme) can still bring another skin
+		const Int skin = m_curState ? ownerSkin(getDrawable(), m_curState->m_modelName) : m_skin;
+		if (newColor != m_hexColor || skin != m_skin)
 		{
 			m_hexColor = newColor;
 
@@ -4789,6 +4822,16 @@ void W3DModelDraw::setAnimationLoopDuration(UnsignedInt numFrames)
 	// guesses from the first animation of each, as setAnimationCompletionTime always did.
 	UnsignedInt curFrames = numFrames;
 	m_nextStateAnimLoopDuration = NO_NEXT_DURATION;
+
+	// PREATTACK_RESTARTS: an animation that runs on past the preattack, through the shots, is started
+	// over at its own speed when the preattack begins instead of squeezed into it, so it keeps time
+	// with the shots (the Maroon Beret's Kargu placing: 3.7 s of three placings, one a shot, played
+	// whole inside the 1.4 s to the first one, and then held on its last frame)
+	if (m_curState != NULL && testFlagBit(m_curState->m_flags, PREATTACK_RESTARTS) && m_nextState == NULL)
+	{
+		adjustAnimation(m_curState, -1.0);
+		return;
+	}
 	if (m_curState != NULL && m_curState->m_transitionSig != NO_TRANSITION && m_curState->m_animations.size() > 0 &&
 			m_nextState != NULL && m_nextState->m_transitionSig == NO_TRANSITION && m_nextState->m_animations.size() > 0)
 	{
@@ -4811,7 +4854,7 @@ void W3DModelDraw::setAnimationLoopDuration(UnsignedInt numFrames)
 			m_nextStateAnimLoopDuration = numFrames - curFrames;
 		}
 	}
-	setCurAnimDurationInMsec(ceilf(curFrames * MSEC_PER_LOGICFRAME_REAL));
+	setCurAnimDurationInMsec(ceilf(curFrames * GAME_MSEC_PER_LOGICFRAME_REAL));	// the W3D clock runs game time
 }
 
 //-------------------------------------------------------------------------------------------------

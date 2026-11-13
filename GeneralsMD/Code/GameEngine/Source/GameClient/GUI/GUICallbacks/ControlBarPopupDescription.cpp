@@ -155,6 +155,22 @@ static UnicodeString metaKeySuffix( GameMessage::Type meta )
 	return suffix;
 }
 
+/// metaKeySuffix for the bar's own code-made keys (the signal keys' tooltips)
+UnicodeString ControlBar_metaKeySuffix( Int meta )
+{
+	return metaKeySuffix( (GameMessage::Type)meta );
+}
+
+/// A label whose %s takes metaKeySuffix: "Ground units%s: ..." reads "Ground units (Ctrl+W): ...",
+/// and "Ground units: ..." while the command has no key
+UnicodeString ControlBar_withMetaKey( const UnicodeString& label, Int meta )
+{
+	const UnicodeString suffix = metaKeySuffix( (GameMessage::Type)meta );
+	UnicodeString text;
+	text.format( label, suffix.str() );
+	return text;
+}
+
 //-------------------------------------------------------------------------------------------------
 /** What the build tooltip says beyond retail's name, price and description, piece by piece, the
 	* way Reforged's card laid it out; ControlBarPopupDescription.wnd gets it as lines of its text. */
@@ -789,6 +805,13 @@ void ControlBar::repopulateBuildTooltipLayout( void )
 	if(!BitTest(prevWindow->winGetStyle(), GWS_PUSH_BUTTON))
 		return;
 	const CommandButton *commandButton = (const CommandButton *)GadgetButtonGetData(prevWindow);
+	// the cell under the pointer lost its command (a unit tab's cell turned into a page arrow, or the
+	// bar emptied it): an empty card would hang there until the pointer left, so it goes now
+	if( commandButton == NULL )
+	{
+		hideBuildTooltipLayout();
+		return;
+	}
 	populateBuildTooltipLayout(commandButton);
 }
 
@@ -963,6 +986,21 @@ void ControlBar::populateBuildTooltipLayout( const CommandButton *commandButton,
 		}
 
 		name = TheGameText->fetch(commandButton->getTextLabel().str());
+
+		// an open command tab's cells take no keys, so the card marks no hotkey letter either: the '&'
+		// the name's HOTKEY_TEXT line would light goes.  A command cell's card is asked for with no
+		// window (showBuildTooltipLayout, repopulateBuildTooltipLayout): the window under the pointer
+		// is prevWindow then
+		if( commandTabCovers( tooltipWin ? tooltipWin : prevWindow ) )
+		{
+			WideCharString plain = name.str();
+			const size_t marker = plain.find( u'&' );
+			if( marker != WideCharString::npos )
+			{
+				plain.erase( marker, 1 );
+				name = plain.c_str();
+			}
+		}
 
 		if( thingTemplate && commandButton->getCommandType() != GUI_COMMAND_PURCHASE_SCIENCE )
 		{
@@ -1270,6 +1308,10 @@ void ControlBar::populateBuildTooltipLayout( const CommandButton *commandButton,
 			name.concat( metaKeySuffix( GameMessage::MSG_META_SELECT_NEXT_IDLE_VEHICLE ) );
 		else if( commandButton && commandButton->getName() == "NonCommand_IdleAircraft" )
 			name.concat( metaKeySuffix( GameMessage::MSG_META_SELECT_NEXT_IDLE_AIRCRAFT ) );
+		else if( commandButton && commandButton->getName() == "NonCommand_SelectArmy" )
+			name.concat( metaKeySuffix( GameMessage::MSG_META_SELECT_ALL ) );
+		else if( commandButton && commandButton->getName() == "NonCommand_Beacon" )
+			name.concat( metaKeySuffix( GameMessage::MSG_META_VIEW_LAST_RADAR_EVENT ) );
 		GadgetStaticTextSetText(win, name);
 	}
 

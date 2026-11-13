@@ -45,7 +45,7 @@ CONTROLBAR:IdleInfantry
 END
 
 CONTROLBAR:IdleInfantryDescription
-"Click to select the next idle infantry. Shift-click selects all of them."
+"Click to select the next idle infantry. Shift-click selects all of them. Right-click selects all your infantry, idle or not: those on screen first, the whole map on a second right-click."
 END
 
 CONTROLBAR:IdleVehicle
@@ -53,7 +53,7 @@ CONTROLBAR:IdleVehicle
 END
 
 CONTROLBAR:IdleVehicleDescription
-"Click to select the next idle ground vehicle. Shift-click selects all of them."
+"Click to select the next idle ground vehicle. Shift-click selects all of them. Right-click selects all your ground vehicles, idle or not: those on screen first, the whole map on a second right-click."
 END
 
 CONTROLBAR:IdleAircraft
@@ -61,7 +61,23 @@ CONTROLBAR:IdleAircraft
 END
 
 CONTROLBAR:IdleAircraftDescription
-"Click to select the next idle aircraft. Shift-click selects all of them."
+"Click to select the next idle aircraft. Shift-click selects all of them. Right-click selects all your aircraft, idle or not: those on screen first, the whole map on a second right-click."
+END
+
+CONTROLBAR:SelectArmy
+"Select Army"
+END
+
+CONTROLBAR:SelectArmyDescription
+"Click to select every fighting unit on screen; click again for your whole army across the map. Workers, supply trucks and buildings are left out."
+END
+
+CONTROLBAR:LastAlert
+"Last Alert"
+END
+
+CONTROLBAR:LastAlertDescription
+"Click to move the camera to the last radar alert, such as your base under attack. Click again soon after to go one alert further back."
 END
 
 CONTROLBAR:IdleWorkerDescription
@@ -1434,20 +1450,37 @@ TOOLTIP:ProRules
 "The tournament list. No Particle Cannon or SCUD Storm, except the Superweapon General's one cannon. The Nuclear Missile silo goes up but never fires. No Aurora, no Tactical Nuke MiGs, no demo bike, no suicide bombs, Neutron Shells or Stealth Comanche, and no Carpet Bomb before rank 3. A Microwave Tank cannot freeze a building still going up, nobody builds within 300 of an enemy building, and nobody puts more than two Patriots, Gatling Cannons or Stinger Sites round one group of oil derricks."
 END
 
-GUI:TurboMode
-"Turbo Mode"
+GUI:GameSpeed
+"Game Speed"
 END
 
-TOOLTIP:TurboMode
-"The match runs twice as fast: two seconds of play go by in every second, and nothing else about it changes. In a network game the host picks it for everyone."
+TOOLTIP:GameSpeed
+"How fast the skirmish runs. 1.0x is the original game and 1.5x the speed every multiplayer match plays at. Only the pace changes."
 END
 
-GUI:TurboModeMissions
-"Turbo Mode in Missions"
+GUI:GameSpeedMissions
+"Game Speed in Missions"
 END
 
-TOOLTIP:TurboModeMissions
-"Campaign and Generals' Challenge missions run twice as fast, and a mission already under way speeds up at once. Skirmish and multiplayer games have their own box in the lobby."
+TOOLTIP:GameSpeedMissions
+"How fast campaign and Generals' Challenge missions run. 1.0x is the original game. The speed is set as a mission starts, so a change takes effect from the next one. A skirmish picks its own speed in the lobby."
+END
+
+// the Options combo's rows (OptionsCatalog, OPTION_ENUM); the skirmish combo builds the same text in code
+GUI:GameSpeedMissions0
+"1.0x"
+END
+
+GUI:GameSpeedMissions1
+"1.25x"
+END
+
+GUI:GameSpeedMissions2
+"1.5x"
+END
+
+GUI:GameSpeedMissions3
+"2.0x"
 END
 
 // Pro Rules, rule 9: no foundation within reach of an enemy building
@@ -1626,6 +1659,31 @@ END
 
 GUI:CheatApply
 "GO"
+END
+
+GUI:CheatRankMax
+"MAX"
+END
+
+GUI:CheatUnlimitedPoints
+"Unlimited general's points"
+END
+
+GUI:CheatBuildAnywhere
+"Build anywhere"
+END
+
+// the trainer's section headers
+GUI:CheatSectionPlayer
+"PLAYER"
+END
+
+GUI:CheatSectionUnits
+"UNITS"
+END
+
+GUI:CheatSectionMap
+"MAP"
 END
 
 // a line of the event feed when a player's last dozer or worker is gone; %s is his name
@@ -1916,7 +1974,7 @@ GUI:SmoothMotion
 END
 
 TOOLTIP:SmoothMotion
-"On a screen faster than 60 Hz, units are drawn between their last two positions instead of holding each one until the next. A 60 Hz screen shows no change. Only your picture changes: nothing in the game reads it, and other players see their own setting. Applies when you press Accept."
+"Units are drawn between their last two positions instead of holding each one until the game's next step, so movement is as smooth as your screen allows, 60 Hz included. Only your picture changes: nothing in the game reads it, and other players see their own setting. Applies when you press Accept."
 END
 
 GUI:HeatHaze
@@ -1945,6 +2003,39 @@ END
 
 GUI:BuildWithoutWorker
 "Build Without A Worker"
+END
+
+// %s in the three tab tooltips is the tab's key as " (Ctrl+W)", nothing when it has none
+GUI:CommandTabBuildings
+"Buildings%s: everything your builders can put up, nothing selected first"
+END
+
+GUI:CommandTabGround
+"Ground units%s: everything your factories can train now. Mouse wheel scrolls the list"
+END
+
+GUI:CommandTabAircraft
+"Aircraft%s: everything your airfields can build now. Mouse wheel scrolls the list"
+END
+
+GUI:CommandTabPageNext
+"Scroll right"
+END
+
+GUI:CommandTabPagePrev
+"Scroll left"
+END
+
+GUI:SignalKeyAttack
+"Attack signal: smoke for your allies where you click next. Right click cancels"
+END
+
+GUI:SignalKeyDefend
+"Defend signal: smoke for your allies where you click next. Right click cancels"
+END
+
+GUI:SignalKeyAttention
+"Look here: smoke for your allies where you click next. Right click cancels"
 END
 
 TOOLTIP:BuildWithoutWorker
@@ -2287,6 +2378,18 @@ END
 
 GUI:HotkeysCommandTOGGLE_PURCHASE_SCIENCE
 "General's promotions"
+END
+
+GUI:HotkeysCommandTOGGLE_COMMAND_TAB_BUILDINGS
+"Buildings tab"
+END
+
+GUI:HotkeysCommandTOGGLE_COMMAND_TAB_GROUND
+"Ground units tab"
+END
+
+GUI:HotkeysCommandTOGGLE_COMMAND_TAB_AIRCRAFT
+"Aircraft tab"
 END
 
 GUI:HotkeysCommandSIGNAL_ATTACK
@@ -2956,7 +3059,7 @@ CONTROLBAR:ConstructTurkiyeInfantryMehmetcik
 END
 
 CONTROLBAR:ToolTipTurkiyeInfantryMehmetcik
-"Line infantry. Clears and holds buildings."
+"Line infantry and the opening move: with a Spotter Team and a Cobra or two they win the first minutes. Clears and holds buildings."
 END
 
 OBJECT:TurkiyeInfantryEngineer
@@ -2992,7 +3095,7 @@ CONTROLBAR:ConstructTurkiyeInfantryAlpagu
 END
 
 CONTROLBAR:ToolTipTurkiyeInfantryAlpagu
-"Kneels, sets a kamikaze drone down and flies it out to 350, where it drops onto infantry and light vehicles. He sees only 200: past that, a spotter or a radar tower has to find the target. Weak against tanks and buildings."
+"Kneels, sets a kamikaze drone down and flies it out to 350, where it drops onto infantry and light vehicles. He sees only 200: past that, a spotter or a radar tower has to find the target. Weak against tanks and buildings. When an enemy your eyes see dies within his reach, he launches half again as fast for 6 seconds. Next to a Siper he reaches a tenth further."
 END
 
 OBJECT:TurkiyeInfantrySpotter
@@ -3004,7 +3107,7 @@ CONTROLBAR:ConstructTurkiyeInfantrySpotter
 END
 
 CONTROLBAR:ToolTipTurkiyeInfantrySpotter
-"Sees 500 and barely fights. It cannot hide, so keep it out of reach. Put it on a hill and the artillery behind it can shoot."
+"Sees 500 and barely fights. Cheap: losing one costs little, so bring two. Put it on a hill and the artillery behind it can shoot."
 END
 
 OBJECT:TurkiyeInfantryMaroonBeret
@@ -3016,7 +3119,23 @@ CONTROLBAR:ConstructTurkiyeInfantryMaroonBeret
 END
 
 CONTROLBAR:ToolTipTurkiyeInfantryMaroonBeret
-"Special forces. Camouflaged, sees 350 for the artillery and plants timed and remote charges."
+"Special forces. Camouflaged, sees 350 for the artillery, lases targets for a strike drone and sends Kargu drones from his pack."
+END
+
+CONTROLBAR:TurkiyeBeretDesignate
+"&Designate Target"
+END
+
+CONTROLBAR:ToolTipTurkiyeBeretDesignate
+"Holds a thin targeting laser on a vehicle or building. A TB2 flies over him and after 4 seconds drops a Kemankeş munition that glides in and dives on it, and he keeps the laser on until it hits. He cannot hide while he lases, and moving him in the first 4 seconds calls it off. \n Recharge: 1:00"
+END
+
+CONTROLBAR:TurkiyeBeretKarguSwarm
+"Kargu S&warm"
+END
+
+CONTROLBAR:ToolTipTurkiyeBeretKarguSwarm
+"Kneels, takes three Kargu kamikaze drones off his back one by one and sets them down on his left, in front and on his right. They lift off together and dive one after another on a spot 75 to 350 away. \n Recharge: 0:45"
 END
 
 OBJECT:TurkiyeVehicleSupplyTruck
@@ -3088,7 +3207,7 @@ CONTROLBAR:ConstructTurkiyeVehicleFirtina
 END
 
 CONTROLBAR:ToolTipTurkiyeVehicleFirtina
-"Fires a heavy shell with a wide blast out to 600 and sees 100: it needs a spotter, a UAV or a radar tower to aim."
+"The mid-game gun. Fires a heavy shell with a wide blast out to 600 and sees 100: it needs a Spotter Team or a Bayraktar to aim, and a Siper or a radar near the target to hit. When an enemy your eyes see dies within its reach, it fires half again as fast, dead on target, for 6 seconds. Next to a Siper it reaches a tenth further."
 END
 
 OBJECT:TurkiyeVehicleSakarya
@@ -3100,7 +3219,7 @@ CONTROLBAR:ConstructTurkiyeVehicleSakarya
 END
 
 CONTROLBAR:ToolTipTurkiyeVehicleSakarya
-"Fires a six-rocket salvo over a wide area out to 500, then reloads for 12 seconds. Needs a spotter."
+"Fires a six-rocket salvo over a wide area out to 500, then reloads for 14 seconds. Needs a spotter. When an enemy your eyes see dies within its reach, it reloads half again as fast and lands dead on target for 6 seconds. Next to a Siper it reaches a tenth further."
 END
 
 OBJECT:TurkiyeTankKoral
@@ -3112,7 +3231,7 @@ CONTROLBAR:ConstructTurkiyeTankKoral
 END
 
 CONTROLBAR:ToolTipTurkiyeTankKoral
-"Electronic warfare vehicle; its beam shuts enemy buildings down from 400."
+"Electronic warfare vehicle: enemy drones and spotters within 400 go blind, guided missiles lose their lock, and its beam shuts enemy buildings down from 400."
 END
 
 OBJECT:TurkiyeVehicleBayraktar
@@ -3124,7 +3243,7 @@ CONTROLBAR:ConstructTurkiyeVehicleBayraktar
 END
 
 CONTROLBAR:ToolTipTurkiyeVehicleBayraktar
-"Hovers where it is sent and sees 550, the artillery's best eye. Light munitions."
+"Hovers where it is sent, sees 550 and carries its own radar circle of 450: on its own it is all the artillery needs to aim and hit. Light munitions."
 END
 
 OBJECT:TurkiyeVehicleGokbey
@@ -3172,7 +3291,7 @@ CONTROLBAR:ConstructTurkiyeRadarTower
 END
 
 CONTROLBAR:ToolTipTurkiyeRadarTower
-"Fixed eye: sees 500 for the artillery. Draws power. A target."
+"The base's long radar: sees 500 and keeps radar lock 1000 around it. Researches Target Classification and opens the Alpagu Operator. Draws power."
 END
 
 OBJECT:TurkiyeSiper
@@ -3184,7 +3303,7 @@ CONTROLBAR:ConstructTurkiyeSiper
 END
 
 CONTROLBAR:ToolTipTurkiyeSiper
-"Trench bunker for five infantry, dug wherever the engineers stand. Mehmetcik in it hold off infantry, Sungur gunners hold off tanks."
+"Trench bunker for five infantry, dug wherever the engineers stand, and the forward radar post: radar lock 400 around it. Dig one in front of the Firtina line. Mehmetcik in it hold off infantry, Sungur gunners hold off tanks. Firtina, Sakarya and Alpagu within 400 of it reach a tenth further."
 END
 
 OBJECT:TurkiyeLandMine
@@ -3320,7 +3439,7 @@ SCIENCE:TurkiyeEarlyWarning
 END
 
 CONTROLBAR:ToolTipTurkiyeScienceEarlyWarning
-"Every Turkiye radar reaches a quarter further: Headquarters, Radar Tower, Koral, Akinci and Mobile Radar."
+"Every Turkiye radar reaches a quarter further: Headquarters, Radar Tower, Siper, Bayraktar and Akinci."
 END
 
 UPGRADE:TurkiyeEarlyWarning
@@ -3348,11 +3467,11 @@ GUI:HudReconSiha
 END
 
 SCIENCE:TurkiyeMobileRadar
-"Mobile Radar"
+"Forward Radar"
 END
 
 CONTROLBAR:ToolTipTurkiyeScienceMobileRadar
-"The Factory builds the Mobile Radar, a radar truck that covers 900 around it while it stands still."
+"Every Siper's radar circle reaches half as far again, 400 to 600."
 END
 
 OBJECT:TurkiyeVehicleMobileRadar
@@ -3499,6 +3618,106 @@ CONTROLBAR:ToolTipUpgradeTurkiyeSiperReinforced
 "Concrete and overhead cover: every Siper takes half as much again before it falls."
 END
 
+UPGRADE:TurkiyeMpt76
+"MPT-76 Rifles"
+END
+
+CONTROLBAR:UpgradeTurkiyeMpt76
+"MPT-76 &Rifles"
+END
+
+CONTROLBAR:ToolTipUpgradeTurkiyeMpt76
+"Mehmetcik Riflemen carry the 7.62 MPT-76: 11 damage a round instead of 8, and 150 range instead of 120."
+END
+
+UPGRADE:TurkiyeCbrn
+"CBRN Kit"
+END
+
+CONTROLBAR:UpgradeTurkiyeCbrn
+"CBR&N Kit"
+END
+
+CONTROLBAR:ToolTipUpgradeTurkiyeCbrn
+"Protective suits and masks for Mehmetcik, Sungur, Alpagu, Spotter Teams and the Maroon Beret: they shrug off toxins, radiation and anthrax."
+END
+
+UPGRADE:TurkiyeSelfProtection
+"Self-Protection Suite"
+END
+
+CONTROLBAR:UpgradeTurkiyeSelfProtection
+"Self-&Protection Suite"
+END
+
+CONTROLBAR:ToolTipUpgradeTurkiyeSelfProtection
+"Bayraktar, Akinci and Kizilelma carry flares and extra armour. Flares pull away three missiles in ten."
+END
+
+UPGRADE:TurkiyeFortification
+"Fortification"
+END
+
+CONTROLBAR:UpgradeTurkiyeFortification
+"&Fortification"
+END
+
+CONTROLBAR:ToolTipUpgradeTurkiyeFortification
+"Every base building and Hisar Battery takes a quarter more damage before it falls."
+END
+
+UPGRADE:TurkiyeExportContracts
+"Export Contracts"
+END
+
+CONTROLBAR:UpgradeTurkiyeExportContracts
+"&Export Contracts"
+END
+
+CONTROLBAR:ToolTipUpgradeTurkiyeExportContracts
+"Foreign buyers for the factories' output. Every Supply Center pays 30 every 2 seconds instead of 20, every Grand Bazaar 35."
+END
+
+UPGRADE:TurkiyeWarheads
+"Domestic Warheads"
+END
+
+CONTROLBAR:UpgradeTurkiyeWarheads
+"Domestic &Warheads"
+END
+
+CONTROLBAR:ToolTipUpgradeTurkiyeWarheads
+"Turkish-made warheads: a quarter more damage from the Firtina, Sakarya, Altay gun, Alpagu and Sungur missiles, the Bayraktar's munitions, the Akinci's bomb and the Kizilelma's missiles."
+END
+
+UPGRADE:TurkiyeAltaySarp
+"SARP Weapon Station"
+END
+
+CONTROLBAR:UpgradeTurkiyeAltaySarp
+"SA&RP Weapon Station"
+END
+
+CONTROLBAR:ToolTipUpgradeTurkiyeAltaySarp
+"This Altay gets a remote 12.7 mm machine gun on its turret for infantry. The main gun keeps the vehicles."
+END
+
+UPGRADE:TurkiyeKirpiRepairKit
+"Field Repair Kit"
+END
+
+CONTROLBAR:UpgradeTurkiyeKirpiRepairKit
+"Field &Repair Kit"
+END
+
+CONTROLBAR:ToolTipUpgradeTurkiyeKirpiRepairKit
+"This Kirpi carries a repair crew: vehicles within 150 of it regain 10 health a second."
+END
+
+UPGRADE:TurkiyeForwardRadar
+"Forward Radar"
+END
+
 UPGRADE:TurkiyeThermal
 "Thermal Sights"
 END
@@ -3604,7 +3823,7 @@ CONTROLBAR:ConstructTurkiyeKapalicarsi
 END
 
 CONTROLBAR:ToolTipTurkiyeKapalicarsi
-"Turkiye's black market. Pays 20 every 2 seconds and sells Countermeasures for the Bayraktar, the Akinci and the Kizilelma, and Worker Shoes for the engineers. \n \n Requires: Factory"
+"Turkiye's market and its economy building. Pays 20 every 2 seconds and sells Export Contracts, which raise every Supply Center's and Grand Bazaar's income. \n \n Requires: Factory"
 END
 
 CONTROLBAR:ToolTipTurkiyeKarguBase
@@ -3868,6 +4087,28 @@ END
 // a seat's colour left to chance; EA's label for it was "???"
 GUI:???
 "Random"
+END
+
+// a refused join names which half of the room's pair differs: the build, or the game data files
+GUI:JoinFailedDifferentBuild
+"Could not join - the host runs a different build of the game. Update to the same version."
+END
+
+GUI:JoinFailedDifferentData
+"Could not join - same game version, different game data files. Repair or reinstall the game, and remove loose files you added to its Data folder."
+END
+
+// the host's room chat when a joiner leaves on a check of its own; the first %hs is the joiner
+GUI:JoinerLeftNoHost
+"%hs left: their game could not find you as host of this room (it read the host's seat as \"%hs\")."
+END
+
+GUI:JoinerLeftNoSlotList
+"%hs left: your seat list never reached them."
+END
+
+GUI:JoinerLeftDropped
+"%hs left: your seat list stopped listing them."
 END
 
 // the online login screen's one account field: the service takes the email or the nick
@@ -4171,6 +4412,54 @@ GUI:OnlineLadderButton
 "LADDER"
 END
 
+GUI:OnlineSkinsButton
+"SKINS"
+END
+
+GUI:OnlineSkinsDefault
+"DEFAULT"
+END
+
+GUI:OnlineSkinsSave
+"SAVE"
+END
+
+GUI:OnlineSkinsWaiting
+"Asking zerohour.gg..."
+END
+
+GUI:OnlineSkinsHint
+"Pick one look per unit and press Save. Greyed-out skins unlock with a code redeemed at zerohour.gg."
+END
+
+GUI:OnlineSkinsNone
+"Your account owns no skins yet. Redeem a code at zerohour.gg, then open this screen again."
+END
+
+GUI:OnlineSkinsSaved
+"Saved. Your next game, custom or Quick Match, shows these skins."
+END
+
+GUI:OnlineSkinsSignedOut
+"You are not signed in. Sign in online to pick your skins."
+END
+
+GUI:OnlineSkinsThrottled
+"Too many saves in a minute. Wait a little and press Save again."
+END
+
+GUI:OnlineSkinsUnavailable
+"zerohour.gg did not answer. Your skins stay as they were; try again in a moment."
+END
+
+GUI:OnlineSkinsRefused
+"zerohour.gg refused that pick, so your skins stay as they were. Open this screen again to see what your account holds."
+END
+
+SKIN:Gold1K
+"1K GOLD"
+END
+
 GUI:OnlineLadderRank
 "#"
 END
@@ -4297,22 +4586,6 @@ END
 
 SCIENCE:Rank10
 "10 Star General"
-END
-
-OBJECT:AmericaRangerSquad
-"Ranger Squad"
-END
-
-OBJECT:AmericaMissileDefenderSquad
-"Missile Defender Squad"
-END
-
-CONTROLBAR:ConstructAmericaInfantryRangerSquad
-"Ranger S&quad"
-END
-
-CONTROLBAR:ConstructAmericaInfantryMissileDefenderSquad
-"Missile Defender Sq&uad"
 END
 
 // The general's talents, ranks 6 to 10: the talents panel of the General's Powers window. GUI:Rank

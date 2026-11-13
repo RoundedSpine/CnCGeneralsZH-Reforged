@@ -79,19 +79,20 @@ StealthUpdateModuleData::StealthUpdateModuleData()
 		m_disguiseFX = NULL;
     m_disguiseRevealFX = NULL;
     //
-    m_stealthDelay		= UINT_MAX;
+    m_stealthDelay.setRaw( UINT_MAX );	// a sentinel: stays UINT_MAX frames
     m_stealthLevel		= 0;
-    m_stealthSpeed		= 0.0f;
+    m_stealthSpeed.setRaw( 0.0f );
     m_friendlyOpacityMin = 0.5f;
     m_friendlyOpacityMax = 1.0f;
-    m_pulseFrames = LOGICFRAMES_PER_SECOND;
+    m_pulseToFriendlyOpacityMax = FALSE;
+    m_pulseFrames.setRaw( 1000 );
     m_teamDisguised		= false;
     m_revealDistanceFromTarget = 0.0f;
     m_orderIdleEnemiesToAttackMeUponReveal = false;
     m_innateStealth   = true;
-    m_disguiseTransitionFrames = 0;
-    m_disguiseRevealTransitionFrames = 0;
-    m_blackMarketCheckFrames = 0;
+    m_disguiseTransitionFrames.setRaw( 0 );
+    m_disguiseRevealTransitionFrames.setRaw( 0 );
+    m_blackMarketCheckFrames.setRaw( 0 );
     m_enemyDetectionEvaEvent = EVA_Invalid;
     m_ownDetectionEvaEvent = EVA_Invalid;
     m_grantedBySpecialPower = FALSE;
@@ -106,27 +107,28 @@ void StealthUpdateModuleData::buildFieldParse(MultiIniFieldParse& p)
 
 	static const FieldParse dataFieldParse[] = 
 	{
-		{ "StealthDelay",									INI::parseDurationUnsignedInt,	NULL, offsetof( StealthUpdateModuleData, m_stealthDelay ) },
-		{ "MoveThresholdSpeed",						INI::parseVelocityReal,					NULL, offsetof( StealthUpdateModuleData, m_stealthSpeed ) },
+		{ "StealthDelay",									SPEED_FIELD( StealthUpdateModuleData, m_stealthDelay ) },
+		{ "MoveThresholdSpeed",						SPEED_FIELD( StealthUpdateModuleData, m_stealthSpeed ) },
 		{ "StealthForbiddenConditions",		INI::parseBitString32,					TheStealthLevelNames, offsetof( StealthUpdateModuleData, m_stealthLevel) }, 
 		{ "HintDetectableConditions",	  	ObjectStatusMaskType::parseFromINI,	NULL, offsetof( StealthUpdateModuleData, m_hintDetectableStates) },
 		{ "RequiredStatus",								ObjectStatusMaskType::parseFromINI,	NULL, offsetof( StealthUpdateModuleData, m_requiredStatus ) },
 		{ "ForbiddenStatus",							ObjectStatusMaskType::parseFromINI,	NULL, offsetof( StealthUpdateModuleData, m_forbiddenStatus ) },
 		{ "FriendlyOpacityMin",						INI::parsePercentToReal,				NULL, offsetof( StealthUpdateModuleData, m_friendlyOpacityMin ) },
 		{ "FriendlyOpacityMax",						INI::parsePercentToReal,				NULL, offsetof( StealthUpdateModuleData, m_friendlyOpacityMax ) },
-		{ "PulseFrequency",								INI::parseDurationUnsignedInt,	NULL, offsetof( StealthUpdateModuleData, m_pulseFrames ) },
+		{ "PulseToFriendlyOpacityMax",		INI::parseBool,									NULL, offsetof( StealthUpdateModuleData, m_pulseToFriendlyOpacityMax ) },
+		{ "PulseFrequency",								SPEED_FIELD( StealthUpdateModuleData, m_pulseFrames ) },
 		{ "DisguisesAsTeam",							INI::parseBool,									NULL, offsetof( StealthUpdateModuleData, m_teamDisguised ) },
 		{ "RevealDistanceFromTarget",			INI::parseReal,									NULL, offsetof( StealthUpdateModuleData, m_revealDistanceFromTarget ) },
 		{ "OrderIdleEnemiesToAttackMeUponReveal", INI::parseBool,					NULL, offsetof( StealthUpdateModuleData, m_orderIdleEnemiesToAttackMeUponReveal ) },
 		{ "DisguiseFX",										INI::parseFXList,								NULL, offsetof( StealthUpdateModuleData, m_disguiseFX ) },
 		{ "DisguiseRevealFX",							INI::parseFXList,								NULL, offsetof( StealthUpdateModuleData, m_disguiseRevealFX ) },
-		{ "DisguiseTransitionTime",				INI::parseDurationUnsignedInt,  NULL, offsetof( StealthUpdateModuleData, m_disguiseTransitionFrames ) },
-		{ "DisguiseRevealTransitionTime",	INI::parseDurationUnsignedInt,  NULL, offsetof( StealthUpdateModuleData, m_disguiseRevealTransitionFrames ) },
+		{ "DisguiseTransitionTime",				SPEED_FIELD( StealthUpdateModuleData, m_disguiseTransitionFrames ) },
+		{ "DisguiseRevealTransitionTime",	SPEED_FIELD( StealthUpdateModuleData, m_disguiseRevealTransitionFrames ) },
 		{ "InnateStealth",								INI::parseBool,									NULL, offsetof( StealthUpdateModuleData, m_innateStealth ) },
 		{ "UseRiderStealth",							INI::parseBool,									NULL, offsetof( StealthUpdateModuleData, m_useRiderStealth ) },
     { "EnemyDetectionEvaEvent",				Eva::parseEvaMessageFromIni,  	NULL, offsetof( StealthUpdateModuleData, m_enemyDetectionEvaEvent ) },
     { "OwnDetectionEvaEvent",		  		Eva::parseEvaMessageFromIni,  	NULL, offsetof( StealthUpdateModuleData, m_ownDetectionEvaEvent ) },
-		{ "BlackMarketCheckDelay",				INI::parseDurationUnsignedInt,  NULL, offsetof( StealthUpdateModuleData, m_blackMarketCheckFrames ) },
+		{ "BlackMarketCheckDelay",				SPEED_FIELD( StealthUpdateModuleData, m_blackMarketCheckFrames ) },
     { "GrantedBySpecialPower",        INI::parseBool,                 NULL, offsetof( StealthUpdateModuleData, m_grantedBySpecialPower ) },
 
 		{ 0, 0, 0, 0 }
@@ -709,8 +711,15 @@ UpdateSleepTime StealthUpdate::update( void )
 		}
 		else
 		{
-			draw->setEffectiveOpacity( 0.5f + ( Sin( m_pulsePhase ) * 0.5f ) );
-			// between one half and full opacity
+			// The friendly pulse runs from FriendlyOpacityMin up to full paint, every 0.7 s at 1.5x.
+			// EA parsed FriendlyOpacityMax and never read it, and retail data sets it (the Pathfinder
+			// and the Stealth General's sniper, 30% to 80%), so honouring it everywhere would change
+			// them. PulseToFriendlyOpacityMax opts in: the pulse stops at the max, and a unit with a
+			// narrow range (the Maroon Beret, 50% to 60%) holds a steady glass look.
+			Real pulse = 0.5f + ( Sin( m_pulsePhase ) * 0.5f );
+			if( data->m_pulseToFriendlyOpacityMax && data->m_friendlyOpacityMin < 1.0f )
+				pulse *= ( data->m_friendlyOpacityMax - data->m_friendlyOpacityMin ) / ( 1.0f - data->m_friendlyOpacityMin );
+			draw->setEffectiveOpacity( pulse );
 			m_pulsePhase += m_pulsePhaseRate;
 		}
 	}

@@ -106,7 +106,7 @@ public:
 	AsciiString m_name;										///< Current animation name
 	Int m_animType;												///< Type of animation that this will follow
 	ControlBarSchemeImage *m_animImage;		///< Pointer of the image that this animation will act on
-	UnsignedInt m_animDuration;						///< Contians how long the animation should take based off game frames
+	DurationFrames m_animDuration;						///< Contians how long the animation should take based off game frames
 	ICoord2D m_finalPos;									///< The final position when we hit the m_animDuration frame
 
 	UnsignedInt getCurrentFrame(void) { return m_currentFrame; }
@@ -261,13 +261,58 @@ public:
 	ICoord2D m_blockUL[ BLOCK_COUNT ];
 	ICoord2D m_blockLR[ BLOCK_COUNT ];
 
-	/// the idle infantry, vehicle and aircraft buttons beside the command grid: Idle<Kind>ButtonImage
-	/// names the sheet piece, and its H, P and I copies are the other three states; Idle<Kind>UL/LR
-	/// where it stands.  A scheme without the rectangle leaves the button out.
-	enum { IDLE_INFANTRY, IDLE_VEHICLE, IDLE_AIRCRAFT, IDLE_COUNT };
+	/// the idle infantry, vehicle and aircraft buttons beside the command grid, and the select army
+	/// button: Idle<Kind>ButtonImage (SelectArmyButtonImage) names the sheet piece, and its H, P and I
+	/// copies are the other three states; Idle<Kind>UL/LR (SelectArmyUL/LR) where it stands.  A scheme
+	/// without the rectangle leaves the button out.
+	enum { IDLE_INFANTRY, IDLE_VEHICLE, IDLE_AIRCRAFT, IDLE_ARMY, IDLE_COUNT };
 	AsciiString m_idleButtonImage[ IDLE_COUNT ];
 	ICoord2D m_idleUL[ IDLE_COUNT ];
 	ICoord2D m_idleLR[ IDLE_COUNT ];
+
+	/// the command bar's tabs (ControlBar::CommandTab order): CommandTab<Kind>ButtonImage names the
+	/// sheet piece, and its H, P, I and O copies are the hilite, pushed, disabled and open states (O
+	/// optional).  Resolved by init; all NULL without the key, and the tabs then wear the idle
+	/// buttons' pictures.  CommandTab<Kind>UL/LR seat each tab and CommandTabPlateUL/LR is the steel
+	/// they sit in, in the painting's coordinates like Idle<Kind>UL/LR; a scheme without them has the
+	/// tabs laid out by ControlBar::updateCommandTabButtons
+	enum { COMMAND_TAB_IMAGE_COUNT = 3, COMMAND_TAB_STATE_COUNT = 5, COMMAND_TAB_OPEN = 4 };
+	AsciiString m_commandTabImage[ COMMAND_TAB_IMAGE_COUNT ];
+	const Image *m_commandTab[ COMMAND_TAB_IMAGE_COUNT ][ COMMAND_TAB_STATE_COUNT ];
+	ICoord2D m_commandTabUL[ COMMAND_TAB_IMAGE_COUNT ];
+	ICoord2D m_commandTabLR[ COMMAND_TAB_IMAGE_COUNT ];
+	ICoord2D m_commandTabPlateUL;
+	ICoord2D m_commandTabPlateLR;
+	/// CommandTabPageNextImage / CommandTabPagePrevImage: a unit tab's page arrows, drawn to fill a
+	/// command cell, with H, P and I copies; NULL without the key (the arrows are then a glyph)
+	AsciiString m_commandTabPageImage[ 2 ];
+	const Image *m_commandTabPage[ 2 ][ 4 ];
+
+	/// the smoke signal keys on the radar's top edge (SignalKind order: attack, defend, attention):
+	/// Signal<Kind>ButtonImage with H, P and I, Signal<Kind>UL/LR the seats at 100% radar and
+	/// SignalPlateUL/LR the steel, in the painting's coordinates.  A scheme naming none has no keys
+	enum { SIGNAL_KEY_COUNT = 3 };
+	AsciiString m_signalImage[ SIGNAL_KEY_COUNT ];
+	const Image *m_signal[ SIGNAL_KEY_COUNT ][ 4 ];
+	ICoord2D m_signalUL[ SIGNAL_KEY_COUNT ];
+	ICoord2D m_signalLR[ SIGNAL_KEY_COUNT ];
+	ICoord2D m_signalPlateUL;
+	ICoord2D m_signalPlateLR;
+	/// SignalPlateImage: the plate's own picture, drawn by the keys' window into the plate's rect so it
+	/// can ride a grown radar's top edge; NULL without the key
+	AsciiString m_signalPlateImageName;
+	const Image *m_signalPlateImage;
+
+	/// GrownRadarImage: the side's own frame round a radar Minimap Size grew, <name>TL, T, TR, L, R, BL,
+	/// B, BR, C laid by drawGrownRadarFrame (hud_command_bar.py's grown_compose); GrownRadarRight the
+	/// right lip and GrownRadarLedge the glass top to the frame's top edge, in creation pixels.  A
+	/// scheme naming no image keeps the flat bands
+	enum { GROWN_TL, GROWN_T, GROWN_TR, GROWN_L, GROWN_R, GROWN_BL, GROWN_B, GROWN_BR, GROWN_C, GROWN_PIECE_COUNT };
+	AsciiString m_grownRadarName;
+	const Image *m_grownRadar[ GROWN_PIECE_COUNT ];
+	Int m_grownRadarRight;
+	Int m_grownRadarPeriod;
+	Int m_grownRadarLedge;
 
 	/// RadarFrameImage: the nine pieces the radar's frame is drawn from round the map's own shape,
 	/// <name>TL, T, TR, L, C, R, BL, B, BR.  The corners' sizes are the frame's thickness on each side.
@@ -356,9 +401,34 @@ public:
 	static void radarFrameRect( const Image *const *frame, const IRegion2D& radar, IRegion2D *outer );
 	/// the steel round a radar Minimap Size grew out of a scheme with no radar frame; painted or plate-drawn bar alike
 	static void drawGrownRadarFrame( void );
+	/// the side's own grown frame laid round 'well' (grown_compose); drawGrownRadarFrame's art path
+	static void drawGrownRadarPieces( const Image *const *pieces, Real scale, const IRegion2D &well, Bool lit );
 	/// the general's powers tray's pieces (ControlBarScheme::TRAY_*) of the scheme on screen, or NULL
 	/// without a cell; the tray then keeps the shipped column
 	const Image *const *getPowerTray( void ) const;
+	/// the scheme on screen's pictures for command tab 'tab' (ControlBar::CommandTab), enabled, hilite,
+	/// pushed and disabled, or NULL when it names none for that tab
+	const Image *const *getCommandTabImages( Int tab ) const;
+	/** The scheme on screen's seats for the command tabs and the plate they sit in, in 800x600 design
+		* units (the painting's own, as drawPainting places its images); FALSE when it names none, or
+		* any tab's rectangle is empty. */
+	Bool getCommandTabSeats( IRegion2D *tabs, IRegion2D *plate ) const;
+	/// the scheme on screen's page arrow 'arrow' (0 next, 1 previous): enabled, hilite, pushed,
+	/// disabled, or NULL when it names none
+	const Image *const *getCommandTabPageImages( Int arrow ) const;
+	/// the scheme on screen's signal key 'kind' pictures (enabled, hilite, pushed, disabled), NULL for none
+	const Image *const *getSignalImages( Int kind ) const;
+	/// its signal seats and plate in 800x600 design units, as getCommandTabSeats; FALSE for none
+	Bool getSignalSeats( IRegion2D *keys, IRegion2D *plate ) const;
+	/// the scheme on screen's grown radar frame pieces (ControlBarScheme::GROWN_*), NULL unless it names
+	/// all nine; with the right lip and the ledge in screen pixels, scaled as its art is
+	const Image *const *getGrownRadarPieces( void ) const;
+	Int getGrownRadarRight( void ) const;
+	Int getGrownRadarLedge( void ) const;
+	/// the scheme's art pixels to the screen's: the display's height over its creation height
+	Real getArtScale( void ) const;
+	/// its signal plate picture, NULL for none
+	const Image *getSignalPlateImage( void ) const { return m_currentScheme ? m_currentScheme->m_signalPlateImage : NULL; }
 	/// the current scheme's talent pieces in ControlBarScheme::TALENT_* order, NULL when it names none
 	const Image *const *getTalentImages( void ) const;
 	/// the scheme on screen writes the money with thousands separators (MoneyThousands)

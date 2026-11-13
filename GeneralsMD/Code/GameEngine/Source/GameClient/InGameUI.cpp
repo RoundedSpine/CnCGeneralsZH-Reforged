@@ -179,6 +179,7 @@ enum
 	HUD_TRAY_TAB_JOIN				= 6,		///< its rows lying over the tray's outer edge
 	HUD_TRAY_TAB_TEXT_INSET_X	= 4,	///< the text's room inside the rest of it
 	HUD_TRAY_TAB_TEXT_INSET_Y	= 2,
+	HUD_HERO_BAR_W					= 3,		///< the hero cell's upright health bar, beside the cameo
 	SUPERWEAPON_TRAY_DROP		= 4,		///< between the info strip's foot and the superweapon tray's top
 	HUD_READY_GLOW_PERIOD_MS	= 1400,	///< one breath of a charged superweapon's glow
 	HUD_READY_SHIMMER_RISE	= 85		///< percent of the cameo the shimmer's top edge climbs in a breath
@@ -1411,12 +1412,12 @@ const FieldParse InGameUI::s_fieldParseTable[] =
 	{ "MilitaryCaptionBold",						INI::parseBool,					NULL,		offsetof( InGameUI, m_militaryCaptionBold ) },
 
 	{ "MilitaryCaptionRandomizeTyping",	INI::parseBool,					NULL,		offsetof( InGameUI, m_militaryCaptionRandomizeTyping ) },
-	{ "MilitaryCaptionSpeed",						INI::parseRetailFramesInt,					NULL,		offsetof( InGameUI, m_militaryCaptionSpeed ) },
+	{ "MilitaryCaptionSpeed",						SPEED_FIELD( InGameUI, m_militaryCaptionSpeed ) },
 
 	{ "MilitaryCaptionPosition",				INI::parseICoord2D,			NULL,		offsetof( InGameUI, m_militaryCaptionPosition ) },
 
 	{ "SuperweaponCountdownPosition",					INI::parseCoord2D,			NULL,		offsetof( InGameUI, m_superweaponPosition ) },
-	{ "SuperweaponCountdownFlashDuration",		INI::parseDurationReal,	NULL,		offsetof( InGameUI, m_superweaponFlashDuration ) },
+	{ "SuperweaponCountdownFlashDuration",		SPEED_FIELD( InGameUI, m_superweaponFlashDuration ) },
 	{ "SuperweaponCountdownFlashColor",				INI::parseColorInt,			NULL,		offsetof( InGameUI, m_superweaponFlashColor ) },
 
 	{ "SuperweaponCountdownNormalFont",				INI::parseAsciiString,	NULL,		offsetof( InGameUI, m_superweaponNormalFont ) },
@@ -1428,7 +1429,7 @@ const FieldParse InGameUI::s_fieldParseTable[] =
 	{ "SuperweaponCountdownReadyBold",				INI::parseBool,					NULL,		offsetof( InGameUI, m_superweaponReadyBold ) },
 
 	{ "NamedTimerCountdownPosition",					INI::parseCoord2D,			NULL,		offsetof( InGameUI, m_namedTimerPosition ) },
-	{ "NamedTimerCountdownFlashDuration",			INI::parseDurationReal,	NULL,		offsetof( InGameUI, m_namedTimerFlashDuration ) },
+	{ "NamedTimerCountdownFlashDuration",			SPEED_FIELD( InGameUI, m_namedTimerFlashDuration ) },
 	{ "NamedTimerCountdownFlashColor",				INI::parseColorInt,			NULL,		offsetof( InGameUI, m_namedTimerFlashColor ) },
 
 	{ "NamedTimerCountdownNormalFont",				INI::parseAsciiString,	NULL,		offsetof( InGameUI, m_namedTimerNormalFont ) },
@@ -1441,9 +1442,9 @@ const FieldParse InGameUI::s_fieldParseTable[] =
 	{ "NamedTimerCountdownReadyBold",					INI::parseBool,					NULL,		offsetof( InGameUI, m_namedTimerReadyBold ) },
 	{ "NamedTimerCountdownReadyColor",				INI::parseColorInt,			NULL,		offsetof( InGameUI, m_namedTimerReadyColor ) },
 
-	{ "FloatingTextTimeOut",									INI::parseDurationUnsignedInt,		NULL,		offsetof( InGameUI, m_floatingTextTimeOut ) },
-	{ "FloatingTextMoveUpSpeed",							INI::parseVelocityReal,	NULL,		offsetof( InGameUI, m_floatingTextMoveUpSpeed ) },
-	{ "FloatingTextVanishRate",								INI::parseVelocityReal,	NULL,		offsetof( InGameUI, m_floatingTextMoveVanishRate ) },
+	{ "FloatingTextTimeOut",									SPEED_FIELD( InGameUI, m_floatingTextTimeOut ) },
+	{ "FloatingTextMoveUpSpeed",							SPEED_FIELD( InGameUI, m_floatingTextMoveUpSpeed ) },
+	{ "FloatingTextVanishRate",								SPEED_FIELD( InGameUI, m_floatingTextMoveVanishRate ) },
 
 	{ "PopupMessageColor",								INI::parseColorInt,					NULL,		offsetof( InGameUI, m_popupMessageColor ) },
 	
@@ -1573,7 +1574,7 @@ InGameUI::InGameUI()
 	m_militaryCaptionBold = FALSE;
 
 	m_militaryCaptionRandomizeTyping = FALSE;
-	m_militaryCaptionSpeed = ConvertRetailFrames( 1 );
+	m_militaryCaptionSpeed.setRaw( 1 );
 	m_popupMessageColor = GameMakeColor(255,255,255,255);
 
 	m_tooltipsDisabledUntil = 0;
@@ -1643,6 +1644,8 @@ InGameUI::InGameUI()
 	m_productionListMoreText = NULL;
 	m_productionListCells = 0;
 	m_productionListTab = noHudTab();
+	m_hero = INVALID_ID;
+	m_heroCell = noHudTab();
 	m_superweaponCells = 0;
 	m_superweaponTab = noHudTab();
 	m_hudCellPass = 0;
@@ -1660,7 +1663,7 @@ InGameUI::InGameUI()
 
 	m_superweaponPosition.x = 0.7f;
 	m_superweaponPosition.y = 0.7f;
-	m_superweaponFlashDuration = 1.0f;
+	m_superweaponFlashDuration.setRaw( 50.0f );	// msec: 1.0f frames at the native speed
 	m_superweaponNormalFont = "Arial";
 	m_superweaponNormalPointSize = 10;
 	m_superweaponNormalBold = FALSE;
@@ -1675,7 +1678,7 @@ InGameUI::InGameUI()
 
 	m_namedTimerPosition.x = 0.05f;
 	m_namedTimerPosition.y = 0.7f;
-	m_namedTimerFlashDuration = 1.0f;
+	m_namedTimerFlashDuration.setRaw( 50.0f );	// msec: 1.0f frames at the native speed
 	m_namedTimerNormalFont = "Arial";
 	m_namedTimerNormalPointSize = 10;
 	m_namedTimerNormalBold = FALSE;
@@ -1691,9 +1694,9 @@ InGameUI::InGameUI()
 	m_namedTimerUsedFlashColor = TRUE; // so next one is false
 	m_showNamedTimers = TRUE;
 
-	m_floatingTextTimeOut = DEFAULT_FLOATING_TEXT_TIMEOUT;
-	m_floatingTextMoveUpSpeed = 1.0f;
-	m_floatingTextMoveVanishRate = 0.1f;
+	m_floatingTextTimeOut.setRaw( 0 );
+	m_floatingTextMoveUpSpeed.setRaw( 20.0f );		// per second: 1.0f a frame at the native speed
+	m_floatingTextMoveVanishRate.setRaw( 2.0f );	// and 0.1f
 
 	m_drawableCaptionFont = "Arial";
 	m_drawableCaptionPointSize = 10;
@@ -2427,7 +2430,7 @@ static void rewindReplay( UnsignedInt target )
 
 	// a failed load has cleared the match and said so; nothing is left to seek in or look at
 	if( !TheGameState->loadCheckpoint( checkpoint.path,
-		[ & ]() { TheRecorder->resumePlayback( replayFile, checkpoint.cursor ); } ) )
+		[ & ]() { return TheRecorder->resumePlayback( replayFile, checkpoint.cursor ); } ) )
 	{
 		TheReplaySeekFrame = 0;
 		TheWritableGlobalData->m_TiVOFastMode = FALSE;
@@ -3529,7 +3532,7 @@ void InGameUI::update( void )
 		{
 			// trigger whether or not we should draw the block	
 			// retail toggled every 10 frames, its 9 plus the strict <'s one; the 10 is doubled, not the 9
-			if( m_militarySubtitle->blockBeginFrame + ConvertRetailFrames( 10 ) - 1 < currLogicFrame )
+			if( m_militarySubtitle->blockBeginFrame + ConvertRetailFramesWall( 10 ) - 1 < currLogicFrame )
 			{
 				m_militarySubtitle->blockBeginFrame = currLogicFrame;
 				m_militarySubtitle->blockDrawn = !m_militarySubtitle->blockDrawn;
@@ -6878,6 +6881,10 @@ void InGameUI::setGUICommand( const CommandButton *command )
 	if (TheRecorder->getMode() == RECORDERMODETYPE_PLAYBACK)
 		return;
 
+	// an armed command and an armed smoke signal both want the next click: the newer wins
+	if( command != NULL )
+		disarmSignal();
+
 	// EA's guard buttons, and their hotkey, arm the guard key with the button's own mode instead of
 	// waiting as a pending command, so a button press and the key click and drag the same way
 	if( command && ( command->getCommandType() == GUI_COMMAND_GUARD ||
@@ -6993,6 +7000,10 @@ void InGameUI::placeBuildAvailable( const ThingTemplate *build, Drawable *buildD
 	// if building something, no radius cursor, thankew
 	if (build != NULL)
 		setRadiusCursorNone();
+
+	// a structure on the cursor and an armed smoke signal both want the next left click: the newer wins
+	if( build != NULL )
+		disarmSignal();
 
 	//
 	// if we're setting another place available, but we're somehow already in the placement
@@ -7517,6 +7528,11 @@ void InGameUI::computePlacementRow( const ThingTemplate *what, Real angle, const
 //-------------------------------------------------------------------------------------------------
 UnsignedInt InGameUI::placementCheckOptions( void )
 {
+	// the trainer's build anywhere: the logic asks no more than this (MSG_DOZER_CONSTRUCT)
+	const Player *local = ThePlayerList ? ThePlayerList->getLocalPlayer() : NULL;
+	if( local && local->hasCheat( CHEAT_BUILD_ANYWHERE ) )
+		return BuildAssistant::NO_OBJECT_OVERLAP | BuildAssistant::IGNORE_STEALTHED | BuildAssistant::IGNORE_UNSEEN;
+
 	return BuildAssistant::USE_QUICK_PATHFIND |
 				 BuildAssistant::TERRAIN_RESTRICTIONS |
 				 BuildAssistant::CLEAR_PATH |
@@ -8447,7 +8463,7 @@ void InGameUI::postDraw( void )
 				Int framesLeft = counter ? counter->value : 0;
 				UnsignedInt readyFrame = TheGameLogic->getFrame();
 				if (framesLeft > 0)
-					readyFrame += framesLeft * LOGICFRAMES_PER_RETAIL_FRAME;	// script timers count retail frames
+					readyFrame += ConvertRetailFrames( framesLeft );	// script timers count retail frames of game time
 				Int readySecs = ControlBar_secondsFromFrames( (Real)(readyFrame - TheGameLogic->getFrame()) );
 				if ( (info->isCountdown && readySecs != info->timestamp) || (!info->isCountdown && framesLeft != info->timestamp) )
 				{
@@ -8775,7 +8791,7 @@ void InGameUI::militarySubtitle( const AsciiString& label, Int duration )
 
 	// we need some frame info to set our timings
 	UnsignedInt currLogicFrame = TheGameLogic->getFrame();
-	const int messageTimeout = currLogicFrame + (Int)(((Real)LOGICFRAMES_PER_SECOND * duration)/1000.0f);
+	const int messageTimeout = currLogicFrame + (Int)(((Real)LOGICFRAMES_PER_SECOND * duration)/1000.0f);	// wall time: it goes with the speech
 
 	// disable tooltips until this frame, cause we don't want to collide with the military subtitles.
 	TheInGameUI->disableTooltipsUntil(messageTimeout);
@@ -9673,6 +9689,19 @@ void InGameUI::buildRegion( const ICoord2D *anchor, const ICoord2D *dest, IRegio
 }
 
 //-------------------------------------------------------------------------------------------------
+// The money pop: a white flash where the cash landed, a leap up that settles, gold, then gone, two
+// seconds in all on the wall clock. EA's ran on logic frames, so it stepped at the tick
+// rate, and took its distance and fade from the INI per frame, which every rate change re-tuned.
+enum
+{
+	FLOATING_TEXT_LIFE_MS = 2000,
+	FLOATING_TEXT_FLASH_MS = 180,
+	FLOATING_TEXT_LEAP_MS = 600,
+	FLOATING_TEXT_FADE_FROM_MS = 1400,
+	FLOATING_TEXT_RISE = 40,		// 1080p pixels, whole steps of them on bigger screens (Drawable_pipPixel)
+};
+
+//-------------------------------------------------------------------------------------------------
 /** Add a new floating text to our list */
 //-------------------------------------------------------------------------------------------------
 FloatingTextData *InGameUI::addFloatingText(const UnicodeString& text,const Coord3D *pos, Color color)
@@ -9690,22 +9719,24 @@ FloatingTextData *InGameUI::addFloatingText(const UnicodeString& text,const Coor
 
 	{
 		FloatingTextData *newFTD = newInstance( FloatingTextData );
-		newFTD->m_frameCount = 0;
-		// the money a supply drop pays is drawn in its owner's colour, and the code that raises it
-		// is in GameLogic, where the scheme does not exist
-		newFTD->m_color = clientColor( color );
+		// Every caller is money, and income is one gold whoever earned it, a supply drop, a Black
+		// Market, a bounty, a hack or a derrick, so the colour alone says cash (the owner's call,
+		// 2026-11-12; it was the owner's team colour, white or navy as often as not). Money taken
+		// keeps the pure red its callers give GUI:LoseCash, or a theft would read as pay. Gold
+		// over the black rim holds on grass, snow and sand alike.
+		const Color LOSS_RED = GameMakeColor( 255, 0, 0, 0 ) & 0x00FFFFFF;
+		newFTD->m_color = ( color & 0x00FFFFFF ) == LOSS_RED ? color : GameMakeColor( 255, 206, 64, 255 );
 		newFTD->m_pos3D.x = pos->x;
 		newFTD->m_pos3D.z = pos->z;
 		newFTD->m_pos3D.y = pos->y;
 		newFTD->m_text = text;
+		// the caption face four points up and bold: EA's 10 point plain line was the size of a
+		// unit's name and went by unread in a fight
+		newFTD->m_dString->setFont( TheFontLibrary->getFont( m_drawableCaptionFont,
+			TheGlobalLanguageData->adjustFontSize( m_drawableCaptionPointSize + 4 ), TRUE ) );
 		newFTD->m_dString->setText(text);
-		
-			
-		if(m_floatingTextTimeOut <= 0)
-			newFTD->m_frameTimeOut = TheGameLogic->getFrame() +  DEFAULT_FLOATING_TEXT_TIMEOUT;
-		else
-			newFTD->m_frameTimeOut = TheGameLogic->getFrame() +  m_floatingTextTimeOut; 
-		
+		newFTD->m_bornMs = Clock_Milliseconds();
+
 		m_floatingTextList.push_front( newFTD ); // add to the list
 		return newFTD;
 	}
@@ -9721,9 +9752,9 @@ static const char *const SIGNAL_MARK_TEXTURES[ SIGNAL_KIND_COUNT ] =
 enum
 {
 	SIGNAL_MARK_SIZE						= 160,	///< across, in world units: 90 read as a coin from the default camera
-	SIGNAL_MARK_OPACITY					= 230,	///< out of 255, so the ground under it still shows a little
-	SIGNAL_MARK_FADE_OUT_FRAMES	= LOGICFRAMES_PER_SECOND * 2	///< the smoke's last steps, over which the mark fades
+	SIGNAL_MARK_OPACITY					= 230	///< out of 255, so the ground under it still shows a little
 };
+#define SIGNAL_MARK_FADE_OUT_FRAMES ((Int)(LOGICFRAMES_PER_GAME_SECOND * 2))	///< the smoke's last steps, over which the mark fades
 
 //-------------------------------------------------------------------------------------------------
 /** The mark a signal lays on the ground: crossed swords, a shield or an eye in a ring, in `color`,
@@ -9857,12 +9888,8 @@ try_again:
 	newFTD->m_text = translate;
 	newFTD->m_dString->setText(translate);
 	newFTD->m_dString->setFont(TheWindowManager->winFindFont( AsciiString("Arial"), POINTSIZE, FALSE ));
-				
-	if(m_floatingTextTimeOut <= 0)
-		newFTD->m_frameTimeOut = TheGameLogic->getFrame() +  DEFAULT_FLOATING_TEXT_TIMEOUT;
-	else
-		newFTD->m_frameTimeOut = TheGameLogic->getFrame() +  m_floatingTextTimeOut; 
-	
+	newFTD->m_bornMs = Clock_Milliseconds();
+
 	m_floatingTextList.push_front( newFTD ); // add to the list
 
 	//DEBUG_LOG(("%s\n",text.str()));
@@ -9874,52 +9901,18 @@ try_again:
 //-------------------------------------------------------------------------------------------------
 void InGameUI::updateFloatingText( void )
 {
-	FloatingTextData *ftd;		// pointer to our floating point data
-	UnsignedInt currLogicFrame = TheGameLogic->getFrame();			// the current logic frame
-	UnsignedByte r, g, b, a;	// we'll need to break apart our color so we can modify the alpha
-	Int amount;								// The amout we'll change the alpha
-	static UnsignedInt lastLogicFrameUpdate = currLogicFrame;		// We need to make sure our current frame is different then our last frame we updated.
-
-	// only update the position if we're incrementing frames
-	if(lastLogicFrameUpdate == currLogicFrame)
-		return;
-	
-	lastLogicFrameUpdate = currLogicFrame;
-
-	// Loop through our floating text list
+	const UnsignedInt now = Clock_Milliseconds();
 	for(FloatingTextListIt it = m_floatingTextList.begin(); it != m_floatingTextList.end();)
 	{
-		ftd = *it;
-		
-		// move it up
-		++ftd->m_frameCount;
-		
-		// fade the text
-		if( currLogicFrame > ftd->m_frameTimeOut)
+		FloatingTextData *ftd = *it;
+		if( now - ftd->m_bornMs >= FLOATING_TEXT_LIFE_MS )
 		{
-			// modify the color
-			GameGetColorComponents(ftd->m_color, &r, &g, &b, &a);		
-			// age times rate is a per-frame-squared amount: the parser halved the rate, this halves it again
-			amount = REAL_TO_INT( (currLogicFrame - ftd->m_frameTimeOut) * ConvertRetailPerFrameRate( m_floatingTextMoveVanishRate ));
-			if(a - amount < 0)
-				a = 0;
-			else
-				a -= amount;
-			ftd->m_color = GameMakeColor(r, g, b, a);
-			// if we have 0 alpha delete it
-			if( a <= 0)
-			{
-				it = m_floatingTextList.erase(it);
-				ftd->deleteInstance();
-				continue; // don't do the ++it below
-			}
-
+			it = m_floatingTextList.erase(it);
+			ftd->deleteInstance();
+			continue;
 		}
-		// increase our itterator
 		++it;
-	
 	}
-
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -11173,18 +11166,9 @@ void InGameUI::drawHudOverlay( void )
 	WallClockTime wallClock;
 	getLocalWallClock( &wallClock );
 
-	// Turbo mode runs twice the logic frames a second, so its rate reads as the normal rate it is
-	// doubling, with TURBO in front of it.  A replay's 1x is the rate its match was played at; the
-	// speed keys move the engine's limit but not that
-	const Int turboFps = GameEngine_matchFramesPerSecond( TRUE );
-	const Int matchFps = TheRecorder->getMode() == RECORDERMODETYPE_PLAYBACK
-		? replayNormalFramesPerSecond() : TheGameEngine->getFramesPerSecondLimit();
+	// the logic ticks a wall second as measured, whatever game speed the match was started at
 	UnicodeString rateText;
-	if( matchFps == turboFps )
-		rateText.format( u"TURBO %dhz(%dfps)", m_hudLogicHz.shown * GameEngine_matchFramesPerSecond( FALSE ) / turboFps,
-										 m_hudFps.shown );
-	else
-		rateText.format( u"%dhz(%dfps)", m_hudLogicHz.shown, m_hudFps.shown );
+	rateText.format( u"%dhz(%dfps)", m_hudLogicHz.shown, m_hudFps.shown );
 
 	UnicodeString text;
 	text.format( u"%02d:%02d   %02d:%02d:%02d(%02d:%02d:%02d)   %s %s",
@@ -11476,6 +11460,7 @@ struct ProductionListGather
 	InGameUI::ProductionListSlot *slot;
 	Int *count;
 	Int *total;
+	ObjectID *hero;		///< the first living hero met, for the hero's cell
 };
 
 /** What drawProductionList's last sweep was of. */
@@ -11500,6 +11485,9 @@ static void gatherProductionList( Object *obj, void *userData )
 	if( draw == NULL || draw->hasProductionModule() )
 		appendProducerQueue( obj, g->slot, g->count, g->total );
 	appendStructureUnderConstruction( obj, g->slot, g->count, g->total );
+	// the hero the SELECT_HERO key would pick: a body still on the list while it dies is not one
+	if( *g->hero == INVALID_ID && obj->isKindOf( KINDOF_HERO ) && !obj->isEffectivelyDead() )
+		*g->hero = obj->getID();
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -11597,6 +11585,58 @@ void InGameUI_numberBuildPlans( std::vector<BuildPlanNumber>& plans )
 }
 
 //-------------------------------------------------------------------------------------------------
+/** The local player's hero in a cell of the queue's own tray, against the screen's left edge over
+	* the queue row whose top is `queueTop`.  It leaves the room the queue's "+N" tab takes whether the
+	* tab is up or not, so the cell never jumps.  Beside the cameo, inside the cell, an upright bar fills
+	* from the foot with the hero's health in the colours of the bar over his head.  Returns the cell,
+	* what a click on it takes (handleHudCellClick), or nothing when there is no living hero. */
+//-------------------------------------------------------------------------------------------------
+static IRegion2D drawHeroCell( const HudCellStyle &style, Int queueTop, ObjectID heroID )
+{
+	Object *hero = TheGameLogic->findObjectByID( heroID );
+	if( hero == NULL || hero->isEffectivelyDead() )
+		return noHudTab();
+	BodyModuleInterface *body = hero->getBodyModule();
+	const Real maxHealth = body != NULL ? body->getMaxHealth() : 0.0f;
+	if( maxHealth <= 0.0f )
+		return noHudTab();
+	const Real ratio = MAX( 0.0f, MIN( 1.0f, body->getHealth() / maxHealth ) );
+
+	const Int tabTop = hudTab( -1, queueTop - style.production.uncoveredH, -1 ).lo.y;
+	const Int barW = stripPixels( HUD_HERO_BAR_W );
+	IRegion2D cell;
+	cell.lo.x = 0;
+	cell.hi.x = style.cellW + barW + style.marginX;
+	cell.hi.y = tabTop - stripPixels( PRODUCTION_LIST_LIFT ) - style.production.footH;
+	cell.lo.y = cell.hi.y - style.cellH;
+	IRegion2D cameo;
+	cameo.lo.x = cell.lo.x + style.marginX;
+	cameo.hi.x = cameo.lo.x + style.cameoW;
+	cameo.lo.y = cell.lo.y + style.marginY;
+	cameo.hi.y = cameo.lo.y + style.cameoH;
+	const Int barX = cameo.hi.x + style.marginX;
+	const Int barH = style.cameoH;
+
+	Color fill = GameMakeColor( 0, 255, 0, 255 ), outline = GameMakeColor( 0, 128, 0, 255 );
+	if( Drawable *draw = hero->getDrawable() )
+		draw->healthBarColors( ratio, &fill, &outline );
+	const Int inside = barH - 2;
+	const Int filled = REAL_TO_INT( inside * ratio );
+
+	TheDisplay->beginBatch2D();
+	drawHudTray( style.production, &cell, 1, 1, 1, 1 );
+	if( const Image *picture = hero->getTemplate()->getButtonImage() )
+		TheDisplay->drawImage( picture, cameo.lo.x, cameo.lo.y, cameo.hi.x, cameo.hi.y );
+	drawHudCellBorder( cameo, hudCellBorder( COMMAND_BUTTON_BORDER_BUILD ) );
+	// the bar over his head stood up: outline, health from the foot, the health lost a dark slot
+	TheDisplay->drawOpenRect( barX, cameo.lo.y, barW, barH, 1, outline );
+	TheDisplay->drawFillRect( barX + 1, cameo.lo.y + 1 + inside - filled, barW - 2, filled, fill );
+	TheDisplay->drawFillRect( barX + 1, cameo.lo.y + 1, barW - 2, inside - filled, GameMakeColor( 10, 10, 10, 190 ) );
+	TheDisplay->endBatch2D();
+	return cell;
+}
+
+//-------------------------------------------------------------------------------------------------
 /** Everything the local player has coming, as bare cameos on the left over the
 	* control bar: every producer's queue and every building a dozer or a worker has going up, soonest
 	* to finish at the left, in one row.  Each wears its seconds in the bottom left corner, an "xN" in
@@ -11611,6 +11651,7 @@ void InGameUI::drawProductionList( void )
 	// nothing drawn is nothing to click
 	m_productionListCells = 0;
 	m_productionListTab = noHudTab();
+	m_heroCell = noHudTab();
 	if( !TheGameLogic->isInGame() || TheGameLogic->isInShellGame() )
 		return;
 
@@ -11627,12 +11668,19 @@ void InGameUI::drawProductionList( void )
 	{
 		m_productionListCount = 0;
 		m_productionListTotal = 0;
-		ProductionListGather gather = { m_productionList, &m_productionListCount, &m_productionListTotal };
+		m_hero = INVALID_ID;
+		ProductionListGather gather = { m_productionList, &m_productionListCount, &m_productionListTotal, &m_hero };
 		player->iterateObjects( gatherProductionList, &gather );
 		s_listGather.valid = TRUE;
 		s_listGather.frame = frame;
 		s_listGather.player = player;
 	}
+
+	// one row in a tray hard against the screen's left edge, the powers tray mirrored, its foot
+	// standing just clear of the radar's frame; the hero's cell stands over it, queue or none
+	const HudCellStyle style = hudCellStyle();
+	const Int foot = radarFrameTop() - stripPixels( PRODUCTION_LIST_LIFT ) - style.production.footH;
+	m_heroCell = drawHeroCell( style, foot - style.cellH, m_hero );
 	if( m_productionListCount == 0 )
 		return;
 
@@ -11644,13 +11692,9 @@ void InGameUI::drawProductionList( void )
 	const Bool more = m_productionListTotal > shown;
 	const Int cameos = m_productionListCount;
 
-	// one row in a tray hard against the screen's left edge, the powers tray mirrored, its foot
-	// standing just clear of the radar's frame
-	const HudCellStyle style = hudCellStyle();
 	const Int cameoW = style.cameoW;
 	const Int cameoH = style.cameoH;
 	const Int left = 0;
-	const Int foot = radarFrameTop() - stripPixels( PRODUCTION_LIST_LIFT ) - style.production.footH;
 	IRegion2D place[ PRODUCTION_LIST_CELLS ];
 	for( Int each = 0; each < cameos; each++ )
 	{
@@ -11974,6 +12018,15 @@ Bool InGameUI::handleHudCellClick( const ICoord2D *mouse, Bool cancel )
 	if( inside( m_productionListTab ) || inside( m_superweaponTab ) )
 		return TRUE;
 
+	// the hero's cell is the SELECT_HERO key: select him, or the transport he rides, and look at him.
+	// A cancel has nothing to take off
+	if( inside( m_heroCell ) )
+	{
+		if( !cancel )
+			TheMessageStream->appendMessage( GameMessage::MSG_META_SELECT_HERO );
+		return TRUE;
+	}
+
 	if( GroupPanel_click( mouse, cancel ) )
 		return TRUE;
 
@@ -12013,6 +12066,7 @@ Bool InGameUI::handleHudCellClick( const ICoord2D *mouse, Bool cancel )
 void InGameUI::drawFloatingText( void )
 {
 	FloatingTextData *ftd;
+	const UnsignedInt now = Clock_Milliseconds();
 	// loop through and draw all the texts
 	for(FloatingTextListIt it = m_floatingTextList.begin(); it != m_floatingTextList.end(); ++it)
 	{
@@ -12030,18 +12084,38 @@ void InGameUI::drawFloatingText( void )
 			&& ftd->m_dString
 			&& ThePartitionManager->getShroudStatusForPlayer(playerNdx, pCX, pCY) == CELLSHROUD_CLEAR )
 		{
-			Color dropColor;
+			// screen pixels throughout, never the camera's: the pop is one size at every zoom
+			const Int k = Drawable_pipPixel( TheUIScale() );
+			const Real age = INT_TO_REAL( (Int)min( now - ftd->m_bornMs, (UnsignedInt)FLOATING_TEXT_LIFE_MS ) );
+
+			// leaps off the spot and settles, then holds still to be read: over half the rise is in
+			// the first 0.15 s, all of it by 0.6 s
+			const Real left = 1.0f - min( 1.0f, age / FLOATING_TEXT_LEAP_MS );
+			const Int rise = REAL_TO_INT( FLOATING_TEXT_RISE * k * ( 1.0f - left * left * left ) );
+
+			// a white flash as it lands, easing into its own colour; solid, then gone over the last 0.6 s
 			UnsignedByte r, g, b, a;
-			Int width, height;
-
-			// make drop color black, but use the alpha setting of the fill color specified (for fading)
 			GameGetColorComponents( ftd->m_color, &r, &g, &b, &a );
-			dropColor = GameMakeColor( 0, 0, 0, a );
-			ftd->m_dString->getSize(&width, &height);
+			const Real white = max( 0.0f, 1.0f - age / FLOATING_TEXT_FLASH_MS );
+			r = (UnsignedByte)REAL_TO_INT( r + ( 255 - r ) * white );
+			g = (UnsignedByte)REAL_TO_INT( g + ( 255 - g ) * white );
+			b = (UnsignedByte)REAL_TO_INT( b + ( 255 - b ) * white );
+			const Real fade = age < FLOATING_TEXT_FADE_FROM_MS ? 1.0f
+				: ( FLOATING_TEXT_LIFE_MS - age ) / ( FLOATING_TEXT_LIFE_MS - FLOATING_TEXT_FADE_FROM_MS );
+			a = (UnsignedByte)REAL_TO_INT( 255.0f * fade );
+			const Color fill = GameMakeColor( r, g, b, a );
+			const Color edge = GameMakeColor( 0, 0, 0, a );
 
-			pos.y -= ftd->m_frameCount * m_floatingTextMoveUpSpeed;
-			// draw it!
-			ftd->m_dString->draw(pos.x - (width / 2), pos.y, ftd->m_color,dropColor);
+			Int width, height;
+			ftd->m_dString->getSize(&width, &height);
+			const Int x = pos.x - width / 2;
+			const Int y = pos.y - height - rise;
+
+			// a black rim on the four diagonals and a deeper drop under it, which holds on snow, sand
+			// and a burning base alike; a DisplayString draws one shadow a call, so the rim is two calls
+			ftd->m_dString->draw( x - k, y - k, edge, edge, 2 * k, 2 * k );
+			ftd->m_dString->draw( x - k, y + k, edge, edge, 2 * k, -2 * k );
+			ftd->m_dString->draw( x, y, fill, edge, 0, 2 * k );
 		}
 
 	}
@@ -12152,8 +12226,7 @@ FloatingTextData::FloatingTextData(void)
 	// Added By Sadullah Nader
 	// Initializations missing and needed
 	m_color = 0;
-	m_frameCount = 0;
-	m_frameTimeOut = 0;
+	m_bornMs = 0;
 	m_pos3D.zero();
 	m_text.clear();
 	//
@@ -12339,16 +12412,12 @@ void InGameUI::updateAndDrawWorldAnimations( void )
 		ICoord2D screen;
 		if( TheTacticalView->worldToScreen( &wad->m_worldPos, &screen ) == TRUE )
 		{
-			UnsignedInt width = wad->m_anim->getCurrentFrameWidth();
-			UnsignedInt height = wad->m_anim->getCurrentFrameHeight();
-
-			// scale the width and height given the camera zoom level.  The 1.3 was the old maximum
-			// zoom value, which is gone; this number is the size the artwork was drawn against.
-			const Real WORLD_ANIM_ZOOM_REFERENCE = 1.3f;
-			Real zoomScale = WORLD_ANIM_ZOOM_REFERENCE / TheTacticalView->getZoom();
-
-			width *= zoomScale;
-			height *= zoomScale;
+			// The artwork's own size at every zoom. It was scaled by 1.3 / zoom (1.3 the old furthest
+			// zoom the art was drawn against), about 1 at the opening camera, so the heal cross, the
+			// crate's dollar sign and the promotion chevrons swelled over a close-up unit and shrank
+			// to specks far out. A sign reads at one size.
+			const UnsignedInt width = wad->m_anim->getCurrentFrameWidth();
+			const UnsignedInt height = wad->m_anim->getCurrentFrameHeight();
 
 			// adjust the screen position to draw so the image is centered at the location
 			screen.x -= width / 2;
@@ -12481,10 +12550,26 @@ void InGameUI::idleUnitKinds( GameMessage::Type t, KindOfMaskType *mustBeSet, Ki
 		mustBeSet->set( KINDOF_INFANTRY );
 }
 
+// what a right click on an idle button takes (the select all key of the kind, kindOfUnitSelection
+// across the map), save the locally controlled test its caller has made
+static Bool isSelectAllOfKinds( const Object *obj, const KindOfMaskType &mustBeSet, const KindOfMaskType &mustBeClear )
+{
+	if( obj->isEffectivelyDead() || obj->isContained() || obj->isOffMap() )
+		return FALSE;
+	if( obj->isKindOf( KINDOF_IGNORES_SELECT_ALL ) || obj->isKindOf( KINDOF_DOZER ) || obj->isKindOf( KINDOF_HARVESTER ) || obj->isKindOf( KINDOF_STRUCTURE ) )
+		return FALSE;
+	const Drawable *draw = obj->getDrawable();
+	return draw && draw->isMassSelectable() && obj->isKindOfMulti( mustBeSet, mustBeClear );
+}
+
 //-------------------------------------------------------------------------------------------------
-/** One walk of the object list a frame lights each idle button whose kind has a unit standing
-	* idle, so a dim one never answers a click with nothing.  The worker button is one of them: the
-	* four light on the same pass, and each cycles over what lit it. */
+/** One walk of the object list a frame sets each idle button in one of three looks.  Something of
+	* its kind standing idle: the highlighted art, which a click cycles over.  Some of the kind but
+	* none idle: the plain art, live, since a right click on the infantry, vehicle and aircraft
+	* buttons still takes them all and a left click finds nothing and leaves the selection alone.
+	* None of the kind at all: dark, and dead to both clicks.  The worker button takes no right
+	* click, so it has only the first and the last.  The four light on the same pass, and each
+	* cycles over what lit it. */
 //-------------------------------------------------------------------------------------------------
 void InGameUI::updateIdleUnitButtons( void )
 {
@@ -12503,9 +12588,15 @@ void InGameUI::updateIdleUnitButtons( void )
 		NAMEKEY( "ControlBar.wnd:ButtonIdleAircraft" ),
 		NAMEKEY( "ControlBar.wnd:ButtonIdleWorker" ),
 	};
+	// the worker's right click goes nowhere, so owning a busy one leaves its button dark
+	static const Bool rightClick[ IDLE_BUTTON_COUNT ] = { TRUE, TRUE, TRUE, FALSE };
+	// the scheme's plain art per button, kept while the highlighted art stands in its place; taken
+	// again whenever the scheme puts its own back (a side or resolution change)
+	static const Image *plain[ IDLE_BUTTON_COUNT ] = { NULL, NULL, NULL, NULL };
 	GameWindow *win[ IDLE_BUTTON_COUNT ];
 	KindOfMaskType mustBeSet[ IDLE_BUTTON_COUNT ], mustBeClear[ IDLE_BUTTON_COUNT ];
 	Bool idle[ IDLE_BUTTON_COUNT ] = { FALSE, FALSE, FALSE, FALSE };
+	Bool owned[ IDLE_BUTTON_COUNT ] = { FALSE, FALSE, FALSE, FALSE };
 	Int i;
 	for( i = 0; i < IDLE_BUTTON_COUNT; i++ )
 	{
@@ -12520,22 +12611,37 @@ void InGameUI::updateIdleUnitButtons( void )
 		return;
 	}
 
-	// ponytail: the whole object list every render frame; keep a list per kind if it shows in a profile
+	// ponytail: the whole object list every render frame; keep a list per kind if it shows in a profile.
+	// The owned test rides the same pass and drops out per kind at its first find.
 	Int lit = 0;
 	for( Object *obj = TheGameLogic->getFirstObject(); obj && lit < IDLE_BUTTON_COUNT; obj = obj->getNextObject() )
 	{
 		if( !obj->isLocallyControlled() )
 			continue;
 		for( i = 0; i < IDLE_BUTTON_COUNT; i++ )
+		{
 			if( !idle[ i ] && isIdleOfKinds( obj, mustBeSet[ i ], mustBeClear[ i ] ) )
 			{
 				idle[ i ] = TRUE;
 				lit++;
 			}
+			if( rightClick[ i ] && !owned[ i ] && isSelectAllOfKinds( obj, mustBeSet[ i ], mustBeClear[ i ] ) )
+				owned[ i ] = TRUE;
+		}
 	}
 	for( i = 0; i < IDLE_BUTTON_COUNT; i++ )
-		if( win[ i ] )
-			win[ i ]->winEnable( idle[ i ] );
+	{
+		if( win[ i ] == NULL )
+			continue;
+		win[ i ]->winEnable( idle[ i ] || owned[ i ] );
+		const Image *hilite = GadgetButtonGetHiliteImage( win[ i ] );
+		const Image *shown = GadgetButtonGetEnabledImage( win[ i ] );
+		if( shown != hilite )
+			plain[ i ] = shown;
+		const Image *want = ( idle[ i ] && hilite ) || plain[ i ] == NULL ? hilite : plain[ i ];
+		if( shown != want )
+			GadgetButtonSetEnabledImage( win[ i ], want );
+	}
 }
 
 Object *InGameUI::selectNextIdleUnit( KindOfMaskType mustBeSet, KindOfMaskType mustBeClear )

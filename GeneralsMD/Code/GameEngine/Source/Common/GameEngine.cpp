@@ -146,6 +146,7 @@
 #include "GameNetwork/GeneralsOnline/OnlineBridge.h"
 
 #include "Common/version.h"
+#include "BuildFingerprint.h"		// ZH_BUILD_FINGERPRINT: ModelChecksums.txt is kept per build
 
 #ifdef _INTERNAL
 // for occasional debugging...
@@ -244,6 +245,38 @@ typedef std::map<std::string, ModelChecksum> ModelChecksumMap;	///< keyed "sourc
 static const char *MODEL_CHECKSUM_CACHE = "ModelChecksums.txt";
 static const Int MODEL_CHECKSUM_LINE_LENGTH = 1024;
 
+/* The first line names the format and the build that wrote the file; a file without it, or from any
+	 other build, is read as no file at all.  v4.0.0 trusted every line on size and write time alone, so
+	 the folder in Documents, which outlives every reinstall, carried a model's CRC from one install or
+	 one build into the next, and a clean install was refused every online join as "another version"
+	 until the player deleted the folder.  Format 2 also keys a line on the archive's full path, so two
+	 installs sharing one Documents folder no longer share lines either. */
+static const Int MODEL_CHECKSUM_FORMAT = 2;
+
+static AsciiString modelChecksumCacheHeader( void )
+{
+	AsciiString header;
+	header.format( "ModelChecksums %d %08X", MODEL_CHECKSUM_FORMAT, (UnsignedInt)ZH_BUILD_FINGERPRINT );
+	return header;
+}
+
+/** The source as the line keys it: the archive or loose model's full path, not the one relative to the
+	* install the file system mounted it under. */
+static AsciiString modelChecksumSourceKey( const AsciiString &source )
+{
+	const char *s = source.str();
+	if (s[0] == '\\' || s[0] == '/' || (s[0] != 0 && s[1] == ':'))
+		return source;
+	AsciiString full = TheLocalFileSystem->getCurrentDirectory();
+#if defined(_WIN32)
+	full.concat( '\\' );
+#else
+	full.concat( '/' );
+#endif
+	full.concat( source );
+	return full;
+}
+
 static AsciiString modelChecksumCachePath( void )
 {
 	AsciiString path = TheGlobalData->getPath_UserData();
@@ -259,6 +292,18 @@ static ModelChecksumMap readModelChecksumCache( void )
 		return cache;		// the first start on this machine, or the file was deleted
 
 	char line[MODEL_CHECKSUM_LINE_LENGTH];
+	AsciiString header;
+	if (fgets( line, sizeof( line ), cacheFile ))
+	{
+		header = line;
+		header.trim();
+	}
+	if (header != modelChecksumCacheHeader())
+	{
+		DEBUG_LOG(( "ModelChecksums.txt is from another build or format ('%s'); every model is read again\n", header.str() ));
+		fclose( cacheFile );
+		return cache;
+	}
 	while (fgets( line, sizeof( line ), cacheFile ))
 	{
 		ModelChecksum entry;
@@ -291,6 +336,7 @@ static void writeModelChecksumCache( const ModelChecksumMap &cache )
 	if (cacheFile == NULL)
 		return;		// a read-only user folder costs the next start a full read, nothing else
 
+	fprintf( cacheFile, "%s\n", modelChecksumCacheHeader().str() );
 	for( ModelChecksumMap::const_iterator it = cache.begin(); it != cache.end(); ++it )
 	{
 		const ModelChecksum &entry = it->second;
@@ -344,7 +390,7 @@ static void checksumModels( XferCRC &xferCRC )
 		ModelChecksum entry;
 		const Bool sourceKnown = TheLocalFileSystem->getFileInfo( source, &entry.source );
 
-		std::string key( source.str() );
+		std::string key( modelChecksumSourceKey( source ).str() );
 		key.append( "|" );
 		key.append( model.str() );
 
@@ -355,7 +401,8 @@ static void checksumModels( XferCRC &xferCRC )
 		}
 		else
 		{
-			File *file = loose ? TheFileSystem->openFile( model.str(), File::READ ) : TheArchiveFileSystem->openRetailFile( model );
+			// the loose master, never the Reforged batch copy TheFileSystem may hand the renderer instead
+			File *file = loose ? TheLocalFileSystem->openFile( model.str(), File::READ ) : TheArchiveFileSystem->openRetailFile( model );
 			Int fileSize = file->size();
 			char *contents = file->readEntireAndClose();
 			CRC modelCRC;
@@ -770,7 +817,7 @@ static void startAutoSkirmish( Int numPlayersWanted )
 	TheSkirmishGameInfo->setTechRespawn( TheGlobalData->m_techRespawn );
 	TheSkirmishGameInfo->setSupplyPileLimit( TheGlobalData->m_supplyPileLimit );
 	TheSkirmishGameInfo->setSuperweaponRestriction( (UnsignedShort)TheGlobalData->m_superweapons );
-	TheSkirmishGameInfo->setTurbo( TheGlobalData->m_turboMatch );
+	TheSkirmishGameInfo->setGameSpeedPercent( TheGlobalData->m_autoSkirmishGameSpeedPercent );
 	if (TheGlobalData->m_startingCash > 0)
 	{
 		Money cash;
@@ -788,19 +835,21 @@ static void startAutoSkirmish( Int numPlayersWanted )
 	TheWritableGlobalData->m_shellMapOn = FALSE;
 	TheWritableGlobalData->m_playIntro = FALSE;
 
-	/* The speed reallyDoStart() passes for the lobby's turbo box, -fps included.  -noFPSLimit
-		 deliberately does not appear here - it uncaps the renderer, not the simulation. */
-	const Int maxFPS = GameEngine_matchFramesPerSecond( TheSkirmishGameInfo->getTurbo() );
+	/* The rates reallyDoStart() passes: -fps for the ticks a second, the lobby's game speed (-gamespeed)
+		 for the game time of a tick.  -noFPSLimit deliberately does not appear here - it uncaps the
+		 renderer, not the simulation. */
+	const Int maxFPS = GameEngine_matchFramesPerSecond();
 
 	InitRandom( seed );
 	GameMessage *msg = TheMessageStream->appendMessage( GameMessage::MSG_NEW_GAME );
 	msg->appendIntegerArgument( GAME_SKIRMISH );
 	msg->appendIntegerArgument( DIFFICULTY_NORMAL );
 	msg->appendIntegerArgument( 0 );
-	msg->appendIntegerArgument( maxFPS );
+	GameEngine_appendNewGameRates( msg, TheSkirmishGameInfo->getGameSpeedPercent() );
 
-	DEBUG_LOG(("-autoskirmish: %d slots on '%s', seed %d, starting cash %u, up to %d fps, %s%s%s\n",
+	DEBUG_LOG(("-autoskirmish: %d slots on '%s', seed %d, starting cash %u, %d fps at game speed %d, %s%s%s\n",
 		numPlayers, mapName.str(), seed, TheSkirmishGameInfo->getStartingCash().countMoney(), maxFPS,
+		TheSkirmishGameInfo->getGameSpeedPercent(),
 		observing ? "every slot AI, watching from the free camera" : "slot 0 is the local player",
 		takeover ? ", seats driverless" : "",
 		fixedStartPositions ? ", start positions fixed to slot order" : ""));
@@ -1237,8 +1286,6 @@ void GameEngine::init( int argc, char *argv[] )
 		ini.load( AsciiString( "Data\\INI\\TurkiyeReforged.ini" ), INI_LOAD_MULTIFILE, &xferCRC );
 		// The general's talents, ranks 6 to 10: each card a science and whatever it grants
 		ini.load( AsciiString( "Data\\INI\\TalentsReforged.ini" ), INI_LOAD_MULTIFILE, &xferCRC );
-		// Infantry squads, reskins of the Angry Mob nexus and of the soldiers, last so they copy everything above
-		ini.load( AsciiString( "Data\\INI\\SquadReforged.ini" ), INI_LOAD_MULTIFILE, &xferCRC );
 
 	#ifdef DUMP_PERF_STATS///////////////////////////////////////////////////////////////////////////
 	GetPrecisionTimer(&endTime64);//////////////////////////////////////////////////////////////////
@@ -1255,6 +1302,8 @@ void GameEngine::init( int argc, char *argv[] )
 			 before the client and the logic (LOGIC-THREAD.md phase 2, M2).  A button names objects,
 			 upgrades and special powers, so after them; the INI CRC takes the files at the end. */
 		initSubsystem(TheCommandStore,"TheCommandStore", MSGNEW("GameEngineSubsystem") CommandStore, NULL);
+		// Online players' unit skins (TankSkin.h): drawing only, so outside the INI checksum
+		ini.load( AsciiString( "Data\\INI\\SkinsReforged.ini" ), INI_LOAD_OVERWRITE, NULL );
 		initSubsystem(TheGameClient,"TheGameClient", createGameClient(), NULL);
 
 
@@ -1533,7 +1582,11 @@ void GameEngine::init( int argc, char *argv[] )
 		if (!TheRecorder->playbackFile( thePendingReplayFile ))
 		{
 			DEBUG_LOG(("-replay: '%s' could not be played back\n", thePendingReplayFile.str()));
-			TheWritableGlobalData->m_shellMapOn = TRUE;
+			// nobody is at the keyboard of a headless run: the main menu would be a process that never ends
+			if (TheGlobalData->m_headless)
+				TheGameEngine->setQuitting( TRUE );
+			else
+				TheWritableGlobalData->m_shellMapOn = TRUE;
 		}
 		thePendingReplayFile.clear();
 	}
@@ -1631,31 +1684,87 @@ Int GameEngine_logicCatchupMaxFrames( Int logicFps )
 	return frames < 1 ? 1 : frames;
 }
 
+// ticks a wall second times percent over the native percent, rounded in integers, never under 1
+static Int scaleFramesPerSecondBySpeed( Int fps, Int percent )
+{
+	const Int scaled = ( fps * percent + GAME_SPEED_PERCENT / 2 ) / GAME_SPEED_PERCENT;
+	return scaled > 0 ? scaled : 1;
+}
+
+Int GameEngine_framesPerSecondForSpeed( Int percent )
+{
+	return scaleFramesPerSecondBySpeed( LOGICFRAMES_PER_SECOND, percent );
+}
+
 /* MSG_NEW_GAME refuses anything outside 1..1000 and falls back to m_framesPerSecondLimit
 	 unclamped, so the answer stays inside that.  A FramesPerSecondLimit below retail's 15, or none at
-	 all, is normal speed. */
-Int GameEngine_matchFramesPerSecond( Bool turbo )
+	 all, is the native tick.  The game speed does not enter it: every speed ticks this often and the
+	 speed scales the game time of a tick instead. */
+Int GameEngine_matchFramesPerSecond( void )
 {
 	Int fps = TheGlobalData->m_framesPerSecondLimit;
-	if (fps < ConvertRetailFrames( 15 ))
+	if (fps < ConvertRetailFramesWall( 15 ))
 		fps = LOGICFRAMES_PER_SECOND;
-	if (turbo)
-		fps *= 2;
 	return fps > 1000 ? 1000 : fps;
+}
+
+void GameEngine_appendNewGameRates( GameMessage *msg, Int gameSpeedPercent )
+{
+	DEBUG_ASSERTCRASH( msg->getArgumentCount() == 3, ("MSG_NEW_GAME's rates go after its mode, difficulty and rank points") );
+	msg->appendIntegerArgument( GameEngine_matchFramesPerSecond() );
+	msg->appendIntegerArgument( ClampPlayerGameSpeedPercent( gameSpeedPercent ) );
 }
 
 Int GameEngine_missionFramesPerSecond( Int askedRetailFps, Int matchFps )
 {
 	if (askedRetailFps <= 0 || askedRetailFps >= RETAIL_LOGICFRAMES_PER_SECOND)
 		return matchFps;
+	// game time: the cinematic keeps retail's pace against its wall-clock voices (23 asked is 15 ticks
+	// at GAME_SPEED_PERCENT 150, a pace of 15 * 1.5 / 30 = 0.75 against retail's 23 / 30 = 0.77, the
+	// nearest whole tick), the identity at 100
 	return ConvertRetailFrames( askedRetailFps );
 }
 
+/* SET_FPS_LIMIT 30, or none, under a voiced cinematic would run its script waits and camera cuts at the
+	 game speed while the speech keeps wall length (MD_CHI02's intro tail: 27.5 s for 34).  The signal is
+	 the script's input hold rather than the letterbox: every stock intro disables input with it, the hold
+	 is ScriptEngine state set on the tick (the letterbox is the display's, set after it, fades, and
+	 -cinema raises it too), and Player.cpp and Drawable.cpp already read it as "a mission cinematic". */
+Int GameEngine_cinematicFramesPerSecond( Int maxFps, Bool cinematic )
+{
+	// retail's pace from any game speed the mission was started at: 20 ticks at 150, 30 at 100
+	const Int retailPace = GameEngine_framesPerSecondForSpeed( 100 );
+	if (!cinematic || maxFps <= retailPace)
+		return maxFps;
+	return retailPace;
+}
+
+Bool GameEngine_isPacingCinematic( void )
+{
+	return TheGameLogic != NULL && TheGameLogic->isInSinglePlayerGame() && !TheGameLogic->isInReplayGame()
+		&& TheNetwork == NULL && TheScriptEngine != NULL && TheScriptEngine->isInputHeldByScript();
+}
+
+// the rate the pacer runs at this pass
+static Int pacedFramesPerSecond( Int maxFps )
+{
+	return GameEngine_cinematicFramesPerSecond( maxFps, GameEngine_isPacingCinematic() );
+}
+
+static Bool lastPassWasFast( void );	// below, beside s_passWasFast
+
+/* A skirmish takes its game speed from the lobby and a replay plays at the ticks a second its match
+	 recorded (or the speed keys' share of that), so their animations follow the pacer as a mission's do,
+	 both ways.  A pass that ran a tick a pass (replay fast-forward, a seek, -turbo, -headless) has no
+	 pacer and keeps the wall clock, 1, so a -turbo proof shot keeps its animation phase.  A network game
+	 keeps the native tick. */
 Real GameEngine_missionTimeRate( void )
 {
-	if (TheGameLogic == NULL || !TheGameLogic->isInSinglePlayerGame() || TheGameLogic->isInReplayGame())
+	if (TheGameLogic == NULL || TheNetwork != NULL || lastPassWasFast()
+			|| !( TheGameLogic->isInSinglePlayerGame() || TheGameLogic->isInSkirmishGame() || TheGameLogic->isInReplayGame() ))
 		return 1.0f;
-	return (Real)TheGameEngine->getFramesPerSecondLimit() / (Real)LOGICFRAMES_PER_SECOND;
+	const Int fps = pacedFramesPerSecond( TheGameEngine->getFramesPerSecondLimit() );
+	return fps > 0 ? (Real)fps / (Real)LOGICFRAMES_PER_SECOND : 1.0f;
 }
 
 Bool GameEngine_mayStartAnotherCatchupTick( Int ticksSoFar, Int maxTicks, Real elapsedMsInLoop )
@@ -2098,17 +2207,21 @@ static void reportFrameTimeStats( void )
 	if( theFrameTimes.count() <= 0 )
 		return;
 
-	const Real over16 = 100.0f * theFrameTimes.countOver( 16.7f ) / theFrameTimes.count();
-	const Real over33 = 100.0f * theFrameTimes.countOver( 33.3f ) / theFrameTimes.count();
-	// over 25 ms is a picture that missed a refresh on a vsynced 60 Hz screen, where every frame is a
-	// multiple of 16.7 and the 16.7 count catches the on-time ones that ran a fraction long
-	DEBUG_LOG(("HEADLESS FRAMETIME: %d frames | mean %.2f p50 %.2f p95 %.2f p99 %.2f p99.9 %.2f worst %.2f ms (frame %d) | over 16.7ms %d (%.2f%%) | over 33.3ms %d (%.2f%%) | over 25.0ms %d\n",
+	// The first two budgets are one logic tick and two, rounded to the tenth the line prints so the count
+	// and the label agree (16.7 and 33.3 at 60 ticks a second, 33.3 and 66.7 at 30).  Over 25 ms is a
+	// picture that missed a refresh on a vsynced 60 Hz screen, where every frame is a multiple of 16.7;
+	// that one is the screen's and stays whatever the logic's rate.
+	const Real tickBudgetMS = (Real)(Int)( MSEC_PER_LOGICFRAME_REAL * 10.0f + 0.5f ) / 10.0f;
+	const Real twoTickBudgetMS = (Real)(Int)( 2.0f * MSEC_PER_LOGICFRAME_REAL * 10.0f + 0.5f ) / 10.0f;
+	const Real overTick = 100.0f * theFrameTimes.countOver( tickBudgetMS ) / theFrameTimes.count();
+	const Real overTwoTicks = 100.0f * theFrameTimes.countOver( twoTickBudgetMS ) / theFrameTimes.count();
+	DEBUG_LOG(("HEADLESS FRAMETIME: %d frames | mean %.2f p50 %.2f p95 %.2f p99 %.2f p99.9 %.2f worst %.2f ms (frame %d) | over %.1fms %d (%.2f%%) | over %.1fms %d (%.2f%%) | over 25.0ms %d\n",
 						 theFrameTimes.count(), theFrameTimes.meanMS(),
 						 theFrameTimes.percentileMS( 0.50f ), theFrameTimes.percentileMS( 0.95f ),
 						 theFrameTimes.percentileMS( 0.99f ), theFrameTimes.percentileMS( 0.999f ),
 						 theFrameTimes.worstMS(), theFrameTimes.worstAtFrame(),
-						 theFrameTimes.countOver( 16.7f ), over16,
-						 theFrameTimes.countOver( 33.3f ), over33,
+						 tickBudgetMS, theFrameTimes.countOver( tickBudgetMS ), overTick,
+						 twoTickBudgetMS, theFrameTimes.countOver( twoTickBudgetMS ), overTwoTicks,
 						 theFrameTimes.countOver( 25.0f )));
 	// the same passes split for the logic thread plan: mean/p50/p99/p99.9 of each part
 	#define PASS_SPLIT(h) (h).meanMS(), (h).percentileMS( 0.50f ), (h).percentileMS( 0.99f ), (h).percentileMS( 0.999f )
@@ -2169,12 +2282,14 @@ static void reportFrameTimeStats( void )
 
 	if( theLogicTimes.count() > 0 )
 	{
-		DEBUG_LOG(("HEADLESS LOGICTIME: %d ticks | mean %.2f p50 %.2f p95 %.2f p99 %.2f p99.9 %.2f worst %.2f ms (frame %d) | over 33.3ms %d\n",
+		// a tick that took two ticks' time, which no catch-up hides (33.3 at 60 ticks a second, 66.7 at 30)
+		const Real twoTickBudgetMS = (Real)(Int)( 2.0f * MSEC_PER_LOGICFRAME_REAL * 10.0f + 0.5f ) / 10.0f;
+		DEBUG_LOG(("HEADLESS LOGICTIME: %d ticks | mean %.2f p50 %.2f p95 %.2f p99 %.2f p99.9 %.2f worst %.2f ms (frame %d) | over %.1fms %d\n",
 							 theLogicTimes.count(), theLogicTimes.meanMS(),
 							 theLogicTimes.percentileMS( 0.50f ), theLogicTimes.percentileMS( 0.95f ),
 							 theLogicTimes.percentileMS( 0.99f ), theLogicTimes.percentileMS( 0.999f ),
 							 theLogicTimes.worstMS(), theLogicTimes.worstAtFrame(),
-							 theLogicTimes.countOver( 33.3f )));
+							 twoTickBudgetMS, theLogicTimes.countOver( twoTickBudgetMS )));
 	}
 
 	if( theObjectTicks > 0 )
@@ -2747,7 +2862,7 @@ static void updateHeadlessRun( void )
 		 frames after it is decided and drops to the shell, which would leave without these lines.  The
 		 decision's own CRC is logged on its frame, the one the scouting pass closed on. */
 	static UnsignedInt filmDecidedOn = 0;
-	const UnsignedInt FILM_PAST_DECISION_FRAMES = ConvertRetailFrames( 105u );
+	const UnsignedInt FILM_PAST_DECISION_FRAMES = ConvertRetailFrames( 105u );	// game time, like the end timer it has to beat
 	if (TheGlobalData->m_directorRecord && strcmp( why, "decided" ) == 0)
 	{
 		if (filmDecidedOn == 0)
@@ -2929,6 +3044,7 @@ static Real s_logicAccumMs = 0.0f;
 static Bool s_passPlanned = FALSE;
 static GameEngine::LogicPassPlan s_passPlan;
 static Bool s_passWasFast = FALSE;		///< the last pass ran a logic frame a pass (headless, -turbo, fast-forward, -video): no picture cap
+static Bool lastPassWasFast( void ) { return s_passWasFast; }
 static UnsignedInt s_frameBeforeOverlap = 0;
 static UnsignedInt s_planTimeMs = 0;		///< when the pacer last spent the time since the one before
 static Int64 s_planTimeTicks = 0;				///< the same moment on the fine clock, for smooth motion
@@ -3033,7 +3149,7 @@ void GameEngine::planLogicPass( LogicPassPlan &plan )
 	}
 	else
 	{
-		logicFrameDue = GameEngine_isLogicFrameDue(s_logicAccumMs, elapsedMs, m_maxFPS);
+		logicFrameDue = GameEngine_isLogicFrameDue(s_logicAccumMs, elapsedMs, pacedFramesPerSecond( m_maxFPS ));
 		// Fast mode means exactly one logic frame per call, by its own definition.
 		mayCatchUp = (m_maxFPS > 0);
 	}
@@ -3091,7 +3207,7 @@ Real GameEngine::msUntilNextTickDue( void )
 {
 	if (!s_passPlanned || s_passPlan.fastMode || s_passPlan.networkPaced || m_maxFPS <= 0)
 		return 0.0f;
-	return 1000.0f / m_maxFPS - s_logicAccumMs - (Real)( Clock_Milliseconds() - s_planTimeMs );
+	return 1000.0f / pacedFramesPerSecond( m_maxFPS ) - s_logicAccumMs - (Real)( Clock_Milliseconds() - s_planTimeMs );
 }
 
 Bool GameEngine::isPassPacedByClock( void )
@@ -3237,7 +3353,7 @@ void GameEngine::update( void )
 			// count and the pacer's own accumulator cap stop at LOGIC_CATCHUP_MAX_FRAMES, so a logic
 			// frame that is itself over budget cannot pull the loop into a spiral.
 			Int logicTicksThisPass = 0;
-			const Int maxTicksThisPass = GameEngine_logicCatchupMaxFrames( m_maxFPS );
+			const Int maxTicksThisPass = GameEngine_logicCatchupMaxFrames( pacedFramesPerSecond( m_maxFPS ) );
 			/* Bounded by the clock as well as by the count - see LOGIC_CATCHUP_BUDGET_MS.  Three
 				 25ms ticks back to back with no picture in between is the 113ms freeze; one of them
 				 plus the render is a dropped frame nobody files a bug about. */
@@ -3312,10 +3428,10 @@ void GameEngine::update( void )
 						break;
 				}
 				// Asked last, because it is the one with a side effect: it spends the debt it reports.
-				else if (!GameEngine_isLogicFrameDue(s_logicAccumMs, 0.0f, m_maxFPS))
+				else if (!GameEngine_isLogicFrameDue(s_logicAccumMs, 0.0f, pacedFramesPerSecond( m_maxFPS )))
 					break;
 			}
-			noteLogicTickDue( m_maxFPS, fastMode, networkPaced );
+			noteLogicTickDue( pacedFramesPerSecond( m_maxFPS ), fastMode, networkPaced );
 			// a frame held by a scripted freeze keeps showing its last picture, rather than going back
 			// half a frame every other pass; smooth motion shows it whole too, since the update may have
 			// moved a model (a script's teleport) that the blend and its restore would put back

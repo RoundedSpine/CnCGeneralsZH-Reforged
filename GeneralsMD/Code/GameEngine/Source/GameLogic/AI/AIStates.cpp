@@ -70,6 +70,7 @@
 #include "GameLogic/Module/ContainModule.h"
 #include "GameLogic/Module/JetAIUpdate.h"
 #include "GameLogic/Module/PhysicsUpdate.h"
+#include "GameLogic/Module/SpawnBehavior.h"
 #include "GameLogic/Module/StealthUpdate.h"
 
 #ifdef _INTERNAL
@@ -554,7 +555,7 @@ StateReturnType AIRappelState::onEnter()
 		obj->setLayer(layerAtDest);
 
 	AIUpdateInterface *ai = obj->getAI();
-	Real MAX_RAPPEL_RATE = fabs(TheGlobalData->m_gravity) * LOGICFRAMES_PER_SECOND * 2.5f;
+	Real MAX_RAPPEL_RATE = fabs(TheGlobalData->m_gravity) * LOGICFRAMES_PER_GAME_SECOND * 2.5f;
 	m_rappelRate = -min(ai->getDesiredSpeed(), MAX_RAPPEL_RATE);
 
 	return STATE_CONTINUE;
@@ -987,7 +988,7 @@ StateReturnType AIStateMachine::setTemporaryState( StateID newStateID, Int frame
 			m_temporaryState = NULL;
 			return ret;
 		}
-		enum {FRAME_COUNT_MAX = 60*LOGICFRAMES_PER_SECOND};
+		const Int FRAME_COUNT_MAX = 60*LOGICFRAMES_PER_GAME_SECOND;
 		// If you need to up this check, ok, but 1 minute seems overly long for a temporary state override.  jba.
 		DEBUG_ASSERTCRASH(frameLimitCoount<=FRAME_COUNT_MAX, ("Unusually long time to set temporary state."));
 		if (frameLimitCoount>FRAME_COUNT_MAX) {
@@ -1341,7 +1342,7 @@ static Bool cannotPossiblyAttackObject( State *thisState, void* userData )
 //----------------------------------------------------------------------------------------------
 //----------------------------------------------------------------------------------------------
 
-const UnsignedInt IDLE_COUNTDOWN_DELAY = (LOGICFRAMES_PER_SECOND * 2);
+#define IDLE_COUNTDOWN_DELAY ((UnsignedInt)((LOGICFRAMES_PER_GAME_SECOND * 2)))
 
 //----------------------------------------------------------------------------------------------
 AIIdleState::AIIdleState( StateMachine *machine, AIIdleState::AIIdleTargetingType shouldLookForTargets ) : 
@@ -1904,7 +1905,7 @@ StateReturnType AIInternalMoveToState::update()
 		forceRecompute = true;
 	}
 	Bool blocked=false;
-	if (ai->isBlockedAndStuck() || ai->getNumFramesBlocked()>2*LOGICFRAMES_PER_SECOND) {
+	if (ai->isBlockedAndStuck() || ai->getNumFramesBlocked()>2*LOGICFRAMES_PER_GAME_SECOND) {
 		forceRecompute = true;
 		blocked = true;
 		m_blockedRepathTimestamp = TheGameLogic->getFrame();
@@ -1931,7 +1932,7 @@ StateReturnType AIInternalMoveToState::update()
 			obj->clearModelConditionState( MODELCONDITION_RAPPELLING );
 		}
 	}
-	if (ai->getNumFramesBlocked()>LOGICFRAMES_PER_SECOND/4) 
+	if (ai->getNumFramesBlocked()>LOGICFRAMES_PER_GAME_SECOND/4) 
 	{
 		obj->clearModelConditionState( MODELCONDITION_MOVING );
 	}	
@@ -4286,7 +4287,7 @@ StateReturnType AIAttackMoveToState::update()
 		ret = STATE_CONTINUE;
 		m_retryCount--;
 		// Sleep 3 seconds.  We can attack during these frames, just not move.
-		m_frameToSleepUntil = TheGameLogic->getFrame() + 3*LOGICFRAMES_PER_SECOND;
+		m_frameToSleepUntil = TheGameLogic->getFrame() + 3*LOGICFRAMES_PER_GAME_SECOND;
 	}
 	return ret;
 }
@@ -6295,7 +6296,8 @@ StateReturnType AIWaitState::update()
 AIAttackState::AIAttackState( StateMachine *machine, Bool follow, Bool attackingObject, Bool forceAttacking, AttackExitConditionsInterface* attackParameters) : 
 	State( machine , "AIAttackState"), 
 	m_attackMachine(NULL),
-	m_attackParameters(attackParameters), 
+	m_victimNexusID(INVALID_ID),
+	m_attackParameters(attackParameters),
 	m_lockedWeaponOnEnter(NULL), 
 	m_follow(follow),
 	m_isAttackingObject(attackingObject),
@@ -6339,14 +6341,17 @@ void AIAttackState::crc( Xfer *xfer )
 void AIAttackState::xfer( Xfer *xfer )
 {
   // version
-  XferVersion currentVersion = 1;
+	// 2: m_victimNexusID
+  XferVersion currentVersion = 2;
   XferVersion version = currentVersion;
   xfer->xferVersion( &version, currentVersion );
 
 	Bool hasMachine = m_attackMachine!=NULL;
-	
+
 	xfer->xferBool(&hasMachine);
 	xfer->xferCoord3D(&m_originalVictimPos);
+	if (version >= 2)
+		xfer->xferObjectID(&m_victimNexusID);
 
 	if (hasMachine && m_attackMachine==NULL)	{
 		// create new state machine for attack behavior
@@ -6422,6 +6427,50 @@ void AIAttackState::notifyNewVictimChosen(Object* victim)
 }
 
 //----------------------------------------------------------------------------------------------------------
+/** The mob nexus a victim is a member of: an Angry Mob, whose members are slaves of an
+	  invisible nexus.  A Stinger Site's soldiers and a hive's drones are slaves too, but of a building,
+	  and each of those is a target on its own. */
+static ObjectID mobNexusOf( const Object *victim )
+{
+	const SlavedUpdateInterface *slaved = victim ? victim->getSlavedUpdateInterface() : NULL;
+	if (slaved == NULL)
+		return INVALID_ID;
+	const Object *nexus = TheGameLogic->findObjectByID( slaved->getSlaverID() );
+	return (nexus != NULL && nexus->isKindOf( KINDOF_MOB_NEXUS )) ? nexus->getID() : INVALID_ID;
+}
+
+//----------------------------------------------------------------------------------------------------------
+/** An order to attack one member of an Angry Mob is an order to attack the mob.  The mob is selected
+	  and ordered as one, and the attacker that killed the one it was pointed at stood idle beside the
+	  other nine.  So the attack carries on to whichever of the victim's mob is nearest, until the nexus has nobody left, by the same means ContinueAttackRange swaps the victim
+	  inside this state.  An attack that ends for any other reason still ends. */
+Bool AIAttackState::carryOnThroughMob()
+{
+	if (!m_isAttackingObject || m_victimNexusID == INVALID_ID || m_attackMachine == NULL)
+		return FALSE;
+
+	Object *nexus = TheGameLogic->findObjectByID( m_victimNexusID );
+	SpawnBehaviorInterface *spawn = (nexus != NULL && !nexus->isEffectivelyDead()) ? nexus->getSpawnBehaviorInterface() : NULL;
+	Object *source = getMachineOwner();
+	Object *mate = spawn ? spawn->getClosestSlave( source->getPosition() ) : NULL;
+	if (mate == NULL || mate->isEffectivelyDead() || mate == source)
+		return FALSE;
+
+	AIUpdateInterface *ai = source->getAI();
+	const CommandSourceType cmdSource = ai ? ai->getLastCommandSource() : CMD_FROM_AI;
+	if (source->getAbleToAttackSpecificObject( m_isForceAttacking ? ATTACK_NEW_TARGET_FORCED : ATTACK_NEW_TARGET, mate, cmdSource ) == ATTACKRESULT_NOT_POSSIBLE)
+		return FALSE;
+
+	m_victimTeam = mate->getTeam();
+	notifyNewVictimChosen( mate );
+	if (ai)
+		ai->setCurrentVictim( mate );
+	// the sub-machine may have finished with the dead one; start it over on the new one
+	m_attackMachine->initDefaultState();
+	return TRUE;
+}
+
+//----------------------------------------------------------------------------------------------------------
 /**
  * Begin an attack on the machine's goal object.
  * To do this complex behavior, instantiate another state machine as a "sub-machine" of 
@@ -6474,6 +6523,7 @@ StateReturnType AIAttackState::onEnter()
 			return STATE_FAILURE;	// we have nothing to attack!
 		}
 		m_victimTeam = victim->getTeam();
+		m_victimNexusID = mobNexusOf( victim );
 		m_attackMachine->setGoalObject( victim );
 		m_originalVictimPos = *victim->getPosition();
 	}
@@ -6542,15 +6592,22 @@ StateReturnType AIAttackState::update()
 	{
 		Object* victim = getMachineGoalObject();
 
-		if (victim == NULL || victim->isEffectivelyDead()) 	
+		if (victim == NULL || victim->isEffectivelyDead())
 		{
-			source->getAI()->notifyVictimIsDead();
-			return STATE_SUCCESS;	// my, that was easy
+			if (!carryOnThroughMob())
+			{
+				source->getAI()->notifyVictimIsDead();
+				return STATE_SUCCESS;	// my, that was easy
+			}
+			victim = getMachineGoalObject();
 		}
 
-		if (victim) 
+		if (victim)
 		{
 			source->getAI()->setCurrentVictim(victim);
+			// remembered every frame, since the victim can be swapped from inside too; once it is
+			// dead, and perhaps gone, this is the only way back to its mob
+			m_victimNexusID = mobNexusOf( victim );
 		}
 
 		if( victim->getTeam() != m_victimTeam )
@@ -6630,7 +6687,17 @@ StateReturnType AIAttackState::update()
 	 * Note the use of CONVERT_SLEEP_TO_CONTINUE; even if the sub-machine
 	 * sleeps, we still need to be called every frame.
 	 */
-	return CONVERT_SLEEP_TO_CONTINUE(m_attackMachine->updateStateMachine());
+	StateReturnType subResult = CONVERT_SLEEP_TO_CONTINUE(m_attackMachine->updateStateMachine());
+
+	// the shot that just killed the victim ends the sub-machine on this frame, before the dead-victim
+	// check above can see it; a mob member's attacker carries on to the next of the mob from here as well
+	if (subResult != STATE_CONTINUE && m_isAttackingObject)
+	{
+		Object* victim = getMachineGoalObject();
+		if ((victim == NULL || victim->isEffectivelyDead()) && carryOnThroughMob())
+			return STATE_CONTINUE;
+	}
+	return subResult;
 }
 
 //----------------------------------------------------------------------------------------------------------

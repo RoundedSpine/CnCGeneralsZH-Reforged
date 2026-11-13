@@ -661,6 +661,7 @@ Drawable::Drawable( const ThingTemplate *thingTemplate, DrawableStatus statusBit
 	m_objectForDraw.empDisabled = FALSE;
 	m_objectForDraw.outage = FALSE;
 	m_objectForDraw.playerIndex = 0;
+	m_objectForDraw.skinPlayerIndex = -1;
 	m_objectForDraw.playerColor = 0;
 	m_objectForDraw.safeOcclusionFrame = 0;
 	m_objectForDraw.layer = LAYER_GROUND;
@@ -3405,33 +3406,33 @@ static Real healthBarArtLift( const Object *obj )
 }
 
 //-------------------------------------------------------------------------------------------------
-/** A squad's bar, and an Angry Mob's, belongs over its members and not over the invisible nexus
-	* they follow. SpawnBehavior's offset is where the members' centre stood up to a fifth of a second
-	* ago, and the bar was only as wide as the nexus' own small geometry, so five soldiers spread over
-	* a street wore a stub of a bar over one of them. The members are what the nexus made
+/** An Angry Mob's bar belongs over its members and not over the invisible nexus they follow.
+	* SpawnBehavior's offset is where the members' centre stood up to a fifth of a second ago, and the
+	* bar was only as wide as the nexus' own small geometry, so ten men spread over a street wore a stub
+	* of a bar over one of them. The members are what the nexus made
 	* (getProducerID). The bar goes over their centre, above the top of the group as the screen shows
 	* it: every head, and the far side of every selection ring (W3DWaypointBuffer's ring radius,
 	* approximated here). Its span is theirs on the screen, which the caller caps. FALSE when no member
 	* is in sight, and the nexus' own place is used.
 	*
 	* The bar is drawn beside the tick, so nothing here reads the logic: the members come from a copy
-	* the sync point takes (Drawable_takeSquadsForRender), at the positions their models are shown,
+	* the sync point takes (Drawable_takeMobsForRender), at the positions their models are shown,
 	* which is also what the selection rings are drawn round. */
 //-------------------------------------------------------------------------------------------------
-static const Real SQUAD_BAR_CLEARANCE = 6.0f;		///< pixels between the top of the group and the bar, before the UI scale
-static const Real SQUAD_BAR_RING_MARGIN = 1.0f;	///< RING_MARGIN and RING_MIN_RADIUS in W3dWaypointBuffer.cpp
-static const Real SQUAD_BAR_RING_MIN = 5.0f;
-static const Real SQUAD_BAR_MAX_WIDTH = 2.0f;		///< the bar is at most this many times a lone unit's
+static const Real MOB_BAR_CLEARANCE = 6.0f;		///< pixels between the top of the group and the bar, before the UI scale
+static const Real MOB_BAR_RING_MARGIN = 1.0f;	///< RING_MARGIN and RING_MIN_RADIUS in W3dWaypointBuffer.cpp
+static const Real MOB_BAR_RING_MIN = 5.0f;
+static const Real MOB_BAR_MAX_WIDTH = 2.0f;		///< the bar is at most this many times a lone unit's
 
-static std::vector<SquadMemberForDraw> s_squadMembers;		///< sorted by nexus
+static std::vector<MobMemberForDraw> s_mobMembers;		///< sorted by nexus
 
-static Bool squadMemberBefore( const SquadMemberForDraw& a, const SquadMemberForDraw& b ) { return a.nexus < b.nexus; }
+static Bool mobMemberBefore( const MobMemberForDraw& a, const MobMemberForDraw& b ) { return a.nexus < b.nexus; }
 
 // ponytail: one walk of every drawable each sync point, a lookup only for those something produced. A
 // list kept by SpawnBehavior would be cheaper, and is a GameLogic change.
-void Drawable_takeSquadsForRender( Bool smooth, Real alpha )
+void Drawable_takeMobsForRender( Bool smooth, Real alpha )
 {
-	s_squadMembers.clear();
+	s_mobMembers.clear();
 	if( TheGameLogic == NULL || TheGameClient == NULL )
 		return;
 	// only members the drawn fog lets you see: an enemy mob's bar must not lean toward the ones in fog
@@ -3448,7 +3449,7 @@ void Drawable_takeSquadsForRender( Bool smooth, Real alpha )
 		if( obj->getShroudedStatus( shroudPlayer ) > OBJECTSHROUD_PARTIAL_CLEAR )
 			continue;
 
-		SquadMemberForDraw member;
+		MobMemberForDraw member;
 		member.nexus = nexus->getID();
 		member.drawable = draw->getID();
 		member.pos = *draw->getPosition();
@@ -3457,17 +3458,17 @@ void Drawable_takeSquadsForRender( Bool smooth, Real alpha )
 		member.radius = obj->getGeometryInfo().getBoundingCircleRadius();
 		member.height = obj->getGeometryInfo().getMaxHeightAbovePosition();
 		member.layer = obj->getLayer();
-		s_squadMembers.push_back( member );
+		s_mobMembers.push_back( member );
 	}
-	std::stable_sort( s_squadMembers.begin(), s_squadMembers.end(), squadMemberBefore );
+	std::stable_sort( s_mobMembers.begin(), s_mobMembers.end(), mobMemberBefore );
 }
 
-Int Drawable_squadMembersForDraw( ObjectID nexus, const SquadMemberForDraw **members )
+Int Drawable_mobMembersForDraw( ObjectID nexus, const MobMemberForDraw **members )
 {
-	SquadMemberForDraw key;
+	MobMemberForDraw key;
 	key.nexus = nexus;
-	std::pair<std::vector<SquadMemberForDraw>::const_iterator, std::vector<SquadMemberForDraw>::const_iterator> range =
-		std::equal_range( s_squadMembers.begin(), s_squadMembers.end(), key, squadMemberBefore );
+	std::pair<std::vector<MobMemberForDraw>::const_iterator, std::vector<MobMemberForDraw>::const_iterator> range =
+		std::equal_range( s_mobMembers.begin(), s_mobMembers.end(), key, mobMemberBefore );
 	*members = ( range.first == range.second ) ? NULL : &*range.first;
 	return (Int)( range.second - range.first );
 }
@@ -3602,10 +3603,10 @@ void Drawable_flashOrderTargets( void )
 	}
 }
 
-static Bool squadBarPlace( ObjectID nexus, ICoord2D& screenCentre, Real& span )
+static Bool mobBarPlace( ObjectID nexus, ICoord2D& screenCentre, Real& span )
 {
-	const SquadMemberForDraw *members;
-	const Int count = Drawable_squadMembersForDraw( nexus, &members );
+	const MobMemberForDraw *members;
+	const Int count = Drawable_mobMembersForDraw( nexus, &members );
 	if( count == 0 )
 		return FALSE;
 
@@ -3635,7 +3636,7 @@ static Bool squadBarPlace( ObjectID nexus, ICoord2D& screenCentre, Real& span )
 		const Real away = (Real)sqrt( ex * ex + ey * ey );
 		if( away > 1.0f )
 		{
-			const Real r = MAX( SQUAD_BAR_RING_MIN, members[ i ].radius + SQUAD_BAR_RING_MARGIN );
+			const Real r = MAX( MOB_BAR_RING_MIN, members[ i ].radius + MOB_BAR_RING_MARGIN );
 			Coord3D rim = *pos;
 			rim.x += ex / away * r;
 			rim.y += ey / away * r;
@@ -3644,7 +3645,7 @@ static Bool squadBarPlace( ObjectID nexus, ICoord2D& screenCentre, Real& span )
 		}
 	}
 	screenCentre.x = mid.x;
-	screenCentre.y = topY - (Int)( SQUAD_BAR_CLEARANCE * TheUIScale() );
+	screenCentre.y = topY - (Int)( MOB_BAR_CLEARANCE * TheUIScale() );
 
 	Real spread = 0.0f;
 	for( Int i = 0; i < count; ++i )
@@ -3684,8 +3685,8 @@ static Bool computeHealthRegion( const Drawable *draw, IRegion2D& region )
 		return FALSE;
 
 	ICoord2D screenCenter;
-	Real squadSpan = 0.0f;
-	if( !( obj->isKindOf( KINDOF_MOB_NEXUS ) && squadBarPlace( obj->getID(), screenCenter, squadSpan ) ) )
+	Real mobSpan = 0.0f;
+	if( !( obj->isKindOf( KINDOF_MOB_NEXUS ) && mobBarPlace( obj->getID(), screenCenter, mobSpan ) ) )
 	{
 		Coord3D p;
 		obj->getHealthBoxPosition(p);
@@ -3724,7 +3725,7 @@ static Bool computeHealthRegion( const Drawable *draw, IRegion2D& region )
 	//
 	const Real uiScale = TheUIScale();
 	healthBoxWidth *= uiScale;
-	healthBoxWidth = MAX( healthBoxWidth, MIN( squadSpan, SQUAD_BAR_MAX_WIDTH * healthBoxWidth ) );
+	healthBoxWidth = MAX( healthBoxWidth, MIN( mobSpan, MOB_BAR_MAX_WIDTH * healthBoxWidth ) );
 
 	// do this so health bar doesn't get too skinny or fat after scaling
 	//healthBoxHeight = max(3.0f, healthBoxHeight);
@@ -4868,8 +4869,9 @@ void Drawable::drawBombed(const IRegion2D* healthBarRegion)
 				Int frameWidth = getIconInfo()->m_icon[ ICON_CARBOMB ]->getCurrentFrameWidth();
 				Int frameHeight = getIconInfo()->m_icon[ ICON_CARBOMB ]->getCurrentFrameHeight();
 
-				// adjust the width to be a % of the health bar region size
-				Int size = REAL_TO_INT( barWidth * 0.5f );
+				// a share of the bar's width at the opening camera, at every zoom: the bar follows the
+				// zoom to span the unit, a sign stays one size (the bomb icons below likewise)
+				Int size = REAL_TO_INT( barWidth * TheTacticalView->getZoom() * 0.5f );
 				frameHeight = REAL_TO_INT((INT_TO_REAL(size) / INT_TO_REAL(frameWidth)) * frameHeight);
 				frameWidth = size;
 
@@ -4946,10 +4948,10 @@ void Drawable::drawBombed(const IRegion2D* healthBarRegion)
 						Int frameHeight = getIconInfo()->m_icon[ ICON_BOMB_TIMED ]->getCurrentFrameHeight();
 
 						// adjust the width to be a % of the health bar region size
-						Int size = REAL_TO_INT( barWidth * 0.65f );
+						Int size = REAL_TO_INT( barWidth * TheTacticalView->getZoom() * 0.65f );
 						frameHeight = REAL_TO_INT((INT_TO_REAL(size) / INT_TO_REAL(frameWidth)) * frameHeight);
 						frameWidth = size;
-						
+
 						// given our scaled width and height we need to find the top left point to draw the image at
 						ICoord2D screen;
 						screen.x = REAL_TO_INT( healthBarRegion->lo.x + (barWidth * 0.5f) - (frameWidth * 0.5f) );
@@ -4986,7 +4988,7 @@ void Drawable::drawBombed(const IRegion2D* healthBarRegion)
 
 
 						// adjust the width to be a % of the health bar region size
-						Int size = REAL_TO_INT( barWidth * 0.65f );
+						Int size = REAL_TO_INT( barWidth * TheTacticalView->getZoom() * 0.65f );
 						frameHeight = REAL_TO_INT((INT_TO_REAL(size) / INT_TO_REAL(frameWidth)) * frameHeight);
 						frameWidth = size;
 
@@ -5438,7 +5440,7 @@ static void drawOwnCountdown( DisplayString *&countdown, Int seconds, Int x, Int
 //-------------------------------------------------------------------------------------------------
 Bool Drawable_weaponWearsReloadBar( Int clipSize, UnsignedInt delayFrames, UnsignedInt clipReloadFrames, Bool disarms )
 {
-	const UnsignedInt RELOAD_BAR_MIN_FRAMES = 3 * LOGICFRAMES_PER_SECOND;
+	const UnsignedInt RELOAD_BAR_MIN_FRAMES = 3 * LOGICFRAMES_PER_GAME_SECOND;	// the weapon data's clock
 	if( disarms )
 		return FALSE;
 
@@ -5457,7 +5459,7 @@ Bool Drawable_weaponWearsReloadBar( Int clipSize, UnsignedInt delayFrames, Unsig
 //-------------------------------------------------------------------------------------------------
 Real Drawable_reloadBarFraction( UnsignedInt now, UnsignedInt started, UnsignedInt ready, UnsignedInt longest )
 {
-	const UnsignedInt RELOAD_BAR_MIN_FRAMES = 3 * LOGICFRAMES_PER_SECOND;
+	const UnsignedInt RELOAD_BAR_MIN_FRAMES = 3 * LOGICFRAMES_PER_GAME_SECOND;	// as Drawable_weaponWearsReloadBar
 
 	// 0x7fffffff is an empty clip that does not reload itself (a jet waiting for its airfield)
 	if( ready <= now || ready == 0x7fffffff )
@@ -5512,6 +5514,70 @@ static Real reloadBarFraction( const Object *obj )
 	}
 
 	return least;
+}
+
+//-------------------------------------------------------------------------------------------------
+/** The colours of this drawable's health bar at `healthRatio`: blue to cyan while disabled, the
+	* owner's colour under HealthBarColors 1, otherwise retail's ramp from green through yellow to red.
+	* The HUD's hero cell asks here too, so its bar reads like the one over the hero's head. */
+//-------------------------------------------------------------------------------------------------
+void Drawable::healthBarColors( Real healthRatio, Color *color, Color *outlineColor )
+{
+	Object *obj = getObject();
+	if( obj != NULL && Drawable_disabledShowsBlueHealthBar( obj->getDisabledFlags() ) )
+	{
+		*color = GameMakeColor( 0, healthRatio * 255.0f, 255, 255 );//blue to cyan
+		*outlineColor = GameMakeColor( 0, healthRatio * 128.0f, 128, 255 );//dark blue to dark cyan
+	}
+	else if( obj != NULL &&
+					 TheGlobalData->m_healthBarColors == 1 &&
+					 obj->getControllingPlayer() != NULL &&
+					 obj->getControllingPlayer()->getPlayerColor() != 0 )
+	{
+		// HealthBarColors 1: the bar wears its owner's colour, the one the minimap and the selection
+		// rings use, and the bar's length alone says how hurt it is.  The outline is the same colour
+		// darkened, so a light player colour still reads against light ground.  Civilians, crates
+		// and anything else with no colour to borrow keep the ramp below.
+		UnsignedByte r, g, b, a;
+		GameGetColorComponents( clientPlayerColor( obj->getControllingPlayer() ), &r, &g, &b, &a );
+
+		*color = GameMakeColor( r, g, b, 255 );				// the stored colour's alpha is not ours to trust
+		*outlineColor = GameDarkenColor( *color, 60 );
+	}
+	else //retail's ramp for every owner: green at full health, through yellow, to red
+	{
+		RGBColor inColor, outColor;
+		inColor.blue = 0; // health bars do not display blue...
+		outColor.blue = 0; // health bars do not display blue...
+
+		if( healthRatio >= 0.5f )
+		{
+			inColor.red = 1.0f - ((healthRatio - 0.5f) / 0.5f);
+			inColor.green = 1.0f;
+		}
+		else
+		{
+			inColor.red = 1.0f;
+			inColor.green = 1.0f - ((0.5f - healthRatio) / 0.5f);
+		}
+
+		outColor.red = inColor.red * 0.5f;
+		outColor.green =inColor.green * 0.5f;
+
+		if( m_conditionState.test( MODELCONDITION_REALLY_DAMAGED ) == TRUE )
+		{//average the above color with red
+			inColor.red = (1.0f + inColor.red) * 0.5f;
+			inColor.green *= 0.5f;
+		}
+		else if ( m_conditionState.test( MODELCONDITION_DAMAGED ) == FALSE )
+		{//average the above color with green
+			inColor.green = (1.0f + inColor.green) * 0.5f;
+			inColor.red *= 0.5f;
+		}
+
+		*color =        GameMakeColor( 255.0 * inColor.red, 255.0 * inColor.green, 255.0 * inColor.blue, 255);
+		*outlineColor = GameMakeColor( 255.0 * outColor.red, 255.0 * outColor.green, 255.0 * outColor.blue, 255);
+	}
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -5578,75 +5644,8 @@ void Drawable::drawHealthBar(const IRegion2D* healthBarRegion)
 		// what is our health ratio
 		Real healthRatio = health / maxHealth;
 
-		//
-		// what color will we use for the health bar based on our ratio, this makes it
-		// slowly go from green to red, (or from blue to cyan if disabled)
-		//
-
 		Color color, outlineColor;
-		if( Drawable_disabledShowsBlueHealthBar( obj->getDisabledFlags() ) )
-		{
-			color = GameMakeColor( 0, healthRatio * 255.0f, 255, 255 );//blue to cyan
-			outlineColor = GameMakeColor( 0, healthRatio * 128.0f, 128, 255 );//dark blue to dark cyan
-
-		}
-		else if( TheGlobalData->m_healthBarColors == 1 &&
-						 obj->getControllingPlayer() != NULL &&
-						 obj->getControllingPlayer()->getPlayerColor() != 0 )
-		{
-			// HealthBarColors 1: the bar wears its owner's colour, the one the minimap and the selection
-			// rings use, and the bar's length alone says how hurt it is.  The outline is the same colour
-			// darkened, so a light player colour still reads against light ground.  Civilians, crates
-			// and anything else with no colour to borrow keep the ramp below.
-			UnsignedByte r, g, b, a;
-			GameGetColorComponents( clientPlayerColor( obj->getControllingPlayer() ), &r, &g, &b, &a );
-
-			color = GameMakeColor( r, g, b, 255 );				// the stored colour's alpha is not ours to trust
-			outlineColor = GameDarkenColor( color, 60 );
-		}
-		else //retail's ramp for every owner: green at full health, through yellow, to red
-		{
-
-			RGBColor inColor, outColor;
-			inColor.blue = 0; // health bars do not display blue...
-			outColor.blue = 0; // health bars do not display blue...
-
-			if( healthRatio >= 0.5f )
-			{
-				inColor.red = 1.0f - ((healthRatio - 0.5f) / 0.5f);
-				inColor.green = 1.0f;
-//				color = GameMakeColor       (  255 - ((healthRatio - 0.5f) / 0.5f) * 255, 255, 0, 255 );
-//				outlineColor = GameMakeColor( (255 - ((healthRatio - 0.5f) / 0.5f) * 255) * 0.5, 255 * 0.5, 0, 255 );
-			}
-			else
-			{
-				inColor.red = 1.0f;
-				inColor.green = 1.0f - ((0.5f - healthRatio) / 0.5f);
-//				color = GameMakeColor( 255, 255 - ((0.5f - healthRatio) / 0.5f) * 255, 0, 255 );
-//				outlineColor = GameMakeColor( 255 * 0.5, (255 - ((0.5f - healthRatio) / 0.5f) * 255) * 0.5, 0, 255 );
-			}
-
-			outColor.red = inColor.red * 0.5f;
-			outColor.green =inColor.green * 0.5f;
-
-			if( m_conditionState.test( MODELCONDITION_REALLY_DAMAGED ) == TRUE )
-			{//average the above color with red
-				inColor.red = (1.0f + inColor.red) * 0.5f;
-				inColor.green *= 0.5f;
-			}
-			else if ( m_conditionState.test( MODELCONDITION_DAMAGED ) == FALSE )
-			{//average the above color with green
-				inColor.green = (1.0f + inColor.green) * 0.5f;
-				inColor.red *= 0.5f;
-			}
-
-			color =        GameMakeColor( 255.0 * inColor.red, 255.0 * inColor.green, 255.0 * inColor.blue, 255);
-			outlineColor = GameMakeColor( 255.0 * outColor.red, 255.0 * outColor.green, 255.0 * outColor.blue, 255);
-		
-		
-		}
-
-
+		healthBarColors( healthRatio, &color, &outlineColor );
 
 
 ///		Real scale = 1.3f / TheTacticalView->getZoom();

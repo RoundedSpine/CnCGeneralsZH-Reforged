@@ -200,6 +200,9 @@ static const LookupListRec GameMessageMetaTypeNames[] =
 	{ "TOGGLE_MOVE",														GameMessage::MSG_META_TOGGLE_MOVE },
 	{ "TOGGLE_PAUSE",														GameMessage::MSG_META_TOGGLE_PAUSE },
 	{ "TOGGLE_RADAR_COLORS",										GameMessage::MSG_META_TOGGLE_RADAR_COLORS },
+	{ "TOGGLE_COMMAND_TAB_BUILDINGS",						GameMessage::MSG_META_TOGGLE_COMMAND_TAB_BUILDINGS },
+	{ "TOGGLE_COMMAND_TAB_GROUND",							GameMessage::MSG_META_TOGGLE_COMMAND_TAB_GROUND },
+	{ "TOGGLE_COMMAND_TAB_AIRCRAFT",						GameMessage::MSG_META_TOGGLE_COMMAND_TAB_AIRCRAFT },
 	{ "DEPLOY",																		GameMessage::MSG_META_DEPLOY },
 	{ "CREATE_FORMATION",													GameMessage::MSG_META_CREATE_FORMATION },
 	{ "FOLLOW",																		GameMessage::MSG_META_FOLLOW },
@@ -920,6 +923,17 @@ void MetaMap::keepArrowsForCamera()
 	static const struct { GameMessage::Type meta; MappableKeyType key; MappableKeyModState mods; } DEFAULTS[] =
 	{
 		{ GameMessage::MSG_META_TOGGLE_RADAR_COLORS, MK_F11, NONE },
+		// the smoke signals on Alt with Z, X and C, the launcher's own default (HotKey.cpp's
+		// LAUNCHER_DEFAULTS), which it leaves out of Hotkeys.ini as no change of the player's: without
+		// these a game run with no launcher-written file had the signals on no key at all, and the
+		// signal keys' tooltips named none
+		{ GameMessage::MSG_META_SIGNAL_ATTACK, MK_Z, ALT },
+		{ GameMessage::MSG_META_SIGNAL_DEFEND, MK_X, ALT },
+		{ GameMessage::MSG_META_SIGNAL_ATTENTION, MK_C, ALT },
+		// the bar's three command tabs, Q W E being the grid's top row and free under Ctrl
+		{ GameMessage::MSG_META_TOGGLE_COMMAND_TAB_BUILDINGS, MK_Q, CTRL },
+		{ GameMessage::MSG_META_TOGGLE_COMMAND_TAB_GROUND, MK_W, CTRL },
+		{ GameMessage::MSG_META_TOGGLE_COMMAND_TAB_AIRCRAFT, MK_E, CTRL },
 	};
 	for( size_t each = 0; each < sizeof( DEFAULTS ) / sizeof( DEFAULTS[ 0 ] ); ++each )
 	{
