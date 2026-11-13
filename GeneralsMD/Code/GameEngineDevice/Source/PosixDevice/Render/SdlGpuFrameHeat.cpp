@@ -166,7 +166,9 @@ bool SdlGpuFrame::Prepare_Heat(unsigned width,unsigned height)
 bool SdlGpuFrame::Ensure_Heat_Background(const SdlTarget &target,std::string &error)
 {
     error.clear();
-    if(!GpuDevice||HeatFailed||!target.Colour||!target.Width||!target.Height)return false;
+    // HeatFailed gates the heat-haze effect, not this allocation: Post_Process needs the
+    // scene copy for tone mapping and retries it every frame after a transient failure.
+    if(!GpuDevice||!target.Colour||!target.Width||!target.Height)return false;
     if(HeatBackground==target.Colour){error="capture source aliases destination";return false;}
     if(HeatWidth!=target.Width||HeatHeight!=target.Height) {
         Release_Heat_Background();SDL_GPUTextureCreateInfo info={};info.type=SDL_GPU_TEXTURETYPE_2D;

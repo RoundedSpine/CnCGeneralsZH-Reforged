@@ -10,6 +10,7 @@ extern "C" void ZH_SDL_Metal_SetNextRenderPassTag(Uint32 category);
 #endif
 #include <cstdio>
 #include <cmath>
+#include <algorithm>
 bool SdlGpuFrame::Supports_Hdr() const {
     return GpuDevice&&!PostFailed&&SDL_GPUTextureSupportsFormat(GpuDevice,SDL_GPU_TEXTUREFORMAT_R16G16B16A16_FLOAT,
         SDL_GPU_TEXTURETYPE_2D,SDL_GPU_TEXTUREUSAGE_COLOR_TARGET|SDL_GPU_TEXTUREUSAGE_SAMPLER);
@@ -45,7 +46,12 @@ bool SdlGpuFrame::Prepare_Post(){
 bool SdlGpuFrame::Post_Process(const SdlTarget &target,const float rect[4],float grade,const ScenePost::Chain *chain){
     if(!rect)return false;
     for(unsigned i=0;i<4;++i)if(!std::isfinite(rect[i]))return false;
-    if(rect[0]<0||rect[1]<0||rect[2]<=0||rect[3]<=0||rect[0]+rect[2]>target.Width||rect[1]+rect[3]>target.Height)return false;
+    if(rect[0]<0||rect[1]<0||rect[2]<=0||rect[3]<=0||rect[0]>=float(target.Width)||rect[1]>=float(target.Height))return false;
+    // A rounded scale can overshoot the target by a fraction of a texel; clamp instead of
+    // reject, so tone mapping still covers the whole visible scene.
+    const float area[4]={rect[0],rect[1],
+        std::min(rect[2],float(target.Width)-rect[0]),
+        std::min(rect[3],float(target.Height)-rect[1])};
     if(MemoryConstrained)grade=0;
     unsigned active=0,passes=0,modes[4]={},status=unsigned(HdrActive)|(unsigned(MemoryConstrained)<<1)|(SampleCount<<2);
     if(chain)for(unsigned i=0;i<chain->Count;++i){
@@ -66,7 +72,9 @@ bool SdlGpuFrame::Post_Process(const SdlTarget &target,const float rect[4],float
     const auto failHeat=[&](const char *reason) {
         HeatFailed=true;fprintf(stderr,"[SDL_HEAT] disabled reason=%s\n",reason);return false;
     };
-    if(!GpuDevice||!target.Colour||!target.Width||!target.Height||HeatFailed)return false;
+    // Tone mapping must not depend on the heat-haze latch: HeatFailed disables the heat
+    // effect, but the scene copy below is retried every frame so tone mapping recovers.
+    if(!GpuDevice||!target.Colour||!target.Width||!target.Height)return false;
     if(HeatBackground==target.Colour)return failHeat("capture source aliases destination");
     const bool resized=HeatBackground&&(HeatWidth!=target.Width||HeatHeight!=target.Height);
     if(resized&&!Flush(FlushHeat))return failHeat("scene flush failed");
@@ -92,7 +100,7 @@ bool SdlGpuFrame::Post_Process(const SdlTarget &target,const float rect[4],float
         if(!Record_Heat_Background(commands,target,error)) {
             HeatFailed=true;fprintf(stderr,"[SDL_HEAT] disabled reason=%s\n",error.c_str());return false;
         }
-        return Record_Post_Pass(commands,target,HeatBackground,rect,passGrade,filter,amount);
+        return Record_Post_Pass(commands,target,HeatBackground,area,passGrade,filter,amount);
     };
     if(recorded&&((HdrActive||grade>0)&&!foldGrade)) {
         recorded=recordPost(grade,0,0);
@@ -111,6 +119,9 @@ bool SdlGpuFrame::Post_Process(const SdlTarget &target,const float rect[4],float
     if(submitted&&postWritten) {
         External_Colour_Write(target.Colour);
         Invalidate_Water_Snapshots(target.Colour,nullptr);
+        // The HDR tone pass is always the first pass, so a written post chain means the
+        // scene is tone mapped and the render-scale composite may upscale it directly.
+        if(HdrActive)HdrToneApplied=true;
     }
     return recorded&&submitted;
 }
@@ -129,4 +140,31 @@ auto *pass=SDL_BeginGPURenderPass(commands,&colour,1,nullptr);if(!pass)return fa
     const SDL_GPUViewport viewport={0,0,float(target.Width),float(target.Height),0,1};SDL_SetGPUViewport(pass,&viewport);
     SDL_DrawGPUPrimitives(pass,3,1,0,0);SDL_EndGPURenderPass(pass);
     return true;
+}
+
+// HDR safety net for the render-scale composite. When the post chain did not run, the
+// scene still holds linear values above 1; tone map while upscaling - sample the scene
+// with the linear post sampler and write the native back buffer - so neither MetalFX
+// nor the linear blit ever receives raw HDR. One pass, no extra scene copy.
+bool SdlGpuFrame::Tone_Scene_To_Back(){
+    if(!GpuDevice||!SceneBuffer||!BackBuffer||!SceneWidth||!SceneHeight||!HdrActive||!Prepare_Post())return false;
+    ZH_IOS_WaitForForeground();
+    SDL_GPUCommandBuffer *commands=SDL_AcquireGPUCommandBuffer(GpuDevice);
+    if(!commands)return false;
+    if(!Record_Batch(commands)){SDL_CancelGPUCommandBuffer(commands);return false;}
+    const SdlTarget back={BackBuffer,nullptr,BackWidth,BackHeight,0};
+    const float rect[4]={0,0,float(BackWidth),float(BackHeight)};
+    if(!Record_Post_Pass(commands,back,SceneBuffer,rect,0,0,0)){
+        SDL_CancelGPUCommandBuffer(commands);return false;
+    }
+    const bool submitted=SerializeSubmits?Submit(commands):Submit_Flush(commands);
+    End_Batch();
+    if(submitted){
+        HdrToneApplied=true;
+        External_Colour_Write(BackBuffer);
+        Invalidate_Water_Snapshots(BackBuffer,nullptr);
+        static bool logged=false;
+        if(!logged){logged=true;fprintf(stderr,"[SDL_POST] tone composite fallback: scene tone mapped during upscale\n");}
+    }
+    return submitted;
 }

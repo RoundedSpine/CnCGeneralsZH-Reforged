@@ -64,9 +64,15 @@ void PosixDevice9::Finish_Scene(){
             if(!Gpu->Heat_Haze_Scene(target))fprintf(stderr,"[SDL_HEAT] scene finish failed\n");
             float rect[4];
             const bool sceneTarget=Gpu->Is_Scene_Target(target);
-            const float scaleX=sceneTarget?float(target.Width)/float(Gpu->Width()):1.0f;
-            const float scaleY=sceneTarget?float(target.Height)/float(Gpu->Height()):1.0f;
-            for(unsigned i=0;i<4;++i)rect[i]=PostRect[i]*(i%2==0?scaleX:scaleY);
+            // Integer scaling: the float ratio could round a full-screen rect a fraction of a
+            // texel past the scene target (a 640x602 window at 75% gives 452.00003 > 452),
+            // Post_Process rejected it, and the HDR scene was upscaled without tone mapping.
+            // The integer helper is exact for a full-screen rect.
+            for(unsigned i=0;i<4;++i) {
+                const unsigned source=(i%2==0)?Gpu->Width():Gpu->Height();
+                const unsigned destination=(i%2==0)?target.Width:target.Height;
+                rect[i]=float(sceneTarget?Posix_Scale_Rectangle_Value(int(PostRect[i]),source,destination):int(PostRect[i]));
+            }
             if(!Gpu->Post_Process(target,rect,PostGrade,&SceneEffects::RequestedPostChain()))
                 fprintf(stderr,"[SDL_POST] scene finish failed\n");
         }

@@ -145,6 +145,9 @@ public:
 	bool Is_Scene_Target(const SdlTarget &target) const { return SceneBuffer != NULL && target.Colour == SceneBuffer; }
 	unsigned int Render_Scale() const { return RenderScale; }
 	bool Finish_Scene();
+	/// HDR safety net for Finish_Scene: tone map the scene while upscaling it into the back
+	/// buffer when the post chain did not run, so no scaler ever receives raw HDR.
+	bool Tone_Scene_To_Back();
 	unsigned int Target_Depth_Format(const SdlTarget &target) const;
 	/// Sampleable sun depth, retired only after previously recorded readers are submitted.
 	bool Ambient_Occlusion(const SdlTarget &target, const SdlAo::Constants &constants, SDL_GPUTexture *shroud);
@@ -419,6 +422,7 @@ private:
     void Draw_Depth_Record(SDL_GPUCommandBuffer*,SDL_GPURenderPass*,SDL_GPUBuffer*,const SdlRecordedDraw&);
     unsigned SceneFormat=0;
     bool HdrActive=false,PostFailed=false;
+    bool HdrToneApplied=false;
     std::unordered_set<SDL_GPUTexture*> HdrTextures;
     SDL_GPUShader *PostVertex=nullptr,*PostPixel=nullptr;
     SDL_GPUGraphicsPipeline *PostPipeline=nullptr;

@@ -426,12 +426,23 @@ bool SdlGpuFrame::Finish_Scene()
 	if (!SceneActive || SceneBuffer == NULL)
 		return true;
 
+	// The scene must be tone mapped before any upscale. When the post chain skipped it
+	// (capture failure, effects gated off, rejected rect), tone map during the composite
+	// instead of feeding raw HDR to MetalFX or the linear blit.
+	if (HdrActive && !HdrToneApplied && Tone_Scene_To_Back()) {
+		SceneActive = false;
+		TargetSet = false;
+		return true;
+	}
+
 #if defined(ZH_PLATFORM_IOS)
 	const char *driver = SDL_GetGPUDeviceDriver(GpuDevice);
 	const char *metalFxSetting = getenv("ZH_METALFX_SPATIAL");
 	if (RenderScale < 100 && metalFxSetting != NULL && strcmp(metalFxSetting, "1") == 0
 		&& driver && strcmp(driver, "metal") == 0
-		&& ZH_SDL_MetalFX_Prepare(GpuDevice, SceneBuffer, BackBuffer)) {
+		// The scene is tone mapped before this point: float content is display-linear
+		// (mode 1), BGRA8 content is perceptual (mode 0). HDR mode (2) is for raw HDR only.
+		&& ZH_SDL_MetalFX_Prepare(GpuDevice, SceneBuffer, BackBuffer, HdrActive ? 1 : 0)) {
 		if (!Flush(FlushMaintenance))
 			return false;
 		if (ZH_SDL_MetalFX_Encode(GpuDevice, SceneBuffer, BackBuffer)) {
