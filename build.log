@@ -1,61 +1,3 @@
---   SDL_PULSEAUDIO_SHARED       (Wanted: OFF): OFF
---   SDL_RENDER_D3D              (Wanted: OFF): OFF
---   SDL_RENDER_D3D11            (Wanted: OFF): OFF
---   SDL_RENDER_D3D12            (Wanted: OFF): OFF
---   SDL_RENDER_GPU              (Wanted: OFF): OFF
---   SDL_RENDER_METAL            (Wanted: OFF): OFF
---   SDL_RENDER_VULKAN           (Wanted: OFF): OFF
---   SDL_ROCKCHIP                (Wanted: OFF): OFF
---   SDL_RPATH                   (Wanted: ON): OFF
---   SDL_RPI                     (Wanted: OFF): OFF
---   SDL_SNDIO                   (Wanted: OFF): OFF
---   SDL_SNDIO_SHARED            (Wanted: OFF): OFF
---   SDL_SSE                     (Wanted: OFF): OFF
---   SDL_SSE2                    (Wanted: OFF): OFF
---   SDL_SSE3                    (Wanted: OFF): OFF
---   SDL_SSE4_1                  (Wanted: OFF): OFF
---   SDL_SSE4_2                  (Wanted: OFF): OFF
---   SDL_SYSTEM_ICONV            (Wanted: OFF): OFF
---   SDL_TESTS                   (Wanted: OFF): OFF
---   SDL_TESTS_LINK_SHARED       (Wanted: OFF): OFF
---   SDL_UNINSTALL               (Wanted: OFF): OFF
---   SDL_VIRTUAL_JOYSTICK        (Wanted: OFF): OFF
---   SDL_VIVANTE                 (Wanted: OFF): OFF
---   SDL_VULKAN                  (Wanted: ON): ON
---   SDL_WASAPI                  (Wanted: OFF): OFF
---   SDL_WAYLAND                 (Wanted: OFF): OFF
---   SDL_WAYLAND_LIBDECOR        (Wanted: OFF): OFF
---   SDL_WAYLAND_LIBDECOR_SHARED (Wanted: OFF): OFF
---   SDL_WAYLAND_SHARED          (Wanted: OFF): OFF
---   SDL_X11                     (Wanted: OFF): OFF
---   SDL_X11_SHARED              (Wanted: OFF): OFF
---   SDL_X11_XCURSOR             (Wanted: OFF): OFF
---   SDL_X11_XDBE                (Wanted: OFF): OFF
---   SDL_X11_XFIXES              (Wanted: OFF): OFF
---   SDL_X11_XINPUT              (Wanted: OFF): OFF
---   SDL_X11_XRANDR              (Wanted: OFF): OFF
---   SDL_X11_XSCRNSAVER          (Wanted: OFF): OFF
---   SDL_X11_XSHAPE              (Wanted: OFF): OFF
---   SDL_X11_XSYNC               (Wanted: OFF): OFF
---   SDL_X11_XTEST               (Wanted: OFF): OFF
---   SDL_XINPUT                  (Wanted: OFF): OFF
--- 
---  Build Shared Library: OFF
---  Build Static Library: ON
---  Build libraries as Apple Framework: OFF
--- 
--- Enabled backends:
---   Video drivers: cocoa dummy offscreen
---   Render drivers: 
---   GPU drivers: metal vulkan
---   Audio drivers: dummy
---   Joystick drivers: disabled dummy
---   Camera drivers: dummy
--- 
--- If something was not detected, although the libraries
--- were installed, then make sure you have set the
--- CMAKE_C_FLAGS and CMAKE_PREFIX_PATH CMake variables correctly.
--- 
 -- Looking for unistd.h
 -- Looking for unistd.h - found
 -- Looking for fcntl.h
@@ -298,3 +240,61 @@ to suppress it.
 [221/1657] Linking CXX static library SPIRV-Cross/libspirv-cross-msl.a
 [222/1657] Building OBJC object SDL3/CMakeFiles/SDL3-static.dir/src/gpu/metal/SDL_gpu_metal.m.o
 [223/1657] Building CXX object CMakeFiles/wwdebug.dir/Libraries/Source/WWVegas/WWDebug/wwdebug.cpp.o
+[224/1657] Building C object SDL3/CMakeFiles/SDL3-static.dir/src/gpu/vulkan/SDL_gpu_vulkan.c.o
+[225/1657] Building CXX object CMakeFiles/wwdebug.dir/Libraries/Source/WWVegas/WWDebug/wwmemlog.cpp.o
+[226/1657] Building CXX object CMakeFiles/wwdebug.dir/Libraries/Source/WWVegas/WWDebug/wwprofile.cpp.o
+[227/1657] Building C object CMakeFiles/sdl3_shadercross.dir/Libraries/Source/SDL_shadercross/src/SDL_shadercross.c.o
+[228/1657] Building CXX object SPIRV-Cross/CMakeFiles/spirv-cross-c.dir/spirv_cross_c.cpp.o
+[229/1657] Building CXX object CMakeFiles/ffshader.dir/Libraries/Source/WWVegas/WW3D2/ffshader.cpp.o
+[230/1657] Linking C static library SDL3/libSDL3.a
+[231/1657] Building CXX object CMakeFiles/build_fingerprint.dir/Tools/fingerprint/build_fingerprint.cpp.o
+[232/1657] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/GenericCodeGen/Link.cpp.o
+[233/1657] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/GenericCodeGen/CodeGen.cpp.o
+[234/1657] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/OSDependent/Unix/ossource.cpp.o
+[235/1657] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/CInterface/glslang_c_interface.cpp.o
+[236/1657] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/attribute.cpp.o
+[237/1657] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/Constant.cpp.o
+[238/1657] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/glslang_tab.cpp.o
+[239/1657] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/InfoSink.cpp.o
+[240/1657] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/IntermTraverse.cpp.o
+[241/1657] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/iomapper.cpp.o
+[242/1657] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/Intermediate.cpp.o
+[243/1657] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/Initialize.cpp.o
+[244/1657] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/ParseContextBase.cpp.o
+[245/1657] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/PoolAlloc.cpp.o
+[246/1657] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/RemoveTree.cpp.o
+[247/1657] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/Scan.cpp.o
+[248/1657] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/ShaderLang.cpp.o
+[249/1657] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/SpirvIntrinsics.cpp.o
+[250/1657] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/ParseHelper.cpp.o
+[251/1657] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/SymbolTable.cpp.o
+[252/1657] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/intermOut.cpp.o
+[253/1657] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/Versions.cpp.o
+[254/1657] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/limits.cpp.o
+[255/1657] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/parseConst.cpp.o
+[256/1657] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/linkValidate.cpp.o
+[257/1657] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/reflection.cpp.o
+[258/1657] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/preprocessor/Pp.cpp.o
+[259/1657] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/preprocessor/PpAtom.cpp.o
+[260/1657] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/preprocessor/PpContext.cpp.o
+[261/1657] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/preprocessor/PpScanner.cpp.o
+[262/1657] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/preprocessor/PpTokens.cpp.o
+[263/1657] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/propagateNoContraction.cpp.o
+[264/1657] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/HLSL/hlslAttributes.cpp.o
+[265/1657] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/HLSL/hlslScanContext.cpp.o
+[266/1657] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/HLSL/hlslOpMap.cpp.o
+[267/1657] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/HLSL/hlslTokenStream.cpp.o
+[268/1657] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/HLSL/hlslGrammar.cpp.o
+[269/1657] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/HLSL/hlslParseables.cpp.o
+[270/1657] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/HLSL/hlslParseHelper.cpp.o
+[271/1657] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/__/SPIRV/InReadableOrder.cpp.o
+[272/1657] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/__/SPIRV/Logger.cpp.o
+[273/1657] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/__/SPIRV/SpvPostProcess.cpp.o
+[274/1657] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/__/SPIRV/doc.cpp.o
+[275/1657] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/__/SPIRV/SpvTools.cpp.o
+[276/1657] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/__/SPIRV/disassemble.cpp.o
+[277/1657] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/__/SPIRV/SpvBuilder.cpp.o
+[278/1657] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/__/SPIRV/GlslangToSpv.cpp.o
+[279/1657] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/__/SPIRV/CInterface/spirv_c_interface.cpp.o
+[280/1657] Linking CXX static library SPIRV-Cross/libspirv-cross-c.a
+[281/1657] Linking CXX static library libwwdebug.a
