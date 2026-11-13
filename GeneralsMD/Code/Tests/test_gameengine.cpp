@@ -759,6 +759,16 @@ TEST(balance_patch_edits_a_weapon_in_place)
 
 #include "../Stubs/NullAudioManager.h"
 
+// The real managers live in GameEngineDevice; all we need is something concrete to file systems in.
+class TestParticleSystemManager : public ParticleSystemManager
+{
+public:
+	virtual Int getOnScreenParticleCount( void ) { return 0; }
+	virtual void doParticles( RenderInfoClass & ) {}
+	virtual void queueParticleRender() {}
+	virtual void preloadAssets( TimeOfDay ) {}
+};
+
 /* The Paladin's infantry laser, the second point defense module BalanceReforged.ini gives it, once
 	 borrowed EA's WatchTowerMachineGun.  A Weapon.ini that leaves that weapon out had the MULTIFILE
 	 block for it dropped as the test above wants, the module got a null template and
@@ -773,6 +783,12 @@ TEST(weapon_reforged_ini_makes_the_paladin_infantry_laser_without_eas_weapons)
 		TheWeaponStore = NEW WeaponStore;
 	if( TheFXListStore == NULL )
 		TheFXListStore = NEW FXListStore;
+
+	/* ProjectileExhaust fields name particle system templates, which the parser resolves through
+		 TheParticleSystemManager; an empty manager reads names it does not hold as none */
+	ParticleSystemManager *savedParticleManager = TheParticleSystemManager;
+	if( savedParticleManager == NULL )
+		TheParticleSystemManager = NEW TestParticleSystemManager;
 
 	/* the fire FX the weapon names; a missing one reads as none */
 	writeFile( TEST_INI,
@@ -805,6 +821,12 @@ TEST(weapon_reforged_ini_makes_the_paladin_infantry_laser_without_eas_weapons)
 	{
 		delete TheAudio;
 		TheAudio = NULL;
+	}
+
+	if( savedParticleManager == NULL )
+	{
+		delete TheParticleSystemManager;
+		TheParticleSystemManager = NULL;
 	}
 
 	const WeaponTemplate *laser = TheWeaponStore->findWeaponTemplate( "Reforged_PaladinInfantryLaser" );
@@ -7336,16 +7358,6 @@ static GameClient *getTestGameClient( void )
 		theTestGameClient = new TestGameClient;
 	return theTestGameClient;
 }
-
-// The real managers live in GameEngineDevice; all we need is something concrete to file systems in.
-class TestParticleSystemManager : public ParticleSystemManager
-{
-public:
-	virtual Int getOnScreenParticleCount( void ) { return 0; }
-	virtual void doParticles( RenderInfoClass & ) {}
-	virtual void queueParticleRender() {}
-	virtual void preloadAssets( TimeOfDay ) {}
-};
 
 TEST(particlesys_find_answers_by_id_and_forgets_a_dead_system)
 {
