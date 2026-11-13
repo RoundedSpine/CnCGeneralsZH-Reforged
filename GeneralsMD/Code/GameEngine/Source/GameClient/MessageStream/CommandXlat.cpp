@@ -203,7 +203,7 @@ static void tellAllies( const UnicodeString &line )
 		TheInGameUI->playerMessage( localPlayer, line );
 		return;
 	}
-	Int playerMask = 0;
+	SlotMask playerMask = 0;
 	for( Int i = 0; i < MAX_SLOTS; ++i )
 	{
 		AsciiString playerName;
@@ -211,7 +211,7 @@ static void tellAllies( const UnicodeString &line )
 		const Player *player = ThePlayerList->findPlayerWithNameKey( TheNameKeyGenerator->nameToKey( playerName ) );
 		if( player && ( player == localPlayer || ( player->getRelationship( localPlayer->getDefaultTeam() ) == ALLIES &&
 				localPlayer->getRelationship( player->getDefaultTeam() ) == ALLIES ) ) )
-			playerMask |= ( 1 << i );
+			playerMask |= slotBit( i );
 	}
 	TheNetwork->sendChat( line, playerMask );
 }
@@ -3440,7 +3440,8 @@ GameMessageDisposition CommandTranslator::translateGameMessage(const GameMessage
 			{
 				Coord3D lastEvent;
 
-				if( TheRadar->getLastEventLoc( &lastEvent ) )
+				// the last event, and on each press soon after one alarm further back
+				if( TheRadar->cycleEventLoc( &lastEvent ) )
 					TheTacticalView->lookAt( &lastEvent );
 
 			}  // end if
@@ -3882,6 +3883,13 @@ GameMessageDisposition CommandTranslator::translateGameMessage(const GameMessage
 		case GameMessage::MSG_META_TOGGLE_PURCHASE_SCIENCE:
 			if( TheControlBar )
 				TheControlBar->togglePurchaseScience();
+			disp = DESTROY_MESSAGE;
+			break;
+
+		// the minimap in three colours, yours, your allies' and your enemies'; only this screen changes
+		case GameMessage::MSG_META_TOGGLE_RADAR_COLORS:
+			if( TheRadar )
+				TheRadar->toggleSimpleColors();
 			disp = DESTROY_MESSAGE;
 			break;
 

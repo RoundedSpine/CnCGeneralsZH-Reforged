@@ -116,6 +116,7 @@ enum
 	AIKNOB_MASS_UNIT		= 4,
 	AIKNOB_BASE_WATCH		= 8,
 	AIKNOB_STRIKE_DODGE	= 16,
+	AIKNOB_DEFENSE_QUEUE	= 32,	///< the scripts' base defences go down on the frame they are asked for, as before they queued
 };
 
 //-------------------------------------------------------------------------------------------------
@@ -303,8 +304,8 @@ public:
 
 	Real m_partitionCellSize;
 
-	// read from retail GameData.ini and used by nothing: the ammo and seat trays hang off the health
-	// bar (Drawable::drawTrays). Kept so that INI still parses.
+	// read from retail GameData.ini and used by nothing: the rounds and seats are drawn under the
+	// health bar (Drawable::loadPips). Kept so that INI still parses.
 	Coord3D m_ammoPipWorldOffset;
 	Coord3D m_containerPipWorldOffset;
 	Coord2D m_ammoPipScreenOffset;
@@ -482,6 +483,7 @@ public:
 	Int m_textureFilterMode;			///< 0 bilinear, 1 trilinear, 2 anisotropic
 	Int m_anisotropyLevel;				///< samples anisotropic filtering may take; 0 = whatever the card offers
 	Bool m_showNetBox;					///< the player's own switch for the top right info strip (InGameUI::drawHudOverlay)
+	Int m_minimapSize;					///< percent of its own size the radar is drawn at, growing up from the bar's corner (ControlBar::fitRadarToMap); 100 = as the bar has it
 	Bool m_showEmptyBuildingPips;		///< the row of empty slots over a building nobody is in
 	Bool m_workersReturnToSupply;		///< a worker that finishes a build job goes back to the dock it left
 	Bool m_archiveReplays;					///< keep a timestamped copy of every replay, instead of only the last one
@@ -524,6 +526,7 @@ public:
 	Coord2D m_cameraLook;						///< where -camera pointed it
 	Int m_traceMoveID;							///< -tracemove [id]: log one movement line a frame for this object (0 = off, -1 = the first unit that gets blocked)
 	Real m_slowFrameMS;							///< -slowframe <ms>: a logic frame over this long logs its own breakdown (default 20)
+	Bool m_logicProfile;						///< -slowframe given: time every update module and script, log the module table every 600 frames
 	Int m_drawDelayMS;							///< -drawdelay <ms>: sleep this long in every client pass, a slow graphics card on demand (0 = off)
 	Int m_drawDelayJitterMS;				///< -drawdelay <ms> <jitter>: up to this much more, different every pass
 	Bool m_showLanes;							///< -showlanes: draw every moving unit's route, the lane it was handed and the offset it kept

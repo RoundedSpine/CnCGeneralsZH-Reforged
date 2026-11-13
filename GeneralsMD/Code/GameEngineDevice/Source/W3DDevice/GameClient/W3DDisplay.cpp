@@ -2312,7 +2312,7 @@ static void notePacing(UnsignedInt frame)
 
 static void smoothMotionBegin()
 {
-	// on a display faster than the logic, unless -nosmoothmotion says no, at every -logicthread setting;
+	// on a display faster than the logic, unless -nosmoothmotion says no, beside a tick or not;
 	// -recordfps's pictures between two logic frames always blend, from the frame before the first so that
 	// one is captured
 	const Bool video = GameEngine_videoBlends();
@@ -2464,6 +2464,7 @@ static void takeReadsForRender( Bool renders )
 	// clock, each drawable's look (after the views' update eased its fades) and the players the control
 	// bar's painters ask
 	TheGameClient->takeFrameForDraw();
+	Drawable_flashOrderTargets();		// before the looks are taken, so a flash shows in this picture
 	for( Drawable *draw = TheGameClient->firstDrawable(); draw; draw = draw->getNextDrawable() )
 	{
 		// flushes the conditions the client set; inside the window the scene's dirty walk is a no-op
@@ -2473,6 +2474,8 @@ static void takeReadsForRender( Bool renders )
 	W3DControlBar_takeReadsForRender();
 	if( !renders || TheGlobalData->m_breakTheMovie || TheGlobalData->m_disableRender )
 		return;
+	// the squads' members for their health bars and selection rings, at the positions they are shown
+	Drawable_takeSquadsForRender( TheSmoothMotionActive && TheSmoothMotionAlpha < 1.0f, TheSmoothMotionAlpha );
 	for( View *view = TheDisplay->getFirstView(); view; view = TheDisplay->getNextView( view ) )
 		static_cast<W3DView *>( view )->recordPostDraw();
 	TheInGameUI->recordDraw();
@@ -2492,6 +2495,10 @@ void W3DDisplay::draw( void )
 {
 	USE_PERF_TIMER(W3DDisplay_draw)
 	static UnsignedInt syncTime = 0;
+
+	// the load screen and the end-of-load fade draw from inside the map-load tick, outside the engine's
+	// client scope: a height asked of a logic object here is measured, never stored (Thing::CachePeek)
+	Thing::CachePeek drawReadsLeaveNoCache;
 
 	extern RenderWindow ApplicationHWnd;	// WinMain's HWND on Windows
 #if defined(_WIN32)	// off Windows a minimised window is C2's to report
@@ -3228,6 +3235,11 @@ void W3DDisplay::createLightPulse( const Coord3D *pos, const RGBColor *color,
 	//theDynamicLight->setDonut(donut);
 	// (gth) CNC3 enable far attenuation.  C&C3 defaults to disabled.  Must enable to match Generals. MW 8-06-03
 	theDynamicLight->Set_Flag(LightClass::FAR_ATTENUATION,true);
+}
+
+void W3DDisplay::waitForFrameQueue( void )
+{
+	Direct3D11_Wait_For_Frame();
 }
 
 void W3DDisplay::stepDynamicLights( void )

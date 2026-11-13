@@ -318,6 +318,7 @@ public:
 		MSG_META_TOGGLE_MOVE,												///< arm a plain move for the next order click or drag (fork)
 		MSG_META_TOGGLE_PAUSE,											///< pause/unpause, single player and replay only (fork)
 		MSG_META_TOGGLE_PURCHASE_SCIENCE,						///< open/close the general's promotion screen (fork)
+		MSG_META_TOGGLE_RADAR_COLORS,								///< minimap in own/ally/enemy colours, client only (fork)
 		
 		MSG_META_BEGIN_CAMERA_ROTATE_LEFT,
 		MSG_META_END_CAMERA_ROTATE_LEFT,
@@ -675,6 +676,7 @@ public:
 		MSG_TEAM_REQUEST,														///< (Int AITeamRequestKind, Location) the sender asks his computer allies for help, money or to join his attack (fork)
 		MSG_DO_AUTO_GARRISON,												///< Every selected soldier looks for a free seat around where he stands (fork)
 		MSG_DO_AUTO_REPAIR,													///< Every selected unit goes to its own nearest building that mends it (fork)
+		MSG_QUEUE_UNIT_FOR_GROUP,										///< (Int template ID, Int squad 0-9) the logic picks a factory, and the unit joins that hotkey squad when it comes out (fork)
 
 		MSG_BEGIN_DEBUG_NETWORK_MESSAGES = 1900,		///< network messages that exist only in debug/internal builds. all grouped separately.
 

@@ -798,8 +798,8 @@ public:
 	void markUIDirty( void );
 
 	/** LOGIC-THREAD.md phase 2, M2: a call the tick makes on the bar.  Inside GameLogic::update it is
-		kept and run by flushLogicCalls on the main thread right after the tick, at both -logicthread
-		settings; outside a tick it runs at once.  The map start calls in startNewGame stay direct. */
+		kept and run by flushLogicCalls on the main thread right after the tick, wherever the tick
+		ran; outside a tick it runs at once.  The map start calls in startNewGame stay direct. */
 	static void callFromLogic( const std::function<void()>& call );
 	static void flushLogicCalls( void );		///< LogicThread::runTick, after every tick
 	Bool selectionRepeatsUnit( const ThingTemplate *thing );	///< a selected factory of ours builds it on repeat
@@ -927,6 +927,26 @@ public:
 	void hidePurchaseScience( void );
 	void togglePurchaseScience( void );
 	Bool isPurchaseScienceVisible( void );
+	/// a press on one of the promotion window's talent plates: buys that card when logic says it can be
+	/// bought; FALSE when the window is no talent plate
+	Bool purchaseTalent( GameWindow *control );
+
+	/** What the promotion window's talent half draws, read off the watched player outside the render
+		* window (ControlBar::update's logic latch and populateTalents), so the draw, which runs while the
+		* logic tick may be adding sciences, never touches a Player. */
+	enum { TALENT_VIEW_ROWS = TALENT_SCIENCE_COUNT / 2 };
+	struct TalentView
+	{
+		Bool taken;															///< FALSE until a player has been read
+		Bool hasTree;														///< the general has TalentSciences; without them nothing lights and no hint shows
+		Int rank;
+		Int state[ TALENT_SCIENCE_COUNT ];				///< 0 locked, 1 waiting, 2 picked, 3 rejected
+		Int rowState[ TALENT_VIEW_ROWS ];					///< the node: locked, waiting or picked
+		UnicodeString name[ TALENT_SCIENCE_COUNT ];
+		UnicodeString numeral[ TALENT_VIEW_ROWS ];
+		UnicodeString caption, waitingLine, hint, rankLabel, rankText;
+	};
+	const TalentView &getTalentView( void ) const { return m_talentView; }
 
 	void showSpecialPowerShortcut( void );
 	void hideSpecialPowerShortcut( void );
@@ -1050,6 +1070,16 @@ public:
 		* went nowhere.  GameWindow::winPointInChild asks, so clicking and unit picking agree. */
 	Bool letsClickThrough( GameWindow *window, Int x, Int y );
 
+	/** TRUE when this top-level window is the bar's frame and the point is on the radar's frame where
+		* a Minimap Size over 100 has raised it above the bar's top.  The window manager finds a window
+		* under the mouse by its top-level window's rectangle first, which ends at the bar's top. */
+	Bool holdsRaisedRadarPoint( const GameWindow *window, Int x, Int y );
+
+	/** A side's radar grown by Minimap Size has no frame in the painting; this is the rectangle the
+		* scheme draws steel round (outer) and the radar's window (inner), and whether EA's under-attack
+		* lamp is lit.  FALSE while the radar stands in its painted box. */
+	Bool getGrownRadarFrame( IRegion2D *outer, IRegion2D *inner, Bool *lit );
+
 	/// the radar's under-attack lamp, EA's
 	void triggerRadarAttackGlow( void );
 
@@ -1109,6 +1139,8 @@ protected:
 	void populatePurchaseScience(Player* player);
 	/// one rank's section of the promotion screen: slot i of the command set goes on windows[i]
 	void populatePurchaseScienceRank( Player *player, const CommandSet *commandSet, GameWindow **windows, Int windowCount );
+	void initTalentWindows( GameWindow *root );		///< widen the promotion window and put the talent plates on it
+	void populateTalents( Player *player );					///< the plates' presses and tooltips for that player's general
 	void populateCommand( Object *obj );
 	void populateMultiSelect( void );
 	void populateMultiSelectUnitList( void );
@@ -1143,6 +1175,9 @@ public:
 			default:									return 0;		// COMMAND_HIDDEN
 		}
 	}
+
+	/// getCommandAvailability for a button on no bar window: the group panel's build tray (GroupPanel.cpp)
+	CommandAvailability getButtonAvailability( const CommandButton *command, Object *obj ) const { return getCommandAvailability( command, obj, NULL ); }
 
 protected:
 	/** The same question asked of a whole multi-selection: a command one of the selected buildings
@@ -1179,6 +1214,13 @@ protected:
 
 	void fitRadarToMap( Bool fromLayout );				///< the radar window, its frame and its blocker take the map's shape; see layoutPanels
 	Real m_radarFitWidth, m_radarFitHeight;				///< the map extent fitRadarToMap last fitted to
+	Int m_radarFitSize;														///< the Minimap Size percent fitRadarToMap last fitted to
+	Bool m_radarRaised;														///< the radar's frame stands above the bar's top; see holdsRaisedRadarPoint
+	IRegion2D m_radarRaisedRect;									///< the radar's frame against the bar's frame (setRaisedRadarRect)
+	Int m_radarGrownFrame;												///< pixels of steel getGrownRadarFrame draws round a grown radar
+	void setRaisedRadarRect( const IRegion2D &frame );	///< see m_radarRaisedRect; frame in screen pixels
+	void fitSquareRadar( GameWindow *const *windows, const IRegion2D *box );	///< Minimap Size for a scheme with no radar frame
+	Bool m_radarSquareGrown;											///< fitSquareRadar moved the radar out of its box since the layout
 	/// the observer's player column (its list, the watched player's panel, Options and Chat) stands
 	/// against the frame's right edge, so it is fitted with the radar
 	enum { RADAR_FIT_RADAR, RADAR_FIT_BLOCK, RADAR_FIT_LAMP, RADAR_FIT_LIST, RADAR_FIT_INFO, RADAR_FIT_OPTIONS,
@@ -1254,6 +1296,10 @@ protected:
 	GameWindow *m_sciencePurchaseWindowsRank1[ MAX_PURCHASE_SCIENCE_RANK_1 ];			///< command window controls for easy access
 	GameWindow *m_sciencePurchaseWindowsRank3[ MAX_PURCHASE_SCIENCE_RANK_3 ];			///< command window controls for easy access
 	GameWindow *m_sciencePurchaseWindowsRank8[ MAX_PURCHASE_SCIENCE_RANK_8 ];			///< command window controls for easy access
+	GameWindow *m_talentWindows[ TALENT_SCIENCE_COUNT ];		///< the promotion window's talent plates, 6A 6B .. 10A 10B
+	TalentView m_talentView;																///< see getTalentView
+	Int m_talentPendingRow;																	///< a row whose purchase is on its way to logic, -1 none
+	UnsignedInt m_talentPendingFrame;												///< the logic frame it was sent on
 	GameWindow *m_specialPowerShortcutButtons[ MAX_SPECIAL_POWER_SHORTCUTS ];
 	GameWindow *m_specialPowerShortcutButtonParents[ MAX_SPECIAL_POWER_SHORTCUTS ];
 	DisplayString *m_shortcutDisplayStrings[ MAX_SPECIAL_POWER_SHORTCUTS ];

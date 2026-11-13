@@ -771,6 +771,7 @@ GlobalData::GlobalData()
 	m_cameraLook.x = m_cameraLook.y = 0.0f;
 	m_traceMoveID = 0; // no movement trace
 	m_slowFrameMS = 20.0f; // a frame worth a line in the log; -slowframe lowers it for a hunt
+	m_logicProfile = FALSE; // no clock around each module or script unless -slowframe asks
 	m_drawDelayMS = 0; // client passes run as fast as the machine does unless -drawdelay slows them
 	m_drawDelayJitterMS = 0;
 	m_showLanes = FALSE; // the lane overlay is a diagnostic, off unless -showlanes asks for it
@@ -1246,6 +1247,7 @@ GlobalData::GlobalData()
 	m_buildPlacementOpacity = PLACEMENT_SILHOUETTE_OPACITY;
 	m_buildPlacementShadows = TRUE;
 	m_showNetBox = FALSE;
+	m_minimapSize = 100;
 	m_showEmptyBuildingPips = TRUE;
 	m_workersReturnToSupply = TRUE;
 	m_archiveReplays = TRUE;

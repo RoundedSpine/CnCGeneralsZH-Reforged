@@ -495,7 +495,7 @@ public:  // ********************************************************************
 	struct OrderHint
 	{
 		OrderHint( void ) : kind( ORDER_HINT_MOVE ), owner( INVALID_ID ), bornMs( 0 ), step( 0 ), icon( NULL ),
-			onObject( FALSE ), mark( ORDER_MARK_NONE ) {}
+			onObject( FALSE ), target( INVALID_ID ), fromTarget( INVALID_ID ), mark( ORDER_MARK_NONE ) {}
 
 		Coord3D from;						///< where the unit is now
 		Coord3D to;							///< where it is going
@@ -505,9 +505,69 @@ public:  // ********************************************************************
 		Int step;								///< its place in the order the unit will get to its points, from 1; 0 when it has only the one
 		const Image *icon;			///< the upgrade's own button art on an upgrade step, NULL otherwise
 		Bool onObject;					///< 'to' is a unit or building, read off it every frame
+		ObjectID target;				///< that unit or building, INVALID_ID on ground
+		ObjectID fromTarget;		///< the unit or building 'from' was the end of, on a shift list's later legs
 		OrderHintMark mark;			///< what stands on 'to'
 	};
 	const std::vector<OrderHint>& getOrderHints( void ) const { return m_drawnOrderHints; }
+
+	// One ring a unit on the ground where the local player's last move-type order really sends it,
+	// read off the unit once logic has run the order (the flood's cell, the formation station, the
+	// end of the unit's own path), sized to the unit and faded out over ORDER_RING_MS.
+	enum { ORDER_RING_MS = 1500, ORDER_RING_WAIT_MS = 3000 };
+	struct OrderRing
+	{
+		ObjectID owner;
+		OrderHintKind kind;			///< ORDER_HINT_MOVE, _ATTACK_MOVE, _GUARD, or _WAYPOINT for a shift point
+		Coord3D at;							///< where logic sends it, at the height of its layer
+		Real radius;						///< the unit's footprint
+		Bool onGround;					///< FALSE on a bridge: drawn flat at 'at'
+		Bool settled;						///< 'at' is final (a path planned after the order, a waypoint, a tunnel exit)
+		UnsignedInt dueFrame;		///< logic has run the order once its frame is past this
+		UnsignedInt armedMs;		///< when the order was given
+		UnsignedInt bornMs;			///< when the ring was first placed, 0 until then
+	};
+	void armOrderRings( OrderHintKind kind );		///< HintSpy: the selection was just given a move-type order
+	const std::vector<OrderRing>& getOrderRings( void ) const { return m_orderRings; }
+
+	// An order this machine has sent and logic has not run yet.  In a network game that is a few
+	// frames of run-ahead, and the lines read off the units kept showing the old order until then.
+	// Until the order's execution frame is past, the unit's line is drawn from the order itself; after
+	// it the unit is read as usual, so an order logic refused goes back to what the unit really does.
+	struct PendingOrder
+	{
+		ObjectID owner;
+		OrderHintKind kind;
+		Coord3D to;							///< the ground clicked, when 'target' is INVALID_ID
+		ObjectID target;				///< the unit or building the order is aimed at
+		UnsignedInt dueFrame;		///< logic has run the order once its frame is past this
+	};
+	void predictOrderHints( OrderHintKind kind, const Coord3D *to, ObjectID target );	///< HintSpy: the selection was just given this order
+	void predictFormationOrderHints( void );		///< HintSpy: the formation line just drawn was sent, each unit to its station
+	// A rally point the same way: the line and the flag go where the player clicked until logic has
+	// run the order, then back to the building's own.
+	void predictRallyPoint( ObjectID building, const Coord3D& at );		///< HintSpy: a rally point was just sent
+	const Coord3D *getPredictedRallyPoint( ObjectID building ) const;	///< NULL unless one is waiting on logic
+
+	// A building wears a line round its footprint on the ground: white while it is selected, red while
+	// a selected unit is attacking it, red winning.  The red one blinks a few times when the attack
+	// starts, and an order aimed at an outlined building ends on the line, nearest the unit.
+	enum StructureOutlineColor
+	{
+		OUTLINE_HIDDEN = 0,			///< a red one in the dark half of a blink, on a building nobody selected
+		OUTLINE_WHITE,
+		OUTLINE_RED
+	};
+	struct StructureOutline
+	{
+		ObjectID id;
+		Bool selected;
+		Bool attacked;								///< a selected unit's order is an attack on it
+		UnsignedInt attackedSinceMs;	///< when that was first seen, for the blink
+		StructureOutlineColor color;	///< this frame's
+	};
+	const std::vector<StructureOutline>& getStructureOutlines( void ) const { return m_structureOutlines; }
+	static void traceStructureOutline( const Object *obj, std::vector<Coord3D>& points );	///< the closed line round its footprint, on the ground
 
 	// A circle dragged out with the left button while the attack key is armed or Ctrl is held.  The
 	// enemies inside it are shared across the units that can shoot, in the order both sides stand
@@ -1316,6 +1376,9 @@ public:
 		* up stand on top of it instead of being painted over. */
 	virtual void drawAttackCircleFill( void ) { }
 
+	/** The order rings (getOrderRings), on the ground with the terrain so the units stand on them. */
+	virtual void drawOrderRings( void ) { }
+
 	/// the control socket's "spectator" verb: the camera, the followed player, the fog, and replay
 	/// pause, seek and speed
 	void runSpectatorAction( const std::string &action );
@@ -1359,6 +1422,16 @@ protected:
 	Int													m_formationDragSpacing;												///< pixels a new point has to earn, doubled each time the curve fills up
 	std::vector<OrderHint>			m_orderHints;																	///< who is going where, one per unit and queued point
 	std::vector<OrderHint>			m_drawnOrderHints;														///< the same, units headed the same way bunched into one
+	std::vector<OrderRing>			m_orderRings;																	///< armed or fading, one per unit
+	std::vector<PendingOrder>		m_pendingOrders;															///< sent, not yet run by logic, one per unit
+	struct PendingRally { ObjectID building; Coord3D at; UnsignedInt dueFrame; };
+	std::vector<PendingRally>		m_pendingRallies;															///< sent, not yet run by logic, one per building
+	void expirePendingOrders( void );														///< drop what logic has run by now
+	Bool addPendingOrderHint( const Object *obj, const std::vector<OrderHint>& previous );	///< the unit's line from an order logic has not run, FALSE for none
+	void updateOrderRings( void );															///< place armed rings once logic ran the order, drop faded ones
+	Bool placeOrderRing( OrderRing& ring );											///< read where logic sends the unit, FALSE to drop the ring
+	std::vector<StructureOutline>	m_structureOutlines;												///< buildings selected or under a selected unit's attack
+	std::vector<StructureOutline>	m_previousStructureOutlines;								///< last frame's, swapped with the above so neither reallocates
 
 	Bool												m_isAttackCircling;														///< TRUE while an attack circle is being dragged (fork)
 	ICoord2D										m_attackCircleAnchor;													///< where the circle was started, in pixels
@@ -1370,7 +1443,9 @@ protected:
 	void collectOrderHints( void );															///< one hint per selected unit and queued point
 	void bunchOrderHints( void );																///< merge the hints of units going the same way
 	void addOrderHint( OrderHint& hint, const std::vector<OrderHint>& previous );	///< keep a marker's age across the frame the list is rebuilt on
-	Bool getHeldAircraftOrder( const Object *obj, OrderHintKind& kind, Coord3D& to, Bool& onObject ) const;	///< the order an aircraft is sitting on until it is airborne
+	void updateStructureOutlines( void );												///< which buildings wear a line this frame, and in what colour
+	void snapOrderHintsToOutlines( void );											///< a drawn hint's end on an outlined building moves onto the outline
+	Bool getHeldAircraftOrder( const Object *obj, OrderHintKind& kind, Coord3D& to, Bool& onObject, ObjectID& target ) const;	///< the order an aircraft is sitting on until it is airborne
 	void addQueuedOrderTail( OrderHint& hint, const OrderChain& chain, const std::vector<OrderHint>& previous );	///< every order still owed, drawn on from where the hint leaves off
 	Bool getQueuedOrderHint( const QueuedOrder& order, OrderHint& hint ) const;	///< the marker a queued order draws, FALSE for none
 	void numberOrderHints( void );															///< a unit with more than one place to go numbers them
@@ -1426,6 +1501,7 @@ protected:
 	Int hudStripBottom( void ) const;			///< first screen row below that strip, 0 while it is not drawn
 	void drawKickVoteBanner( void );			///< the open vote kick, top middle, while there is one
 	void drawProductionList( void );			///< the production list, cameos on the left above the control bar
+	void drawRadarAlarmPointers( void );	///< a chevron at the view's edge toward each alarm off the screen
 	DisplayString *cellString( DisplayString *&string, const UnicodeString &text );	///< a cell's kept readout string
 	void drawCellSeconds( DisplayString *&string, Int seconds, const IRegion2D &cameo, const Image *plate );	///< "45s" in a cameo's corner
 

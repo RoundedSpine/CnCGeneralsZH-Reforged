@@ -53,6 +53,7 @@ class Pathfinder;
 class Player;
 class PolygonTrigger;
 class SimpleObjectIterator;
+struct ShroudPeekRecord;
 class ThingTemplate;
 class UpgradeTemplate;
 class WeaponBonus;
@@ -1170,6 +1171,7 @@ public:
 	static Int getEnemyScanCountThisFrame( void ) { return s_enemyScans; }
 	static void resetEnemyScanCount( void ) { s_enemyScans = 0; }
 	static void bumpEnemyScanCount( void ) { ++s_enemyScans; }
+	static void noteJobEnemyScans( Int scans ) { s_enemyScans += scans; }	///< what jobs counted, added after the join
 	enum
 	{
 		CAN_SEE														=	1 << 0,
@@ -1178,10 +1180,29 @@ public:
 		ATTACK_BUILDINGS									= 1 << 3,
 		WITHIN_ATTACK_RANGE								= 1 << 4,
 		UNFOGGED													= 1 << 5,
-		PREFER_BEST_TARGET								= 1 << 6		///< pick by pickBestTarget, not the nearest thing
+		PREFER_BEST_TARGET								= 1 << 6,		///< pick by pickBestTarget, not the nearest thing
+		ANY_WILL_DO												= 1 << 7		///< some enemy the search would accept, not the one it picks: only for asking whether the answer is NULL
 	};
+	/** A target search a job of the logic thread runs (LOGIC-PARALLEL.md, P2): the thread's own scratch
+		in, and whether the answer may stand out. The search gathers with PartitionManager::gatherFromJob,
+		peeks the fog instead of asking it (the logic thread replays the questions later), counts here
+		instead of in the shared counters, and gives up, aborted, wherever a step is not safe beside other
+		jobs: a search form it does not run, a cache not filled yet, a whole range query underneath. */
+	struct ScanJob
+	{
+		Object		**objects;				///< capacity each, this thread's
+		Real			*distSqr;
+		Int				capacity;
+		ShroudPeekRecord *peeks;		///< where the fog filter records
+		SimpleObjectIterator *iterator;	///< this thread's, filled again by each gather (recycle)
+		Bool			aborted;
+		Int				gathers;
+		Int				objectsLookedAt;
+		Int				scans;
+	};
+
 	Object *findClosestEnemy( const Object *me, Real range, UnsignedInt qualifiers,
-		const AttackPriorityInfo *info=NULL, PartitionFilter *optionalFilter=NULL);
+		const AttackPriorityInfo *info=NULL, PartitionFilter *optionalFilter=NULL, ScanJob *job=NULL);
 
 	/** The candidate me would rather shoot than any other, by aiTargetBeats, or NULL.  lateFilters
 		* (NULL-terminated) are asked only of a candidate that would take the lead. */
@@ -1228,6 +1249,12 @@ public:
 	static void parseScience( INI* ini, void *instance, void *store, const void *userData );					///< Parse the image part of the INI file
 
 	inline UnsignedInt getNextGroupID( void ) { return ++m_nextGroupID; }
+	/** The groups, in list order with their IDs and members, and the counters that hand out group and
+		formation IDs. EA saved none of it: a loaded game had no groups, and the next group made took
+		ID 1, so its units moved apart and the CRC, which walks the group list, parted from the game
+		that was saved on the first frame. GameLogic::xfer writes it after the objects. */
+	void xferGroups( Xfer *xfer );
+	void loadPostProcessGroups( void );	///< the loaded groups take their members back, once every object is in
 
 	/// One building placement per logic frame across every computer player: FALSE when one already went down on this frame.
 	Bool claimBuildingPlacement( UnsignedInt frame );
@@ -1247,6 +1274,7 @@ protected:
 	UnsignedInt m_sweptGroupID;						///< every group up to this ID has been through sweepEmptyGroups
 	FormationID m_nextFormationID;
 	UnsignedInt m_lastBuildingPlacementFrame;	///< cleared by reset: a static here outlived the match and deferred the next match's first placement on one machine only
+	std::vector< std::pair< AIGroup *, std::vector< ObjectID > > > m_loadedGroupMembers;	///< xferGroups' members, until loadPostProcessGroups
 };
 
 extern AI *TheAI;												///< the Artificial Intelligence singleton

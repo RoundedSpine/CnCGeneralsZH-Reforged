@@ -934,7 +934,7 @@ void GameEngine::init( int argc, char *argv[] )
 			 Costs one thread per spare core sitting on a semaphore until something uses it. */
 		JobSystem::init();
 
-		// LOGIC-THREAD.md phase 1: -logicthread 1 starts the thread the ticks run on.
+		// LOGIC-THREAD.md phase 1: the thread the ticks run on, always.
 		LogicThread::init();
 
 		TheSubsystemList = MSGNEW("GameEngineSubsystem") SubsystemInterfaceList;
@@ -1170,6 +1170,8 @@ void GameEngine::init( int argc, char *argv[] )
 		initSubsystem(TheSidesList,"TheSidesList", MSGNEW("GameEngineSubsystem") SidesList(), NULL);
 		initSubsystem(TheCaveSystem,"TheCaveSystem", MSGNEW("GameEngineSubsystem") CaveSystem(), NULL);
 		initSubsystem(TheRankInfoStore,"TheRankInfoStore", MSGNEW("GameEngineSubsystem") RankInfoStore(), &xferCRC, NULL, "Data\\INI\\Rank.ini");
+		// Ranks 6 to 10, the talent ranks, appended after EA's five; an existing rank is edited in place
+		ini.load( AsciiString( "Data\\INI\\RankReforged.ini" ), INI_LOAD_MULTIFILE, &xferCRC );
 		initSubsystem(ThePlayerTemplateStore,"ThePlayerTemplateStore", MSGNEW("GameEngineSubsystem") PlayerTemplateStore(), &xferCRC, "Data\\INI\\Default\\PlayerTemplate.ini", "Data\\INI\\PlayerTemplate.ini");
 		// The fork's own factions: a new name is added after EA's, an existing one is edited in place
 		ini.load( AsciiString( "Data\\INI\\PlayerTemplateReforged.ini" ), INI_LOAD_MULTIFILE, &xferCRC );
@@ -1233,6 +1235,10 @@ void GameEngine::init( int argc, char *argv[] )
 		ini.load( AsciiString( "Data\\INI\\FixesReforged.ini" ), INI_LOAD_MULTIFILE, &xferCRC );
 		// Turkiye's objects, reskins of the American ones, so they come after the balance and fixes they copy
 		ini.load( AsciiString( "Data\\INI\\TurkiyeReforged.ini" ), INI_LOAD_MULTIFILE, &xferCRC );
+		// The general's talents, ranks 6 to 10: each card a science and whatever it grants
+		ini.load( AsciiString( "Data\\INI\\TalentsReforged.ini" ), INI_LOAD_MULTIFILE, &xferCRC );
+		// Infantry squads, reskins of the Angry Mob nexus and of the soldiers, last so they copy everything above
+		ini.load( AsciiString( "Data\\INI\\SquadReforged.ini" ), INI_LOAD_MULTIFILE, &xferCRC );
 
 	#ifdef DUMP_PERF_STATS///////////////////////////////////////////////////////////////////////////
 	GetPrecisionTimer(&endTime64);//////////////////////////////////////////////////////////////////
@@ -2194,11 +2200,11 @@ static void reportFrameTimeStats( void )
  */
 enum { AUTOCAM_GRID = 16 };
 static Int s_autoCamUnits[ AUTOCAM_GRID * AUTOCAM_GRID ];
-static UnsignedInt s_autoCamSides[ AUTOCAM_GRID * AUTOCAM_GRID ];
+static PlayerMaskType s_autoCamSides[ AUTOCAM_GRID * AUTOCAM_GRID ];
 
 struct AutoCamTally
 {
-	UnsignedInt sideBit;
+	PlayerMaskType sideBit;
 	Real originX, originY, spanX, spanY;
 };
 
@@ -2225,7 +2231,7 @@ static void autoCameraTallyObject( Object *obj, void *userData )
 	s_autoCamSides[ cell ] |= t->sideBit;
 }
 
-static Int autoCameraCountBits( UnsignedInt v )
+static Int autoCameraCountBits( PlayerMaskType v )
 {
 	Int n = 0;
 	while( v ) { n += (v & 1); v >>= 1; }
@@ -2467,7 +2473,7 @@ static void updateAutoCamera( void )
 		Player *player = ThePlayerList->getNthPlayer( p );
 		if( !player->isPlayableSide() || player->isPlayerObserver() )
 			continue;
-		tally.sideBit = (UnsignedInt)1 << p;
+		tally.sideBit = player->getPlayerMask();
 		player->iterateObjects( autoCameraTallyObject, &tally );
 	}
 
@@ -2782,6 +2788,18 @@ static void updateHeadlessRun( void )
 		 refreshed on frames a network game asks for it, and a skirmish never asks. */
 	DEBUG_LOG(("HEADLESS CRC: 0x%08X at frame %d\n", TheGameLogic->getCRC( CRC_RECALC ), frame));
 
+	// the cheat witness's counts by player index, which an honest match leaves at 0 for everyone
+	{
+		AsciiString witness;
+		for( Int p = 0; p < ThePlayerList->getPlayerCount(); ++p )
+		{
+			AsciiString one;
+			one.format( " p%d=%d", p, TheGameLogic->getBlindOrderCount( p ) );
+			witness.concat( one );
+		}
+		DEBUG_LOG(("HEADLESS CHEATWITNESS: blind%s, crcOdd %d\n", witness.str(), (Int)TheGameLogic->getCrcOddPlayers().size()));
+	}
+
 	// What the pathfinder did over the whole match, not just the one frame that ran over budget.
 	// A pathing change is argued with these: search count and time say what it cost, `nopath` and
 	// `outofcells` say whether it broke anything, `blocked`/`stuck` say whether it actually
@@ -2804,8 +2822,18 @@ static void updateHeadlessRun( void )
 	/* THREADING-ROADMAP.md 3.1's safety net: "no allocation inside a job" is a rule, and a rule
 		 nothing checks is a comment.  allocs must read 0 - anything else means a job took the one
 		 global pool lock and serialized the fork it was supposed to spread. */
-	DEBUG_LOG(("HEADLESS JOBS: %d worker threads, %d allocations from a job\n",
-						 JobSystem::workerCount(), JobSystem::workerAllocationCount()));
+	// LOGIC-PARALLEL.md: and how often the logic's first parallel pass forked, so a CRC that agrees at
+	// every worker count is known not to agree because nothing ran in parallel
+	extern void PartitionManager_splitGatherCounts( Int &split, Int &tailsHandedBack, Real &forkMS, Real &mergeMS );
+	Int gathersSplit = 0, gatherTails = 0;
+	Real gatherForkMS = 0.0f, gatherMergeMS = 0.0f;
+	PartitionManager_splitGatherCounts( gathersSplit, gatherTails, gatherForkMS, gatherMergeMS );
+	extern void AIUpdate_moodSearchCounts( Int &run, Int &taken, Int &attackMoveRun, Int &attackMoveTaken );
+	Int moodSearchesRun = 0, moodSearchesTaken = 0, attackMoveSearchesRun = 0, attackMoveSearchesTaken = 0;
+	AIUpdate_moodSearchCounts( moodSearchesRun, moodSearchesTaken, attackMoveSearchesRun, attackMoveSearchesTaken );
+	DEBUG_LOG(("HEADLESS JOBS: %d worker threads, %d allocations from a job, %d range gathers split (%d chunk tails walked serially, %.0f ms forked, %.0f ms merging), %d mood searches run ahead (%d attack move), %d taken (%d attack move)\n",
+						 JobSystem::workerCount(), JobSystem::workerAllocationCount(), gathersSplit, gatherTails, gatherForkMS, gatherMergeMS,
+						 moodSearchesRun, attackMoveSearchesRun, moodSearchesTaken, attackMoveSearchesTaken));
 
 	// LOGIC-THREAD.md phase 1: the handoff cost, and the client calls phase 2 has to take off the tick.
 	LogicThread::report();
@@ -2829,7 +2857,7 @@ static void updateHeadlessRun( void )
 		const Int team = (slot >= 0 && TheGameInfo) ? TheGameInfo->getConstSlot( slot )->getTeamNumber() : -1;
 
 		ScoreKeeper *score = p->getScoreKeeper();
-		DEBUG_LOG(("HEADLESS PLAYER %d '%s': %s | score %d | money %d earned %d spent | units %d built %d lost %d killed peak %d | buildings %d built %d lost | slot %d team %d\n",
+		DEBUG_LOG(("HEADLESS PLAYER %d '%s': %s | score %d | money %d earned %d spent | units %d built %d lost %d killed peak %d | buildings %d built %d lost | slot %d team %d | rank %d skill %d\n",
 							 i, WideCharAsUtf8( p->getPlayerDisplayName().str() ).str(),
 							 TheVictoryConditions->hasAchievedVictory(p) ? "WON" :
 								 (TheVictoryConditions->hasSinglePlayerBeenDefeated(p) ? "eliminated" : "alive"),
@@ -2838,7 +2866,7 @@ static void updateHeadlessRun( void )
 							 score->getTotalUnitsBuilt(), score->getTotalUnitsLost(), score->getTotalUnitsDestroyed(),
 							 peakUnits[ i ],
 							 score->getTotalBuildingsBuilt(), score->getTotalBuildingsLost(),
-							 slot, team));
+							 slot, team, p->getRankLevel(), p->getSkillPoints()));
 		// the exchange in money, on a line of its own so the PLAYER line's readers keep matching it
 		DEBUG_LOG(("HEADLESS VALUE %d: units worth %d lost, %d killed\n", i,
 							 score->getUnitValueLost(), score->getUnitValueDestroyed()));
@@ -3120,6 +3148,13 @@ void GameEngine::update( void )
 			// VERIFY CRC needs to be in this code block.  Please to not pull TheGameLogic->update() inside this block.
 			VERIFY_CRC
 
+			/* The drawing, the camera and the radar ask logic objects how high they are (a jet's pitch, a
+				 track mark, the follow camera), and the first question after a move used to store the answer
+				 in the object, on this machine only. A stored height is moved by a later setPositionZ instead
+				 of measured again, so a seat that drew a jet could carry a different height into logic than
+				 one that did not. Asked from here the height is measured and not stored (Thing::CachePeek). */
+			Thing::CachePeek clientReadsLeaveNoCache;
+
 			TheRadar->UPDATE();
 #ifdef DEBUG_LOGGING
 			tRadarEnd = Clock_Ticks();
@@ -3209,7 +3244,7 @@ void GameEngine::update( void )
 			Int64 tCatchupStart, tCatchupNow;
 			tCatchupStart = Clock_Ticks();
 			/* The tick beside the render spends the budget like one run here.  Left out, a match behind
-				 its clock ran one more tick a pass at 1 than at 0, all of them in series after the picture:
+				 its clock ran one more tick a pass than with the tick on the main thread, all of them in series after the picture:
 				 3.3 against 2.3 ticks, a frame 3 ms longer on average and 5 ms at p99.9. */
 			Real tickBesideRenderMS = 0.0f, waitForTickMS = 0.0f;
 			if (overlapped)
@@ -3218,7 +3253,7 @@ void GameEngine::update( void )
 			Real lastTickMS = tickBesideRenderMS;
 			for( ;; )
 			{
-				// TheGameLogic->UPDATE(), on the logic thread at -logicthread 1; the first of an overlapped
+				// TheGameLogic->UPDATE(), on the logic thread; the first of an overlapped
 				// pass has run already, beside the render
 				if (logicTicksThisPass > 0 || !overlapped)
 				{
@@ -3472,10 +3507,9 @@ static Int renderCapFramesPerSecond( Int logicFps )
 #define CREATE_WAITABLE_TIMER_HIGH_RESOLUTION 0x00000002
 #endif
 
-static void waitForTicks( Int64 deadline )
+static void sleepForTicks( Int64 sleepTicks )
 {
 	const Int64 perSecond = Clock_Ticks_Per_Second();
-	const Int64 sleepTicks = deadline - Clock_Ticks() - perSecond / 1000;
 	if (sleepTicks > 0)
 	{
 #if defined(_WIN32)
@@ -3492,6 +3526,11 @@ static void waitForTicks( Int64 deadline )
 		std::this_thread::sleep_for( std::chrono::nanoseconds( sleepTicks * 1000000000 / perSecond ) );
 #endif
 	}
+}
+
+static void waitForTicks( Int64 deadline )
+{
+	sleepForTicks( deadline - Clock_Ticks() - Clock_Ticks_Per_Second() / 1000 );
 	while (Clock_Ticks() < deadline)
 		std::this_thread::yield();
 }
@@ -3519,7 +3558,23 @@ static void waitForRenderCap( Int logicFps )
 	if (s_nextPicture == 0 || now - s_nextPicture > period)
 		s_nextPicture = now;
 	else if (now < s_nextPicture)
+	{
+		/* A network game read and wrote its socket once a pass, so the cap's wait held every packet,
+			 acks too, for what was left of the picture: up to 17 ms a hop at 60, in the srtt and so in
+			 the run-ahead, and never seen by a -noFPSLimit measurement.  The wait goes in millisecond
+			 slices with the socket serviced between them (Network::serviceSockets), the first one as
+			 the wait begins, which announces the frame the pass just ran. */
+		if (TheNetwork != NULL)
+		{
+			const Int64 ms = Clock_Ticks_Per_Second() / 1000;
+			for (Int64 t = now; s_nextPicture - t > 2 * ms; t = Clock_Ticks())
+			{
+				TheNetwork->serviceSockets();
+				sleepForTicks( ms );
+			}
+		}
 		waitForTicks( s_nextPicture );
+	}
 	s_nextPicture += period;
 }
 
@@ -3649,6 +3704,14 @@ void GameEngine::execute( void )
 				// picture cap's, outside the pass: the logic thread is idle by now, the overlapped
 				// tick having been flushed at the end of the draw.
 				waitForRenderCap( m_maxFPS );
+				/* The window's messages are the mouse (Win32Mouse buffers what the window procedure
+					 hands it), and they were pumped before the cap's wait: a click in the wait sat in the
+					 queue through the whole next pass and was drawn a picture late, up to 17 ms at 60.
+					 Pumped after it now, and after the wait for room in the present queue, so the pass
+					 reads input no older than the picture it goes into. */
+				if (TheDisplay != NULL)
+					TheDisplay->waitForFrameQueue();
+				serviceWindowsOS();
 				prevLoopTime = Clock_Milliseconds();
 
 		#if defined(_DEBUG) || defined(_INTERNAL)

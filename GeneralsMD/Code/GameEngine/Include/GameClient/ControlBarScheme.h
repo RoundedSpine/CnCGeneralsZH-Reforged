@@ -295,6 +295,13 @@ public:
 
 	Image *m_powerPurchaseImage;
 
+	/// TalentImage: the prefix of the talents' art (Tools/hud_command_bar.py, paint_talents), <prefix> then
+	/// each TALENT_* name below; a scheme without it draws the promotion window's right half plain
+	enum { TALENT_WINDOW, TALENT_PLATE, TALENT_NODE = TALENT_PLATE + 4, TALENT_SPINE = TALENT_NODE + 4,
+				 TALENT_ARM_LEFT, TALENT_ARM_RIGHT, TALENT_PIECE_COUNT };
+	AsciiString m_talentName;
+	const Image *m_talent[ TALENT_PIECE_COUNT ];				///< resolved by init; all NULL without the key
+
 	/// PowerPurchaseCloseButton*: the promotion window's close button (GeneralsExpPoints.wnd:ButtonExit)
 	/// in the side's own art; a scheme without them leaves the .wnd's images on the button
 	Image *m_powerPurchaseCloseButtonEnable;
@@ -347,9 +354,13 @@ public:
 	/// the frame round a radar standing at 'radar' on screen: the corners' sizes, at the screen's
 	/// height over 1080, are its thickness on each side
 	static void radarFrameRect( const Image *const *frame, const IRegion2D& radar, IRegion2D *outer );
+	/// the steel round a radar Minimap Size grew out of a scheme with no radar frame; painted or plate-drawn bar alike
+	static void drawGrownRadarFrame( void );
 	/// the general's powers tray's pieces (ControlBarScheme::TRAY_*) of the scheme on screen, or NULL
 	/// without a cell; the tray then keeps the shipped column
 	const Image *const *getPowerTray( void ) const;
+	/// the current scheme's talent pieces in ControlBarScheme::TALENT_* order, NULL when it names none
+	const Image *const *getTalentImages( void ) const;
 	/// the scheme on screen writes the money with thousands separators (MoneyThousands)
 	Bool isMoneyGrouped( void ) const;
 	/// the scheme on screen paints the currency sign itself (MoneySignPainted)
@@ -403,10 +414,6 @@ private:
 //-----------------------------------------------------------------------------
 // EXTERNALS //////////////////////////////////////////////////////////////////
 //-----------------------------------------------------------------------------
-/// the side's emblem the observer's column and the rack show: SSObserver and the template's name less a
-/// leading "Faction" and a trailing "General" (SSObserverAmericaLaser), else SSObserver<USA|China|GLA|Turkiye>
-/// for the country its base side or side names, else its EnabledImage
-const Image *ControlBarSideEmblem( const PlayerTemplate *pt );
 /// nine pieces (ControlBarScheme::FRAME_* order) filling box: the corners at their size times scale (the
 /// art's texels are 1080 pixels), the edges and the centre stretched between them.  FALSE, and nothing
 /// drawn, when the art lacks the two corners that size it
