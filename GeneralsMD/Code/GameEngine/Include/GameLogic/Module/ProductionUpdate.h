@@ -97,6 +97,9 @@ public:
 	ExitDoorType getExitDoor() const { return m_exitDoor; }
 	void setExitDoor(ExitDoorType exitDoor) { m_exitDoor = exitDoor; }
 
+	/// the hotkey squad this unit joins when it comes out (MSG_QUEUE_UNIT_FOR_GROUP), or -1
+	Int getReinforcementSquad() const { return m_reinforcementSquad; }
+
 protected:
 	
 	ProductionType m_type;														///< production type
@@ -113,6 +116,7 @@ protected:
 	Int m_productionQuantityProduced;									///< And we need to allow pausing within an entry, so we keep track of number of sub-successes
 	ExitDoorType m_exitDoor;
 	UnsignedInt m_costPaid;														///< what was withdrawn when this was queued, and what a cancel refunds
+	Int m_reinforcementSquad;													///< hotkey squad the unit joins on exit, -1 for none
 
 	ProductionEntry *m_next;													///< next in list
 	ProductionEntry *m_prev;													///< prev in list
@@ -234,7 +238,7 @@ public:
 	virtual UnsignedInt countUnitTypeInQueue( const ThingTemplate *unitType ) const = 0;
 	virtual Int getQuantityPerOrder( const ThingTemplate *unitType ) const = 0;
 
-	virtual Bool queueCreateUnit( const ThingTemplate *unitType, ProductionID productionID ) = 0;
+	virtual Bool queueCreateUnit( const ThingTemplate *unitType, ProductionID productionID, Int reinforcementSquad = -1 ) = 0;
 	virtual Bool cancelUnitCreate( ProductionID productionID ) = 0;
 	virtual void cancelAllUnitsOfType( const ThingTemplate *unitType) = 0;
 
@@ -295,13 +299,13 @@ public:
 	virtual UnsignedInt countUnitTypeInQueue( const ThingTemplate *unitType ) const;  ///< count number of units with matching unit type in the production queue
 	virtual Int getQuantityPerOrder( const ThingTemplate *unitType ) const;	///< units one paid order hands back, from QuantityModifier
 
-	virtual Bool queueCreateUnit( const ThingTemplate *unitType, ProductionID productionID );					///< queue unit to be produced
+	virtual Bool queueCreateUnit( const ThingTemplate *unitType, ProductionID productionID, Int reinforcementSquad = -1 );	///< queue unit to be produced; a squad 0-9 sends it to that hotkey squad on exit
 	virtual Bool cancelUnitCreate( ProductionID productionID );		      ///< cancel construction of unit with matching production ID
 	virtual void cancelAllUnitsOfType( const ThingTemplate *unitType);	///< cancel all production of type unitType 
 
 	virtual void cancelAndRefundAllProduction( void );									///< cancel and refund anything in the production queue
 
-	virtual void setRepeatUnit( const ThingTemplate *unitType, Bool on ) { m_repeat.set( unitType, on ); }
+	virtual void setRepeatUnit( const ThingTemplate *unitType, Bool on ) { m_repeat.set( unitType, on ); wakeIfResting(); }
 	virtual Bool isRepeatUnit( const ThingTemplate *unitType ) const { return m_repeat.has( unitType ); }
 
 	virtual UnsignedInt getProductionCount( void ) const { return m_productionCount; }    ///< return # of things in the production queue
@@ -328,6 +332,8 @@ public:
 protected:
 
 	void queueRepeatUnit( void );										///< an empty queue takes the repeated unit whose turn it is
+	Bool isResting( void ) const;										///< the next update would change nothing until wakeIfResting
+	void wakeIfResting( void );											///< something is queued, on repeat or at a door
 
 
 	void addToProductionQueue( ProductionEntry *production );				///< add to *END* of production queue list

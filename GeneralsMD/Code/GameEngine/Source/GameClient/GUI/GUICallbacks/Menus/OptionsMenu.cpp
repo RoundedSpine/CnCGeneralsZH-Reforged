@@ -2644,6 +2644,7 @@ static const SliderReadout TheSliderReadouts[] =
 	{ "OptionsMenu.wnd:SliderZoomSpeed",		"OptionsMenu.wnd:ValueZoomSpeed",					READOUT_PERCENT },
 	{ "OptionsMenu.wnd:SliderDragTolerance",	"OptionsMenu.wnd:ValueDragTolerance",			READOUT_NUMBER },
 	{ "OptionsMenu.wnd:SliderMenuTransitionSpeed",	"OptionsMenu.wnd:ValueMenuTransitionSpeed",	READOUT_PERCENT },
+	{ "OptionsMenu.wnd:SliderMinimapSize",	"OptionsMenu.wnd:ValueMinimapSize",				READOUT_PERCENT },
 };
 
 static const char *const TheTextureResolutionCaptions[] = { "GUI:Low", "GUI:Medium", "GUI:High" };

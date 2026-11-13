@@ -196,6 +196,7 @@ const FieldParse ControlBarSchemeManager::m_controlBarSchemeFieldParseTable[] =
 	{ "RadarFrameImage",			INI::parseAsciiString,	NULL, offsetof( ControlBarScheme, m_radarFrameName ) },
 	{ "PowerTrayImage",				INI::parseAsciiString,	NULL, offsetof( ControlBarScheme, m_powerTrayName ) },
 	{ "TooltipImage",					INI::parseAsciiString,	NULL, offsetof( ControlBarScheme, m_tooltipName ) },
+	{ "TalentImage",					INI::parseAsciiString,	NULL, offsetof( ControlBarScheme, m_talentName ) },
 
 	{ "CommandMarkerImage",		INI::parseMappedImage,				NULL, offsetof( ControlBarScheme, m_commandMarkerImage) },
 	{ "ExpBarForegroundImage",		INI::parseMappedImage,				NULL, offsetof( ControlBarScheme, m_expBarForeground) },
@@ -493,6 +494,8 @@ ControlBarScheme::ControlBarScheme(void)
 	for( Int i = 0; i < TRAY_PIECE_COUNT; i++ )
 		m_powerTray[ i ] = NULL;
 	m_tooltip = ControlBarTooltipImages();
+	for( Int i = 0; i < TALENT_PIECE_COUNT; i++ )
+		m_talent[ i ] = NULL;
 }
 
 
@@ -562,6 +565,11 @@ void ControlBarScheme::init(void)
 	findPieces( m_radarFrameName, "", theFrameSuffixes, FRAME_PIECE_COUNT, m_radarFrame );
 	findPieces( m_powerTrayName, "", traySuffixes, TRAY_PIECE_COUNT, m_powerTray );
 	m_tooltip.find( m_tooltipName );
+	static const char *const talentSuffixes[ TALENT_PIECE_COUNT ] =
+		{ "GeneralsPowerWindowWide", "TalentPlateLocked", "TalentPlateWaiting", "TalentPlatePicked", "TalentPlateRejected",
+			"TalentNodeLocked", "TalentNodeWaiting", "TalentNodePicked", "TalentNodeRejected", "TalentSpineLit",
+			"TalentArmLeft", "TalentArmRight" };
+	findPieces( m_talentName, "", talentSuffixes, TALENT_PIECE_COUNT, m_talent );
 
 	if(TheControlBar)
 	{
@@ -1255,48 +1263,6 @@ ControlBarScheme *ControlBarSchemeManager::findSchemeForSide( const AsciiString&
 }
 
 //-----------------------------------------------------------------------------
-/** The emblem is looked up by name, so a sheet that adds one for a general needs no INI edit and the
-	* player templates (in the INI checksum) stay as they are.  A general without one, or a faction built
-	* on another country's base side, gets that country's. */
-//-----------------------------------------------------------------------------
-const Image *ControlBarSideEmblem( const PlayerTemplate *pt )
-{
-	static const char *const PREFIX = "SSObserver";
-	static const std::string LEADING = "Faction";
-	static const std::string TRAILING = "General";
-	// FactionAmericaLaserGeneral wears SSObserverAmericaLaser, FactionTurkiye SSObserverTurkiye
-	std::string general = pt->getName().str();
-	if( general.compare( 0, LEADING.size(), LEADING ) == 0 )
-		general.erase( 0, LEADING.size() );
-	if( general.size() >= TRAILING.size() && general.compare( general.size() - TRAILING.size(), TRAILING.size(), TRAILING ) == 0 )
-		general.erase( general.size() - TRAILING.size() );
-	AsciiString name;
-	name.format( "%s%s", PREFIX, general.c_str() );
-	const Image *emblem = TheMappedImageCollection->findImageByName( name );
-	if( emblem != NULL )
-		return emblem;
-
-	const AsciiString side = pt->getBaseSide().isEmpty() ? pt->getSide() : pt->getBaseSide();
-	const char *country = NULL;
-	if( side.startsWithNoCase( "America" ) || side.startsWithNoCase( "USA" ) )
-		country = "USA";
-	else if( side.startsWithNoCase( "China" ) )
-		country = "China";
-	else if( side.startsWithNoCase( "GLA" ) )
-		country = "GLA";
-	else if( side.startsWithNoCase( "Turkiye" ) )
-		country = "Turkiye";
-	if( country != NULL )
-	{
-		name.format( "%s%s", PREFIX, country );
-		emblem = TheMappedImageCollection->findImageByName( name );
-		if( emblem != NULL )
-			return emblem;
-	}
-	return pt->getEnabledImage();
-}
-
-//-----------------------------------------------------------------------------
 /** The bar follows the country, and is always ControlBar Pro's.  A side with a ControlBar Pro scheme of
 	* its own (Boss and Observer among them) wears it; any other wears its country's by name, the way
 	* ControlBarPlateForSide reads a side, so a ChinaTankGeneral without one gets China's.  A side of no
@@ -1368,6 +1334,13 @@ const Image *const *ControlBarSchemeManager::getPowerTray( void ) const
 	if( m_currentScheme == NULL || m_currentScheme->m_powerTray[ ControlBarScheme::TRAY_CELL ] == NULL )
 		return NULL;
 	return m_currentScheme->m_powerTray;
+}
+
+const Image *const *ControlBarSchemeManager::getTalentImages( void ) const
+{
+	if( m_currentScheme == NULL || m_currentScheme->m_talent[ ControlBarScheme::TALENT_WINDOW ] == NULL )
+		return NULL;
+	return m_currentScheme->m_talent;
 }
 
 const ControlBarTooltipImages& ControlBarSchemeManager::getTooltipImages( void ) const
@@ -1442,6 +1415,66 @@ static void drawRadarFrame( const Image *const *frame )
 }
 
 //-----------------------------------------------------------------------------
+/** A filled band, skipped when empty */
+//-----------------------------------------------------------------------------
+static void fillBand( Int x0, Int y0, Int x1, Int y1, Color color )
+{
+	if( x1 > x0 && y1 > y0 )
+		TheDisplay->drawFillRect( x0, y0, x1 - x0, y1 - y0, color );
+}
+
+//-----------------------------------------------------------------------------
+/** The steel round a side's radar that Minimap Size has grown out of the painting's box, drawn in
+	* code rather than art so every side gets it: a dark outer edge, a steel face lit from the top
+	* left and shaded to the bottom right, and a dark lip against the picture.  It flashes red with
+	* EA's under-attack lamp, whose own window is small beside a frame this size.  Drawn after the
+	* painting and before the windows, as the observer's nine-piece frame is. */
+//-----------------------------------------------------------------------------
+void ControlBarSchemeManager::drawGrownRadarFrame( void )
+{
+	IRegion2D o, i;
+	Bool lit = FALSE;
+	if( TheControlBar == NULL || !TheControlBar->getGrownRadarFrame( &o, &i, &lit ) )
+		return;
+
+	const Color dark = GameMakeColor( 10, 12, 14, 255 );
+	const Color face = lit ? GameMakeColor( 150, 34, 26, 255 ) : GameMakeColor( 62, 68, 74, 255 );
+	const Color light = lit ? GameMakeColor( 230, 80, 60, 255 ) : GameMakeColor( 132, 140, 148, 255 );
+	const Color shade = lit ? GameMakeColor( 90, 18, 14, 255 ) : GameMakeColor( 34, 38, 42, 255 );
+
+	// dark glass under the picture, which is all that shows while the player has no radar
+	fillBand( i.lo.x, i.lo.y, i.hi.x, i.hi.y, GameMakeColor( 6, 8, 10, 255 ) );
+
+	// the face, four bands round the picture
+	fillBand( o.lo.x, o.lo.y, o.hi.x, i.lo.y, face );
+	fillBand( o.lo.x, i.hi.y, o.hi.x, o.hi.y, face );
+	fillBand( o.lo.x, i.lo.y, i.lo.x, i.hi.y, face );
+	fillBand( i.hi.x, i.lo.y, o.hi.x, i.hi.y, face );
+
+	// lit along the top and left of the outside, shaded along the bottom and right
+	fillBand( o.lo.x + 1, o.lo.y + 1, o.hi.x - 1, o.lo.y + 2, light );
+	fillBand( o.lo.x + 1, o.lo.y + 1, o.lo.x + 2, o.hi.y - 1, light );
+	fillBand( o.lo.x + 1, o.hi.y - 2, o.hi.x - 1, o.hi.y - 1, shade );
+	fillBand( o.hi.x - 2, o.lo.y + 1, o.hi.x - 1, o.hi.y - 1, shade );
+
+	// the inside of the bevel is turned the other way, shaded top and left where it meets the glass
+	fillBand( i.lo.x - 1, i.lo.y - 1, i.hi.x + 1, i.lo.y, shade );
+	fillBand( i.lo.x - 1, i.lo.y - 1, i.lo.x, i.hi.y + 1, shade );
+	fillBand( i.lo.x - 1, i.hi.y, i.hi.x + 1, i.hi.y + 1, light );
+	fillBand( i.hi.x, i.lo.y - 1, i.hi.x + 1, i.hi.y + 1, light );
+
+	// a dark line outside, and a dark lip in the window's own edge, the pixel W3DLeftHUDDraw leaves
+	fillBand( o.lo.x, o.lo.y, o.hi.x, o.lo.y + 1, dark );
+	fillBand( o.lo.x, o.hi.y - 1, o.hi.x, o.hi.y, dark );
+	fillBand( o.lo.x, o.lo.y, o.lo.x + 1, o.hi.y, dark );
+	fillBand( o.hi.x - 1, o.lo.y, o.hi.x, o.hi.y, dark );
+	fillBand( i.lo.x, i.lo.y, i.hi.x, i.lo.y + 1, dark );
+	fillBand( i.lo.x, i.hi.y - 1, i.hi.x, i.hi.y, dark );
+	fillBand( i.lo.x, i.lo.y, i.lo.x + 1, i.hi.y, dark );
+	fillBand( i.hi.x - 1, i.lo.y, i.hi.x, i.hi.y, dark );
+}
+
+//-----------------------------------------------------------------------------
 /** ControlBar Pro's painting, cut at the seams below and each piece drawn where its panel stands
 	* (ControlBarPanelDesignToScreen).  The seams fall in the gaps of every side's art. */
 //-----------------------------------------------------------------------------
@@ -1501,6 +1534,8 @@ void ControlBarSchemeManager::drawPainting( ICoord2D offset, Bool foreground )
 	const Image *const *frame = getRadarFrame();
 	if( !foreground && frame )
 		drawRadarFrame( frame );
+	else if( !foreground )
+		drawGrownRadarFrame();
 }
 
 //-----------------------------------------------------------------------------

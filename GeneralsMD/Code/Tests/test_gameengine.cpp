@@ -56,6 +56,8 @@
 #include "GameNetwork/GameDataMatch.h"
 #include "GameNetwork/GameInfo.h"
 #include "Common/PlayerTemplate.h"
+#include "Common/Science.h"
+#include "GameLogic/RankInfo.h"
 #include "GameClient/ChallengeGenerals.h"
 #include "GameClient/FactionPicker.h"
 #include "GameClient/UIStyle.h"
@@ -84,6 +86,7 @@
 #include "GameClient/ClientRandomValue.h"
 #include "Common/ThingTemplate.h"
 #include "Common/ThingFactory.h"
+#include "GameLogic/ObjectTypes.h"
 #include "Common/ModuleFactory.h"
 #include "Common/SpecialPower.h"
 #include "GameLogic/Armor.h"
@@ -144,6 +147,7 @@ static int GetSystemMetrics( int which )
 #include "GameNetwork/NetworkUtil.h"
 #include "Common/Recorder.h"
 #include "Common/RadarShroudCache.h"
+#include "Common/Radar.h"
 #include "GameClient/Gadget.h"
 #include "GameClient/GadgetTabControl.h"
 #include "GameClient/PlayerColorScheme.h"
@@ -152,6 +156,8 @@ static int GetSystemMetrics( int which )
 #include "GameNetwork/NetCommandList.h"
 #include "GameNetwork/NetCommandWrapperList.h"
 #include "GameNetwork/LANAPI.h"
+#include "GameNetwork/NAT.h"
+#include "GameClient/MapUtil.h"
 #include "GameNetwork/NetPacket.h"
 #include "GameNetwork/GameInfo.h"
 #include "GameNetwork/GUIUtil.h"
@@ -1263,6 +1269,69 @@ TEST(patch_naming_a_missing_laser_or_list_keeps_what_was_there)
 	}
 }
 
+/* The skirmish scripts ask how many Tanks or Infantry a player owns, lists of forty and fifty names,
+	 and each answer copied the list, looked every name up again and tested every type the player held
+	 against all of them.  A list keeps its templates and its answers now, so it has to forget them the
+	 moment a name goes in or out, and a build variation still counts as the thing it varies. */
+TEST(object_list_keeps_its_templates_until_a_name_changes)
+{
+	CHECK( bootOnce() );
+
+	GlobalData *savedGlobals = TheWritableGlobalData;
+	if( savedGlobals == NULL )
+		TheWritableGlobalData = NEW GlobalData;
+	if( TheModuleFactory == NULL )
+	{
+		TheModuleFactory = NEW ModuleFactory;
+		TheModuleFactory->init();
+	}
+	if( TheThingFactory == NULL )
+		TheThingFactory = NEW ThingFactory;
+
+	writeFile( TEST_INI,
+		"Object ListProbeTank\r\n"
+		"End\r\n"
+		"Object ListProbeTankVariant\r\n"
+		"  BuildVariations = ListProbeTank\r\n"
+		"End\r\n"
+		"Object ListProbeJeep\r\n"
+		"End\r\n" );
+	CHECK( loadIni( TEST_INI ) );
+
+	const ThingTemplate *tank = TheThingFactory->findTemplate( "ListProbeTank" );
+	const ThingTemplate *variant = TheThingFactory->findTemplate( "ListProbeTankVariant" );
+	const ThingTemplate *jeep = TheThingFactory->findTemplate( "ListProbeJeep" );
+	CHECK( tank != NULL && variant != NULL && jeep != NULL );
+	if( tank != NULL && variant != NULL && jeep != NULL )
+	{
+		ObjectTypes *list = newInstance(ObjectTypes)( AsciiString( "ListProbe" ) );
+		list->addObjectType( "ListProbeTank" );
+		list->addObjectType( "ListProbeNothing" );
+		CHECK_EQ( (Int)list->getTemplates().size(), 1 );
+		CHECK( list->hasEquivalent( tank ) );
+		CHECK( list->hasEquivalent( variant ) );
+		CHECK( !list->hasEquivalent( jeep ) );
+
+		list->addObjectType( "ListProbeJeep" );
+		CHECK_EQ( (Int)list->getTemplates().size(), 2 );
+		CHECK( list->hasEquivalent( jeep ) );
+
+		list->removeObjectType( "ListProbeTank" );
+		CHECK_EQ( (Int)list->getTemplates().size(), 1 );
+		CHECK( !list->hasEquivalent( tank ) );
+		CHECK( !list->hasEquivalent( variant ) );
+		CHECK( list->hasEquivalent( jeep ) );
+		list->deleteInstance();
+	}
+
+	remove( TEST_INI );
+	if( savedGlobals == NULL )
+	{
+		delete TheWritableGlobalData;
+		TheWritableGlobalData = NULL;
+	}
+}
+
 /* A third-party Armor.ini had "Armor = INFANTRY_MISSIL 100%".  EA's parse let it through,
 	 264e2180 made it throw and the game stopped at start.  An unknown damage type skips its line; a
 	 line with no percentage is still a syntax error. */
@@ -1397,9 +1466,10 @@ TEST(fxlist_reforged_ini_parses_and_keeps_its_light)
 
 #include "Common/MultiplayerSettings.h"
 
-/* A slot, a replay and a preference hold a colour by its place in the list, so the fork's eight have
-   to follow EA's eight and leave them as they were.  EA's list is in INIZH.big, so it is copied here. */
-TEST(multiplayer_reforged_ini_appends_eight_colours_after_eas_eight)
+/* A slot, a replay and a preference hold a colour by its place in the list, so the fork's colours have
+   to follow EA's eight and leave them as they were.  EA's list is in INIZH.big, so it is copied here.
+   There is one colour per slot: a random colour is drawn until it is one nobody holds. */
+TEST(multiplayer_reforged_ini_appends_its_colours_after_eas_eight)
 {
 	static const struct { const char *tooltip; Int r, g, b, nightR, nightG, nightB; } colours[] =
 	{
@@ -1419,7 +1489,25 @@ TEST(multiplayer_reforged_ini_appends_eight_colours_after_eas_eight)
 		{ "Color:Lavender", 165, 139, 255,  165, 139, 255 },
 		{ "Color:Coral",    240,  90,  69,  240,  90,  69 },
 		{ "Color:Olive",    120, 140,   0,  160, 180,  20 },
+		{ "Color:Maroon",   128,   0,  32,  180,  30,  60 },
+		{ "Color:Mint",     120, 240, 170,  120, 240, 170 },
+		{ "Color:White",    235, 235, 235,  235, 235, 235 },
+		{ "Color:Charcoal",  64,  64,  64,  110, 110, 110 },
+		{ "Color:Silver",   160, 160, 170,  160, 160, 170 },
+		{ "Color:Steel",     90, 120, 160,  120, 150, 195 },
+		{ "Color:Indigo",    75,   0, 130,  125,  60, 210 },
+		{ "Color:Peach",    255, 195, 145,  255, 195, 145 },
+		{ "Color:Forest",    30, 100,  40,   55, 150,  65 },
+		{ "Color:Rose",     255,  90, 140,  255,  90, 140 },
+		{ "Color:Plum",     130,  50, 100,  175,  80, 140 },
+		{ "Color:Rust",     175,  65,  15,  210,  90,  40 },
+		{ "Color:SeaGreen",  40, 150,  95,   60, 180, 120 },
+		{ "Color:Lemon",    250, 245, 130,  250, 245, 130 },
+		{ "Color:Orchid",   215, 110, 215,  215, 110, 215 },
+		{ "Color:Chocolate", 90,  50,  20,  140,  85,  45 },
 	};
+	const Int total = (Int)( sizeof( colours ) / sizeof( colours[ 0 ] ) );
+	CHECK_EQ( total, MAX_SLOTS );
 
 	CHECK( bootOnce() );
 
@@ -1441,9 +1529,9 @@ TEST(multiplayer_reforged_ini_appends_eight_colours_after_eas_eight)
 	CHECK( loadIni( TEST_INI ) );
 	CHECK_EQ( TheMultiplayerSettings->getNumColors(), 8 );
 	CHECK( loadIni( MULTIPLAYER_REFORGED_INI ) );
-	CHECK_EQ( TheMultiplayerSettings->getNumColors(), 16 );
+	CHECK_EQ( TheMultiplayerSettings->getNumColors(), total );
 
-	for( Int i = 0; i < 16 && TheMultiplayerSettings->getNumColors() == 16; ++i )
+	for( Int i = 0; i < total && TheMultiplayerSettings->getNumColors() == total; ++i )
 	{
 		MultiplayerColorDefinition *def = TheMultiplayerSettings->getColor( i );
 		const RGBColor day = def->getRGBValue();
@@ -2460,7 +2548,7 @@ TEST(skirmish_ai_earnings_bonus_weighs_sides)
 	Int own = -1, enemy = -1;
 	/* four teams of two, seats 0-1, 2-3, 4-5, 6-7; the computer is seat 1 and its partner carries it */
 	const Int worth[ 8 ] = { 1000, 0, 3000, 1000, 4000, 0, 500, 500 };
-	const UnsignedInt allies[ 8 ] = { 1u << 1, 1u << 0, 1u << 3, 1u << 2, 1u << 5, 1u << 4, 1u << 7, 1u << 6 };
+	const PlayerMaskType allies[ 8 ] = { 1u << 1, 1u << 0, 1u << 3, 1u << 2, 1u << 5, 1u << 4, 1u << 7, 1u << 6 };
 	IncomeSideWorths( worth, allies, 8, 1, &own, &enemy );
 	CHECK_EQ( own, 500 );
 	CHECK_EQ( enemy, 2000 );
@@ -2468,10 +2556,26 @@ TEST(skirmish_ai_earnings_bonus_weighs_sides)
 	CHECK_EQ( IncomeBonusTarget( own, enemy ), 150 );
 	/* free for all: every enemy is a side of one, the richest counts */
 	const Int ffa[ 3 ] = { 300, 100, 200 };
-	const UnsignedInt none[ 3 ] = { 0, 0, 0 };
+	const PlayerMaskType none[ 3 ] = { 0, 0, 0 };
 	IncomeSideWorths( ffa, none, 3, 1, &own, &enemy );
 	CHECK_EQ( own, 100 );
 	CHECK_EQ( enemy, 300 );
+	/* past seat 31: seat 33 and seat 39 are a side, every other seat is a side of one. With a
+	   32-bit mask 1u << 33 was seat 1's bit, and seat 33 counted seat 1 as its partner. */
+	Int wide[ 40 ];
+	PlayerMaskType wideAllies[ 40 ];
+	for( Int i = 0; i < 40; ++i )
+	{
+		wide[ i ] = 100;
+		wideAllies[ i ] = 0;
+	}
+	wide[ 1 ] = 5000;
+	wide[ 39 ] = 300;
+	wideAllies[ 33 ] = playerIndexToMask( 39 );
+	wideAllies[ 39 ] = playerIndexToMask( 33 );
+	IncomeSideWorths( wide, wideAllies, 40, 33, &own, &enemy );
+	CHECK_EQ( own, 200 );
+	CHECK_EQ( enemy, 5000 );
 }
 
 /* ExperienceTracker.cpp: a kill's experience split by the damage each attacker dealt. */
@@ -3590,6 +3694,87 @@ TEST(attack_priority_pick_needs_no_sort)
 		}
 		CHECK_EQ( onePassPick, sortedPick );
 		if (onePassPick != sortedPick)
+			break;
+	}
+}
+
+/* AI.cpp: the same pick made walking out from the hunter, in any order within a distance, stopping
+   as soon as AI_attackPriorityIsSettled says nothing that far off can beat the leader, with a full
+   tie going to the one the gathered list holds first. */
+extern Bool AI_attackPriorityIsSettled( Int bestModPriority, Int bestCurPriority, Real bestDistSqr,
+																				Int maxPriority, Real minDist, Real modifierDist );
+
+TEST(attack_priority_pick_settles_nearest_first)
+{
+	enum { N = 32 };
+	const Real MODIFIER = 100.0f;
+	UnsignedInt seed = 777;
+	for (Int round = 0; round < 4000; ++round)
+	{
+		Int curP[N], modP[N], key[N];
+		Real dist[N];
+		Bool allowed[N];
+		Int maxP = 0;
+		for (Int i = 0; i < N; ++i)
+		{
+			seed = seed * 1664525u + 1013904223u;
+			dist[i] = (Real)((seed >> 16) % 40) * 25.0f;	/* ties, and every step of the falloff */
+			curP[i] = (Int)((seed >> 8) % 7);							/* 0 is never attacked */
+			allowed[i] = ((seed >> 24) & 3) != 0;
+			key[i] = (Int)((seed >> 4) & 0xff);
+			modP[i] = curP[i] - (Int)(dist[i] / MODIFIER);
+			if (modP[i] < 1)
+				modP[i] = 1;
+			if (curP[i] > maxP)
+				maxP = curP[i];
+		}
+
+		Int full = -1, bestMod = 0, bestCur = 0;
+		Real bestDistSqr = 0.0f;
+		for (Int i = 0; i < N; ++i)
+		{
+			if (curP[i] != 0 && AI_attackPriorityTakesLead(modP[i], curP[i], dist[i] * dist[i], bestMod, bestCur, bestDistSqr) && allowed[i])
+			{
+				bestMod = modP[i];
+				bestCur = curP[i];
+				bestDistSqr = dist[i] * dist[i];
+				full = i;
+			}
+		}
+
+		/* near to far, a distance's members in a scrambled order */
+		Int order[N];
+		for (Int i = 0; i < N; ++i)
+		{
+			Int j = i;
+			for ( ; j > 0 && (dist[order[j - 1]] > dist[i] || (dist[order[j - 1]] == dist[i] && key[order[j - 1]] > key[i])); --j)
+				order[j] = order[j - 1];
+			order[j] = i;
+		}
+		Int nearFirst = -1;
+		bestMod = 0;
+		bestCur = 0;
+		bestDistSqr = 0.0f;
+		for (Int k = 0; k < N; ++k)
+		{
+			const Int i = order[k];
+			if (nearFirst >= 0 && dist[i] > 0.0f && AI_attackPriorityIsSettled(bestMod, bestCur, bestDistSqr, maxP, dist[i], MODIFIER))
+				break;
+			if (curP[i] == 0)
+				continue;
+			const Real distSqr = dist[i] * dist[i];
+			if (!AI_attackPriorityTakesLead(modP[i], curP[i], distSqr, bestMod, bestCur, bestDistSqr)
+					&& !(nearFirst >= 0 && modP[i] == bestMod && curP[i] == bestCur && distSqr == bestDistSqr && i < nearFirst))
+				continue;
+			if (!allowed[i])
+				continue;
+			bestMod = modP[i];
+			bestCur = curP[i];
+			bestDistSqr = distSqr;
+			nearFirst = i;
+		}
+		CHECK_EQ( nearFirst, full );
+		if (nearFirst != full)
 			break;
 	}
 }
@@ -4768,6 +4953,14 @@ TEST(ai_players_do_not_all_check_in_on_the_same_frame)
 		for (j = i + 1; j < MAX_PLAYER_COUNT; j++)
 			CHECK_NE(seen[i], seen[j]);
 
+	/* And a full lobby fills the cycle: index times cycle over MAX_PLAYER_COUNT sat 32 seats in its
+	 * first two thirds, and the last third of every cycle ran no AI at all. */
+	Int latest = 0;
+	for (i = 1; i <= 32; i++)
+		if (seen[i] > latest)
+			latest = seen[i];
+	CHECK(latest >= cycle * 15 / 16);
+
 	/* It is a function of the player index and nothing else - no clock, no random - or the
 	 * lockstep simulation would desync the moment two machines disagreed. */
 	CHECK_EQ(AIPlayer::computeUpdatePhase(3, cycle), AIPlayer::computeUpdatePhase(3, cycle));
@@ -5849,6 +6042,18 @@ TEST(metamap_bare_arrows_stay_with_the_camera)
 	CHECK_EQ( (Int)next->m_modState, (Int)CTRL );
 	CHECK_EQ( (Int)ctrl->m_modState, (Int)CTRL );
 	CHECK_EQ( (Int)team->m_modState, (Int)NONE );
+
+	// the minimap colours land on a free F11, and stay off an F11 the language file gave away
+	MetaMapRec *colours = map.getMetaMapRec( GameMessage::MSG_META_TOGGLE_RADAR_COLORS );
+	CHECK_EQ( (Int)colours->m_key, (Int)MK_F11 );
+	CHECK_EQ( (Int)colours->m_modState, (Int)NONE );
+
+	MetaRecProbe taken;
+	MetaMapRec *shot = taken.getMetaMapRec( GameMessage::MSG_META_TAKE_SCREENSHOT );
+	shot->m_key = MK_F11;
+	shot->m_usableIn = COMMANDUSABLE_GAME;
+	taken.keepArrowsForCamera();
+	CHECK_EQ( (Int)taken.getMetaMapRec( GameMessage::MSG_META_TOGGLE_RADAR_COLORS )->m_key, (Int)MK_NONE );
 }
 
 TEST(controlbar_stance_key_takes_what_the_buttons_leave)
@@ -6836,6 +7041,42 @@ TEST(crcagreement_two_players_who_are_both_here_and_disagree_is_a_mismatch)
 	CHECK_EQ( crcAgreement( reported, crc, connected, 4, 3 ), CRC_AGREEMENT_AGREE );
 }
 
+TEST(crcoddones_names_whoever_a_strict_majority_outvotes_and_nobody_without_one)
+{
+	Bool reported[4]  = { TRUE, TRUE, TRUE, TRUE };
+	Bool connected[4] = { TRUE, TRUE, TRUE, TRUE };
+	UnsignedInt crc[4] = { 0x1111u, 0x2222u, 0x1111u, 0x1111u };
+	Bool odd[4];
+
+	CHECK_EQ( crcOddOnes( reported, crc, connected, 4, odd ), 1 );
+	CHECK( !odd[0] ); CHECK( odd[1] ); CHECK( !odd[2] ); CHECK( !odd[3] );
+
+	// the majority found wherever it sits, the first reporter being the odd one included
+	crc[0] = 0x3333u; crc[1] = 0x1111u;
+	CHECK_EQ( crcOddOnes( reported, crc, connected, 4, odd ), 1 );
+	CHECK( odd[0] ); CHECK( !odd[1] );
+
+	// two against two: nothing says which pair is wrong
+	crc[0] = 0x2222u; crc[1] = 0x2222u;
+	CHECK_EQ( crcOddOnes( reported, crc, connected, 4, odd ), 0 );
+	CHECK( !odd[0] && !odd[1] && !odd[2] && !odd[3] );
+
+	// a 1v1 never names anyone
+	CHECK_EQ( crcOddOnes( reported, crc, connected, 2, odd ), 0 );
+
+	// three different CRCs among three: no majority either
+	UnsignedInt three[3] = { 1u, 2u, 3u };
+	CHECK_EQ( crcOddOnes( reported, three, connected, 3, odd ), 0 );
+
+	// somebody gone, or silent, is neither the majority nor odd
+	crc[0] = 0x9999u; crc[1] = 0x1111u; crc[2] = 0x1111u; crc[3] = 0x5555u;
+	connected[3] = FALSE;
+	CHECK_EQ( crcOddOnes( reported, crc, connected, 4, odd ), 1 );
+	CHECK( odd[0] ); CHECK( !odd[3] );
+	reported[0] = FALSE;
+	CHECK_EQ( crcOddOnes( reported, crc, connected, 4, odd ), 0 );
+}
+
 TEST(crcagreement_a_room_with_nobody_left_in_it_is_not_a_mismatch)
 {
 	Bool reported[2]  = { FALSE, FALSE };
@@ -6983,6 +7224,75 @@ TEST(scriptengine_finds_a_script_by_name_wherever_it_lives)
 
 	sides.getSideInfo( 0 )->setScriptList( NULL );
 	reloaded->deleteInstance();
+	TheSidesList = savedSides;
+}
+
+// A skirmish AI's flags and counters carry its player's number, so a 32-player match wants several
+// hundred of each.  At 256 the table ran out near 15 AIs and every later name got slot 0 - all of
+// them the same flag, and _LAUNCH_ATTACK stuck on for the whole back half of the lobby.
+class ScriptVariableTestEngine : public ScriptEngine
+{
+public:
+	using ScriptEngine::allocateFlag;
+	using ScriptEngine::allocateCounter;
+	Bool flag( Int ndx ) const { return m_flags[ ndx ].value; }
+	void raiseFlag( Int ndx ) { m_flags[ ndx ].value = TRUE; }
+};
+
+TEST(scriptengine_gives_every_flag_and_counter_its_own_slot_past_256)
+{
+	SidesList sides;
+	SidesList *savedSides = TheSidesList;
+	TheSidesList = &sides;
+
+	ScriptVariableTestEngine *engine = new ScriptVariableTestEngine;	// the tables are large for a stack
+	engine->newMap();
+
+	// 32 seats' worth, well past the old 256: each name its own slot, in order, and asking again
+	// answers the same slot
+	const Int wanted = 600;
+	Bool allDistinct = TRUE;
+	for( Int i = 0; i < wanted; ++i )
+	{
+		AsciiString name;
+		name.format( "Var%d", i );
+		if( engine->allocateFlag( name ) != i + 1 || engine->allocateCounter( name ) != i + 1 )
+			allDistinct = FALSE;
+	}
+	CHECK( allDistinct );
+	CHECK( engine->allocateFlag( AsciiString( "Var299" ) ) == 300 );
+	CHECK( engine->allocateCounter( AsciiString( "Var599" ) ) == 600 );
+	CHECK( engine->getCounter( AsciiString( "Var599" ) ) != NULL );
+	CHECK( engine->getCounter( AsciiString( "NeverMade" ) ) == NULL );
+
+	// clearTeamFlags clears a team flag for every player number, and nothing else
+	const Int teamFlag = engine->allocateFlag( AsciiString( "GLA Team is Building17" ) );
+	engine->raiseFlag( teamFlag );
+	engine->raiseFlag( 5 );
+	engine->clearTeamFlags();
+	CHECK( !engine->flag( teamFlag ) );
+	CHECK( engine->flag( 5 ) );
+
+	// a full table hands out 0, which no name owns, and says so once per name rather than aliasing
+	for( Int i = wanted; i < ScriptEngine::MAX_FLAGS + ScriptEngine::MAX_COUNTERS; ++i )
+	{
+		AsciiString name;
+		name.format( "Var%d", i );
+		engine->allocateFlag( name );
+		engine->allocateCounter( name );
+	}
+	CHECK( engine->allocateFlag( AsciiString( "Overflow" ) ) == 0 );
+	CHECK( engine->allocateFlag( AsciiString( "Overflow" ) ) == 0 );
+	CHECK( engine->allocateCounter( AsciiString( "Overflow" ) ) == 0 );
+	CHECK( engine->getCounter( AsciiString( "Overflow" ) ) == NULL );
+	CHECK( engine->allocateFlag( AsciiString( "Var0" ) ) == 1 );
+
+	// a new map empties the tables and their index
+	engine->newMap();
+	CHECK( engine->allocateFlag( AsciiString( "Fresh" ) ) == 1 );
+	CHECK( engine->getCounter( AsciiString( "Var0" ) ) == NULL );
+
+	delete engine;
 	TheSidesList = savedSides;
 }
 
@@ -7321,17 +7631,17 @@ TEST(selfslug_fires_once_the_margin_eats_into_the_slack)
 
 TEST(selfslug_threshold_has_a_floor_the_shipped_run_ahead_cannot_undercut)
 {
-	/* The run-ahead a real room plays on is a handful of frames - MIN_RUNAHEAD is eight, and
-		 computeRunAhead only clears that above about 240 ms round trip - so NetworkRunAheadSlack's
-		 10 % of it is worth well under a frame.  A brake that waits until less than one frame of
-		 margin is left has already lost: at 60 Hz that is under 17 ms of warning for a hitch that
-		 takes longer than that to signal, let alone correct.  Hence the floor. */
+	/* The run-ahead a real room plays on is a handful of frames - three on a LAN, and a 300 ms round
+		 trip is still only fourteen - so NetworkRunAheadSlack's 10 % of it rounds to nothing, and a
+		 threshold of zero frames is a brake that never fires.  The cushion counts whole frames before
+		 the one about to run, so a threshold of one fires with up to a frame still in hand, the last
+		 moment before the stall.  Hence the floor. */
 	CHECK_EQ( selfSlugThreshold( 10, 10 ), SELFSLUG_MIN_THRESHOLD_FRAMES );
 
 	// the floor holds wherever the arithmetic would land under it, including at zero slack
 	CHECK_EQ( selfSlugThreshold( 10, 0 ), SELFSLUG_MIN_THRESHOLD_FRAMES );
 	CHECK_EQ( selfSlugThreshold( 1, 10 ), SELFSLUG_MIN_THRESHOLD_FRAMES );
-	CHECK_EQ( selfSlugThreshold( 39, 10 ), SELFSLUG_MIN_THRESHOLD_FRAMES );
+	CHECK_EQ( selfSlugThreshold( 19, 10 ), SELFSLUG_MIN_THRESHOLD_FRAMES );
 
 	// and gets out of the way as soon as the configured slack is worth more than it
 	CHECK_EQ( selfSlugThreshold( 60, 10 ), 6 );
@@ -7360,7 +7670,7 @@ TEST(selfslug_threshold_has_a_floor_the_shipped_run_ahead_cannot_undercut)
 TEST(the_run_ahead_covers_the_trip_it_is_sized_for)
 {
 	/* The one thing a run-ahead must never do is come out shorter than the wire.  getMaximumLatency
-		 sums the two worst average round trips, so the trip a command has to survive is half of it,
+		 is the worst round trip in the room, so the trip a command has to survive is half of it,
 		 and the window has to cover that at the rate the room is running.  EA truncated the division:
 		 a 150 ms round trip is 2.25 frames of wire at 30 Hz and truncates to 2 - 66 ms of window for
 		 75 ms of travel, which arrives late every single time. */
@@ -7369,7 +7679,8 @@ TEST(the_run_ahead_covers_the_trip_it_is_sized_for)
 		Real latency = (Real)ms / 1000.0f;
 		for( Int fps = 5; fps <= LOGICFRAMES_PER_SECOND; fps += 5 )
 		{
-			Int runAhead = computeRunAhead( latency, fps, 10, MIN_RUNAHEAD, MAX_FRAMES_AHEAD / 2 );
+			// no jitter at all is the smallest margin the formula gives, so the tightest case
+			Int runAhead = computeRunAhead( latency, 0.0f, fps, 10, MIN_RUNAHEAD, MAX_FRAMES_AHEAD / 2 );
 
 			// the window, in seconds, against the one-way trip it has to cover
 			CHECK( (Real)runAhead / (Real)fps >= (latency / 2.0f) );
@@ -7377,25 +7688,27 @@ TEST(the_run_ahead_covers_the_trip_it_is_sized_for)
 	}
 }
 
-TEST(the_router_is_not_a_leg_of_any_trip)
+TEST(every_trip_is_one_hop_over_the_worst_link)
 {
-	/* Two players, slot 0 the router: both measure the same 0.22 s round trip.  The one trip in the
-		 room is guest to router, half of it.  EA summed both and gave the room a whole round trip. */
+	/* Two players both measure the same 0.22 s round trip.  The one trip in the room is one player
+		 to the other, half of it.  EA summed both and gave the room a whole round trip. */
 	Real two[2] = { 0.22f, 0.22f };
 	Bool twoConnected[2] = { TRUE, TRUE };
-	CHECK_NEAR( roomLatencySum( two, twoConnected, 2, 0 ), 0.22f, 0.0001f );
-	CHECK( computeRunAhead( roomLatencySum( two, twoConnected, 2, 0 ), 30, 10, MIN_RUNAHEAD, MAX_FRAMES_AHEAD / 2 )
-				 < computeRunAhead( 0.44f, 30, 10, MIN_RUNAHEAD, MAX_FRAMES_AHEAD / 2 ) );
+	CHECK_NEAR( roomWorstLatency( two, twoConnected, 2 ), 0.22f, 0.0001f );
+	CHECK( computeRunAhead( roomWorstLatency( two, twoConnected, 2 ), 0.02f, 30, 10, MIN_RUNAHEAD, MAX_FRAMES_AHEAD / 2 )
+				 < computeRunAhead( 0.44f, 0.02f, 30, 10, MIN_RUNAHEAD, MAX_FRAMES_AHEAD / 2 ) );
 
-	/* Three: the worst trip is the two guests through the router, both of their legs.  The router's
-		 own figure is left out even when it is the largest. */
-	Real three[3] = { 0.50f, 0.30f, 0.20f };
+	/* Three: commands go straight from author to player, so the worst trip is the single worst
+		 link, never two of them added.  Slot 0, the router, counts like anybody when it is the worst. */
+	Real three[3] = { 0.30f, 0.50f, 0.20f };
 	Bool threeConnected[3] = { TRUE, TRUE, TRUE };
-	CHECK_NEAR( roomLatencySum( three, threeConnected, 3, 0 ), 0.50f, 0.0001f );
+	CHECK_NEAR( roomWorstLatency( three, threeConnected, 3 ), 0.50f, 0.0001f );
+	three[0] = 0.60f;
+	CHECK_NEAR( roomWorstLatency( three, threeConnected, 3 ), 0.60f, 0.0001f );
 
-	/* a guest who has left is not a leg either */
-	threeConnected[1] = FALSE;
-	CHECK_NEAR( roomLatencySum( three, threeConnected, 3, 0 ), 0.20f, 0.0001f );
+	/* a player who has left is no link at all */
+	threeConnected[0] = FALSE;
+	CHECK_NEAR( roomWorstLatency( three, threeConnected, 3 ), 0.50f, 0.0001f );
 }
 
 /* Measured in a real LAN match: the host lost one FRAMEINFO packet, sat on the frame for twenty
@@ -7421,20 +7734,29 @@ TEST(a_stalled_frame_is_not_filed_as_round_trip_time)
 	/* a clock that ran backwards says nothing; it must not read as a zero-latency link */
 	CHECK_NEAR( sanitizeLatencySample( -3.0f, MAX_PLAUSIBLE_LATENCY_SECONDS ), 0.0f, 0.0001f );
 
+	/* a peer's run-ahead metrics are read off the wire and go through here; a NaN is no link either */
+	volatile Real zero = 0.0f;
+	CHECK_NEAR( sanitizeLatencySample( zero / zero, MAX_PLAUSIBLE_LATENCY_SECONDS ), 0.0f, 0.0001f );
+
 	/* and the point of all of it: what the run-ahead does with the clamped numbers.  Two players at
 		 the ceiling still cost far less than the 2.1 s the raw samples bought. */
 	Real clamped = sanitizeLatencySample( 7.636834f, MAX_PLAUSIBLE_LATENCY_SECONDS )
 								 + sanitizeLatencySample( 1.785224f, MAX_PLAUSIBLE_LATENCY_SECONDS );
 	const Int fps = LOGICFRAMES_PER_SECOND;
-	Int runAhead = computeRunAhead( clamped, fps, 10, MIN_RUNAHEAD, MAX_FRAMES_AHEAD / 2 );
+
+	/* The same stall moves rttvar by a quarter of the sample: 450 ms of "jitter" off the 1.79 s one,
+		 which the jitter ceiling holds to what a playable link can show. */
+	Real stalledJitter = sanitizeLatencySample( 1.785224f / 4.0f, MAX_PLAUSIBLE_JITTER_SECONDS );
+	CHECK_NEAR( stalledJitter, MAX_PLAUSIBLE_JITTER_SECONDS, 0.0001f );
+
+	Int runAhead = computeRunAhead( clamped, stalledJitter, fps, 10, MIN_RUNAHEAD, MAX_FRAMES_AHEAD / 2 );
 	CHECK( runAhead < ConvertRetailFrames( 64 ) );
-	CHECK( runAhead <= 58 );			// 0.97 s at 60 Hz, and only with both players at the ceiling
-	CHECK( runAhead <= (Int)(MAX_PLAUSIBLE_LATENCY_SECONDS * (Real)fps * 1.2f) + RUNAHEAD_JITTER_FRAMES );
+	CHECK( runAhead <= 69 );			// 1.15 s at 60 Hz, and only with both players and the jitter at the ceilings
 
 	/* a LAN is untouched by any of this */
 	CHECK_EQ( computeRunAhead( sanitizeLatencySample( 0.051f, MAX_PLAUSIBLE_LATENCY_SECONDS ) * 2.0f,
-														 fps, 10, MIN_RUNAHEAD, MAX_FRAMES_AHEAD / 2 ),
-						computeRunAhead( 0.102f, fps, 10, MIN_RUNAHEAD, MAX_FRAMES_AHEAD / 2 ) );
+														 0.004f, fps, 10, MIN_RUNAHEAD, MAX_FRAMES_AHEAD / 2 ),
+						computeRunAhead( 0.102f, 0.004f, fps, 10, MIN_RUNAHEAD, MAX_FRAMES_AHEAD / 2 ) );
 }
 
 /* The other half of that match: nothing ever asked for the lost frame.  FrameData escalates to
@@ -7472,21 +7794,132 @@ TEST(a_missing_frame_is_asked_for_again_once_the_wire_has_had_its_chance)
 	CHECK( wait < 1000 );
 }
 
-TEST(the_run_ahead_carries_a_margin_the_percentage_alone_cannot_give)
+TEST(a_packet_that_arrives_on_time_never_trips_the_self_slug)
 {
-	/* An average round trip is exceeded half the time, so a window sized to exactly the average is
-		 wrong half the time.  The proportional slack was meant to be that margin and cannot be: 10 %
-		 of a four frame window is zero frames, 10 % of a ten frame window is one.  The fixed
-		 allowance is what actually covers the jitter, and it is what makes a low floor safe. */
+	/* The brake fires when the cushion drops below selfSlugThreshold.  Frame f + run-ahead's FRAMEINFO
+		 leaves when frame f has run, so a packet that is trip frames on the wire lands with
+		 run-ahead - trip frames of real time to spare, and the cushion, the frame it completes minus
+		 the frame about to run, is the whole frames of that: run-ahead - 1 - floor(trip).  A margin no
+		 bigger than the threshold has the room running 10 % slow on a link that never drops or delays
+		 a packet.  So whatever the latency and the jitter, that packet arrives with the brake still off,
+		 and so does one late by the jitter the window is sized for, with the other machine's frame
+		 clock up to RUNAHEAD_PHASE_MARGIN_FRAMES ahead. */
 	for( Int ms = 0; ms <= 800; ms += 5 )
 	{
 		Real latency = (Real)ms / 1000.0f;
-		Int runAhead = computeRunAhead( latency, LOGICFRAMES_PER_SECOND, 10, MIN_RUNAHEAD, MAX_FRAMES_AHEAD / 2 );
+		Real tripFrames = ( latency / 2.0f ) * LOGICFRAMES_PER_SECONDS_REAL;
+		for( Int jitterMS = 0; jitterMS <= 100; jitterMS += 5 )
+		{
+			Int runAhead = computeRunAhead( latency, (Real)jitterMS / 1000.0f, LOGICFRAMES_PER_SECOND, 10,
+																			MIN_RUNAHEAD, MAX_FRAMES_AHEAD / 2 );
+			Int cushion = runAhead - 1 - (Int)floorf( tripFrames );
+			CHECK( !shouldSelfSlug( cushion, runAhead, 10 ) );
 
-		// at least RUNAHEAD_JITTER_FRAMES of room beyond the trip itself, at every latency
-		Real slackSeconds = ( (Real)runAhead / LOGICFRAMES_PER_SECONDS_REAL ) - ( latency / 2.0f );
-		CHECK( slackSeconds >= ( (Real)RUNAHEAD_JITTER_FRAMES / LOGICFRAMES_PER_SECONDS_REAL ) - 0.0005f );
+			// summed in seconds before the frame count, as computeRunAhead sums it, so a whole-frame total rounds alike
+			Real lateTripFrames = ( ( latency / 2.0f ) + RUNAHEAD_JITTER_DEVIATIONS * ( (Real)jitterMS / 1000.0f ) )
+														* LOGICFRAMES_PER_SECONDS_REAL;
+			Int lateCushion = runAhead - 1 - (Int)floorf( lateTripFrames ) - RUNAHEAD_PHASE_MARGIN_FRAMES;
+			CHECK( !shouldSelfSlug( lateCushion, runAhead, 10 ) );
+		}
 	}
+}
+
+TEST(the_jitter_margin_follows_the_measured_jitter)
+{
+	const Int fps = LOGICFRAMES_PER_SECOND;
+	const Int oldFixedMargin = 6;				// the RUNAHEAD_JITTER_FRAMES this replaced, 100 ms at 60 Hz
+	const Real ping = 0.215f;						// -latAvg 100 each way plus the game's own share, as measured
+
+	/* What each window was under the flat margin: trip + 10 % + 6.  At a 215 ms round trip that is
+		 7 + 0 + 6 = 13 frames whatever the link is doing. */
+	Int tripFrames = (Int)ceilf( ( ping / 2.0f ) * (Real)fps );
+	CHECK_EQ( tripFrames, 7 );
+	Int oldWindow = tripFrames + oldFixedMargin;
+
+	/* A steady link, rttvar a few milliseconds, gets the trip and its spread rounded past to a whole
+		 frame (6.45 + 0.24 frames, so 7), the phase margin and the brake's frame. */
+	Int steady = computeRunAhead( ping, 0.004f, fps, 10, MIN_RUNAHEAD, MAX_FRAMES_AHEAD / 2 );
+	CHECK_EQ( steady, 7 + RUNAHEAD_PHASE_MARGIN_FRAMES + SELFSLUG_MIN_THRESHOLD_FRAMES );
+	CHECK( steady < oldWindow );
+
+	// a jittery one, rttvar 20 to 35 ms as -latNoise 30 measures, waits longer
+	Int jittery = computeRunAhead( ping, 0.024f, fps, 10, MIN_RUNAHEAD, MAX_FRAMES_AHEAD / 2 );
+	CHECK_EQ( jittery, 8 + RUNAHEAD_PHASE_MARGIN_FRAMES + SELFSLUG_MIN_THRESHOLD_FRAMES );		// 6.45 + 1.44 frames
+	CHECK( jittery > steady );
+	CHECK( computeRunAhead( ping, 0.035f, fps, 10, MIN_RUNAHEAD, MAX_FRAMES_AHEAD / 2 ) > jittery );
+
+	// more jitter never shortens the window
+	Int previous = 0;
+	for( Int jitterMS = 0; jitterMS <= 100; ++jitterMS )
+	{
+		Int runAhead = computeRunAhead( ping, (Real)jitterMS / 1000.0f, fps, 10, MIN_RUNAHEAD, MAX_FRAMES_AHEAD / 2 );
+		CHECK( runAhead >= previous );
+		previous = runAhead;
+	}
+
+	// no jitter at all still rounds the trip past to a whole frame and keeps the phase margin
+	CHECK_EQ( computeRunAhead( ping, 0.0f, fps, 10, MIN_RUNAHEAD, MAX_FRAMES_AHEAD / 2 ),
+						tripFrames + RUNAHEAD_PHASE_MARGIN_FRAMES + SELFSLUG_MIN_THRESHOLD_FRAMES );
+}
+
+/* Each frame's cushion is measured once, by the arrival that completes it (arrivalMeasuresCushion).
+	 Three copies at 200 ms of ping ran self-slugged on 80 % of their frames while every redundant copy
+	 of an order, landing 30 and 60 ms after the frame was complete, was measured as well. */
+TEST(each_frame_measures_its_cushion_once_on_completion)
+{
+	static UnsignedInt measured[CUSHION_RING_FRAMES];
+	memset( measured, 0, sizeof(measured) );
+	const Int maxAhead = 256;
+
+	// the arrival that completes frame 1000 measures it; the redundant copies after it do not
+	CHECK( arrivalMeasuresCushion( measured, 1000, 990, maxAhead ) );
+	markCushionMeasured( measured, 1000 );
+	CHECK( !arrivalMeasuresCushion( measured, 1000, 992, maxAhead ) );
+	CHECK( !arrivalMeasuresCushion( measured, 1000, 1000, maxAhead ) );
+
+	/* Out of order: frame 1001 completes first, then 1000's FRAMEINFO arrives late by the second copy
+		 or a resend answer.  The late one is the sample the brake exists for, and it is still taken. */
+	CHECK( arrivalMeasuresCushion( measured, 1101, 1090, maxAhead ) );
+	markCushionMeasured( measured, 1101 );
+	CHECK( arrivalMeasuresCushion( measured, 1100, 1099, maxAhead ) );
+	CHECK( arrivalMeasuresCushion( measured, 1100, 1100, maxAhead ) );		// arriving on its own frame, cushion 0
+
+	// a frame already run is not measured, and neither is one past the window
+	CHECK( !arrivalMeasuresCushion( measured, 1100, 1101, maxAhead ) );
+	CHECK( !arrivalMeasuresCushion( measured, 1100 + maxAhead + 1, 1100, maxAhead ) );
+	CHECK( arrivalMeasuresCushion( measured, 1100 + maxAhead, 1100, maxAhead ) );
+
+	/* A peer's far-future frame aliases a frame in flight: 1200 + CUSHION_RING_FRAMES shares 1200's
+		 slot.  Refused, so it cannot mark 1200 measured, and the window never reaches past the ring. */
+	CHECK( !arrivalMeasuresCushion( measured, 1200 + CUSHION_RING_FRAMES, 1200, 100000 ) );
+	CHECK( arrivalMeasuresCushion( measured, 1200 + CUSHION_RING_FRAMES - 1, 1200, 100000 ) );
+	CHECK( arrivalMeasuresCushion( measured, 1200, 1199, maxAhead ) );
+
+	// a slot reused a whole ring later is a new frame
+	markCushionMeasured( measured, 1300 );
+	CHECK( arrivalMeasuresCushion( measured, 1300 + CUSHION_RING_FRAMES, 1300 + CUSHION_RING_FRAMES - 5, maxAhead ) );
+
+	// the frame counter wrapping changes nothing
+	const UnsignedInt nearWrap = 0xFFFFFFF0u;
+	CHECK( arrivalMeasuresCushion( measured, 5, nearWrap, maxAhead ) );
+	markCushionMeasured( measured, 5 );
+	CHECK( !arrivalMeasuresCushion( measured, 5, nearWrap + 2, maxAhead ) );
+	CHECK( !arrivalMeasuresCushion( measured, nearWrap, 5, maxAhead ) );		// behind us across the wrap
+}
+
+TEST(a_jitter_figure_off_the_wire_cannot_break_the_window)
+{
+	/* A figure that is not a number, negative or absurd must neither shrink the window nor walk it
+		 out of the buffers. */
+	const Int fps = LOGICFRAMES_PER_SECOND;
+	const Real ping = 0.215f;
+	volatile Real zero = 0.0f;
+	CHECK_EQ( computeRunAhead( ping, zero / zero, fps, 10, MIN_RUNAHEAD, MAX_FRAMES_AHEAD / 2 ),
+						computeRunAhead( ping, 0.0f, fps, 10, MIN_RUNAHEAD, MAX_FRAMES_AHEAD / 2 ) );
+	CHECK_EQ( computeRunAhead( ping, -1.0f, fps, 10, MIN_RUNAHEAD, MAX_FRAMES_AHEAD / 2 ),
+						computeRunAhead( ping, 0.0f, fps, 10, MIN_RUNAHEAD, MAX_FRAMES_AHEAD / 2 ) );
+	CHECK_EQ( computeRunAhead( ping, 1.0e30f, fps, 10, MIN_RUNAHEAD, MAX_FRAMES_AHEAD / 2 ), MAX_FRAMES_AHEAD / 2 );
+	CHECK_NEAR( sanitizeLatencySample( 5.0f, MAX_PLAUSIBLE_JITTER_SECONDS ), MAX_PLAUSIBLE_JITTER_SECONDS, 0.0001f );
 }
 
 TEST(the_run_ahead_is_shorter_than_the_shipped_floor_on_the_links_that_do_not_need_it)
@@ -7497,19 +7930,22 @@ TEST(the_run_ahead_is_shorter_than_the_shipped_floor_on_the_links_that_do_not_ne
 	const Int shippedFloor = ConvertRetailFrames( 10 );	// EA's MIN_RUNAHEAD, 333 ms of input delay
 	const Int fps = LOGICFRAMES_PER_SECOND;
 
-	CHECK( computeRunAhead( 0.000f, fps, 10, MIN_RUNAHEAD, 64 ) < shippedFloor );		// LAN
-	CHECK( computeRunAhead( 0.040f, fps, 10, MIN_RUNAHEAD, 64 ) < shippedFloor );		// 40 ms
-	CHECK( computeRunAhead( 0.100f, fps, 10, MIN_RUNAHEAD, 64 ) < shippedFloor );		// 100 ms
-	CHECK( computeRunAhead( 0.160f, fps, 10, MIN_RUNAHEAD, 64 ) < shippedFloor );		// 160 ms
+	// jitter as loopback and a good broadband link measure it, a few milliseconds of rttvar
+	const Real jitter = 0.008f;
+	CHECK( computeRunAhead( 0.000f, jitter, fps, 10, MIN_RUNAHEAD, 64 ) < shippedFloor );		// LAN
+	CHECK( computeRunAhead( 0.040f, jitter, fps, 10, MIN_RUNAHEAD, 64 ) < shippedFloor );		// 40 ms
+	CHECK( computeRunAhead( 0.100f, jitter, fps, 10, MIN_RUNAHEAD, 64 ) < shippedFloor );		// 100 ms
+	CHECK( computeRunAhead( 0.160f, jitter, fps, 10, MIN_RUNAHEAD, 64 ) < shippedFloor );		// 160 ms
 
 	// and the shortest of them is the floor itself, not something under it
-	CHECK_EQ( computeRunAhead( 0.000f, fps, 10, MIN_RUNAHEAD, 64 ), MIN_RUNAHEAD );
+	CHECK_EQ( computeRunAhead( 0.000f, jitter, fps, 10, MIN_RUNAHEAD, 64 ), MIN_RUNAHEAD );
 
 	/* And what it is not: the links that were relying on the floor get more window than the floor
 		 gave them, not less.  600 ms summed round trip is where EA's formula finally reached ten. */
-	CHECK( computeRunAhead( 0.300f, fps, 10, MIN_RUNAHEAD, 64 ) >= ConvertRetailFrames( 7 ) );
-	CHECK( computeRunAhead( 0.600f, fps, 10, MIN_RUNAHEAD, 64 ) > shippedFloor );
-	CHECK( computeRunAhead( 1.000f, fps, 10, MIN_RUNAHEAD, 64 ) > ConvertRetailFrames( 16 ) );
+	CHECK( computeRunAhead( 0.300f, jitter, fps, 10, MIN_RUNAHEAD, 64 )
+				 >= 9 + 1 + RUNAHEAD_PHASE_MARGIN_FRAMES + SELFSLUG_MIN_THRESHOLD_FRAMES );	// 150 ms is 9 frames, rounded past
+	CHECK( computeRunAhead( 0.600f, jitter, fps, 10, MIN_RUNAHEAD, 64 ) > shippedFloor );
+	CHECK( computeRunAhead( 1.000f, jitter, fps, 10, MIN_RUNAHEAD, 64 ) > ConvertRetailFrames( 16 ) );
 }
 
 TEST(the_run_ahead_stays_inside_the_bounds_the_network_buffers_are_built_for)
@@ -7517,14 +7953,17 @@ TEST(the_run_ahead_stays_inside_the_bounds_the_network_buffers_are_built_for)
 	// the window indexes frame buffers sized from MAX_FRAMES_AHEAD; it may not walk out of them
 	for( Int ms = 0; ms <= 20000; ms += 25 )
 	{
-		Int runAhead = computeRunAhead( (Real)ms / 1000.0f, 30, 10, MIN_RUNAHEAD, MAX_FRAMES_AHEAD / 2 );
-		CHECK( runAhead >= MIN_RUNAHEAD );
-		CHECK( runAhead <= MAX_FRAMES_AHEAD / 2 );
+		for( Int jitterMS = 0; jitterMS <= 2000; jitterMS += 250 )
+		{
+			Int runAhead = computeRunAhead( (Real)ms / 1000.0f, (Real)jitterMS / 1000.0f, 30, 10, MIN_RUNAHEAD, MAX_FRAMES_AHEAD / 2 );
+			CHECK( runAhead >= MIN_RUNAHEAD );
+			CHECK( runAhead <= MAX_FRAMES_AHEAD / 2 );
+		}
 	}
 
 	// a rate of zero is not a division by zero, and a negative latency is not a negative window
-	CHECK_EQ( computeRunAhead( 0.0f, 0, 10, MIN_RUNAHEAD, 64 ), MIN_RUNAHEAD );
-	CHECK_EQ( computeRunAhead( -1.0f, 30, 10, MIN_RUNAHEAD, 64 ), MIN_RUNAHEAD );
+	CHECK_EQ( computeRunAhead( 0.0f, 0.0f, 0, 10, MIN_RUNAHEAD, 64 ), MIN_RUNAHEAD );
+	CHECK_EQ( computeRunAhead( -1.0f, 0.0f, 30, 10, MIN_RUNAHEAD, 64 ), MIN_RUNAHEAD );
 }
 
 TEST(the_shipped_run_ahead_floor_leaves_the_self_slug_brake_room_to_work)
@@ -8486,6 +8925,7 @@ TEST(a_commands_advertised_size_covers_what_its_writer_puts_in_the_buffer)
 
 	NetRunAheadMetricsCommandMsg *metrics = newInstance( NetRunAheadMetricsCommandMsg );
 	metrics->setAverageLatency( 0.125f );
+	metrics->setLatencyJitter( 0.021f );
 	metrics->setAverageFps( 300 );					// wider than a byte, which is the point
 	NetCommandRef *metricsRef = wrapForSend( metrics, NETCOMMANDTYPE_RUNAHEADMETRICS );
 	CHECK( bytesActuallyWritten( metricsRef, &advertised ) <= advertised );
@@ -8500,6 +8940,37 @@ TEST(a_commands_advertised_size_covers_what_its_writer_puts_in_the_buffer)
 	NetCommandRef *timeoutRef = wrapForSend( timeout, NETCOMMANDTYPE_TIMEOUTSTART );
 	CHECK( bytesActuallyWritten( timeoutRef, &advertised ) <= advertised );
 	timeoutRef->deleteInstance();
+}
+
+/* The router sizes the room's jitter margin on what each player reports, so the jitter has to come
+	 out of the packet as it went in, and the frame rate behind it still where the reader looks. */
+TEST(run_ahead_metrics_carry_the_jitter_across_the_wire)
+{
+	NetRunAheadMetricsCommandMsg *metrics = newInstance( NetRunAheadMetricsCommandMsg );
+	metrics->setAverageLatency( 0.215f );
+	metrics->setLatencyJitter( 0.027f );
+	metrics->setAverageFps( 58 );
+	NetCommandRef *ref = wrapForSend( metrics, NETCOMMANDTYPE_RUNAHEADMETRICS );
+
+	NetPacket *packet = newInstance( NetPacket );
+	packet->init();
+	CHECK( packet->addCommand( ref ) );
+
+	NetCommandList *list = packet->getCommandList();
+	NetCommandRef *first = list->getFirstMessage();
+	CHECK( first != NULL );
+	if( first != NULL )
+	{
+		CHECK_EQ( (Int)first->getCommand()->getNetCommandType(), (Int)NETCOMMANDTYPE_RUNAHEADMETRICS );
+		NetRunAheadMetricsCommandMsg *read = (NetRunAheadMetricsCommandMsg *)first->getCommand();
+		CHECK_NEAR( read->getAverageLatency(), 0.215f, 0.00001f );
+		CHECK_NEAR( read->getLatencyJitter(), 0.027f, 0.00001f );
+		CHECK_EQ( read->getAverageFps(), 58 );
+	}
+
+	list->deleteInstance();
+	packet->deleteInstance();
+	ref->deleteInstance();
 }
 
 /* The size of nothing is nothing.  This one hands back a byte count, but its guard against a null
@@ -8546,7 +9017,7 @@ TEST(an_overlong_transfer_filename_is_truncated_instead_of_overflowing)
 TEST(an_overlong_announced_filename_is_truncated_instead_of_overflowing)
 {
 	static const Int NAME_LEN = 400;
-	UnsignedByte buf[3 + NAME_LEN + 1 + sizeof(UnsignedShort) + sizeof(UnsignedByte)];
+	UnsignedByte buf[3 + NAME_LEN + 1 + sizeof(UnsignedShort) + sizeof(SlotMask)];
 	Int at = 0;
 	buf[at++] = 'T';
 	buf[at++] = NETCOMMANDTYPE_FILEANNOUNCE;
@@ -8559,14 +9030,19 @@ TEST(an_overlong_announced_filename_is_truncated_instead_of_overflowing)
 	UnsignedShort fileID = 0x1234;
 	memcpy( buf + at, &fileID, sizeof(fileID) );
 	at += sizeof(fileID);
-	buf[at++] = 0x5A;									// player mask
+	const SlotMask mask = slotBit( 1 ) | slotBit( MAX_SLOTS - 1 );	// the mask is a SlotMask on the wire, past what a byte held
+	memcpy( buf + at, &mask, sizeof(mask) );
+	at += sizeof(mask);
 
 	NetCommandRef *ref = NetPacket::ConstructNetCommandMsgFromRawData( buf, (UnsignedInt)at );
+	CHECK( ref != NULL );
+	if( ref == NULL )
+		return;
 	NetFileAnnounceCommandMsg *announce = (NetFileAnnounceCommandMsg *)ref->getCommand();
 
 	CHECK_EQ( announce->getPortableFilename().getLength(), _MAX_PATH - 1 );
 	CHECK_EQ( (Int)announce->getFileID(), 0x1234 );
-	CHECK_EQ( (Int)announce->getPlayerMask(), 0x5A );
+	CHECK( announce->getPlayerMask() == mask );
 
 	ref->deleteInstance();
 }
@@ -8691,6 +9167,230 @@ TEST(a_datagram_is_one_udp_payload_and_the_payload_is_what_a_packet_holds)
 	CHECK( (Int)sizeof(CommandPacket) <= MAX_PACKET_SIZE );
 	CHECK( (Int)sizeof(LANMessage) <= MAX_LANAPI_PACKET_SIZE );
 	CHECK( MAX_LANAPI_PACKET_SIZE <= MAX_PACKET_SIZE );
+}
+
+/* The relay and a chat's recipients were a byte and an Int, one bit per slot, which held eight
+	 slots and thirty-two.  Both are a SlotMask now, all four bytes on the wire: a slot past the byte,
+	 and the top one, 31, the sign bit of EA's Int, have to come back out of a packet as they went in. */
+TEST(a_relay_and_a_chat_mask_up_to_slot_31_survive_the_packet)
+{
+	CHECK_EQ( MAX_SLOTS - 1, 31 );
+	const SlotMask recipients = slotBit( 0 ) | slotBit( 8 ) | slotBit( MAX_SLOTS - 1 );
+	const SlotMask relay = slotBit( 9 ) | slotBit( MAX_SLOTS - 1 );
+	CHECK( allSlotsBut( 3 ) == ( SLOTMASK_ALL & ~slotBit( 3 ) ) );
+	CHECK( ( SLOTMASK_ALL >> ( MAX_SLOTS - 1 ) ) == 1 );		// one bit per slot, no more
+
+	NetChatCommandMsg *chat = newInstance( NetChatCommandMsg );
+	chat->setText( UnicodeString( u"hi" ) );
+	chat->setPlayerMask( recipients );
+	chat->setPlayerID( MAX_SLOTS - 1 );
+	chat->setID( 1 );
+	chat->setExecutionFrame( 0 );
+	chat->setNetCommandType( NETCOMMANDTYPE_CHAT );
+	NetCommandRef *ref = newInstance( NetCommandRef )( chat );
+	ref->setRelay( relay );
+	chat->detach();
+
+	NetPacket *packet = newInstance( NetPacket );
+	packet->init();
+	CHECK( packet->addCommand( ref ) );
+
+	TransportMessage wire;
+	memset( &wire, 0, sizeof(wire) );
+	wire.length = packet->getLength();
+	memcpy( wire.data, packet->getData(), wire.length );
+	NetPacket *received = newInstance( NetPacket )( &wire );
+	NetCommandList *list = received->getCommandList();
+	NetCommandRef *back = list->getFirstMessage();
+	CHECK( back != NULL );
+	if( back != NULL )
+	{
+		CHECK( back->getRelay() == relay );
+		CHECK_EQ( (Int)back->getCommand()->getPlayerID(), MAX_SLOTS - 1 );
+		CHECK( ((NetChatCommandMsg *)back->getCommand())->getPlayerMask() == recipients );
+	}
+
+	list->deleteInstance();
+	received->deleteInstance();
+	packet->deleteInstance();
+	ref->deleteInstance();
+}
+
+/* NAT negotiation pairs the players off in rounds, so each round's connections are made at once.
+	 EA wrote the schedule out by hand for 2 to 8 nodes; it is generated now.  Every pair has to meet
+	 exactly once, both ends of a pairing have to agree on it, and the rounds are as many as EA's. */
+TEST(nat_rounds_pair_every_two_nodes_exactly_once_for_2_to_32)
+{
+	for( Int n = 2; n <= MAX_SLOTS; ++n )
+	{
+		const Int rounds = NAT::connectionRounds( n );
+		CHECK_EQ( rounds, ( n % 2 == 0 ) ? n - 1 : n );		// EA's table: 2->1, 3->3, 4->3 ... 8->7
+
+		Int met[MAX_SLOTS][MAX_SLOTS];
+		memset( met, 0, sizeof(met) );
+		for( Int r = 0; r < rounds; ++r )
+		{
+			for( Int x = 0; x < n; ++x )
+			{
+				const Int y = NAT::connectionPartner( n, r, x );
+				if( y == -1 )
+					continue;			// a bye, in an odd room
+				CHECK( y >= 0 && y < n && y != x );
+				if( y < 0 || y >= n )
+					continue;
+				CHECK_EQ( NAT::connectionPartner( n, r, y ), x );
+				++met[x][y];
+			}
+		}
+		for( Int x = 0; x < n; ++x )
+			for( Int y = 0; y < n; ++y )
+				CHECK_EQ( met[x][y], x == y ? 0 : 1 );
+
+		// past the schedule, and outside the room, nobody
+		CHECK_EQ( NAT::connectionPartner( n, rounds, 0 ), -1 );
+		CHECK_EQ( NAT::connectionPartner( n, 0, n ), -1 );
+		CHECK_EQ( NAT::connectionPartner( n, -1, 0 ), -1 );
+	}
+	CHECK_EQ( NAT::connectionPartner( 1, 0, 0 ), -1 );
+}
+
+/* A 32-seat room's game options are several times what one LAN datagram holds, so they go out in
+	 numbered parts and the receiver puts them back together.  The probe sends through a Transport
+	 with no socket, which only queues; what it queued is read back the way it would arrive. */
+struct LANOptionsProbe : public LANAPI
+{
+	using LANAPI::sendOptions;
+	using LANAPI::assembleOptions;
+	using LANAPI::m_assembledOptions;
+	Transport *transport() { return m_transport; }
+};
+
+// Transport's xor over whole words (decryptBuf in Transport.cpp), applied to what queueSend left
+static void unXorTransportMessage( TransportMessage &m )
+{
+	UnsignedInt mask = 0x0000Fade;
+	UnsignedInt *word = (UnsignedInt *)&m;
+	const Int words = ( m.length + (Int)sizeof(TransportMessageHeader) ) / 4;
+	for( Int i = 0; i < words; ++i )
+	{
+		const UnsignedInt v = word[i];
+		word[i] = ( ( v >> 24 ) | ( ( v >> 8 ) & 0xFF00 ) | ( ( v << 8 ) & 0xFF0000 ) | ( v << 24 ) ) ^ mask;
+		mask += 0x00000321;
+	}
+}
+
+static std::vector<LANMessage> takeQueuedLANMessages( Transport *transport )
+{
+	std::vector<LANMessage> sent;
+	for( Int i = 0; i < MAX_MESSAGES; ++i )
+	{
+		if( transport->m_outBuffer[i].length <= 0 )
+			continue;
+		TransportMessage m = transport->m_outBuffer[i];
+		const Int length = m.length;	// the xor covers the payload, not the bookkeeping after it
+		unXorTransportMessage( m );
+		LANMessage msg;
+		memset( &msg, 0, sizeof(msg) );
+		memcpy( &msg, m.data, min( length, (Int)sizeof(msg) ) );
+		sent.push_back( msg );
+		transport->m_outBuffer[i].length = 0;
+	}
+	return sent;
+}
+
+TEST(lan_options_go_out_in_parts_and_come_back_whole)
+{
+	LANOptionsProbe *host = new LANOptionsProbe;
+	LANOptionsProbe *guest = new LANOptionsProbe;
+	for( Int i = 0; i < MAX_MESSAGES; ++i )
+	{
+		host->transport()->m_outBuffer[i].length = 0;		// a Transport before init has never cleared them
+		guest->transport()->m_outBuffer[i].length = 0;
+	}
+
+	AsciiString options;
+	for( Int k = 0; k < 2 * g_lanOptionsPartLength + 300; ++k )
+		options.concat( (char)( 'a' + ( k % 26 ) ) );
+	const UnsignedInt hostIP = 0x0A000001, otherIP = 0x0A000002;
+
+	LANMessage announce;
+	memset( &announce, 0, sizeof(announce) );
+	announce.LANMessageType = LANMessage::MSG_GAME_ANNOUNCE;
+	host->sendOptions( &announce, options, hostIP );
+	std::vector<LANMessage> parts = takeQueuedLANMessages( host->transport() );
+	CHECK_EQ( (Int)parts.size(), 3 );
+	if( parts.size() != 3 )
+	{
+		delete host;
+		delete guest;
+		return;
+	}
+	for( Int p = 0; p < 3; ++p )
+	{
+		CHECK_EQ( (Int)parts[p].GameInfo.optionsPart, p );
+		CHECK_EQ( (Int)parts[p].GameInfo.optionsParts, 3 );
+	}
+
+	// in order: the last part completes it, and the string is the one that went out
+	CHECK( !guest->assembleOptions( &parts[0], hostIP ) );
+	CHECK( !guest->assembleOptions( &parts[1], hostIP ) );
+	CHECK( guest->assembleOptions( &parts[2], hostIP ) );
+	CHECK( guest->m_assembledOptions == options );
+
+	// a part lost: the set is dropped, and the next whole send still comes through
+	CHECK( !guest->assembleOptions( &parts[0], hostIP ) );
+	CHECK( !guest->assembleOptions( &parts[2], hostIP ) );
+	CHECK( !guest->assembleOptions( &parts[1], hostIP ) );		// a stray, not the rest of a set
+	CHECK( !guest->assembleOptions( &parts[0], hostIP ) );
+	CHECK( !guest->assembleOptions( &parts[1], hostIP ) );
+	CHECK( guest->assembleOptions( &parts[2], hostIP ) );
+	CHECK( guest->m_assembledOptions == options );
+
+	// out of order: a later part first is nothing, and the set it lands in is spoiled
+	guest->m_assembledOptions.clear();
+	CHECK( !guest->assembleOptions( &parts[1], hostIP ) );
+	CHECK( !guest->assembleOptions( &parts[0], hostIP ) );
+	CHECK( !guest->assembleOptions( &parts[2], hostIP ) );
+	CHECK( guest->m_assembledOptions.isEmpty() );
+
+	// two senders interleaved each get their own set
+	CHECK( !guest->assembleOptions( &parts[0], hostIP ) );
+	CHECK( !guest->assembleOptions( &parts[0], otherIP ) );
+	CHECK( !guest->assembleOptions( &parts[1], otherIP ) );
+	CHECK( !guest->assembleOptions( &parts[1], hostIP ) );
+	CHECK( guest->assembleOptions( &parts[2], hostIP ) );
+	CHECK( guest->m_assembledOptions == options );
+	CHECK( guest->assembleOptions( &parts[2], otherIP ) );
+	CHECK( guest->m_assembledOptions == options );
+
+	// a room that fits is one part, as before, and a GAME_OPTIONS goes the same way
+	LANMessage request;
+	memset( &request, 0, sizeof(request) );
+	request.LANMessageType = LANMessage::MSG_GAME_OPTIONS;
+	host->sendOptions( &request, AsciiString( "Color=3" ), hostIP );
+	parts = takeQueuedLANMessages( host->transport() );
+	CHECK_EQ( (Int)parts.size(), 1 );
+	if( parts.size() == 1 )
+	{
+		CHECK_EQ( (Int)parts[0].GameOptions.optionsParts, 1 );
+		CHECK( guest->assembleOptions( &parts[0], hostIP ) );
+		CHECK( guest->m_assembledOptions == AsciiString( "Color=3" ) );
+	}
+
+	// a part count that no sender writes is refused
+	parts.clear();
+	LANMessage forged = announce;
+	forged.GameInfo.optionsPart = 0;
+	forged.GameInfo.optionsParts = g_lanOptionsParts + 1;
+	forged.GameInfo.options[0] = 0;
+	CHECK( !guest->assembleOptions( &forged, hostIP ) );
+
+	// the whole budget fits the parts
+	CHECK_EQ( m_lanMaxOptionsLength, g_lanOptionsParts * g_lanOptionsPartLength );
+	CHECK( m_lanMaxOptionsLength >= 3000 );		// a 32-seat room of human players with full names
+
+	delete host;
+	delete guest;
 }
 
 /* A chat message's length goes on the wire in one byte, and every site that packed or measured one
@@ -8884,6 +9584,24 @@ TEST(a_player_index_from_outside_this_machine_is_bounded_before_use)
 		if( isValidPlayerIndex( i ) != (i >= 0 && i < MAX_PLAYER_COUNT) )
 			acceptedOnlyTheList = FALSE;
 	CHECK( acceptedOnlyTheList );
+}
+
+/* 32 slots need more than 32 players, and EA's 1 << playerIndex in an Int is undefined from 32 on:
+	 x64 masks the shift to five bits, so player 32 came out as player 0. */
+TEST(every_player_index_has_its_own_mask_bit)
+{
+	PlayerMaskType all = PLAYERMASK_NONE;
+	Bool distinct = TRUE;
+	for( Int i = 0; i < MAX_PLAYER_COUNT; ++i )
+	{
+		const PlayerMaskType bit = playerIndexToMask( i );
+		if( bit == 0 || ( all & bit ) != 0 || ( bit & ( bit - 1 ) ) != 0 )
+			distinct = FALSE;
+		all |= bit;
+	}
+	CHECK( distinct );
+	CHECK( ( all & PLAYERMASK_ALL ) == all );
+	CHECK( playerIndexToMask( 32 ) != playerIndexToMask( 0 ) );
 }
 
 /* Starting a game used to seed only the logic stream.  The client and audio streams kept the
@@ -9203,6 +9921,227 @@ TEST(radar_shroud_cache_clear_owes_the_whole_texture_a_write_again)
 	CHECK_EQ( cache.getDirtyMaxX(), 127 );
 	CHECK_EQ( cache.getDirtyMaxY(), 127 );
 	CHECK_EQ( (Int)cache.getAlpha( 60, 60 ), 0 );
+}
+
+// ---------------------------------------------------------------------------------------------
+// The radar's alarms.  Their rules work on the event array alone, so the probe below reaches them
+// without a game; it is never made, only its statics are called.
+// ---------------------------------------------------------------------------------------------
+struct RadarAlarmProbe : public Radar
+{
+	using Radar::RadarEvent;
+	using Radar::findThrottlingEvent;
+	using Radar::refreshEventLife;
+	using Radar::olderEventIndex;
+	using Radar::markForType;
+	enum { SLOTS = Radar::MAX_RADAR_EVENTS };
+};
+
+static void clearRadarAlarms( RadarAlarmProbe::RadarEvent *events )
+{
+	memset( events, 0, sizeof( RadarAlarmProbe::RadarEvent ) * RadarAlarmProbe::SLOTS );
+	for( Int i = 0; i < RadarAlarmProbe::SLOTS; ++i )
+		events[ i ].type = RADAR_EVENT_INVALID;
+}
+
+static void putRadarAlarm( RadarAlarmProbe::RadarEvent *events, Int slot, RadarEventType type, Real x, Real y,
+													 UnsignedInt created )
+{
+	events[ slot ].type = type;
+	events[ slot ].active = TRUE;
+	events[ slot ].createFrame = created;
+	events[ slot ].dieFrame = created + 4 * LOGICFRAMES_PER_SECOND;
+	events[ slot ].fadeFrame = events[ slot ].dieFrame - LOGICFRAMES_PER_SECOND / 2;
+	events[ slot ].worldLoc.x = x;
+	events[ slot ].worldLoc.y = y;
+	events[ slot ].worldLoc.z = 0.0f;
+	events[ slot ].mark = RADAR_MARK_UNIT;
+}
+
+TEST(radar_alarm_new_type_goes_on_the_end_so_scripts_keep_their_numbers)
+{
+	// a map script stores the type as a number: every type EA shipped keeps its own
+	CHECK_EQ( (Int)RADAR_EVENT_UNDER_ATTACK, 3 );
+	CHECK_EQ( (Int)RADAR_EVENT_STEALTH_NEUTRALIZED, 9 );
+	CHECK_EQ( (Int)RADAR_EVENT_FAKE, 10 );
+	CHECK_EQ( (Int)RADAR_EVENT_STRUCTURE_LOST, 11 );
+	CHECK_EQ( (Int)RADAR_EVENT_NUM_EVENTS, (Int)RADAR_EVENT_STRUCTURE_LOST + 1 );
+	CHECK_EQ( (Int)RadarAlarmProbe::markForType( RADAR_EVENT_STRUCTURE_LOST ), (Int)RADAR_MARK_STRUCTURE );
+	CHECK_EQ( (Int)RadarAlarmProbe::markForType( RADAR_EVENT_UNDER_ATTACK ), (Int)RADAR_MARK_UNIT );
+}
+
+TEST(radar_alarm_a_held_back_hit_keeps_the_alarm_alive)
+{
+	static RadarAlarmProbe::RadarEvent events[ RadarAlarmProbe::SLOTS ];
+	clearRadarAlarms( events );
+	putRadarAlarm( events, 0, RADAR_EVENT_UNDER_ATTACK, 1000.0f, 1000.0f, 600 );
+	const UnsignedInt firstDeath = events[ 0 ].dieFrame;
+
+	// three seconds on, a hit 100 units away is the same fight: held back by the first alarm
+	Coord3D hit = { 1100.0f, 1000.0f, 0.0f };
+	const UnsignedInt later = 600 + 3 * LOGICFRAMES_PER_SECOND;
+	CHECK_EQ( RadarAlarmProbe::findThrottlingEvent( events, RADAR_EVENT_UNDER_ATTACK, &hit, later ), 0 );
+
+	// and it lives four seconds after that hit now, not after the first
+	RadarAlarmProbe::refreshEventLife( &events[ 0 ], later, 4.0f, RADAR_MARK_STRUCTURE );
+	CHECK( events[ 0 ].dieFrame > firstDeath );
+	CHECK_EQ( events[ 0 ].dieFrame, later + 4 * LOGICFRAMES_PER_SECOND );
+	CHECK_EQ( events[ 0 ].fadeFrame, events[ 0 ].dieFrame - LOGICFRAMES_PER_SECOND / 2 );
+	CHECK( events[ 0 ].active );
+	CHECK_EQ( (Int)events[ 0 ].mark, (Int)RADAR_MARK_STRUCTURE );		// grows to the bigger thing hit
+	RadarAlarmProbe::refreshEventLife( &events[ 0 ], later, 4.0f, RADAR_MARK_UNIT );
+	CHECK_EQ( (Int)events[ 0 ].mark, (Int)RADAR_MARK_STRUCTURE );		// and never shrinks back
+
+	// one that had gone out comes back for the next hit
+	events[ 0 ].active = FALSE;
+	RadarAlarmProbe::refreshEventLife( &events[ 0 ], later + 60, 4.0f, RADAR_MARK_BY_TYPE );
+	CHECK( events[ 0 ].active );
+	CHECK_EQ( events[ 0 ].dieFrame, later + 60 + 4 * LOGICFRAMES_PER_SECOND );
+
+	// across the map, or another type, or ten seconds on, nothing holds it back
+	Coord3D across = { 2000.0f, 1000.0f, 0.0f };
+	CHECK_EQ( RadarAlarmProbe::findThrottlingEvent( events, RADAR_EVENT_UNDER_ATTACK, &across, later ), -1 );
+	CHECK_EQ( RadarAlarmProbe::findThrottlingEvent( events, RADAR_EVENT_INFILTRATION, &hit, later ), -1 );
+	CHECK_EQ( RadarAlarmProbe::findThrottlingEvent( events, RADAR_EVENT_UNDER_ATTACK, &hit, 600 + 10 * LOGICFRAMES_PER_SECOND ), -1 );
+}
+
+TEST(radar_alarm_spacebar_walks_back_through_distinct_places)
+{
+	static RadarAlarmProbe::RadarEvent events[ RadarAlarmProbe::SLOTS ];
+	clearRadarAlarms( events );
+	// oldest to newest in slots 62, 63, 0, 1, 2: the ring has wrapped
+	putRadarAlarm( events, 62, RADAR_EVENT_UNDER_ATTACK, 100.0f, 100.0f, 10 );
+	putRadarAlarm( events, 63, RADAR_EVENT_FAKE, 3000.0f, 3000.0f, 20 );
+	putRadarAlarm( events, 0, RADAR_EVENT_BEACON_PULSE, 2000.0f, 100.0f, 30 );		// never a stop
+	putRadarAlarm( events, 1, RADAR_EVENT_UNDER_ATTACK, 3050.0f, 3000.0f, 40 );		// where slot 63 is
+	putRadarAlarm( events, 2, RADAR_EVENT_STRUCTURE_LOST, 1500.0f, 1500.0f, 50 );
+
+	Int visited[ 5 ];
+	Int count = 0;
+	visited[ count++ ] = 2;
+	Int next = RadarAlarmProbe::olderEventIndex( events, 2, 2, visited, count );
+	CHECK_EQ( next, 1 );
+	visited[ count++ ] = next;
+	// slot 0 is a beacon and slot 63 the place slot 1 already showed: the next is slot 62
+	next = RadarAlarmProbe::olderEventIndex( events, 2, next, visited, count );
+	CHECK_EQ( next, 62 );
+	visited[ count++ ] = next;
+	// nothing older; the slots before are empty
+	CHECK_EQ( RadarAlarmProbe::olderEventIndex( events, 2, next, visited, count ), -1 );
+}
+
+// ---------------------------------------------------------------------------------------------
+// The minimap's zoom.  Draw puts a world spot at a pixel and a click takes the pixel back to the
+// world through the same transform, so every pixel of the picture has to come back to itself at
+// every zoom and every part of the map the zoom can show, or a click lands beside the dot under it.
+// ---------------------------------------------------------------------------------------------
+TEST(minimap_zoom_round_trips_every_pixel_through_the_world)
+{
+	const Real mapWidth = 4000.0f, mapHeight = 3000.0f;
+	const ICoord2D ul = { 11, 37 }, lr = { 231, 202 };		// 220 by 165, the map's shape
+	const Real zooms[] = { 1.0f, 1.41421356f, 2.0f, 2.82842712f, 4.0f };
+	const Real places[][ 2 ] = { { 0.0f, 0.0f }, { 1234.5f, 777.0f }, { 1e6f, 1e6f }, { -50.0f, 2999.0f } };
+
+	for( Int z = 0; z < 5; ++z )
+	{
+		for( Int p = 0; p < 4; ++p )
+		{
+			RadarZoomView view;
+			view.zoom = zooms[ z ];
+			view.x = places[ p ][ 0 ];
+			view.y = places[ p ][ 1 ];
+			view.clampTo( mapWidth, mapHeight );
+			CHECK( view.x >= 0.0f && view.x + mapWidth / view.zoom <= mapWidth + 0.01f );
+			CHECK( view.y >= 0.0f && view.y + mapHeight / view.zoom <= mapHeight + 0.01f );
+
+			RadarPictureTransform transform;
+			transform.set( view, mapWidth, mapHeight, ul, lr );
+
+			Int wrong = 0, outside = 0;
+			for( Int y = ul.y; y < lr.y; ++y )
+			{
+				for( Int x = ul.x; x < lr.x; ++x )
+				{
+					ICoord2D pixel = { x, y };
+					Real wx, wy, px, py;
+					transform.toWorld( pixel, &wx, &wy );
+					if( wx < view.x || wx > view.x + mapWidth / view.zoom || wy < view.y || wy > view.y + mapHeight / view.zoom )
+						++outside;
+					transform.toPixel( wx, wy, &px, &py );
+					if( REAL_TO_INT_FLOOR( px ) != x || REAL_TO_INT_FLOOR( py ) != y )
+						++wrong;
+				}
+			}
+			CHECK_EQ( wrong, 0 );
+			CHECK_EQ( outside, 0 );
+		}
+	}
+
+	// at the whole map it is the picture the minimap always drew: x across, +y up from the bottom
+	RadarZoomView whole;
+	whole.reset();
+	RadarPictureTransform transform;
+	transform.set( whole, mapWidth, mapHeight, ul, lr );
+	Real px, py;
+	transform.toPixel( 2000.0f, 0.0f, &px, &py );
+	CHECK_NEAR( px, 121.0f, 0.001f );
+	CHECK_NEAR( py, 202.0f, 0.001f );
+	transform.toPixel( 0.0f, 3000.0f, &px, &py );
+	CHECK_NEAR( px, 11.0f, 0.001f );
+	CHECK_NEAR( py, 37.0f, 0.001f );
+}
+
+TEST(minimap_zoom_keeps_the_cursor_spot_and_stays_on_the_map)
+{
+	const Real mapWidth = 4000.0f, mapHeight = 3000.0f;
+	const ICoord2D ul = { 0, 0 }, lr = { 200, 150 };
+
+	// a notch in the middle: the spot under the cursor stays under it
+	RadarZoomView view;
+	view.reset();
+	RadarPictureTransform before, after;
+	before.set( view, mapWidth, mapHeight, ul, lr );
+	const ICoord2D cursor = { 90, 60 };
+	Real wx, wy, px, py;
+	before.toWorld( cursor, &wx, &wy );
+	view.zoomAround( 2.0f, wx, wy, mapWidth, mapHeight );
+	CHECK_NEAR( view.zoom, 2.0f, 0.0001f );
+	after.set( view, mapWidth, mapHeight, ul, lr );
+	after.toPixel( wx, wy, &px, &py );
+	CHECK_EQ( REAL_TO_INT_FLOOR( px ), cursor.x );
+	CHECK_EQ( REAL_TO_INT_FLOOR( py ), cursor.y );
+
+	// out from the map's corner: kept under the cursor the shown part would hang past the edge, so it
+	// stops at the edge instead
+	view.zoom = 4.0f;
+	view.x = 3000.0f;
+	view.y = 0.0f;
+	view.zoomAround( 2.0f, 3990.0f, 10.0f, mapWidth, mapHeight );
+	CHECK_NEAR( view.x, 2000.0f, 0.01f );
+	CHECK_NEAR( view.y, 0.0f, 0.01f );
+
+	// never past 4 and never under the whole map; out again, the whole map from its corner
+	view.zoomAround( 8.0f, 2000.0f, 1500.0f, mapWidth, mapHeight );
+	CHECK_NEAR( view.zoom, 4.0f, 0.0001f );
+	view.zoomAround( 0.5f, 2000.0f, 1500.0f, mapWidth, mapHeight );
+	CHECK_NEAR( view.zoom, 1.0f, 0.0001f );
+	CHECK_NEAR( view.x, 0.0f, 0.01f );
+	CHECK_NEAR( view.y, 0.0f, 0.01f );
+
+	// following the camera: a look point inside the middle three fifths moves nothing, one past it
+	// pans just enough, and one at the map's far corner leaves the view on the map
+	view.zoom = 4.0f;
+	view.x = 1000.0f;
+	view.y = 1000.0f;
+	view.follow( 1500.0f, 1350.0f, mapWidth, mapHeight );
+	CHECK_NEAR( view.x, 1000.0f, 0.01f );
+	CHECK_NEAR( view.y, 1000.0f, 0.01f );
+	view.follow( 2100.0f, 1350.0f, mapWidth, mapHeight );
+	CHECK_NEAR( view.x, 2100.0f - 1000.0f + 200.0f, 0.01f );
+	CHECK_NEAR( view.y, 1000.0f, 0.01f );
+	view.follow( 4000.0f, 3000.0f, mapWidth, mapHeight );
+	CHECK_NEAR( view.x, 3000.0f, 0.01f );
+	CHECK_NEAR( view.y, 2250.0f, 0.01f );
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -9902,6 +10841,31 @@ TEST(health_bar_selection_mode_is_what_retail_did)
 /** Smart is selection plus every damaged thing.  A bar over a unit at full health says only what
 	 the absence of a bar would have said, and a base full of those is what makes always-on tiring;
 	 a bar over something that has been hit is the reason to have them at all. */
+/** The seat and round chips grow in whole pixels only, so they never blur: 1920x1080's size up to
+	 1440p, doubled at 4K, never under one pixel on a small window. */
+TEST(load_pip_chips_scale_in_whole_pixels)
+{
+	CHECK_EQ( Drawable_pipPixel( 1.2f ), 1 );		// 1280x720
+	CHECK_EQ( Drawable_pipPixel( 1.8f ), 1 );		// 1920x1080
+	CHECK_EQ( Drawable_pipPixel( 2.4f ), 1 );		// 2560x1440
+	CHECK_EQ( Drawable_pipPixel( 3.6f ), 2 );		// 3840x2160
+	CHECK_EQ( Drawable_pipPixel( 4.8f ), 3 );		// 5120x2880
+	CHECK_EQ( Drawable_pipPixel( 0.5f ), 1 );
+}
+
+/** Who still shows free seats with nobody inside: a transport always, a garrison or a Barracks
+	 never whatever the option says, a Tunnel Network as Empty Building Slots says. */
+TEST(empty_seats_hide_on_a_barracks_whatever_the_option)
+{
+	for( Int option = 0; option < 2; ++option )
+	{
+		CHECK( Drawable_emptySeatsShow( FALSE, FALSE, FALSE, option != 0 ) == TRUE );		// transport
+		CHECK( Drawable_emptySeatsShow( TRUE, TRUE, FALSE, option != 0 ) == FALSE );		// garrison
+		CHECK( Drawable_emptySeatsShow( TRUE, FALSE, TRUE, option != 0 ) == FALSE );		// Barracks
+		CHECK( Drawable_emptySeatsShow( TRUE, FALSE, FALSE, option != 0 ) == ( option != 0 ) );	// tunnel
+	}
+}
+
 TEST(health_bar_smart_mode_marks_the_hurt)
 {
 	CHECK( Drawable_healthBarModeShows( HEALTH_BAR_SMART, FALSE, FALSE, TRUE ) == TRUE );
@@ -9910,25 +10874,6 @@ TEST(health_bar_smart_mode_marks_the_hurt)
 	// and the selection stays readable whether or not it has been shot at
 	CHECK( Drawable_healthBarModeShows( HEALTH_BAR_SMART, TRUE, FALSE, FALSE ) == TRUE );
 	CHECK( Drawable_healthBarModeShows( HEALTH_BAR_SMART, FALSE, TRUE, FALSE ) == TRUE );
-}
-
-/** The ammo and seat trays: every lamp at least two pixels with one between, the row ending on the
-	 tray's edge, and a continuous fill once the bar is too short for that. */
-TEST(lamp_tray_cells_fill_the_bar_or_merge)
-{
-	// ten seats over a 58 pixel tray: lamps of 4 or 5, the last one ending on the edge
-	for( Int i = 0; i < 10; ++i )
-	{
-		const Int width = Drawable_lampCellLeft( 58, 10, i + 1 ) - 1 - Drawable_lampCellLeft( 58, 10, i );
-		CHECK( width >= 4 && width <= 5 );
-	}
-	CHECK_EQ( Drawable_lampCellLeft( 58, 10, 0 ), 0 );
-	CHECK_EQ( Drawable_lampCellLeft( 58, 10, 10 ) - 1, 58 );
-
-	// exactly three pixels a lamp still cuts; one fewer merges, and so does nothing to count
-	CHECK( Drawable_lampCellLeft( 29, 10, 0 ) == 0 );
-	CHECK( Drawable_lampCellLeft( 28, 10, 0 ) == -1 );
-	CHECK( Drawable_lampCellLeft( 58, 0, 0 ) == -1 );
 }
 
 /** The setting is stored, clamped and read back like every other catalog row, and its default is
@@ -12610,13 +13555,15 @@ TEST(map_size_is_chosen_and_then_grows_with_the_players)
 
 	Int size, players;
 
+	// strictly bigger, unless the bigger one has hit the largest map there is
+	#define RMG_GROWS( a, b ) ( (a) < (b) || ( (a) == (b) && (b) == RandomMapGenerator::MAX_CELLS ) )
 	for( size = 0; size < RANDOM_MAP_SIZE_COUNT; size++ )
 	{
 		for( players = RandomMapGenerator::MIN_PLAYERS;
 				 players < RandomMapGenerator::MAX_PLAYERS; players++ )
 		{
-			CHECK( RandomMapGenerator::cellsFor( (RandomMapSize)size, players ) <
-						 RandomMapGenerator::cellsFor( (RandomMapSize)size, players + 1 ) );
+			CHECK( RMG_GROWS( RandomMapGenerator::cellsFor( (RandomMapSize)size, players ),
+						 RandomMapGenerator::cellsFor( (RandomMapSize)size, players + 1 ) ) );
 		}
 	}
 
@@ -12630,13 +13577,19 @@ TEST(map_size_is_chosen_and_then_grows_with_the_players)
 		Int tinyCells = RandomMapGenerator::cellsFor( RANDOM_MAP_SIZE_TINY, players );
 		Int hugeCells = RandomMapGenerator::cellsFor( RANDOM_MAP_SIZE_HUGE, players );
 
-		CHECK( tinyCells < smallCells );
-		CHECK( smallCells < normalCells );
-		CHECK( normalCells < largeCells );
-		CHECK( largeCells < hugeCells );
+		CHECK( RMG_GROWS( tinyCells, smallCells ) );
+		CHECK( RMG_GROWS( smallCells, normalCells ) );
+		CHECK( RMG_GROWS( normalCells, largeCells ) );
+		CHECK( RMG_GROWS( largeCells, hugeCells ) );
 		CHECK( tinyCells >= RandomMapGenerator::MIN_CELLS );
 		CHECK( hugeCells <= RandomMapGenerator::MAX_CELLS );
 	}
+	#undef RMG_GROWS
+
+	// past eight every player keeps an eight-player map's ground: the area grows as players / 8
+	CHECK_EQ( RandomMapGenerator::cellsFor( RANDOM_MAP_SIZE_NORMAL, 8 ), 416 );
+	CHECK_EQ( RandomMapGenerator::cellsFor( RANDOM_MAP_SIZE_NORMAL, 16 ), 588 );		// 416 * sqrt(2)
+	CHECK_EQ( RandomMapGenerator::cellsFor( RANDOM_MAP_SIZE_NORMAL, 32 ), 832 );		// 416 * sqrt(4)
 
 	// A count nobody asked for is the normal size for that many players, and the clamp says so
 	// rather than generating a map the caller cannot describe.
@@ -12655,6 +13608,53 @@ TEST(map_size_is_chosen_and_then_grows_with_the_players)
 	CHECK_EQ( theRMGParse.m_boundaryX, settings.m_playableCells );
 }
 
+/* The headless benchmark seats up to 32 AIs on a generated map: every one needs its own start, apart
+	from the others, and the approach paths may not grow with the square of the seats, since the
+	engine links each path waypoint by walking every waypoint on the map. */
+TEST(a_generated_map_seats_thirty_two)
+{
+	CHECK( bootOnce() );
+
+	RandomMapSettings settings;
+	settings.m_seed = 7;
+	settings.m_numPlayers = RandomMapGenerator::MAX_PLAYERS;
+	settings.m_playableCells = 0;
+	RandomMapGenerator::clampSettings( settings );
+	CHECK_EQ( settings.m_numPlayers, 32 );
+	CHECK_EQ( settings.m_playableCells, 832 );
+
+	std::vector<char> bytes;
+	RandomMapGenerator::generate( settings, bytes );
+	parseGeneratedMap( bytes );
+
+	std::vector<Coord3D> starts( settings.m_numPlayers );
+	Int found = 0;
+	for( size_t i = 0; i < theRMGParse.m_waypointNames.size(); i++ )
+	{
+		Int seat = 0;
+		if( sscanf( theRMGParse.m_waypointNames[i].str(), "Player_%d_Start", &seat ) == 1 && seat >= 1 && seat <= settings.m_numPlayers )
+		{
+			starts[seat - 1] = theRMGParse.m_waypointPositions[i];
+			found++;
+		}
+	}
+	CHECK_EQ( found, settings.m_numPlayers );
+
+	// two bases' levelled discs never meet: 2 * 13 cells + 6, ten world units a cell
+	Real closest = 1.0e9f;
+	for( Int a = 0; a < found; a++ )
+		for( Int b = a + 1; b < found; b++ )
+		{
+			Real dx = starts[a].x - starts[b].x, dy = starts[a].y - starts[b].y;
+			closest = std::min( closest, sqrtf( dx * dx + dy * dy ) );
+		}
+	CHECK( closest >= 32.0f * MAP_XY_FACTOR );
+
+	// seven sources a target, three lanes: an eight-seat map's count per seat, not 31 sources
+	CHECK( !theRMGParse.m_pathWaypointNames.empty() );
+	CHECK( (Int)theRMGParse.m_pathWaypointNames.size() < settings.m_numPlayers * 7 * 3 * 120 );
+}
+
 TEST(a_template_map_gives_each_player_the_ground_a_seat_has_on_the_template)
 {
 	// Twilight Flame: 486 by 469 playable, eight seats
@@ -12669,12 +13669,100 @@ TEST(a_template_map_gives_each_player_the_ground_a_seat_has_on_the_template)
 		RandomMapGenerator::cellsForTemplate( RANDOM_MAP_SIZE_NORMAL, 4, TEMPLATE_X, TEMPLATE_Y, 4 ) );
 	for( Int size = 0; size + 1 < RANDOM_MAP_SIZE_COUNT; size++ )
 		for( Int players = RandomMapGenerator::MIN_PLAYERS; players <= RandomMapGenerator::MAX_PLAYERS; players++ )
-			CHECK( RandomMapGenerator::cellsForTemplate( (RandomMapSize)size, players, TEMPLATE_X, TEMPLATE_Y, TEMPLATE_SEATS ) <
-				RandomMapGenerator::cellsForTemplate( (RandomMapSize)( size + 1 ), players, TEMPLATE_X, TEMPLATE_Y, TEMPLATE_SEATS ) );
+		{
+			Int smaller = RandomMapGenerator::cellsForTemplate( (RandomMapSize)size, players, TEMPLATE_X, TEMPLATE_Y, TEMPLATE_SEATS );
+			Int bigger = RandomMapGenerator::cellsForTemplate( (RandomMapSize)( size + 1 ), players, TEMPLATE_X, TEMPLATE_Y, TEMPLATE_SEATS );
+			CHECK( smaller < bigger || ( smaller == bigger && bigger == RandomMapGenerator::MAX_CELLS ) );
+		}
 
 	// no template, or one this machine does not have, is the plain table
 	CHECK_EQ( RandomMapGenerator::cellsFor( RANDOM_MAP_SIZE_LARGE, 6, AsciiString::TheEmptyString ),
 		RandomMapGenerator::cellsFor( RANDOM_MAP_SIZE_LARGE, 6 ) );
+}
+
+/* The cell cap stays the 768 it always was for eight players or fewer, so no map an eight-seat room
+	 already played changes; only a room past eight may grow to 984. */
+TEST(the_cell_cap_grows_only_past_eight_players)
+{
+	CHECK( bootOnce() );
+
+	CHECK_EQ( RandomMapGenerator::maxCellsFor( 8 ), 768 );
+	CHECK_EQ( RandomMapGenerator::maxCellsFor( 9 ), 984 );
+
+	CHECK_EQ( RandomMapGenerator::cellsForTemplate( RANDOM_MAP_SIZE_HUGE, 8, 550, 550, 8 ), 768 );
+	const Int nine = RandomMapGenerator::cellsForTemplate( RANDOM_MAP_SIZE_HUGE, 9, 550, 550, 8 );
+	CHECK( nine > 768 );
+	CHECK( nine <= 984 );
+
+	RandomMapSettings settings;
+	settings.m_numPlayers = 8;
+	settings.m_playableCells = 900;
+	RandomMapGenerator::clampSettings( settings );
+	CHECK_EQ( settings.m_playableCells, 768 );
+
+	settings = RandomMapSettings();
+	settings.m_numPlayers = 9;
+	settings.m_playableCells = 900;
+	RandomMapGenerator::clampSettings( settings );
+	CHECK_EQ( settings.m_playableCells, 900 );
+
+	settings = RandomMapSettings();
+	settings.m_numPlayers = 32;
+	settings.m_playableCells = 2000;
+	RandomMapGenerator::clampSettings( settings );
+	CHECK_EQ( settings.m_playableCells, 984 );
+}
+
+/* A map cache entry names one Player_N_Start line per start spot.  The reader knew eight, so a
+	 twelve-player map threw on Player_9_Start and the whole cache file failed to load. */
+TEST(a_map_cache_entry_reads_twelve_start_spots)
+{
+	CHECK( bootOnce() );
+
+	AsciiString text( "MapCache maps\\twelve\\twelve.map\r\n"
+		"  isOfficial = No\r\n"
+		"  isMultiplayer = Yes\r\n"
+		"  extentMin = X:0.00 Y:0.00 Z:0.00\r\n"
+		"  extentMax = X:4000.00 Y:4000.00 Z:100.00\r\n"
+		"  numPlayers = 12\r\n"
+		"  fileSize = 1234\r\n"
+		"  fileCRC = 5678\r\n" );
+	for( Int n = 1; n <= 12; ++n )
+	{
+		AsciiString line;
+		line.format( "  Player_%d_Start = X:%d.00 Y:%d.00 Z:0.00\r\n", n, n * 100, n * 10 );
+		text.concat( line );
+	}
+	text.concat( "End\r\n" );
+	writeFile( TEST_INI, text.str() );
+
+	MapCache *savedCache = TheMapCache;
+	TheMapCache = NEW MapCache;
+	CHECK( loadIni( TEST_INI ) );
+
+	MapCache::iterator it = TheMapCache->find( AsciiString( "maps\\twelve\\twelve.map" ) );
+	CHECK( it != TheMapCache->end() );
+	if( it != TheMapCache->end() )
+	{
+		const MapMetaData &md = it->second;
+		CHECK_EQ( md.m_numPlayers, 12 );
+		for( Int n = 1; n <= 12; ++n )
+		{
+			AsciiString name;
+			name.format( "Player_%d_Start", n );
+			WaypointMap::const_iterator spot = md.m_waypoints.find( name );
+			CHECK( spot != md.m_waypoints.end() );
+			if( spot != md.m_waypoints.end() )
+			{
+				CHECK_NEAR( spot->second.x, n * 100.0f, 0.01f );
+				CHECK_NEAR( spot->second.y, n * 10.0f, 0.01f );
+			}
+		}
+	}
+
+	delete TheMapCache;
+	TheMapCache = savedCache;
+	remove( TEST_INI );
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -15432,15 +16520,21 @@ TEST(the_slow_frame_bar_moves_only_for_a_positive_number)
 	TheWritableGlobalData = NEW GlobalData;
 
 	CHECK_NEAR( TheGlobalData->m_slowFrameMS, 20.0f, 0.001f );
+	CHECK( !TheGlobalData->m_logicProfile );	// a player's build carries no per-module clock
 	char exe[] = "generals.exe";
 	char slowFrame[] = "-slowframe";
+	char nonsense[] = "later";
+	char *argvBad[] = { exe, slowFrame, nonsense };
+	parseCommandLine( 3, argvBad );
+	CHECK_NEAR( TheGlobalData->m_slowFrameMS, 20.0f, 0.001f );
+	CHECK( !TheGlobalData->m_logicProfile );
+
 	char three[] = "3";
 	char *argvSlow[] = { exe, slowFrame, three };
 	parseCommandLine( 3, argvSlow );
 	CHECK_NEAR( TheGlobalData->m_slowFrameMS, 3.0f, 0.001f );
+	CHECK( TheGlobalData->m_logicProfile );		// and the hunt switch turns the profile on
 
-	char nonsense[] = "later";
-	char *argvBad[] = { exe, slowFrame, nonsense };
 	parseCommandLine( 3, argvBad );
 	CHECK_NEAR( TheGlobalData->m_slowFrameMS, 3.0f, 0.001f );
 
@@ -16812,6 +17906,62 @@ TEST(ground_flood_goes_round_the_wall_nearest_first)
 	CHECK_EQ( count, 3 );		// the source and its two side neighbours
 }
 
+/** Seven cells in ten open, scattered by a fixed LCG. */
+enum { FIELD_TEST_WIDTH = 61, FIELD_TEST_HEIGHT = 47 };
+static UnsignedByte theFieldTestWalk[ FIELD_TEST_WIDTH * FIELD_TEST_HEIGHT ];
+static Bool fieldTestWalkable( Int x, Int y, void * )
+{
+	return theFieldTestWalk[ y * FIELD_TEST_WIDTH + x ] != 0;
+}
+
+/** The whole-grid field worked in pieces ends with the ground flood's field on the same ground, whatever the
+	 pieces: a source on a wall, one off the grid and one given twice included. */
+TEST(ground_field_matches_the_ground_flood_in_any_pieces)
+{
+	UnsignedInt seed = 12345u;
+	for( Int i = 0; i < FIELD_TEST_WIDTH * FIELD_TEST_HEIGHT; ++i )
+	{
+		seed = seed * 1103515245u + 12345u;
+		theFieldTestWalk[ i ] = ( ( seed >> 16 ) % 100 ) < 70 ? 1 : 0;
+	}
+	theFieldTestWalk[ 0 ] = 0;
+	const Int SOURCES = 5;
+	const Int sources[ SOURCES ][ 2 ] = { { 0, 0 }, { 40, 30 }, { 60, 46 }, { 40, 30 }, { 61, 3 } };
+
+	AIGroundFlood flood( FIELD_TEST_WIDTH, FIELD_TEST_HEIGHT, fieldTestWalkable, NULL );
+	for( Int s = 0; s < SOURCES; ++s )
+		flood.addSource( sources[ s ][ 0 ], sources[ s ][ 1 ] );
+	Int x, y, d;
+	while( flood.next( &x, &y, &d ) )
+		;
+
+	const Int budgets[ 3 ] = { 1, 37, 0x7FFFFFFF };
+	for( Int b = 0; b < 3; ++b )
+	{
+		AIGroundField field;
+		field.start( FIELD_TEST_WIDTH, FIELD_TEST_HEIGHT );
+		for( Int cy = 0; cy < FIELD_TEST_HEIGHT; ++cy )
+			for( Int cx = 0; cx < FIELD_TEST_WIDTH; ++cx )
+				if( fieldTestWalkable( cx, cy, NULL ) )
+					field.setWalkable( cx, cy );
+		for( Int s = 0; s < SOURCES; ++s )
+			field.addSource( sources[ s ][ 0 ], sources[ s ][ 1 ] );
+		Int pieces = 0;
+		for( ;; )
+		{
+			Int budget = budgets[ b ];
+			if( field.step( &budget ) )
+				break;
+			++pieces;
+		}
+		std::vector<UnsignedShort> out;
+		field.takeField( out );
+		CHECK( out == flood.field() );
+		if( budgets[ b ] == 1 )
+			CHECK( pieces > 1000 );
+	}
+}
+
 /** Another factory only when every one standing has stayed busy for the rung's backlog, with no cap on
 	 how many. */
 TEST(extra_factory_follows_the_queue)
@@ -17994,6 +19144,96 @@ TEST(an_allocation_inside_a_job_is_counted)
 	TheMemoryPoolCriticalSection = NULL;
 
 	CHECK( JobSystem::workerAllocationCount() > before );
+
+	JobSystem::shutdown();
+}
+
+/* LOGIC-PARALLEL.md: the logic thread forks on a pool of its own, so a tick running beside the render
+	 forks while the render does, and a job the tick hands out reads what the tick reads, not the
+	 render's copies (LogicThread::isInsideWindow, which answers getFrame among others). */
+enum { JOB_LANE_ITEMS = 512 };
+static Int s_laneMainSeen[ JOB_LANE_ITEMS ];		// 1 read live, 2 read the copies, +4 on a worker, 0 outside a job
+static Int s_laneLogicSeen[ JOB_LANE_ITEMS ];
+static std::atomic<Int> s_lanesIn( 0 );
+static std::atomic<Int> s_laneWorkerSeen[ 2 ];		// a worker of the main pool, of the logic pool, has run an item
+
+static void jobLaneRecord( Int *seen, Int index )
+{
+	// both forks hold their first items until the other has begun, so they really overlap
+	if( index == 0 )
+		s_lanesIn.fetch_add( 1 );
+	const auto deadline = std::chrono::steady_clock::now() + std::chrono::milliseconds( 500 );
+	while( s_lanesIn.load() < 2 && std::chrono::steady_clock::now() < deadline )
+		std::this_thread::yield();
+
+	// ...and the forking thread holds its items until a worker of its pool has taken one, so the check
+	// below is not left to the scheduler on a loaded machine (the join waits only for workers that came)
+	std::atomic<Int> &workerSeen = s_laneWorkerSeen[ seen == s_laneLogicSeen ? 1 : 0 ];
+	if( JobSystem::isWorkerThread() )
+		workerSeen.store( 1 );
+	else
+	{
+		const auto wait = std::chrono::steady_clock::now() + std::chrono::milliseconds( 2000 );
+		while( !workerSeen.load() && std::chrono::steady_clock::now() < wait )
+			std::this_thread::yield();
+	}
+
+	Int v = LogicThread::isInsideWindow() ? 2 : 1;
+	if( JobSystem::isWorkerThread() )
+		v += 4;
+	if( !JobSystem::isInsideJob() )
+		v = 0;
+	seen[ index ] += v;
+}
+
+static void jobLaneMain( Int index, void * ) { jobLaneRecord( s_laneMainSeen, index ); }
+static void jobLaneLogic( Int index, void * ) { jobLaneRecord( s_laneLogicSeen, index ); }
+
+TEST(the_logic_thread_forks_on_its_own_pool_and_reads_live_state)
+{
+	JobSystem::shutdown();
+	JobSystem::init( 4 );
+	for( Int i = 0; i < JOB_LANE_ITEMS; ++i )
+	{
+		s_laneMainSeen[ i ] = 0;
+		s_laneLogicSeen[ i ] = 0;
+	}
+	s_lanesIn.store( 0 );
+	s_laneWorkerSeen[ 0 ].store( 0 );
+	s_laneWorkerSeen[ 1 ].store( 0 );
+
+	LogicThread::g_windowOpen.store( 1 );
+	std::thread logic( []
+	{
+		LogicThread::t_isLogicThread = TRUE;
+		JobSystem::parallel_for( JOB_LANE_ITEMS, 1, jobLaneLogic, NULL );
+	} );
+	JobSystem::parallel_for( JOB_LANE_ITEMS, 1, jobLaneMain, NULL );
+	logic.join();
+	LogicThread::g_windowOpen.store( 0 );
+
+	Int mainOnWorker = 0, logicOnWorker = 0;
+	for( Int i = 0; i < JOB_LANE_ITEMS; ++i )
+	{
+		// once each, inside a job, and on its own side of the window
+		CHECK_EQ( 2, s_laneMainSeen[ i ] & ~4 );
+		CHECK_EQ( 1, s_laneLogicSeen[ i ] & ~4 );
+		mainOnWorker += ( s_laneMainSeen[ i ] & 4 ) ? 1 : 0;
+		logicOnWorker += ( s_laneLogicSeen[ i ] & 4 ) ? 1 : 0;
+	}
+	CHECK( mainOnWorker > 0 );
+	CHECK( logicOnWorker > 0 );
+	CHECK( !JobSystem::isInsideJob() );
+
+	// with no workers the inline loop is still a job
+	JobSystem::shutdown();
+	JobSystem::init( 0 );
+	s_lanesIn.store( 2 );
+	s_laneWorkerSeen[ 0 ].store( 1 );		// there is none to wait for
+	s_laneMainSeen[ 0 ] = 0;
+	JobSystem::parallel_for( 1, 1, jobLaneMain, NULL );
+	CHECK_EQ( 1, s_laneMainSeen[ 0 ] );
+	CHECK( !JobSystem::isInsideJob() );
 
 	JobSystem::shutdown();
 }
@@ -19651,6 +20891,41 @@ TEST(option_catalog_clamps_and_leaves_an_absent_key_alone)
 	TheWritableGlobalData = saved;
 }
 
+/** Minimap Size is the bar as it always was until a player moves it, and a hand-edited file cannot
+	 shrink the radar under the bar's own size or blow it past twice that, where ControlBar::fitRadarToMap
+	 stops growing it anyway. */
+TEST(minimap_size_defaults_to_the_bar_and_clamps_to_its_range)
+{
+	GlobalData *saved = TheWritableGlobalData;
+	GlobalData *scratch = NEW GlobalData;
+	TheWritableGlobalData = scratch;
+
+	const OptionDef *size = findOptionDef( "MinimapSize" );
+	CHECK( size != NULL );
+	if( size != NULL )
+	{
+		CHECK_EQ( scratch->m_minimapSize, 100 );
+		CHECK_EQ( size->lo, 100 );
+		CHECK_EQ( size->hi, 200 );
+
+		UserPreferences pref;
+		pref[ AsciiString( "MinimapSize" ) ] = AsciiString( "50" );
+		loadOptionsFromPreferences( pref );
+		CHECK_EQ( scratch->m_minimapSize, 100 );
+
+		pref[ AsciiString( "MinimapSize" ) ] = AsciiString( "900" );
+		loadOptionsFromPreferences( pref );
+		CHECK_EQ( scratch->m_minimapSize, 200 );
+
+		pref[ AsciiString( "MinimapSize" ) ] = AsciiString( "150" );
+		loadOptionsFromPreferences( pref );
+		CHECK_EQ( scratch->m_minimapSize, 150 );
+	}
+
+	delete scratch;					// while it is the current one: a Debug build's ~GlobalData reads TheWritableGlobalData
+	TheWritableGlobalData = saved;
+}
+
 /** Glow (the Bloom key) is picked as a level and stored as one, and the renderer still reads the
 	 percentage it always read.  The mapping is the whole setting: get the two directions out of step
 	 and the combo box shows one thing while the screen does another, which nothing at build time
@@ -20899,6 +22174,51 @@ TEST(the_rescue_ladder_never_runs_out_of_rungs)
 	}
 }
 
+TEST(the_crowd_scan_stagger_never_delays_the_first_look_after_an_order)
+{
+	/* A route or an order leaves the unit with no scan, and then it looks on that very frame, on
+		 every frame number and for every id: no order waits for its turn in the stagger. */
+	for (UnsignedInt id = 1; id < 64; id++)
+		for (UnsignedInt f = 0; f < 64; f++)
+			CHECK( AIUpdate_crowdScanDue( FALSE, f, id ) );
+
+	/* Between orders it looks again on a fixed period, never left blind past a sixth of a second
+		 (ten logic frames), and the same for every id, so no player's units see more often than
+		 another's. */
+	UnsignedInt period = 0;
+	for (UnsignedInt id = 1; id < 64; id++)
+	{
+		UnsignedInt last = 0, gaps = 0, gap = 0;
+		for (UnsignedInt f = 1000; f < 1200; f++)
+		{
+			if (!AIUpdate_crowdScanDue( TRUE, f, id ))
+				continue;
+			if (last != 0)
+			{
+				gap = f - last;
+				if (gaps == 0 && period == 0)
+					period = gap;
+				CHECK_EQ( gap, period );
+				++gaps;
+			}
+			last = f;
+		}
+		CHECK( gaps > 0 );
+		CHECK( period >= 1 && period <= 10 );
+	}
+
+	/* And a group spreads out over the period: of any run of `period` consecutive ids, one looks on
+		 any given frame. */
+	for (UnsignedInt f = 0; f < 32; f++)
+	{
+		UnsignedInt due = 0;
+		for (UnsignedInt id = 100; id < 100 + period; id++)
+			if (AIUpdate_crowdScanDue( TRUE, f, id ))
+				++due;
+		CHECK_EQ( due, (UnsignedInt)1 );
+	}
+}
+
 TEST(driving_a_long_way_and_gaining_nothing_is_not_the_same_as_being_slow)
 {
 	const Real body = 24.0f;			// a tank
@@ -21912,6 +23232,11 @@ TEST(supply_pile_limit_starts_off_clamps_and_closes_a_full_pile)
 	CHECK( !SupplyPileLimitCloses( 2, 1u << 2, 3 ) );
 	CHECK(  SupplyPileLimitCloses( 2, ( 1u << 2 ) | ( 1u << 3 ), 4 ) );
 	CHECK( !SupplyPileLimitCloses( 2, ( 1u << 2 ) | ( 1u << 3 ), 3 ) );
+
+	/* a player past index 31 holds the pile like any other */
+	CHECK(  SupplyPileLimitCloses( 1, playerIndexToMask( 40 ), 3 ) );
+	CHECK( !SupplyPileLimitCloses( 1, playerIndexToMask( 40 ), 40 ) );
+	CHECK(  SupplyPileLimitCloses( 1, playerIndexToMask( 40 ), 8 ) );	// 1u << 40 wrapped to player 8's bit
 }
 
 #include "Common/SpecialPowerType.h"
@@ -23082,8 +24407,10 @@ TEST(unsigned_text_parses_as_windows_32_bit_strtoul)
 TEST(save_older_than_60hz_loads_only_as_mission_save)
 {
 	SaveGameInfo info;
-	info.version = 4;
+	info.version = 5;
 	CHECK( info.isLoadable() );
+	info.version = 4;		// 16 players a side of every per-player array
+	CHECK( !info.isLoadable() );
 	info.version = 3;
 	CHECK( !info.isLoadable() );
 	info.saveFileType = SAVE_FILE_TYPE_MISSION;
@@ -23102,6 +24429,7 @@ TEST(save_older_than_60hz_loads_only_as_mission_save)
 #include "test_game_results.inc"
 #include "test_map_ini_rollback.inc"
 #include "test_hostile_map.inc"
+#include "test_pathfind_slicing.inc"
 
 #include "GameClient/Snow.h"
 
@@ -23300,8 +24628,11 @@ TEST(handicap_rides_the_slot_entry_and_full_health_leaves_the_string_unchanged)
 		CHECK_EQ( guest.getSlot( i )->getHandicap(), (Int)HANDICAP_FULL );
 	CHECK_EQ( guest.getSlot( 2 )->getAIPersonality(), (Int)AIPERSONA_TURTLE );
 	AsciiString odd;
-	odd.format( "US=0;M=00save/test;MC=0;MS=0;SD=7;C=100;SR=0;SC=0;O=N;S=HPlayer,C0A80164,8088,TT,-1,-1,-1,-1,%d,77:CH,-1,-1,-1,-1,0,120:CM,-1,-1,-1,-1:CM,-1,-1,-1,-1:CM,-1,-1,-1,-1:CM,-1,-1,-1,-1:CM,-1,-1,-1,-1:CM,-1,-1,-1,-1:;",
+	odd.format( "US=0;M=00save/test;MC=0;MS=0;SD=7;C=100;SR=0;SC=0;O=N;S=HPlayer,C0A80164,8088,TT,-1,-1,-1,-1,%d,77:CH,-1,-1,-1,-1,0,120:",
 		(Int)slot->getNATBehavior() );
+	for( Int i = 2; i < MAX_SLOTS; ++i )	// the slot list names every seat, MAX_SLOTS of them
+		odd.concat( "CM,-1,-1,-1,-1:" );
+	odd.concat( ';' );
 	CHECK( ParseAsciiStringToGameInfo( &guest, odd ) );
 	CHECK_EQ( guest.getSlot( 0 )->getHandicap(), (Int)HANDICAP_FULL );
 	CHECK_EQ( guest.getSlot( 1 )->getHandicap(), (Int)HANDICAP_FULL );
@@ -23316,8 +24647,11 @@ TEST(handicap_rides_the_slot_entry_and_full_health_leaves_the_string_unchanged)
 	CHECK( !ApplyHandicapRequest( &host, asker, 110 ) );
 	CHECK_EQ( asker->getHandicap(), 60 );
 
-	// a room so full of fixed fields that its last few picks have no room: those do not stand, the
-	// string never empties, and the list still goes round so the guest's box comes back
+	/* A room full of humans and fixed fields.  The LAN budget is m_lanMaxOptionsLength, four packets'
+		 worth since the 32-seat room, and a full room of 32 takes every pick inside it.  Where the
+		 budget does run out, the names shrink to their first letter before the string gives up, and
+		 one byte less than that is an empty string, which ApplyHandicapRequest takes as a pick that
+		 does not stand. */
 	host.setPeaceTime( 30 );
 	host.setIncomeSharing( INCOME_SHARING_ALL );
 	host.setTechRespawn( 300 );
@@ -23343,9 +24677,13 @@ TEST(handicap_rides_the_slot_entry_and_full_health_leaves_the_string_unchanged)
 			++stood;
 	}
 	printf( "    a full room took %d of %d picks\n", stood, MAX_SLOTS );
-	CHECK( stood > 0 );
-	CHECK( stood < MAX_SLOTS );
+	CHECK_EQ( stood, MAX_SLOTS );
 	TheLAN = savedLAN;
+	const Int whole = GameInfoOptionsString( &host, mapPath, 0 ).getLength();
+	const Int shortest = whole - MAX_SLOTS * ( playerName.getLength() - 1 );
+	CHECK( whole <= m_lanMaxOptionsLength );
+	CHECK( !GameInfoOptionsString( &host, mapPath, shortest ).isEmpty() );
+	CHECK( GameInfoOptionsString( &host, mapPath, shortest - 1 ).isEmpty() );
 
 	delete ThePlayerTemplateStore;
 	ThePlayerTemplateStore = savedStore;
@@ -23538,4 +24876,252 @@ TEST(model_batches_leave_the_crc_its_retail_copy)
 	CHECK_STR( fs.getRetailArchiveFilenameForFile( AsciiString( "art\\w3d\\nbgattling.w3d" ) ).str(), "W3DZH.big" );
 	CHECK_STR( fs.getRetailArchiveFilenameForFile( AsciiString( "art\\w3d\\avnew.w3d" ) ).str(), "" );
 	CHECK_STR( fs.getArchiveFilenameForFile( AsciiString( "art\\w3d\\avnew.w3d" ) ).str(), "ReforgedUSA.big" );
+}
+
+//////////////////////////////////////////////////////////////////////////////
+// General's talents: ranks 6 to 10 and the pair rule
+//////////////////////////////////////////////////////////////////////////////
+
+static Bool loadIniAs( const char *name, INILoadType type )
+{
+	INI ini;
+	try
+	{
+		ini.load( AsciiString( name ), type, NULL );
+		return TRUE;
+	}
+	catch( ... )
+	{
+	}
+	return FALSE;
+}
+
+/* A row's two cards are partners, index ^ 1: owning either closes both, and a science outside the
+	 list is never a talent, whatever it owns. */
+TEST(talent_pair_rule_closes_the_partner_and_ignores_other_sciences)
+{
+	ScienceVec talents;
+	for( Int i = 0; i < TALENT_SCIENCE_COUNT; ++i )
+		talents.push_back( (ScienceType)( 1000 + i ) );
+	const ScienceType outside = (ScienceType)999;
+
+	CHECK_EQ( findTalentIndex( talents, (ScienceType)1004 ), 4 );
+	CHECK_EQ( findTalentIndex( talents, outside ), -1 );
+
+	ScienceVec owned;
+	for( Int i = 0; i < TALENT_SCIENCE_COUNT; ++i )
+		CHECK( isTalentOpen( talents, owned, talents[ i ] ) );
+	CHECK( !isTalentOpen( talents, owned, outside ) );
+
+	owned.push_back( (ScienceType)1003 );		// 7B
+	CHECK( !isTalentOpen( talents, owned, (ScienceType)1003 ) );
+	CHECK( !isTalentOpen( talents, owned, (ScienceType)1002 ) );	// 7A, its partner
+	CHECK( isTalentOpen( talents, owned, (ScienceType)1004 ) );		// 8A, another row
+	CHECK( isTalentOpen( talents, owned, (ScienceType)1005 ) );
+
+	owned.push_back( (ScienceType)1008 );		// 10A
+	CHECK( !isTalentOpen( talents, owned, (ScienceType)1009 ) );
+	CHECK( isTalentOpen( talents, owned, (ScienceType)1000 ) );
+
+	CHECK( isValidTalentScienceCount( 0 ) );
+	CHECK( isValidTalentScienceCount( 10 ) );
+	CHECK( !isValidTalentScienceCount( 9 ) );
+	CHECK( !isValidTalentScienceCount( 11 ) );
+}
+
+static std::string talentSciencesIni( Int count )
+{
+	std::string text;
+	for( Int i = 0; i < count; ++i )
+	{
+		char name[ 64 ];
+		snprintf( name, sizeof( name ), " TEST_Talent%d", i );
+		text += name;
+	}
+	return text;
+}
+
+/* TalentSciences holds none or all ten cards: a short list would pair the wrong ones. */
+TEST(talent_sciences_take_none_or_exactly_ten)
+{
+	CHECK( bootOnce() );
+	ScienceStore *savedSciences = TheScienceStore;
+	TheScienceStore = NEW ScienceStore;
+	TheScienceStore->init();
+	PlayerTemplateStore *savedStore = ThePlayerTemplateStore;
+	ThePlayerTemplateStore = NEW PlayerTemplateStore;
+	ThePlayerTemplateStore->init();
+
+	std::string sciences;
+	for( Int i = 0; i < 11; ++i )
+	{
+		char block[ 160 ];
+		snprintf( block, sizeof( block ), "Science TEST_Talent%d\n  SciencePurchasePointCost = 0\nEnd\n", i );
+		sciences += block;
+	}
+	writeFile( TEST_INI, sciences.c_str() );
+	CHECK( loadIni( TEST_INI ) );
+
+	std::string ten = "PlayerTemplate FactionTalentTen\n  Side = America\n  TalentSciences =" + talentSciencesIni( 10 ) + "\nEnd\n";
+	writeFile( TEST_INI, ten.c_str() );
+	CHECK( loadIni( TEST_INI ) );
+	const PlayerTemplate *pt = ThePlayerTemplateStore->findPlayerTemplate( NAMEKEY( "FactionTalentTen" ) );
+	CHECK( pt != NULL );
+	if( pt )
+	{
+		CHECK_EQ( (Int)pt->getTalentSciences().size(), 10 );
+		CHECK_EQ( (Int)pt->getTalentSciences()[ 3 ], (Int)NAMEKEY( "TEST_Talent3" ) );
+	}
+
+	writeFile( TEST_INI, "PlayerTemplate FactionTalentNone\n  Side = America\n  TalentSciences = None\nEnd\n" );
+	CHECK( loadIni( TEST_INI ) );
+
+	static const Int bad[] = { 1, 9, 11 };
+	for( Int b = 0; b < 3; ++b )
+	{
+		char name[ 64 ];
+		snprintf( name, sizeof( name ), "FactionTalentBad%d", bad[ b ] );
+		std::string text = std::string( "PlayerTemplate " ) + name + "\n  Side = America\n  TalentSciences =" + talentSciencesIni( bad[ b ] ) + "\nEnd\n";
+		writeFile( TEST_INI, text.c_str() );
+		CHECK( !loadIniAs( TEST_INI, INI_LOAD_OVERWRITE ) );
+	}
+
+	delete ThePlayerTemplateStore;
+	ThePlayerTemplateStore = savedStore;
+	delete TheScienceStore;
+	TheScienceStore = savedSciences;
+	remove( TEST_INI );
+}
+
+/* A science-keyed power line (UpgradeOCL, UpgradeTargetCount, UpgradeRadiusCursorRadius) matches only
+	 when every science on it is owned, and the first such line in file order wins: a talent with tier 1
+	 of the power gets the talent's tier 1 line, never its tier 3 one. */
+struct FakeScienceOwner
+{
+	ScienceVec owned;
+	Bool hasScience( ScienceType t ) const { return std::find( owned.begin(), owned.end(), t ) != owned.end(); }
+};
+struct FakeKeyedValue
+{
+	ScienceVec m_sciences;
+	Int m_value;
+};
+static FakeKeyedValue keyedValue( ScienceType a, ScienceType b, Int value )
+{
+	FakeKeyedValue v;
+	v.m_sciences.push_back( a );
+	if( b != SCIENCE_INVALID )
+		v.m_sciences.push_back( b );
+	v.m_value = value;
+	return v;
+}
+TEST(power_upgrade_line_needs_every_science_and_first_match_wins)
+{
+	const ScienceType tier2 = (ScienceType)2, tier3 = (ScienceType)3, talent = (ScienceType)9;
+	std::vector<FakeKeyedValue> lines;
+	lines.push_back( keyedValue( talent, tier3, 7 ) );
+	lines.push_back( keyedValue( talent, tier2, 5 ) );
+	lines.push_back( keyedValue( talent, SCIENCE_INVALID, 3 ) );
+	lines.push_back( keyedValue( tier3, SCIENCE_INVALID, 5 ) );
+	lines.push_back( keyedValue( tier2, SCIENCE_INVALID, 3 ) );
+
+	FakeScienceOwner p;
+	CHECK( findFirstOwnedEntry( &p, lines ) == NULL );						// tier 1 only: the default
+	p.owned.push_back( talent );
+	CHECK_EQ( findFirstOwnedEntry( &p, lines )->m_value, 3 );			// talent, tier 1
+	p.owned.push_back( tier2 );
+	CHECK_EQ( findFirstOwnedEntry( &p, lines )->m_value, 5 );			// talent, tier 2
+	p.owned.push_back( tier3 );
+	CHECK_EQ( findFirstOwnedEntry( &p, lines )->m_value, 7 );			// talent, tier 3
+
+	FakeScienceOwner q;
+	q.owned.push_back( tier2 );
+	q.owned.push_back( tier3 );
+	CHECK_EQ( findFirstOwnedEntry( &q, lines )->m_value, 5 );			// tier 3 without the talent
+
+	ScienceVec none;
+	CHECK( !ownsAllSciences( &p, none ) );
+	ScienceVec missing;
+	missing.push_back( talent );
+	missing.push_back( SCIENCE_INVALID );		// a science the loaded data lacks
+	CHECK( !ownsAllSciences( &p, missing ) );
+	CHECK( !ownsAllSciences( (const FakeScienceOwner *)NULL, lines[ 2 ].m_sciences ) );
+}
+
+/* RankReforged.ini as shipped (its RankName lines aside, which need the game's text) appends ranks 6
+	 to 10 after EA's five, and a MULTIFILE block for a rank that exists edits it in place. */
+TEST(rank_reforged_ini_appends_ranks_six_to_ten)
+{
+	CHECK( bootOnce() );
+	ScienceStore *savedSciences = TheScienceStore;
+	TheScienceStore = NEW ScienceStore;
+	TheScienceStore->init();
+	RankInfoStore *savedRanks = TheRankInfoStore;
+	TheRankInfoStore = NEW RankInfoStore;
+	TheRankInfoStore->init();
+
+	std::string sciences;
+	for( Int i = 1; i <= 10; ++i )
+	{
+		char block[ 160 ];
+		snprintf( block, sizeof( block ), "Science SCIENCE_Rank%d\n  SciencePurchasePointCost = 0\n  IsGrantable = No\nEnd\n", i );
+		sciences += block;
+	}
+	writeFile( TEST_INI, sciences.c_str() );
+	CHECK( loadIni( TEST_INI ) );
+
+	static const Int eaPoints[] = { 0, 800, 1500, 2500, 5000 };
+	std::string ea;
+	for( Int i = 1; i <= 5; ++i )
+	{
+		char block[ 200 ];
+		snprintf( block, sizeof( block ), "Rank %d\n  SkillPointsNeeded = %d\n  SciencesGranted = SCIENCE_Rank%d\n  SciencePurchasePointsGranted = 1\nEnd\n",
+			i, eaPoints[ i - 1 ], i );
+		ea += block;
+	}
+	writeFile( TEST_INI, ea.c_str() );
+	CHECK( loadIni( TEST_INI ) );
+	CHECK_EQ( TheRankInfoStore->getRankLevelCount(), 5 );
+
+	std::string reforged;
+	{
+		std::ifstream master( std::string( ZH_CODE_DIR ) + "/Data/INI/RankReforged.ini" );
+		CHECK( master.good() );
+		std::string line;
+		while( std::getline( master, line ) )
+			if( line.find( "RankName" ) == std::string::npos )
+				reforged += line + "\n";
+	}
+	writeFile( TEST_INI, reforged.c_str() );
+	CHECK( loadIniAs( TEST_INI, INI_LOAD_MULTIFILE ) );
+	CHECK_EQ( TheRankInfoStore->getRankLevelCount(), 10 );
+
+	static const Int talentPoints[] = { 12000, 20000, 30000, 42000, 56000 };
+	for( Int i = 6; i <= 10 && TheRankInfoStore->getRankLevelCount() == 10; ++i )
+	{
+		const RankInfo *rank = TheRankInfoStore->getRankInfo( i );
+		char science[ 32 ];
+		snprintf( science, sizeof( science ), "SCIENCE_Rank%d", i );
+		CHECK_EQ( rank->m_skillPointsNeeded, talentPoints[ i - 6 ] );
+		CHECK_EQ( rank->m_sciencePurchasePointsGranted, 0 );
+		CHECK_EQ( (Int)rank->m_sciencesGranted.size(), 1 );
+		CHECK_EQ( (Int)rank->m_sciencesGranted[ 0 ], (Int)NAMEKEY( science ) );
+	}
+	CHECK_EQ( TheRankInfoStore->getRankInfo( 5 )->m_skillPointsNeeded, 5000 );
+
+	// an existing rank edited in place, the count unchanged; a gap still stops the load
+	writeFile( TEST_INI, "Rank 2\n  SkillPointsNeeded = 900\nEnd\n" );
+	CHECK( loadIniAs( TEST_INI, INI_LOAD_MULTIFILE ) );
+	CHECK_EQ( TheRankInfoStore->getRankLevelCount(), 10 );
+	CHECK_EQ( TheRankInfoStore->getRankInfo( 2 )->m_skillPointsNeeded, 900 );
+	CHECK_EQ( (Int)TheRankInfoStore->getRankInfo( 2 )->m_sciencesGranted.size(), 1 );
+	writeFile( TEST_INI, "Rank 12\n  SkillPointsNeeded = 90000\nEnd\n" );
+	CHECK( !loadIniAs( TEST_INI, INI_LOAD_MULTIFILE ) );
+	CHECK_EQ( TheRankInfoStore->getRankLevelCount(), 10 );
+
+	delete TheRankInfoStore;
+	TheRankInfoStore = savedRanks;
+	delete TheScienceStore;
+	TheScienceStore = savedSciences;
+	remove( TEST_INI );
 }

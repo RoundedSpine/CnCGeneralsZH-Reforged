@@ -106,6 +106,7 @@
 #include "GameClient/SelectionXlat.h"
 #include "GameClient/Shadow.h"
 #include "GameClient/GlobalLanguage.h"
+#include "GameClient/GroupPanel.h"
 #include "GameClient/UIStyle.h"
 
 #include "GameNetwork/NetworkInterface.h"
@@ -1951,7 +1952,7 @@ void InGameUI::setRadiusCursor(RadiusCursorType cursorType, const SpecialPowerTe
 		case RADIUSCURSOR_RADAR:
 		case RADIUSCURSOR_SPYDRONE:
 		case RADIUSCURSOR_AMBULANCE:
-			radius = specPowTempl ? specPowTempl->getRadiusCursorRadius() : 0.0f;
+			radius = specPowTempl ? specPowTempl->getRadiusCursorRadius( controller ) : 0.0f;
 			break;
 
 	}
@@ -2859,7 +2860,7 @@ void InGameUI::drawSpectatorRack( Int plateTop )
 		const SpectatorStats &stats = theRackStats[ row ];
 		const Color colour = rackColour( stats.player );
 		drawRackPiece( "RackMeter", X + rackPx( 22 ), top + rackPx( 4 ), rackPx( 3 ), rackPx( 22 ), colour );
-		TheDisplay->drawImage( ControlBarSideEmblem( stats.player->getPlayerTemplate() ),
+		TheDisplay->drawImage( stats.player->getPlayerTemplate()->getEnabledImage(),
 			X + rackPx( 42 ), top + rackPx( 5 ), X + rackPx( 72 ), top + rackPx( 25 ) );
 		const Real share = max( stats.*SPECTATOR_STATS[ m_rackStat ].value, 0 ) / (Real)highest;
 		const Int fill = REAL_TO_INT_FLOOR( rackPx( 216 ) * share );
@@ -3805,6 +3806,9 @@ void InGameUI::reset( void )
 		m_moveHint[ i ].frame = 0;
 	}
 	m_nextMoveHint = 0;
+	m_orderRings.clear();
+	m_pendingOrders.clear();
+	m_pendingRallies.clear();
 
 	m_isQuitMenuVisible = FALSE;
 	TheObserverCamera.reset();
@@ -4370,7 +4374,232 @@ static Coord3D orderTargetSpot( const Object *target )
 	return spot;
 }
 
-Bool InGameUI::getHeldAircraftOrder( const Object *obj, OrderHintKind& kind, Coord3D& to, Bool& onObject ) const
+//-------------------------------------------------------------------------------------------------
+/** A building's outline is its footprint grown by a margin, so it clears the walls, and it lies on
+	* the ground rather than at the building's base height: each point takes the terrain under it, so
+	* the line rides over a hill instead of cutting into it.  The lift keeps the ribbon, which faces
+	* the camera, out of the ground it lies on. */
+//-------------------------------------------------------------------------------------------------
+static const Real OUTLINE_MARGIN = 6.0f;
+static const Real OUTLINE_LIFT = 2.0f;
+static const Real OUTLINE_STEP = 8.0f;		///< longest stretch between two points that take the ground's height
+
+static Real outlineHeight( Real x, Real y )
+{
+	return TheTerrainLogic->getGroundHeight( x, y ) + OUTLINE_LIFT;
+}
+
+/** Where an order aimed at an outlined building ends: on the outline, at its point nearest 'from'. */
+static Coord3D nearestOutlinePoint( const Object *obj, const Coord3D& from )
+{
+	const GeometryInfo& geom = obj->getGeometryInfo();
+	const Coord3D *ctr = obj->getPosition();
+	const Real dx = from.x - ctr->x;
+	const Real dy = from.y - ctr->y;
+
+	Coord3D spot;
+	if( geom.getGeomType() == GEOMETRY_BOX )
+	{
+		// into the building's own frame, x along its major axis, clamped onto the rectangle
+		const Real c = (Real)Cos( obj->getOrientation() );
+		const Real s = (Real)Sin( obj->getOrientation() );
+		const Real a = geom.getMajorRadius() + OUTLINE_MARGIN;
+		const Real b = geom.getMinorRadius() + OUTLINE_MARGIN;
+		Real lx = clamp( -a, dx * c + dy * s, a );
+		Real ly = clamp( -b, dy * c - dx * s, b );
+
+		// from inside it, out to the nearest side
+		if( fabs( lx ) < a && fabs( ly ) < b )
+		{
+			if( a - fabs( lx ) < b - fabs( ly ) )
+				lx = ( lx < 0.0f ) ? -a : a;
+			else
+				ly = ( ly < 0.0f ) ? -b : b;
+		}
+		spot.x = ctr->x + lx * c - ly * s;
+		spot.y = ctr->y + lx * s + ly * c;
+	}
+	else
+	{
+		const Real r = geom.getMajorRadius() + OUTLINE_MARGIN;
+		const Real len = (Real)sqrt( dx * dx + dy * dy );
+		spot.x = ctr->x + ( ( len > 0.01f ) ? dx * r / len : r );
+		spot.y = ctr->y + ( ( len > 0.01f ) ? dy * r / len : 0.0f );
+	}
+	spot.z = outlineHeight( spot.x, spot.y );
+	return spot;
+}
+
+void InGameUI::traceStructureOutline( const Object *obj, std::vector<Coord3D>& points )
+{
+	points.clear();
+	const GeometryInfo& geom = obj->getGeometryInfo();
+	const Coord3D *ctr = obj->getPosition();
+
+	if( geom.getGeomType() == GEOMETRY_BOX )
+	{
+		// the rally line's corner arithmetic (W3DWaypointBuffer), on the grown rectangle.  The loop
+		// starts and ends halfway along the first side: a ribbon's two ends meeting on a corner leave
+		// a notch there, and on a straight run they close up
+		const Real c = (Real)Cos( obj->getOrientation() );
+		const Real s = (Real)Sin( obj->getOrientation() );
+		const Real a = geom.getMajorRadius() + OUTLINE_MARGIN;
+		const Real b = geom.getMinorRadius() + OUTLINE_MARGIN;
+		const Real signX[ 4 ] = { -1.0f, 1.0f, 1.0f, -1.0f };
+		const Real signY[ 4 ] = { 1.0f, 1.0f, -1.0f, -1.0f };
+		Coord2D corners[ 4 ];
+		for( Int i = 0; i < 4; ++i )
+		{
+			corners[ i ].x = ctr->x + signX[ i ] * a * c - signY[ i ] * b * s;
+			corners[ i ].y = ctr->y + signX[ i ] * a * s + signY[ i ] * b * c;
+		}
+
+		Coord2D path[ 6 ];
+		path[ 0 ].x = ( corners[ 0 ].x + corners[ 1 ].x ) * 0.5f;
+		path[ 0 ].y = ( corners[ 0 ].y + corners[ 1 ].y ) * 0.5f;
+		path[ 1 ] = corners[ 1 ];
+		path[ 2 ] = corners[ 2 ];
+		path[ 3 ] = corners[ 3 ];
+		path[ 4 ] = corners[ 0 ];
+		path[ 5 ] = path[ 0 ];
+
+		for( Int i = 0; i < 5; ++i )
+		{
+			const Coord2D& p = path[ i ];
+			const Coord2D& q = path[ i + 1 ];
+			const Real ex = q.x - p.x;
+			const Real ey = q.y - p.y;
+			const Int pieces = max( 1, (Int)ceil( sqrt( ex * ex + ey * ey ) / OUTLINE_STEP ) );
+			for( Int k = 0; k < pieces; ++k )
+			{
+				Coord3D pt;
+				pt.x = p.x + ex * k / pieces;
+				pt.y = p.y + ey * k / pieces;
+				pt.z = outlineHeight( pt.x, pt.y );
+				points.push_back( pt );
+			}
+		}
+	}
+	else
+	{
+		const Real r = geom.getMajorRadius() + OUTLINE_MARGIN;
+		const Int pieces = max( 16, (Int)ceil( 2.0f * PI * r / OUTLINE_STEP ) );
+		for( Int k = 0; k < pieces; ++k )
+		{
+			const Real angle = 2.0f * PI * k / pieces;
+			Coord3D pt;
+			pt.x = ctr->x + r * (Real)Cos( angle );
+			pt.y = ctr->y + r * (Real)Sin( angle );
+			pt.z = outlineHeight( pt.x, pt.y );
+			points.push_back( pt );
+		}
+	}
+
+	// closed
+	if( !points.empty() )
+		points.push_back( points.front() );
+}
+
+static Bool isAttackOrderHint( InGameUI::OrderHintKind kind )
+{
+	return kind == InGameUI::ORDER_HINT_ATTACK || kind == InGameUI::ORDER_HINT_FORCE_ATTACK;
+}
+
+//-------------------------------------------------------------------------------------------------
+/** A drawn hint that ends on an outlined building ends on the outline, nearest where it comes from,
+	* and a later leg of a shift list that starts from one leaves the outline nearest where it goes.
+	* Run after the bunching, so a knot's averaged end is put back on the line too. */
+//-------------------------------------------------------------------------------------------------
+void InGameUI::snapOrderHintsToOutlines( void )
+{
+	if( m_structureOutlines.empty() )
+		return;
+
+	auto outlined = [this]( ObjectID id ) -> const Object *
+	{
+		if( id == INVALID_ID )
+			return NULL;
+		// a red outline in the dark half of a blink has no line to end on, so the hint keeps its
+		// spot over the roof for those frames: from and to stay together across the blink
+		for( std::vector<StructureOutline>::const_iterator it = m_structureOutlines.begin(); it != m_structureOutlines.end(); ++it )
+			if( it->id == id )
+				return ( it->color == OUTLINE_HIDDEN ) ? NULL : TheGameLogic->findObjectByID( id );
+		return NULL;
+	};
+
+	for( std::vector<OrderHint>::iterator hint = m_drawnOrderHints.begin(); hint != m_drawnOrderHints.end(); ++hint )
+	{
+		if( const Object *from = outlined( hint->fromTarget ) )
+			hint->from = nearestOutlinePoint( from, hint->to );
+		if( const Object *to = outlined( hint->target ) )
+			hint->to = nearestOutlinePoint( to, hint->from );
+	}
+}
+
+//-------------------------------------------------------------------------------------------------
+/** Rebuilt every frame from the selection and its order hints.  An attack keeps the time it was first
+	* seen across rebuilds, so the blink runs once per attack rather than once per frame. */
+//-------------------------------------------------------------------------------------------------
+void InGameUI::updateStructureOutlines( void )
+{
+	const UnsignedInt BLINK_HALF_MS = 150;	// lit, then dark, for this long each
+	const UnsignedInt BLINKS = 3;
+	const UnsignedInt now = Clock_Milliseconds();
+
+	m_previousStructureOutlines.swap( m_structureOutlines );
+	m_structureOutlines.clear();
+	const std::vector<StructureOutline>& previous = m_previousStructureOutlines;
+
+	auto outlineFor = [this]( ObjectID id ) -> StructureOutline&
+	{
+		for( std::vector<StructureOutline>::iterator it = m_structureOutlines.begin(); it != m_structureOutlines.end(); ++it )
+			if( it->id == id )
+				return *it;
+		StructureOutline fresh;
+		fresh.id = id;
+		fresh.selected = FALSE;
+		fresh.attacked = FALSE;
+		fresh.attackedSinceMs = 0;
+		fresh.color = OUTLINE_HIDDEN;
+		m_structureOutlines.push_back( fresh );
+		return m_structureOutlines.back();
+	};
+
+	for( std::vector<OrderHint>::const_iterator hint = m_orderHints.begin(); hint != m_orderHints.end(); ++hint )
+	{
+		if( !isAttackOrderHint( hint->kind ) || hint->target == INVALID_ID )
+			continue;
+		const Object *target = TheGameLogic->findObjectByID( hint->target );
+		if( target == NULL || !target->isKindOf( KINDOF_STRUCTURE ) )
+			continue;
+
+		StructureOutline& outline = outlineFor( hint->target );
+		if( outline.attacked )
+			continue;
+		outline.attacked = TRUE;
+		outline.attackedSinceMs = now;
+		for( std::vector<StructureOutline>::const_iterator old = previous.begin(); old != previous.end(); ++old )
+			if( old->id == hint->target && old->attacked )
+				outline.attackedSinceMs = old->attackedSinceMs;
+	}
+
+	for( DrawableList::const_iterator it = m_selectedDrawables.begin(); it != m_selectedDrawables.end(); ++it )
+	{
+		const Object *obj = (*it)->getObject();
+		// an enemy building selected and then fogged over would trace its live footprint in the fog
+		if( obj && obj->isKindOf( KINDOF_STRUCTURE ) && !obj->isEffectivelyDead() && !isHiddenByShroud( obj ) )
+			outlineFor( obj->getID() ).selected = TRUE;
+	}
+
+	for( std::vector<StructureOutline>::iterator it = m_structureOutlines.begin(); it != m_structureOutlines.end(); ++it )
+	{
+		const UnsignedInt age = now - it->attackedSinceMs;
+		const Bool dark = it->attacked && age < 2 * BLINKS * BLINK_HALF_MS && ( age / BLINK_HALF_MS ) % 2 == 1;
+		it->color = ( it->attacked && !dark ) ? OUTLINE_RED : it->selected ? OUTLINE_WHITE : OUTLINE_HIDDEN;
+	}
+}
+
+Bool InGameUI::getHeldAircraftOrder( const Object *obj, OrderHintKind& kind, Coord3D& to, Bool& onObject, ObjectID& target ) const
 {
 	const AIUpdateInterface *ai = obj->getAIUpdateInterface();
 	const JetAIUpdate *jet = ai->getJetAIUpdate();
@@ -4419,13 +4648,14 @@ Bool InGameUI::getHeldAircraftOrder( const Object *obj, OrderHintKind& kind, Coo
 	}
 
 	onObject = ( targetID != INVALID_ID );
+	target = targetID;
 	if( onObject )
 	{
 		// a target under the shroud draws nothing, as in getQueuedOrderHint
-		const Object *target = TheGameLogic->findObjectByID( targetID );
-		if( target == NULL || isHiddenByShroud( target ) )
+		const Object *targetObj = TheGameLogic->findObjectByID( targetID );
+		if( targetObj == NULL || isHiddenByShroud( targetObj ) )
 			return FALSE;
-		to = orderTargetSpot( target );
+		to = orderTargetSpot( targetObj );
 	}
 	else
 	{
@@ -4440,9 +4670,10 @@ Bool InGameUI::getHeldAircraftOrder( const Object *obj, OrderHintKind& kind, Coo
 	* so the machine's goal position is the origin and reading it drew every guard marker in the
 	* bottom left corner of the map.  What the unit is guarding is kept on the AI itself. */
 //-------------------------------------------------------------------------------------------------
-static Bool getGuardedSpot( const AIUpdateInterface *ai, Coord3D& spot, Bool& onObject )
+static Bool getGuardedSpot( const AIUpdateInterface *ai, Coord3D& spot, Bool& onObject, ObjectID& target )
 {
 	onObject = ( ai->getGuardTargetType() == GUARDTARGET_OBJECT );
+	target = onObject ? ai->getGuardObject() : INVALID_ID;
 	switch( ai->getGuardTargetType() )
 	{
 		case GUARDTARGET_LOCATION:
@@ -4479,6 +4710,8 @@ static Bool getGuardedSpot( const AIUpdateInterface *ai, Coord3D& spot, Bool& on
 //-------------------------------------------------------------------------------------------------
 void InGameUI::updateOrderHints( void )
 {
+	expirePendingOrders();
+
 	// a formation line being drawn shows every unit's own station, which is the whole point of it
 	if( m_isFormationDragging )
 	{
@@ -4493,6 +4726,317 @@ void InGameUI::updateOrderHints( void )
 		markOrderHints();
 		bunchOrderHints();
 	}
+	updateStructureOutlines();
+	snapOrderHintsToOutlines();
+	updateOrderRings();
+}
+
+//-------------------------------------------------------------------------------------------------
+/** The frame an order sent now runs on: in a network game the execution frame, run-ahead later,
+	* and in a game on this machine the next tick.  Logic has run it once its frame is past this. */
+//-------------------------------------------------------------------------------------------------
+static UnsignedInt orderDueFrame( void )
+{
+	UnsignedInt due = TheGameLogic->getFrame();
+	if( TheNetwork != NULL && TheNetwork->getExecutionFrame() > (Int)due )
+		due = (UnsignedInt)TheNetwork->getExecutionFrame();
+	return due;
+}
+
+//-------------------------------------------------------------------------------------------------
+/** The local player has just given the selection a move-type order (HintSpy).  Each unit it will
+	* move gets a ring waiting for logic to run the order (orderDueFrame). */
+//-------------------------------------------------------------------------------------------------
+void InGameUI::armOrderRings( OrderHintKind kind )
+{
+	const UnsignedInt due = orderDueFrame();
+
+	const Player *local = ThePlayerList->getLocalPlayer();
+	for( DrawableList::const_iterator it = m_selectedDrawables.begin(); it != m_selectedDrawables.end(); ++it )
+	{
+		const Object *obj = (*it)->getObject();
+		if( !obj || obj->getControllingPlayer() != local || obj->getAI() == NULL )
+			continue;
+		if( obj->isKindOf( KINDOF_IMMOBILE ) || obj->isKindOf( KINDOF_IGNORED_IN_GUI ) )
+			continue;
+
+		// the new order replaces whatever ring the last one left on this unit
+		for( size_t i = 0; i < m_orderRings.size(); ++i )
+		{
+			if( m_orderRings[ i ].owner == obj->getID() )
+			{
+				m_orderRings.erase( m_orderRings.begin() + i );
+				break;
+			}
+		}
+
+		OrderRing ring;
+		ring.owner = obj->getID();
+		ring.kind = kind;
+		ring.at.zero();
+		// the body, not the bounding circle: a box's corner and a gun barrel sweep one half again as
+		// wide as the hull, and a ring that size under every tank of a group ran into one band
+		const GeometryInfo& geom = obj->getGeometryInfo();
+		const Real body = ( geom.getGeomType() == GEOMETRY_BOX ) ? ( geom.getMajorRadius() + geom.getMinorRadius() ) * 0.5f
+																														: geom.getMajorRadius();
+		ring.radius = max( 3.0f, body );
+		ring.onGround = TRUE;
+		ring.settled = FALSE;
+		ring.dueFrame = due;
+		ring.armedMs = Clock_Milliseconds();
+		ring.bornMs = 0;
+		m_orderRings.push_back( ring );
+	}
+}
+
+//-------------------------------------------------------------------------------------------------
+/** Once a frame at the sync point, beside the order hints.  A ring is placed the first frame logic
+	* is past its order and keeps following the unit's destination until that is final, so a group
+	* move shows the goal logic's flood gave each member at once and moves to the path's real end the
+	* frame the path comes back. */
+//-------------------------------------------------------------------------------------------------
+void InGameUI::updateOrderRings( void )
+{
+	const UnsignedInt now = Clock_Milliseconds();
+	const UnsignedInt frame = TheGameLogic->getFrame();
+	size_t kept = 0;
+	for( size_t i = 0; i < m_orderRings.size(); ++i )
+	{
+		OrderRing ring = m_orderRings[ i ];
+		Bool keep = ( ring.bornMs != 0 ) ? ( now - ring.bornMs < (UnsignedInt)ORDER_RING_MS ) : ( now - ring.armedMs < (UnsignedInt)ORDER_RING_WAIT_MS );
+		if( keep && !ring.settled && frame > ring.dueFrame )
+			keep = placeOrderRing( ring );
+		if( keep )
+			m_orderRings[ kept++ ] = ring;
+	}
+	m_orderRings.resize( kept );
+}
+
+//-------------------------------------------------------------------------------------------------
+/** Where logic is sending the ring's unit.  A path planned since the order ran ends where the unit
+	* will stand; before it comes back, a move's goal position is already the unit's own (the flood's
+	* cell for a click, the station on a formation line), while an attack move's is the click shared by
+	* the whole group, so that ring waits for the path.  FALSE drops the ring. */
+//-------------------------------------------------------------------------------------------------
+Bool InGameUI::placeOrderRing( OrderRing& ring )
+{
+	Object *obj = TheGameLogic->findObjectByID( ring.owner );
+	AIUpdateInterface *ai = obj ? obj->getAIUpdateInterface() : NULL;
+	if( ai == NULL || obj->isEffectivelyDead() )
+		return FALSE;
+
+	Coord3D to;
+	Bool found = FALSE;
+	const Int pathSize = ai->friend_getWaypointGoalPathSize();
+	const Int pathIndex = ai->friend_getCurrentGoalPathIndex();
+	Path *path = ai->getPath();
+	const Bool freshPath = path != NULL && !ai->isWaitingForPath() &&
+												 TheGameLogic->getFrame() - ai->getPathAge() >= ring.dueFrame;
+
+	if( ring.kind == ORDER_HINT_WAYPOINT && pathSize > 0 && pathIndex >= 0 && pathIndex < pathSize )
+	{
+		to = *ai->friend_getGoalPathPosition( pathSize - 1 );		// the point just added ends the list
+		ring.settled = found = TRUE;
+	}
+	else if( ai->hasTunnelTrip() )
+	{
+		to = *ai->getTunnelTripGoal();
+		ring.settled = found = TRUE;
+	}
+	else if( freshPath )
+	{
+		to = *path->getLastNode()->getPosition();
+		ring.settled = found = TRUE;
+	}
+	else if( ring.kind == ORDER_HINT_GUARD )
+	{
+		Bool onObject;
+		ObjectID target;
+		found = getGuardedSpot( ai, to, onObject, target ) && !onObject;
+	}
+	else if( ring.kind != ORDER_HINT_ATTACK_MOVE )
+	{
+		const StateID state = ai->getCurrentStateID();
+		if( state == AI_MOVE_TO || state == AI_FOLLOW_PATH || state == AI_MOVE_AND_TIGHTEN )
+		{
+			to = *ai->getGoalPosition();
+			found = TRUE;
+		}
+	}
+
+	if( !found )
+	{
+		// placed once and now unreadable (arrived, or stopped to fight): it stays where it was
+		ring.settled = ( ring.bornMs != 0 );
+		return TRUE;
+	}
+
+	const PathfindLayerEnum layer = TheTerrainLogic->getLayerForDestination( &to );
+	ring.onGround = ( layer == LAYER_GROUND );
+	ring.at = to;
+	ring.at.z = ring.onGround ? TheTerrainLogic->getGroundHeight( to.x, to.y ) : TheTerrainLogic->getLayerHeight( to.x, to.y, layer );
+	if( ring.bornMs == 0 )
+		ring.bornMs = Clock_Milliseconds();
+	return TRUE;
+}
+
+//-------------------------------------------------------------------------------------------------
+/** A unit's new order replaces the one it was still waiting on. */
+//-------------------------------------------------------------------------------------------------
+static void replacePendingOrder( std::vector<InGameUI::PendingOrder>& list, const InGameUI::PendingOrder& order )
+{
+	for( size_t i = 0; i < list.size(); ++i )
+	{
+		if( list[ i ].owner == order.owner )
+		{
+			list[ i ] = order;
+			return;
+		}
+	}
+	list.push_back( order );
+}
+
+//-------------------------------------------------------------------------------------------------
+/** The selection was just given an order that is not queued (HintSpy).  Every unit that would take
+	* it draws its line from the order until logic has run it: a move sends whatever can move, an
+	* attack whatever can shoot. */
+//-------------------------------------------------------------------------------------------------
+void InGameUI::predictOrderHints( OrderHintKind kind, const Coord3D *to, ObjectID target )
+{
+	const Bool attack = ( kind == ORDER_HINT_ATTACK || kind == ORDER_HINT_FORCE_ATTACK || kind == ORDER_HINT_ATTACK_GROUND );
+
+	PendingOrder order;
+	order.kind = kind;
+	order.target = target;
+	order.dueFrame = orderDueFrame();
+	if( to )
+		order.to = *to;
+	else
+		order.to.zero();
+
+	const Player *local = ThePlayerList->getLocalPlayer();
+	for( DrawableList::const_iterator it = m_selectedDrawables.begin(); it != m_selectedDrawables.end(); ++it )
+	{
+		const Object *obj = (*it)->getObject();
+		if( !obj || obj->getControllingPlayer() != local || obj->getAI() == NULL || obj->isKindOf( KINDOF_IGNORED_IN_GUI ) )
+			continue;
+		if( attack ? !obj->isAbleToAttack() : obj->isKindOf( KINDOF_IMMOBILE ) )
+			continue;
+		if( obj->getID() == target )
+			continue;
+		order.owner = obj->getID();
+		replacePendingOrder( m_pendingOrders, order );
+	}
+}
+
+//-------------------------------------------------------------------------------------------------
+/** A formation line was just sent (HintSpy).  The drag is over but its markers are still in the
+	* list, one per mover at the station logic is about to give it, so the line the player drew stays
+	* on the ground until the units take their stations over. */
+//-------------------------------------------------------------------------------------------------
+void InGameUI::predictFormationOrderHints( void )
+{
+	PendingOrder order;
+	order.target = INVALID_ID;
+	order.dueFrame = orderDueFrame();
+	for( std::vector<OrderHint>::const_iterator it = m_orderHints.begin(); it != m_orderHints.end(); ++it )
+	{
+		order.owner = it->owner;
+		order.kind = it->kind;
+		order.to = it->to;
+		replacePendingOrder( m_pendingOrders, order );
+	}
+}
+
+//-------------------------------------------------------------------------------------------------
+/** A rally point was just sent (HintSpy).  The control bar is told to look again, so the flag moves
+	* on this frame too. */
+//-------------------------------------------------------------------------------------------------
+void InGameUI::predictRallyPoint( ObjectID building, const Coord3D& at )
+{
+	PendingRally rally;
+	rally.building = building;
+	rally.at = at;
+	rally.dueFrame = orderDueFrame();
+
+	Bool replaced = FALSE;
+	for( size_t i = 0; i < m_pendingRallies.size() && !replaced; ++i )
+	{
+		if( m_pendingRallies[ i ].building == building )
+		{
+			m_pendingRallies[ i ] = rally;
+			replaced = TRUE;
+		}
+	}
+	if( !replaced )
+		m_pendingRallies.push_back( rally );
+
+	TheControlBar->markUIDirty();
+}
+
+//-------------------------------------------------------------------------------------------------
+const Coord3D *InGameUI::getPredictedRallyPoint( ObjectID building ) const
+{
+	for( size_t i = 0; i < m_pendingRallies.size(); ++i )
+		if( m_pendingRallies[ i ].building == building )
+			return &m_pendingRallies[ i ].at;
+	return NULL;
+}
+
+//-------------------------------------------------------------------------------------------------
+/** At the sync point, before the lines are read: whatever logic has run is its own again.  A rally
+	* point going back to the building's own makes the control bar look again for the flag. */
+//-------------------------------------------------------------------------------------------------
+void InGameUI::expirePendingOrders( void )
+{
+	const UnsignedInt frame = TheGameLogic->getFrame();
+
+	size_t kept = 0;
+	for( size_t i = 0; i < m_pendingOrders.size(); ++i )
+		if( frame <= m_pendingOrders[ i ].dueFrame )
+			m_pendingOrders[ kept++ ] = m_pendingOrders[ i ];
+	m_pendingOrders.resize( kept );
+
+	kept = 0;
+	for( size_t i = 0; i < m_pendingRallies.size(); ++i )
+		if( frame <= m_pendingRallies[ i ].dueFrame )
+			m_pendingRallies[ kept++ ] = m_pendingRallies[ i ];
+	if( kept != m_pendingRallies.size() )
+	{
+		m_pendingRallies.resize( kept );
+		TheControlBar->markUIDirty();
+	}
+}
+
+//-------------------------------------------------------------------------------------------------
+/** The line of an order this machine sent and logic has not run yet, drawn from the unit to where
+	* the order points.  A target that is gone or under the shroud draws nothing of its own, and the
+	* unit is read as usual. */
+//-------------------------------------------------------------------------------------------------
+Bool InGameUI::addPendingOrderHint( const Object *obj, const std::vector<OrderHint>& previous )
+{
+	for( std::vector<PendingOrder>::const_iterator it = m_pendingOrders.begin(); it != m_pendingOrders.end(); ++it )
+	{
+		if( it->owner != obj->getID() )
+			continue;
+
+		OrderHint hint;
+		hint.owner = it->owner;
+		hint.kind = it->kind;
+		hint.from = *obj->getPosition();
+		hint.to = it->to;
+		if( it->target != INVALID_ID )
+		{
+			const Object *target = TheGameLogic->findObjectByID( it->target );
+			if( target == NULL || target->isEffectivelyDead() || isHiddenByShroud( target ) )
+				return FALSE;
+			hint.to = orderTargetSpot( target );
+			hint.onObject = TRUE;
+		}
+		addOrderHint( hint, previous );
+		return TRUE;
+	}
+	return FALSE;
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -4558,11 +5102,16 @@ void InGameUI::collectOrderHints( void )
 		if( ai == NULL )
 			continue;
 
+		// an order sent from here that logic has not run yet is drawn from the order, on the click
+		if( addPendingOrderHint( obj, previous ) )
+			continue;
+
 		OrderHint hint;
 		hint.owner = obj->getID();
 		Coord3D resolvedGoal;
 		Bool goalResolved = FALSE;
 		Bool resolvedOnObject = FALSE;		// the resolved goal is a unit or building, not ground
+		ObjectID resolvedTarget = INVALID_ID;
 		Bool legsDrawn = FALSE;		// the order drew its own threads, and the shift list follows on from them
 
 		// a capture walks its man to the door with a plain move of its own and then stands him idle
@@ -4642,12 +5191,14 @@ void InGameUI::collectOrderHints( void )
 					hint.from = *obj->getPosition();
 					hint.to = orderTargetSpot( entrance );
 					hint.onObject = TRUE;
+					hint.target = entrance->getID();
 					addOrderHint( hint, previous );
 
 					const Object *exit = local->getTunnelSystem()->findTunnelNear( ai->getTunnelTripGoal(), obj );
 					hint.from = ( exit != NULL ) ? *exit->getPosition() : hint.to;
 					hint.to = *ai->getTunnelTripGoal();
 					hint.onObject = FALSE;
+					hint.target = INVALID_ID;
 					addOrderHint( hint, previous );
 					legsDrawn = TRUE;
 					break;
@@ -4681,7 +5232,7 @@ void InGameUI::collectOrderHints( void )
 				// behind is the origin - and the marker landed in the bottom left corner of the map
 				// every time.  The spot being guarded lives on the AI itself, so ask it there.
 				hint.kind = ORDER_HINT_GUARD;
-				if( !getGuardedSpot( ai, resolvedGoal, resolvedOnObject ) )
+				if( !getGuardedSpot( ai, resolvedGoal, resolvedOnObject, resolvedTarget ) )
 					continue;
 				goalResolved = TRUE;
 				break;
@@ -4692,7 +5243,7 @@ void InGameUI::collectOrderHints( void )
 				// gave it, and that order is held out of reach of the goal until the wheels are up.
 				// Ask for it, or an air strike shows nothing at all during the seconds the plane spends
 				// taxiing, which is exactly when the player wants to see where it is going
-				if( captured == NULL && !getHeldAircraftOrder( obj, hint.kind, resolvedGoal, resolvedOnObject ) )
+				if( captured == NULL && !getHeldAircraftOrder( obj, hint.kind, resolvedGoal, resolvedOnObject, resolvedTarget ) )
 					continue;
 				goalResolved = TRUE;
 				break;
@@ -4704,6 +5255,7 @@ void InGameUI::collectOrderHints( void )
 			resolvedGoal = orderTargetSpot( captured );
 			goalResolved = TRUE;
 			resolvedOnObject = TRUE;
+			resolvedTarget = captured->getID();
 		}
 
 		if( !legsDrawn )
@@ -4716,11 +5268,13 @@ void InGameUI::collectOrderHints( void )
 			const Int pathSize = ai->friend_getWaypointGoalPathSize();
 			const Int pathIndex = ai->friend_getCurrentGoalPathIndex();
 			hint.onObject = FALSE;
+			hint.target = INVALID_ID;
 			Bool goalHidden = FALSE;
 			if( goalResolved )
 			{
 				hint.to = resolvedGoal;
 				hint.onObject = resolvedOnObject;
+				hint.target = resolvedOnObject ? resolvedTarget : INVALID_ID;
 			}
 			else if( pathSize > 0 && pathIndex >= 0 && pathIndex < pathSize )
 			{
@@ -4745,7 +5299,10 @@ void InGameUI::collectOrderHints( void )
 				if( goalObj && isHiddenByShroud( goalObj ) )
 					goalHidden = TRUE;
 				else if( goalObj )
+				{
 					hint.to = orderTargetSpot( goalObj );
+					hint.target = goalObj->getID();
+				}
 				else if( path )
 					hint.to = *path->getLastNode()->getPosition();
 				else
@@ -4898,15 +5455,22 @@ void InGameUI::bunchOrderHints( void )
 //-------------------------------------------------------------------------------------------------
 void InGameUI::addQueuedOrderTail( OrderHint& hint, const OrderChain& chain, const std::vector<OrderHint>& previous )
 {
+	// what each leg starts from, so snapOrderHintsToOutlines can put that end on an outline too.  An
+	// upgrade or ability is used where the step before ends and passes that step's target on
+	ObjectID fromTarget = hint.target;
 	for( std::vector<QueuedOrder>::const_iterator order = chain.m_pending.begin();
 			 order != chain.m_pending.end(); ++order )
 	{
 		if( !getQueuedOrderHint( *order, hint ) )
 			continue;
 
+		hint.fromTarget = fromTarget;
 		addOrderHint( hint, previous );
 		hint.from = hint.to;
+		if( hint.kind != ORDER_HINT_ABILITY && hint.kind != ORDER_HINT_UPGRADE )
+			fromTarget = hint.target;
 	}
+	hint.fromTarget = INVALID_ID;
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -4923,6 +5487,7 @@ Bool InGameUI::getQueuedOrderHint( const QueuedOrder& order, OrderHint& hint ) c
 {
 	hint.icon = NULL;
 	hint.onObject = FALSE;
+	hint.target = INVALID_ID;
 
 	switch( order.getType() )
 	{
@@ -5050,6 +5615,7 @@ Bool InGameUI::getQueuedOrderHint( const QueuedOrder& order, OrderHint& hint ) c
 
 	hint.to = orderTargetSpot( target );
 	hint.onObject = TRUE;
+	hint.target = targetID;
 	return TRUE;
 }
 
@@ -5507,19 +6073,25 @@ void InGameUI::createMoveHint( const GameMessage *msg )
 }
 
 //-------------------------------------------------------------------------------------------------
-/** An attack command has occurred, start graphical "hint". */
+/** An attack command has occurred: the target flashes on the click, as a building being garrisoned
+	* does, instead of waiting for logic to run the order and the first shot. */
 //-------------------------------------------------------------------------------------------------
 void InGameUI::createAttackHint( const GameMessage *msg )
 {
-
+	if( msg->getArgumentCount() < 1 || msg->getArgumentDataType( 0 ) != ARGUMENTDATATYPE_OBJECTID )
+		return;
+	const Object *target = TheGameLogic->findObjectByID( msg->getArgument( 0 )->objectID );
+	Drawable *draw = target ? target->getDrawable() : NULL;
+	if( draw )
+		draw->flashAsSelected();
 }
 
 //-------------------------------------------------------------------------------------------------
-/** A force attack command has occurred, start graphical "hint". */
+/** A force attack command has occurred: a unit or building aimed at flashes, as with an attack. */
 //-------------------------------------------------------------------------------------------------
 void InGameUI::createForceAttackHint( const GameMessage *msg )
 {
-
+	createAttackHint( msg );
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -7583,6 +8155,7 @@ void InGameUI::postDraw( void )
 {
 	// drawHudOverlay is NOT called here - it goes on top of everything, see W3DInGameUI::draw
 	m_hudCellDrawnPass = m_hudCellPass;
+	drawRadarAlarmPointers();
 	drawProductionList();
 	drawClassicMessages();
 
@@ -7847,6 +8420,9 @@ void InGameUI::postDraw( void )
 	m_rackShown = FALSE;
 	if( TheGameLogic->getFrame() > 0 && !TheGameLogic->isInShellGame() && localPlayerWatching() )
 		drawSpectatorRack( rackPlateTop );
+
+	// a player's squad list on the left, and the picked squad's build tray where a watcher's rack hangs
+	GroupPanel_draw( rackPlateTop );
 
 	// draw named timers
 	if (TheGameLogic->getFrame() > 0 && m_showNamedTimers)
@@ -11154,6 +11730,186 @@ void InGameUI::drawProductionList( void )
 }
 
 //-------------------------------------------------------------------------------------------------
+/** A chevron at the edge of the view pointing at each alarm that is off the screen, in the alarm's
+	* colour on a dark keyline as the minimap's marks are: an attack, a building lost, an infiltration
+	* or one of your stealth units revealed.  Built, upgraded and the rest are news, not a reason to
+	* look away.  An attack's chevron breathes once a second while the fight lasts.  The edge is the
+	* view's above the command bar; the chevrons go with the HUD, so not while the bar is hidden, a
+	* script hides the interface or -cinema films. */
+//-------------------------------------------------------------------------------------------------
+void InGameUI::drawRadarAlarmPointers( void )
+{
+	if( TheRadar == NULL || TheTacticalView == NULL || !TheGameLogic->isInGame() || TheGameLogic->isInShellGame() )
+		return;
+	if( !TheGameLogic->getDrawIconUI() || CinemaDirector_hidesHud() )
+		return;
+	const Int barTop = controlBarTop();
+	if( barTop >= TheDisplay->getHeight() )
+		return;
+
+	// the alarms are the minimap's: none to point at for a player whose radar draws none
+	// (W3DLeftHUDDraw's test; postDraw runs at the sync point, so the player may be asked)
+	Player *local = ThePlayerList->getLocalPlayer();
+	if( !TheRadar->isRadarForced() && ( TheRadar->isRadarHidden() || local == NULL || !local->hasRadar() ) )
+		return;
+
+	// sized against a 1080 line screen, as the HUD's cells are
+	const Real scale = max( 1.0f, TheDisplay->getHeight() / 1080.0f );
+	const Real size = 10.0f * scale;
+	const Real margin = 14.0f * scale;
+
+	Int originX, originY;
+	TheTacticalView->getOrigin( &originX, &originY );
+	const Real left = originX + margin;
+	const Real top = max( originY, hudStripBottom() ) + margin;		// under the info strip, which paints after
+	const Real right = originX + TheTacticalView->getWidth() - margin;
+	const Real bottom = min( originY + TheTacticalView->getHeight(), barTop ) - margin;
+	if( right <= left || bottom <= top )
+		return;
+	const Real centreX = ( left + right ) * 0.5f;
+	const Real centreY = ( top + bottom ) * 0.5f;
+
+	// The radar's frame stands above the bar on the left and rises with Minimap Size, and the windows
+	// paint after postDraw: over the frame's width the edge is the frame's top.  The frame sits on the
+	// screen's left edge, so its right side is all that is needed of its width.
+	Real radarRight = 0.0f;
+	{
+		static NameKeyType radarKey = TheNameKeyGenerator->nameToKey( "ControlBar.wnd:LeftHUD" );
+		GameWindow *radar = TheWindowManager->winGetWindowFromId( NULL, radarKey );
+		if( radar && !radar->winIsHidden() )
+		{
+			IRegion2D inner, outer;
+			radar->winGetScreenPosition( &inner.lo.x, &inner.lo.y );
+			radar->winGetSize( &inner.hi.x, &inner.hi.y );
+			inner.hi.x += inner.lo.x;
+			inner.hi.y += inner.lo.y;
+			outer = inner;
+			const Image *const *radarFrame = TheControlBar->getControlBarSchemeManager()->getRadarFrame();
+			if( radarFrame )
+				ControlBarSchemeManager::radarFrameRect( radarFrame, inner, &outer );
+			radarRight = outer.hi.x + margin;
+		}
+	}
+	const Real radarBottom = min( bottom, (Real)radarFrameTop() - margin );
+
+	const UnsignedInt frame = TheGameLogic->getFrame();
+	const Real pulsePhase = (Real)( frame % LOGICFRAMES_PER_SECOND ) / LOGICFRAMES_PER_SECOND;
+	const Real breathe = 0.6f + 0.4f * ( 1.0f - fabs( 2.0f * pulsePhase - 1.0f ) );
+
+	// all lines, no image: one batch holds every chevron (postDraw replays outside any batch)
+	TheDisplay->beginBatch2D();
+
+	for( Int slot = 0; slot < TheRadar->getEventSlotCount(); ++slot )
+	{
+		RadarEventType type;
+		Coord3D world;
+		RGBAColorInt colour;
+		Real fade;
+		if( !TheRadar->getShownEvent( slot, &type, &world, &colour, &fade ) )
+			continue;
+		if( type != RADAR_EVENT_UNDER_ATTACK && type != RADAR_EVENT_STRUCTURE_LOST &&
+				type != RADAR_EVENT_INFILTRATION && type != RADAR_EVENT_STEALTH_NEUTRALIZED )
+			continue;
+
+		// which way on the screen: toward the alarm's own pixel while the camera can project it, else
+		// toward a point a step from the view's middle along the ground, which it always can
+		ICoord2D pixel;
+		const View::WorldToScreenReturn seen = TheTacticalView->worldToScreenTriReturn( &world, &pixel );
+		Real dirX, dirY;
+		if( seen != View::WTS_INVALID )
+		{
+			if( seen == View::WTS_INSIDE_FRUSTUM && pixel.x >= left && pixel.x <= right && pixel.y >= top &&
+					pixel.y <= ( pixel.x <= radarRight ? radarBottom : bottom ) )
+				continue;		// on the screen, where the alarm can be seen for itself
+			dirX = pixel.x - centreX;
+			dirY = pixel.y - centreY;
+		}
+		else
+		{
+			Coord3D look;
+			TheTacticalView->getPosition( &look );
+			look.z = world.z;
+			const Real dx = world.x - look.x;
+			const Real dy = world.y - look.y;
+			const Real length = sqrtf( dx * dx + dy * dy );
+			if( length < 1.0f )
+				continue;
+			ICoord2D from, to;
+			if( TheTacticalView->worldToScreenTriReturn( &look, &from ) == View::WTS_INVALID )
+				continue;
+			// a long step, so the whole pixels it lands on still give the angle; shorter only when a step
+			// toward the camera would pass behind it
+			Bool projected = FALSE;
+			for( Real stepLength = 400.0f; stepLength >= 50.0f && !projected; stepLength *= 0.5f )
+			{
+				Coord3D step = look;
+				step.x += dx / length * stepLength;
+				step.y += dy / length * stepLength;
+				projected = TheTacticalView->worldToScreenTriReturn( &step, &to ) != View::WTS_INVALID;
+			}
+			if( !projected )
+				continue;
+			dirX = (Real)( to.x - from.x );
+			dirY = (Real)( to.y - from.y );
+		}
+		const Real dirLength = sqrtf( dirX * dirX + dirY * dirY );
+		if( dirLength < 0.001f )
+			continue;
+		dirX /= dirLength;
+		dirY /= dirLength;
+
+		// where the ray from the middle leaves the box
+		Real reach = 1.0e9f;
+		if( fabs( dirX ) > 0.0001f )
+			reach = min( reach, ( right - left ) * 0.5f / (Real)fabs( dirX ) );
+		if( fabs( dirY ) > 0.0001f )
+			reach = min( reach, ( bottom - top ) * 0.5f / (Real)fabs( dirY ) );
+		Real tipX = centreX + dirX * reach;
+		Real tipY = centreY + dirY * reach;
+		// past the radar frame's top, it stops at the frame
+		if( tipX <= radarRight + size && tipY > radarBottom && dirY > 0.0001f )
+		{
+			reach = ( radarBottom - centreY ) / dirY;
+			tipX = centreX + dirX * reach;
+			tipY = centreY + dirY * reach;
+		}
+
+		Real alpha = fade;
+		if( type == RADAR_EVENT_UNDER_ATTACK )
+			alpha *= breathe;
+		const Color stroke = GameMakeColor( (UnsignedByte)colour.red, (UnsignedByte)colour.green, (UnsignedByte)colour.blue,
+																				REAL_TO_UNSIGNEDBYTE( colour.alpha * alpha ) );
+		const Color keyline = GameMakeColor( 8, 10, 8, REAL_TO_UNSIGNEDBYTE( 200.0f * alpha ) );
+
+		// two chevrons, the one behind smaller, pointing out of the screen
+		for( Int pass = 0; pass < 2; ++pass )
+		{
+			for( Int chevron = 0; chevron < 2; ++chevron )
+			{
+				const Real back = chevron * size * 0.7f;
+				const Real wing = size * ( chevron == 0 ? 0.8f : 0.6f );
+				const Real pointX = tipX - dirX * back;
+				const Real pointY = tipY - dirY * back;
+				const Real baseX = pointX - dirX * size * 0.8f;
+				const Real baseY = pointY - dirY * size * 0.8f;
+				const Int px = REAL_TO_INT_FLOOR( pointX + 0.5f );
+				const Int py = REAL_TO_INT_FLOOR( pointY + 0.5f );
+				const Int ax = REAL_TO_INT_FLOOR( baseX - dirY * wing + 0.5f );
+				const Int ay = REAL_TO_INT_FLOOR( baseY + dirX * wing + 0.5f );
+				const Int bx = REAL_TO_INT_FLOOR( baseX + dirY * wing + 0.5f );
+				const Int by = REAL_TO_INT_FLOOR( baseY - dirX * wing + 0.5f );
+				const Real width = ( chevron == 0 ? 3.0f : 2.0f ) * scale + ( pass == 0 ? 2.0f : 0.0f );
+				const Color c = pass == 0 ? keyline : stroke;
+				TheDisplay->drawLine( ax, ay, px, py, width, c );
+				TheDisplay->drawLine( bx, by, px, py, width, c );
+			}
+		}
+	}
+
+	TheDisplay->endBatch2D();
+}
+
+//-------------------------------------------------------------------------------------------------
 /** A cell's readout string, made the first time in the superweapon countdown's face, bold, and set
 	* to `text` only when it holds something else: a string laid out again builds its texture again. */
 //-------------------------------------------------------------------------------------------------
@@ -11216,6 +11972,9 @@ Bool InGameUI::handleHudCellClick( const ICoord2D *mouse, Bool cancel )
 
 	// a "+N" tab stands for no one item
 	if( inside( m_productionListTab ) || inside( m_superweaponTab ) )
+		return TRUE;
+
+	if( GroupPanel_click( mouse, cancel ) )
 		return TRUE;
 
 	for( Int each = 0; each < m_productionListCells; each++ )

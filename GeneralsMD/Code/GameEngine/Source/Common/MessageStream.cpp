@@ -389,6 +389,7 @@ AsciiString GameMessage::getCommandTypeAsAsciiString(GameMessage::Type t)
 	CHECK_IF(MSG_META_TOGGLE_GUARD)
 	CHECK_IF(MSG_META_TOGGLE_MOVE)
 	CHECK_IF(MSG_META_TOGGLE_PAUSE)
+	CHECK_IF(MSG_META_TOGGLE_RADAR_COLORS)
 	CHECK_IF(MSG_META_BEGIN_CAMERA_ROTATE_LEFT)
 	CHECK_IF(MSG_META_END_CAMERA_ROTATE_LEFT)
 	CHECK_IF(MSG_META_BEGIN_CAMERA_ROTATE_RIGHT)
@@ -681,6 +682,7 @@ AsciiString GameMessage::getCommandTypeAsAsciiString(GameMessage::Type t)
 	CHECK_IF(MSG_TEAM_REQUEST)
 	CHECK_IF(MSG_DO_AUTO_GARRISON)
 	CHECK_IF(MSG_DO_AUTO_REPAIR)
+	CHECK_IF(MSG_QUEUE_UNIT_FOR_GROUP)
 	CHECK_IF(MSG_DO_GUARD_OBJECT)
 	CHECK_IF(MSG_DO_STOP)
 	CHECK_IF(MSG_DO_SCATTER)
@@ -1135,6 +1137,9 @@ Bool isInvalidDebugCommand( GameMessage::Type t )
  */
 void MessageStream::propagateMessages( void )
 {
+	// the translators are the client's and ask logic objects how high they are; a network catch-up pass
+	// runs them outside the engine's client scope, as often as this seat's frame rate says
+	Thing::CachePeek translatorReadsLeaveNoCache;
 	MessageStream::TranslatorData *ss;
 	GameMessage *msg, *next;
 

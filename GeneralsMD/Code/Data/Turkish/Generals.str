@@ -521,6 +521,70 @@ Color:Olive
 "Zeytin Yeşili"
 END
 
+Color:Maroon
+"Bordo"
+END
+
+Color:Mint
+"Nane Yeşili"
+END
+
+Color:White
+"Beyaz"
+END
+
+Color:Charcoal
+"Kömür Grisi"
+END
+
+Color:Silver
+"Gümüş"
+END
+
+Color:Steel
+"Çelik Mavisi"
+END
+
+Color:Indigo
+"Çivit"
+END
+
+Color:Peach
+"Şeftali"
+END
+
+Color:Forest
+"Orman Yeşili"
+END
+
+Color:Rose
+"Gül"
+END
+
+Color:Plum
+"Erik"
+END
+
+Color:Rust
+"Pas"
+END
+
+Color:SeaGreen
+"Deniz Yeşili"
+END
+
+Color:Lemon
+"Limon Sarısı"
+END
+
+Color:Orchid
+"Orkide"
+END
+
+Color:Chocolate
+"Çikolata"
+END
+
 GUI:ShowBehindBuildings
 "Binaların arkasındaki ısı izi AÇIK"
 END
@@ -2702,15 +2766,23 @@ INI:RankLevel5
 END
 
 INI:RankLevel6
-"Bay Belalı (Rütbe 6)"
+"6 Yıldızlı General"
 END
 
 INI:RankLevel7
-"Dr. Ölüm (Rütbe 7)"
+"7 Yıldızlı General"
 END
 
 INI:RankLevel8
-"Nihai Ölüm Makinesi (Rütbe 8)"
+"8 Yıldızlı General"
+END
+
+INI:RankLevel9
+"9 Yıldızlı General"
+END
+
+INI:RankLevel10
+"10 Yıldızlı General"
 END
 
 TOOLTIP:MyInfo
@@ -7538,15 +7610,23 @@ SCIENCE:Rank5
 END
 
 SCIENCE:Rank6
-"Tümgeneral"
+"6 Yıldızlı General"
 END
 
 SCIENCE:Rank7
-"Korgeneral"
+"7 Yıldızlı General"
 END
 
 SCIENCE:Rank8
-"Orgeneral"
+"8 Yıldızlı General"
+END
+
+SCIENCE:Rank9
+"9 Yıldızlı General"
+END
+
+SCIENCE:Rank10
+"10 Yıldızlı General"
 END
 
 CONTROLBAR:StructureExit
@@ -10579,6 +10659,10 @@ END
 
 TOOLTIP:OnlineKeepSignedIn
 "Bu bilgisayarda oturumun açık kalır. Şifren hiçbir yere kaydedilmez"
+END
+
+TOOLTIP:OnlineNeedsLauncher
+"Çevrimiçi oyun başlatıcıdan açılır: orada Çevrimiçi'ye girip Çevrimiçi oyna'ya basın"
 END
 
 GUI:OnlineLoginHelp
@@ -15489,6 +15573,14 @@ TOOLTIP:NetBox
 "Sağ üst köşedeki kutu: maç saati, kare hızları ve bağlantı. Kapalıyken süper silah sayaçları köşeye çıkar."
 END
 
+GUI:MinimapSize
+"Mini Harita Boyutu"
+END
+
+TOOLTIP:MinimapSize
+"Mini haritanın ne kadar büyük çizileceği. 100'ün üstünde sol alt köşeden savaş alanının üstüne doğru büyür; komuta çubuğunun geri kalanı yerinde kalır."
+END
+
 GUI:OptionsGroupHud
 "Göstergeler"
 END
@@ -15498,7 +15590,7 @@ GUI:EmptyBuildingPips
 END
 
 TOOLTIP:EmptyBuildingPips
-"İçinde kimse olmayan binanın üstündeki boş yuva sırası, örneğin Kışlanın üstündeki on yuva. Kapalıyken bina yuvalarını yalnızca içinde biri varken gösterir."
+"İçinde kimse olmayan binanın üstündeki boş yuva sırası, örneğin Tünel Ağının üstündeki on yuva. Kapalıyken bina yuvalarını yalnızca içinde biri varken gösterir."
 END
 
 GUI:ArchiveReplays
@@ -17464,6 +17556,18 @@ CONTROLBAR:ToolTipTurkiyeInfantrySungur
 "Tanka ve uçağa karşı füzeli piyade."
 END
 
+OBJECT:TurkiyeInfantryAlpagu
+"Alpagu Operatörü"
+END
+
+CONTROLBAR:ConstructTurkiyeInfantryAlpagu
+"&Alpagu Operatörü"
+END
+
+CONTROLBAR:ToolTipTurkiyeInfantryAlpagu
+"Diz çöker, kamikaze İHA'yı yere koyar ve 350'ye kadar uçurur; İHA piyadenin ve hafif aracın üstüne düşer. Kendisi 200 görür, ötesindeki hedefi gözcü ya da radar kulesi bulmalıdır. Tanka ve binaya karşı zayıf."
+END
+
 OBJECT:TurkiyeInfantrySpotter
 "Gözcü Timi"
 END
@@ -18434,4 +18538,784 @@ END
 
 GUI:OnlineUnrated_cancelled
 "Puana sayılmadı: maç iptal oldu."
+END
+
+OBJECT:AmericaRangerSquad
+"Ranger Mangası"
+END
+
+OBJECT:AmericaMissileDefenderSquad
+"Füze Savunucusu Mangası"
+END
+
+CONTROLBAR:ConstructAmericaInfantryRangerSquad
+"Ranger Ma&ngası"
+END
+
+CONTROLBAR:ConstructAmericaInfantryMissileDefenderSquad
+"Füze Savunucusu Man&gası"
+END
+
+GUI:Talents
+"YETENEKLER"
+END
+
+GUI:PicksWaiting
+"BEKLEYEN SEÇİM: %d"
+END
+
+GUI:TalentsHint
+"6. rütbeden itibaren her rütbede iki yetenekten birini seç."
+END
+
+SCIENCE:TurkiyeTalent6A
+"Ucuz Yapılar"
+END
+
+CONTROLBAR:ToolTipTurkiyeTalent6A
+"Bütün binalar yüzde 15 ucuza çıkar. Bir Karargah, Kışla, Fabrika ya da İstihkam Takımı ayakta kaldıkça sürer."
+END
+
+SCIENCE:TurkiyeTalent6B
+"Ucuz Piyade"
+END
+
+CONTROLBAR:ToolTipTurkiyeTalent6B
+"Bütün askerler yüzde 15 ucuza çıkar, İstihkam Takımı ve Bordo Bereli de. Bir Karargah, Kışla, Fabrika ya da İstihkam Takımı ayakta kaldıkça sürer."
+END
+
+SCIENCE:TurkiyeTalent7A
+"Altay Zırhı"
+END
+
+CONTROLBAR:ToolTipTurkiyeTalent7A
+"Altay tankları beşte bir daha fazla hasar kaldırır, 620'den 744'e. Takviyeli Gövde ile toplanır."
+END
+
+SCIENCE:TurkiyeTalent7B
+"İHA Optiği"
+END
+
+CONTROLBAR:ToolTipTurkiyeTalent7B
+"Bayraktar ve Akıncı dörtte bir daha uzağı görür: Bayraktar 550'den 688'e, Akıncı 400'den 500'e."
+END
+
+SCIENCE:TurkiyeTalent8A
+"Siper Tahkimatı"
+END
+
+CONTROLBAR:ToolTipTurkiyeTalent8A
+"Siperler yüzde 30 daha uzun dayanır, 1500'den 1950'ye. Takviyeli Siper ile toplanır."
+END
+
+SCIENCE:TurkiyeTalent8B
+"Sungur Yeleği"
+END
+
+CONTROLBAR:ToolTipTurkiyeTalent8B
+"Sungur Nişancıları dörtte bir daha fazla hasar kaldırır, 160'tan 200'e."
+END
+
+SCIENCE:TurkiyeTalent9A
+"SİHA Sürüsü +2"
+END
+
+CONTROLBAR:ToolTipTurkiyeTalent9A
+"SİHA Sürüsü 2 drone fazla gönderir."
+END
+
+SCIENCE:TurkiyeTalent9B
+"Gökbey İndirmesi +4"
+END
+
+CONTROLBAR:ToolTipTurkiyeTalent9B
+"Gökbey İndirmesi 4 asker fazla indirir."
+END
+
+SCIENCE:TurkiyeTalent10A
+"Geniş Tayfun"
+END
+
+CONTROLBAR:ToolTipTurkiyeTalent10A
+"Tayfun Füzesi dörtte bir daha geniş alanı vurur."
+END
+
+SCIENCE:TurkiyeTalent10B
+"Tecrübeli Bereliler"
+END
+
+CONTROLBAR:ToolTipTurkiyeTalent10B
+"Bordo Bereliler Kışladan tecrübeli çıkar."
+END
+
+SCIENCE:ChinaTalent6A
+"Ucuz Hacker"
+END
+
+CONTROLBAR:ToolTipChinaTalent6A
+"Hackerlar yüzde 40 ucuza çıkar. Bir Komuta Merkezi, Kışla, Savaş Fabrikası ya da Dozer ayakta kaldıkça sürer."
+END
+
+SCIENCE:ChinaTalent6B
+"Ucuz Piyade"
+END
+
+CONTROLBAR:ToolTipChinaTalent6B
+"Bütün askerler yüzde 20 ucuza çıkar, Hackerlar da. Bir Komuta Merkezi, Kışla, Savaş Fabrikası ya da Dozer ayakta kaldıkça sürer."
+END
+
+SCIENCE:ChinaTalent7A
+"Battlemaster Zırhı"
+END
+
+CONTROLBAR:ToolTipChinaTalent7A
+"Battlemaster tankları beşte bir daha fazla hasar kaldırır, 400'den 480'e."
+END
+
+SCIENCE:ChinaTalent7B
+"Gatling Zırhı"
+END
+
+CONTROLBAR:ToolTipChinaTalent7B
+"Gatling Tankları dörtte bir daha fazla hasar kaldırır, 300'den 375'e."
+END
+
+SCIENCE:ChinaTalent8A
+"Sağlam Savunma"
+END
+
+CONTROLBAR:ToolTipChinaTalent8A
+"Sığınaklar ve Gatling Topları dörtte bir daha uzun dayanır: Sığınak 1500'den 1875'e, Gatling Topu 1000'den 1250'ye."
+END
+
+SCIENCE:ChinaTalent8B
+"Cehennem Motoru"
+END
+
+CONTROLBAR:ToolTipChinaTalent8B
+"Cehennem Topları dörtte bir daha fazla hasar kaldırır, 120'den 150'ye, ve yüzde 15 daha hızlı gider."
+END
+
+SCIENCE:ChinaTalent9A
+"Topçu Barajı +12"
+END
+
+CONTROLBAR:ToolTipChinaTalent9A
+"Topçu Barajı 12 mermilik bir dalga fazla atar: üç seviyesinde 24, 36 ve 48."
+END
+
+SCIENCE:ChinaTalent9B
+"Geniş Misket Mayınları"
+END
+
+CONTROLBAR:ToolTipChinaTalent9B
+"Misket Mayınları yüzde 30 daha geniş alana dağılır."
+END
+
+SCIENCE:ChinaTalent10A
+"Tecrübeli Overlordlar"
+END
+
+CONTROLBAR:ToolTipChinaTalent10A
+"Overlord tankları Savaş Fabrikasından tecrübeli çıkar."
+END
+
+SCIENCE:ChinaTalent10B
+"Uzun EMP"
+END
+
+CONTROLBAR:ToolTipChinaTalent10B
+"EMP Darbesinin vurduğu araçlar ve binalar 30 değil 45 saniye kapalı kalır."
+END
+
+SCIENCE:TankTalent7A
+"Emperor Zırhı"
+END
+
+CONTROLBAR:ToolTipTankTalent7A
+"Emperor Overlordlar beşte bir daha fazla hasar kaldırır, tecrübe öncesi 1100'den 1320'ye."
+END
+
+SCIENCE:TankTalent7B
+"Ejder ve Gatling Zırhı"
+END
+
+CONTROLBAR:ToolTipTankTalent7B
+"Ejder Tankları ve Gatling Tankları dörtte bir daha fazla hasar kaldırır: tecrübe öncesi Ejder 400'den 500'e, Gatling 300'den 375'e."
+END
+
+SCIENCE:TankTalent8A
+"Sahra Tamiri"
+END
+
+CONTROLBAR:ToolTipTankTalent8A
+"10 saniye hasar almayan tank her saniye canının yüzde 1'ini onarır. Battlemaster, Emperor, Gatling, Ejder ve ECM Tankları."
+END
+
+SCIENCE:TankTalent8B
+"Battlemaster Zırhı"
+END
+
+CONTROLBAR:ToolTipTankTalent8B
+"Battlemaster tankları beşte bir daha fazla hasar kaldırır, tecrübe öncesi 400'den 480'e."
+END
+
+SCIENCE:TankTalent10A
+"Seçkin Emperorlar"
+END
+
+CONTROLBAR:ToolTipTankTalent10A
+"Emperor Overlordlar Savaş Fabrikasından tecrübeli değil seçkin çıkar."
+END
+
+SCIENCE:TankTalent10B
+"Tank İndirme +2"
+END
+
+CONTROLBAR:ToolTipTankTalent10B
+"Tank İndirme iki Battlemaster fazla indirir: üç seviyesinde 3, 4 ve 6."
+END
+
+SCIENCE:InfantryTalent7A
+"Hızlı Minigun Erleri"
+END
+
+CONTROLBAR:ToolTipInfantryTalent7A
+"Minigun Erleri beşte bir daha hızlı koşar, 25'ten 30'a."
+END
+
+SCIENCE:InfantryTalent7B
+"Tank Avcısı Yeleği"
+END
+
+CONTROLBAR:ToolTipInfantryTalent7B
+"Tank Avcıları dörtte bir daha fazla hasar kaldırır, tecrübe öncesi 100'den 125'e."
+END
+
+SCIENCE:InfantryTalent8A
+"Tahkimli Duvarlar"
+END
+
+CONTROLBAR:ToolTipInfantryTalent8A
+"Tahkimli Sığınaklar yüzde 30 daha uzun dayanır, 1500'den 1950'ye."
+END
+
+SCIENCE:InfantryTalent8B
+"Taşıyıcı Zırhı"
+END
+
+CONTROLBAR:ToolTipInfantryTalent8B
+"Taarruz Birlik Taşıyıcıları dörtte bir daha fazla hasar kaldırır, 240'tan 300'e, ve yüzde 15 daha hızlı gider."
+END
+
+SCIENCE:InfantryTalent10A
+"Sahra Pansumanı"
+END
+
+CONTROLBAR:ToolTipInfantryTalent10A
+"10 saniye hasar almayan asker her saniye 2 can toplar. Minigun Erleri, Tank Avcıları, Hackerlar ve Black Lotus."
+END
+
+SCIENCE:InfantryTalent10B
+"Piyade İndirme +5"
+END
+
+CONTROLBAR:ToolTipInfantryTalent10B
+"Piyade İndirme beş Minigun Eri fazla indirir: üç seviyesinde 10, 15 ve 20."
+END
+
+SCIENCE:NukeTalent7A
+"Overlord Zırhı"
+END
+
+CONTROLBAR:ToolTipNukeTalent7A
+"Overlord tankları beşte bir daha fazla hasar kaldırır, 1100'den 1320'ye."
+END
+
+SCIENCE:NukeTalent7B
+"Nükleer Top Zırhı"
+END
+
+CONTROLBAR:ToolTipNukeTalent7B
+"Nükleer Toplar yüzde 30 daha fazla hasar kaldırır, 240'tan 312'ye."
+END
+
+SCIENCE:NukeTalent8A
+"Reaktör Kalkanı"
+END
+
+CONTROLBAR:ToolTipNukeTalent8A
+"Nükleer Reaktörler ve Sığınaklar yüzde 30 daha uzun dayanır, 1500'den 1950'ye."
+END
+
+SCIENCE:NukeTalent8B
+"MiG Zırhı"
+END
+
+CONTROLBAR:ToolTipNukeTalent8B
+"MiG'ler dörtte bir daha fazla hasar kaldırır, 160'tan 200'e. Uçak Zırhı ile toplanır."
+END
+
+SCIENCE:NukeTalent10A
+"Seçkin Nükleer Toplar"
+END
+
+CONTROLBAR:ToolTipNukeTalent10A
+"Nükleer Toplar Savaş Fabrikasından seçkin çıkar."
+END
+
+SCIENCE:NukeTalent10B
+"Overlord Tamiri"
+END
+
+CONTROLBAR:ToolTipNukeTalent10B
+"10 saniye hasar almayan Overlord her saniye 11 can, yüzde 1, onarır."
+END
+
+SCIENCE:AmericaTalent6A
+"Ucuz Donanım"
+END
+
+CONTROLBAR:ToolTipAmericaTalent6A
+"Araçlar ve hava araçları yüzde 15 ucuza çıkar. Bir Komuta Merkezi, Kışla, Savaş Fabrikası ya da Dozer ayakta kaldıkça sürer."
+END
+
+SCIENCE:AmericaTalent6B
+"Tatbikat"
+END
+
+CONTROLBAR:ToolTipAmericaTalent6B
+"Piyade, araç ve hava araçları yüzde 50 daha hızlı tecrübe kazanır. İleri Eğitim de varsa iki kat yerine iki buçuk kat."
+END
+
+SCIENCE:AmericaTalent9A
+"Fazladan Thunderbolt"
+END
+
+CONTROLBAR:ToolTipAmericaTalent9A
+"A10 Saldırısı bir uçak fazla yollar, seviyesine göre 1, 2, 3 yerine 2, 3, 4."
+END
+
+SCIENCE:AmericaTalent9B
+"Fazladan Ranger"
+END
+
+CONTROLBAR:ToolTipAmericaTalent9B
+"Paraşütçü İndirme dört Ranger fazla indirir, seviyesine göre 5, 10, 20 yerine 9, 14, 24."
+END
+
+SCIENCE:USATalent7A
+"Ağır Zırh"
+END
+
+CONTROLBAR:ToolTipUSATalent7A
+"Crusader'ların canı beşte bir artar, 480'den 576'ya. Paladin'lerinki 500'den 600'e."
+END
+
+SCIENCE:USATalent7B
+"Çelik Yelek"
+END
+
+CONTROLBAR:ToolTipUSATalent7B
+"Ranger'ların canı dörtte bir artar, 180'den 225'e. Füze Savunucularınınki 100'den 125'e."
+END
+
+SCIENCE:USATalent8A
+"Sağlam Savunma"
+END
+
+CONTROLBAR:ToolTipUSATalent8A
+"Patriot'lar ve Ateş Üsleri dörtte bir daha dayanır, 1000 yerine 1250."
+END
+
+SCIENCE:USATalent8B
+"Güçlü Gövde"
+END
+
+CONTROLBAR:ToolTipUSATalent8B
+"Comanche'ların canı beşte bir artar, 220'den 264'e. Raptor'larınki 160'tan 192'ye."
+END
+
+SCIENCE:USATalent10A
+"Geniş Patlama"
+END
+
+CONTROLBAR:ToolTipUSATalent10A
+"Yakıt-Hava Bombası ve Bombaların Anası dörtte bir daha geniş alanı vurur, hedef çemberi de büyür."
+END
+
+SCIENCE:USATalent10B
+"Saha Tamiri"
+END
+
+CONTROLBAR:ToolTipUSATalent10B
+"5 saniye hasar almayan araç her saniye canının yüzde 1'i kadar onarır."
+END
+
+SCIENCE:SuperweaponTalent7A
+"Alpha Gövdesi"
+END
+
+CONTROLBAR:ToolTipSuperweaponTalent7A
+"Aurora Alpha Bombacılarının canı dörtte bir artar, 80'den 100'e."
+END
+
+SCIENCE:SuperweaponTalent7B
+"Zırhlı Eskort"
+END
+
+CONTROLBAR:ToolTipSuperweaponTalent7B
+"Humvee'lerin canı dörtte bir artar, 240'tan 300'e. Avenger'larınki 300'den 375'e."
+END
+
+SCIENCE:SuperweaponTalent8A
+"EMP Patriot Zırhı"
+END
+
+CONTROLBAR:ToolTipSuperweaponTalent8A
+"EMP Patriot Sistemleri 1000 yerine 1300 can taşır."
+END
+
+SCIENCE:SuperweaponTalent8B
+"Tomahawk Bakımı"
+END
+
+CONTROLBAR:ToolTipSuperweaponTalent8B
+"Tomahawk'lar yüzde 15 daha hızlı gider, canları dörtte bir artar, 180'den 225'e."
+END
+
+SCIENCE:SuperweaponTalent10A
+"Ucuz Süper Silahlar"
+END
+
+CONTROLBAR:ToolTipSuperweaponTalent10A
+"Süper silahlar yüzde 25 ucuza çıkar, Parçacık Topu 2500 yerine 1875. Bir Komuta Merkezi, Kışla, Savaş Fabrikası ya da Dozer ayakta kaldıkça sürer."
+END
+
+SCIENCE:SuperweaponTalent10B
+"Tamir Ekipleri"
+END
+
+CONTROLBAR:ToolTipSuperweaponTalent10B
+"Savunma binaları 3 saniye hasar almayınca kendi onarımlarına ek olarak saniyede 6 can daha onarır, neredeyse iki kat hızlı."
+END
+
+SCIENCE:LaserTalent7A
+"Lazer Tankı Zırhı"
+END
+
+CONTROLBAR:ToolTipLaserTalent7A
+"Lazer Tanklarının canı beşte bir artar, 480'den 576'ya."
+END
+
+SCIENCE:LaserTalent7B
+"Avenger Zırhı"
+END
+
+CONTROLBAR:ToolTipLaserTalent7B
+"Avenger'ların canı dörtte bir artar, 300'den 375'e."
+END
+
+SCIENCE:LaserTalent8A
+"Kule Zırhı"
+END
+
+CONTROLBAR:ToolTipLaserTalent8A
+"Lazer Savunma Kuleleri 1000 yerine 1300 can taşır."
+END
+
+SCIENCE:LaserTalent8B
+"Lazer Tankı Motoru"
+END
+
+CONTROLBAR:ToolTipLaserTalent8B
+"Lazer Tankları yüzde 15 daha hızlı gider."
+END
+
+SCIENCE:LaserTalent10A
+"Tecrübeli Mürettebat"
+END
+
+CONTROLBAR:ToolTipLaserTalent10A
+"Lazer Tankları Savaş Fabrikasından tecrübeli çıkar."
+END
+
+SCIENCE:LaserTalent10B
+"Ucuz Savunma"
+END
+
+CONTROLBAR:ToolTipLaserTalent10B
+"Lazer Savunma Kuleleri ve Ateş Üsleri yüzde 30 ucuza çıkar, 1000 yerine 700. Bir Komuta Merkezi, Kışla, Savaş Fabrikası ya da Dozer ayakta kaldıkça sürer."
+END
+
+SCIENCE:AirForceTalent7A
+"Comanche Zırhı"
+END
+
+CONTROLBAR:ToolTipAirForceTalent7A
+"Comanche'ların canı dörtte bir artar, 220'den 275'e."
+END
+
+SCIENCE:AirForceTalent7B
+"King Raptor Zırhı"
+END
+
+CONTROLBAR:ToolTipAirForceTalent7B
+"King Raptor'ların canı beşte bir artar, 240'tan 288'e."
+END
+
+SCIENCE:AirForceTalent8A
+"Sağlam Hava Üssü"
+END
+
+CONTROLBAR:ToolTipAirForceTalent8A
+"Hava Üsleri 2500 yerine 3250, Patriot'lar 1000 yerine 1300 can taşır."
+END
+
+SCIENCE:AirForceTalent8B
+"Chinook Bakımı"
+END
+
+CONTROLBAR:ToolTipAirForceTalent8B
+"Muharebe Chinook'ları yüzde 15 daha hızlı uçar, canları dörtte bir artar, 350'den 437'ye."
+END
+
+SCIENCE:AirForceTalent10A
+"Tecrübeli Pilotlar"
+END
+
+CONTROLBAR:ToolTipAirForceTalent10A
+"King Raptor'lar Hava Üssünden tecrübeli çıkar."
+END
+
+SCIENCE:AirForceTalent10B
+"Gövde Tamiri"
+END
+
+CONTROLBAR:ToolTipAirForceTalent10B
+"Bütün uçaklar ve helikopterler her saniye canının yüzde 1'i kadar onarır, ateş altındayken bile."
+END
+
+SCIENCE:GLATalent6A
+"Hurda İnşaat"
+END
+
+CONTROLBAR:ToolTipGLATalent6A
+"Binalar yüzde 20 ucuza çıkar, Kışla 500 yerine 400. Bir Komuta Merkezi, Kışla, Silah Tüccarı ya da İşçi ayakta kaldıkça sürer."
+END
+
+SCIENCE:GLATalent6B
+"Hafif Adım"
+END
+
+CONTROLBAR:ToolTipGLATalent6B
+"Piyadeler yüzde 15 daha hızlı koşar, Öfkeli Kalabalık da. İşçiler hariç, onların kendi ayakkabısı var."
+END
+
+SCIENCE:GLATalent9A
+"Büyük Pusu"
+END
+
+CONTROLBAR:ToolTipGLATalent9A
+"Asi Pususu dört Asi fazla getirir, seviyesine göre 4, 8, 16 yerine 8, 12, 20. Yıkım Generali'ninki 4, 6, 10 yerine 8, 10, 14."
+END
+
+SCIENCE:GLATalent9B
+"Geniş Veba"
+END
+
+CONTROLBAR:ToolTipGLATalent9B
+"Şarbon Bombasının patlaması ve zehir bulutu dörtte bir daha uzağa ulaşır, hedef çemberi de büyür."
+END
+
+SCIENCE:GLATalent7A
+"Ayarlı Motor"
+END
+
+CONTROLBAR:ToolTipGLATalent7A
+"Silahlı Pikaplar ve Roketli Cipler yüzde 15 daha hızlı gider."
+END
+
+SCIENCE:GLATalent7B
+"RPG Yeleği"
+END
+
+CONTROLBAR:ToolTipGLATalent7B
+"RPG Askerlerinin canı dörtte bir artar, 100'den 125'e."
+END
+
+SCIENCE:GLATalent8A
+"Gömülü Stinger"
+END
+
+CONTROLBAR:ToolTipGLATalent8A
+"Stinger Mevzileri 1000 yerine 1300 can taşır."
+END
+
+SCIENCE:GLATalent8B
+"Hurda Zırh"
+END
+
+CONTROLBAR:ToolTipGLATalent8B
+"Scorpion'ların canı beşte bir artar, 370'ten 444'e. Marauder'larınki 500'den 600'e."
+END
+
+SCIENCE:GLATalent10A
+"SCUD Yağmuru"
+END
+
+CONTROLBAR:ToolTipGLATalent10A
+"SCUD Fırtınasının füzeleri dörtte bir daha geniş alana düşer, her patlama ve zehir gölü dörtte bir daha uzağa ulaşır. Hedef çemberi de büyür."
+END
+
+SCIENCE:GLATalent10B
+"Tecrübeli Mürettebat"
+END
+
+CONTROLBAR:ToolTipGLATalent10B
+"Marauder'lar Silah Tüccarından tecrübeli çıkar."
+END
+
+SCIENCE:ToxinTalent7A
+"Traktör Bakımı"
+END
+
+CONTROLBAR:ToolTipToxinTalent7A
+"Toksin Traktörleri yüzde 15 daha hızlı gider, canları dörtte bir artar, 240'tan 300'e."
+END
+
+SCIENCE:ToxinTalent7B
+"Marauder Zırhı"
+END
+
+CONTROLBAR:ToolTipToxinTalent7B
+"Marauder'ların canı dörtte bir artar, 500'den 625'e."
+END
+
+SCIENCE:ToxinTalent8A
+"Derin Tüneller"
+END
+
+CONTROLBAR:ToolTipToxinTalent8A
+"Tünel Ağları 1500 yerine 1950 can taşır."
+END
+
+SCIENCE:ToxinTalent8B
+"Rampa Bakımı"
+END
+
+CONTROLBAR:ToolTipToxinTalent8B
+"SCUD Rampaları yüzde 15 daha hızlı gider, canları dörtte bir artar, 180'den 225'e."
+END
+
+SCIENCE:ToxinTalent10A
+"Kalıcı Zehir"
+END
+
+CONTROLBAR:ToolTipToxinTalent10A
+"SCUD Fırtınasının bıraktığı zehir gölleri yarısı kadar daha uzun kalır, 45 yerine 67 saniye."
+END
+
+SCIENCE:ToxinTalent10B
+"Tecrübeli Sürücüler"
+END
+
+CONTROLBAR:ToolTipToxinTalent10B
+"Toksin Traktörleri Silah Tüccarından tecrübeli çıkar."
+END
+
+SCIENCE:DemolitionTalent7A
+"Zırhlı Motor"
+END
+
+CONTROLBAR:ToolTipDemolitionTalent7A
+"Savaş Motorlarının canı dörtte bir artar, 100'den 125'e."
+END
+
+SCIENCE:DemolitionTalent7B
+"Kamyon Bakımı"
+END
+
+CONTROLBAR:ToolTipDemolitionTalent7B
+"Bomba Kamyonları yüzde 15 daha hızlı gider, canları dörtte bir artar, 220'den 275'e."
+END
+
+SCIENCE:DemolitionTalent8A
+"Ucuz Tuzak"
+END
+
+CONTROLBAR:ToolTipDemolitionTalent8A
+"Patlayıcı Tuzaklar yarı fiyatına çıkar, 200 yerine 100, Hurda İnşaat ile 80. Bir Komuta Merkezi, Kışla, Silah Tüccarı ya da İşçi ayakta kaldıkça sürer."
+END
+
+SCIENCE:DemolitionTalent8B
+"Cip Zırhı"
+END
+
+CONTROLBAR:ToolTipDemolitionTalent8B
+"Roketli Ciplerin canı yüzde 30 artar, 120'den 156'ya."
+END
+
+SCIENCE:DemolitionTalent10A
+"Ağır Savaş Başlığı"
+END
+
+CONTROLBAR:ToolTipDemolitionTalent10A
+"SCUD Fırtınasının her füzesi yüzde 20 daha sert vurur, merkezde 600 yerine 720."
+END
+
+SCIENCE:DemolitionTalent10B
+"Tecrübeli Rampalar"
+END
+
+CONTROLBAR:ToolTipDemolitionTalent10B
+"SCUD Rampaları Silah Tüccarından tecrübeli çıkar."
+END
+
+SCIENCE:StealthTalent7A
+"Kell'in Yeleği"
+END
+
+CONTROLBAR:ToolTipStealthTalent7A
+"Jarmen Kell'in canı yüzde 30 artar, 200'den 260'a."
+END
+
+SCIENCE:StealthTalent7B
+"Akıncı Zırhı"
+END
+
+CONTROLBAR:ToolTipStealthTalent7B
+"Silahlı Pikapların canı beşte bir artar, 180'den 216'ya. Roketli Ciplerinki 120'den 144'e."
+END
+
+SCIENCE:StealthTalent8A
+"Gizli Sığınak"
+END
+
+CONTROLBAR:ToolTipStealthTalent8A
+"Tünel Ağları 1500 yerine 1875, Stinger Mevzileri 1000 yerine 1250 can taşır."
+END
+
+SCIENCE:StealthTalent8B
+"Kamyon Bakımı"
+END
+
+CONTROLBAR:ToolTipStealthTalent8B
+"Bomba Kamyonları yüzde 15 daha hızlı gider, canları dörtte bir artar, 220'den 275'e."
+END
+
+SCIENCE:StealthTalent10A
+"Kamuflajlı Akıncılar"
+END
+
+CONTROLBAR:ToolTipStealthTalent10A
+"Silahlı Pikaplar ve Roketli Cipler ateş etmedikleri sürece gizlenir, kamuflajlı Asiler gibi, giderken de görünmez kalır."
+END
+
+SCIENCE:StealthTalent10B
+"Geniş Karıştırıcı"
+END
+
+CONTROLBAR:ToolTipStealthTalent10B
+"GPS Karıştırıcı birlikleri yarısı kadar daha uzağa saklar, 100 yerine 150, hedef çemberi de büyür."
 END

@@ -171,6 +171,8 @@ LoadScreen::~LoadScreen( void )
 
 void LoadScreen::update( Int percent )
 {
+	// called from inside the map-load tick; the view update below may ask a locked object's height
+	Thing::CachePeek loadScreenReadsLeaveNoCache;
 	TheGameEngine->serviceWindowsOS();
 	if (TheGameEngine->getQuitting())
 		return;	//don't bother with any of this if the player is exiting game.
@@ -2413,6 +2415,8 @@ void MapTransferLoadScreen::init( GameInfo *game )
 		GameSlot *slot = game->getSlot(i);
 		if (!slot || !slot->isHuman())
 			continue;
+		if (!m_progressBars[netSlot] || !m_playerNames[netSlot] || !m_progressText[netSlot])
+			continue;	// the layout's rows are used up; this player's transfer is not shown
 		Color houseColor = TheMultiplayerSettings->getColor(slot->getApparentColor())->getColor();
 		GadgetProgressBarSetEnabledBarColor(m_progressBars[netSlot], houseColor );
 
@@ -2433,6 +2437,8 @@ void MapTransferLoadScreen::init( GameInfo *game )
 	
 	for(i = netSlot; i < MAX_SLOTS; ++i)
 	{
+		if (!m_progressBars[i] || !m_playerNames[i] || !m_progressText[i])
+			continue;
 		m_progressBars[i]->winHide(TRUE);
 		m_playerNames[i]->winHide(TRUE);
 		m_progressText[i]->winHide(TRUE);
