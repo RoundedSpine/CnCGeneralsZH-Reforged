@@ -1,6 +1,0 @@
-
-Total Test time (real) =   0.59 sec
-
-The following tests FAILED:
-	 70 - test_gameengine (SEGFAULT)
-Errors while running CTest
