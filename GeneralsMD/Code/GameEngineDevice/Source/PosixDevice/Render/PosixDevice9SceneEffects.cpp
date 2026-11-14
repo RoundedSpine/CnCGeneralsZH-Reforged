@@ -12,6 +12,18 @@
 #include <cstdio>
 #include <cstring>
 
+namespace {
+// One line per failure episode: a post or composition failure that persists would otherwise
+// write to stderr every frame, which costs more on a device than the diagnostic is worth.
+bool sceneFailureReported=false;
+void reportSceneFailure(const char *tag,const char *what,const char *why){
+    if(sceneFailureReported)return;
+    sceneFailureReported=true;
+    if(why&&*why)fprintf(stderr,"[%s] %s failed: %s\n",tag,what,why);
+    else fprintf(stderr,"[%s] %s failed\n",tag,what);
+}
+}
+
 void PosixDevice9::Set_Lighting_Mode(bool modern,bool hemisphere)
 {
     hemisphere=modern&&hemisphere;
@@ -55,24 +67,46 @@ void PosixDevice9::Finish_Scene(){
     const bool renderScaleActive=Gpu->Render_Scale()<100;
     const bool finishEffects=FinishedSceneSerial!=SceneSerial&&ModernLighting&&EffectsAllowed
         &&!SunActive&&!Sun_Scene_Excluded();
-    if(finishEffects) {
+    // Tone mapping is not an effect: an HDR scene has to pass through it whether or not the
+    // optional chain (heat haze, FXAA, sharpen, grade) is on. Without this, classic graphics
+    // or effects-off leaves the raw float scene to be upscaled and presented as it is.
+    const bool finishTone=Gpu->Hdr_Active()&&!Gpu->Hdr_Tone_Applied()
+        &&!SunActive&&!Sun_Scene_Excluded();
+    if(finishEffects||finishTone) {
+        bool failed=false;
         SdlTarget target;std::string error;
         if(!Resolve_Target(target,error)) {
-            fprintf(stderr,"[SDL_POST] scene target unavailable: %s\n",error.c_str());
+            failed=true;
+            reportSceneFailure("SDL_POST","scene target unavailable",error.c_str());
         } else {
-            FinishedSceneSerial=SceneSerial;
-            if(!Gpu->Heat_Haze_Scene(target))fprintf(stderr,"[SDL_HEAT] scene finish failed\n");
+            if(finishEffects)FinishedSceneSerial=SceneSerial;
+            if(finishEffects&&!Gpu->Heat_Haze_Scene(target)) {
+                failed=true;
+                reportSceneFailure("SDL_HEAT","scene finish",nullptr);
+            }
             float rect[4];
             const bool sceneTarget=Gpu->Is_Scene_Target(target);
-            const float scaleX=sceneTarget?float(target.Width)/float(Gpu->Width()):1.0f;
-            const float scaleY=sceneTarget?float(target.Height)/float(Gpu->Height()):1.0f;
-            for(unsigned i=0;i<4;++i)rect[i]=PostRect[i]*(i%2==0?scaleX:scaleY);
-            if(!Gpu->Post_Process(target,rect,PostGrade,&SceneEffects::RequestedPostChain()))
-                fprintf(stderr,"[SDL_POST] scene finish failed\n");
+            // The scene viewport is scaled with the same integer rounding (Posix_Scale_Viewport_Value),
+            // so the post rect and the drawn viewport agree to the texel. A float ratio could put a
+            // full-screen rect a fraction past the scene target (640x602 at 75% gives 452.00003 > 452)
+            // and Post_Process rejected the whole rect, skipping the tone pass.
+            for(unsigned i=0;i<4;++i) {
+                const unsigned source=(i%2==0)?Gpu->Width():Gpu->Height();
+                const unsigned destination=(i%2==0)?target.Width:target.Height;
+                const int value=int(std::lround(PostRect[i]));
+                rect[i]=float(sceneTarget?Posix_Scale_Rectangle_Value(value,source,destination):value);
+            }
+            const ScenePost::Chain *chain=finishEffects?&SceneEffects::RequestedPostChain():nullptr;
+            if(!Gpu->Post_Process(target,rect,finishEffects?PostGrade:0.0f,chain)) {
+                failed=true;
+                reportSceneFailure("SDL_POST","scene finish",nullptr);
+            }
         }
+        // A frame that got through re-arms the report, so the next failure episode is heard once.
+        if(!failed)sceneFailureReported=false;
     }
     if(renderScaleActive&&!Gpu->Finish_Scene())
-        fprintf(stderr,"[SDL_RENDER_SCALE] scene composition failed\n");
+        reportSceneFailure("SDL_RENDER_SCALE","scene composition",nullptr);
 }
 bool PosixDevice9::Lights_Per_Pixel() const
 {

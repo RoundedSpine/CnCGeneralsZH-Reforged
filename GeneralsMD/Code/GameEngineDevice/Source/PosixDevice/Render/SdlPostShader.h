@@ -31,6 +31,10 @@ float3 sharpen(float2 uv,float3 c){
     return clamp(c+(c-(l+r+u+d)*0.25)*Filter.y,min(c,min(min(l,r),min(u,d))),max(c,max(max(l,r),max(u,d))));
 }
 float3 tone(float3 colour){
+    // Additive half-float blending can overflow to +Inf, and (1+0.3*log2(Inf))/Inf is NaN,
+    // which spreads through the upscale's neighbourhood taps. A comparison is false for NaN,
+    // so this maps NaN, negatives and out-of-range values to something finite before log2.
+    colour=(colour>0.0)?min(colour,65000.0):0.0;
     float peak=max(colour.r,max(colour.g,colour.b));
     if(peak>1)colour*=(1+0.3*log2(peak))/peak;
     float knee=0.8,headroom=1-knee;

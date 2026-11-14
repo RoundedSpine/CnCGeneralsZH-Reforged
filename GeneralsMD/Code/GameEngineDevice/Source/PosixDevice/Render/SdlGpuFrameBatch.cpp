@@ -426,12 +426,34 @@ bool SdlGpuFrame::Finish_Scene()
 	if (!SceneActive || SceneBuffer == NULL)
 		return true;
 
+	// The scene must be tone mapped before any upscale. When the post chain skipped it
+	// (a rejected rect, a failed capture, a scene the post pass never reached), tone map
+	// during the composite instead of feeding raw HDR to MetalFX or the linear blit.
+	if (HdrActive && !HdrToneApplied) {
+		if (Tone_Scene_To_Back()) {
+			SceneActive = false;
+			TargetSet = false;
+			return true;
+		}
+		// The fallback is the post pipeline's own tone pass, so a pipeline that could not be
+		// created leaves nothing to fall back to. Say it once per episode: the upscale below
+		// is then the frame's only path and the scene goes out raw.
+		if (!HdrToneFailLogged) {
+			HdrToneFailLogged = true;
+			fprintf(stderr, "[SDL_POST] tone mapping unavailable; the scene is upscaled un-tone-mapped\n");
+		}
+	}
+
 #if defined(ZH_PLATFORM_IOS)
 	const char *driver = SDL_GetGPUDeviceDriver(GpuDevice);
 	const char *metalFxSetting = getenv("ZH_METALFX_SPATIAL");
 	if (RenderScale < 100 && metalFxSetting != NULL && strcmp(metalFxSetting, "1") == 0
 		&& driver && strcmp(driver, "metal") == 0
-		&& ZH_SDL_MetalFX_Prepare(GpuDevice, SceneBuffer, BackBuffer)) {
+		// The caller names the color space of the content, not of the container: tone-mapped
+		// float is display-linear (1), BGRA8 is perceptual (0), and HDR (2) is only for a frame
+		// whose tone pass failed and still holds raw scene-linear values.
+		&& ZH_SDL_MetalFX_Prepare(GpuDevice, SceneBuffer, BackBuffer,
+			HdrActive ? (HdrToneApplied ? 1 : 2) : 0)) {
 		if (!Flush(FlushMaintenance))
 			return false;
 		if (ZH_SDL_MetalFX_Encode(GpuDevice, SceneBuffer, BackBuffer)) {

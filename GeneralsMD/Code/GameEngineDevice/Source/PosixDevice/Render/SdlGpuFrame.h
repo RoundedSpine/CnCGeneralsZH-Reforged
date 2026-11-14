@@ -145,6 +145,9 @@ public:
 	bool Is_Scene_Target(const SdlTarget &target) const { return SceneBuffer != NULL && target.Colour == SceneBuffer; }
 	unsigned int Render_Scale() const { return RenderScale; }
 	bool Finish_Scene();
+	/// HDR safety net for Finish_Scene: tone map the scene while upscaling it into the back
+	/// buffer when the post chain did not run, so no scaler ever receives raw HDR.
+	bool Tone_Scene_To_Back();
 	unsigned int Target_Depth_Format(const SdlTarget &target) const;
 	/// Sampleable sun depth, retired only after previously recorded readers are submitted.
 	bool Ambient_Occlusion(const SdlTarget &target, const SdlAo::Constants &constants, SDL_GPUTexture *shroud);
@@ -319,6 +322,9 @@ public:
 	static unsigned int Target_Format();
     unsigned Scene_Format() const {return SceneFormat;}
     bool Hdr_Active() const {return HdrActive;}
+    /// True once this frame's scene has passed through the HDR tone pass, at native or scaled
+    /// resolution; the render-scale composite may then upscale it without tone mapping again.
+    bool Hdr_Tone_Applied() const {return HdrToneApplied;}
     bool Supports_Hdr() const;
     void Track_Colour(SDL_GPUTexture *texture){if(HdrActive&&texture)HdrTextures.insert(texture);}
     bool Is_Hdr_Texture(SDL_GPUTexture *texture) const{return HdrTextures.count(texture)!=0;}
@@ -419,6 +425,10 @@ private:
     void Draw_Depth_Record(SDL_GPUCommandBuffer*,SDL_GPURenderPass*,SDL_GPUBuffer*,const SdlRecordedDraw&);
     unsigned SceneFormat=0;
     bool HdrActive=false,PostFailed=false;
+    bool HdrToneApplied=false;
+    /// One line per failure episode, not per frame: a persistent capture or tone failure would
+    /// otherwise write to stderr every frame, which costs more than the effect it reports.
+    bool HdrToneFailLogged=false,HeatBackgroundFailLogged=false;
     std::unordered_set<SDL_GPUTexture*> HdrTextures;
     SDL_GPUShader *PostVertex=nullptr,*PostPixel=nullptr;
     SDL_GPUGraphicsPipeline *PostPipeline=nullptr;

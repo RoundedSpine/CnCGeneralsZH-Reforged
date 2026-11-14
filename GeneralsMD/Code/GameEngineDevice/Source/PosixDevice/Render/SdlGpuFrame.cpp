@@ -414,6 +414,7 @@ bool SdlGpuFrame::Create_Targets(unsigned int width, unsigned int height, unsign
 	SceneHeight = sceneHeight;
 	RenderScale = renderScale;
 	SceneActive = true;
+	HdrToneApplied = false;
 	return true;
 }
 
@@ -940,6 +941,7 @@ bool SdlGpuFrame::Resize(unsigned int width, unsigned int height, ResizeFailure 
 	}
 	TargetSet = false;
 	SceneActive = true;
+	HdrToneApplied = false;
 	return true;
 }
 
@@ -1510,11 +1512,13 @@ bool SdlGpuFrame::Present(const uint16_t (*ramp)[256])
 		const bool submitted = Submit_Offscreen(commands);
 		End_Batch();
 		SceneActive = true;
+		HdrToneApplied = false;
 		return submitted && ok && DisplayTexture != NULL;
 	}
 	const bool submitted = Submit(commands);
 	End_Batch();
 	SceneActive = true;
+	HdrToneApplied = false;
 	return submitted && ok;
 }
 

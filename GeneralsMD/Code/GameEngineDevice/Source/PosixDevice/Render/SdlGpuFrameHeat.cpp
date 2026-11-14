@@ -166,7 +166,9 @@ bool SdlGpuFrame::Prepare_Heat(unsigned width,unsigned height)
 bool SdlGpuFrame::Ensure_Heat_Background(const SdlTarget &target,std::string &error)
 {
     error.clear();
-    if(!GpuDevice||HeatFailed||!target.Colour||!target.Width||!target.Height)return false;
+    // HeatFailed gates the heat-haze effect, not this allocation: Post_Process needs the
+    // scene copy for tone mapping and retries it every frame after a transient failure.
+    if(!GpuDevice||!target.Colour||!target.Width||!target.Height)return false;
     if(HeatBackground==target.Colour){error="capture source aliases destination";return false;}
     if(HeatWidth!=target.Width||HeatHeight!=target.Height) {
         Release_Heat_Background();SDL_GPUTextureCreateInfo info={};info.type=SDL_GPU_TEXTURETYPE_2D;
@@ -194,7 +196,11 @@ SDL_GPUTexture *SdlGpuFrame::Capture_Heat_Background(const SdlTarget &target,std
 {
     if(!GpuDevice||HeatFailed||!target.Colour||!target.Width||!target.Height)return nullptr;
     const auto fail=[&](const char *reason)->SDL_GPUTexture* {
-        error=reason;HeatFailed=true;fprintf(stderr,"[SDL_HEAT] disabled reason=%s\n",reason);return nullptr;
+        // HeatFailed is checked above, so this is the first failure of the episode: the heat
+        // effect stays disabled and later captures return early without logging again.
+        error=reason;HeatFailed=true;
+        fprintf(stderr,"[SDL_HEAT] disabled reason=%s\n",reason);
+        return nullptr;
     };
     if(HeatBackground==target.Colour)return fail("capture source aliases destination");
     if(!Flush(FlushHeat))return fail("scene flush failed");
