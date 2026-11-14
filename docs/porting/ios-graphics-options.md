@@ -138,6 +138,11 @@ saved as `RenderScale` in `Options.ini`. On iOS, the display size is taken from
 the device rather than a previously saved `Resolution` value.
 
 For non-native render scales, the existing linear upscale is the default.
+The scene is tone mapped before either upscale path: the post pass runs whenever
+the scene is HDR, even with the effect chain off, and the composite tone pass is
+a fallback for a frame the chain never reached. MetalFX is told the colour space
+of the content it receives rather than of the buffer - perceptual for 8-bit
+content and display-linear for a tone-mapped float scene.
 MetalFX spatial scaling is currently opt-in with `ZH_METALFX_SPATIAL=1` while
 visual artifacts in particle-heavy scenes are investigated. On supported iOS
 devices it uses the MetalFX scaler when texture formats and usage requirements
