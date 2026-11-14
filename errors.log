@@ -1,0 +1,25 @@
+[660/1625] Building C object gamespy/src/gcdkey/CMakeFiles/gscdkey.dir/gcdkeys.c.o
+[661/1625] Building C object gamespy/src/ghttp/CMakeFiles/gshttp.dir/ghttpbuffer.c.o
+[662/1625] Building CXX object CMakeFiles/posixd3d9.dir/GameEngineDevice/Source/PosixDevice/Render/SdlGpuFrameBatch.cpp.o
+FAILED: [code=1] CMakeFiles/posixd3d9.dir/GameEngineDevice/Source/PosixDevice/Render/SdlGpuFrameBatch.cpp.o 
+/opt/homebrew/bin/ccache /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang++ -DZH_PLATFORM_IOS=1 -D_CRT_NONSTDC_NO_WARNINGS -D_CRT_SECURE_NO_WARNINGS -I/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Include -I/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Include/Platform/PosixD3D9 -I/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/build/ios/SDL3/include-revision -I/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/SDL3/include -I/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WW3D2 -O3 -DNDEBUG -std=gnu++17 -arch arm64 -isysroot /Applications/Xcode_16.4.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.5.sdk -miphoneos-version-min=16.0 -fno-delete-null-pointer-checks -fexceptions -ffp-contract=off -fno-strict-aliasing -fsigned-char -Wno-unknown-pragmas -Wno-invalid-offsetof -Wno-switch -Wno-writable-strings -Wno-deprecated-declarations -Wno-deprecated-non-prototype -Wno-extra-tokens -Wno-null-conversion -Wno-undefined-var-template -Wno-unused-value -Wno-comment -Wno-enum-compare -g -Werror=unguarded-availability-new -MD -MT CMakeFiles/posixd3d9.dir/GameEngineDevice/Source/PosixDevice/Render/SdlGpuFrameBatch.cpp.o -MF CMakeFiles/posixd3d9.dir/GameEngineDevice/Source/PosixDevice/Render/SdlGpuFrameBatch.cpp.o.d -o CMakeFiles/posixd3d9.dir/GameEngineDevice/Source/PosixDevice/Render/SdlGpuFrameBatch.cpp.o -c /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/PosixDevice/Render/SdlGpuFrameBatch.cpp
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/PosixDevice/Render/SdlGpuFrameBatch.cpp:488:19: error: cannot initialize a variable of type 'char *' with an rvalue of type 'const char *'
+  488 |         if (char *base = SDL_GetBasePath()) { dirs.push_back(base); SDL_free(base); }
+      |                   ^      ~~~~~~~~~~~~~~~~~
+1 error generated.
+[663/1625] Building C object gamespy/src/ghttp/CMakeFiles/gshttp.dir/ghttpcommon.c.o
+[664/1625] Building C object gamespy/src/ghttp/CMakeFiles/gshttp.dir/ghttpcallbacks.c.o
+[665/1625] Building C object gamespy/src/ghttp/CMakeFiles/gshttp.dir/ghttpconnection.c.o
+[666/1625] Building C object gamespy/src/ghttp/CMakeFiles/gshttp.dir/ghttpencryption.c.o
+[667/1625] Building C object gamespy/src/ghttp/CMakeFiles/gshttp.dir/ghttpmain.c.o
+[668/1625] Building C object gamespy/src/ghttp/CMakeFiles/gshttp.dir/ghttppost.c.o
+[669/1625] Building C object gamespy/src/ghttp/CMakeFiles/gshttp.dir/ghttpprocess.c.o
+[670/1625] Building C object gamespy/src/ghttp/CMakeFiles/gshttp.dir/gssoap.c.o
+[671/1625] Building C object gamespy/src/gt2/CMakeFiles/gsgt2.dir/gsudpengine.c.o
+[672/1625] Building C object gamespy/src/gt2/CMakeFiles/gsgt2.dir/gt2auth.c.o
+[673/1625] Building C object gamespy/src/gt2/CMakeFiles/gsgt2.dir/gt2callback.c.o
+[674/1625] Building C object gamespy/src/gt2/CMakeFiles/gsgt2.dir/gt2buffer.c.o
+[1616/1625] Building CXX object CMakeFiles/sdldevice.dir/GameEngineDevice/Source/SdlDevice/Common/SdlPanel.cpp.o
+[1617/1625] Building OBJCXX object CMakeFiles/generals.dir/Platform/iOS/IOSBootstrap.mm.o
+[1618/1625] Building CXX object CMakeFiles/generals.dir/Main/PosixMain.cpp.o
+ninja: build stopped: cannot make progress due to previous errors.
