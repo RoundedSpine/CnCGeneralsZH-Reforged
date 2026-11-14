@@ -11,7 +11,7 @@ diff --git a/src/gpu/metal/SDL_gpu_metal.m b/src/gpu/metal/SDL_gpu_metal.m
 +#endif
  #include "../SDL_sysgpu.h"
  
-@@ -69,6 +73,9 @@ static bool METAL_Wait(SDL_GPURenderer *driverData);
+@@ -69,6 +72,9 @@ static bool METAL_Wait(SDL_GPURenderer *driverData);
  static void METAL_ReleaseWindow(
      SDL_GPURenderer *driverData,
      SDL_Window *window);
@@ -21,7 +21,7 @@ diff --git a/src/gpu/metal/SDL_gpu_metal.m b/src/gpu/metal/SDL_gpu_metal.m
  static void METAL_INTERNAL_DestroyBlitResources(SDL_GPURenderer *driverData);
  
  // Conversions
-@@ -630,6 +637,17 @@ struct MetalRenderer
+@@ -630,6 +636,19 @@ struct MetalRenderer
      id<MTLDevice> device;
      id<MTLCommandQueue> queue;
  
@@ -34,12 +34,14 @@ diff --git a/src/gpu/metal/SDL_gpu_metal.m b/src/gpu/metal/SDL_gpu_metal.m
 +    bool zhSpatialSupported;
 +    bool zhSpatialFailure;
 +    bool zhSpatialActivationLogged;
++    int zhSpatialColorMode;
++    bool zhSpatialUsageLogged;
 +#endif
 +
      bool debugMode;
      SDL_PropertiesID props;
      Uint32 allowedFramesInFlight;
-@@ -689,6 +707,212 @@ struct MetalRenderer
+@@ -689,6 +708,230 @@ struct MetalRenderer
      SDL_Mutex *windowLock;
  };
  
@@ -54,6 +56,8 @@ diff --git a/src/gpu/metal/SDL_gpu_metal.m b/src/gpu/metal/SDL_gpu_metal.m
 +    renderer->zhSpatialFormat = MTLPixelFormatInvalid;
 +    renderer->zhSpatialFailure = false;
 +    renderer->zhSpatialActivationLogged = false;
++    renderer->zhSpatialColorMode = -1;
++    renderer->zhSpatialUsageLogged = false;
 +}
 +
 +static bool ZH_MetalFX_TrackTexture(MetalCommandBuffer *commandBuffer, MetalTexture *texture)
@@ -81,7 +85,8 @@ diff --git a/src/gpu/metal/SDL_gpu_metal.m b/src/gpu/metal/SDL_gpu_metal.m
 +bool ZH_SDL_MetalFX_Prepare(
 +    SDL_GPUDevice *device,
 +    SDL_GPUTexture *input,
-+    SDL_GPUTexture *output)
++    SDL_GPUTexture *output,
++    int colorProcessingMode)
 +{
 +    if (!device || !input || !output) {
 +        return false;
@@ -125,7 +130,8 @@ diff --git a/src/gpu/metal/SDL_gpu_metal.m b/src/gpu/metal/SDL_gpu_metal.m
 +            && renderer->zhSpatialInputHeight == source.height
 +            && renderer->zhSpatialOutputWidth == destination.width
 +            && renderer->zhSpatialOutputHeight == destination.height
-+            && renderer->zhSpatialFormat == source.pixelFormat;
++            && renderer->zhSpatialFormat == source.pixelFormat
++            && renderer->zhSpatialColorMode == colorProcessingMode;
 +        if (!sameConfiguration) {
 +            ZH_MetalFX_Invalidate(renderer);
 +            renderer->zhSpatialInputWidth = (Uint32)source.width;
@@ -133,59 +139,72 @@ diff --git a/src/gpu/metal/SDL_gpu_metal.m b/src/gpu/metal/SDL_gpu_metal.m
 +            renderer->zhSpatialOutputWidth = (Uint32)destination.width;
 +            renderer->zhSpatialOutputHeight = (Uint32)destination.height;
 +            renderer->zhSpatialFormat = source.pixelFormat;
++            renderer->zhSpatialColorMode = colorProcessingMode;
 +        }
 +        if (renderer->zhSpatialFailure) {
 +            SDL_UnlockMutex(renderer->submitLock);
 +            return false;
 +        }
-+        if (renderer->zhSpatialScaler) {
-+            SDL_UnlockMutex(renderer->submitLock);
-+            return true;
-+        }
 +
-+        MTLFXSpatialScalerColorProcessingMode colorMode;
-+        if (source.pixelFormat == MTLPixelFormatBGRA8Unorm) {
-+            colorMode = MTLFXSpatialScalerColorProcessingModePerceptual;
-+        } else if (source.pixelFormat == MTLPixelFormatRGBA16Float) {
-+            colorMode = MTLFXSpatialScalerColorProcessingModeHDR;
-+        } else {
++        if (source.pixelFormat != MTLPixelFormatBGRA8Unorm
++            && source.pixelFormat != MTLPixelFormatRGBA16Float) {
 +            renderer->zhSpatialFailure = true;
 +            SDL_Log("MetalFX spatial scaling does not support this scene texture format; using the standard scene upscale");
 +            SDL_UnlockMutex(renderer->submitLock);
 +            return false;
 +        }
 +
-+        if (@available(iOS 16.0, *)) {
-+            MTLFXSpatialScalerDescriptor *descriptor = [[MTLFXSpatialScalerDescriptor alloc] init];
-+            descriptor.inputWidth = (NSInteger)source.width;
-+            descriptor.inputHeight = (NSInteger)source.height;
-+            descriptor.colorTextureFormat = source.pixelFormat;
-+            descriptor.outputWidth = (NSInteger)destination.width;
-+            descriptor.outputHeight = (NSInteger)destination.height;
-+            descriptor.outputTextureFormat = destination.pixelFormat;
-+            descriptor.colorProcessingMode = colorMode;
-+            renderer->zhSpatialScaler = [descriptor newSpatialScalerWithDevice:renderer->device];
-+        }
-+
 +        if (!renderer->zhSpatialScaler) {
-+            ZH_MetalFX_Invalidate(renderer);
-+            renderer->zhSpatialInputWidth = (Uint32)source.width;
-+            renderer->zhSpatialInputHeight = (Uint32)source.height;
-+            renderer->zhSpatialOutputWidth = (Uint32)destination.width;
-+            renderer->zhSpatialOutputHeight = (Uint32)destination.height;
-+            renderer->zhSpatialFormat = source.pixelFormat;
-+            renderer->zhSpatialFailure = true;
-+            SDL_Log("MetalFX spatial scaler resources could not be created; using the standard scene upscale");
-+            SDL_UnlockMutex(renderer->submitLock);
-+            return false;
++            // The caller names the color space of the content, not the container: the
++            // engine tone maps before the upscale, so tone-mapped RGBA16Float uses
++            // Linear (1), sRGB BGRA8 uses Perceptual (0), and HDR (2) is reserved for
++            // raw scene-linear input.
++            MTLFXSpatialScalerColorProcessingMode colorMode;
++            if (colorProcessingMode == 1) {
++                colorMode = MTLFXSpatialScalerColorProcessingModeLinear;
++            } else if (colorProcessingMode == 2) {
++                colorMode = MTLFXSpatialScalerColorProcessingModeHDR;
++            } else {
++                colorMode = MTLFXSpatialScalerColorProcessingModePerceptual;
++            }
++
++            if (@available(iOS 16.0, *)) {
++                MTLFXSpatialScalerDescriptor *descriptor = [[MTLFXSpatialScalerDescriptor alloc] init];
++                descriptor.inputWidth = (NSInteger)source.width;
++                descriptor.inputHeight = (NSInteger)source.height;
++                descriptor.colorTextureFormat = source.pixelFormat;
++                descriptor.outputWidth = (NSInteger)destination.width;
++                descriptor.outputHeight = (NSInteger)destination.height;
++                descriptor.outputTextureFormat = destination.pixelFormat;
++                descriptor.colorProcessingMode = colorMode;
++                renderer->zhSpatialScaler = [descriptor newSpatialScalerWithDevice:renderer->device];
++            }
++
++            if (!renderer->zhSpatialScaler) {
++                ZH_MetalFX_Invalidate(renderer);
++                renderer->zhSpatialInputWidth = (Uint32)source.width;
++                renderer->zhSpatialInputHeight = (Uint32)source.height;
++                renderer->zhSpatialOutputWidth = (Uint32)destination.width;
++                renderer->zhSpatialOutputHeight = (Uint32)destination.height;
++                renderer->zhSpatialFormat = source.pixelFormat;
++                renderer->zhSpatialColorMode = colorProcessingMode;
++                renderer->zhSpatialFailure = true;
++                SDL_Log("MetalFX spatial scaler resources could not be created; using the standard scene upscale");
++                SDL_UnlockMutex(renderer->submitLock);
++                return false;
++            }
 +        }
 +
++        // Usage is re-checked every frame instead of latching: a target recreated under
++        // memory pressure may lack storage write now and regain it on the next resize.
 +        if ((source.usage & renderer->zhSpatialScaler.colorTextureUsage)
 +                != renderer->zhSpatialScaler.colorTextureUsage
 +            || (destination.usage & renderer->zhSpatialScaler.outputTextureUsage)
 +                != renderer->zhSpatialScaler.outputTextureUsage) {
-+            renderer->zhSpatialFailure = true;
-+            SDL_Log("MetalFX spatial scaling texture usage is unavailable; using the standard scene upscale");
++            if (!renderer->zhSpatialUsageLogged) {
++                renderer->zhSpatialUsageLogged = true;
++                SDL_Log("MetalFX spatial scaling texture usage is unavailable; using the standard scene upscale");
++            }
 +            SDL_UnlockMutex(renderer->submitLock);
 +            return false;
 +        }
@@ -238,10 +257,11 @@ diff --git a/src/gpu/metal/SDL_gpu_metal.m b/src/gpu/metal/SDL_gpu_metal.m
 +            return false;
 +        }
 +        if (!renderer->zhSpatialActivationLogged) {
-+            SDL_Log("[SDL_METALFX] spatial=active input=%ux%u output=%ux%u format=%s",
++            SDL_Log("[SDL_METALFX] spatial=active input=%ux%u output=%ux%u format=%s mode=%s",
 +                renderer->zhSpatialInputWidth, renderer->zhSpatialInputHeight,
 +                renderer->zhSpatialOutputWidth, renderer->zhSpatialOutputHeight,
-+                renderer->zhSpatialFormat == MTLPixelFormatBGRA8Unorm ? "BGRA8Unorm" : "RGBA16Float");
++                renderer->zhSpatialFormat == MTLPixelFormatBGRA8Unorm ? "BGRA8Unorm" : "RGBA16Float",
++                renderer->zhSpatialColorMode == 1 ? "linear" : (renderer->zhSpatialColorMode == 2 ? "hdr" : "perceptual"));
 +            renderer->zhSpatialActivationLogged = true;
 +        }
 +        return true;
@@ -252,7 +272,7 @@ diff --git a/src/gpu/metal/SDL_gpu_metal.m b/src/gpu/metal/SDL_gpu_metal.m
  // Helper Functions
  
  // FIXME: This should be moved into SDL_sysgpu.h
-@@ -704,6 +917,10 @@ static void METAL_DestroyDevice(SDL_GPUDevice *device)
+@@ -704,6 +947,10 @@ static void METAL_DestroyDevice(SDL_GPUDevice *device)
      // Flush any remaining GPU work...
      METAL_Wait(device->driverData);
  
