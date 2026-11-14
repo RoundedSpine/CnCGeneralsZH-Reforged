@@ -485,7 +485,7 @@ static bool MetalFX_Spatial_Enabled()
             dirs.push_back(std::string(home) + "/Library/Application Support/zero-hour-reforged");
             dirs.push_back(home);
         }
-        if (char *base = SDL_GetBasePath()) { dirs.push_back(base); SDL_free(base); }
+        if (const char *base = SDL_GetBasePath()) { dirs.push_back(base); }
         dirs.push_back(".");
         for (size_t i = 0; i < dirs.size(); ++i) {
             std::string p = dirs[i] + "/Options.ini";
