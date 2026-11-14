@@ -429,81 +429,145 @@ SdlTarget SdlGpuFrame::Back_Buffer_Target() const
 #include <vector>
 
 #if defined(ZH_PLATFORM_IOS)
-static bool MetalFX_Value_True(const char *v)
+#include <dirent.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <set>
+#include <utility>
+#include <vector>
+#include <string>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <strings.h>
+namespace {
+
+// 1 = file has MetalFXSpatial set truthy, 0 = file readable but key absent/false, -1 = unreadable.
+int MetalFxReadOptionsFile(const char *path)
 {
-    while (*v == ' ' || *v == '\t') ++v;
-    char buf[16]; size_t n = 0;
-    while (v[n] && v[n] != ' ' && v[n] != '\t' && v[n] != '\r' && v[n] != '\n' && n < sizeof(buf) - 1) {
-        buf[n] = v[n]; ++n;
+    FILE *file = fopen(path, "r");
+    if (!file) return -1;
+    char line[512];
+    int result = 0;
+    while (fgets(line, sizeof(line), file)) {
+        char *cursor = line;
+        while (*cursor == ' ' || *cursor == '\t') ++cursor;
+        if (*cursor == '\0' || *cursor == '\n' || *cursor == '\r' || *cursor == ';' || *cursor == '#')
+            continue;
+        char *equals = strchr(cursor, '=');
+        if (!equals) continue;
+        *equals = '\0';
+        char *key = cursor;
+        char *tail = equals - 1;
+        while (tail >= key && (*tail == ' ' || *tail == '\t')) *tail-- = '\0';
+        if (strcasecmp(key, "MetalFXSpatial") != 0) continue;
+        const char *value = equals + 1;
+        while (*value == ' ' || *value == '\t') ++value;
+        result = (!strncasecmp(value, "yes", 3) || !strncasecmp(value, "true", 4) ||
+                  !strncasecmp(value, "on", 2) || value[0] == '1') ? 1 : 0;
+        break;
     }
-    buf[n] = 0;
-    return strcasecmp(buf, "yes") == 0 || strcasecmp(buf, "true") == 0 ||
-           strcasecmp(buf, "on") == 0 || strcmp(buf, "1") == 0;
+    fclose(file);
+    return result;
 }
 
-static bool MetalFX_Read_Options(const char *path, bool &found)
+void MetalFxCollectOptionsFiles(std::vector<std::string> &out)
 {
-    found = false;
-    FILE *f = fopen(path, "r");
-    if (!f) return false;
-    char line[512]; bool enabled = false;
-    while (fgets(line, sizeof line, f)) {
-        char *p = line;
-        while (*p == ' ' || *p == '\t') ++p;
-        if (*p == ';' || *p == '#' || *p == '\0') continue;
-        char *eq = strchr(p, '=');
-        if (!eq) continue;
-        *eq = 0;
-        char *key = p; char *val = eq + 1;
-        char *end = eq - 1;
-        while (end >= key && (*end == ' ' || *end == '\t')) *end-- = 0;
-        if (strcasecmp(key, "MetalFXSpatial") == 0) {
-            enabled = MetalFX_Value_True(val);
-            found = true;
-            break;
+    std::set<std::string> seen;
+    auto addFile = [&](const std::string &dir) {
+        if (dir.empty()) return;
+        std::string path = dir;
+        if (path.back() != '/') path += '/';
+        path += "Options.ini";
+        struct stat st;
+        if (stat(path.c_str(), &st) == 0 && S_ISREG(st.st_mode) && seen.insert(path).second)
+            out.push_back(path);
+    };
+
+    std::vector<std::string> roots;
+    if (const char *home = getenv("HOME")) roots.push_back(home);
+    if (const char *base = SDL_GetBasePath()) roots.push_back(base);
+    char cwd[4096];
+    if (getcwd(cwd, sizeof(cwd))) roots.push_back(cwd);
+
+    // Known locations first. The iOS port stores its options at
+    // <container>/Documents/UserData/Options.ini (see the [IOS_OPTIONS] startup log).
+    for (const auto &root : roots) {
+        addFile(root);
+        addFile(root + "/Documents");
+        addFile(root + "/Documents/UserData");
+        addFile(root + "/UserData");
+        addFile(root + "/Documents/Command and Conquer Generals Zero Hour Data");
+        addFile(root + "/Library/Application Support/Command and Conquer Generals Zero Hour Data");
+        addFile(root + "/Library/Application Support/zero-hour-reforged");
+    }
+
+    // Bounded recursive scan (depth <= 3) as a fallback.
+    for (const auto &root : roots) {
+        std::vector<std::pair<std::string, int>> stack;
+        stack.push_back(std::make_pair(root, 0));
+        while (!stack.empty()) {
+            std::string dir = stack.back().first;
+            int depth = stack.back().second;
+            stack.pop_back();
+            if (dir.empty() || depth > 3) continue;
+            DIR *handle = opendir(dir.c_str());
+            if (!handle) continue;
+            struct dirent *entry;
+            while ((entry = readdir(handle)) != nullptr) {
+                std::string name = entry->d_name;
+                if (name == "." || name == "..") continue;
+                std::string full = dir;
+                if (full.back() != '/') full += '/';
+                full += name;
+                struct stat st;
+                if (stat(full.c_str(), &st) != 0) continue;
+                if (S_ISDIR(st.st_mode)) {
+                    if (name == "Caches" || name == "tmp") continue;
+                    stack.push_back(std::make_pair(full, depth + 1));
+                } else if (S_ISREG(st.st_mode) && strcasecmp(name.c_str(), "Options.ini") == 0) {
+                    if (seen.insert(full).second) out.push_back(full);
+                }
+            }
+            closedir(handle);
         }
     }
-    fclose(f);
-    return enabled;
 }
 
-static bool MetalFX_Spatial_Enabled()
+bool MetalFX_Spatial_Enabled()
 {
     static int cached = -1;
-    if (cached >= 0) return cached != 0;
-    bool enabled = false, found = false;
+    if (cached >= 0) return cached == 1;
+
     const char *env = getenv("ZH_METALFX_SPATIAL");
-    if (env) {
-        enabled = strcmp(env, "1") == 0; found = true;
-        fprintf(stderr, "[SDL_METALFX] opt-in from env ZH_METALFX_SPATIAL=%s\n", env);
-    } else {
-        std::vector<std::string> dirs;
-        if (const char *home = getenv("HOME")) {
-            dirs.push_back(std::string(home) + "/Documents");
-            dirs.push_back(std::string(home) + "/Documents/Command and Conquer Generals Zero Hour Data");
-            dirs.push_back(std::string(home) + "/Library/Application Support/Command and Conquer Generals Zero Hour Data");
-            dirs.push_back(std::string(home) + "/Library/Application Support/zero-hour-reforged");
-            dirs.push_back(home);
-        }
-        if (const char *base = SDL_GetBasePath()) { dirs.push_back(base); }
-        dirs.push_back(".");
-        for (size_t i = 0; i < dirs.size(); ++i) {
-            std::string p = dirs[i] + "/Options.ini";
-            bool fnd = false;
-            bool en = MetalFX_Read_Options(p.c_str(), fnd);
-            if (fnd) {
-                enabled = en; found = true;
-                fprintf(stderr, "[SDL_METALFX] opt-in from %s MetalFXSpatial=%s\n",
-                        p.c_str(), enabled ? "yes" : "no");
-                break;
-            }
-        }
-        if (!found)
-            fprintf(stderr, "[SDL_METALFX] MetalFXSpatial key not found; using linear upscale\n");
+    if (env && *env) {
+        cached = (strcmp(env, "1") == 0) ? 1 : 0;
+        fprintf(stderr, "[SDL_METALFX] opt-in from env ZH_METALFX_SPATIAL=%s -> %s\n",
+                env, cached ? "enabled" : "disabled");
+        return cached == 1;
     }
-    cached = enabled ? 1 : 0;
-    return enabled;
+
+    if (const char *home = getenv("HOME")) fprintf(stderr, "[SDL_METALFX] HOME=%s\n", home);
+
+    std::vector<std::string> files;
+    MetalFxCollectOptionsFiles(files);
+    fprintf(stderr, "[SDL_METALFX] Options.ini candidates=%zu\n", files.size());
+    for (const auto &file : files) {
+        int enabled = MetalFxReadOptionsFile(file.c_str());
+        if (enabled < 0) continue;
+        fprintf(stderr, "[SDL_METALFX]   %s MetalFXSpatial=%s\n", file.c_str(), enabled ? "yes" : "no");
+        if (enabled) {
+            cached = 1;
+            fprintf(stderr, "[SDL_METALFX] opt-in from %s\n", file.c_str());
+            return true;
+        }
+    }
+    cached = 0;
+    fprintf(stderr, "[SDL_METALFX] MetalFXSpatial key not found in any Options.ini; using linear upscale\n");
+    return false;
 }
+
+} // namespace
 #endif
 
 bool SdlGpuFrame::Finish_Scene()
