@@ -421,6 +421,91 @@ SdlTarget SdlGpuFrame::Back_Buffer_Target() const
 	return target;
 }
 
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <strings.h>
+#include <string>
+#include <vector>
+
+#if defined(ZH_PLATFORM_IOS)
+static bool MetalFX_Value_True(const char *v)
+{
+    while (*v == ' ' || *v == '\t') ++v;
+    char buf[16]; size_t n = 0;
+    while (v[n] && v[n] != ' ' && v[n] != '\t' && v[n] != '\r' && v[n] != '\n' && n < sizeof(buf) - 1) {
+        buf[n] = v[n]; ++n;
+    }
+    buf[n] = 0;
+    return strcasecmp(buf, "yes") == 0 || strcasecmp(buf, "true") == 0 ||
+           strcasecmp(buf, "on") == 0 || strcmp(buf, "1") == 0;
+}
+
+static bool MetalFX_Read_Options(const char *path, bool &found)
+{
+    found = false;
+    FILE *f = fopen(path, "r");
+    if (!f) return false;
+    char line[512]; bool enabled = false;
+    while (fgets(line, sizeof line, f)) {
+        char *p = line;
+        while (*p == ' ' || *p == '\t') ++p;
+        if (*p == ';' || *p == '#' || *p == '\0') continue;
+        char *eq = strchr(p, '=');
+        if (!eq) continue;
+        *eq = 0;
+        char *key = p; char *val = eq + 1;
+        char *end = eq - 1;
+        while (end >= key && (*end == ' ' || *end == '\t')) *end-- = 0;
+        if (strcasecmp(key, "MetalFXSpatial") == 0) {
+            enabled = MetalFX_Value_True(val);
+            found = true;
+            break;
+        }
+    }
+    fclose(f);
+    return enabled;
+}
+
+static bool MetalFX_Spatial_Enabled()
+{
+    static int cached = -1;
+    if (cached >= 0) return cached != 0;
+    bool enabled = false, found = false;
+    const char *env = getenv("ZH_METALFX_SPATIAL");
+    if (env) {
+        enabled = strcmp(env, "1") == 0; found = true;
+        fprintf(stderr, "[SDL_METALFX] opt-in from env ZH_METALFX_SPATIAL=%s\n", env);
+    } else {
+        std::vector<std::string> dirs;
+        if (const char *home = getenv("HOME")) {
+            dirs.push_back(std::string(home) + "/Documents");
+            dirs.push_back(std::string(home) + "/Documents/Command and Conquer Generals Zero Hour Data");
+            dirs.push_back(std::string(home) + "/Library/Application Support/Command and Conquer Generals Zero Hour Data");
+            dirs.push_back(std::string(home) + "/Library/Application Support/zero-hour-reforged");
+            dirs.push_back(home);
+        }
+        if (char *base = SDL_GetBasePath()) { dirs.push_back(base); SDL_free(base); }
+        dirs.push_back(".");
+        for (size_t i = 0; i < dirs.size(); ++i) {
+            std::string p = dirs[i] + "/Options.ini";
+            bool fnd = false;
+            bool en = MetalFX_Read_Options(p.c_str(), fnd);
+            if (fnd) {
+                enabled = en; found = true;
+                fprintf(stderr, "[SDL_METALFX] opt-in from %s MetalFXSpatial=%s\n",
+                        p.c_str(), enabled ? "yes" : "no");
+                break;
+            }
+        }
+        if (!found)
+            fprintf(stderr, "[SDL_METALFX] MetalFXSpatial key not found; using linear upscale\n");
+    }
+    cached = enabled ? 1 : 0;
+    return enabled;
+}
+#endif
+
 bool SdlGpuFrame::Finish_Scene()
 {
 	if (!SceneActive || SceneBuffer == NULL)
@@ -446,8 +531,8 @@ bool SdlGpuFrame::Finish_Scene()
 
 #if defined(ZH_PLATFORM_IOS)
 	const char *driver = SDL_GetGPUDeviceDriver(GpuDevice);
-	const char *metalFxSetting = getenv("ZH_METALFX_SPATIAL");
-	if (RenderScale < 100 && metalFxSetting != NULL && strcmp(metalFxSetting, "1") == 0
+	const bool metalFxOptIn = MetalFX_Spatial_Enabled();
+	if (RenderScale < 100 && metalFxOptIn
 		&& driver && strcmp(driver, "metal") == 0
 		// The caller names the color space of the content, not of the container: tone-mapped
 		// float is display-linear (1), BGRA8 is perceptual (0), and HDR (2) is only for a frame
@@ -464,7 +549,7 @@ bool SdlGpuFrame::Finish_Scene()
 			return true;
 		}
 	}
-	else if (RenderScale < 100 && (metalFxSetting == NULL || strcmp(metalFxSetting, "1") != 0)) {
+	else if (RenderScale < 100 && (!metalFxOptIn)) {
 		static bool loggedLinearFallback = false;
 		if (!loggedLinearFallback) {
 			fprintf(stderr, "[SDL_METALFX] spatial=disabled reason=opt-in-required; using linear upscale\n");
