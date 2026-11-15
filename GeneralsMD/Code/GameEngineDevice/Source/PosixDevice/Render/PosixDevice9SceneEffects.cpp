@@ -240,10 +240,11 @@ bool PosixDevice9::Begin_Heat_Haze(IDirect3DBaseTexture9 *source)
     }
     
     auto *texture=Mirrors->Texture(source,error);
-    if(!texture)return false;
+    // Safeguard: only proceed if the engine is actually asking us to capture this specific target.
+    if(!texture || texture != target.Colour) return false;
     
     auto *snapshot=Gpu->Capture_Distortion_Background(target,error);
-    if(!snapshot||snapshot==target.Colour)return false;
+    if(!snapshot || snapshot == target.Colour) return false;
     
     // Force the draw path to use the snapshot. By setting HeatSourceTexture to target.Colour,
     // we ensure PosixDevice9Draw.cpp's replacement logic (HeatSourceTexture == target.Colour) triggers.
