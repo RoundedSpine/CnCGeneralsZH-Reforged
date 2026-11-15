@@ -239,13 +239,6 @@ bool SdlGpuFrame::Heat_Haze_Scene(const SdlTarget &target)
 	if(target.Width!=BackWidth||target.Height!=BackHeight){
 		if(!Flush(FlushHeat))return false;
 	}
-	static unsigned heatLastW=0,heatLastH=0;
-	if(target.Width!=heatLastW||target.Height!=heatLastH){
-		heatLastW=target.Width;heatLastH=target.Height;
-		fprintf(stderr,"[SDL_HEAT] scene target=%ux%u back=%ux%u scaled=%d\n",
-			target.Width,target.Height,BackWidth,BackHeight,
-			(target.Width!=BackWidth||target.Height!=BackHeight)?1:0);
-	}
     auto &h=*Heat;const unsigned count=unsigned(splats.size()/HeatFloatsPerSplat),bytes=unsigned(splats.size()*sizeof(float));
     void *mapped=SDL_MapGPUTransferBuffer(GpuDevice,h.Transfer,true);if(!mapped)return false;
     std::memcpy(mapped,splats.data(),bytes);SDL_UnmapGPUTransferBuffer(GpuDevice,h.Transfer);
