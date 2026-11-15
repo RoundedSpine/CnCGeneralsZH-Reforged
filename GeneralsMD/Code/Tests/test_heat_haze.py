@@ -27,6 +27,16 @@ struct IDirect3DBaseTexture9{} source,wrong;
 struct SdlTarget{SDL_GPUTexture *Colour;};
 struct Frame{bool fail=false;unsigned captures=0;
     SDL_GPUTexture *Capture_Heat_Background(const SdlTarget&,std::string&){++captures;return fail?nullptr:&snapshot;}
+    SDL_GPUTexture *Capture_Distortion_Background(const SdlTarget&,std::string&){++captures;return fail?nullptr:&snapshot;}
+    SdlTarget Scene_Target() const {
+        SdlTarget t;
+        if(SceneBuffer) { t.Colour = SceneBuffer; t.Depth = SceneDepth; t.Width = SceneWidth; t.Height = SceneHeight; }
+        else { t.Colour = &snapshot; t.Width = 257; t.Height = 193; }
+        return t;
+    }
+    SDL_GPUTexture *SceneBuffer = nullptr;
+    SDL_GPUTexture *SceneDepth = nullptr;
+    unsigned int SceneWidth = 0, SceneHeight = 0;
     SDL_GPUTexture *SceneBuffer = nullptr;
     SDL_GPUTexture *SceneDepth = nullptr;
     unsigned int SceneWidth = 0, SceneHeight = 0;
