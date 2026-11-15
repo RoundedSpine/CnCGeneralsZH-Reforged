@@ -310,7 +310,7 @@ SDL_GPUTexture *SdlGpuFrame::Capture_Distortion_Background(const SdlTarget &targ
 	if(!Heat)Heat=new HeatResources;
 	auto &h=*Heat;
 	if(h.DistortionCopy==target.Colour){error="capture source aliases destination";return nullptr;}
-	if(!Flush(FlushHeat)){error="scene flush failed";return nullptr;}
+	if(!Flush()){error="scene flush failed";return nullptr;}
 	if(h.DistortionCopy&&(h.DistortionWidth!=target.Width||h.DistortionHeight!=target.Height)){
 		Release_Texture(h.DistortionCopy);h.DistortionCopy=nullptr;
 	}
