@@ -31,7 +31,7 @@ struct Frame{bool fail=false;unsigned captures=0;
     SdlTarget Scene_Target() const {
         SdlTarget t;
         if(SceneBuffer) { t.Colour = SceneBuffer; t.Depth = SceneDepth; t.Width = SceneWidth; t.Height = SceneHeight; }
-        else { t.Colour = &snapshot; t.Width = 257; t.Height = 193; }
+        else { t.Colour = &scene; t.Width = 257; t.Height = 193; }
         return t;
     }
     SDL_GPUTexture *SceneBuffer = nullptr;
