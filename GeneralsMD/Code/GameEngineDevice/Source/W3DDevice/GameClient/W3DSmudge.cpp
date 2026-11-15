@@ -396,8 +396,8 @@ void W3DSmudgeManager::render(RenderInfoClass &rinfo)
 	surface_desc.Height = D3DDesc.Height;
 #endif
 
-	Real texClampX = (Real)TheTacticalView->getWidth()/(Real)surface_desc.Width;
-	Real texClampY = (Real)TheTacticalView->getHeight()/(Real)surface_desc.Height;
+	Real texClampX = 1.0f; // Map UVs exactly to [0,1] for scaled render targets
+	Real texClampY = 1.0f; // Map UVs exactly to [0,1] for scaled render targets
 
 	Real texScaleX = texClampX*0.5f;
 	Real texScaleY = texClampY*0.5f;
