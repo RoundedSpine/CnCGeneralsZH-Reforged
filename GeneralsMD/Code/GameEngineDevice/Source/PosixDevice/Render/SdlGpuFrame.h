@@ -142,6 +142,12 @@ public:
 	/// the native-resolution back buffer for UI composition.
 	void Set_Target(const SdlTarget & target);
 	SdlTarget Back_Buffer_Target() const;
+    SdlTarget Scene_Target() const {
+        SdlTarget t;
+        if(SceneBuffer) { t.Colour = SceneBuffer; t.Depth = SceneDepth; t.Width = SceneWidth; t.Height = SceneHeight; }
+        else { t = Back_Buffer_Target(); }
+        return t;
+    }
 	bool Is_Scene_Target(const SdlTarget &target) const { return SceneBuffer != NULL && target.Colour == SceneBuffer; }
 	unsigned int Render_Scale() const { return RenderScale; }
 	bool Finish_Scene();

@@ -225,12 +225,31 @@ void PosixDevice9::Set_Heat_Splats(const float *splats,unsigned count){if(Gpu)Gp
 bool PosixDevice9::Begin_Heat_Haze(IDirect3DBaseTexture9 *source)
 {
     if(!Gpu||!source||HeatSnapshot||SunActive||Sun_Scene_Excluded())return false;
-    SdlTarget target;std::string error;
-    if(!Resolve_Target(target,error)||!target.Colour)return false;
-    auto *texture=Mirrors->Texture(source,error);if(!texture||texture!=target.Colour)return false;
+    std::string error;
+    
+    SdlTarget target;
+    // Force capture of the scaled scene buffer if it exists.
+    // The native back buffer is empty/stale before the MetalFX upscale.
+    if (Gpu->SceneBuffer) {
+        target.Colour = Gpu->SceneBuffer;
+        target.Depth = Gpu->SceneDepth;
+        target.Width = Gpu->SceneWidth;
+        target.Height = Gpu->SceneHeight;
+    } else {
+        if(!Resolve_Target(target,error)||!target.Colour)return false;
+    }
+    
+    auto *texture=Mirrors->Texture(source,error);
+    if(!texture)return false;
+    
     auto *snapshot=Gpu->Capture_Distortion_Background(target,error);
     if(!snapshot||snapshot==target.Colour)return false;
-    HeatSourceTexture=texture;HeatSnapshot=snapshot;return true;
+    
+    // Force the draw path to use the snapshot. By setting HeatSourceTexture to target.Colour,
+    // we ensure PosixDevice9Draw.cpp's replacement logic (HeatSourceTexture == target.Colour) triggers.
+    HeatSourceTexture = target.Colour;
+    HeatSnapshot = snapshot;
+    return true;
 }
 void PosixDevice9::End_Heat_Haze() {HeatSourceTexture=HeatSnapshot=nullptr;}
 bool PosixDevice9::Atmosphere(const SceneEffects::AtmosphereParameters &parameters,IDirect3DBaseTexture9 *sky,
