@@ -64,7 +64,6 @@ float4 main(Out input):SV_Target{
     float4 heat=Heat.Sample(Linear1,input.Uv);float2 shift=heat.xy/max(heat.z,1.0);
     shift*=saturate(Heat.Sample(Linear1,input.Uv+shift).z*4.0);
     shift=clamp(shift,float2(-0.05,-0.05),float2(0.05,0.05));
-    shift=clamp(shift,float2(-0.05,-0.05),float2(0.05,0.05));
     float2 border=min(input.Uv,1.0-input.Uv);float2 settle=saturate(border/0.02);shift*=settle.x*settle.y;
     return Source.Sample(Linear0,input.Uv+shift);
 })";}
@@ -239,7 +238,6 @@ bool SdlGpuFrame::Heat_Haze_Scene(const SdlTarget &target)
 	// full-screen composite can read a cleared (black) scene for the whole effect.
 	if(target.Width!=BackWidth||target.Height!=BackHeight){
 		if(!Flush(FlushHeat))return false;
-		SDL_WaitForGPUIdle(GpuDevice);
 	}
 	static unsigned heatLastW=0,heatLastH=0;
 	if(target.Width!=heatLastW||target.Height!=heatLastH){
