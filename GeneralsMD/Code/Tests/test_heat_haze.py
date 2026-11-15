@@ -34,9 +34,17 @@ struct Frame{bool fail=false;unsigned captures=0;
         else { t.Colour = &scene; t.Width = 257; t.Height = 193; }
         return t;
     }
+    bool Is_Scene_Target(const SdlTarget &t) const { return SceneBuffer != nullptr && t.Colour == SceneBuffer; }
     SDL_GPUTexture *SceneBuffer = nullptr;
     SDL_GPUTexture *SceneDepth = nullptr;
     unsigned int SceneWidth = 0, SceneHeight = 0;
+    bool Get_Scene_Target(SdlTarget &t) const {
+        if (SceneBuffer) {
+            t.Colour = SceneBuffer; t.Depth = SceneDepth; t.Width = SceneWidth; t.Height = SceneHeight;
+            return true;
+        }
+        return false;
+    }
 } frame;
 struct Mirrors{SDL_GPUTexture *Texture(IDirect3DBaseTexture9 *p,std::string&){return p==&source?&scene:&other;}} mirrors;
 constexpr int ENGINE_SHADER_NONE=0;

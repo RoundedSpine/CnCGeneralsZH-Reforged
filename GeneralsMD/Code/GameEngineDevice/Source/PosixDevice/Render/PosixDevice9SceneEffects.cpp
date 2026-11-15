@@ -227,8 +227,10 @@ bool PosixDevice9::Begin_Heat_Haze(IDirect3DBaseTexture9 *source)
     if(!Gpu||!source||HeatSnapshot||SunActive||Sun_Scene_Excluded())return false;
     std::string error;
     
-    SdlTarget target = Gpu->Scene_Target();
-    if (!target.Colour) return false;
+    SdlTarget target;
+    if (!Gpu->Get_Scene_Target(target)) {
+        if (!Resolve_Target(target, error) || !target.Colour) return false;
+    }
     
     auto *texture=Mirrors->Texture(source,error);
     // Safeguard: only proceed if the engine is actually asking us to capture this specific target.
