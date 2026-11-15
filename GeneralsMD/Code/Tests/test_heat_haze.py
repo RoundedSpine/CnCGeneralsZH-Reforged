@@ -24,7 +24,7 @@ class HeatHaze(unittest.TestCase):
 struct SDL_GPUTexture{} scene,snapshot,other;
 struct IDirect3DDevice9{};
 struct IDirect3DBaseTexture9{} source,wrong;
-struct SdlTarget{SDL_GPUTexture *Colour;};
+struct SdlTarget{SDL_GPUTexture *Colour=nullptr; SDL_GPUTexture *Depth=nullptr; unsigned int Width=0, Height=0;};
 struct Frame{bool fail=false;unsigned captures=0;
     SDL_GPUTexture *Capture_Heat_Background(const SdlTarget&,std::string&){++captures;return fail?nullptr:&snapshot;}
     SDL_GPUTexture *Capture_Distortion_Background(const SdlTarget&,std::string&){++captures;return fail?nullptr:&snapshot;}
@@ -37,11 +37,6 @@ struct Frame{bool fail=false;unsigned captures=0;
     SDL_GPUTexture *SceneBuffer = nullptr;
     SDL_GPUTexture *SceneDepth = nullptr;
     unsigned int SceneWidth = 0, SceneHeight = 0;
-    SDL_GPUTexture *SceneBuffer = nullptr;
-    SDL_GPUTexture *SceneDepth = nullptr;
-    unsigned int SceneWidth = 0, SceneHeight = 0;
-};
-    SDL_GPUTexture *Capture_Distortion_Background(const SdlTarget &t,std::string &e){return Capture_Heat_Background(t,e);}
 } frame;
 struct Mirrors{SDL_GPUTexture *Texture(IDirect3DBaseTexture9 *p,std::string&){return p==&source?&scene:&other;}} mirrors;
 constexpr int ENGINE_SHADER_NONE=0;
