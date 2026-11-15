@@ -79,6 +79,8 @@ struct SdlGpuFrame::HeatResources {
     unsigned Width=0,Height=0;
     SDL_GPUTexture *SceneCopy=nullptr;
     unsigned SceneCopyWidth=0,SceneCopyHeight=0;
+    SDL_GPUTexture *DistortionCopy=nullptr;
+    unsigned DistortionWidth=0,DistortionHeight=0;
 };
 
 bool SdlGpuFrame::Supports_Heat_Haze() const
@@ -109,6 +111,7 @@ void SdlGpuFrame::Release_Heat()
     Release_Heat_Background();
     if(!Heat)return;
     if(Heat->SceneCopy)Release_Texture(Heat->SceneCopy);
+    if(Heat->DistortionCopy)Release_Texture(Heat->DistortionCopy);
     if(Heat->SplatPipeline)SDL_ReleaseGPUGraphicsPipeline(GpuDevice,Heat->SplatPipeline);
     if(Heat->CompositePipeline)SDL_ReleaseGPUGraphicsPipeline(GpuDevice,Heat->CompositePipeline);
     for(auto *s:{Heat->SplatVertex,Heat->SplatPixel,Heat->CompositeVertex,Heat->CompositePixel})if(s)SDL_ReleaseGPUShader(GpuDevice,s);
@@ -294,4 +297,45 @@ pass=SDL_BeginGPURenderPass(commands,&scene,1,nullptr);if(!pass){SDL_CancelGPUCo
     const bool ok=SerializeSubmits?Submit(commands):Submit_Flush(commands);
     if(ok){External_Colour_Write(target.Colour);Invalidate_Water_Snapshots(target.Colour,nullptr);}
     return ok;
+}
+
+// The legacy smudge distortion holds its snapshot across every draw between
+// Begin_Heat_Haze and End_Heat_Haze. Cloaking refreshes the shared HeatBackground
+// mid-render, which replaced that content under the smudge pass and made the whole
+// screen sample a stale/black copy at scaled resolutions. Give it a private slot.
+SDL_GPUTexture *SdlGpuFrame::Capture_Distortion_Background(const SdlTarget &target,std::string &error)
+{
+	error.clear();
+	if(!GpuDevice||!target.Colour||!target.Width||!target.Height)return nullptr;
+	if(!Heat)Heat=new HeatResources;
+	auto &h=*Heat;
+	if(h.DistortionCopy==target.Colour){error="capture source aliases destination";return nullptr;}
+	if(!Flush(FlushHeat)){error="scene flush failed";return nullptr;}
+	if(h.DistortionCopy&&(h.DistortionWidth!=target.Width||h.DistortionHeight!=target.Height)){
+		Release_Texture(h.DistortionCopy);h.DistortionCopy=nullptr;
+	}
+	if(!h.DistortionCopy){
+		SDL_GPUTextureCreateInfo info={};info.type=SDL_GPU_TEXTURETYPE_2D;
+		info.format=(SDL_GPUTextureFormat)Scene_Format();
+		info.usage=SDL_GPU_TEXTUREUSAGE_SAMPLER|SDL_GPU_TEXTUREUSAGE_COLOR_TARGET;
+		info.width=target.Width;info.height=target.Height;info.layer_count_or_depth=info.num_levels=1;
+		h.DistortionCopy=SDL_CreateGPUTexture(GpuDevice,&info);
+		if(!h.DistortionCopy){error=SDL_GetError();return nullptr;}
+		Track_Colour(h.DistortionCopy);
+		h.DistortionWidth=target.Width;h.DistortionHeight=target.Height;
+		fprintf(stderr,"[SDL_HEAT] distortion copy ready size=%ux%u\n",target.Width,target.Height);
+	}
+	ZH_IOS_WaitForForeground();
+	auto *commands=SDL_AcquireGPUCommandBuffer(GpuDevice);
+	if(!commands){error=SDL_GetError();return nullptr;}
+	auto *copy=SDL_BeginGPUCopyPass(commands);
+	if(!copy){error=SDL_GetError();SDL_CancelGPUCommandBuffer(commands);return nullptr;}
+	SDL_GPUTextureLocation source={},destination={};
+	source.texture=target.Colour;destination.texture=h.DistortionCopy;
+	SDL_CopyGPUTextureToTexture(copy,&source,&destination,target.Width,target.Height,1,false);
+	SDL_EndGPUCopyPass(copy);
+	if(!(SerializeSubmits?Submit(commands):Submit_Flush(commands))){
+		error="capture submission failed";return nullptr;
+	}
+	return h.DistortionCopy;
 }

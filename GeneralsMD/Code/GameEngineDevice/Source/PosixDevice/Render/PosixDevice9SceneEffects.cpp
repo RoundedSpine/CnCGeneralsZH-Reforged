@@ -228,7 +228,7 @@ bool PosixDevice9::Begin_Heat_Haze(IDirect3DBaseTexture9 *source)
     SdlTarget target;std::string error;
     if(!Resolve_Target(target,error)||!target.Colour)return false;
     auto *texture=Mirrors->Texture(source,error);if(!texture||texture!=target.Colour)return false;
-    auto *snapshot=Gpu->Capture_Heat_Background(target,error);
+    auto *snapshot=Gpu->Capture_Distortion_Background(target,error);
     if(!snapshot||snapshot==target.Colour)return false;
     HeatSourceTexture=texture;HeatSnapshot=snapshot;return true;
 }

@@ -238,6 +238,7 @@ public:
 	void Set_Heat_Splats(const float *splats,unsigned count);
 	bool Heat_Haze_Scene(const SdlTarget &target);
 	SDL_GPUTexture *Capture_Heat_Background(const SdlTarget &target,std::string &error);
+	SDL_GPUTexture *Capture_Distortion_Background(const SdlTarget &target,std::string &error);
 	bool Atmosphere(const SdlTarget &target,const SdlAtmosphere::Constants &constants,
 		SDL_GPUTexture *sky,SDL_GPUTexture *shroud);
 
