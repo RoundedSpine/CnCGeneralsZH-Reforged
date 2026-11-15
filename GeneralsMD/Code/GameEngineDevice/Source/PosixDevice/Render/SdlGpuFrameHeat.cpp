@@ -77,6 +77,8 @@ struct SdlGpuFrame::HeatResources {
     SDL_GPUGraphicsPipeline *SplatPipeline=nullptr,*CompositePipeline=nullptr;
     SDL_GPUSampler *Point=nullptr,*Linear=nullptr;
     unsigned Width=0,Height=0;
+    SDL_GPUTexture *SceneCopy=nullptr;
+    unsigned SceneCopyWidth=0,SceneCopyHeight=0;
 };
 
 bool SdlGpuFrame::Supports_Heat_Haze() const
@@ -106,6 +108,7 @@ void SdlGpuFrame::Release_Heat()
 {
     Release_Heat_Background();
     if(!Heat)return;
+    if(Heat->SceneCopy)Release_Texture(Heat->SceneCopy);
     if(Heat->SplatPipeline)SDL_ReleaseGPUGraphicsPipeline(GpuDevice,Heat->SplatPipeline);
     if(Heat->CompositePipeline)SDL_ReleaseGPUGraphicsPipeline(GpuDevice,Heat->CompositePipeline);
     for(auto *s:{Heat->SplatVertex,Heat->SplatPixel,Heat->CompositeVertex,Heat->CompositePixel})if(s)SDL_ReleaseGPUShader(GpuDevice,s);
@@ -223,9 +226,26 @@ bool SdlGpuFrame::Heat_Haze_Scene(const SdlTarget &target)
 	// Size the capture from the actual scene target and fill it in the SAME command buffer
 	// as the composite. A separate capture submit left a window where the full-screen
 	// composite could sample a freshly reallocated (black) HeatBackground.
-	if(!Ensure_Heat_Background(target,error))return false;
-	SDL_GPUTexture *source=HeatBackground;
-	if(!source||source==target.Colour)return false;
+	auto &h=*Heat;
+	// Cloak and the legacy smudge pass both hold the shared HeatBackground pointer, and
+	// Ensure_Heat_Background frees it on a size change. Use a private copy here so the
+	// composite can never sample a released or overwritten snapshot.
+	if(h.SceneCopy&&(h.SceneCopy==target.Colour
+		||h.SceneCopyWidth!=target.Width||h.SceneCopyHeight!=target.Height)){
+		Release_Texture(h.SceneCopy);h.SceneCopy=nullptr;
+	}
+	if(!h.SceneCopy){
+		SDL_GPUTextureCreateInfo info={};info.type=SDL_GPU_TEXTURETYPE_2D;
+		info.format=(SDL_GPUTextureFormat)Scene_Format();
+		info.usage=SDL_GPU_TEXTUREUSAGE_SAMPLER|SDL_GPU_TEXTUREUSAGE_COLOR_TARGET;
+		info.width=target.Width;info.height=target.Height;info.layer_count_or_depth=info.num_levels=1;
+		h.SceneCopy=SDL_CreateGPUTexture(GpuDevice,&info);
+		if(!h.SceneCopy)return false;
+		Track_Colour(h.SceneCopy);
+		h.SceneCopyWidth=target.Width;h.SceneCopyHeight=target.Height;
+		fprintf(stderr,"[SDL_HEAT] scene copy ready size=%ux%u\n",target.Width,target.Height);
+	}
+	SDL_GPUTexture *source=h.SceneCopy;
 	static unsigned heatLastW=0,heatLastH=0;
 	if(target.Width!=heatLastW||target.Height!=heatLastH){
 		heatLastW=target.Width;heatLastH=target.Height;
@@ -239,11 +259,17 @@ bool SdlGpuFrame::Heat_Haze_Scene(const SdlTarget &target)
 	if(target.Width!=BackWidth||target.Height!=BackHeight){
 		if(!Flush(FlushHeat))return false;
 	}
-    auto &h=*Heat;const unsigned count=unsigned(splats.size()/HeatFloatsPerSplat),bytes=unsigned(splats.size()*sizeof(float));
+    const unsigned count=unsigned(splats.size()/HeatFloatsPerSplat),bytes=unsigned(splats.size()*sizeof(float));
     void *mapped=SDL_MapGPUTransferBuffer(GpuDevice,h.Transfer,true);if(!mapped)return false;
     std::memcpy(mapped,splats.data(),bytes);SDL_UnmapGPUTransferBuffer(GpuDevice,h.Transfer);
     ZH_IOS_WaitForForeground();auto *commands=SDL_AcquireGPUCommandBuffer(GpuDevice);if(!commands)return false;
-    if(!Record_Heat_Background(commands,target,error)){SDL_CancelGPUCommandBuffer(commands);return false;}
+    {
+		auto *sceneCopy=SDL_BeginGPUCopyPass(commands);
+		if(!sceneCopy){SDL_CancelGPUCommandBuffer(commands);return false;}
+		SDL_GPUTextureLocation from={},to={};from.texture=target.Colour;to.texture=h.SceneCopy;
+		SDL_CopyGPUTextureToTexture(sceneCopy,&from,&to,target.Width,target.Height,1,false);
+		SDL_EndGPUCopyPass(sceneCopy);
+	}
 	auto *copy=SDL_BeginGPUCopyPass(commands);if(!copy){SDL_CancelGPUCommandBuffer(commands);return false;}
     SDL_GPUTransferBufferLocation from={};from.transfer_buffer=h.Transfer;SDL_GPUBufferRegion to={};to.buffer=h.Splats;to.size=bytes;
     SDL_UploadToGPUBuffer(copy,&from,&to,true);SDL_EndGPUCopyPass(copy);
