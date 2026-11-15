@@ -227,10 +227,17 @@ bool PosixDevice9::Begin_Heat_Haze(IDirect3DBaseTexture9 *source)
     if(!Gpu||!source||HeatSnapshot||SunActive||Sun_Scene_Excluded())return false;
     std::string error;
     
+    SdlTarget target;
     // Force capture of the scaled scene buffer if it exists.
     // The native back buffer is empty/stale before the MetalFX upscale.
-    SdlTarget target = Gpu->Scene_Target();
-    if (!target.Colour) return false;
+    if (Gpu->SceneBuffer) {
+        target.Colour = Gpu->SceneBuffer;
+        target.Depth = Gpu->SceneDepth;
+        target.Width = Gpu->SceneWidth;
+        target.Height = Gpu->SceneHeight;
+    } else {
+        if(!Resolve_Target(target,error)||!target.Colour)return false;
+    }
     
     auto *texture=Mirrors->Texture(source,error);
     // Safeguard: only proceed if the engine is actually asking us to capture this specific target.
