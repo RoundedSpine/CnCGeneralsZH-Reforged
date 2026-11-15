@@ -63,6 +63,7 @@ struct Out{float4 Position:SV_Position;float2 Uv:TEXCOORD0;};
 float4 main(Out input):SV_Target{
     float4 heat=Heat.Sample(Linear1,input.Uv);float2 shift=heat.xy/max(heat.z,1.0);
     shift*=saturate(Heat.Sample(Linear1,input.Uv+shift).z*4.0);
+    shift=clamp(shift,float2(-0.05,-0.05),float2(0.05,0.05));
     float2 border=min(input.Uv,1.0-input.Uv);float2 settle=saturate(border/0.02);shift*=settle.x*settle.y;
     return Source.Sample(Linear0,input.Uv+shift);
 })";}
@@ -219,6 +220,20 @@ bool SdlGpuFrame::Heat_Haze_Scene(const SdlTarget &target)
     if(!target.Colour||!target.Depth||!target.Width||!target.Height||!Prepare_Heat(target.Width,target.Height))return false;
     SDL_GPUTexture *depth=Scene_Depth(target);if(!depth)return false;
     std::string error;SDL_GPUTexture *source=Capture_Heat_Background(target,error);if(!source)return false;
+	// Scaled scenes live in an offscreen target the heat pass copies mid-frame. Make sure
+	// every queued scene draw has finished before we refract from the copy, otherwise the
+	// full-screen composite can read a cleared (black) scene for the whole effect.
+	if(target.Width!=BackWidth||target.Height!=BackHeight){
+		if(!Flush(FlushHeat))return false;
+		SDL_WaitForGPUIdle(GpuDevice);
+	}
+	static unsigned heatLastW=0,heatLastH=0;
+	if(target.Width!=heatLastW||target.Height!=heatLastH){
+		heatLastW=target.Width;heatLastH=target.Height;
+		fprintf(stderr,"[SDL_HEAT] scene target=%ux%u back=%ux%u scaled=%d\n",
+			target.Width,target.Height,BackWidth,BackHeight,
+			(target.Width!=BackWidth||target.Height!=BackHeight)?1:0);
+	}
     auto &h=*Heat;const unsigned count=unsigned(splats.size()/HeatFloatsPerSplat),bytes=unsigned(splats.size()*sizeof(float));
     void *mapped=SDL_MapGPUTransferBuffer(GpuDevice,h.Transfer,true);if(!mapped)return false;
     std::memcpy(mapped,splats.data(),bytes);SDL_UnmapGPUTransferBuffer(GpuDevice,h.Transfer);
