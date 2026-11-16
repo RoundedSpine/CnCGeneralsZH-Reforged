@@ -234,7 +234,10 @@ bool PosixDevice9::Begin_Heat_Haze(IDirect3DBaseTexture9 *source)
     
     auto *texture=Mirrors->Texture(source,error);
     // Safeguard: only proceed if the engine is actually asking us to capture this specific target.
-    if(!texture || texture != target.Colour) return false;
+    if(!texture) return false;
+    // With render scaling the engine names its native back buffer while the scene is
+    // drawn into a smaller offscreen target. Both name the same picture, so accept either.
+    if(texture!=target.Colour && texture!=Gpu->Back_Buffer()) return false;
     
     auto *snapshot=Gpu->Capture_Distortion_Background(target,error);
     if(!snapshot || snapshot == target.Colour) return false;
@@ -242,10 +245,15 @@ bool PosixDevice9::Begin_Heat_Haze(IDirect3DBaseTexture9 *source)
     // Force the draw path to use the snapshot. By setting HeatSourceTexture to target.Colour,
     // we ensure PosixDevice9Draw.cpp's replacement logic (HeatSourceTexture == target.Colour) triggers.
     HeatSourceTexture = target.Colour;
+    HeatSourceAlias   = texture;
+    if(HeatSourceAlias!=HeatSourceTexture) {
+        static bool said=false;
+        if(!said){said=true;fprintf(stderr,"[SDL_HEAT] distortion source aliased: engine bound the back buffer, capturing the scaled scene\n");}
+    }
     HeatSnapshot = snapshot;
     return true;
 }
-void PosixDevice9::End_Heat_Haze() {HeatSourceTexture=HeatSnapshot=nullptr;}
+void PosixDevice9::End_Heat_Haze() {HeatSourceTexture=HeatSourceAlias=HeatSnapshot=nullptr;}
 bool PosixDevice9::Atmosphere(const SceneEffects::AtmosphereParameters &parameters,IDirect3DBaseTexture9 *sky,
     IDirect3DBaseTexture9 *shroud,const float shroudRect[4])
 {

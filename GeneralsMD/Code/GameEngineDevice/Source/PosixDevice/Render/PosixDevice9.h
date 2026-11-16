@@ -409,6 +409,7 @@ protected:
     uint64_t CloakFrame=~uint64_t(0);
     bool ModernLighting = false, HemisphereAmbient = false, TeamGlow = false;
 	SDL_GPUTexture *HeatSourceTexture = nullptr, *HeatSnapshot = nullptr;
+	SDL_GPUTexture *HeatSourceAlias=nullptr; ///< engine-side name of the same picture (back buffer when scaled)
 	bool SmokeGlow = false;
 	unsigned SunCasterEffect = 0;
 	float SunCasterOpacity = 1;
