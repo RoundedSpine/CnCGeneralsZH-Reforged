@@ -28,6 +28,8 @@ struct SdlTarget{SDL_GPUTexture *Colour=nullptr; SDL_GPUTexture *Depth=nullptr; 
 struct Frame{bool fail=false;unsigned captures=0;
     SDL_GPUTexture *Capture_Heat_Background(const SdlTarget&,std::string&){++captures;return fail?nullptr:&snapshot;}
     SDL_GPUTexture *Capture_Distortion_Background(const SdlTarget&,std::string&){++captures;return fail?nullptr:&snapshot;}
+    SDL_GPUTexture *back=nullptr;
+    SDL_GPUTexture *Back_Buffer(){return back;}
     SdlTarget Scene_Target() const {
         SdlTarget t;
         if(SceneBuffer) { t.Colour = SceneBuffer; t.Depth = SceneDepth; t.Width = SceneWidth; t.Height = SceneHeight; }
@@ -52,6 +54,7 @@ struct PosixDevice9:IDirect3DDevice9{
     Frame *Gpu=&frame;struct Mirrors *Mirrors=&mirrors;
     bool SunActive=false,excluded=false,resolve=true;
     SDL_GPUTexture *HeatSnapshot=nullptr,*HeatSourceTexture=nullptr;
+    SDL_GPUTexture *HeatSourceAlias=nullptr;
     bool Sun_Scene_Excluded(){return excluded;}
     bool Resolve_Target(SdlTarget &t,std::string&){t.Colour=&scene;return resolve;}
     bool Begin_Heat_Haze(IDirect3DBaseTexture9*);void End_Heat_Haze();
