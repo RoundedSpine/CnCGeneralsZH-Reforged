@@ -415,6 +415,12 @@ bool SdlGpuFrame::Create_Targets(unsigned int width, unsigned int height, unsign
 	RenderScale = renderScale;
 	SceneActive = true;
 	HdrToneApplied = false;
+	// Precompile the heat splat/composite shaders, pipelines and field now so the
+	// first heat-distortion frame does not stall the render thread compiling them.
+	if (Supports_Heat_Haze()) {
+		Prepare_Heat(renderScale != RenderResolution::NATIVE ? SceneWidth : width,
+			renderScale != RenderResolution::NATIVE ? SceneHeight : height);
+	}
 	return true;
 }
 
@@ -1525,6 +1531,10 @@ bool SdlGpuFrame::Present(const uint16_t (*ramp)[256])
 bool SdlGpuFrame::Present_To(SDL_GPUTexture * target, unsigned int width, unsigned int height,
 	const uint16_t (*ramp)[256])
 {
+	if (SceneActive && SceneBuffer != NULL && !Finish_Scene()) {
+		fprintf(stderr, "SdlGpuFrame: could not scale the scene into the native back buffer\n");
+		return false;
+	}
 	Refresh_Water_Snapshots();
 	ZH_IOS_WaitForForeground();
 	SDL_GPUCommandBuffer * commands = SDL_AcquireGPUCommandBuffer(GpuDevice);
@@ -1535,6 +1545,8 @@ bool SdlGpuFrame::Present_To(SDL_GPUTexture * target, unsigned int width, unsign
 	ok = Present_Into(commands, target, width, height, BACK_BUFFER_FORMAT, ramp) && ok;
 	const bool submitted = Submit(commands);
 	End_Batch();
+	SceneActive = true;
+	HdrToneApplied = false;
 	return submitted && ok;
 }
 
