@@ -61,6 +61,7 @@
 #include "GameClient/InGameUI.h"
 
 #include "GameLogic/AI.h"
+#include "GameLogic/AIPlayer.h"
 #include "GameLogic/AIPathfind.h"
 #include "GameLogic/ExperienceTracker.h"
 #include "GameLogic/FiringTracker.h"
@@ -100,6 +101,7 @@
 #include "GameLogic/Module/SubdualDamageHelper.h"
 #include "GameLogic/Module/SupplyWarehouseDockUpdate.h"
 #include "GameLogic/Module/TempWeaponBonusHelper.h"
+#include "GameLogic/Module/MarkAndRainBehavior.h"
 #include "GameLogic/Module/ToppleUpdate.h"
 #include "GameLogic/Module/UpdateModule.h"
 #include "GameLogic/Module/UpgradeModule.h"
@@ -1148,7 +1150,7 @@ void Object::setStatus( ObjectStatusMaskType objectStatus, Bool set )
 		{
 			// Damaged repulsable civilians scare (repulse) other civs, but only
 			// for a short amount of time... use the repulsor helper to turn off repulsion shortly.
-			m_repulsorHelper->sleepUntil(TheGameLogic->getFrame() + 2*LOGICFRAMES_PER_SECOND);
+			m_repulsorHelper->sleepUntil(TheGameLogic->getFrame() + 2*LOGICFRAMES_PER_GAME_SECOND);
 		}
 
 		if( objectStatus.test( OBJECT_STATUS_STEALTHED ) || objectStatus.test( OBJECT_STATUS_DETECTED ) || objectStatus.test( OBJECT_STATUS_DISGUISED ) )
@@ -2126,7 +2128,7 @@ Bool Object::isUnknownTo( Int playerIndex ) const
 //-------------------------------------------------------------------------------------------------
 // A shot out of the fog gives its shooter away: the victim's side sees a small circle round the
 // attacker for a moment, enough to see what hit it and not the ground around it.
-static const UnsignedInt FOG_ATTACKER_REVEAL_FRAMES = LOGICFRAMES_PER_SECOND * 5 / 2;
+#define FOG_ATTACKER_REVEAL_FRAMES ((UnsignedInt)(LOGICFRAMES_PER_GAME_SECOND * 5 / 2))
 static const Real FOG_ATTACKER_REVEAL_MARGIN = 15.0f;	///< past the attacker's own footprint, about a shroud cell and a half
 
 static void Object_revealAttackerInFog( const Object *victim, ObjectID attackerID )
@@ -5302,8 +5304,10 @@ void Object::onCapture( Player *oldOwner, Player *newOwner )
 	TheControlBar->markUIDirty();
 
 	if (oldOwner!=newOwner && newOwner->isSkirmishAIPlayer()) {
-		// The skirmish ai doesn't know what to do with captured faction buildings except sell them.
-		if (isFactionStructure()) {
+		// The skirmish ai doesn't know what to do with captured faction buildings except sell them,
+		// short of the foreign tree ForeignTech builds on.
+		const AIPlayer *ai = newOwner->getAIPlayer();
+		if (isFactionStructure() && !(ai && ai->keepsCaptured(this))) {
 			TheBuildAssistant->sellObject( this );
 		}
 	}
@@ -5343,6 +5347,9 @@ void Object::onDie( DamageInfo *damageInfo )
 			if (die)
 				die->onDie(damageInfo);
 		}
+
+		// Turkiye's guns: a kill an eye saw starts a burst on the guns that reach it
+		MarkAndRainBehavior::onDeath( this );
 	}
 
 	// When objects die we remove from the radar as they're really not interesting anymore
@@ -6376,8 +6383,9 @@ void Object::doCommandButton( const CommandButton *commandButton, CommandSourceT
 					if( !BitTest( commandButton->getOptions(), COMMAND_OPTION_NEED_OBJECT_TARGET ) && !BitTest( commandButton->getOptions(), NEED_TARGET_POS ) )
 					{
 						setWeaponLock( commandButton->getWeaponSlot(), LOCKED_TEMPORARILY );
-						//LOCATION BASED FIRE WEAPON
-						ai->aiAttackPosition( NULL, commandButton->getMaxShotsToFire(), cmdSource );
+						//LOCATION BASED FIRE WEAPON: at its own feet, as AIGroup::groupAttackPosition reads a NULL spot
+						// (aiAttackPosition copies the spot, so EA's NULL here read address zero)
+						ai->aiAttackPosition( getPosition(), commandButton->getMaxShotsToFire(), cmdSource );
 					}
 					else
 					{

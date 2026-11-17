@@ -254,7 +254,10 @@ public:
 	virtual void setFadeParameters(Int fadeFrames, Int direction) override;
 	virtual void set3DWireFrameMode(Bool enable) override;	///<enables custom wireframe rendering of 3D viewport
 
-	Bool updateCameraMovements(void); 
+	Bool updateCameraMovements(void);
+	/// a picture that stepped the scripted camera itself (W3DDisplay's script fast branch) skipped update():
+	/// the next update starts the scripted clock afresh instead of paying that time again
+	static void resyncScriptedClock(void);
 	virtual void forceCameraConstraintRecalc(void) override { calcCameraConstraints(); }
 	virtual void applyCameraConstraint( void ) override;
 
@@ -384,6 +387,6 @@ private:
 };  // end class W3DView
 
 // EXTERNALS //////////////////////////////////////////////////////////////////////////////////////
-extern Int TheW3DFrameLengthInMsec;	// default is 33msec/frame == 30fps. but we may change it depending on sys config.
+extern Real TheW3DFrameLengthInMsec;	// one logic tick in milliseconds, MSEC_PER_LOGICFRAME_REAL; a Real, since 1000/30 is no whole number
 
 #endif  // end __W3DVIEW_H_

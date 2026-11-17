@@ -1026,6 +1026,32 @@ Int parseNoChroma(char *args[], int num)
 	return 1;
 }
 
+/* -vertexTerrainSun: the ground keeps EA's sun in its vertex colour on Direct3D 11, as -d3d9 and
+	 Classic do, in place of the sun per pixel from the heights' smooth normal
+	 (HeightMapRenderObjClass::sunPerPixelWanted).  One exe then shoots the before and the after of the
+	 same frame.  Drawing only. */
+Int parseVertexTerrainSun(char *args[], int num)
+{
+	if (TheWritableGlobalData)
+	{
+		TheWritableGlobalData->m_vertexTerrainSun = TRUE;
+	}
+	return 1;
+}
+
+/* -noTerrainSubdivide: the ground keeps EA's two triangles a ten unit cell on Direct3D 11, as -d3d9 and
+	 Classic do, in place of two by two smaller cells shaped by the heights' smooth patch
+	 (HeightMapRenderObjClass::subdivideWanted, TerrainSubdivide.h).  One exe then shoots the before and
+	 the after of the same frame.  Drawing only: logic's heights never see either. */
+Int parseNoTerrainSubdivide(char *args[], int num)
+{
+	if (TheWritableGlobalData)
+	{
+		TheWritableGlobalData->m_noTerrainSubdivide = TRUE;
+	}
+	return 1;
+}
+
 Int parseShadowMapReport(char *args[], int num)
 {
 	if (TheWritableGlobalData)
@@ -1074,7 +1100,7 @@ Int parseNoVolumetricSmoke(char *args[], int)
 }
 
 /* -nosmoothmotion: every model drawn where the last logic tick left it, a tick's state held until the
-	 next, as on a 60 Hz screen.  -recordfps still blends its in-between pictures. */
+	 next, as on a screen no faster than the logic.  -recordfps still blends its in-between pictures. */
 Int parseNoSmoothMotion(char *args[], int)
 {
 	if (TheWritableGlobalData)
@@ -1085,7 +1111,7 @@ Int parseNoSmoothMotion(char *args[], int)
 }
 
 /* -smoothmotion: models drawn between their last two logic states whatever the display's refresh rate,
-	 for a 60 Hz screen rendering uncapped or a picture of the blend on any machine. */
+	 for a screen at the logic's rate rendering uncapped or a picture of the blend on any machine. */
 Int parseSmoothMotion(char *args[], int)
 {
 	if (TheWritableGlobalData)
@@ -1342,7 +1368,7 @@ Int parseNoTactics(char *args[], int num)
 	return 2;
 }
 
-/** -aiknobsoff even|odd|all engagegate,answerarmy,massunit,basewatch,strikedodge,defensequeue: those slots keep their rung with these knobs
+/** -aiknobsoff even|odd|all engagegate,answerarmy,massunit,basewatch,strikedodge,defensequeue,costmap,abilities,maplayers,foreigntech,secondbase: those slots keep their rung with these knobs
 	* of its profile off, so a batch can play Hard against Hard without them, or a scenario against the AI
 	* as it was.  A measuring aid like -notactics: read only in a single-player skirmish, never in a
 	* network game, and a replay made with it is played back with it given again. */
@@ -1361,6 +1387,11 @@ Int parseAIKnobsOff(char *args[], int num)
 		if (strstr(names.str(), "basewatch")) mask |= AIKNOB_BASE_WATCH;
 		if (strstr(names.str(), "strikedodge")) mask |= AIKNOB_STRIKE_DODGE;
 		if (strstr(names.str(), "defensequeue")) mask |= AIKNOB_DEFENSE_QUEUE;
+		if (strstr(names.str(), "costmap")) mask |= AIKNOB_COST_MAP;
+		if (strstr(names.str(), "abilities")) mask |= AIKNOB_ABILITIES;
+		if (strstr(names.str(), "maplayers")) mask |= AIKNOB_MAP_LAYERS;
+		if (strstr(names.str(), "foreigntech")) mask |= AIKNOB_FOREIGN_TECH;
+		if (strstr(names.str(), "secondbase")) mask |= AIKNOB_SECOND_BASE;
 		TheWritableGlobalData->m_aiKnobsOffMask = mask;
 	}
 	return 3;
@@ -1508,15 +1539,16 @@ Int parseIgnoreStackTrace(char *args[], int num)
 }
 #endif
 
-/* -fps <n> is the game speed itself: the rate the logic tick is paced at, for tests; a player gets
-	 normal speed or turbo mode's twice that, and turbo doubles this too.  MSG_NEW_GAME only honours 1..1000.  n is in retail 30 Hz
-	 frames, so -fps 30 is still normal speed and every script that passes it keeps its meaning. */
+/* -fps <n> is the rate the logic tick is paced at, ticks a wall second, for tests; the game speeds do
+	 not touch it, they scale the game time of a tick.  MSG_NEW_GAME only honours 1..1000.  n is in
+	 retail 30 Hz frames, so -fps 30 is still normal speed and every script that passes it keeps its
+	 meaning. */
 
 Int parseFPSLimit(char *args[], int num)
 {
 	if (TheWritableGlobalData && num > 1)
 	{
-		TheWritableGlobalData->m_framesPerSecondLimit = ConvertRetailFrames(atoi(args[1]));
+		TheWritableGlobalData->m_framesPerSecondLimit = ConvertRetailFramesWall(atoi(args[1]));
 	}
 	return 2;
 }
@@ -1707,11 +1739,12 @@ Int parseDirectorRecord(char *args[], int num)
 }
 
 /* -recordfps <n>: the frame rate -video and -directorrecord record at, a multiple of the logic's
-	 * LOGICFRAMES_PER_SECOND (60).
+	 * LOGICFRAMES_PER_SECOND.
 	 *
-	 * At 60 a picture is a logic frame.  At 120 each recorded logic frame is drawn twice before the next
-	 * one runs, the first picture blended half way from the frame before (smooth motion, on for it
-	 * whatever the option says), and ffmpeg is told 120.  The logic runs the same frames either way. */
+	 * At the logic's rate a picture is a logic frame.  At twice it each recorded logic frame is drawn twice
+	 * before the next one runs, the first picture blended half way from the frame before (smooth motion, on
+	 * for it whatever the option says), and ffmpeg is told that rate.  The logic runs the same frames
+	 * either way. */
 Int parseRecordFps(char *args[], int num)
 {
 	if (num < 2)
@@ -1719,9 +1752,10 @@ Int parseRecordFps(char *args[], int num)
 		DEBUG_LOG(("-recordfps: wants a frame rate, a multiple of %d\n", LOGICFRAMES_PER_SECOND));
 		return num;
 	}
-	// four pictures a frame at most: W3D's clock moves in whole milliseconds, and a picture's share of a
-	// 16 ms frame has to be one at least or the drawables are never drawn
-	const Int MOST_PICTURES = 4;
+	// 240 pictures a second at most, whatever the logic's rate: W3D's clock moves in whole milliseconds,
+	// and a picture's share of a frame has to be a few of them or the drawables are never drawn
+	const Int MOST_RECORD_FPS = 240;
+	const Int MOST_PICTURES = MOST_RECORD_FPS / LOGICFRAMES_PER_SECOND;
 	const Int fps = atoi(args[1]);
 	if (fps < LOGICFRAMES_PER_SECOND || fps % LOGICFRAMES_PER_SECOND != 0 || fps > MOST_PICTURES * LOGICFRAMES_PER_SECOND)
 	{
@@ -2046,7 +2080,7 @@ Int parseUIDrill(char *args[], int num)
 {
 	if (TheWritableGlobalData)
 	{
-		Int frames = 120;
+		Int frames = 2 * LOGICFRAMES_PER_SECOND;	// two seconds
 		Int eaten = 1;
 		if (num > 1 && args[1] && args[1][0] >= '0' && args[1][0] <= '9')
 		{
@@ -2072,7 +2106,7 @@ Int parseResDrill(char *args[], int num)
 {
 	if (TheWritableGlobalData)
 	{
-		Int frame = 600;
+		Int frame = 10 * LOGICFRAMES_PER_SECOND;	// ten seconds in
 		Int eaten = 1;
 		if (num > 1 && args[1] && args[1][0] >= '0' && args[1][0] <= '9')
 		{
@@ -2456,12 +2490,18 @@ Int parseSupplyPileLimit(char *args[], int num)
 	return 1;
 }
 
-/* -turbomode: the lobby's turbo mode for an -autoskirmish or -netgame run, twice the logic frames a
-	 second at the same frames.  Not -turbo, which fast-forwards a drawing run as fast as it goes. */
-Int parseTurboMode(char *args[], int num)
+/* -gamespeed <percent>: the skirmish lobby's game speed for an -autoskirmish run, in percent of retail's
+	 pace and taken to the nearest of PLAYER_GAME_SPEED_PERCENTS (100, 125, 150, 200).  The game time
+	 each tick advances: the match still ticks LOGICFRAMES_PER_SECOND times a second, its CRC differs per
+	 speed, and the replay carries the speed (GS=).  A -netgame run always plays the native speed.  Not
+	 -turbo, which fast-forwards a drawing run as fast as it goes. */
+Int parseGameSpeed(char *args[], int num)
 {
-	if (TheWritableGlobalData)
-		TheWritableGlobalData->m_turboMatch = TRUE;
+	if (TheWritableGlobalData && num > 1)
+	{
+		TheWritableGlobalData->m_autoSkirmishGameSpeedPercent = ClampPlayerGameSpeedPercent( atoi( args[1] ) );
+		return 2;
+	}
 	return 1;
 }
 
@@ -2840,6 +2880,8 @@ static CommandLineParam params[] =
 	{ "-noDynamicLOD", parseNoDynamicLOD },
 	{ "-nochroma", parseNoChroma },
 	{ "-shadowmapreport", parseShadowMapReport },
+	{ "-vertexTerrainSun", parseVertexTerrainSun },
+	{ "-noTerrainSubdivide", parseNoTerrainSubdivide },
 	{ "-shadowmapoldcasters", parseShadowMapOldCasters },
 	{ "-shadowmapboth", parseShadowMapBoth },
 	{ "-noparticleshadows", parseNoParticleShadows },
@@ -2981,7 +3023,7 @@ static CommandLineParam params[] =
 	{ "-techrespawn", parseTechRespawn },
 	{ "-superweapons", parseSuperweapons },
 	{ "-supplypilelimit", parseSupplyPileLimit },
-	{ "-turbomode", parseTurboMode },
+	{ "-gamespeed", parseGameSpeed },
 	{ "-startingcash", parseStartingCash },
 	{ "-showlanes", parseShowLanes },
 	{ "-uidrill", parseUIDrill },

@@ -48,6 +48,7 @@
 #include "GameLogic/Module/UpdateModule.h"
 
 #include "GameClient/ControlBar.h"
+#include "GameClient/ControlBarSidebar.h"
 #include "GameClient/Display.h"
 #include "GameClient/Drawable.h"
 #include "GameClient/GameClient.h"
@@ -491,6 +492,26 @@ GameMessageDisposition SelectionTranslator::translateGameMessage(const GameMessa
 			}
 			else //left button is not down (not drag select)
 			{
+				// The Red Alert style layout's steel lets the mouse through its full-screen see-through
+				// parent, so nothing stopped this pick under the sidebar, the strip or the card and the
+				// world's tooltip and highlight showed through it.  On the steel: one location hint as the
+				// cursor arrives, which lets go of what was under it (InGameUI::createMouseoverHint), and
+				// no pick while it stays.  Always off under Classic
+				static Bool s_overSidebarHud = FALSE;
+				if( TheInGameUI->isOverSidebarHud( pixel ) )
+				{
+					if( !s_overSidebarHud )
+					{
+						s_overSidebarHud = TRUE;
+						Coord3D position;
+						TheTacticalView->screenToTerrain( &pixel, &position );
+						GameMessage *leave = TheMessageStream->appendMessage( GameMessage::MSG_MOUSEOVER_LOCATION_HINT );
+						leave->appendLocationArgument( position );
+					}
+					break;
+				}
+				s_overSidebarHud = FALSE;
+
 				// insert Mouseover hint into stream for CommandTranslator and HintSpy to see.
 				GameMessage *mouseoverMessage;
 
@@ -668,6 +689,8 @@ GameMessageDisposition SelectionTranslator::translateGameMessage(const GameMessa
 						TheMouse->setCursor( Mouse::ARROW );
 					}
 				}
+				// the hint stops here, before HintSpy: the sidebar's sell or repair cursor gets its word in
+				Sidebar_pointCursor();
 			}
 
 			break;
@@ -1221,6 +1244,19 @@ GameMessageDisposition SelectionTranslator::translateGameMessage(const GameMessa
 		//-----------------------------------------------------------------------------
 		case GameMessage::MSG_RAW_MOUSE_RIGHT_BUTTON_UP:
 		{
+			// the sidebar's sell or repair cursor is all this click took back (Sidebar_translate)
+			if( Sidebar_takeRightRelease() )
+				break;
+
+			// a signal armed off its key is all the right button takes back, in either mouse style.  This
+			// stood below the Classic branch, which breaks out on every release, so with Classic's mouse,
+			// the default, a right click never reached it.  A right drag that panned still takes nothing back
+			if( TheInGameUI->isSignalArmed() && !TheLookAtTranslator->isRightDragPanning() )
+			{
+				TheInGameUI->disarmSignal();
+				break;
+			}
+
 			// Classic is 1.04's right release.  Only a click counts: the press is the scroll as well
 			// (LookAtXlat), so a release that travelled, was held, or rode the camera too far is not one.
 			// The click takes back a waiting GUI command and nothing else, and eats the release, which
@@ -1255,13 +1291,6 @@ GameMessageDisposition SelectionTranslator::translateGameMessage(const GameMessa
 			// with a structure on the cursor or a GUI command waiting and still have it on release
 			if( TheLookAtTranslator->isRightDragPanning() )
 				break;
-
-			// a signal armed off the command bar is all the right button takes back
-			if( TheInGameUI->isSignalArmed() )
-			{
-				TheInGameUI->disarmSignal();
-				break;
-			}
 
 			//
 			// The right button drops whatever is armed, and it does so on a release that wobbled as
@@ -1371,7 +1400,7 @@ GameMessageDisposition SelectionTranslator::translateGameMessage(const GameMessa
 				}
 
 				// check for double-press to jump view
-				if ( now - m_lastGroupSelTime < ConvertRetailFrames( 20U ) && group == m_lastGroupSelGroup )
+				if ( now - m_lastGroupSelTime < ConvertRetailFramesWall( 20U ) && group == m_lastGroupSelGroup )
 				{
 					DEBUG_LOG(("META: DOUBLETAP select team %d\n",group));
 					Player *player = ThePlayerList->getLocalPlayer();

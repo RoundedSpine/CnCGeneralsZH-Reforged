@@ -1999,6 +1999,11 @@ add_custom_command(TARGET generals POST_BUILD
   COMMAND ${CMAKE_COMMAND} -E copy_directory
           ${CMAKE_CURRENT_SOURCE_DIR}/Data/Cursors
           ${CMAKE_CURRENT_SOURCE_DIR}/../Run/Data/Cursors
+  # The Turkiye units' voices, the wavs VoiceReforged.ini names.  The audio cache opens them loose
+  # from Data/Audio/Sounds, where EA's own sit inside the audio archives; audio is in no checksum.
+  COMMAND ${CMAKE_COMMAND} -E copy_directory
+          ${CMAKE_CURRENT_SOURCE_DIR}/Data/Audio
+          ${CMAKE_CURRENT_SOURCE_DIR}/../Run/Data/Audio
   # The skirmish AI's scripts with the USA Hard opening rewritten by Tools/ScbTool/opening.py.  The
   # file is in the multiplayer checksum (GlobalData.cpp), so it ships with the exe like the INIs.
   COMMAND ${CMAKE_COMMAND} -E copy_directory
@@ -2431,7 +2436,14 @@ target_include_directories(test_audio_mix_policy PRIVATE ${CMAKE_CURRENT_SOURCE_
 
 # W3DDevice/GameClient/GroundMarks.h: the Battle Marks option's cap and fade.
 add_lib_test(test_ground_marks)
-target_include_directories(test_ground_marks PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/GameEngineDevice/Include)
+target_include_directories(test_ground_marks PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/GameEngineDevice/Include
+  ${CMAKE_CURRENT_SOURCE_DIR}/GameEngine/Include ${CMAKE_CURRENT_SOURCE_DIR}/Libraries/Include)
+# W3DDevice/GameClient/TerrainSubdivide.h: the subdivided ground through the samples, near the plane.
+add_lib_test(test_terrain_subdivide)
+target_include_directories(test_terrain_subdivide PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/GameEngineDevice/Include)
+# W3DDevice/GameClient/FoliagePlacement.h: where the GroundFoliage option's grass tufts stand.
+add_lib_test(test_foliage_placement)
+target_include_directories(test_foliage_placement PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/GameEngineDevice/Include)
 add_lib_test(test_fire_lights)
 target_include_directories(test_fire_lights PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/GameEngineDevice/Include)
 

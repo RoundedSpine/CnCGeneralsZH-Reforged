@@ -2578,6 +2578,10 @@ GameWindow *GameWindowManager::gogoGadgetComboBox( GameWindow *parent,
 	// allocate the listbox data, copy template data over and set it into box
 	comboBoxData = NEW ComboBoxData;
 	memcpy( comboBoxData, comboBoxDataTemplate, sizeof( ComboBoxData ) );
+	comboBoxData->dropDownPitch = 0;	// not every template is zeroed (GUIEdit's)
+	comboBoxData->dropDownRoom = 0;
+	comboBoxData->dropDownRoomAbove = 0;
+	comboBoxData->dropUpShift = 0;
 
   // Add the list box data struct to the window's class data
   comboBox->winSetUserData( comboBoxData );
@@ -4222,27 +4226,25 @@ Bool GameWindowManager::initTestGUI( void )
 }  // end initTestGUI
 
 
+/// a window Tab may give focus to: there, enabled, and neither it nor a parent hidden
+static Bool isTabStop( GameWindow *window )
+{
+	if( window == NULL || !BitTest( window->winGetStatus(), WIN_STATUS_ENABLED ) )
+		return FALSE;
+	for( GameWindow *w = window; w; w = w->winGetParent() )
+		if( w->winIsHidden() )
+			return FALSE;
+	return TRUE;
+}
+
 void GameWindowManager::winNextTab( GameWindow *window )
 {
 	if(m_tabList.size() == 0|| m_modalHead)
 		return;
 
-	GameWindowList::iterator it = m_tabList.begin();
-	while( it != m_tabList.end())
-	{
-		if(*it == window)
-		{
-			it++;
-			break;
-		}
-		it++;
-	}
+	GameWindowList::iterator it = findTabStop( m_tabList.begin(), m_tabList.end(), window, isTabStop );
 	if(it != m_tabList.end())
 		winSetFocus(*it);
-	else
-	{
-		winSetFocus(*m_tabList.begin());
-	}
 	winSetLoneWindow(NULL);
 }
 
@@ -4251,22 +4253,9 @@ void GameWindowManager::winPrevTab( GameWindow *window )
 	if(m_tabList.size() == 0 || m_modalHead)
 		return;
 
-	GameWindowList::reverse_iterator it = m_tabList.rbegin();
-	while( it != m_tabList.rend())
-	{
-		if(*it == window)
-		{
-			it++;
-			break;
-		}
-		it++;
-	}
+	GameWindowList::reverse_iterator it = findTabStop( m_tabList.rbegin(), m_tabList.rend(), window, isTabStop );
 	if(it != m_tabList.rend())
 		winSetFocus(*it);
-	else
-	{
-		winSetFocus(*m_tabList.rbegin());
-	}	
 	winSetLoneWindow(NULL);
 }
 

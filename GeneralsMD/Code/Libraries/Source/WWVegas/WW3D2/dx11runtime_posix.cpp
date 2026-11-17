@@ -72,6 +72,10 @@ bool Direct3D11_Lights_Per_Pixel() { return SceneEffects::LightsPerPixel(DX8Wrap
 void Direct3D11_Set_Soft_Particles(bool value) { SceneEffects::SetParticleFlag(DX8Wrapper::_Get_D3D_Device(),SceneEffects::SoftParticles,value); }
 void Direct3D11_Take_Scene_Depth() { SceneEffects::TakeParticleDepth(DX8Wrapper::_Get_D3D_Device()); }
 void Direct3D11_Allow_Soft_Particles(bool value) { SceneEffects::AllowEffects(DX8Wrapper::_Get_D3D_Device(),value); }
+void Direct3D11_Set_Terrain_Relight(bool) {}
+void Direct3D11_Set_Terrain_Light(const float *) {}
+bool Direct3D11_Set_Terrain_Heights(const unsigned char *, unsigned, unsigned) { return false; }
+bool Direct3D11_Holds_Terrain_Heights() { return false; }
 
 bool Direct3D11_Begin_Shadow_Map(unsigned) { return false; }
 void Direct3D11_End_Shadow_Map() {}

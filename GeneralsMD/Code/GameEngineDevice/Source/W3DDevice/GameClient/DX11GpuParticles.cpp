@@ -17,6 +17,7 @@
 #include "W3DDevice/GameClient/GpuParticles.h"
 #include "Platform/ParticleShaders.h"
 #include "Common/Debug.h"
+#include "Common/GameCommon.h"
 #include "dx11backend.h"
 #include "dx11device.h"
 #include "dx11runtime.h"
@@ -46,7 +47,10 @@ const unsigned Alpha = 2;				// ParticleSystemInfo::ALPHA
 // The records, field for field as ParticleClosedForm.h lays them out.  A StructuredBuffer packs
 // its elements at four bytes, so a float3 followed by a scalar is the C struct's sixteen bytes.
 // Construct shared shader text on first use, after engine memory initialization.
-static const char *evaluateProgram(){static const std::string text=ParticleShaders::Evaluation();return text.c_str();}
+// The fade length is ParticleClosedForm.h's PARTICLE_CLOSED_FORM_FADE_MAX_FRAMES, eight retail frames in logic
+// frames (W3DParticleSys.cpp asserts the two agree), written into closed_fade's FADE_MAX. At 60 ticks a second
+// the text is the 16u it always was, so the shipped shader cache still matches it.
+static const char *evaluateProgram(){static const std::string text=ParticleShaders::Evaluation(false,8*LOGICFRAMES_PER_RETAIL_FRAME);return text.c_str();}
 static const char *drawVertexProgram(){static const std::string text=ParticleShaders::Vertex();return text.c_str();}
 #define GPU_PARTICLE_PASS_CONSTANTS \
 	"cbuffer DrawPass : register(b0)\n" \
@@ -223,6 +227,18 @@ void release()
 	drop(state.passConstants);
 	drop(state.blitConstants);
 	state = State();
+}
+
+/* ParticleClosedForm.h's PARTICLE_CLOSED_FORM_FADE_MAX_FRAMES, eight retail frames in logic frames
+	 (W3DParticleSys.cpp asserts the two agree), written into closed_fade's FADE_MAX.  At 60 ticks a second
+	 the text is the 16u it always was, so the shipped shader cache still matches it. */
+std::string evaluateProgram()
+{
+	std::string source = EVALUATE_PROGRAM;
+	const std::string fadeMax = std::to_string(8 * LOGICFRAMES_PER_RETAIL_FRAME);
+	for (size_t at = source.find("FADE_MAX"); at != std::string::npos; at = source.find("FADE_MAX", at))
+		source.replace(at, 8, fadeMax);
+	return source;
 }
 
 bool compile(DX11BackendClass *backend, ID3D11Device *device, const char *source, const char *name,

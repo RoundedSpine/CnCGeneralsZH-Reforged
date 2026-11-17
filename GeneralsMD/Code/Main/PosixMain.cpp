@@ -462,10 +462,19 @@ static int runIOSGameMain( int argc, char *argv[] )
 int main( int argc, char *argv[] )
 #endif
 {
+	GameSpeed_markMainStarted();
 	TheUnicodeStringCriticalSection = &critSec2;
 	TheDmaCriticalSection = &critSec3;
 	TheMemoryPoolCriticalSection = &critSec4;
 	TheDebugLogCriticalSection = &critSec5;
+#if defined(_DEBUG) || defined(_INTERNAL)
+	{
+		// -initspeed <percent>: start at that game speed instead of the native one (WinMain.cpp has why)
+		char initSpeed[ 16 ];
+		if( findEarlyCommandLineValue( L"-initspeed", initSpeed, sizeof( initSpeed ) ) )
+			GameSpeed_set( ClampPlayerGameSpeedPercent( atoi( initSpeed ) ) );
+	}
+#endif
 #if defined(ZH_PLATFORM_IOS)
 	// installCrashHandlers caches findUserDataDirectory: choose the sandbox first.
 	if (!ZH_IOS_Bootstrap())
@@ -594,6 +603,7 @@ int main( int argc, char *argv[] )
 		setCrashLogDescriptor( STDERR_FILENO );
 		ZH_IOS_StartupTrace( "memory.begin", "engine allocator initialization" );
 #endif
+		DEBUG_ASSERTCRASH( GameSpeed_readsBeforeMain() == 0, ( "%d reads of the game speed before main: a dynamic initialiser caches it", GameSpeed_readsBeforeMain() ) );
 		initMemoryManager();
 #if defined(ZH_PLATFORM_IOS)
 		ZH_IOS_StartupTrace( "memory.ready", "engine allocator initialized" );
