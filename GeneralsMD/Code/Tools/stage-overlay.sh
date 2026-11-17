@@ -24,7 +24,7 @@
 #
 # The shipped overlay, from generals' Windows post-build list (CMakeLists.txt) less what package.bat
 # leaves out, as P1 inferred it (to be confirmed against upstream's release tooling):
-#   Data/INI/, Data/Patch.str, Data/Cursors/, Data/Scripts/, Data/Turkish/, Data/German/, Data/Ukrainian/, Data/Russian/,
+#   Data/INI/, Data/Patch.str, Data/Cursors/, Data/Audio/, Data/Scripts/, Data/Turkish/, Data/German/, Data/Ukrainian/, Data/Russian/,
 #   Data/French/, Install_Final.bmp, Art/Textures/, Window/
 # and the fork's art archives, Reforged*.big from the Run folder when vendor.sh has fetched them,
 # LINKED here (1.65 GB): the bundle step copies them through the links.
@@ -74,6 +74,7 @@ else
 	find "$out/Data/INI" -type f -exec perl -pi -e 's/(?<!\r)\n/\r\n/' {} +
 	copy Patch.str Data/Patch.str
 	copy Cursors Data/Cursors
+	copy Audio Data/Audio
 	copy Scripts Data/Scripts
 	copy Turkish Data/Turkish
 	copy German Data/German

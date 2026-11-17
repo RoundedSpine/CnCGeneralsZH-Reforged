@@ -388,11 +388,12 @@ GROUP_LAYOUT = [
             ("check", "CheckDetailedModels"),
             ("check", "CheckHDTextures"),
             # the Screen column is full with the monitor and the resolution note
-            setting("LabelFrameRateLimit", "ComboBoxFrameRateLimit"),
-            ("check", "CheckParticlePerfDiagnostics")]),
+            setting("LabelFrameRateLimit", "ComboBoxFrameRateLimit")]),
         # from Interface, whose first column ran past the page once HUD took Layout and HUD Width
         ("GUI:OptionsGroupMenus", [
-            setting("LabelMenuTransitionSpeed", "SliderMenuTransitionSpeed", "ValueMenuTransitionSpeed")])]),
+            setting("LabelMenuTransitionSpeed", "SliderMenuTransitionSpeed", "ValueMenuTransitionSpeed"),
+            # the Screen and Picture columns are full to the page's foot; the diagnostic keeps its place on Display here
+            ("check", "CheckParticlePerfDiagnostics")])]),
 
     ("PageGraphics", [
         # the particle limit went to Effects' Particles group to make room for the quality slider
