@@ -11272,9 +11272,13 @@ TEST(frame_rate_limit_round_trips_through_options_ini)
 }
 
 /** The interface's layout and width: Classic and the whole screen with no line, so a key-less file
-	 is the Classic game, and both rebuild the shell on Accept since the bar reads them as it is laid out. */
+	 is the Classic game, and both rebuild the shell on Accept since the bar reads them as it is laid out.
+	 The layout brings its keys: the sidebar Red Alert's, Classic the Classic ones, and a HotkeyScheme
+	 line of its own is a key nothing reads any more. */
 TEST(hud_layout_and_width_round_trip_through_options_ini)
 {
+	CHECK( findOptionDef( "HotkeyScheme" ) == NULL );
+
 	const OptionDef *layout = findOptionDef( "HudLayout" );
 	const OptionDef *width = findOptionDef( "HudWidth" );
 	CHECK( layout != NULL );
@@ -11293,19 +11297,29 @@ TEST(hud_layout_and_width_round_trip_through_options_ini)
 	CHECK_EQ( TheGlobalData->m_hudWidth, (Int)HUD_WIDTH_FULL );
 	CHECK_EQ( optionDefaultValue( *layout ), (Int)HUD_LAYOUT_CLASSIC );
 	CHECK_EQ( optionDefaultValue( *width ), (Int)HUD_WIDTH_FULL );
+	CHECK_EQ( TheGlobalData->m_hotkeyScheme, (Int)HOTKEY_SCHEME_CLASSIC );
 
 	UserPreferences pref;
 	pref[ AsciiString( "HudLayout" ) ] = AsciiString( "1" );
 	pref[ AsciiString( "HudWidth" ) ] = AsciiString( "2" );
+	pref[ AsciiString( "HotkeyScheme" ) ] = AsciiString( "0" );
 	loadOptionsFromPreferences( pref );
 	CHECK_EQ( TheGlobalData->m_hudLayout, (Int)HUD_LAYOUT_SIDEBAR );
 	CHECK_EQ( TheGlobalData->m_hudWidth, (Int)HUD_WIDTH_16_9 );
+	CHECK_EQ( TheGlobalData->m_hotkeyScheme, (Int)HOTKEY_SCHEME_RED_ALERT );
 
 	pref[ AsciiString( "HudLayout" ) ] = AsciiString( "7" );
 	pref[ AsciiString( "HudWidth" ) ] = AsciiString( "9" );
 	loadOptionsFromPreferences( pref );
 	CHECK_EQ( TheGlobalData->m_hudLayout, HUD_LAYOUT_COUNT - 1 );
 	CHECK_EQ( TheGlobalData->m_hudWidth, HUD_WIDTH_COUNT - 1 );
+	CHECK_EQ( TheGlobalData->m_hotkeyScheme, (Int)HOTKEY_SCHEME_RED_ALERT );
+
+	// the menu's Accept goes through the same setter
+	layout->set( HUD_LAYOUT_CLASSIC );
+	CHECK_EQ( TheGlobalData->m_hotkeyScheme, (Int)HOTKEY_SCHEME_CLASSIC );
+	layout->set( HUD_LAYOUT_SIDEBAR );
+	CHECK_EQ( TheGlobalData->m_hotkeyScheme, (Int)HOTKEY_SCHEME_RED_ALERT );
 
 	delete TheWritableGlobalData;
 	TheWritableGlobalData = saved;
@@ -14620,15 +14634,15 @@ TEST(the_generator_still_turns_a_seed_into_the_bytes_it_used_to)
 {
 	CHECK( bootOnce() );
 
-	CHECK_EQ( RANDOM_MAP_GENERATOR_VERSION, 18 );
+	CHECK_EQ( RANDOM_MAP_GENERATOR_VERSION, 19 );
 
 	struct RMGFingerprint { Int m_seed, m_players, m_cells, m_style; UnsignedInt m_crc; };
 	static const RMGFingerprint theFingerprints[] =
 	{
-		{ 0, 2, 64, 0, 0x1BF70484 },
-		{ 12345, 4, 96, 0, 0x114BBAEA },
-		{ 7, 8, 128, 0, 0xFB27A0BB },
-		{ 7, 4, 200, 1, 0x1F261D65 },
+		{ 0, 2, 64, 0, 0x37DE617A },
+		{ 12345, 4, 96, 0, 0xFDB4EB7C },
+		{ 7, 8, 128, 0, 0x14D69CEE },
+		{ 7, 4, 200, 1, 0xBFE61224 },
 	};
 	const Int numFingerprints = sizeof(theFingerprints) / sizeof(theFingerprints[0]);
 
@@ -14670,6 +14684,44 @@ TEST(the_generator_still_turns_a_seed_into_the_bytes_it_used_to)
 
 	// and the caller's mode is handed back rather than left at the simulation's
 	CHECK_EQ( _controlfp( 0, 0 ), entry );
+}
+
+//-------------------------------------------------------------------------------------------------
+/** A map that cuts somebody off, seats two players on one pad or a base in a lake still gets built,
+	so nothing would say so but this. The fingerprinted maps, and a styled bowl asked for at a size it
+	cannot shrink to, which is held to 0.6 of its full size (214 of 356 cells) rather than built as one
+	plateau with the starts five cells apart. */
+//-------------------------------------------------------------------------------------------------
+TEST(every_generated_seat_is_dry_and_walks_to_the_others_and_the_money)
+{
+	CHECK( bootOnce() );
+
+	RandomMapSettings bowl;
+	bowl.m_seed = 1;
+	bowl.m_numPlayers = 8;
+	bowl.m_playableCells = 64;
+	bowl.m_style = 1;
+	RandomMapGenerator::clampSettings( bowl );
+	CHECK_EQ( bowl.m_playableCells, 214 );
+
+	struct RMGCase { Int m_seed, m_players, m_cells, m_style; };
+	static const RMGCase theCases[] =
+	{
+		{ 0, 2, 64, 0 }, { 12345, 4, 96, 0 }, { 7, 8, 128, 0 }, { 7, 4, 200, 1 }, { 1, 8, 64, 1 },
+	};
+	for( Int i = 0; i < (Int)( sizeof(theCases) / sizeof(theCases[0]) ); i++ )
+	{
+		RandomMapSettings settings;
+		settings.m_seed = theCases[i].m_seed;
+		settings.m_numPlayers = theCases[i].m_players;
+		settings.m_playableCells = theCases[i].m_cells;
+		settings.m_style = theCases[i].m_style;
+		const Bool playable = RandomMapGenerator::isPlayable( settings );
+		if( !playable )
+			printf( "  seed %d players %d cells %d style %d is not playable\n", settings.m_seed, settings.m_numPlayers,
+				settings.m_playableCells, settings.m_style );
+		CHECK( playable );
+	}
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -14873,7 +14925,7 @@ TEST(a_template_map_comes_out_the_same_twice_and_every_start_walks_to_every_othe
 	RandomMapGenerator::generate( exemplarSettings, exemplar );
 
 	// the bytes themselves, pinned like the generator's: a change here is a change to every template map's name
-	static const UnsignedInt theTemplateFingerprints[2] = { 0x26A63ABEu, 0x6D469E48u };
+	static const UnsignedInt theTemplateFingerprints[2] = { 0x1357CB4Cu, 0xE273FE41u };
 	for( Int players = 2; players <= 8; players += 6 )
 	{
 		RandomMapSettings settings;
@@ -16322,11 +16374,12 @@ TEST(a_template_joins_two_plateau_bases_across_a_corridor_not_a_valley)
 }
 
 //-------------------------------------------------------------------------------------------------
-/** A LAN game names a template map by four letters of its folder's name, and a machine binds the
-	first folder under maps\ whose letters match, so two shipped maps sharing four letters would put
-	the later one out of LAN games without a word. Every map folder Zero Hour and Generals ship, read
-	out of MapsZH.big and Maps.big, has letters of its own; the day one does not, the wire takes a
-	fifth letter. */
+/** A LAN game names a template map by four letters of its folder's name and two of its CRC, and a
+	machine binds the first folder under maps\ whose name letters match and then whose CRC letters do,
+	so two shipped maps sharing four name letters could put the later one out of LAN games without a
+	word. The name letters depend on no file, so this needs no game data: every map folder Zero Hour and
+	Generals ship, read out of MapsZH.big and Maps.big, has name letters of its own; the day one does
+	not, the wire takes a fifth. */
 //-------------------------------------------------------------------------------------------------
 TEST(every_shipped_map_has_wire_letters_of_its_own)
 {
@@ -16365,19 +16418,102 @@ TEST(every_shipped_map_has_wire_letters_of_its_own)
 	for( Int i = 0; i < numShippedMaps; i++ )
 	{
 		AsciiString folder, wire;
-		folder.format( "rmg_v17_1_2p_200c_t00000001_%s", theShippedMaps[i] );
+		folder.format( "rmg_v19_1_2p_200c_t00000001_%s", theShippedMaps[i] );
 		CHECK( generatedMapWireName( folder, wire ) );
-		const char *letters = strrchr( wire.str(), '~' );
-		CHECK( letters != NULL && letters != wire.str() );
-		if( letters == NULL )
+		const char *tail = strrchr( wire.str(), '~' );
+		CHECK( tail != NULL && tail != wire.str() && strlen( tail ) == 7 );
+		if( tail == NULL || strlen( tail ) != 7 )
 			continue;
+		// "~", four name letters, two CRC letters: the name letters are what binds a folder
+		const std::string letters( tail + 1, 4 );
 		std::map<std::string, const char *>::const_iterator twin = seen.find( letters );
 		if( twin != seen.end() )
-			printf( "  '%s' and '%s' both go as %s\n", twin->second, theShippedMaps[i], letters );
+			printf( "  '%s' and '%s' both go as %s\n", twin->second, theShippedMaps[i], letters.c_str() );
 		CHECK( twin == seen.end() );
 		seen[letters] = theShippedMaps[i];
 	}
 	CHECK_EQ( (Int)seen.size(), numShippedMaps );
+}
+
+//-------------------------------------------------------------------------------------------------
+/** Two letters of a template's CRC on a LAN name leave one machine in 1296 with other rules reading
+	the host's name back. What still tells them apart is the map CRC the room compares (MapUtil's
+	calcCRC), which reads "<map folder>\map.ini" beside the map: for a generated map built from a
+	template the store serves the template's own map.ini there, so the rules are in that CRC. This
+	pins the serving, with a made-up template on disk (a generated map's bytes standing in for the
+	.map), and that the name carries a CRC with the rules in it. */
+//-------------------------------------------------------------------------------------------------
+TEST(a_template_maps_rules_are_served_beside_it_and_in_its_name)
+{
+	CHECK( bootOnce() );
+
+	GlobalData *saved = TheWritableGlobalData;
+	TheWritableGlobalData = NEW GlobalData;
+
+	const std::filesystem::path home = std::filesystem::current_path();
+	const std::filesystem::path dir = std::filesystem::temp_directory_path() / "zh_rmg_template_rules";
+	std::filesystem::remove_all( dir );
+	std::filesystem::create_directories( dir / "maps" / "rmgtest rules" );
+	std::filesystem::current_path( dir );
+
+	RandomMapSettings exemplar;
+	exemplar.m_seed = 5;
+	exemplar.m_numPlayers = 2;
+	std::vector<char> mapBytes;
+	RandomMapGenerator::generate( exemplar, mapBytes );
+	FILE *fp = fopen( "maps\\rmgtest rules\\rmgtest rules.map", "wb" );
+	CHECK( fp != NULL );
+	if( fp )
+	{
+		fwrite( &mapBytes[0], 1, mapBytes.size(), fp );
+		fclose( fp );
+	}
+	const char *const rules = "Weather\r\n  SnowEnabled = Yes\r\nEnd\r\n";
+	writeFile( "maps\\rmgtest rules\\map.ini", rules );
+
+	RandomMapSettings settings;
+	settings.m_seed = 77;
+	settings.m_numPlayers = 2;
+	settings.m_playableCells = 200;
+	settings.m_template = "maps\\rmgtest rules\\rmgtest rules.map";
+	RandomMapGenerator::clampSettings( settings );
+	CHECK( !settings.m_template.isEmpty() );
+
+	// the name's CRC is the .map's with the rules folded in
+	UnsignedInt bare = 0;
+	CHECK( rmgTemplateCRC( settings.m_template, &bare ) );
+	CHECK( settings.m_templateCRC != 0 && settings.m_templateCRC != bare );
+
+	// the generated folder's map.ini is the template's, byte for byte, which is what the map CRC reads
+	AsciiString path;
+	CHECK( stageRandomMap( settings, path ) );
+	AsciiString rulesPath = path;
+	while( !rulesPath.isEmpty() && !rulesPath.endsWith( "\\" ) )
+		rulesPath.removeLastChar();
+	rulesPath.concat( "map.ini" );
+	File *file = TheFileSystem->openFile( rulesPath.str(), File::READ | File::BINARY );
+	CHECK( file != NULL );
+	if( file )
+	{
+		const Int size = file->size();
+		char *served = file->readEntireAndClose();
+		CHECK_EQ( size, (Int)strlen( rules ) );
+		CHECK( size == (Int)strlen( rules ) && memcmp( served, rules, size ) == 0 );
+		delete [] served;
+	}
+
+	// a name carrying the CRC of the .map alone, a machine without these rules, is no map of ours
+	AsciiString token, other;
+	CHECK( rmgTemplateToken( settings.m_template, token ) );
+	other.format( "Maps\\RMG_v%d_77_2p_%dc_t%08x_%s\\map.ini", RANDOM_MAP_GENERATOR_VERSION, settings.m_playableCells,
+		bare, token.str() );
+	CHECK( !isGeneratedMapPath( other ) );
+
+	std::filesystem::current_path( home );
+	std::error_code ec;
+	std::filesystem::remove_all( dir, ec );
+	delete TheWritableGlobalData;
+	TheWritableGlobalData = saved;
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -16480,7 +16616,8 @@ TEST(a_style_map_is_named_for_its_style_and_rebuilt_from_the_name)
 
 	AsciiString path;
 	CHECK( stageRandomMap( settings, path ) );
-	CHECK( path.endsWithNoCase( "_77_4p_200c_twilight.map" ) );
+	// 200 is under the least the bowl shrinks to, 0.6 of its 356, so the name says what was built
+	CHECK( path.endsWithNoCase( "_77_4p_214c_twilight.map" ) );
 
 	std::vector<char> styled, plain;
 	RandomMapGenerator::generate( settings, styled );
@@ -20568,24 +20705,50 @@ TEST(hud_layout_rects_tile_the_screen)
 	CHECK_EQ( r.radar.lo.x, 1608 );
 	CHECK_EQ( r.radar.lo.y, 56 );
 	CHECK_EQ( r.radar.width(), 304 );
-	CHECK_EQ( r.tabs[ 0 ].lo.x, 1624 );
-	CHECK_EQ( r.tabs[ 0 ].width(), 70 );
-	CHECK_EQ( r.tabs[ 1 ].lo.x - r.tabs[ 0 ].hi.x, 3 );
-	CHECK_EQ( r.tabs[ 3 ].lo.x, 1843 );
-	CHECK_EQ( r.tabs[ 3 ].hi.x, 1912 );
-	CHECK_EQ( r.tabs[ 3 ].lo.y, 420 );
-	CHECK_EQ( r.cameos[ 1 ].lo.x, 1772 );
+	// down to the tabs one grid of four 70 wide columns 8 apart over the radar's width: the menu, the
+	// Sell key and the first tab share column 0, the money and the General button two columns each
+	for( Int i = 0; i < HUD_SIDEBAR_TABS; ++i )
+	{
+		CHECK_EQ( r.tabs[ i ].lo.x, 1608 + 78 * i );
+		CHECK_EQ( r.tabs[ i ].width(), 70 );
+		CHECK_EQ( r.tabs[ i ].lo.y, 420 );
+	}
+	CHECK_EQ( r.tabs[ 3 ].hi.x, r.radar.hi.x );
+	CHECK_EQ( r.menuButton.lo.x, r.tabs[ 0 ].lo.x );
+	CHECK_EQ( r.menuButton.hi.x, r.tabs[ 0 ].hi.x );
+	CHECK_EQ( r.sellButton.lo.x, r.tabs[ 0 ].lo.x );
+	CHECK_EQ( r.sellButton.hi.x, r.tabs[ 0 ].hi.x );
+	CHECK_EQ( r.repairButton.lo.x, r.tabs[ 1 ].lo.x );
+	CHECK_EQ( r.repairButton.hi.x, r.tabs[ 1 ].hi.x );
+	CHECK_EQ( r.money.lo.x, r.tabs[ 1 ].lo.x );
+	CHECK_EQ( r.money.hi.x, r.tabs[ 2 ].hi.x );
+	CHECK_EQ( r.generalButton.lo.x, r.tabs[ 2 ].lo.x );
+	CHECK_EQ( r.generalButton.hi.x, r.tabs[ 3 ].hi.x );
+	CHECK_EQ( r.diplomacyButton.lo.x, r.tabs[ 3 ].lo.x );
+	CHECK_EQ( r.diplomacyButton.hi.x, r.tabs[ 3 ].hi.x );
+	CHECK_EQ( r.powerRail.lo.y, r.pickerAll.lo.y );
+	CHECK( r.powerRail.hi.x < r.pickerAll.lo.x );
+	// three wells of 92x75 across the tabs' 1624..1912, seven rows down to 1040, 4 over the arrows
+	CHECK_EQ( HUD_SIDEBAR_CAMEO_COLUMNS, 3 );
+	CHECK_EQ( HUD_SIDEBAR_CAMEO_ROWS, 7 );
+	CHECK_EQ( r.cameos[ 0 ].lo.x, 1624 );
+	CHECK_EQ( r.cameos[ 0 ].width(), 92 );
+	CHECK_EQ( r.cameos[ 0 ].height(), 75 );
+	CHECK_EQ( r.cameos[ 1 ].lo.x, 1722 );
 	CHECK_EQ( r.cameos[ 1 ].lo.y, 491 );
-	CHECK_EQ( r.cameos[ 11 ].lo.y, 945 );		// 491 + 5 * 90.8
+	CHECK_EQ( r.cameos[ 2 ].hi.x, 1912 );
+	CHECK_EQ( r.cameos[ HUD_SIDEBAR_CAMEO_COLUMNS ].lo.y, 570 );
+	CHECK_EQ( r.cameos[ HUD_SIDEBAR_CAMEOS - 1 ].lo.y, 965 );		// 491 + 6 * 79
+	CHECK_EQ( r.cameos[ HUD_SIDEBAR_CAMEOS - 1 ].hi.y, 1040 );
 	CHECK_EQ( r.arrowDown.lo.y, 1044 );
 	CHECK_EQ( r.pickerAll.lo.x, 1624 );
 	CHECK_EQ( r.pickerAll.width(), 50 );
 	CHECK_EQ( r.pickerAll.height(), 28 );
-	CHECK_EQ( r.pickerChips[ 0 ].lo.x, 1677 );
-	CHECK_EQ( r.pickerChips[ 0 ].lo.x - r.pickerAll.hi.x, 3 );
-	CHECK_EQ( r.pickerChips[ HUD_SIDEBAR_PICKER_CHIPS - 1 ].lo.x, 1836 );
+	CHECK_EQ( r.pickerChips[ 0 ].lo.x, 1680 );
+	CHECK_EQ( r.pickerChips[ 0 ].lo.x - r.pickerAll.hi.x, r.cameos[ 1 ].lo.x - r.cameos[ 0 ].hi.x );
+	CHECK_EQ( r.pickerChips[ HUD_SIDEBAR_PICKER_CHIPS - 1 ].lo.x, 1848 );
 	CHECK_EQ( r.pickerChips[ HUD_SIDEBAR_PICKER_CHIPS - 1 ].width(), 50 );
-	CHECK_EQ( r.pickerChips[ HUD_SIDEBAR_PICKER_CHIPS - 1 ].hi.x, 1886 );
+	CHECK_EQ( r.pickerChips[ HUD_SIDEBAR_PICKER_CHIPS - 1 ].hi.x, 1898 );
 	for( Int i = 0; i < HUD_SIDEBAR_PICKER_CHIPS; ++i )
 		CHECK_EQ( r.pickerChips[ i ].width(), r.pickerAll.width() );
 	CHECK_EQ( r.pickerChips[ 0 ].lo.y, 459 );
@@ -20593,10 +20756,16 @@ TEST(hud_layout_rects_tile_the_screen)
 	CHECK_EQ( r.cameos[ 0 ].lo.y - r.pickerAll.hi.y, 4 );
 	CHECK_EQ( r.pickerChips[ 0 ].height(), 28 );
 	CHECK_EQ( r.powerRail.hi.y, 1072 );
+	// the commands at the art's own 60x48, 8 in from the strip's top and foot like the clock
 	CHECK_EQ( r.stripButtons[ 13 ].lo.x, 840 );
-	CHECK_EQ( r.stripButtons[ 0 ].lo.y, 1020 );
+	CHECK_EQ( r.stripButtons[ 13 ].hi.x, 900 );
+	CHECK_EQ( r.stripButtons[ 0 ].lo.y, 1024 );
+	CHECK_EQ( r.stripButtons[ 0 ].width(), HUD_CAMEO_ART_W );
+	CHECK_EQ( r.stripButtons[ 0 ].height(), HUD_CAMEO_ART_H );
 	CHECK_EQ( r.stripClock.lo.x, 1500 );
-	CHECK_EQ( r.stripSpare.lo.x, 904 );
+	CHECK_EQ( r.stripSpare.lo.x, 908 );
+	CHECK_EQ( r.stripSpare.lo.y, 1024 );
+	CHECK_EQ( r.stripSpare.hi.y, 1072 );
 	CHECK_EQ( r.card.lo.x, 0 );
 	CHECK_EQ( r.card.lo.y, 896 );
 	CHECK_EQ( r.card.hi.x, 470 );
@@ -20631,6 +20800,25 @@ TEST(hud_layout_rects_tile_the_screen)
 	CHECK_EQ( r.superweaponRow.height(), 40 );
 	CHECK_EQ( r.superweaponRow.hi.y, 1008 );
 	CHECK_EQ( r.superweaponRowPitch, 44 );
+
+	// the pictures keep the art's 5:4 in wells of another shape: the portrait in its 116x90, a tray
+	// tile in what 2 in from its 50x42 leaves
+	IRegion2D fit = HudFitAspect( r.portrait, HUD_CAMEO_ART_W, HUD_CAMEO_ART_H );
+	CHECK_EQ( fit.width(), 113 );
+	CHECK_EQ( fit.height(), 90 );
+	CHECK_EQ( fit.lo.x, 9 );
+	CHECK_EQ( fit.lo.y, r.portrait.lo.y );
+	IRegion2D well = r.trayCells[ 0 ];
+	well.lo.x += 2;
+	well.lo.y += 2;
+	well.hi.x -= 2;
+	well.hi.y -= 2;
+	fit = HudFitAspect( well, HUD_CAMEO_ART_W, HUD_CAMEO_ART_H );
+	CHECK_EQ( fit.width(), 46 );
+	CHECK_EQ( fit.height(), 37 );
+	CHECK( hudRegionInside( fit, well ) );
+	IRegion2D none = { { 5, 5 }, { 5, 9 } };
+	CHECK_EQ( HudFitAspect( none, HUD_CAMEO_ART_W, HUD_CAMEO_ART_H ).hi.y, 9 );		// no width: as it went in
 
 	// Classic fills the area only
 	HudLayoutForScreen( 1920, 1080, HUD_LAYOUT_CLASSIC, HUD_WIDTH_FULL, &r );
@@ -20688,7 +20876,7 @@ TEST(hud_layout_rects_tile_the_screen)
 			if( c == HUD_WIDTH_FULL )
 				CHECK_EQ( hudRegionArea( r.area ), w * h );
 
-			const IRegion2D *side[ 32 ];
+			const IRegion2D *side[ 11 + HUD_SIDEBAR_TABS + HUD_SIDEBAR_PICKER_CHIPS + HUD_SIDEBAR_CAMEOS ];
 			Int n = 0;
 			side[ n++ ] = &r.menuButton;
 			side[ n++ ] = &r.money;
@@ -20708,6 +20896,15 @@ TEST(hud_layout_rects_tile_the_screen)
 			for( Int i = 0; i < HUD_SIDEBAR_CAMEOS; ++i )
 				side[ n++ ] = &r.cameos[ i ];
 			checkHudCells( side, n, r.sidebar );
+
+			// one k across and down: every command button and cameo well keeps its design shape to a
+			// pixel each way, so nothing drawn over one is stretched, and the grid stays over the arrows
+			for( Int i = 0; i < HUD_STRIP_BUTTONS; ++i )
+				CHECK( abs( r.stripButtons[ i ].width() * HUD_CAMEO_ART_H - r.stripButtons[ i ].height() * HUD_CAMEO_ART_W )
+					<= HUD_CAMEO_ART_W + HUD_CAMEO_ART_H );
+			for( Int i = 0; i < HUD_SIDEBAR_CAMEOS; ++i )
+				CHECK( abs( r.cameos[ i ].width() * 75 - r.cameos[ i ].height() * 92 ) <= 92 + 75 );
+			CHECK( r.cameos[ HUD_SIDEBAR_CAMEOS - 1 ].hi.y <= r.arrowUp.lo.y );
 
 			const IRegion2D *strip[ HUD_STRIP_BUTTONS + 2 ];
 			n = 0;
@@ -20755,22 +20952,71 @@ TEST(hud_layout_rects_tile_the_screen)
 
 TEST(sidebar_scroll_keeps_the_window_full)
 {
-	/* The sidebar's cameos scroll two to a row in a window of six rows: the first row shown never goes
-		 above the top, and never so far down that the window shows empty rows a shorter scroll would
-		 have filled. */
+	/* The sidebar's cameos scroll three to a row in a window of seven rows: the first row shown never
+		 goes above the top, and never so far down that the window shows empty rows a shorter scroll
+		 would have filled. */
 	const Int cols = HUD_SIDEBAR_CAMEO_COLUMNS, rows = HUD_SIDEBAR_CAMEO_ROWS;
+	CHECK_EQ( cols * rows, 21 );
 	CHECK_EQ( Sidebar_scroll( 0, cols, rows, 3 ), 0 );
 	CHECK_EQ( Sidebar_scroll( 5, cols, rows, 2 ), 0 );			// fits: no scrolling
-	CHECK_EQ( Sidebar_scroll( 12, cols, rows, 1 ), 0 );			// exactly the window
-	CHECK_EQ( Sidebar_scroll( 13, cols, rows, 5 ), 1 );			// seven rows, the odd cell alone on the last
-	CHECK_EQ( Sidebar_scroll( 13, cols, rows, 1 ), 1 );
-	CHECK_EQ( Sidebar_scroll( 13, cols, rows, -2 ), 0 );
-	CHECK_EQ( Sidebar_scroll( 23, cols, rows, 6 ), 6 );			// twelve rows
-	CHECK_EQ( Sidebar_scroll( 24, cols, rows, 7 ), 6 );
-	CHECK_EQ( Sidebar_scroll( 24, cols, rows, 0x7fff ), 6 );
-	CHECK_EQ( Sidebar_scroll( 24, cols, rows, 3 ), 3 );
-	CHECK_EQ( Sidebar_scroll( 24, 0, rows, 3 ), 0 );				// no grid
-	CHECK_EQ( Sidebar_scroll( 24, cols, 0, 3 ), 0 );
+	CHECK_EQ( Sidebar_scroll( 21, cols, rows, 1 ), 0 );			// exactly the window
+	CHECK_EQ( Sidebar_scroll( 22, cols, rows, 5 ), 1 );			// eight rows, the odd cell alone on the last
+	CHECK_EQ( Sidebar_scroll( 22, cols, rows, 1 ), 1 );
+	CHECK_EQ( Sidebar_scroll( 22, cols, rows, -2 ), 0 );
+	CHECK_EQ( Sidebar_scroll( 35, cols, rows, 6 ), 5 );			// twelve rows
+	CHECK_EQ( Sidebar_scroll( 36, cols, rows, 6 ), 5 );
+	CHECK_EQ( Sidebar_scroll( 36, cols, rows, 0x7fff ), 5 );
+	CHECK_EQ( Sidebar_scroll( 36, cols, rows, 3 ), 3 );
+	CHECK_EQ( Sidebar_scroll( 36, 0, rows, 3 ), 0 );				// no grid
+	CHECK_EQ( Sidebar_scroll( 36, cols, 0, 3 ), 0 );
+}
+
+TEST(power_rail_scale_and_state)
+{
+	/* The sidebar's power rail (W3DPowerDrawV): one linear scale whose top is a quarter over the larger
+		 of production and consumption, so the larger stands at four fifths of the rail; Red Alert's three
+		 colours on the Classic bar's yellow range. */
+	CHECK_EQ( PowerRail_blocks( 10, 10, 4, 100 ), 80 );
+	CHECK_EQ( PowerRail_blocks( 4, 10, 4, 100 ), 32 );
+	CHECK_EQ( PowerRail_blocks( 9, 10, 9, 100 ), 72 );
+	CHECK_EQ( PowerRail_blocks( 19, 10, 19, 100 ), 80 );			// over the limit the consumption sets the scale
+	CHECK_EQ( PowerRail_blocks( 10, 10, 19, 100 ), 42 );			// 10 / 23.75 of 100
+	CHECK_EQ( PowerRail_blocks( 1, 1000, 0, 100 ), 1 );			// anything at all lights a block
+	CHECK_EQ( PowerRail_blocks( 0, 10, 0, 100 ), 0 );
+	CHECK_EQ( PowerRail_blocks( 0, 0, 0, 100 ), 0 );				// the GLA: no power, nothing lit
+	CHECK_EQ( PowerRail_blocks( 10, 10, 4, 0 ), 0 );
+	CHECK( PowerRail_blocks( 9, 10, 9, 122 ) < PowerRail_blocks( 10, 10, 9, 122 ) );	// one unit from the limit still shows
+	CHECK_EQ( PowerRail_state( 10, 0, 5 ), (Int)POWER_RAIL_GREEN );
+	CHECK_EQ( PowerRail_state( 10, 4, 5 ), (Int)POWER_RAIL_GREEN );
+	CHECK_EQ( PowerRail_state( 10, 5, 5 ), (Int)POWER_RAIL_GREEN );
+	CHECK_EQ( PowerRail_state( 10, 6, 5 ), (Int)POWER_RAIL_YELLOW );
+	CHECK_EQ( PowerRail_state( 10, 10, 5 ), (Int)POWER_RAIL_YELLOW );
+	CHECK_EQ( PowerRail_state( 10, 11, 5 ), (Int)POWER_RAIL_RED );
+	CHECK_EQ( PowerRail_state( 0, 0, 5 ), (Int)POWER_RAIL_GREEN );
+}
+
+TEST(sidebar_show_order_groups_by_country_then_first_seen)
+{
+	/* The owner's order for a tab: the player's own country first, each foreign one in the order he
+		 gained it, and inside a country the order each item first showed, so a newly unlocked item ends
+		 its own country's group rather than the list. */
+	std::vector< Int > order;
+	const Int countries[] = { 0, 1, 0, 0, 1, 2 };
+	const Int seen[] = { 0, 1, 2, 5, 3, 4 };
+	Sidebar_showOrder( std::vector< Int >( countries, countries + 6 ), std::vector< Int >( seen, seen + 6 ), order );
+	const Int wanted[] = { 0, 2, 3, 1, 4, 5 };
+	CHECK_EQ( (Int)order.size(), 6 );
+	for( Int i = 0; i < 6 && i < (Int)order.size(); i++ )
+		CHECK_EQ( order[ i ], wanted[ i ] );
+
+	// a start-of-match list, all one country and seen in gather order, keeps that order
+	const Int own[] = { 0, 0, 0 };
+	const Int gathered[] = { 2, 0, 1 };
+	Sidebar_showOrder( std::vector< Int >( own, own + 3 ), std::vector< Int >( gathered, gathered + 3 ), order );
+	CHECK_EQ( (Int)order.size(), 3 );
+	CHECK( order.size() == 3 && order[ 0 ] == 1 && order[ 1 ] == 2 && order[ 2 ] == 0 );
+	Sidebar_showOrder( std::vector< Int >(), std::vector< Int >(), order );
+	CHECK_EQ( (Int)order.size(), 0 );
 }
 
 TEST(sidebar_sell_press_sells_the_selection_or_toggles_the_cursor)
@@ -20781,6 +21027,74 @@ TEST(sidebar_sell_press_sells_the_selection_or_toggles_the_cursor)
 	CHECK_EQ( Sidebar_sellPress( FALSE, FALSE ), (Int)SIDEBAR_SELL_PRESS_MODE_ON );
 	CHECK_EQ( Sidebar_sellPress( TRUE, FALSE ), (Int)SIDEBAR_SELL_PRESS_MODE_OFF );
 	CHECK_EQ( Sidebar_sellPress( TRUE, TRUE ), (Int)SIDEBAR_SELL_PRESS_MODE_OFF );
+}
+
+TEST(sidebar_chip_press_lights_a_set)
+{
+	/* Several factories selected light several chips; on the picker a plain press lights one chip
+		 alone, Shift puts a chip into the lit set or takes it out, and Tümü empties it.  The set stays
+		 sorted by ObjectID, which is the order the batch is spread in. */
+	std::vector< ObjectID > picks;
+	Sidebar_pressChip( picks, (ObjectID)7, FALSE );
+	CHECK_EQ( (Int)picks.size(), 1 );
+	CHECK_EQ( (Int)picks[ 0 ], 7 );
+
+	Sidebar_pressChip( picks, (ObjectID)3, TRUE );
+	Sidebar_pressChip( picks, (ObjectID)9, TRUE );
+	CHECK_EQ( (Int)picks.size(), 3 );
+	CHECK_EQ( (Int)picks[ 0 ], 3 );
+	CHECK_EQ( (Int)picks[ 1 ], 7 );
+	CHECK_EQ( (Int)picks[ 2 ], 9 );
+
+	Sidebar_pressChip( picks, (ObjectID)7, TRUE );		// lit: out again
+	CHECK_EQ( (Int)picks.size(), 2 );
+	CHECK_EQ( (Int)picks[ 0 ], 3 );
+	CHECK_EQ( (Int)picks[ 1 ], 9 );
+
+	Sidebar_pressChip( picks, (ObjectID)9, FALSE );		// a plain press: that one alone
+	CHECK_EQ( (Int)picks.size(), 1 );
+	CHECK_EQ( (Int)picks[ 0 ], 9 );
+
+	Sidebar_pressChip( picks, (ObjectID)9, TRUE );		// the last one out is Tümü
+	CHECK( picks.empty() );
+
+	Sidebar_pressChip( picks, (ObjectID)3, TRUE );
+	Sidebar_pressChip( picks, (ObjectID)9, TRUE );
+	Sidebar_pressChip( picks, INVALID_ID, FALSE );		// Tümü
+	CHECK( picks.empty() );
+	Sidebar_pressChip( picks, (ObjectID)5, FALSE );
+	Sidebar_pressChip( picks, INVALID_ID, TRUE );			// Tümü with Shift is still Tümü
+	CHECK( picks.empty() );
+}
+
+TEST(sidebar_batch_spreads_over_lit_factories)
+{
+	/* A cameo click with several factories lit hands each unit of the batch to the lit factory with
+		 the fewest in its queue, this batch's units counted, the first (lowest ObjectID) on a tie, and
+		 never to a full queue; -1 once every queue is full. */
+	std::vector< UnsignedInt > queued, caps;
+	queued.push_back( 2 ); caps.push_back( 9 );
+	queued.push_back( 0 ); caps.push_back( 9 );
+	queued.push_back( 0 ); caps.push_back( 1 );
+
+	const Int expected[] = { 1, 2, 1, 0, 1, 0, 1 };
+	for( Int each = 0; each < (Int)ARRAY_SIZE( expected ); each++ )
+	{
+		const Int at = Sidebar_nextFactory( queued, caps );
+		CHECK_EQ( at, expected[ each ] );
+	}
+	CHECK_EQ( (Int)queued[ 0 ], 4 );
+	CHECK_EQ( (Int)queued[ 1 ], 4 );
+	CHECK_EQ( (Int)queued[ 2 ], 1 );
+
+	std::vector< UnsignedInt > full( 2, 5 ), fullCaps( 2, 5 );
+	const Int none = Sidebar_nextFactory( full, fullCaps );
+	CHECK_EQ( none, -1 );
+	CHECK_EQ( (Int)full[ 0 ], 5 );
+
+	std::vector< UnsignedInt > one( 1, 0 ), noCaps;
+	const Int unmatched = Sidebar_nextFactory( one, noCaps );	// no cap for it: not taken
+	CHECK_EQ( unmatched, -1 );
 }
 
 TEST(a_plate_covers_the_windows_its_panel_is_responsible_for)
@@ -24228,11 +24542,16 @@ TEST(lan_options_fit_eight_humans_on_a_generated_template_map)
 	// the replay's field, which the launcher reads, names a template map in full
 	CHECK_STR( GameInfoMapField( AsciiString( paths[4] ) ).str(),
 		"userdata/maps/rmg_v17_2147483647_8p_672c_tffffffff_bombardment beach" );
-	// a template map's CRC and folder go as four letters; reading them back needs the shipped maps,
-	// which replay-check on a template map covers
+	// a template map's folder goes as four letters and its CRC as two, the field no longer than the
+	// shipped map's; reading them back needs the shipped maps, which replay-check on a template map covers
 	const AsciiString wire = GameInfoLobbyMapField( AsciiString( paths[4] ) );
 	CHECK( wire.startsWith( "~17_zik0zj_8_io~" ) );
-	CHECK_EQ( wire.getLength(), 20 );
+	CHECK_EQ( wire.getLength(), 22 );
+	CHECK_STR( wire.str(), "~17_zik0zj_8_io~143ez3" );
+	// a negative seed goes out as its 32 bits and reads back as the host's name, sign and all
+	const char *const negative = "userdata\\maps\\rmg_v19_-5_2p_140c\\rmg_v19_-5_2p_140c.map";
+	CHECK_STR( GameInfoLobbyMapField( AsciiString( negative ) ).str(), "~19_1z141yz_2_3w" );
+	CHECK_STR( GameInfoMapPathFromField( GameInfoLobbyMapField( AsciiString( negative ) ) ).str(), negative );
 
 	GlobalData *saved = TheWritableGlobalData;
 	TheWritableGlobalData = NEW GlobalData;
@@ -26337,7 +26656,7 @@ TEST(skins_table_dresses_each_unit_once_with_rebuilt_and_retail_sheets)
 	CHECK( TankSkin_describe( 2, unit, unitLabel, label ) );
 	CHECK_STR( unit.str(), "Battlemaster" );
 	CHECK_STR( unitLabel.str(), "OBJECT:BattleMaster" );
-	CHECK_STR( label.str(), "SKIN:Gold1K" );
+	CHECK_STR( label.str(), "SKIN:Splinter" );
 	CHECK( TankSkin_describe( 3, unit, unitLabel, label ) && unitLabel == "OBJECT:Scorpion" );
 	CHECK( TankSkin_describe( 1, unit, unitLabel, label ) && unitLabel == "OBJECT:Crusader" );
 	CHECK( !TankSkin_describe( 9, unit, unitLabel, label ) );

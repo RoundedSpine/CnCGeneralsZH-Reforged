@@ -16750,7 +16750,7 @@ GUI:HudLayout1
 END
 
 TOOLTIP:HudLayout
-"Klasik, komuta çubuğunu altta tutar. Red Alert tarzı bina ve birim üretimini sağdaki yan panele taşır, seçili birimlerin komutlarını alttaki şeride koyar."
+"Klasik, komuta çubuğunu altta ve oyunun kendi tuşlarını tutar. Red Alert tarzı bina ve birim üretimini sağdaki yan panele taşır, seçili birimlerin komutlarını alttaki şeride koyar ve Red Alert 2'nin tuşlarını bu oyuna uyduğu yerde alır: yapım sekmeleri için Q W E R, konuşlanmak için D, satmak için L, onarmak için K, ara noktalar için basılı Z. Her düzen Kısayollar sayfasındaki tuş değişikliklerini ayrı tutar."
 END
 
 GUI:HudWidth
@@ -16778,7 +16778,7 @@ GUI:SidebarTab0
 END
 
 GUI:SidebarTab1
-"Savunma"
+"Yükseltmeler ve güçler"
 END
 
 GUI:SidebarTab2
@@ -17173,20 +17173,12 @@ GUI:HotkeysCommandHOLD_POSITION
 "Yerini koru"
 END
 
-GUI:HotkeyScheme
-"Kısayol Düzeni"
-END
-
 GUI:HotkeyScheme0
 "Klasik"
 END
 
 GUI:HotkeyScheme1
 "Red Alert"
-END
-
-TOOLTIP:HotkeyScheme
-"Klasik, oyunun kendi tuşlarını kullanır. Red Alert, Red Alert 2'nin tuşlarını bu oyuna uyduğu yerde alır: yapım sekmeleri için Q W E R, konuşlanmak için D, satmak için L, onarmak için K, ara noktalar için basılı Z. Her düzen Kısayollar sayfasındaki değişikliklerini ayrı tutar."
 END
 
 GUI:HotkeysEditingScheme
@@ -19954,4 +19946,20 @@ END
 
 CONTROLBAR:ToolTipStealthTalent10B
 "GPS Karıştırıcı birlikleri yarısı kadar daha uzağa saklar, 100 yerine 150, hedef çemberi de büyür."
+END
+
+GUI:PlayerMapDiffers
+"%ls oyuncusunun oyunu %ls haritasını sizinkinden farklı kurdu. İkiniz aynı sürüme geçmeden maç başlamaz."
+END
+
+GUI:LocalPlayerMapDiffers
+"Oyununuz %ls haritasını kurucununkinden farklı kurdu. İkiniz aynı sürüme geçmeden maç başlamaz."
+END
+
+GUI:QMMapDiffers
+"%ls oyuncusunun oyunu bu maçın haritasını sizinkinden farklı kurdu, maç iptal edildi. İkinizin de aynı sürümü kullandığından emin olun."
+END
+
+GUI:QMMapNoAnswer
+"%ls oyuncusunun oyunu bu maçın haritasını onaylamadı, maç iptal edildi. Oyunu eski bir sürüm olabilir."
 END
