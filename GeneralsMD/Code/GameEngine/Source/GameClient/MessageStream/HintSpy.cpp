@@ -32,6 +32,7 @@
 
 #include "Common/MessageStream.h"
 #include "GameClient/HintSpy.h"
+#include "GameClient/ControlBarSidebar.h"
 #include "GameClient/GameWindowManager.h"
 #include "GameClient/GameWindow.h"
 #include "GameClient/GameClient.h"
@@ -58,6 +59,7 @@ GameMessageDisposition HintSpyTranslator::translateGameMessage(const GameMessage
 		case GameMessage::MSG_MOUSEOVER_DRAWABLE_HINT:
 			{
 				TheInGameUI->createMouseoverHint( msg );
+				Sidebar_pointCursor();	// the sidebar's sell or repair cursor has the last word
 
 				disp = DESTROY_MESSAGE; //hint no longer needed by anyone.  Eat it.
 			}
@@ -65,6 +67,7 @@ GameMessageDisposition HintSpyTranslator::translateGameMessage(const GameMessage
 		case GameMessage::MSG_MOUSEOVER_LOCATION_HINT:
 			{
 				TheInGameUI->createMouseoverHint( msg );
+				Sidebar_pointCursor();
 
 				disp = DESTROY_MESSAGE; //hint no longer needed by anyone.  Eat it.
 			}
@@ -104,6 +107,7 @@ GameMessageDisposition HintSpyTranslator::translateGameMessage(const GameMessage
 		case GameMessage::MSG_DO_SALVAGE_HINT:
 		case GameMessage::MSG_DO_INVALID_HINT:
 			TheInGameUI->createCommandHint( msg );
+			Sidebar_pointCursor();
 			disp = DESTROY_MESSAGE; //hint no longer needed by anyone.  Eat it.
 			break;
 
@@ -141,8 +145,11 @@ GameMessageDisposition HintSpyTranslator::translateGameMessage(const GameMessage
 		case GameMessage::MSG_DO_FORCE_ATTACK_GROUND:
 			Drawable_noteAttackOrder();
 			TheInGameUI->createForceAttackHint( msg );
+			TheInGameUI->createMoveHint( msg->getArgument( 0 )->location, InGameUI::ORDER_HINT_ATTACK_GROUND );
 			if( !queued )
 				TheInGameUI->predictOrderHints( InGameUI::ORDER_HINT_ATTACK_GROUND, &msg->getArgument( 0 )->location, INVALID_ID );
+			else
+				TheInGameUI->rememberQueuedClicks( InGameUI::ORDER_HINT_ATTACK_GROUND, msg->getArgument( 0 )->location );
 			break;
 		case GameMessage::MSG_DO_FORCE_ATTACK_OBJECT:
 			Drawable_noteAttackOrder();
@@ -166,30 +173,36 @@ GameMessageDisposition HintSpyTranslator::translateGameMessage(const GameMessage
 			break;
 
 		//-----------------------------------------------------------------------------
-		// EA's own ring where a move lands
+		// the marker where a move lands
 		case GameMessage::MSG_DO_MOVETO:
 		case GameMessage::MSG_DO_ATTACKMOVETO:
 		case GameMessage::MSG_DO_FORCEMOVETO:
 		case GameMessage::MSG_ADD_WAYPOINT:
+		{
 			if( msg->getType() == GameMessage::MSG_DO_ATTACKMOVETO )
 				Drawable_noteAttackOrder();
-			TheInGameUI->createMoveHint( msg );
+			const InGameUI::OrderHintKind kind = msg->getType() == GameMessage::MSG_DO_ATTACKMOVETO ? InGameUI::ORDER_HINT_ATTACK_MOVE
+																				: msg->getType() == GameMessage::MSG_ADD_WAYPOINT ? InGameUI::ORDER_HINT_WAYPOINT
+																				: InGameUI::ORDER_HINT_MOVE;
+			TheInGameUI->createMoveHint( msg->getArgument( 0 )->location, kind );
 			if( !queued )
 			{
-				const InGameUI::OrderHintKind kind = msg->getType() == GameMessage::MSG_DO_ATTACKMOVETO ? InGameUI::ORDER_HINT_ATTACK_MOVE
-																					: msg->getType() == GameMessage::MSG_ADD_WAYPOINT ? InGameUI::ORDER_HINT_WAYPOINT
-																					: InGameUI::ORDER_HINT_MOVE;
 				TheInGameUI->armOrderRings( kind );
 				// a waypoint goes on the end of the unit's list, which its own line already draws
 				if( kind != InGameUI::ORDER_HINT_WAYPOINT )
 					TheInGameUI->predictOrderHints( kind, &msg->getArgument( 0 )->location, INVALID_ID );
 			}
+			// a point on the end of the list: its leg ends on the click (InGameUI::applyCommandedPoints)
+			if( queued || kind == InGameUI::ORDER_HINT_WAYPOINT )
+				TheInGameUI->rememberQueuedClicks( kind, msg->getArgument( 0 )->location );
 			break;
+		}
 
 		//-----------------------------------------------------------------------------
 		// a ring under each unit where the order really sends it (InGameUI::armOrderRings), and the
-		// line just drawn kept on the ground until logic runs it
+		// line just drawn kept on the ground until logic runs it; a marker on every station
 		case GameMessage::MSG_DO_FORMATION_MOVETO:
+			TheInGameUI->createFormationMoveHints();
 			if( !queued )
 			{
 				TheInGameUI->armOrderRings( InGameUI::ORDER_HINT_MOVE );
@@ -198,6 +211,7 @@ GameMessageDisposition HintSpyTranslator::translateGameMessage(const GameMessage
 			break;
 		case GameMessage::MSG_DO_FORMATION_ATTACKMOVETO:
 			Drawable_noteAttackOrder();
+			TheInGameUI->createFormationMoveHints();
 			if( !queued )
 			{
 				TheInGameUI->armOrderRings( InGameUI::ORDER_HINT_ATTACK_MOVE );
@@ -205,6 +219,7 @@ GameMessageDisposition HintSpyTranslator::translateGameMessage(const GameMessage
 			}
 			break;
 		case GameMessage::MSG_DO_FORMATION_GUARD:
+			TheInGameUI->createFormationMoveHints();
 			if( !queued )
 			{
 				TheInGameUI->armOrderRings( InGameUI::ORDER_HINT_GUARD );
@@ -212,11 +227,14 @@ GameMessageDisposition HintSpyTranslator::translateGameMessage(const GameMessage
 			}
 			break;
 		case GameMessage::MSG_DO_GUARD_POSITION:
+			TheInGameUI->createMoveHint( msg->getArgument( 0 )->location, InGameUI::ORDER_HINT_GUARD );
 			if( !queued )
 			{
 				TheInGameUI->armOrderRings( InGameUI::ORDER_HINT_GUARD );
 				TheInGameUI->predictOrderHints( InGameUI::ORDER_HINT_GUARD, &msg->getArgument( 0 )->location, INVALID_ID );
 			}
+			else
+				TheInGameUI->rememberQueuedClicks( InGameUI::ORDER_HINT_GUARD, msg->getArgument( 0 )->location );
 			break;
 
 	}	

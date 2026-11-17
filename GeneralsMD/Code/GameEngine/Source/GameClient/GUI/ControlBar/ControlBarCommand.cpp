@@ -69,6 +69,8 @@
 #include "GameClient/GameText.h"
 #include "GameClient/Display.h"
 
+extern void SidebarCard_setQueueProgress( Real progress );	// ControlBarSidebarLayout.cpp
+
 #ifdef _INTERNAL
 // for occasional debugging...
 //#pragma optimize("", off)
@@ -511,6 +513,11 @@ void ControlBar::populateCommand( Object *obj )
 	{
 		const CommandButton *button = commandSet->getCommandButton( i );
 		slot[ i ] = ( m_commandWindows[ i ] && button && !BitTest( button->getOptions(), SCRIPT_ONLY ) ) ? button : NULL;
+		// the sidebar is the build list: a factory's units and a builder's structures stay off the strip
+		// (its builder chips pick the dozer); the builder's other orders, repair, disarm and the rest, stay
+		if( slot[ i ] != NULL && m_sidebarLayout
+				&& ( slot[ i ]->getCommandType() == GUI_COMMAND_UNIT_BUILD || slot[ i ]->getCommandType() == GUI_COMMAND_DOZER_CONSTRUCT ) )
+			slot[ i ] = NULL;
 	}
 
 	// a builder standing in for an empty selection offers its buildings, not its orders: nobody
@@ -919,11 +926,30 @@ void ControlBar::populateBuildQueue( Object *producer )
 void ControlBar::updateBuildQueue( Object *obj, ProductionUpdateInterface *pu )
 {
 	GameWindow *queue = m_contextParent[ CP_BUILD_QUEUE ];
-	const Bool busy = pu && pu->firstProduction() != NULL;
+	Bool busy = pu && pu->firstProduction() != NULL;
+
+	// the sidebar's tray holds one thing: a production building's queue, while it has one, before its
+	// upgrades (hidden each pass, as the portrait shows them again); a unit's upgrades before its queue
+	if( busy && m_sidebarLayout )
+	{
+		const Bool building = obj != NULL && obj->isKindOf( KINDOF_STRUCTURE );
+		for( Int i = 0; i < MAX_RIGHT_HUD_UPGRADE_CAMEOS; i++ )
+		{
+			GameWindow *upgrade = m_rightHUDUpgradeCameos[ i ];
+			if( upgrade == NULL || upgrade->winIsHidden() )
+				continue;
+			if( building )
+				upgrade->winHide( TRUE );
+			else
+				busy = FALSE;
+		}
+	}
+
 	if( !busy )
 	{
 		if( queue->winIsHidden() == FALSE )
 		{
+			// the portrait back, and under the sidebar the building's upgrades back in the tray
 			queue->winHide( TRUE );
 			setPortraitByObject( obj );
 		}
@@ -931,8 +957,10 @@ void ControlBar::updateBuildQueue( Object *obj, ProductionUpdateInterface *pu )
 	}
 
 	// the portrait is put back by anything that re-evaluates the selection, so it is taken off
-	// every frame the queue stands in its place, as EA did
-	setPortraitByObject( NULL );
+	// every frame the queue stands in its place, as EA did.  The sidebar's queue stands in the card's
+	// row under the portrait, which stays
+	if( !m_sidebarLayout )
+		setPortraitByObject( NULL );
 	if( queue->winIsHidden() )
 	{
 		queue->winHide( FALSE );
@@ -941,7 +969,12 @@ void ControlBar::updateBuildQueue( Object *obj, ProductionUpdateInterface *pu )
 	else if( pu->getProductionCount() != m_displayedQueueCount )
 		populateBuildQueue( obj );
 
-	GadgetButtonDrawInverseClock( m_queueData[ 0 ].control, pu->firstProduction()->getPercentComplete(), m_buildUpClockColor );
+	// the sidebar's tray tile shows the head's progress as a bar at its foot (drawn by the card), the
+	// Classic queue its scheme's clock
+	if( m_sidebarLayout )
+		SidebarCard_setQueueProgress( pu->firstProduction()->getPercentComplete() / 100.0f );
+	else
+		GadgetButtonDrawInverseClock( m_queueData[ 0 ].control, pu->firstProduction()->getPercentComplete(), m_buildUpClockColor );
 
 }  // end updateBuildQueue
 
@@ -2082,7 +2115,8 @@ void ControlBar::updateCommandTabButtons( void )
 	const Bool seated = m_controlBarSchemeManager != NULL && m_controlBarSchemeManager->getCommandTabSeats( seatTab, &seatPlate );
 	IRegion2D grid;
 	const Bool haveGrid = getCommandGridRect( &grid );
-	const Bool shown = playing && m_contextParent[ CP_MASTER ] != NULL && !m_contextParent[ CP_MASTER ]->winIsHidden()
+	// the sidebar has its own tabs (ControlBarSidebar.h): these hide and close under it
+	const Bool shown = playing && !m_sidebarLayout && m_contextParent[ CP_MASTER ] != NULL && !m_contextParent[ CP_MASTER ]->winIsHidden()
 		&& !TheInGameUI->isQuitMenuVisible() && ( seated || ( haveGrid && grid.lo.y < (Int)TheDisplay->getHeight() ) );
 
 	GameWindow *parent = m_commandTabParent;
@@ -2820,7 +2854,8 @@ void ControlBar::updateSignalKeys( void )
 {
 	IRegion2D seat[ SIGNAL_KEYS ], plate;
 	const Bool seated = m_controlBarSchemeManager != NULL && m_controlBarSchemeManager->getSignalSeats( seat, &plate );
-	const Bool shown = seated && TheGameLogic->isInGame() && !TheGameLogic->isInShellGame()
+	// the seats are painted on the Classic bar's radar plate, which the sidebar does not have
+	const Bool shown = seated && !m_sidebarLayout && TheGameLogic->isInGame() && !TheGameLogic->isInShellGame()
 		&& m_contextParent[ CP_MASTER ] != NULL && !m_contextParent[ CP_MASTER ]->winIsHidden()
 		&& !TheInGameUI->isQuitMenuVisible();
 

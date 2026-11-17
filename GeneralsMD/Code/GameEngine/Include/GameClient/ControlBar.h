@@ -70,6 +70,7 @@ class UpgradeTemplate;
 class ProductionUpdateInterface;
 class GameWindowTransitionsHandler;
 class DisplayString;
+struct HudLayoutRects;
 
 /// one line of a code-drawn window's text (the talents, the trainer), laid out again only when its
 /// text, size or well changes
@@ -1088,6 +1089,17 @@ public:
 		* set - because it remembers both the authored rectangle and the one it last handed out. */
 	void layoutPanels( void );
 
+	/** TRUE while the bar stands as the Red Alert style sidebar (HudLayout 1, docs/plans/HUD-SIDEBAR-LAYOUT.md):
+		* what layoutPanels last laid out, so everything asking agrees with what is on screen.  An observer,
+		* a replay and a defeated player get the Classic bar whatever the option says. */
+	Bool isSidebarLayout( void ) const { return m_sidebarLayout; }
+
+	/** Every rectangle of the interface on this screen for the layout the bar stands in now and the
+		* HudWidth option: HudLayoutForScreen (GameClient/Display.h).  Under Classic only the area is set. */
+	void getHudLayoutRects( HudLayoutRects *out ) const;
+
+	static void startStructurePlacement( const CommandButton *button, Object *builder, Drawable *source = NULL );	///< a structure on the cursor for builder (source: its drawable when NULL), refused with the bar's message on no money, full queue or cap
+
 	/// Whether command set slot `slot` has a window on this bar, for what lays a set out without an object.
 	Bool hasCommandWindow( Int slot ) const { return m_commandWindows[ slot ] != NULL; }
 
@@ -1246,6 +1258,7 @@ protected:
 	enum { POWER_TRAY_FOOT_Y = 790 };							///< at 1080, where the tray stands: the top of the general's tab
 	void powerTrayMetrics( const Image *const *tray, ICoord2D *origin, ICoord2D *cell,
 												 Int *left, Int *top, Int *foot, Int *bottom );	///< see arrangeSpecialPowerShortcutGrid
+	void arrangePowersWing( void );								///< the sidebar's: the powers flush on its left edge, level with the radar
 
 	void fitRadarToMap( Bool fromLayout );				///< the radar window, its frame and its blocker take the map's shape; see layoutPanels
 	Real m_radarFitWidth, m_radarFitHeight;				///< the map extent fitRadarToMap last fitted to
@@ -1370,6 +1383,18 @@ protected:
 	ICoord2D m_panelOrigin;													///< where the frame was put, so the plates can follow it
 	Bool m_UIDirty;																///< the context UI must be re-evaluated
 
+	// the sidebar layout (ControlBarSidebarLayout.cpp)
+	Bool wantsSidebarLayout( void ) const;				///< the option asks for it and this seat may have it
+	void layoutSidebar( void );										///< layoutPanels' second half under the sidebar, after the Classic pass
+	void hideForSidebar( GameWindow *window );		///< hide a window the sidebar has no place for, remembered for Classic
+	void restoreClassicWindows( void );						///< what hideForSidebar and layoutSidebar changed, put back
+	void updateSelectionCardReadout( void );			///< the card's name, rank and health, copied for its draw (ControlBar::update)
+	void arrangeStripByRole( void );							///< the strip's buttons by role: own left, Attack Stop Guard right, the container's before them
+	Bool m_sidebarLayout;													///< see isSidebarLayout
+	std::vector< GameWindow * > m_sidebarHidden;	///< windows layoutSidebar hid that were showing
+	Bool m_sidebarBlockSaved;											///< the strip blocker's enabled state below was saved
+	Bool m_sidebarBlockEnabled;										///< ...and what it was under Classic
+
 	ControlBarSchemeManager *m_controlBarSchemeManager;		///< The Scheme singleton
 
 	GameWindow *m_contextParent[ NUM_CONTEXT_PARENTS ];		///< "parent" window for buttons that are part of the context sensitive interface
@@ -1435,6 +1460,8 @@ public:
 		IRegion2D cell;
 		Int edgeLeft, edgeTop, edgeBottom;
 		Int stepRight, stepBelow;
+		Int edgeRight;		///< the outer edge, only where the tray stops short of the screen's edge (the sidebar, a HudWidth area)
+		Bool wing;				///< the sidebar's powers wing: edgeRight is the joint against the sidebar, edgeTop the column's cap, edgeBottom its foot, the Sidebar_image pieces drawn
 	};
 protected:
 	TraySlot m_traySlot[ MAX_SPECIAL_POWER_SHORTCUTS ];

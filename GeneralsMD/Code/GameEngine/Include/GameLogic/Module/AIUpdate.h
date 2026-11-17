@@ -546,20 +546,8 @@ public:
 			unit sent off on its own would still be riding the lane it was given as part of a group
 			that has since dispersed. */
 	void clearCrowdLane( void )
-		{ m_crowdLaneIdx = 0; m_crowdLaneOf = 0; m_crowdLaneSpace = 0.0f; m_hasPendingCrowdLat = FALSE; m_crowdPlanned.clear(); }
+		{ m_crowdLaneIdx = 0; m_crowdLaneOf = 0; m_crowdLaneSpace = 0.0f; m_hasPendingCrowdLat = FALSE; }
 
-	/** The route this member's next path is to be, planned by its group rather than searched for.
-
-			Each member's own search finds the shortest way from where it stands, and the shortest way
-			round the end of a wall is past the end of the wall, so every member of a group comes round
-			a corner over the same point and the group turns it in single file. The group plans one
-			route instead and hands each member that route moved sideways by its lane, corners and all,
-			so the outside lane takes the outside of the turn. It is the member's path, not a hint
-			beside one: the path that is followed, the path progress is measured against and the path
-			the band is built on are the same thing. It is used once, for the path the order asks for;
-			any later repath is the pathfinder's. A member whose planned lane could not be laid clear of
-			the ground has none, and searches for its own. */
-	void setPlannedCrowdRoute( const CrowdRoute& route ) { m_crowdPlanned = route; }
 	Real getCrowdLat( void ) const { return m_crowdLat; }
 	const CrowdCorridor *getCrowdCorridor( void ) const { return m_corridor; }
 	/** Which sample of its own band the unit was beside last frame.  Priority between two units is
@@ -586,6 +574,9 @@ public:
 
 	virtual Bool processCollision(PhysicsBehavior *physics, Object *other); ///< Returns true if the physics collide should apply the force.  Normally not.  jba.
 	ObjectID getIgnoredObstacleID( void ) const;
+	/// a soldier last ordered in a group with no vehicle stops on one cell (Pathfinder::getRadiusAndCenter)
+	Bool isCompactGoal( void ) const { return m_compactGoal; }
+	void setCompactGoal( Bool compact ) { m_compactGoal = compact; }
 
 	// "Waypoint Mode" -----------------------------------------------------------------------------------
 	const Waypoint *getCompletedWaypoint(void) const {return m_completedWaypoint;}
@@ -850,7 +841,6 @@ private:
 
 	/// throw the measured band away; the next frame that needs one measures the new route
 	void crowdReleaseCorridor( void );
-	Path *crowdPlannedPath( const CrowdRoute& planned, const Coord3D& destination );	///< the planned route as a path from here, or NULL if it no longer fits
 
 	/** Is this unit getting anywhere?  One test, once a frame, for every unit that is trying to
 			drive somewhere, and the only place m_noProgress is written. */
@@ -921,6 +911,7 @@ private:
 	ObjectID		m_ignoreObstacleID;					///< ignore this obstacle when pathfinding
 	Real				m_pathExtraDistance;				///< If we are following a waypoint path, there will be extra distance beyond the current path.
 	ICoord2D		m_pathfindGoalCell;					///< Cell we are moving towards.
+	Bool				m_compactGoal = FALSE;				///< set by Pathfinder::floodGroupGoals; saved since AIUpdateInterface xfer 23
 	ICoord2D		m_pathfindCurCell;					///< Cell we are currently occupying.
 	Int					m_blockedFrames;						///< Number of frames we've been blocked.
 	Real				m_curMaxBlockedSpeed;				///< Max speed we can have and not run into blocking things.
@@ -942,7 +933,6 @@ private:
 	Int					m_crowdSample;							///< whichsample of the band we were beside last frame (search hint; -1 = no band).
 	Int					m_crowdQueued;							///< consecutiveframes spent braking or stuck behind somebody.
 	Int					m_crowdSide;								///< whichside we prefer to pass on, +1 left, -1 right.
-	CrowdRoute	m_crowdPlanned;							///< the path the group planned for us, waiting for the move to ask for one; empty = search.
 	/* The rest of the crowd state is transient and deliberately not saved, for the same reason the
 		 band itself is not: a filter, a stuck count and a half-finished backing-out manoeuvre are all
 		 rebuilt within a second of the load, and a saved one restarts a jam that is over. */
@@ -987,6 +977,7 @@ private:
 	Bool				m_sideStepSeen;							///< and whether he touched any.
 	Coord3D			m_lastProgressPos;					///< where we were last frame, which is how the above is counted.
 	Real				m_lastProgressAngle;				///< and which way we were pointing, because coming about is progress too.
+	Real				m_lastProgressTurn;					///< last frame's signed turn: a swing that reverses it is not coming about.
 	/* Dithering: driving a long way and getting nowhere, which the frame by frame test above cannot
 			see because the unit is moving on every one of those frames. */
 	Coord3D			m_ditherFrom;								///< where the current window opened.

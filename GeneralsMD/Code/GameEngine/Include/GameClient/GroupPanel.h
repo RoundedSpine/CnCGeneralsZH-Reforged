@@ -58,12 +58,19 @@ Bool GroupPanel_isOwnSide( const ThingTemplate *thing, const Player *player );
 	* the player's own do not make; a unit both make is listed once, the player's own side's copy. */
 void GroupPanel_gatherBuildable( Player *player, std::vector< GroupPanelBuildable > &out );
 
+/** The same for structures: every GUI_COMMAND_DOZER_CONSTRUCT button `player`'s live builders
+	* (KINDOF_DOZER) carry on the bar, one entry a structure, the player's own side's copy where a
+	* captured builder offers a twin.  The sidebar's Bina and Savunma tabs.  The GLA worker's fakes sit
+	* on another command set and are not listed. */
+void GroupPanel_gatherConstructible( Player *player, std::vector< GroupPanelBuildable > &out );
+
 /** A build button's look for an availability, as ControlBar::updateContextCommand reads one. */
 void GroupPanel_showAvailability( GameWindow *button, CommandAvailability availability );
 
 /** A click on a build button for `thing`: as many MSG_QUEUE_UNIT_FOR_GROUP as shift and ctrl ask for,
 	* cut to the bank and the free queue slots.  `squad` 0-9 sends the units to that hotkey squad, -1
-	* to no squad. */
-void GroupPanel_queueUnit( const ThingTemplate *thing, Int squad );
+	* to no squad.  `factory`, when given, is the one factory that is to build them (the sidebar's
+	* factory picker): only its queue counts, and it rides on each message as a third argument. */
+void GroupPanel_queueUnit( const ThingTemplate *thing, Int squad, ObjectID factory = INVALID_ID );
 
 #endif // __GROUPPANEL_H__

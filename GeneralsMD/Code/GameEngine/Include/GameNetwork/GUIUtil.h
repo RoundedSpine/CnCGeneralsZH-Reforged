@@ -83,6 +83,9 @@ enum
 void PopulateSuperweaponComboBox(GameWindow *comboBox, GameInfo *myGame, Bool hostMayEdit);
 void UpdateSuperweaponComboBox(GameWindow *comboBox, GameInfo *myGame, Bool hostMayEdit);
 Int SuperweaponRestrictionFromComboBox(GameWindow *comboBox);
+// The dropdown's string label for a mode, the first entry's for a mode it does not have.  The load
+// board's facts box words the rule with it.
+const char *SuperweaponCaption(Int restriction);
 
 // The unit limit check box, which the host ticks and which travels in the options string as UL.
 // UpdateUnitLimitCheckBox puts the box on what the game says and greys it out for anyone who may not
@@ -95,6 +98,8 @@ void UpdateProRulesCheckBox(GameWindow *checkBox, GameInfo *myGame, Bool hostMay
 void PopulateIncomeSharingComboBox(GameWindow *comboBox, GameInfo *myGame, Bool hostMayEdit);
 void UpdateIncomeSharingComboBox(GameWindow *comboBox, GameInfo *myGame, Bool hostMayEdit);
 Int IncomeSharingFromComboBox(GameWindow *comboBox);
+// The dropdown's string label for an IncomeSharing, Off's for one out of range.
+const char *IncomeSharingCaption(Int incomeSharing);
 
 // The tech building respawn dropdown, minutes in each entry's item data, travelling as TR.
 void PopulateTechRespawnComboBox(GameWindow *comboBox, GameInfo *myGame, Bool hostMayEdit);
@@ -160,6 +165,9 @@ Color LobbyTextColorOn(Color fill);
 // A taken start spot over EA's PlayerStart drawn in this rectangle: its middle in the colour and its
 // ring as EA drew it.  The room's spot buttons and the load screen's map both draw it.
 void LobbyStartSpotFill(Int x, Int y, Int width, Int height, Color fill);
+// A seat's colour or team swatch as the room draws it: the rules page's empty check box with the
+// colour inside its hole.  The score screen's team bands draw it too.
+void LobbySwatchFill(Int x, Int y, Int width, Int height, Color fill);
 // The map pickers' Official / Unofficial radio buttons drawn as UIStyle tabs: the open one's label
 // ACTIVE, a disabled one's MUTED.  The pickers' init sets it as both buttons' draw function.
 void DrawMapListTab(GameWindow *window, class WinInstanceData *instData);

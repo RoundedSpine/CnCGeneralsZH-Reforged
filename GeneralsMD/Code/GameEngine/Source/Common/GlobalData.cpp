@@ -731,6 +731,8 @@ GlobalData::GlobalData()
 	m_shadowMap = TRUE;						//the sun's own shadows, once ClassicGraphics is off; parseGameDataDefinition takes them back while it is on
 	m_shadowMapOnly = TRUE;				//and they replace the stencil volumes rather than joining them
 	m_shadowMapReport = FALSE;
+	m_vertexTerrainSun = FALSE;
+	m_noTerrainSubdivide = FALSE;
 	m_shadowMapOldCasters = FALSE;
 	m_shadowMapPenumbra = 0.0f;		//zero anywhere here means the built-in value stands
 	m_shadowMapSkyFill = 0.0f;
@@ -832,6 +834,7 @@ GlobalData::GlobalData()
 	m_mapLight = FALSE;
 	m_teamGlow = FALSE;
 	m_waterFoam = FALSE;
+	m_groundFoliage = FALSE;
 	m_groundMarks = FALSE;
 	m_firelight = FALSE;
 	m_heatHaze = FALSE;
@@ -1034,6 +1037,10 @@ GlobalData::GlobalData()
 	// retail's: the selection and whatever is under the cursor
 	m_healthBarMode = HEALTH_BAR_SELECTION;
 	m_healthBarColors = 0;
+	// no Options.ini is the Classic bar across the whole screen
+	m_hudLayout = HUD_LAYOUT_CLASSIC;
+	m_hudWidth = HUD_WIDTH_FULL;
+	m_hotkeyScheme = HOTKEY_SCHEME_CLASSIC;
 	// the game's own mouse unless the launcher passes -mouse reforged
 	m_mouseStyle = MOUSE_STYLE_CLASSIC;
 	// the lobby's own colours until somebody asks for something else
@@ -1673,6 +1680,7 @@ void GlobalData::parseGameDataDefinition( INI* ini )
 	{
 		TheWritableGlobalData->m_shadowMap = FALSE;
 		TheWritableGlobalData->m_volumetricSmokeShadows = FALSE;
+		TheWritableGlobalData->m_groundFoliage = FALSE;
 		TheWritableGlobalData->m_lightingStyle = LIGHTING_STYLE_CLASSIC;
 		TheWritableGlobalData->m_direct3D11PostChain = "off";
 	}

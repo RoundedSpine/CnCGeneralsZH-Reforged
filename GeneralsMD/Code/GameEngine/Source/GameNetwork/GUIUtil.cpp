@@ -559,6 +559,17 @@ Int SuperweaponRestrictionFromComboBox(GameWindow *comboBox)
   return (Int)(intptr_t)GadgetComboBoxGetItemData(comboBox, selIndex);
 }
 
+const char *SuperweaponCaption(Int restriction)
+{
+  for ( Int i = 0; i < (Int)(sizeof(theSuperweaponChoices)/sizeof(theSuperweaponChoices[0])); i++ )
+  {
+    if ( theSuperweaponChoices[i] == restriction )
+      return theSuperweaponCaptions[i];
+  }
+  // as the dropdown shows a mode it has no entry for
+  return theSuperweaponCaptions[0];
+}
+
 void UpdateUnitLimitCheckBox(GameWindow *checkBox, GameInfo *myGame, Bool hostMayEdit)
 {
   checkBox->winEnable( hostMayEdit );
@@ -584,6 +595,13 @@ static const char * theIncomeSharingCaptions[ INCOME_SHARING_COUNT ] =
 {
   "GUI:IncomeSharingOff", "GUI:IncomeSharingTech", "GUI:IncomeSharingAll"
 };
+
+const char *IncomeSharingCaption(Int incomeSharing)
+{
+  if ( incomeSharing < 0 || incomeSharing >= INCOME_SHARING_COUNT )
+    return theIncomeSharingCaptions[ INCOME_SHARING_OFF ];
+  return theIncomeSharingCaptions[ incomeSharing ];
+}
 
 void PopulateIncomeSharingComboBox(GameWindow *comboBox, GameInfo *myGame, Bool hostMayEdit)
 {
@@ -1141,6 +1159,11 @@ static void drawSwatch(GameWindow *window, WinInstanceData *instData)
 	Int x, y, width, height;
 	window->winGetScreenPosition(&x, &y);
 	window->winGetSize(&width, &height);
+	LobbySwatchFill(x, y, width, height, window->winGetEnabledColor(0));
+}
+
+void LobbySwatchFill(Int x, Int y, Int width, Int height, Color fill)
+{
 	TheDisplay->drawImage(TheMappedImageCollection->findImageByName("Active-Unchecked"), x, y, x + width, y + height);
 	// the art is a 22 pixel cell whose black hole runs from 3 to 17 on both axes, up and left of the
 	// middle because the drop shadow takes the last two; each edge is rounded on its own so the hole
@@ -1152,7 +1175,7 @@ static void drawSwatch(GameWindow *window, WinInstanceData *instData)
 	const Int holeBottom = y + (HOLE_END * height + CELL / 2) / CELL;
 	const Int gap = max(1, min(holeRight - holeLeft, holeBottom - holeTop) / 8);
 	TheDisplay->drawFillRect(holeLeft + gap, holeTop + gap, holeRight - holeLeft - 2 * gap,
-		holeBottom - holeTop - 2 * gap, window->winGetEnabledColor(0));
+		holeBottom - holeTop - 2 * gap, fill);
 }
 
 void DrawMapListTab(GameWindow *window, WinInstanceData *instData)

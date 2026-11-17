@@ -362,6 +362,7 @@ AIUpdateInterface::AIUpdateInterface( Thing *thing, const ModuleData* moduleData
 	m_sideStepSeen = FALSE;
 	m_lastProgressPos.zero();
 	m_lastProgressAngle = 0.0f;
+	m_lastProgressTurn = 0.0f;
 	m_ditherFrom.zero();
 	m_ditherFrame = 0;
 	m_ditherTravel = 0.0f;
@@ -599,9 +600,15 @@ void AIUpdateInterface::doPathfind( PathfindServicesInterface *pathfinder )
 					getPath()->getLastNode()->getLayer());
 			}
 			//CRCDEBUG_LOG(("AIUpdateInterface::doPathfind() - m_isAttackPath = TRUE after computeAttackPath\n"));
-			m_isAttackPath = TRUE; 
+			m_isAttackPath = TRUE;
 			return;
 		}
+		/* A contact weapon's search (computeAttackPath plain-paths to the victim) that ran out of the
+			 queue's cells for this frame comes back FALSE with the search held.  Falling through asked
+			 for a plain path to an adjusted spot instead and threw the held search away; stay an attack
+			 path and let the queue resume it next frame. */
+		if (m_waitingForPath)
+			return;
 		//CRCDEBUG_LOG(("AIUpdateInterface::doPathfind() - m_isAttackPath = FALSE after computeAttackPath()\n"));
 		m_isAttackPath = FALSE;
 		if (victim) {
@@ -1836,7 +1843,6 @@ static const Real CROWD_PASS_CLEAR	= 6.0f;		///< room a passing lane leaves besi
 static const Real CROWD_PASS_TIGHT	= 1.5f;		///< and the room it settles for rather than queue
 #define CROWD_PASS_RETRY ((Int)(ConvertRetailFrames(10)))			///< queued this long: ask to pass again, hold or no hold
 static const Real CROWD_TAPER_DIST	= PATHFIND_CELL_SIZE_F * 8.0f;	///< the band closes over the last of the route
-static const Real CROWD_PLAN_END_SLACK	= PATHFIND_CELL_SIZE_F * 3.0f;	///< how far the move state may move a planned route's end and it still be the same order
 #define CROWD_BRAKE_FRAMES ((Int)(ConvertRetailFrames(8)))		///< frames of closing time a brake is allowed to read
 #define CROWD_FAN_FRAMES ((Int)(ConvertRetailFrames(12)))			///< held up this long before spreading out
 #define CROWD_FAN_RATE ((Real)(ConvertRetailPerFrameRate(0.8f)))		///< and then sideways at this much a frame
@@ -2191,10 +2197,6 @@ Bool AIUpdateInterface::computePath( PathfindServicesInterface *pathServices, Co
 		destroyPath();
 	}
 
-	// the group's plan is for the path this order asks for and no other, whichever way it is answered
-	CrowdRoute planned;
-	planned.swap( m_crowdPlanned );
-
 	if (canComputeQuickPath())
 	{
 		return computeQuickPath(destination);
@@ -2239,15 +2241,8 @@ Bool AIUpdateInterface::computePath( PathfindServicesInterface *pathServices, Co
 		return computeQuickPath(destination);
 	}
 
-	if (!planned.empty() && !m_isBlockedAndStuck)
-		theNewPath = crowdPlannedPath( planned, originalDestination );
-
 	PathfindLayerEnum destinationLayer = TheTerrainLogic->getLayerForDestination(destination);
-	if (theNewPath != NULL)
-	{
-		// the lane the group planned for us: see setPlannedCrowdRoute
-	}
-	else if (TheAI->pathfinder()->validMovementPosition( getObject()->getCrusherLevel()>0, destinationLayer, m_locomotorSet, destination ) == FALSE)
+	if (TheAI->pathfinder()->validMovementPosition( getObject()->getCrusherLevel()>0, destinationLayer, m_locomotorSet, destination ) == FALSE)
 	{
 		theNewPath = NULL;
 	}
@@ -2323,37 +2318,6 @@ Bool AIUpdateInterface::computePath( PathfindServicesInterface *pathServices, Co
 		return TRUE;
 
 	return FALSE;
-}
-
-//-------------------------------------------------------------------------------------------------
-/** The route the group planned for this unit, as a path from where the unit is now.
-
-		The plan was laid at order time from where the unit stood then, and the path is asked for a
-		frame or several later, so two things are checked again rather than trusted: the first leg,
-		from here, and the end, which the move state may have nudged onto free ground since.  A plan
-		that fails either is dropped for a search, which is what the unit would have had anyway. */
-//-------------------------------------------------------------------------------------------------
-Path *AIUpdateInterface::crowdPlannedPath( const CrowdRoute& planned, const Coord3D& destination )
-{
-	Object *self = getObject();
-	const CrowdRoutePoint& last = planned.back();
-	const Real endDx = last.pos.x - destination.x;
-	const Real endDy = last.pos.y - destination.y;
-	if (endDx * endDx + endDy * endDy > CROWD_PLAN_END_SLACK * CROWD_PLAN_END_SLACK)
-		return NULL;					// a different order from the one this was planned for
-
-	const Coord3D *myPos = self->getPosition();
-	if (!TheAI->pathfinder()->isLinePassable( self, m_locomotorSet.getValidSurfaces(), self->getLayer(),
-				*myPos, planned.front().pos, false, true ))
-		return NULL;
-
-	Path *path = newInstance( Path );
-	path->markOptimized();
-	path->appendNode( myPos, self->getLayer() );
-	for (Int k = 0; k + 1 < (Int)planned.size(); k++)
-		path->appendNode( &planned[ k ].pos, planned[ k ].layer );
-	path->appendNode( &destination, TheTerrainLogic->getLayerForDestination( &destination ) );
-	return path;
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -2647,7 +2611,7 @@ void AIUpdateInterface::crowdReleaseCorridor( void )
 		 gate at the top of crowdSteer wants one.  So the slot re-arms itself: the offset is zero
 		 because the new route starts under the unit's own tracks, and the per-frame fit takes it back
 		 out to its own lane within a few frames.  Only the next order clears it (clearCrowdLane). */
-	if (m_crowdLaneOf >= 1)		// 1 is a member driving a lane its group planned: see setPlannedCrowdRoute
+	if (m_crowdLaneOf >= 1)
 	{
 		m_pendingCrowdLat = 0.0f;
 		m_hasPendingCrowdLat = TRUE;
@@ -2804,10 +2768,13 @@ void AIUpdateInterface::updateProgress( void )
 	const Real dx = myPos->x - m_lastProgressPos.x;
 	const Real dy = myPos->y - m_lastProgressPos.y;
 	const Real moved = (Real)sqrt( dx * dx + dy * dy );
-	const Real turned = (Real)fabs( normalizeAngle( facing - m_lastProgressAngle ) );
+	const Real turn = normalizeAngle( facing - m_lastProgressAngle );
+	const Real turned = (Real)fabs( turn );
+	const Bool reversedTurn = turn * m_lastProgressTurn < 0.0f;
 
 	m_lastProgressPos = *myPos;
 	m_lastProgressAngle = facing;
+	m_lastProgressTurn = turn;
 
 	/* Not trying to go anywhere: nothing to be stuck at.
 
@@ -2858,6 +2825,15 @@ void AIUpdateInterface::updateProgress( void )
 		else
 			comingAbout = TRUE;
 	}
+	/* The soldier trap: a Ranger wedged between parked hulls narrower than his body swings his nose
+		 to and fro on the spot, and every swing passed the test above, so the ladder never fired and he
+		 stood there for the rest of the match (Tournament Desert).  A turn that reverses last frame's is
+		 a swing, not coming about, and a soldier turns on the spot in a frame or two, so one turning
+		 without moving is not coming about either.  PathLab --dither, source 6187fe7c.  Soldiers only:
+		 a hull weaving in its lane reverses its turn all the time, and on tanks the rule moved
+		 nothing measurable (squad30, six seeds), so it is left where the trap is. */
+	if (self->isKindOf( KINDOF_INFANTRY ) && (reversedTurn || moved < ConvertRetailPerFrameRate(0.01f)))
+		comingAbout = FALSE;
 
 	if (moved < asked * 0.2f && !comingAbout)
 	{
@@ -8005,12 +7981,13 @@ void AIUpdateInterface::crc( Xfer *x )
 	* 19: the radius a player's guard order set
 	* 20: the aggressive stance
 	* 21: the player's orders held until the exit path is done
-	* 22: the auto garrison search */
+	* 22: the auto garrison search
+	* 23: the stuck ladder's state, the closest-path retry flag and the compact group goal */
 // ------------------------------------------------------------------------------------------------
 void AIUpdateInterface::xfer( Xfer *xfer )
 {
   // version
-  const XferVersion currentVersion = 22;
+  const XferVersion currentVersion = 23;
   XferVersion version = currentVersion;
   xfer->xferVersion( &version, currentVersion );
  
@@ -8310,17 +8287,16 @@ void AIUpdateInterface::xfer( Xfer *xfer )
 
 	if (version >= 15)
 	{
-		// a group's planned lane, which a save can fall between the order and the path it is for
-		UnsignedShort corners = (UnsignedShort)m_crowdPlanned.size();
+		/* Where a group's planned lane was saved. Groups plan no lanes any more, so a save writes none
+			 and a load reads an older save's corners and drops them: the unit searches for its own path. */
+		UnsignedShort corners = 0;
 		xfer->xferUnsignedShort(&corners);
-		if (xfer->getXferMode() == XFER_LOAD)
-			m_crowdPlanned.resize( corners );
 		for (Int k = 0; k < (Int)corners; k++)
 		{
-			xfer->xferCoord3D(&m_crowdPlanned[ k ].pos);
-			Int layer = (Int)m_crowdPlanned[ k ].layer;
+			Coord3D pos;
+			Int layer = 0;
+			xfer->xferCoord3D(&pos);
 			xfer->xferInt(&layer);
-			m_crowdPlanned[ k ].layer = (PathfindLayerEnum)layer;
 		}
 	}
 
@@ -8366,6 +8342,30 @@ void AIUpdateInterface::xfer( Xfer *xfer )
 		xfer->xferBool(&m_isSeekingGarrison);
 		xfer->xferCoord3D(&m_garrisonSearchCenter);
 		xfer->xferSTLObjectIDVector(&m_garrisonSearchTried);
+	}
+
+	if (version >= 23)
+	{
+		// the stuck ladder: a save mid-episode resumes on the same rung and the same counts.  The
+		// head-on and side-step pair is written by the collisions after doLocomotor and read by the
+		// next one, so it crosses the frame a save is taken on too.
+		xfer->xferInt(&m_noProgress);
+		xfer->xferInt(&m_headOnFrames);
+		xfer->xferBool(&m_headOnSeen);
+		xfer->xferCoord2D(&m_sideStep);
+		xfer->xferBool(&m_sideStepSeen);
+		xfer->xferCoord3D(&m_lastProgressPos);
+		xfer->xferReal(&m_lastProgressAngle);
+		xfer->xferReal(&m_lastProgressTurn);
+		xfer->xferCoord3D(&m_ditherFrom);
+		xfer->xferUnsignedInt(&m_ditherFrame);
+		xfer->xferReal(&m_ditherTravel);
+		xfer->xferInt(&m_rescueStage);
+		xfer->xferCoord3D(&m_rescueTo);
+		xfer->xferUnsignedInt(&m_rescueUntil);
+		xfer->xferUnsignedInt(&m_rescueCool);
+		xfer->xferBool(&m_retryPath);
+		xfer->xferBool(&m_compactGoal);
 	}
 
 }  // end xfer

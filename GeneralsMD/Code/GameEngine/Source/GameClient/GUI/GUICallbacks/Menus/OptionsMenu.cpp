@@ -230,6 +230,7 @@ DisplaySettings oldDispSettings, newDispSettings;
 Bool dispChanged = FALSE;
 extern Int timer;
 extern void DoResolutionDialog();
+extern void MainMenuKeepOnlineThroughRebuild();
 
 //
 // Set by saveOptions when the resolution really changed, acted on by applyPendingShellRebuild once
@@ -420,7 +421,8 @@ static void hideMainMenuColumns( void )
 	for( Int i = 0; i < MAIN_MENU_COLUMN_COUNT; ++i )
 	{
 		GameWindow *column = TheWindowManager->winGetWindowFromId( mainMenu, TheNameKeyGenerator->nameToKey( TheMainMenuColumnNames[ i ] ) );
-		if( column->winIsHidden() )
+		// a mod's MainMenu.wnd is retail's: no MapBorder5 or MapBorder6
+		if( !column || column->winIsHidden() )
 			continue;
 		column->winHide( TRUE );
 		mainMenuColumnHidden[ i ] = TRUE;
@@ -433,7 +435,11 @@ static void showMainMenuColumns( void )
 	for( Int i = 0; i < MAIN_MENU_COLUMN_COUNT; ++i )
 	{
 		if( mainMenu != NULL && mainMenuColumnHidden[ i ] )
-			TheWindowManager->winGetWindowFromId( mainMenu, TheNameKeyGenerator->nameToKey( TheMainMenuColumnNames[ i ] ) )->winHide( FALSE );
+		{
+			GameWindow *column = TheWindowManager->winGetWindowFromId( mainMenu, TheNameKeyGenerator->nameToKey( TheMainMenuColumnNames[ i ] ) );
+			if( column )
+				column->winHide( FALSE );
+		}
 		mainMenuColumnHidden[ i ] = FALSE;
 	}
 }
@@ -2016,6 +2022,10 @@ static void applyPendingShellRebuild( void )
 		return;
 	pendingShellRebuild = FALSE;
 
+	const Bool inMatch = TheGameLogic->isInGame() && !TheGameLogic->isInShellGame();
+	if( inMatch )
+		MainMenuKeepOnlineThroughRebuild();	// the main menu's destroy would end an online match
+
 	delete TheShell;
 	TheShell = NULL;
 
@@ -2031,7 +2041,7 @@ static void applyPendingShellRebuild( void )
 	// greyed out in-game at all.  The command bar has just been built from its layouts and comes up
 	// hidden, so it is put back.
 	//
-	if( TheGameLogic->isInGame() && !TheGameLogic->isInShellGame() )
+	if( inMatch )
 	{
 		//
 		// A Shell is born active - the constructor says so, because a shell that is being built is
@@ -3140,7 +3150,7 @@ void OptionsMenuInit( WindowLayout *layout, void *userData )
 	// three looks only the Direct3D 11 picture draws; under -d3d9 their boxes keep the saved value, greyed
 	if( !TheGlobalData->m_direct3D11 )
 	{
-		static const char *const direct3D11Only[] = { "MapLight", "TeamGlow", "WaterFoam", "GroundMarks", "Firelight", "HemiAmbient", "AmbientOcclusion", "InternalHdr", "Weather", "WaterSplashes", "Atmosphere", "StructureCollapse", "HeatHaze" };
+		static const char *const direct3D11Only[] = { "MapLight", "TeamGlow", "WaterFoam", "GroundMarks", "Firelight", "HemiAmbient", "AmbientOcclusion", "InternalHdr", "Weather", "WaterSplashes", "Atmosphere", "StructureCollapse", "HeatHaze", "GroundFoliage" };
 		for( Int i = 0; i < (Int)( sizeof( direct3D11Only ) / sizeof( direct3D11Only[ 0 ] ) ); ++i )
 			findOptionWidget( *findOptionDef( direct3D11Only[ i ] ) )->winEnable( FALSE );
 	}

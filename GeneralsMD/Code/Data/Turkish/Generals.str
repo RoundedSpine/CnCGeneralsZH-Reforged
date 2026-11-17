@@ -16182,7 +16182,75 @@ GUI:HudStatRankValue
 END
 
 GUI:HudWatch
-"İzle"
+"Kamera"
+END
+
+GUI:HudCamStateFree
+"Serbest kamera"
+END
+
+GUI:HudCamStateDirector
+"Direktör"
+END
+
+GUI:HudCamStatePlayer
+"Oyuncu ekranı: %ls"
+END
+
+GUI:HudCamNextFree
+"Ekranını görmek için bir oyuncunun adına tıkla"
+END
+
+GUI:HudCamNextFreeFollowed
+"Dönmek için tıkla: %ls"
+END
+
+GUI:HudCamNextDirector
+"Kamera en büyük çatışmaya kendisi gider"
+END
+
+GUI:HudCamNextDirectorFollowed
+"Çatışmaları izlenen oyuncu: %ls"
+END
+
+GUI:HudCamNextPlayer
+"Bırakmak için Esc ya da adına tekrar tıkla"
+END
+
+GUI:HudCamNextWaiting
+"Oyuncunun kamerası bekleniyor"
+END
+
+GUI:HudCamNextComputer
+"Bilgisayarın ekranı yok, Direktör izliyor"
+END
+
+GUI:HudCamHintFree
+"Kamerayı kendin gezdirirsin"
+END
+
+GUI:HudCamHintPlayer
+"Seçtiğin oyuncunun ekranını görürsün"
+END
+
+GUI:HudCamHintFog
+"Yalnızca izlenen oyuncunun gördüğünü gösterir"
+END
+
+GUI:HudCamHintArmies
+"Her oyuncunun birliklerini listenin yanında açar"
+END
+
+GUI:HudCamHintRow
+"Tıkla: bu oyuncunun ekranını gör"
+END
+
+GUI:HudCamHintRowLive
+"Tıkla: bırak"
+END
+
+GUI:HudPlayerCamera
+"OYUNCU KAMERASI"
 END
 
 GUI:HudCameraFree
@@ -16589,6 +16657,14 @@ TOOLTIP:HeatHaze
 "Yangınların üstünde, lazer ışınları boyunca ve füze egzozunun arkasında hava dalgalanır. Yalnızca Direct3D 11 ile, Klasik Grafikler açıkken kapalıdır. Kabul Et'e basınca uygulanır."
 END
 
+GUI:GroundFoliage
+"Bitki Örtüsü"
+END
+
+TOOLTIP:GroundFoliage
+"Yerde otlar, çalılar, eğrelti otları ve taşlar biter, ağaçlarla birlikte rüzgârda sallanır. Yalnızca görüntüdür, birlikler içinden geçer. Yalnızca Direct3D 11 ile, Klasik Grafikler açıkken kapalıdır. Kabul Et'e basınca uygulanır."
+END
+
 GUI:StructureCollapse
 "Yıkılan Binalar"
 END
@@ -16659,6 +16735,74 @@ END
 
 TOOLTIP:HealthBarColors
 "Tam canda yeşil, sarıdan geçip kırmızıya, ya da kimin olduğu görünsün diye her çubuk sahibinin renginde. Devre dışı birimler mavi kalır."
+END
+
+GUI:HudLayout
+"Arayüz Düzeni"
+END
+
+GUI:HudLayout0
+"Klasik"
+END
+
+GUI:HudLayout1
+"Red Alert Tarzı"
+END
+
+TOOLTIP:HudLayout
+"Klasik, komuta çubuğunu altta tutar. Red Alert tarzı bina ve birim üretimini sağdaki yan panele taşır, seçili birimlerin komutlarını alttaki şeride koyar."
+END
+
+GUI:HudWidth
+"Arayüz Genişliği"
+END
+
+GUI:HudWidth0
+"Tam Ekran"
+END
+
+GUI:HudWidth1
+"21:9"
+END
+
+GUI:HudWidth2
+"16:9"
+END
+
+TOOLTIP:HudWidth
+"Ekran seçilenden genişse arayüz o oranda ortalanmış bir alana toplanır, çubuk gözünün önünde kalır. Savaş alanı yine bütün ekranı kaplar."
+END
+
+GUI:SidebarTab0
+"Bina"
+END
+
+GUI:SidebarTab1
+"Savunma"
+END
+
+GUI:SidebarTab2
+"Piyade"
+END
+
+GUI:SidebarTab3
+"Araç"
+END
+
+GUI:SidebarAll
+"Tümü"
+END
+
+GUI:SidebarSell
+"Sat"
+END
+
+GUI:SidebarRepair
+"Onar"
+END
+
+GUI:SidebarSuperweaponReady
+"Hazır"
 END
 
 GUI:MenuTransitionSpeed
@@ -16973,6 +17117,10 @@ GUI:HotkeysCommandTOGGLE_COMMAND_TAB_AIRCRAFT
 "Hava araçları sekmesi"
 END
 
+GUI:HotkeysCommandTOGGLE_COMMAND_TAB_DEFENSE
+"Yan Panel 4. Sekme"
+END
+
 GUI:HotkeysCommandSIGNAL_ATTACK
 "İşaret: buraya saldır"
 END
@@ -17023,6 +17171,42 @@ END
 
 GUI:HotkeysCommandHOLD_POSITION
 "Yerini koru"
+END
+
+GUI:HotkeyScheme
+"Kısayol Düzeni"
+END
+
+GUI:HotkeyScheme0
+"Klasik"
+END
+
+GUI:HotkeyScheme1
+"Red Alert"
+END
+
+TOOLTIP:HotkeyScheme
+"Klasik, oyunun kendi tuşlarını kullanır. Red Alert, Red Alert 2'nin tuşlarını bu oyuna uyduğu yerde alır: yapım sekmeleri için Q W E R, konuşlanmak için D, satmak için L, onarmak için K, ara noktalar için basılı Z. Her düzen Kısayollar sayfasındaki değişikliklerini ayrı tutar."
+END
+
+GUI:HotkeysEditingScheme
+"%s tuşlarını düzenliyorsun."
+END
+
+GUI:HotkeysCommandDEPLOY
+"Konuşlan"
+END
+
+GUI:HotkeysCommandSELL_MODE
+"Satış modu"
+END
+
+GUI:HotkeysCommandREPAIR_MODE
+"Onarım modu"
+END
+
+GUI:HotkeysCommandBEGIN_WAYPOINTS_KEY
+"Ara nokta modu (basılı tut)"
 END
 
 // Maç yükleme ekranı (LoadScreen.cpp içindeki LoadScreenBoard)
@@ -17134,6 +17318,22 @@ END
 GUI:AIPersonaRusher
 "Baskıncı"
 END
+GUI:LoadProgress
+"Yükleniyor %%%d"
+END
+
+GUI:LoadPlayerPercent
+"%%%d"
+END
+
+GUI:LoadRuleOn
+"Açık"
+END
+
+GUI:LoadRuleOff
+"Kapalı"
+END
+
 
 GUI:AIPersonaRaider
 "Akıncı"
@@ -17529,19 +17729,19 @@ GUI:SummaryMoney
 END
 
 GUI:SummaryUnitsBuilt
-"Üretilen"
+"Üretim"
 END
 
 GUI:SummaryBuildingsBuilt
-"İnşa edilen"
+"Yapım"
 END
 
 GUI:SummaryLost
-"Kaybedilen"
+"Kayıp"
 END
 
 GUI:SummaryDestroyed
-"Yok edilen"
+"İmha"
 END
 
 GUI:SummaryEarned
@@ -17577,7 +17777,7 @@ GUI:GraphBuildings
 END
 
 GUI:GraphBuildOrder
-"İnşa sırası"
+"Yapım sırası"
 END
 
 GUI:GraphSuperweaponBuilt
@@ -17602,6 +17802,126 @@ END
 
 GUI:GraphNoData
 "Bu maçta hiçbir şey kaydedilmedi."
+END
+
+GUI:SummaryScore
+"Puan"
+END
+
+GUI:SummarySpent
+"Harcanan"
+END
+
+GUI:SummaryDefeated
+"Yenildi"
+END
+
+GUI:SummaryDisconnected
+"Bağlantı koptu"
+END
+
+GUI:ScoreTeamWins
+"Takım %d kazandı"
+END
+
+GUI:ScorePlayerWins
+"Kazanan: %ls"
+END
+
+GUI:ScoreNoWinner
+"Kazanan yok"
+END
+
+GUI:ScoreLength
+"Süre"
+END
+
+GUI:GraphGraphs
+"Grafikler"
+END
+
+GUI:GraphValueDestroyed
+"Yok edilen değer"
+END
+
+GUI:GraphUnitsLost
+"Kaybedilen birlik"
+END
+
+GUI:GraphLines
+"Çizgi"
+END
+
+GUI:GraphShare
+"Pay"
+END
+
+GUI:GraphPeak
+"en yüksek %ls"
+END
+
+GUI:SummaryUnits_Short
+"Birlik"
+END
+
+GUI:GraphBuildings_Short
+"Bina"
+END
+
+GUI:SummaryUnitsBuilt_Short
+"Üret."
+END
+
+GUI:SummaryDestroyed_Short
+"İmha"
+END
+
+GUI:SummaryEarned_Short
+"Kaz."
+END
+
+GUI:SummarySpent_Short
+"Harc."
+END
+
+GUI:HudCamNextFree_Short
+"Ekranı için oyuncu adına tıkla"
+END
+
+GUI:HudCamNextPlayer_Short
+"Bırakmak: Esc ya da ada tıkla"
+END
+
+GUI:HudCameraFree_Short
+"Serb."
+END
+
+GUI:HudCameraDirector_Short
+"Dir."
+END
+
+GUI:HudCameraPlayer_Short
+"Oync."
+END
+
+GUI:ScoreHighlights
+"Öne çıkanlar"
+END
+
+GUI:ScoreHighlightDestroyed
+"En çok yok eden"
+END
+
+GUI:ScoreHighlightEarned
+"En çok kazanan"
+END
+
+GUI:ScoreHighlightArmy
+"En büyük ordu"
+END
+
+GUI:ScoreHighlightSuperweapon
+"İlk süper silah"
 END
 
 INI:FactionTurkiye
@@ -18348,6 +18668,66 @@ CONTROLBAR:TooltipTurkiyeRapidDeployment
 "Gökbey İndirmesi \n Geri Sayım: 3:00"
 END
 
+SCIENCE:TurkiyeAllyAid
+"Müttefik Desteği"
+END
+
+CONTROLBAR:ToolTipTurkiyeScienceAllyAid
+"Şu an üretebileceğin askerleri ve araçları seç, parasını öde, kargo uçakları getirsin. Bir müttefiği gösterirsen onun olarak iner. Bir uçak sekiz asker ya da iki araç taşır, uçak başına 500 fazladan, en çok dört uçak; vurulan uçağın yükü gider. \n \n Kullanıldığı yer: Karargah"
+END
+
+CONTROLBAR:TurkiyeAllyAid
+"&Müttefik Desteği"
+END
+
+CONTROLBAR:TooltipTurkiyeAllyAid
+"Müttefik Desteği \n Geri Sayım: 4:00"
+END
+
+GUI:AirliftTitle
+"Hava İkmali"
+END
+
+GUI:AirliftFor
+"%ls için"
+END
+
+GUI:AirliftPlanes
+"Uçak: %d / %d"
+END
+
+GUI:AirliftFee
+"Ücret: %ls"
+END
+
+GUI:AirliftTotal
+"Toplam: %ls"
+END
+
+GUI:AirliftOK
+"Tamam"
+END
+
+GUI:AirliftCancel
+"İptal"
+END
+
+GUI:AirliftHint
+"Bir eklemek için tıkla ya da tekeri yukarı çevir, bir çıkarmak için sağ tıkla ya da aşağı çevir. Shift: beş."
+END
+
+GUI:AirliftPlanesFull
+"Uçaklarda yer kalmadı"
+END
+
+GUI:AirliftAtLimit
+"Bundan alabileceğin kadar var"
+END
+
+GUI:AirliftNoFactory
+"Bunu üreten bir fabrika gerekli"
+END
+
 SCIENCE:TurkiyeCommandoRaid
 "Komando Baskını"
 END
@@ -18716,8 +19096,8 @@ GUI:OnlineSkinsRefused
 "zerohour.gg bu seçimi kabul etmedi, skinlerin olduğu gibi kaldı. Hesabında ne olduğunu görmek için bu ekranı yeniden aç."
 END
 
-SKIN:Gold1K
-"1K ALTIN"
+SKIN:Splinter
+"PARÇALI KAMUFLAJ"
 END
 
 GUI:OnlineLadderRank
@@ -18802,6 +19182,14 @@ END
 
 GUI:OnlineUnrated_cancelled
 "Puana sayılmadı: maç iptal oldu."
+END
+
+GUI:OnlineSendingResultsTitle
+"Sonuçlar Gönderiliyor"
+END
+
+GUI:OnlineSendingResults
+"Maç sonucu ve tekrarı gönderiliyor. Lütfen bekleyin, oyunu kapatmayın."
 END
 
 GUI:Talents

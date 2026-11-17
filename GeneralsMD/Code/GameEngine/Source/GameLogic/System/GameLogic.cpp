@@ -1688,6 +1688,18 @@ void GameLogic::startNewGame( Bool loadingSaveGame )
 	TheTeamFactory->reset();
 	ThePlayerList->newGame();
 
+	// -observer gives no seat to this machine, so newGame put the first human player in the local seat,
+	// and with -takeover that is a driverless opponent: the watcher saw through his fog and every enemy
+	// stealthed unit stayed invisible.  The ReplayObserver takes the screen as it does in a playback; the
+	// keyboard player newGame chose stays, so the simulation and its recording are what they were.
+	if (TheGlobalData->m_autoSkirmishObserver && m_gameMode == GAME_SKIRMISH
+		&& !(TheRecorder && TheRecorder->getMode() == RECORDERMODETYPE_PLAYBACK))
+	{
+		Player *observer = ThePlayerList->findPlayerWithNameKey(TheNameKeyGenerator->nameToKey("ReplayObserver"));
+		if (observer)
+			ThePlayerList->setLocalPlayer(observer);
+	}
+
 	// the AI's unit-against-unit tables, here on the loading screen rather than at its first team choice
 	AIPlayer::prepareMatchupTables();
 
@@ -1969,8 +1981,9 @@ void GameLogic::startNewGame( Bool loadingSaveGame )
 			}
 			else
 			{
-				// remove shroud for the player in MP games
-				if (!TheMultiplayerSettings->isShroudInMultiplayer())
+				// remove shroud for the player in MP games; a ranked Quick Match starts black, which the
+				// options string carries so both machines and the replay agree
+				if (!TheMultiplayerSettings->isShroudInMultiplayer() && !game->getStartShrouded())
 					ThePartitionManager->revealMapForPlayer( player->getPlayerIndex() );
 			}
 		}
@@ -7237,7 +7250,18 @@ void GameLogic::loadPostProcess( void )
 			Object *owner = findObjectByID( it->first );
 			if( owner == NULL )
 				throw SC_INVALID_DATA;
-			UpdateModulePtr u = (UpdateModulePtr)( owner->getBehaviorModules()[ it->second ]->getUpdate() );
+			// The index is the save's: one from another build, or a broken file, can name a module this
+			// object does not have, or one with no update. Refuse the save rather than read past the list.
+			BehaviorModule **modules = owner->getBehaviorModules();
+			Int moduleCount = 0;
+			while( modules[ moduleCount ] )
+				++moduleCount;
+			if( it->second < 0 || it->second >= moduleCount )
+				throw SC_INVALID_DATA;
+			UpdateModulePtr u = (UpdateModulePtr)( modules[ it->second ]->getUpdate() );
+			// and the same module twice would leave a second heap entry pointing at it after it dies
+			if( u == NULL || u->friend_getSleepySlot() != -1 )
+				throw SC_INVALID_DATA;
 			appendSleepyUpdate( u );
 		}
 		m_loadedSleepyOrder.clear();

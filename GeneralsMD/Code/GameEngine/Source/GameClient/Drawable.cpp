@@ -3924,9 +3924,9 @@ void Drawable::drawAltitudeLine( void )
 		startY = topScreen.y + dy * ( trim / length );
 	}
 
-	// The owner's colour on the line, the ring and the disc inside it, so whose plane is over this
-	// spot reads from the ground as well as from the sky. Civilians and anything without a colour
-	// borrow the old white.
+	// The owner's colour on the line and the diamond at its foot, so whose plane is over this spot
+	// reads from the ground as well as from the sky. Civilians and anything without a colour borrow
+	// the old white.
 	UnsignedByte ownerR = 255, ownerG = 255, ownerB = 255;
 	const Player *owner = obj->getControllingPlayer();
 	if( owner != NULL && owner->getPlayerColor() != 0 )
@@ -3935,93 +3935,25 @@ void Drawable::drawAltitudeLine( void )
 		GameGetColorComponents( clientPlayerColor( owner ), &ownerR, &ownerG, &ownerB, &a );
 	}
 
-	//
-	// One pixel of the owner's colour inside three of near black, so it holds on snow and sand alike.
-	// Faint where it leaves the plane, firm where it meets the ground: the foot is the answer, the
-	// top is only where the question came from.
-	//
-	const Int SEGMENTS = 8;
+	// One even pixel of the owner's colour inside three of faint black, so it holds on snow and sand
+	// alike without weighing on the picture.
 	if( lineLength > 2.0f )
 	{
-		const Real sx = ( bottomScreen.x - startX ) / SEGMENTS, sy = ( bottomScreen.y - startY ) / SEGMENTS;
-		for( Int pass = 0; pass < 2; ++pass )
-		{
-			for( Int i = 0; i < SEGMENTS; ++i )
-			{
-				const Int step = i + 1;
-				const Color color = pass == 0
-					? GameMakeColor( 0, 0, 0, (UnsignedByte)( 20 + ( 120 - 20 ) * step / SEGMENTS ) )
-					: GameMakeColor( ownerR, ownerG, ownerB, (UnsignedByte)( 50 + ( 220 - 50 ) * step / SEGMENTS ) );
-				TheDisplay->drawLine( REAL_TO_INT( startX + sx * i ), REAL_TO_INT( startY + sy * i ),
-															REAL_TO_INT( startX + sx * step ), REAL_TO_INT( startY + sy * step ),
-															pass == 0 ? 3.0f : 1.0f, color );
-			}
-		}
+		TheDisplay->drawLine( REAL_TO_INT( startX ), REAL_TO_INT( startY ), bottomScreen.x, bottomScreen.y, 3.0f, GameMakeColor( 0, 0, 0, 80 ) );
+		TheDisplay->drawLine( REAL_TO_INT( startX ), REAL_TO_INT( startY ), bottomScreen.x, bottomScreen.y, 1.0f, GameMakeColor( ownerR, ownerG, ownerB, 150 ) );
 	}
 
-	//
-	// A ring lying on the ground at the foot. It is flat on the terrain, so the camera squashes it to
-	// an ellipse exactly as it does the ground: a faint disc of the owner's colour, then a two pixel
-	// ring of it inside a dark one a pixel wider on each side.
-	//
+	// A small diamond at the foot, a pixel of dark round it, flat on the screen whatever the camera.
 	if( !bottomOn )
 		return;
-
-	const Real ringRadius = MAX( 6.0f, MIN( 18.0f, obj->getGeometryInfo().getMajorRadius() * 0.6f ) );
-	const Int RING_POINTS = 20;
-	ICoord2D ring[ RING_POINTS ];
-	Bool ringOn[ RING_POINTS ];
-	Bool allOn = TRUE;
-	for( Int i = 0; i < RING_POINTS; ++i )
-	{
-		const Real angle = 2.0f * PI * i / RING_POINTS;
-		Coord3D p = bottom;
-		p.x += ringRadius * Cos( angle );
-		p.y += ringRadius * Sin( angle );
-		ringOn[ i ] = TheTacticalView->worldToScreen( &p, &ring[ i ] );
-		allOn = allOn && ringOn[ i ];
-	}
-
-	// the disc, one screen row at a time across the ellipse; it is convex, so each row is one span
-	if( allOn )
-	{
-		Int minY = ring[ 0 ].y, maxY = ring[ 0 ].y;
-		for( Int i = 1; i < RING_POINTS; ++i )
-		{
-			minY = MIN( minY, ring[ i ].y );
-			maxY = MAX( maxY, ring[ i ].y );
-		}
-		const Color discColor = GameMakeColor( ownerR, ownerG, ownerB, 45 );
-		for( Int y = minY; y <= maxY; ++y )
-		{
-			const Real rowY = y + 0.5f;
-			Real left = 1e9f, right = -1e9f;
-			for( Int i = 0; i < RING_POINTS; ++i )
-			{
-				const ICoord2D &a = ring[ i ];
-				const ICoord2D &b = ring[ ( i + 1 ) % RING_POINTS ];
-				if( a.y == b.y || rowY < MIN( a.y, b.y ) || rowY > MAX( a.y, b.y ) )
-					continue;
-				const Real x = a.x + ( rowY - a.y ) * ( b.x - a.x ) / (Real)( b.y - a.y );
-				left = MIN( left, x );
-				right = MAX( right, x );
-			}
-			if( right > left )
-				TheDisplay->drawFillRect( REAL_TO_INT( left ), y, REAL_TO_INT( right - left ), 1, discColor );
-		}
-	}
-
-	// a foot at the screen's edge keeps the part of its ring still on the screen
 	for( Int pass = 0; pass < 2; ++pass )
 	{
-		const Real width = pass == 0 ? 4.0f : 2.0f;
-		const Color color = pass == 0 ? GameMakeColor( 0, 0, 0, 150 ) : GameMakeColor( ownerR, ownerG, ownerB, 230 );
-		for( Int i = 0; i < RING_POINTS; ++i )
+		const Int h = pass == 0 ? 4 : 3;
+		const Color color = pass == 0 ? GameMakeColor( 0, 0, 0, 200 ) : GameMakeColor( ownerR, ownerG, ownerB, 255 );
+		for( Int dy = -h; dy <= h; ++dy )
 		{
-			const Int j = ( i + 1 ) % RING_POINTS;
-			if( !ringOn[ i ] || !ringOn[ j ] )
-				continue;
-			TheDisplay->drawLine( ring[ i ].x, ring[ i ].y, ring[ j ].x, ring[ j ].y, width, color );
+			const Int w = h - ( dy < 0 ? -dy : dy );
+			TheDisplay->drawFillRect( bottomScreen.x - w, bottomScreen.y + dy, 2 * w + 1, 1, color );
 		}
 	}
 }
@@ -4206,8 +4138,24 @@ Int Drawable_pipPixel( Real uiScale )
 	return max( 1, (Int)( uiScale / 1.8f + 0.5f ) );
 }
 
+// ------------------------------------------------------------------------------------------------
+Real Drawable_pipScale( Real uiScale, Real zoom )
+{
+	// at the default camera and closer the chips keep their whole step; pulled back past it they
+	// shrink as the health bar's width does, so a far view of a town is not a field of seat rows
+	// wider than the buildings under them
+	const Real k = (Real)Drawable_pipPixel( uiScale );
+	return zoom > 1.0f ? k / zoom : k;
+}
+
 namespace
 {
+	// n chip pixels at s screen pixels each, never under `least`
+	Int pipLen( Int n, Real s, Int least )
+	{
+		return max( least, (Int)( n * s + 0.5f ) );
+	}
+
 	// the first free row under a bar nothing hangs from: the selection frame's row and one clear
 	Int pipsClearTop( const IRegion2D *bar )
 	{
@@ -4216,28 +4164,28 @@ namespace
 
 	// the first row's top: past the selection frame's row, whether or not it is drawn, then three
 	// clear pixels, so the row never touches the bar and does not jump when the unit is selected
-	Int pipsTop( const IRegion2D *bar, Int k )
+	Int pipsTop( const IRegion2D *bar, Real s )
 	{
-		return bar->lo.y + max( 3, (Int)(bar->hi.y - bar->lo.y) ) + 1 + 3 * k;
+		return bar->lo.y + max( 3, (Int)(bar->hi.y - bar->lo.y) ) + 1 + pipLen( 3, s, 1 );
 	}
 
 	//
-	// The shapes are masks in 1080p pixels, each pixel k screen pixels square: a seat is a 6x6 chip
-	// with its corners cut, a round a 4x8 slug with a 2 pixel tip. The outer mask is the 1 pixel edge,
-	// what lies inside every neighbour is the fill.
+	// The shapes are masks in 1080p pixels, each pixel s screen pixels square: a seat is a 6x6 chip
+	// with its corners cut, a round a 4x8 slug with a 2 pixel tip. The outer mask is the edge `e`
+	// thick, what lies inside every neighbour is the fill.
 	//
-	void fillChip( Int x, Int y, Int k, Color edge, Color fill )
+	void fillChip( Int x, Int y, Int c, Int e, Color edge, Color fill )
 	{
-		TheDisplay->drawFillRect( x + k, y, 4 * k, 6 * k, edge );
-		TheDisplay->drawFillRect( x, y + k, 6 * k, 4 * k, edge );
-		TheDisplay->drawFillRect( x + k, y + k, 4 * k, 4 * k, fill );
+		TheDisplay->drawFillRect( x + e, y, c - 2 * e, c, edge );
+		TheDisplay->drawFillRect( x, y + e, c, c - 2 * e, edge );
+		TheDisplay->drawFillRect( x + e, y + e, c - 2 * e, c - 2 * e, fill );
 	}
 
-	void fillSlug( Int x, Int y, Int k, Color edge, Color fill )
+	void fillSlug( Int x, Int y, Int w, Int h, Int e, Color edge, Color fill )
 	{
-		TheDisplay->drawFillRect( x + k, y, 2 * k, k, edge );
-		TheDisplay->drawFillRect( x, y + k, 4 * k, 7 * k, edge );
-		TheDisplay->drawFillRect( x + k, y + k, 2 * k, 6 * k, fill );
+		TheDisplay->drawFillRect( x + e, y, w - 2 * e, e, edge );
+		TheDisplay->drawFillRect( x, y + e, w, h - e, edge );
+		TheDisplay->drawFillRect( x + e, y + e, w - 2 * e, h - 2 * e, fill );
 	}
 }
 
@@ -4248,9 +4196,20 @@ namespace
 // ------------------------------------------------------------------------------------------------
 Int Drawable::loadPips( const IRegion2D *healthBarRegion, Bool draw ) const
 {
-	const Int k = Drawable_pipPixel( TheUIScale() );
+	const Real s = Drawable_pipScale( TheUIScale(), TheTacticalView->getZoom() );
+	const Int e = pipLen( 1, s, 1 );		// the edge
+	const Int gap = pipLen( 2, s, 1 );
+	const Int c = pipLen( 6, s, 2 );		// a seat's side
+	//
+	// Zoomed far enough out that a chip's corners would leave under two pixels of fill (a three pixel
+	// chip drew a plus with one pixel of colour), both rows turn to plain dots of the seat's or the
+	// round's colour, the light edge's when free. A dark rim inside a dot that small left one pixel
+	// of colour and read dark, lit and free alike, and a dot never reaches four pixels: the switch
+	// comes at three.
+	//
+	const Bool dots = c - 2 * e < 2;
 	const Int left = healthBarRegion->lo.x;
-	Int y = pipsTop( healthBarRegion, k );
+	Int y = pipsTop( healthBarRegion, s );
 	Int bottom = pipsClearTop( healthBarRegion );
 	Int total, full, infantry;
 
@@ -4263,15 +4222,24 @@ Int Drawable::loadPips( const IRegion2D *healthBarRegion, Bool draw ) const
 	// rounds: amber slugs, six pixels apart
 	if( ammoPipCounts( total, full ) )
 	{
+		// as wide as a fill inside the edge needs while the chips still have one
+		const Int w = dots ? pipLen( 4, s, 2 ) : max( pipLen( 4, s, 2 ), 2 * e + 1 );
+		const Int h = pipLen( 8, s, 3 );
 		if( draw )
 		{
 			const Color ROUND = GameMakeColor( 255, 190, 48, 255 );
+			const Int pitch = max( w + 1, pipLen( 6, s, 1 ) );
 			for( Int i = 0; i < total; ++i )
-				fillSlug( left + i * 6 * k, y, k, i < full ? EDGE : EMPTY_EDGE, i < full ? ROUND : EMPTY_FILL );
+			{
+				if( dots )
+					TheDisplay->drawFillRect( left + i * pitch, y, w, h, i < full ? ROUND : EMPTY_EDGE );
+				else
+					fillSlug( left + i * pitch, y, w, h, e, i < full ? EDGE : EMPTY_EDGE, i < full ? ROUND : EMPTY_FILL );
+			}
 		}
-		y += 8 * k;
-		bottom = y + 2 * k;
-		y += 2 * k;		// a unit carrying both keeps its seats under its rounds
+		y += h;
+		bottom = y + gap;
+		y += gap;		// a unit carrying both keeps its seats under its rounds
 	}
 
 	// seats: soldiers first in green, anything else aboard in blue, then the free seats; eight apart
@@ -4283,11 +4251,16 @@ Int Drawable::loadPips( const IRegion2D *healthBarRegion, Bool draw ) const
 			const Color VEHICLE = GameMakeColor( 110, 190, 255, 255 );
 			const Int soldiers = min( infantry, full );
 			for( Int i = 0; i < total; ++i )
-				fillChip( left + i * 8 * k, y, k, i < full ? EDGE : EMPTY_EDGE,
-									i < soldiers ? SOLDIER : i < full ? VEHICLE : EMPTY_FILL );
+			{
+				const Color fill = i < soldiers ? SOLDIER : i < full ? VEHICLE : EMPTY_FILL;
+				if( dots )
+					TheDisplay->drawFillRect( left + i * ( c + gap ), y, c, c, i < full ? fill : EMPTY_EDGE );
+				else
+					fillChip( left + i * ( c + gap ), y, c, e, i < full ? EDGE : EMPTY_EDGE, fill );
+			}
 		}
-		y += 6 * k;
-		bottom = y + 2 * k;
+		y += c;
+		bottom = y + gap;
 	}
 	return bottom;
 }
@@ -4495,6 +4468,21 @@ void Drawable::drawBattlePlans( const IRegion2D *healthBarRegion )
 }
 
 // ------------------------------------------------------------------------------------------------
+/** Where drawUIText puts the control group digit's left edge across the screen. drawVeterancy asks
+	* it too, to keep the chevrons off the digit. */
+// ------------------------------------------------------------------------------------------------
+static Int groupNumberX( const IRegion2D *healthBarRegion )
+{
+	Int xPos = healthBarRegion->lo.x;
+	if (TheDrawGroupInfo->m_usingPixelOffsetX) {
+		xPos += TheDrawGroupInfo->m_pixelOffsetX;
+	} else {
+		xPos += (healthBarRegion->width() * TheDrawGroupInfo->m_percentOffsetX);
+	}
+	return xPos;
+}
+
+// ------------------------------------------------------------------------------------------------
 // ------------------------------------------------------------------------------------------------
 void Drawable::drawUIText()
 {
@@ -4520,14 +4508,8 @@ void Drawable::drawUIText()
 
 	if (groupNum > NO_HOTKEY_SQUAD && groupNum < NUM_HOTKEY_SQUADS ) 
 	{
-		Int xPos = healthBarRegion->lo.x;
+		Int xPos = groupNumberX( healthBarRegion );
 		Int yPos = healthBarRegion->lo.y;
-
-		if (TheDrawGroupInfo->m_usingPixelOffsetX) {
-			xPos += TheDrawGroupInfo->m_pixelOffsetX;
-		} else {
-			xPos += (healthBarRegion->width() * TheDrawGroupInfo->m_percentOffsetX);
-		}
 
 		if (TheDrawGroupInfo->m_usingPixelOffsetY) {
 			yPos += TheDrawGroupInfo->m_pixelOffsetY;
@@ -5294,12 +5276,44 @@ void Drawable::drawVeterancy( const IRegion2D *healthBarRegion )
 	// bar's middle over its right end, which sat on the old ammo strip: an amber chevron on the
 	// last amber round. Beside the bar nothing else is drawn.
 	//
+	// Without one (smart mode on a unit nobody selected or hurt) the right end is empty air a
+	// screen-scaled bar's width from a small unit: an ejected pilot, which select-all skips and
+	// nothing shoots, wore his rank floating off to one side. They sit centred over the unit then,
+	// just above where the bar would be.
+	//
 	if( healthBarRegion )
 	{
-		const Int barHeight = max( 3, (Int)(healthBarRegion->hi.y - healthBarRegion->lo.y) );
-		const Int x = healthBarRegion->hi.x + 2;
-		const Int y = healthBarRegion->lo.y + barHeight / 2 - REAL_TO_INT( vetBoxHeight * 0.5f );
-		TheDisplay->drawImage( image, x, y, x + REAL_TO_INT( vetBoxWidth ), y + REAL_TO_INT( vetBoxHeight ) );
+		const Int w = REAL_TO_INT( vetBoxWidth );
+		const Int h = REAL_TO_INT( vetBoxHeight );
+		Int x, y;
+		if( wearsHealthBar() )
+		{
+			const Int barHeight = max( 3, (Int)(healthBarRegion->hi.y - healthBarRegion->lo.y) );
+			x = healthBarRegion->hi.x + 2;
+			y = healthBarRegion->lo.y + barHeight / 2 - REAL_TO_INT( vetBoxHeight * 0.5f );
+		}
+		else
+		{
+			// the region runs from 0.45 of its width left of the unit to 0.55 right (computeHealthRegion)
+			const Int unitX = healthBarRegion->lo.x + REAL_TO_INT( (healthBarRegion->hi.x - healthBarRegion->lo.x) * 0.45f );
+			x = unitX - w / 2;
+			y = healthBarRegion->lo.y - h;
+
+			// the control group digit stands at the region's left end, about as high: start past it
+			const Player *owner = obj->getControllingPlayer();
+			const Int groupNum = owner ? owner->getSquadNumberForObject( obj ) : NO_HOTKEY_SQUAD;
+			if( obj->isLocallyControlled() && groupNum > NO_HOTKEY_SQUAD && groupNum < NUM_HOTKEY_SQUADS )
+			{
+				DisplayString *digit = TheDisplayStringManager->getGroupNumeralString( groupNum );
+				if( digit )
+					x = max( x, groupNumberX( healthBarRegion ) + digit->getWidth() + 1 );
+			}
+
+			// a disabled unit's lightning sits over the region's left end, its foot on the bar's line
+			if( m_iconInfo && m_iconInfo->m_icon[ ICON_DISABLED ] )
+				y -= m_iconInfo->m_icon[ ICON_DISABLED ]->getCurrentFrameHeight();
+		}
+		TheDisplay->drawImage( image, x, y, x + w, y + h );
 		return;
 	}
 
@@ -5581,65 +5595,78 @@ void Drawable::healthBarColors( Real healthRatio, Color *color, Color *outlineCo
 }
 
 //-------------------------------------------------------------------------------------------------
+/** Whether this drawable wears a health bar this frame. drawHealthBar draws one only when this says
+	* so, and drawVeterancy asks it too: chevrons beside a bar that is not there float off to one side
+	* of the unit. */
+//-------------------------------------------------------------------------------------------------
+Bool Drawable::wearsHealthBar( void ) const
+{
+	// m_showObjectHealth is the debug master switch (a cheat key toggles it); which units wear a bar
+	// while it is on is the player's HealthBars setting, applied last once the health is known
+	if( !TheGlobalData->m_showObjectHealth )
+		return FALSE;
+
+	const Object *obj = getObject();
+
+	// if no object, nothing to do
+	if( obj == NULL )
+		return FALSE;
+
+	// effect objects, scenery and death puppets wear none (Drawable_kindShowsHealthBar)
+	if( !Drawable_kindShowsHealthBar( obj->getTemplate()->getKindOfMask() ) )
+		return FALSE;
+
+	if( obj->isKindOf( KINDOF_STRUCTURE ) )
+	{
+		const ContainModuleInterface *contain = obj->getContain();
+		const Bool isBridge = obj->isKindOf( KINDOF_BRIDGE ) ||
+													obj->isKindOf( KINDOF_LANDMARK_BRIDGE ) ||
+													obj->isKindOf( KINDOF_BRIDGE_TOWER );
+		//
+		// "nobody's" is a side test, not a player-pointer test: a map hands its houses either to
+		// the neutral player or to a Civilian-faction player of its own, and both are equally not
+		// in the match. Every faction anyone plays is a playable side, so a captured tech building
+		// or a rebuilt GLA hole is owned the moment it changes hands.
+		//
+		const Player *owner = obj->getControllingPlayer();
+		const Bool isUnowned = owner == NULL || !owner->isPlayableSide();
+
+		if( !Drawable_structureShowsHealthBar( isBridge, isUnowned,
+																					 contain != NULL && contain->isGarrisonable(),
+																					 obj->isKindOf( KINDOF_CAPTURABLE ) ) )
+			return FALSE;
+	}
+
+	// get the health and max health
+	const BodyModuleInterface *body = obj->getBodyModule();
+	const Real health = body->getHealth();
+	const Real maxHealth = body->getMaxHealth();
+
+	// if no max health or health at all we will draw nothing
+	if( maxHealth == 0.0f || health == 0.0f )
+		return FALSE;
+
+	// the player's setting decides who wears one.  It is tested last because smart mode needs the
+	// health, and the health needs the body module.
+	return Drawable_healthBarModeShows( TheGlobalData->m_healthBarMode,
+																			isSelected(),
+																			TheInGameUI != NULL &&
+																				TheInGameUI->getMousedOverDrawableID() == getID(),
+																			health < maxHealth );
+}
+
+//-------------------------------------------------------------------------------------------------
 void Drawable::drawHealthBar(const IRegion2D* healthBarRegion)
 {
 	if (!healthBarRegion)
 		return;
 
-	// m_showObjectHealth is the debug master switch (a cheat key toggles it); which units wear a bar
-	// while it is on is the player's HealthBars setting, applied further down once the health is known
-	if( TheGlobalData->m_showObjectHealth )
+	if( wearsHealthBar() )
 	{
 		Object *obj = getObject();
-
-		// if no object, nothing to do
-		if( obj == NULL )
-			return;
-
-		// effect objects, scenery and death puppets wear none (Drawable_kindShowsHealthBar)
-		if( !Drawable_kindShowsHealthBar( obj->getTemplate()->getKindOfMask() ) )
-			return;
-
-		if( obj->isKindOf( KINDOF_STRUCTURE ) )
-		{
-			const ContainModuleInterface *contain = obj->getContain();
-			const Bool isBridge = obj->isKindOf( KINDOF_BRIDGE ) ||
-														obj->isKindOf( KINDOF_LANDMARK_BRIDGE ) ||
-														obj->isKindOf( KINDOF_BRIDGE_TOWER );
-			//
-			// "nobody's" is a side test, not a player-pointer test: a map hands its houses either to
-			// the neutral player or to a Civilian-faction player of its own, and both are equally not
-			// in the match. Every faction anyone plays is a playable side, so a captured tech building
-			// or a rebuilt GLA hole is owned the moment it changes hands.
-			//
-			const Player *owner = obj->getControllingPlayer();
-			const Bool isUnowned = owner == NULL || !owner->isPlayableSide();
-
-			if( !Drawable_structureShowsHealthBar( isBridge, isUnowned,
-																						 contain != NULL && contain->isGarrisonable(),
-																						 obj->isKindOf( KINDOF_CAPTURABLE ) ) )
-				return;
-		}
-
-		// get body module of object
 		BodyModuleInterface *body = obj->getBodyModule();
-
-		// get the health and max health
 		Real health = body->getHealth();
 		Real maxHealth = body->getMaxHealth();
-
-		// if no max health or health at all we will draw nothing
-		if( maxHealth == 0.0f || health == 0.0f )
-			return;
-
-		// the player's setting decides who wears one.  It is tested here rather than at the top of the
-		// function because smart mode needs the health, and the health needs the body module.
-		if( !Drawable_healthBarModeShows( TheGlobalData->m_healthBarMode,
-																			isSelected(),
-																			TheInGameUI != NULL &&
-																				TheInGameUI->getMousedOverDrawableID() == getID(),
-																			health < maxHealth ) )
-			return;
 
 		// what is our health ratio
 		Real healthRatio = health / maxHealth;

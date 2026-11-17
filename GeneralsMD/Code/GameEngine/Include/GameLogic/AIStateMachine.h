@@ -405,22 +405,25 @@ class AIMoveAndTightenState : public AIInternalMoveToState
 {
 	MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE(AIMoveAndTightenState, "AIMoveAndTightenState")		
 public:
-	AIMoveAndTightenState( StateMachine *machine ) : AIInternalMoveToState( machine, "AIMoveAndTightenState" ) 
+	AIMoveAndTightenState( StateMachine *machine ) : AIInternalMoveToState( machine, "AIMoveAndTightenState" )
 	{
 		m_checkForPath = false;
 		m_okToRepathTimes = 0;
+		m_stuckDist = 0.0f;
 	}
-	AIMoveAndTightenState( StateMachine *machine, const char *name ) : AIInternalMoveToState( machine, name ) 
+	AIMoveAndTightenState( StateMachine *machine, const char *name ) : AIInternalMoveToState( machine, name )
 	{
 		m_checkForPath = false;
 		m_okToRepathTimes = 0;
+		m_stuckDist = 0.0f;
 	}
 	virtual StateReturnType onEnter();
 	virtual StateReturnType update();
 protected:
 	virtual Bool computePath();												///< compute the path
-	Int m_okToRepathTimes; 
+	Int m_okToRepathTimes;
 	Bool m_checkForPath;
+	Real m_stuckDist;			///< distance to the goal the last time a player's tighten was held up (0 = not yet)
 protected:
 	// snapshot interface
 	virtual void crc( Xfer *xfer );
@@ -607,6 +610,10 @@ protected:
 	void startEngaging( Object *victim, Bool allowChase );	///< stop here and hand the victim to the attack sub-machine
 	void stopEngaging( void );									///< the fight is over; put back what startEngaging changed
 	Bool hasLeftTheLeash( void );								///< has the victim dragged us too far off the attack move?
+	Bool ridersLeftNothingToFight( void );			///< put riders who fire out of us on the victim; TRUE when nobody can hurt it
+	Bool isUntouchable( const Object *obj ) const;	///< one of m_untouchableIDs?
+	void markUntouchable( ObjectID id );				///< remember id, dropping the oldest when full
+	void clearUntouchables( void );
 	Object *findRetaliationTarget( void );			///< whoever is shooting us right now, if we can shoot back
 	Bool canHitFromHere( const Object *victim );	///< can we shoot it without moving an inch?
 	Bool mayEngageYet( void );									///< has the required progress toward the goal been made?
@@ -616,8 +623,11 @@ protected:
 	StateMachine *m_attackMoveMachine;
 	UnsignedInt		m_frameToSleepUntil;
 	Int						m_retryCount;
+	Real					m_retryDist;					///< how far off the goal a player's order last stopped short (0 = not yet)
 	Coord3D				m_engageOrigin;				///< where we stood when we picked the current victim
 	ObjectID			m_victimID;						///< who we picked
+	enum { ATTACK_MOVE_UNTOUCHABLE_SLOTS = 4 };
+	ObjectID			m_untouchableIDs[ATTACK_MOVE_UNTOUCHABLE_SLOTS];	///< victims nobody aboard could hurt from where we stood, newest first; not taken again this order
 	UnsignedInt		m_engageStartFrame;		///< when we picked it
 	UnsignedInt		m_frameToScanOn;			///< next frame we may look for a target
 	UnsignedInt		m_frameToApproachOn;	///< until this frame we only take targets we can already shoot

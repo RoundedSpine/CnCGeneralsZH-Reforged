@@ -1242,7 +1242,8 @@ public:
 		Coord3D *dest, const Coord3D *groupDest=NULL);
 
 	// Gives each ground member its own reserved goal, spreading outward from dest with the soonest
-	// arrivals nearest it. goals[k] belongs to members[k]; a member never placed keeps dest itself.
+	// arrivals nearest it, then once more from past dest so the pile sits on it rather than short of it.
+	// goals[k] belongs to members[k]; a member never placed keeps the point its flood started from.
 	void floodGroupGoals(const Coord3D *dest, const std::vector<Object *>& members, std::vector<Coord3D>& goals);
 
 	// Adjusts the destination to a spot near dest for landing that is not occupied by other units.
@@ -1270,7 +1271,8 @@ public:
 
 	static void classifyMapCell( Int x, Int y, PathfindCell *cell);					///< Classify the given map cell
 	Int clearCellForDiameter( Bool crusher, Int cellX, Int cellY, PathfindLayerEnum layer, Int pathDiameter );		///< Return true if given position is a valid movement location
-	void getRadiusAndCenter(const Object *obj, Int &iRadius, Bool &center);
+	/// forGoal: the footprint a unit reserves where it stops (a soldier of an all-infantry order: his own cell), not the body it moves with
+	void getRadiusAndCenter(const Object *obj, Int &iRadius, Bool &center, Bool forGoal = FALSE);
 
 protected:
 	virtual Path *internalFindPath( Object *obj, const LocomotorSet& locomotorSet, const Coord3D *from, const Coord3D *to);	///< Find a short, valid path between given locations
@@ -1290,6 +1292,13 @@ protected:
 																Bool crusher, Int &cellCount);
 	Bool checkForAdjust(Object *, const LocomotorSet& locomotorSet, Bool isHuman, Int cellX, Int cellY, 
 		PathfindLayerEnum layer, Int iRadius, Bool center,Coord3D *dest, const Coord3D *groupDest) ;
+	Int floodGroupGoalsFrom(const Coord3D *origin, PathfindLayerEnum layer, const std::vector<Object *>& members,
+		std::vector<Coord3D>& goals, std::vector<bool>& isPlaced);	///< one flood of floodGroupGoals, out of origin's cell on layer; how many it placed
+	void floodGroupPile(const Coord3D *dest, PathfindLayerEnum layer, const std::vector<Object *>& members,
+		std::vector<Coord3D>& goals, std::vector<bool>& isPlaced, Coord3D *pileOrigin);	///< floodGroupGoals' flood and its re-centring
+	void floodMixedSoldiers(const Coord3D *origin, PathfindLayerEnum layer, const std::vector<Object *>& members,
+		std::vector<Coord3D>& goals, const std::vector<bool>& isPlaced);	///< a mixed group's soldiers onto one cell each, round the vehicles' block
+	Bool floodSoldierBlocked(const Object *soldier, Int cellX, Int cellY) const;	///< floodMixedSoldiers: a cell in the vehicles' block, on a lane before its vehicle, or reached through a parked one
 	Bool checkForLanding(Int cellX, Int cellY, 
 		PathfindLayerEnum layer, Int iRadius, Bool center,Coord3D *dest) ;
 	Bool checkForTarget(const Object *obj, 	Int cellX, Int cellY, const Weapon *weapon,
@@ -1365,8 +1374,8 @@ protected:
 		Bool center, Int pathDiameter );	///< Work backwards from goal cell to construct final path
 	Path *buildHierachicalPath( const Coord3D *fromPos, PathfindCell *goalCell);	///< Work backwards from goal cell to construct final path
 
-	void  prependCells( Path *path, const Coord3D *fromPos, 
-																	PathfindCell *goalCell, Bool center ); ///< Add pathfind cells to a path.
+	Bool  prependCells( Path *path, const Coord3D *fromPos,
+																	PathfindCell *goalCell, Bool center ); ///< Add pathfind cells to a path; FALSE when the cells' parent chain is broken or gives no node.
 
 	void debugShowSearch( Bool pathFound );				///< Show all cells touched in the last search
 	static LocomotorSurfaceTypeMask validLocomotorSurfacesForCellType(PathfindCell::CellType t);
@@ -1460,7 +1469,12 @@ private:
 	Int						m_numWallPieces;
 	Real					m_wallHeight;
 
+	enum { MOVE_ALLIES_MAX_DEPTH = 2 };
 	Int						m_moveAlliesDepth;
+	ObjectID			m_moveAlliesObjects[MOVE_ALLIES_MAX_DEPTH];	///< unit of each active moveAllies call, by depth
+
+	std::vector<Real>	m_floodBlockArrival;	///< floodMixedSoldiers, by extent index: soonest arrival of a vehicle whose goal (one cell round) covers the cell, FLT_MAX for none; empty outside it
+	Int								m_floodBlockCells;		///< how many cells it marks: the soldiers' flood looks that many further
 
 
 	// Pathfind queue, in two lines: human players' units are answered first (Pathfinder_servePathQueues)

@@ -664,7 +664,7 @@ public:
 	virtual Bool checkBridges(Object *unit, Waypoint *way);
 
 	/// The skirmish approach this player's team should take: the script's choice, unless the AI reads the map.
-	AsciiString chooseApproachLabel(const Coord3D *from, const AsciiString &requested, Int pathSuffix);
+	AsciiString chooseApproachLabel(const Coord3D *from, const AsciiString &requested, Int pathSuffix, Team *team = NULL);	///< team: what goes, for the guns it fears
 
 	/// TRUE when the AI parks this team to go out with the rest of its wave instead of on its own.
 	Bool holdTeamForWave(Team *team, const AsciiString &approach, Int pathSuffix);
@@ -913,6 +913,9 @@ public:
 	// this player's finished factory that can queue the unit now: shortest queue, then nearest to
 	// squadCentre (left out when it is NULL), then lowest ObjectID.  NULL when none can.
 	Object *findFactoryForGroupUnit( const ThingTemplate *unit, const Coord3D *squadCentre ) const;
+	// obj is this player's live factory and can queue the unit now: the build button's canMakeUnit
+	// test, and its bar offers the button.  findFactoryForGroupUnit's filter, and the sidebar's pick.
+	Bool factoryTakesGroupUnit( Object *obj, const ThingTemplate *unit ) const;
 	// a unit the group panel ordered just came out: it joins the squad and attack moves to its
 	// centre.  An empty squad leaves it on the factory's rally point.
 	void sendReinforcementToSquad( Object *unit, Int squad );

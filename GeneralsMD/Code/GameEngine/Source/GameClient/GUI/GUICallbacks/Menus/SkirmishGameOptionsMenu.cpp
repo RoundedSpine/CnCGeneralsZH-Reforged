@@ -432,10 +432,7 @@ Money SkirmishPreferences::getStartingCash(void) const
     return TheMultiplayerSettings->getDefaultStartingMoney();
   }
   
-  Money money;
-  money.deposit( strtoulAsWindows( it->second.str() ), FALSE  );
-  
-  return money;
+  return TheMultiplayerSettings->getListedStartingMoney( strtoulAsWindows( it->second.str() ) );
 }
 
 void SkirmishPreferences::setStartingCash( const Money & startingCash )
@@ -618,6 +615,7 @@ static void startPressed(void)
 	{
 		buttonPushed = FALSE;
 		MessageBoxOk(TheGameText->fetch("GUI:ErrorStartingGame"), TheGameText->fetch("GUI:CantFindMap"), NULL);
+		return;	// EA fell through to it->second on end() here
 	}
 	MapMetaData mmd = it->second;
 	if(playerCount > mmd.m_numPlayers)

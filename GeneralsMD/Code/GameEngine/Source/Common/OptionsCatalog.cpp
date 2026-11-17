@@ -143,6 +143,9 @@ OPTION_BOOL_ACCESSORS( m_hdTextures )
 OPTION_INT_ACCESSORS( m_lightingStyle )
 OPTION_INT_ACCESSORS( m_healthBarMode )
 OPTION_INT_ACCESSORS( m_healthBarColors )
+OPTION_INT_ACCESSORS( m_hudLayout )
+OPTION_INT_ACCESSORS( m_hudWidth )
+OPTION_INT_ACCESSORS( m_hotkeyScheme )
 OPTION_INT_ACCESSORS( m_playerColorScheme )
 OPTION_INT_ACCESSORS( m_textLanguage )
 OPTION_BOOL_ACCESSORS( m_showOrderLines )
@@ -162,6 +165,7 @@ OPTION_BOOL_ACCESSORS( m_explosionDebrisTrails )
 OPTION_BOOL_ACCESSORS( m_mapLight )
 OPTION_BOOL_ACCESSORS( m_teamGlow )
 OPTION_BOOL_ACCESSORS( m_waterFoam )
+OPTION_BOOL_ACCESSORS( m_groundFoliage )
 OPTION_BOOL_ACCESSORS( m_groundMarks )
 OPTION_BOOL_ACCESSORS( m_firelight )
 OPTION_BOOL_ACCESSORS( m_hemiAmbient )
@@ -589,8 +593,25 @@ const OptionDef TheOptionCatalog[] =
 		OPTION_ENUM, APPLY_LIVE, 0, HEALTH_BAR_COLORS_COUNT - 1,
 		get_m_healthBarColors, set_m_healthBarColors },
 
-	// MenuLayout (stretch or fit), HudScale and InterfaceStyle used to sit here.  Every menu is
-	// fitted now, and there is one interface at one size.
+	// Where the in-game interface sits: 0 Classic, the bar along the bottom, 1 the Red Alert style
+	// sidebar down the right with a command strip under the world (docs/plans/HUD-SIDEBAR-LAYOUT.md).
+	// Read as the bar is laid out, so Accept builds the shell and the bar again, in a match too.
+	// Every menu is fitted; MenuLayout, HudScale and the old InterfaceStyle are gone for good.
+	{ "HudLayout",								OPT_WND( "ComboBoxHudLayout" ), "GUI:HudLayout",
+		OPTION_ENUM, APPLY_SHELL_REBUILD, 0, HUD_LAYOUT_COUNT - 1,
+		get_m_hudLayout, set_m_hudLayout },
+
+	// How wide the interface may spread, for either layout: the whole screen, or a centred 21:9 or
+	// 16:9 area on a screen wider than that, the world still drawn edge to edge (HudAreaForScreen).
+	{ "HudWidth",									OPT_WND( "ComboBoxHudWidth" ), "GUI:HudWidth",
+		OPTION_ENUM, APPLY_SHELL_REBUILD, 0, HUD_WIDTH_COUNT - 1,
+		get_m_hudWidth, set_m_hudWidth },
+
+	// Which keyboard: 0 Classic, today's keys, 1 Red Alert, Red Alert 2's defaults fitted to this game
+	// in its own HotkeysRedAlert.ini (docs/plans/HOTKEY-SCHEME-RA.md).  Live: Accept reloads the keys.
+	{ "HotkeyScheme",							OPT_WND( "ComboBoxHotkeyScheme" ), "GUI:HotkeyScheme",
+		OPTION_ENUM, APPLY_LIVE, 0, HOTKEY_SCHEME_COUNT - 1,
+		get_m_hotkeyScheme, set_m_hotkeyScheme },
 
 	// Whose colour a player is drawn in.  Purely local: the match still agrees on the lobby's
 	// colours and this only changes what this screen puts on top of them, so two people in the same
@@ -719,6 +740,14 @@ const OptionDef TheOptionCatalog[] =
 	{ "WaterFoam",								OPT_WND( "CheckWaterFoam" ), "GUI:WaterFoam",
 		OPTION_BOOL, APPLY_LIVE, 0, 1,
 		get_m_waterFoam, set_m_waterFoam },
+
+	// Grass tufts on grass ground, swaying in the map's breeze; the tree pass draws them every frame
+	// and reads this as it does.  Client only.  Off under Classic graphics; under -d3d9 it stays set,
+	// draws nothing, and the menu greys it.  On Options > Display, the Graphics and Effects columns
+	// being full.
+	{ "GroundFoliage",						OPT_WND( "CheckGroundFoliage" ), "GUI:GroundFoliage",
+		OPTION_BOOL, APPLY_LIVE, 0, 1,
+		get_m_groundFoliage, set_m_groundFoliage },
 
 	// Craters and a building's stain on the terrain, fading over minutes, and darker treads.  The
 	// scorch buffer asks every draw.  Off under Classic graphics and -d3d9.  On Options > Effects.
@@ -889,6 +918,9 @@ const GraphicsQualityRow TheGraphicsQualityTable[] =
 	{ "CheckInternalHdr",				0.0f,  {    0,    0,    0,    0,    0,    0,    0,    0,    1,    1,    1 } },
 	{ "CheckHemiAmbient",				0.0f,  {    0,    0,    0,    0,    0,    0,    0,    0,    1,    1,    1 } },
 	{ "CheckStructureCollapse",	0.0f,  {    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    1 } },
+	// not measured yet: Direct3D 11 does not present on the machine that would sweep it.  Ultra only,
+	// for the faults docs/plans/TODO.md still lists (shader cache, structures a script makes)
+	{ "CheckGroundFoliage",			0.0f,  {    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    1 } },
 	{ "ComboBoxTextureFilter",	0.1f,  {    0,    1,    2,    2,    2,    2,    2,    2,    2,    2,    2 } },
 	{ "ComboBoxBloom",					0.1f,  {    0,    1,    2,    2,    2,    2,    2,    2,    2,    2,    2 } },
 	{ "SliderAnisotropy",				0.1f,  {    2,    4,    8,   16,   16,   16,   16,   16,   16,   16,   16 } },

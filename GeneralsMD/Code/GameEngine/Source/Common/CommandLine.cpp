@@ -1026,6 +1026,32 @@ Int parseNoChroma(char *args[], int num)
 	return 1;
 }
 
+/* -vertexTerrainSun: the ground keeps EA's sun in its vertex colour on Direct3D 11, as -d3d9 and
+	 Classic do, in place of the sun per pixel from the heights' smooth normal
+	 (HeightMapRenderObjClass::sunPerPixelWanted).  One exe then shoots the before and the after of the
+	 same frame.  Drawing only. */
+Int parseVertexTerrainSun(char *args[], int num)
+{
+	if (TheWritableGlobalData)
+	{
+		TheWritableGlobalData->m_vertexTerrainSun = TRUE;
+	}
+	return 1;
+}
+
+/* -noTerrainSubdivide: the ground keeps EA's two triangles a ten unit cell on Direct3D 11, as -d3d9 and
+	 Classic do, in place of two by two smaller cells shaped by the heights' smooth patch
+	 (HeightMapRenderObjClass::subdivideWanted, TerrainSubdivide.h).  One exe then shoots the before and
+	 the after of the same frame.  Drawing only: logic's heights never see either. */
+Int parseNoTerrainSubdivide(char *args[], int num)
+{
+	if (TheWritableGlobalData)
+	{
+		TheWritableGlobalData->m_noTerrainSubdivide = TRUE;
+	}
+	return 1;
+}
+
 Int parseShadowMapReport(char *args[], int num)
 {
 	if (TheWritableGlobalData)
@@ -1342,7 +1368,7 @@ Int parseNoTactics(char *args[], int num)
 	return 2;
 }
 
-/** -aiknobsoff even|odd|all engagegate,answerarmy,massunit,basewatch,strikedodge,defensequeue: those slots keep their rung with these knobs
+/** -aiknobsoff even|odd|all engagegate,answerarmy,massunit,basewatch,strikedodge,defensequeue,costmap,abilities,maplayers,foreigntech,secondbase: those slots keep their rung with these knobs
 	* of its profile off, so a batch can play Hard against Hard without them, or a scenario against the AI
 	* as it was.  A measuring aid like -notactics: read only in a single-player skirmish, never in a
 	* network game, and a replay made with it is played back with it given again. */
@@ -1361,6 +1387,11 @@ Int parseAIKnobsOff(char *args[], int num)
 		if (strstr(names.str(), "basewatch")) mask |= AIKNOB_BASE_WATCH;
 		if (strstr(names.str(), "strikedodge")) mask |= AIKNOB_STRIKE_DODGE;
 		if (strstr(names.str(), "defensequeue")) mask |= AIKNOB_DEFENSE_QUEUE;
+		if (strstr(names.str(), "costmap")) mask |= AIKNOB_COST_MAP;
+		if (strstr(names.str(), "abilities")) mask |= AIKNOB_ABILITIES;
+		if (strstr(names.str(), "maplayers")) mask |= AIKNOB_MAP_LAYERS;
+		if (strstr(names.str(), "foreigntech")) mask |= AIKNOB_FOREIGN_TECH;
+		if (strstr(names.str(), "secondbase")) mask |= AIKNOB_SECOND_BASE;
 		TheWritableGlobalData->m_aiKnobsOffMask = mask;
 	}
 	return 3;
@@ -2849,6 +2880,8 @@ static CommandLineParam params[] =
 	{ "-noDynamicLOD", parseNoDynamicLOD },
 	{ "-nochroma", parseNoChroma },
 	{ "-shadowmapreport", parseShadowMapReport },
+	{ "-vertexTerrainSun", parseVertexTerrainSun },
+	{ "-noTerrainSubdivide", parseNoTerrainSubdivide },
 	{ "-shadowmapoldcasters", parseShadowMapOldCasters },
 	{ "-shadowmapboth", parseShadowMapBoth },
 	{ "-noparticleshadows", parseNoParticleShadows },

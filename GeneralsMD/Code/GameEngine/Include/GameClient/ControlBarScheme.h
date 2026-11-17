@@ -313,6 +313,9 @@ public:
 	Int m_grownRadarRight;
 	Int m_grownRadarPeriod;
 	Int m_grownRadarLedge;
+	/// the C piece sampled at its centre alone, so stretched over the glass it is one flat colour (C's
+	/// texels straddle a DXT block seam and differ by a few levels, a gradient once stretched); owned
+	Image *m_grownRadarGlass;
 
 	/// RadarFrameImage: the nine pieces the radar's frame is drawn from round the map's own shape,
 	/// <name>TL, T, TR, L, C, R, BL, B, BR.  The corners' sizes are the frame's thickness on each side.
@@ -402,7 +405,7 @@ public:
 	/// the steel round a radar Minimap Size grew out of a scheme with no radar frame; painted or plate-drawn bar alike
 	static void drawGrownRadarFrame( void );
 	/// the side's own grown frame laid round 'well' (grown_compose); drawGrownRadarFrame's art path
-	static void drawGrownRadarPieces( const Image *const *pieces, Real scale, const IRegion2D &well, Bool lit );
+	static void drawGrownRadarPieces( const Image *const *pieces, Real scale, const IRegion2D &well, Bool lit, const Image *glass );
 	/// the general's powers tray's pieces (ControlBarScheme::TRAY_*) of the scheme on screen, or NULL
 	/// without a cell; the tray then keeps the shipped column
 	const Image *const *getPowerTray( void ) const;
@@ -425,6 +428,7 @@ public:
 	const Image *const *getGrownRadarPieces( void ) const;
 	Int getGrownRadarRight( void ) const;
 	Int getGrownRadarLedge( void ) const;
+	const Image *getGrownRadarGlass( void ) const;	///< m_grownRadarGlass, NULL without a scheme or a C piece
 	/// the scheme's art pixels to the screen's: the display's height over its creation height
 	Real getArtScale( void ) const;
 	/// its signal plate picture, NULL for none
@@ -488,5 +492,12 @@ private:
 /// art's texels are 1080 pixels), the edges and the centre stretched between them.  FALSE, and nothing
 /// drawn, when the art lacks the two corners that size it
 Bool ControlBarDrawNinePieceBox( const Image *const *pieces, const IRegion2D& box, Real scale );
+/// the scheme on screen's radar frame (RadarFrameImage) round the radar window where it stands; FALSE,
+/// and nothing drawn, when the scheme names none
+Bool ControlBarDrawRadarFrame( void );
+/// the scheme on screen's powers tray (PowerTrayImage) as one box: its cell piece under each of `cells`,
+/// its top, foot and left edges and the two left corners outside `box`, no right edge (the tray's
+/// screen side).  FALSE, and nothing drawn, without the pieces
+Bool ControlBarDrawPowerTrayBox( const IRegion2D *cells, Int count, const IRegion2D &box );
 
 #endif // __CONTROL_BAR_SCHEME_H_

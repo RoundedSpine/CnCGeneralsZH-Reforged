@@ -100,6 +100,14 @@ static const Int TheSpeakerTypesCount = sizeof(TheSpeakerTypes) / sizeof(TheSpea
 
 static void parseSpeakerType( INI *ini, void *instance, void *store, const void *userData );
 
+// msec into logic frames at the wall rate, rounded up.  TimeToFadeAudio is a length the player hears,
+// counted on the audio clock's 30 ticks a wall second; read as game time it shrank with the game
+// speed, and at 2.0x every fade and music crossfade was cut to half its length.
+static void parseWallDurationInt( INI *ini, void * /*instance*/, void *store, const void * /*userData*/ )
+{
+	*(Int *)store = (Int)ceilf( (Real)INI::scanUnsignedInt( ini->getNextToken() ) * LOGICFRAMES_PER_MSEC_REAL );
+}
+
 // Field Parse table for Audio Settings ///////////////////////////////////////////////////////////
 static const FieldParse audioSettingsFieldParseTable[] =
 {
@@ -153,7 +161,7 @@ static const FieldParse audioSettingsFieldParseTable[] =
 	{ "GlobalMinRange",				INI::parseInt,											NULL,							offsetof( AudioSettings, m_globalMinRange) },
 	{ "GlobalMaxRange",				INI::parseInt,											NULL,							offsetof( AudioSettings, m_globalMaxRange) },
 	{ "TimeBetweenDrawableSounds", SPEED_FIELD( AudioSettings, m_drawableAmbientFrames ) },
-	{ "TimeToFadeAudio",			SPEED_FIELD( AudioSettings, m_fadeAudioFrames ) },
+	{ "TimeToFadeAudio",			parseWallDurationInt,								NULL,							offsetof( AudioSettings, m_fadeAudioFrames) },
 	{ "AudioFootprintInBytes",INI::parseUnsignedInt,							NULL,							offsetof( AudioSettings, m_maxCacheSize) },
 	{ "Relative2DVolume",			INI::parsePercentToReal,						NULL,							offsetof( AudioSettings, m_relative2DVolume ) },
 	{ "DefaultSoundVolume",		INI::parsePercentToReal,						NULL,							offsetof( AudioSettings, m_defaultSoundVolume) },
@@ -268,6 +276,9 @@ void AudioManager::init()
 
 	// the original Generals campaigns' briefings and mission dialogue, which Zero Hour's files left out
 	ini.load( AsciiString( "Data\\INI\\SpeechReforged.ini" ), INI_LOAD_OVERWRITE, NULL );
+
+	// the fork's own unit voices, every Turkiye unit's; their wavs are loose under Data\Audio\Sounds
+	ini.load( AsciiString( "Data\\INI\\VoiceReforged.ini" ), INI_LOAD_OVERWRITE, NULL );
 
 	// do the miscellaneous sound files last so that we find the audioeventrts associated with the events.
 	ini.load( AsciiString( "Data\\INI\\MiscAudio.ini" ), INI_LOAD_OVERWRITE, NULL);

@@ -111,6 +111,10 @@ extern Bool Drawable_healthBarModeShows( Int healthBarMode, Bool isSelected, Boo
 ///< steps from 1920x1080's, 1 up to 1440p and 2 at 4K
 extern Int Drawable_pipPixel( Real uiScale );
 
+///< screen pixels per chip pixel at this UI scale and camera zoom: Drawable_pipPixel's whole step at
+///< the default camera and closer, shrinking past it as the health bar does (1/zoom)
+extern Real Drawable_pipScale( Real uiScale, Real zoom );
+
 ///< whether a container with nobody inside still shows its row of free seats: a vehicle always, a
 ///< garrisonable or heal-only building (a Barracks) never, any other building as the option says
 extern Bool Drawable_emptySeatsShow( Bool isStructure, Bool isGarrisonable, Bool isHealContain,
@@ -1007,6 +1011,7 @@ private:
 
 	void drawEmoticon( const IRegion2D* healthBarRegion );
 	void drawHealthBar( const IRegion2D* healthBarRegion );					///< draw heath bar
+	Bool wearsHealthBar( void ) const;															///< whether drawHealthBar puts a bar up this frame
 	void drawCaptureProgress( void );																///< the clock under the health bar of the building this one is taking
 	void drawAltitudeLine( void );																	///< the line from an aircraft in the air down to the ground under it
 	void drawHealing( const IRegion2D* healthBarRegion );						///< draw icons

@@ -168,6 +168,7 @@ static int GetSystemMetrics( int which )
 #include "GameClient/ParticleSys.h"
 #include "GameClient/FXList.h"
 #include "GameClient/ControlBar.h"
+#include "GameClient/ControlBarSidebar.h"
 #include "GameClient/GroupPanel.h"
 #include "GameClient/Display.h"
 #include "GameLogic/AI.h"
@@ -1406,6 +1407,35 @@ TEST(water_splashes_take_blasts_by_name_and_every_list_that_scorches)
 	CHECK_NEAR( TheFXListStore->findFXList( "SplashTest_Nuke" )->getSplashRadius(), 120.0f, 0.01f );
 }
 
+/* A flipbook's frame: at one variant the whole atlas as before (once over the life from the start,
+	 or looping at the rate), and with FlipbookVariants the same inside the particle's own run. */
+TEST(flipbook_frame_plays_inside_the_particles_variant)
+{
+	const Real SPF = 0.05f;
+	// one variant, EA's atlas whole: once over the life, from a random start, looping at a rate
+	CHECK_EQ( Particle::flipbookFrameAt( 64, 1, 0, 0, 50, 100, 0.0f, SPF ), 32u );
+	CHECK_EQ( Particle::flipbookFrameAt( 64, 1, 0, 0, 100, 100, 0.0f, SPF ), 63u );
+	CHECK_EQ( Particle::flipbookFrameAt( 64, 1, 0, 10, 50, 100, 0.0f, SPF ), 37u );
+	CHECK_EQ( Particle::flipbookFrameAt( 64, 1, 0, 0, 30, 100, 20.0f, SPF ), 30u );
+	CHECK_EQ( Particle::flipbookFrameAt( 64, 1, 0, 0, 70, 100, 20.0f, SPF ), 6u );
+	CHECK_EQ( Particle::flipbookFrameAt( 1, 1, 0, 0, 70, 100, 20.0f, SPF ), 0u );
+
+	// four runs of 16 in an 8 by 8: each plays and loops inside its own run
+	CHECK_EQ( Particle::flipbookFrameAt( 64, 4, 2, 0, 50, 100, 0.0f, SPF ), 40u );
+	CHECK_EQ( Particle::flipbookFrameAt( 64, 4, 2, 0, 100, 100, 0.0f, SPF ), 47u );
+	CHECK_EQ( Particle::flipbookFrameAt( 64, 4, 3, 0, 70, 100, 20.0f, SPF ), 54u );
+	CHECK_EQ( Particle::flipbookFrameAt( 64, 4, 1, 5, 30, 100, 20.0f, SPF ), 19u );
+	CHECK_EQ( Particle::flipbookFrameAt( 64, 4, 2, 5, 70, 0, 20.0f, SPF ), 37u );
+
+	// three runs of 21 leave frame 63 unshown; nonsense counts and picks fall back, never overrun
+	CHECK_EQ( Particle::flipbookFrameAt( 64, 3, 2, 0, 100, 100, 0.0f, SPF ), 62u );
+	CHECK_EQ( Particle::flipbookRunLength( 64, 0 ), 64u );
+	CHECK_EQ( Particle::flipbookRunLength( 64, 100 ), 64u );
+	CHECK_EQ( Particle::flipbookRunLength( 256, 16 ), 16u );
+	CHECK_EQ( Particle::flipbookFrameAt( 64, 4, 5, 0, 0, 100, 0.0f, SPF ), 0u );
+	CHECK_EQ( Particle::flipbookFrameAt( 64, 4, 0, 40, 0, 100, 0.0f, SPF ), 15u );
+}
+
 /* Data\INI\FXListReforged.ini is the fork's own explosion light: 89 of EA's FXLists, each repeated
 	 whole with one LightPulse added.  Whole, because FXListStore::parseFXListDefinition clears an
 	 entry before re-reading it - a half-copied block does not add a light, it deletes an explosion.
@@ -1422,9 +1452,13 @@ TEST(water_splashes_take_blasts_by_name_and_every_list_that_scorches)
 	 which already had a muzzle light, and the faster tracers six more, each with EA's own light.
 	 The smoke-trail fragments added two of EA's blasts, the jet missile with its own light and the
 	 Particle Cannon's ground hit with one of the fork's.  The three wreck impacts, dust and a
-	 shake by how hard an aircraft hits the ground, are dust and carry no light either. */
+	 shake by how hard an aircraft hits the ground, are dust and carry no light either.  ZH Enhanced's
+	 techniques added three lit ones, the civilian collapse's first stage, the Nuke Cannon's shot and
+	 the Particle Cannon's death, which also lit the pink one; the dust an artillery shell throws on
+	 dry ground is dust and stays unlit. */
 static const char *const s_unlitReforgedFXList = "FXList SupW_FX_ParticleUplinkDeathInitial";
 static const char *const s_unlitReforgedImpacts = "FXList FX_Reforged_Impact";
+static const char *const s_unlitReforgedShellDust = "FXList FX_ReforgedShellGroundDust";
 
 TEST(fxlist_reforged_ini_parses_and_keeps_its_light)
 {
@@ -1454,7 +1488,8 @@ TEST(fxlist_reforged_ini_parses_and_keeps_its_light)
 	while( fgets( line, sizeof( line ), fp ) != NULL )
 	{
 		if( strncmp( line, s_unlitReforgedFXList, strlen( s_unlitReforgedFXList ) ) == 0 ||
-				strncmp( line, s_unlitReforgedImpacts, strlen( s_unlitReforgedImpacts ) ) == 0 )
+				strncmp( line, s_unlitReforgedImpacts, strlen( s_unlitReforgedImpacts ) ) == 0 ||
+				strncmp( line, s_unlitReforgedShellDust, strlen( s_unlitReforgedShellDust ) ) == 0 )
 		{
 			open = 0;
 		}
@@ -1477,7 +1512,7 @@ TEST(fxlist_reforged_ini_parses_and_keeps_its_light)
 	}
 	fclose( fp );
 
-	CHECK_EQ( blocks, 135 );
+	CHECK_EQ( blocks, 138 );
 	CHECK_EQ( lit, blocks );
 }
 
@@ -2233,6 +2268,42 @@ static const char HOTKEYS_FROM_LAUNCHER[] =
 	"CommandButtonHotKey AirF_Command_A10ThunderboltMissileStrike\r\n"
 	"  Key = M\r\n"
 	"End\r\n";
+
+/* Hotkeys.ini stays out of the INI CRC, so the game reads only its key blocks out of it
+	 (HotKeyManager::loadPlayerKeys). A Weapon block in such a file is read past: it would have thrown
+	 (MULTIFILE refuses a new weapon name) or, for a name that exists, edited the weapon on one machine. */
+TEST(hotkeys_file_restricted_load_skips_every_other_block)
+{
+	CHECK( bootOnce() );
+	if( TheWeaponStore == NULL )
+		TheWeaponStore = NEW WeaponStore;
+
+	writeFile( TEST_INI,
+		"Weapon HotkeysRestrictProbeGun\r\n"
+		"  PrimaryDamage = 45.0\r\n"
+		"End\r\n"
+		"CommandBarGrid\r\n"
+		"  Enabled = Yes\r\n"
+		"End\r\n" );
+	static const char *const ONLY[] = { "CommandBarGrid", NULL };
+	HotKeyManager::setCommandBarGrid( FALSE );
+	Bool threw = FALSE;
+	try
+	{
+		INI ini;
+		ini.restrictBlocks( ONLY );
+		ini.load( AsciiString( TEST_INI ), INI_LOAD_MULTIFILE, NULL );
+	}
+	catch( ... )
+	{
+		threw = TRUE;
+	}
+	CHECK( !threw );
+	CHECK( TheWeaponStore->findWeaponTemplate( "HotkeysRestrictProbeGun" ) == NULL );
+	CHECK( HotKeyManager::commandBarGrid() );
+	HotKeyManager::setCommandBarGrid( FALSE );
+	remove( TEST_INI );
+}
 
 TEST(hotkeys_file_reads_the_launchers_rows_and_leaves_its_defaults_out)
 {
@@ -4586,6 +4657,47 @@ TEST(placement_snap_takes_the_nearest_45_on_both_halves_of_the_circle)
 		/* and it really is a multiple of 45 degrees */
 		CHECK_NEAR(snapped / step, (Real)REAL_TO_INT_FLOOR(snapped / step + 0.5f), 0.0001f);
 	}
+}
+
+/*
+ * The money readout counts toward the purse instead of jumping.  Stepped every 16 ms, as a 60 Hz
+ * screen does: a 100,000 windfall has to land inside a second, a 100 supply drop has to take more
+ * than a couple of frames or nobody sees it count, and no step may run past the purse either way.
+ */
+static Int money_readout_ms_to_land(Int from, Int to, UnsignedInt frameMs, Bool *overshot)
+{
+	Int shown = from, ms = 0;
+	*overshot = FALSE;
+	while (shown != to && ms < 10000)
+	{
+		const Int next = InGameUI::stepMoneyShown(shown, to, frameMs);
+		if ((to > from && (next > to || next < shown)) || (to < from && (next < to || next > shown)))
+			*overshot = TRUE;
+		shown = next;
+		ms += (Int)frameMs;
+	}
+	return ms;
+}
+
+TEST(money_readout_counts_to_the_purse_without_passing_it)
+{
+	Bool overshot;
+	CHECK(money_readout_ms_to_land(0, 100000, 16, &overshot) < 1000);
+	CHECK(!overshot);
+	CHECK(money_readout_ms_to_land(250000, 10000, 16, &overshot) < 1000);
+	CHECK(!overshot);
+	CHECK(money_readout_ms_to_land(5000, 5100, 16, &overshot) >= 100);
+	CHECK(!overshot);
+	CHECK(money_readout_ms_to_land(5100, 5000, 16, &overshot) >= 100);
+	CHECK(!overshot);
+	CHECK(money_readout_ms_to_land(0, 100000, 3, &overshot) < 1000);	/* a 300 Hz screen too */
+	CHECK(!overshot);
+
+	/* no time, no step; a frame hitch longer than the whole count lands at once; a dollar off lands */
+	CHECK_EQ(InGameUI::stepMoneyShown(1000, 2000, 0), 1000);
+	CHECK_EQ(InGameUI::stepMoneyShown(1000, 2000, 5000), 2000);
+	CHECK_EQ(InGameUI::stepMoneyShown(1999, 2000, 16), 2000);
+	CHECK_EQ(InGameUI::stepMoneyShown(2000, 2000, 16), 2000);
 }
 
 /*
@@ -11027,6 +11139,17 @@ TEST(load_pip_chips_scale_in_whole_pixels)
 	CHECK_EQ( Drawable_pipPixel( 0.5f ), 1 );
 }
 
+/** Pulled back past the default camera the chips shrink as the health bar's width does; at it and
+	 closer they keep the whole step, so a close look never grows them. */
+TEST(load_pip_chips_shrink_with_the_bar_when_zoomed_out)
+{
+	CHECK_NEAR( Drawable_pipScale( 1.8f, 0.5f ), 1.0f, 1e-6f );		// close: never larger
+	CHECK_NEAR( Drawable_pipScale( 1.8f, 1.0f ), 1.0f, 1e-6f );
+	CHECK_NEAR( Drawable_pipScale( 1.8f, 2.0f ), 0.5f, 1e-6f );
+	CHECK_NEAR( Drawable_pipScale( 3.6f, 0.5f ), 2.0f, 1e-6f );		// 4K keeps its step up close
+	CHECK_NEAR( Drawable_pipScale( 3.6f, 2.9f ), 2.0f / 2.9f, 1e-6f );
+}
+
 /** Who still shows free seats with nobody inside: a transport always, a garrison or a Barracks
 	 never whatever the option says, a Tunnel Network as Empty Building Slots says. */
 TEST(empty_seats_hide_on_a_barracks_whatever_the_option)
@@ -11143,6 +11266,46 @@ TEST(frame_rate_limit_round_trips_through_options_ini)
 	pref[ AsciiString( "FrameRateLimit" ) ] = AsciiString( "9" );
 	loadOptionsFromPreferences( pref );
 	CHECK_EQ( TheGlobalData->m_frameRateLimit, FRAME_RATE_LIMIT_COUNT - 1 );
+
+	delete TheWritableGlobalData;
+	TheWritableGlobalData = saved;
+}
+
+/** The interface's layout and width: Classic and the whole screen with no line, so a key-less file
+	 is the Classic game, and both rebuild the shell on Accept since the bar reads them as it is laid out. */
+TEST(hud_layout_and_width_round_trip_through_options_ini)
+{
+	const OptionDef *layout = findOptionDef( "HudLayout" );
+	const OptionDef *width = findOptionDef( "HudWidth" );
+	CHECK( layout != NULL );
+	CHECK( width != NULL );
+	CHECK_EQ( (Int)layout->kind, (Int)OPTION_ENUM );
+	CHECK_EQ( (Int)layout->apply, (Int)APPLY_SHELL_REBUILD );
+	CHECK_EQ( layout->hi, HUD_LAYOUT_COUNT - 1 );
+	CHECK_EQ( (Int)width->kind, (Int)OPTION_ENUM );
+	CHECK_EQ( (Int)width->apply, (Int)APPLY_SHELL_REBUILD );
+	CHECK_EQ( width->hi, HUD_WIDTH_COUNT - 1 );
+
+	GlobalData *saved = TheWritableGlobalData;
+	TheWritableGlobalData = NEW GlobalData;
+
+	CHECK_EQ( TheGlobalData->m_hudLayout, (Int)HUD_LAYOUT_CLASSIC );
+	CHECK_EQ( TheGlobalData->m_hudWidth, (Int)HUD_WIDTH_FULL );
+	CHECK_EQ( optionDefaultValue( *layout ), (Int)HUD_LAYOUT_CLASSIC );
+	CHECK_EQ( optionDefaultValue( *width ), (Int)HUD_WIDTH_FULL );
+
+	UserPreferences pref;
+	pref[ AsciiString( "HudLayout" ) ] = AsciiString( "1" );
+	pref[ AsciiString( "HudWidth" ) ] = AsciiString( "2" );
+	loadOptionsFromPreferences( pref );
+	CHECK_EQ( TheGlobalData->m_hudLayout, (Int)HUD_LAYOUT_SIDEBAR );
+	CHECK_EQ( TheGlobalData->m_hudWidth, (Int)HUD_WIDTH_16_9 );
+
+	pref[ AsciiString( "HudLayout" ) ] = AsciiString( "7" );
+	pref[ AsciiString( "HudWidth" ) ] = AsciiString( "9" );
+	loadOptionsFromPreferences( pref );
+	CHECK_EQ( TheGlobalData->m_hudLayout, HUD_LAYOUT_COUNT - 1 );
+	CHECK_EQ( TheGlobalData->m_hudWidth, HUD_WIDTH_COUNT - 1 );
 
 	delete TheWritableGlobalData;
 	TheWritableGlobalData = saved;
@@ -12063,6 +12226,32 @@ TEST(a_seed_generates_the_same_map_bytes_every_single_time)
 	settings.m_seed = 12346;
 	RandomMapGenerator::generate( settings, other );
 	CHECK( other.size() != first.size() || memcmp( &other[0], &first[0], first.size() ) != 0 );
+}
+
+//-------------------------------------------------------------------------------------------------
+/** A ranked Quick Match has no lobby to send a map name: every peer derives the map from the match
+	seed and the seat count alone, so the derivation is pinned here.  A change to it splits two builds
+	that otherwise agree into different maps, which the map CRC then refuses. */
+//-------------------------------------------------------------------------------------------------
+TEST(a_quick_match_seed_derives_the_same_generated_map_settings)
+{
+	const RandomMapSettings duel = RandomMapGenerator::quickMatchSettings( 123456789, 2 );
+	CHECK_EQ( duel.m_seed, 123456789 );
+	CHECK_EQ( duel.m_numPlayers, 2 );
+	CHECK_EQ( duel.m_playableCells, RandomMapGenerator::cellsFor( RANDOM_MAP_SIZE_NORMAL, 2 ) );
+	CHECK_EQ( duel.m_playableCells, 248 );
+	CHECK_EQ( duel.m_style, 0 );
+	CHECK( duel.m_template.isEmpty() );
+
+	const RandomMapSettings again = RandomMapGenerator::quickMatchSettings( 123456789, 2 );
+	CHECK_EQ( again.m_seed, duel.m_seed );
+	CHECK_EQ( again.m_playableCells, duel.m_playableCells );
+
+	// a 2v2 gets each seat its share of ground, and a negative server seed still names a map
+	const RandomMapSettings fours = RandomMapGenerator::quickMatchSettings( -5, 4 );
+	CHECK_EQ( fours.m_seed, (Int)( -5 & 0x7fffffff ) );
+	CHECK_EQ( fours.m_numPlayers, 4 );
+	CHECK_EQ( fours.m_playableCells, 304 );
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -16369,6 +16558,46 @@ TEST(a_generated_map_comes_with_a_preview_the_map_list_can_show)
 }
 
 //-------------------------------------------------------------------------------------------------
+/** The lobby, load and score screens put a start's number at the top of the picture for a high y,
+	and a shipped preview is bottom-up with the map's lowest y in its first row (WorldBuilder's
+	MapPreview). The white dot baked into a generated preview has to sit under that number, which it
+	did not: it came out mirrored top to bottom. */
+//-------------------------------------------------------------------------------------------------
+TEST(a_generated_preview_marks_each_start_where_the_lobby_numbers_it)
+{
+	CHECK( bootOnce() );
+
+	RandomMapSettings settings;
+	settings.m_seed = 248;
+	settings.m_playableCells = 128;
+	settings.m_numPlayers = 2;
+	RandomMapGenerator::clampSettings( settings );
+
+	std::vector<char> map, tga;
+	RandomMapGenerator::generate( settings, map );
+	RandomMapGenerator::generatePreview( settings, tga );
+	parseGeneratedMap( map );
+
+	const Int headerBytes = 18;
+	const Int pixels = RandomMapGenerator::PREVIEW_PIXELS;
+	const Real cellsPerPixel = (Real)settings.m_playableCells / (Real)pixels;
+	CHECK_EQ( (Int)theRMGParse.m_waypointNames.size(), 2 );
+
+	for( Int s = 0; s < (Int)theRMGParse.m_waypointPositions.size(); s++ )
+	{
+		const Coord3D& start = theRMGParse.m_waypointPositions[s];
+		const Int column = (Int)(start.x / MAP_XY_FACTOR / cellsPerPixel);
+		const Int row = (Int)(start.y / MAP_XY_FACTOR / cellsPerPixel);		// file row, bottom-up
+		CHECK( column >= 0 && column < pixels && row >= 0 && row < pixels );
+
+		const Int at = headerBytes + (row * pixels + column) * 3;
+		CHECK_EQ( (Int)(UnsignedByte)tga[at], 240 );
+		CHECK_EQ( (Int)(UnsignedByte)tga[at + 1], 240 );
+		CHECK_EQ( (Int)(UnsignedByte)tga[at + 2], 240 );
+	}
+}
+
+//-------------------------------------------------------------------------------------------------
 /** Four texture classes are only worth writing if the map uses more than one of them.  Rock wants
 	the steep ground, sand wants the lake shores, and the map should still be mostly walkable
 	ground rather than a quarry. */
@@ -17089,6 +17318,7 @@ TEST(the_difficulty_ladder_climbs_in_every_direction_it_should)
 		CHECK( upper.m_adaptiveHarvesters >= lower.m_adaptiveHarvesters );
 		CHECK( upper.m_selfTriggeredExpansion >= lower.m_selfTriggeredExpansion );
 		CHECK( upper.m_defendExpansions >= lower.m_defendExpansions );
+		CHECK( upper.m_unitAbilities >= lower.m_unitAbilities );
 
 		// more of the map: another base sooner, more of them, docks further out
 		CHECK( upper.m_secondBaseSeconds < lower.m_secondBaseSeconds );
@@ -17112,35 +17342,329 @@ TEST(the_difficulty_ladder_climbs_in_every_direction_it_should)
 /** The influence map is what every fighting decision of Hard's reads, so what it says about a patch of
 	 ground has to be what the guns there can actually do: reach it flat, reach further from above, and
 	 add up when two of them cover the same cell. */
+/** A cost map's stamp: one figure into the vehicle slot, the ground reach alone. */
+static void stampCost( AIInfluenceMap &map, Real x, Real y, Real z, Real range, Real power )
+{
+	const Real cost[ AITHREAT_COUNT ] = { power, 0.0f, 0.0f };
+	map.stampEnemy( x, y, z, range, 0.0f, cost );
+}
+
 TEST(influence_map_covers_what_a_gun_reaches_and_the_high_ground_reaches_further)
 {
 	AIInfluenceMap map;
 	map.reset( 0.0f, 0.0f, 1000.0f, 1000.0f, 50.0f );
 	CHECK_EQ( 20, map.getCols() );
 
-	map.stampEnemy( 500.0f, 500.0f, 0.0f, 100.0f, 1000.0f );
-	CHECK_EQ( 1000.0f, map.enemyAt( 500.0f, 500.0f ) );
-	CHECK_EQ( 1000.0f, map.enemyAt( 575.0f, 525.0f ) );		// cell centre 575,525: 79 away
-	CHECK_EQ( 0.0f, map.enemyAt( 675.0f, 525.0f ) );			// 175 away, out of a 100 gun's reach
+	stampCost( map, 500.0f, 500.0f, 0.0f, 100.0f, 1000.0f );
+	CHECK_EQ( 1000.0f, map.enemyAt( 500.0f, 500.0f, AITHREAT_COST_MIX ) );
+	CHECK_EQ( 1000.0f, map.enemyAt( 575.0f, 525.0f, AITHREAT_COST_MIX ) );		// cell centre 575,525: 79 away
+	CHECK_EQ( 0.0f, map.enemyAt( 675.0f, 525.0f, AITHREAT_COST_MIX ) );			// 175 away, out of a 100 gun's reach
 	CHECK_EQ( 0.0f, map.friendAt( 500.0f, 500.0f ) );
 
 	// the same gun thirty units up reaches 90 further (three a unit), which covers the 175 cell
 	map.clear();
-	map.stampEnemy( 500.0f, 500.0f, 30.0f, 100.0f, 1000.0f );
-	CHECK_EQ( 1000.0f, map.enemyAt( 675.0f, 525.0f ) );
-	CHECK_EQ( 0.0f, map.enemyAt( 775.0f, 525.0f ) );
+	stampCost( map, 500.0f, 500.0f, 30.0f, 100.0f, 1000.0f );
+	CHECK_EQ( 1000.0f, map.enemyAt( 675.0f, 525.0f, AITHREAT_COST_MIX ) );
+	CHECK_EQ( 0.0f, map.enemyAt( 775.0f, 525.0f, AITHREAT_COST_MIX ) );
 
 	// ... and a cell on a hill as high as the gun gets no bonus against it
 	map.clear();
 	for( Int row = 0; row < map.getRows(); ++row )
 		for( Int col = 0; col < map.getCols(); ++col )
 			map.setCellHeight( col, row, 30.0f );
-	map.stampEnemy( 500.0f, 500.0f, 30.0f, 100.0f, 1000.0f );
-	CHECK_EQ( 0.0f, map.enemyAt( 675.0f, 525.0f ) );
+	stampCost( map, 500.0f, 500.0f, 30.0f, 100.0f, 1000.0f );
+	CHECK_EQ( 0.0f, map.enemyAt( 675.0f, 525.0f, AITHREAT_COST_MIX ) );
 
-	map.stampEnemy( 500.0f, 500.0f, 30.0f, 100.0f, 500.0f );
-	CHECK_EQ( 1500.0f, map.enemyAt( 500.0f, 500.0f ) );
-	CHECK_EQ( 0.0f, map.enemyAt( -10.0f, 500.0f ) );			// off the map reads as nothing
+	stampCost( map, 500.0f, 500.0f, 30.0f, 100.0f, 500.0f );
+	CHECK_EQ( 1500.0f, map.enemyAt( 500.0f, 500.0f, AITHREAT_COST_MIX ) );
+	CHECK_EQ( 0.0f, map.enemyAt( -10.0f, 500.0f, AITHREAT_COST_MIX ) );			// off the map reads as nothing
+}
+
+/** Threat by target class: a tank gun and an AA gun on one cell are read by what is asking.  A tank fears the
+	 tank gun, a helicopter the AA gun, a wave of both a share of each; the cost mix reads the vehicle slot alone,
+	 to the bit, whatever the other two hold. */
+TEST(influence_map_reads_threat_by_what_the_reader_moves)
+{
+	AIInfluenceMap map;
+	map.reset( 0.0f, 0.0f, 1000.0f, 1000.0f, 50.0f );
+	const Real tankGun[ AITHREAT_COUNT ] = { 600.0f, 200.0f, 0.0f };
+	const Real flakGun[ AITHREAT_COUNT ] = { 0.0f, 0.0f, 900.25f };
+	map.stampEnemy( 500.0f, 500.0f, 0.0f, 100.0f, 0.0f, tankGun );
+	map.stampEnemy( 500.0f, 500.0f, 0.0f, 0.0f, 300.0f, flakGun );
+
+	CHECK_EQ( 600.0f, map.enemyAt( 500.0f, 500.0f, AITHREAT_COST_MIX ) );
+	CHECK_EQ( 200.0f, map.enemyAt( 500.0f, 500.0f, AITHREAT_INFANTRY_MIX ) );
+	CHECK_EQ( 900.25f, map.enemyAt( 500.0f, 500.0f, AITHREAT_AIR_MIX ) );
+	CHECK_EQ( 400.0f, map.enemyAt( 500.0f, 500.0f, AITHREAT_GROUND_MIX ) );
+	const AIThreatMix half = { { 0.5f, 0.0f, 0.5f } };
+	CHECK_EQ( 750.125f, map.enemyAt( 500.0f, 500.0f, half ) );
+
+	// the air reach is the flak gun's 300: a helicopter 250 off is under it, a tank there is not under anything
+	CHECK_EQ( 900.25f, map.enemyAt( 725.0f, 625.0f, AITHREAT_AIR_MIX ) );
+	CHECK_EQ( 0.0f, map.enemyAt( 725.0f, 625.0f, AITHREAT_COST_MIX ) );
+	CHECK_EQ( 0.0f, map.enemyAt( 875.0f, 875.0f, AITHREAT_AIR_MIX ) );		// 530 off, out of it
+}
+
+/** Quarter powers add exactly, so the seats and rounds stamping in another order hold the same map, cell for
+	 cell, and the shared turn's two halves (cellsReached, then the adds) are the one stamp. */
+TEST(influence_map_stamps_add_the_same_in_any_order)
+{
+	AIInfluenceMap ab, ba, halves;
+	ab.reset( 0.0f, 0.0f, 1000.0f, 1000.0f, 50.0f );
+	ba.reset( 0.0f, 0.0f, 1000.0f, 1000.0f, 50.0f );
+	halves.reset( 0.0f, 0.0f, 1000.0f, 1000.0f, 50.0f );
+	const Real a[ AITHREAT_COUNT ] = { 1234.25f, 0.25f, 77.5f };
+	const Real b[ AITHREAT_COUNT ] = { 0.75f, 98765.5f, 3.25f };
+	const Real c[ AITHREAT_COUNT ] = { 4096.75f, 12.0f, 0.0f };
+	ab.stampEnemy( 480.0f, 510.0f, 0.0f, 150.0f, 220.0f, a );
+	ab.stampEnemy( 530.0f, 470.0f, 0.0f, 120.0f, 120.0f, b );
+	ab.stampEnemy( 500.0f, 500.0f, 0.0f, 300.0f, 0.0f, c );
+	ba.stampEnemy( 500.0f, 500.0f, 0.0f, 300.0f, 0.0f, c );
+	ba.stampEnemy( 530.0f, 470.0f, 0.0f, 120.0f, 120.0f, b );
+	ba.stampEnemy( 480.0f, 510.0f, 0.0f, 150.0f, 220.0f, a );
+	std::vector<Int> ground, air;
+	halves.cellsReached( 480.0f, 510.0f, 0.0f, 150.0f, ground );
+	halves.cellsReached( 480.0f, 510.0f, 0.0f, 220.0f, air );
+	halves.addEnemy( &ground[ 0 ], (Int)ground.size(), a[ AITHREAT_VEHICLE ], a[ AITHREAT_INFANTRY ] );
+	halves.addEnemyAir( &air[ 0 ], (Int)air.size(), a[ AITHREAT_AIR ] );
+	halves.stampEnemy( 530.0f, 470.0f, 0.0f, 120.0f, 120.0f, b );
+	halves.stampEnemy( 500.0f, 500.0f, 0.0f, 300.0f, 0.0f, c );
+	const AIThreatMix mixes[] = { AITHREAT_COST_MIX, AITHREAT_INFANTRY_MIX, AITHREAT_AIR_MIX };
+	Int same = 0, cells = 0;
+	for( Int row = 0; row < ab.getRows(); ++row )
+		for( Int col = 0; col < ab.getCols(); ++col )
+		{
+			Real x, y;
+			ab.cellCenter( col, row, &x, &y );
+			for( Int m = 0; m < 3; ++m, ++cells )
+				if( ab.enemyAt( x, y, mixes[ m ] ) == ba.enemyAt( x, y, mixes[ m ] ) &&
+						ab.enemyAt( x, y, mixes[ m ] ) == halves.enemyAt( x, y, mixes[ m ] ) )
+					++same;
+		}
+	CHECK_EQ( cells, same );
+	CHECK_EQ( 1234.25f + 0.75f + 4096.75f, ab.enemyAt( 500.0f, 500.0f, AITHREAT_COST_MIX ) );
+}
+
+/** A minimal in-memory Xfer for a save's bytes, written then read back. */
+class MemoryXfer : public Xfer
+{
+public:
+	MemoryXfer() : m_at( 0 ) { m_xferMode = XFER_SAVE; }
+	void rewind() { m_xferMode = XFER_LOAD; m_at = 0; }
+	virtual void open( AsciiString ) {}
+	virtual void close( void ) {}
+	virtual Int beginBlock( void ) { return 0; }
+	virtual void endBlock( void ) {}
+	virtual void skip( Int dataSize ) { m_at += dataSize; }
+	virtual void xferSnapshot( Snapshot * ) {}
+protected:
+	virtual void xferImplementation( void *data, Int dataSize )
+	{
+		if( m_xferMode == XFER_SAVE )
+			m_bytes.insert( m_bytes.end(), (const UnsignedByte *)data, (const UnsignedByte *)data + dataSize );
+		else
+		{
+			memcpy( data, &m_bytes[ m_at ], dataSize );
+			m_at += dataSize;
+		}
+	}
+private:
+	std::vector<UnsignedByte> m_bytes;
+	size_t m_at;
+};
+
+/** A save from before the classes (AIPlayer version 36) held one enemy figure a cell: it loads into all three
+	 slots, so every reader sees what it saw until the next round; a version 37 map comes back slot for slot. */
+TEST(influence_map_from_an_old_save_loads_into_every_class)
+{
+	MemoryXfer old;
+	Real originX = 0.0f, originY = 0.0f, cellSize = 50.0f;
+	Int cols = 2, rows = 1;
+	Bool built = TRUE;
+	UnsignedInt builtFrame = 300;
+	old.xferReal( &originX );
+	old.xferReal( &originY );
+	old.xferReal( &cellSize );
+	old.xferInt( &cols );
+	old.xferInt( &rows );
+	old.xferBool( &built );
+	old.xferUnsignedInt( &builtFrame );
+	Real cell[ 2 ][ 3 ] = { { 750.0f, 120.0f, 4.0f }, { 0.0f, 0.0f, 9.0f } };		// enemy, friend, height
+	for( Int i = 0; i < 2; ++i )
+		for( Int k = 0; k < 3; ++k )
+			old.xferReal( &cell[ i ][ k ] );
+	old.rewind();
+	AIInfluenceMap map;
+	map.xfer( &old, 36 );
+	CHECK_EQ( 2, map.getCols() );
+	CHECK( map.isBuilt() );
+	CHECK_EQ( 300u, map.getBuiltFrame() );
+	CHECK_EQ( 750.0f, map.enemyAt( 25.0f, 25.0f, AITHREAT_COST_MIX ) );
+	CHECK_EQ( 750.0f, map.enemyAt( 25.0f, 25.0f, AITHREAT_INFANTRY_MIX ) );
+	CHECK_EQ( 750.0f, map.enemyAt( 25.0f, 25.0f, AITHREAT_AIR_MIX ) );
+	CHECK_EQ( 120.0f, map.friendAt( 25.0f, 25.0f ) );
+	CHECK_EQ( 0.0f, map.enemyAt( 75.0f, 25.0f, AITHREAT_GROUND_MIX ) );
+
+	const Real threat[ AITHREAT_COUNT ] = { 1.0f, 2.0f, 3.0f };
+	map.stampEnemy( 75.0f, 25.0f, 9.0f, 10.0f, 10.0f, threat );
+	MemoryXfer now;
+	map.xfer( &now, 37 );
+	now.rewind();
+	AIInfluenceMap back;
+	back.xfer( &now, 37 );
+	CHECK_EQ( 750.0f, back.enemyAt( 25.0f, 25.0f, AITHREAT_COST_MIX ) );		// a reach of 10 covers its own cell alone
+	CHECK_EQ( 750.0f, back.enemyAt( 25.0f, 25.0f, AITHREAT_INFANTRY_MIX ) );
+	CHECK_EQ( 1.0f, back.enemyAt( 75.0f, 25.0f, AITHREAT_COST_MIX ) );
+	CHECK_EQ( 2.0f, back.enemyAt( 75.0f, 25.0f, AITHREAT_INFANTRY_MIX ) );
+	CHECK_EQ( 3.0f, back.enemyAt( 75.0f, 25.0f, AITHREAT_AIR_MIX ) );
+}
+
+/** A gun's shape (map layers): nothing inside its minimum range, the full figure out to three quarters of its
+	 reach, half over the rest; with no minimum and no edge the banded cells are cellsReached's, cell for cell. */
+TEST(influence_map_gun_shape_leaves_its_minimum_range_and_halves_its_edge)
+{
+	AIInfluenceMap map;
+	map.reset( 0.0f, 0.0f, 1000.0f, 1000.0f, 50.0f );
+	std::vector<Int> cells, scratch;
+	Int edge = -1;
+	map.cellsBanded( 500.0f, 500.0f, 0.0f, 200.0f, 100.0f, 0.75f, cells, scratch, &edge );
+	CHECK( edge > 0 );
+	const Int full = (Int)cells.size() - edge;
+	map.addEnemy( &cells[ 0 ], full, 8.0f, 4.0f );
+	map.addEnemy( &cells[ full ], edge, 4.0f, 2.0f );
+	CHECK_EQ( 0.0f, map.enemyAt( 525.0f, 525.0f, AITHREAT_COST_MIX ) );		// 35 off: inside the 100 minimum
+	CHECK_EQ( 8.0f, map.enemyAt( 625.0f, 525.0f, AITHREAT_COST_MIX ) );		// 127 off: full, inside 150
+	CHECK_EQ( 4.0f, map.enemyAt( 675.0f, 525.0f, AITHREAT_COST_MIX ) );		// 177 off: the edge
+	CHECK_EQ( 0.0f, map.enemyAt( 725.0f, 525.0f, AITHREAT_COST_MIX ) );		// 226 off: out of reach
+
+	std::vector<Int> plain, banded;
+	map.cellsReached( 480.0f, 510.0f, 30.0f, 150.0f, plain );
+	map.cellsBanded( 480.0f, 510.0f, 30.0f, 150.0f, 0.0f, 1.0f, banded, scratch, &edge );
+	CHECK_EQ( 0, edge );
+	CHECK( plain == banded );
+}
+
+/** A route fears a still gun twice and a hazard by the share of the reader that walks; with those layers empty it
+	 reads the enemy layer to the bit. */
+TEST(influence_map_route_counts_still_guns_twice_and_hazards_for_walkers)
+{
+	AIInfluenceMap map;
+	map.reset( 0.0f, 0.0f, 1000.0f, 1000.0f, 50.0f );
+	std::vector<Int> cell;
+	map.cellsInDisc( 525.0f, 525.0f, 10.0f, cell );		// smaller than a cell: its own cell alone
+	CHECK_EQ( 1, (Int)cell.size() );
+	map.addEnemy( &cell[ 0 ], 1, 100.0f, 60.0f );
+	map.addStatic( &cell[ 0 ], 1, 100.0f, 60.0f );
+	map.addHazard( &cell[ 0 ], 1, 400.0f );
+	CHECK_EQ( 80.0f, map.enemyAt( 525.0f, 525.0f, AITHREAT_GROUND_MIX ) );
+	CHECK_EQ( 100.0f, map.staticAt( 525.0f, 525.0f, AITHREAT_COST_MIX ) );
+	CHECK_EQ( 400.0f, map.hazardAt( 525.0f, 525.0f ) );
+	CHECK_EQ( 560.0f, map.routeAt( 525.0f, 525.0f, AITHREAT_GROUND_MIX ) );
+	CHECK_EQ( 0.0f, map.routeAt( 525.0f, 525.0f, AITHREAT_AIR_MIX ) );		// a field burns nothing in the air
+
+	std::vector<Int> other;
+	map.cellsInDisc( 125.0f, 125.0f, 10.0f, other );
+	map.addEnemy( &other[ 0 ], 1, 1234.25f, 0.75f );
+	const AIThreatMix mixes[] = { AITHREAT_COST_MIX, AITHREAT_INFANTRY_MIX, AITHREAT_GROUND_MIX };
+	for( Int m = 0; m < 3; ++m )
+		CHECK_EQ( map.enemyAt( 125.0f, 125.0f, mixes[ m ] ), map.routeAt( 125.0f, 125.0f, mixes[ m ] ) );
+
+	std::vector<Int> disc;
+	map.cellsInDisc( 500.0f, 500.0f, 60.0f, disc );		// the four cells round the corner, and no more
+	CHECK_EQ( 4, (Int)disc.size() );
+}
+
+/** The friendly layer by class: tank guns do not hold ground against aircraft, and a cell is held when nothing the
+	 enemy has there outweighs ours. */
+TEST(influence_map_friendly_layer_reads_by_class_and_holds_ground)
+{
+	AIInfluenceMap map;
+	map.reset( 0.0f, 0.0f, 1000.0f, 1000.0f, 50.0f );
+	std::vector<Int> cell;
+	map.cellsInDisc( 525.0f, 525.0f, 10.0f, cell );
+	map.addFriend( &cell[ 0 ], 1, 6.0f, 2.0f );
+	map.addFriendAir( &cell[ 0 ], 1, 10.0f );
+	CHECK_EQ( 4.0f, map.friendAt( 525.0f, 525.0f, AITHREAT_GROUND_MIX ) );
+	CHECK_EQ( 4.0f, map.friendAt( 525.0f, 525.0f ) );
+	CHECK_EQ( 6.0f, map.friendAt( 525.0f, 525.0f, AITHREAT_COST_MIX ) );
+	CHECK_EQ( 10.0f, map.friendAt( 525.0f, 525.0f, AITHREAT_AIR_MIX ) );
+	CHECK( map.heldAt( 525.0f, 525.0f, AITHREAT_GROUND_MIX, AITHREAT_GROUND_MIX ) );
+	map.addEnemy( &cell[ 0 ], 1, 5.0f, 5.0f );
+	CHECK( !map.heldAt( 525.0f, 525.0f, AITHREAT_GROUND_MIX, AITHREAT_GROUND_MIX ) );	// 5 against 4
+	CHECK( map.heldAt( 525.0f, 525.0f, AITHREAT_AIR_MIX, AITHREAT_GROUND_MIX ) );			// our 10 against their aircraft
+	CHECK( map.heldAt( 75.0f, 75.0f, AITHREAT_GROUND_MIX, AITHREAT_GROUND_MIX ) );		// nobody's ground
+}
+
+/** A moving gun stamps a little ahead, never more than the cap; a remembered one fades evenly to nothing. */
+TEST(influence_lead_and_memory_fade)
+{
+	Real x = 0.0f, y = 0.0f;
+	AIInfluence_projectedCentre( 100.0f, 100.0f, 3.0f, 4.0f, 10.0f, 1000.0f, &x, &y );
+	CHECK_EQ( 130.0f, x );
+	CHECK_EQ( 140.0f, y );
+	AIInfluence_projectedCentre( 100.0f, 100.0f, 3.0f, 4.0f, 10.0f, 25.0f, &x, &y );		// 50 of lead, cut to 25
+	CHECK_EQ( 115.0f, x );
+	CHECK_EQ( 120.0f, y );
+	AIInfluence_projectedCentre( 100.0f, 100.0f, 0.0f, 0.0f, 10.0f, 25.0f, &x, &y );
+	CHECK_EQ( 100.0f, x );
+	CHECK_EQ( 1.0f, AIInfluence_memoryShare( 0, 300 ) );
+	CHECK_EQ( 0.5f, AIInfluence_memoryShare( 150, 300 ) );
+	CHECK_EQ( 0.0f, AIInfluence_memoryShare( 300, 300 ) );
+	CHECK_EQ( 0.0f, AIInfluence_memoryShare( 400, 300 ) );
+	CHECK_EQ( 0.0f, AIInfluence_memoryShare( 0, 0 ) );
+}
+
+/** The map layers go into a save (AIPlayer version 40) and come back; a version 39 map's one friendly figure
+	 loads into the vehicle and infantry slots, so the ground mix and the cost mix both read it as it was. */
+TEST(influence_map_layers_survive_a_save)
+{
+	AIInfluenceMap map;
+	map.reset( 0.0f, 0.0f, 100.0f, 50.0f, 50.0f );
+	std::vector<Int> cell;
+	map.cellsInDisc( 75.0f, 25.0f, 10.0f, cell );
+	map.addEnemy( &cell[ 0 ], 1, 7.0f, 3.0f );
+	map.addStatic( &cell[ 0 ], 1, 7.0f, 3.0f );
+	map.addStaticAir( &cell[ 0 ], 1, 2.0f );
+	map.addFriend( &cell[ 0 ], 1, 5.0f, 1.0f );
+	map.addFriendAir( &cell[ 0 ], 1, 9.0f );
+	map.addValue( &cell[ 0 ], 1, 1500.0f );
+	map.addHazard( &cell[ 0 ], 1, 400.0f );
+	MemoryXfer save;
+	map.xfer( &save, 40 );
+	save.rewind();
+	AIInfluenceMap back;
+	back.xfer( &save, 40 );
+	CHECK_EQ( 7.0f, back.staticAt( 75.0f, 25.0f, AITHREAT_COST_MIX ) );
+	CHECK_EQ( 2.0f, back.staticAt( 75.0f, 25.0f, AITHREAT_AIR_MIX ) );
+	CHECK_EQ( 3.0f, back.friendAt( 75.0f, 25.0f ) );
+	CHECK_EQ( 9.0f, back.friendAt( 75.0f, 25.0f, AITHREAT_AIR_MIX ) );
+	CHECK_EQ( 1500.0f, back.valueAt( 75.0f, 25.0f ) );
+	CHECK_EQ( 400.0f, back.hazardAt( 75.0f, 25.0f ) );
+	CHECK_EQ( 0.0f, back.valueAt( 25.0f, 25.0f ) );
+
+	MemoryXfer old;
+	Real originX = 0.0f, originY = 0.0f, cellSize = 50.0f;
+	Int cols = 1, rows = 1;
+	Bool built = TRUE;
+	UnsignedInt builtFrame = 30;
+	old.xferReal( &originX );
+	old.xferReal( &originY );
+	old.xferReal( &cellSize );
+	old.xferInt( &cols );
+	old.xferInt( &rows );
+	old.xferBool( &built );
+	old.xferUnsignedInt( &builtFrame );
+	Real figures[ 5 ] = { 11.0f, 12.0f, 13.0f, 120.0f, 4.0f };		// enemy by class, friend, height
+	for( Int k = 0; k < 5; ++k )
+		old.xferReal( &figures[ k ] );
+	old.rewind();
+	AIInfluenceMap loaded;
+	loaded.xfer( &old, 39 );
+	CHECK_EQ( 12.0f, loaded.enemyAt( 25.0f, 25.0f, AITHREAT_INFANTRY_MIX ) );
+	CHECK_EQ( 120.0f, loaded.friendAt( 25.0f, 25.0f, AITHREAT_GROUND_MIX ) );
+	CHECK_EQ( 120.0f, loaded.friendAt( 25.0f, 25.0f, AITHREAT_COST_MIX ) );
+	CHECK_EQ( 0.0f, loaded.staticAt( 25.0f, 25.0f, AITHREAT_GROUND_MIX ) );
+	CHECK_EQ( 0.0f, loaded.hazardAt( 25.0f, 25.0f ) );
 }
 
 /** Kiting: a unit steps back into the band between the enemy's reach and its own, and only when the
@@ -17407,6 +17931,22 @@ TEST(the_retreat_never_orders_an_aircraft_home)
 }
 
 
+/** AIPlayer.cpp: one pulled out hurt turns back once mended to 65%, and never on less than 25 points over
+	 what it left at; one that left nearly whole goes back whole. */
+extern Bool AIRetreat_mendedEnough( Real healthFraction, Real hurtAt );
+
+TEST(a_unit_pulled_out_hurt_turns_back_once_mended)
+{
+	CHECK( !AIRetreat_mendedEnough( 0.40f, 0.30f ) );
+	CHECK( !AIRetreat_mendedEnough( 0.64f, 0.30f ) );
+	CHECK( AIRetreat_mendedEnough( 0.65f, 0.30f ) );
+	CHECK( !AIRetreat_mendedEnough( 0.70f, 0.50f ) );		// a heroic out at 50% waits for 75%
+	CHECK( AIRetreat_mendedEnough( 0.75f, 0.50f ) );
+	CHECK( !AIRetreat_mendedEnough( 0.99f, 0.85f ) );		// a ranked one out of a losing fight at 85% goes back whole
+	CHECK( AIRetreat_mendedEnough( 1.00f, 0.85f ) );
+}
+
+
 /** AIPlayer.cpp: a ranked unit leaves a fight on its own health and before its team does, the higher
 	 the rank the sooner, and counts for more in every weighing of forces. */
 extern Bool AIRetreat_rankPullsOut( Int rank, Real healthFraction, Bool inFight, Real ratio, Real retreatRatio );
@@ -17439,6 +17979,93 @@ TEST(the_ai_pulls_ranked_units_out_sooner_the_higher_the_rank)
 	CHECK( AIRank_valueScale( 3 ) > AIRank_valueScale( 2 ) );
 	CHECK( AIRank_valueScale( 2 ) > AIRank_valueScale( 1 ) );
 	CHECK( AIRank_valueScale( 1 ) > 1.0f );
+}
+
+
+/** AIPlayer.cpp: the units' own buttons.  A manual shot pays when it kills sooner than the unit's guns on
+	 something worth the reload; a volley goes where it takes the most. */
+extern Bool AIAbility_pays( Real manualFrames, Real defaultFrames, Real value, Real floor );
+extern Int AIAbility_bestAreaAim( const Real *xs, const Real *ys, const Real *values, const Real *centreValues, Int n, Real radius,
+																	Int onlyIndex, Real *score );
+
+TEST(the_ai_presses_a_button_only_where_it_pays)
+{
+	// Kell's snipe empties a Crusader in one shot his rifle never kills: worth it above the floor
+	CHECK( AIAbility_pays( 30.0f, AI_CANNOT_KILL, 900.0f, 450.0f ) );
+	// ... not on something worth less than the reload
+	CHECK( !AIAbility_pays( 30.0f, AI_CANNOT_KILL, 300.0f, 450.0f ) );
+	// ... nor where the guns are quicker, nor with a weapon that cannot kill it
+	CHECK( !AIAbility_pays( 120.0f, 60.0f, 900.0f, 0.0f ) );
+	CHECK( AIAbility_pays( 59.0f, 60.0f, 900.0f, 0.0f ) );
+	CHECK( !AIAbility_pays( AI_CANNOT_KILL, 60.0f, 900.0f, 0.0f ) );
+
+	// twelve soldiers in a clump at 1000,1000 and one alone at 1400,1000: the volley goes into the clump
+	Real xs[ 13 ], ys[ 13 ], values[ 13 ], centres[ 13 ];
+	for( Int i = 0; i < 12; ++i )
+	{
+		xs[ i ] = 1000.0f + 10.0f * (Real)(i % 4);
+		ys[ i ] = 1000.0f + 10.0f * (Real)(i / 4);
+		values[ i ] = 100.0f;
+		centres[ i ] = 100.0f;
+	}
+	xs[ 12 ] = 1400.0f;
+	ys[ 12 ] = 1000.0f;
+	values[ 12 ] = 300.0f;
+	centres[ 12 ] = 300.0f;
+	Real score = 0.0f;
+	const Int aim = AIAbility_bestAreaAim( xs, ys, values, centres, 13, 50.0f, -1, &score );
+	CHECK( aim >= 0 && aim < 12 );
+	CHECK_NEAR( 1200.0f, score, 0.01f );
+	// one out of reach (a negative centre value) is never the aim, though it still counts round another
+	for( Int i = 0; i < 12; ++i )
+		centres[ i ] = -1.0f;
+	CHECK_EQ( 12, AIAbility_bestAreaAim( xs, ys, values, centres, 13, 50.0f, -1, &score ) );
+	CHECK_NEAR( 300.0f, score, 0.01f );
+	// Medium weighs only its own target's spot
+	centres[ 3 ] = 100.0f;
+	CHECK_EQ( 3, AIAbility_bestAreaAim( xs, ys, values, centres, 13, 50.0f, 3, &score ) );
+	CHECK_NEAR( 1200.0f, score, 0.01f );
+	CHECK_EQ( -1, AIAbility_bestAreaAim( xs, ys, values, centres, 13, 50.0f, 5, &score ) );
+}
+
+/** AIPlayer.cpp: another side's tech tree.  A capture's worth halves every 500 of the walk. */
+extern Real AIForeign_captureScore( Real worth, Real distance, Real halfAt );
+
+TEST(a_foreign_capture_goes_to_the_nearer_prize)
+{
+	// a Command Center doubled (8000) 1500 away against a War Factory (4000) 200 away: the factory first
+	CHECK_NEAR( 2000.0f, AIForeign_captureScore( 8000.0f, 1500.0f, 500.0f ), 0.01f );
+	CHECK_NEAR( 2857.14f, AIForeign_captureScore( 4000.0f, 200.0f, 500.0f ), 0.01f );
+	// ... and right beside it, its whole worth; no halving scale is no halving
+	CHECK_NEAR( 8000.0f, AIForeign_captureScore( 8000.0f, 0.0f, 500.0f ), 0.01f );
+	CHECK_NEAR( 8000.0f, AIForeign_captureScore( 8000.0f, 1500.0f, 0.0f ), 0.01f );
+}
+
+extern Real AIAbility_walkUpKillFrames( Real health, Real damage, Real detonateFrames, Real teamRate, Real ownRate );
+
+TEST(a_charge_is_planted_only_where_it_beats_the_guns)
+{
+	// Burton's charge (2000) on a 2000 building, 500 frames off, against his own rifle at 4 a frame: the
+	// charge needs 500, the rifle 500 too, so it does not pay to walk
+	CHECK_NEAR( 500.0f, AIAbility_walkUpKillFrames( 2000.0f, 2000.0f, 500.0f, 0.0f, 4.0f ), 0.01f );
+	// ... on a tank his rifle hardly scratches (0.5 a frame, 2000 frames), the charge's 500 wins
+	CHECK_NEAR( 500.0f, AIAbility_walkUpKillFrames( 1100.0f, 2000.0f, 500.0f, 0.0f, 0.55f ), 0.01f );
+	// TNT (500) on a 480 Crusader 220 frames off, while two Battlemasters take 4 a frame: they finish it at
+	// 120, before the TNT goes off, so the walk buys nothing
+	CHECK_NEAR( 120.0f, AIAbility_walkUpKillFrames( 480.0f, 500.0f, 220.0f, 4.0f, 1.0f ), 0.01f );
+	// TNT's full 500 on a 1500 target with one Tank Hunter's rockets at 1 a frame: 220 to the blast, then 1000
+	// left at 1 a frame, 1220 against the rockets' 1500 alone
+	CHECK_NEAR( 1220.0f, AIAbility_walkUpKillFrames( 1500.0f, 500.0f, 220.0f, 0.0f, 1.0f ), 0.01f );
+	// ... and a blast short of the health with no gun to finish it never kills
+	CHECK_NEAR( AI_CANNOT_KILL, AIAbility_walkUpKillFrames( 1500.0f, 500.0f, 220.0f, 0.0f, 0.0f ), 0.01f );
+}
+
+TEST(the_ladder_presses_more_buttons_as_it_climbs)
+{
+	TAiData data;
+	CHECK_EQ( 0, data.m_skill[ AISKILL_EASY ].m_unitAbilities );
+	CHECK_EQ( 1, data.m_skill[ AISKILL_MEDIUM ].m_unitAbilities );
+	CHECK_EQ( 2, data.m_skill[ AISKILL_BRUTAL ].m_unitAbilities );
 }
 
 
@@ -17616,17 +18243,72 @@ TEST(a_losing_team_keeps_off_every_gun_on_the_map)
 
 	// a gun at 300 east reaching 200 covers the road from about 100 to 500; 45 degrees off it is clear at
 	// 120, and the list of the fight's guns is empty.  The same call without the map walks straight in
-	influence.stampEnemy( 300.0f, 0.0f, 0.0f, 200.0f, 900.0f );
+	// it is a gun against men alone, so a column of tanks reading the map by its own class walks the road
+	const Real antiInfantry[ AITHREAT_COUNT ] = { 0.0f, 900.0f, 0.0f };
+	influence.stampEnemy( 300.0f, 0.0f, 0.0f, 200.0f, 0.0f, antiInfantry );
 	CHECK( aiRetreatFallbackPoint( 0.0f, 0.0f, 2000.0f, 0.0f, 60.0f, NULL, 0, bounds, &x, &y, &influence ) );
 	CHECK_NEAR( 84.853f, x, 0.01f );
 	CHECK_NEAR( 84.853f, y, 0.01f );
 	CHECK( aiRetreatFallbackPoint( 0.0f, 0.0f, 2000.0f, 0.0f, 60.0f, NULL, 0, bounds, &x, &y ) );
 	CHECK_NEAR( 120.0f, x, 0.01f );
+	CHECK( aiRetreatFallbackPoint( 0.0f, 0.0f, 2000.0f, 0.0f, 60.0f, NULL, 0, bounds, &x, &y, &influence, &AITHREAT_COST_MIX ) );
+	CHECK_NEAR( 120.0f, x, 0.01f );
+	CHECK( aiRetreatFallbackPoint( 0.0f, 0.0f, 2000.0f, 0.0f, 60.0f, NULL, 0, bounds, &x, &y, &influence, &AITHREAT_INFANTRY_MIX ) );
+	CHECK_NEAR( 84.853f, x, 0.01f );
 
 	// the map all covered: home, and FALSE says so
-	influence.stampEnemy( 0.0f, 0.0f, 0.0f, 5000.0f, 900.0f );
+	const Real everything[ AITHREAT_COUNT ] = { 900.0f, 900.0f, 900.0f };
+	influence.stampEnemy( 0.0f, 0.0f, 0.0f, 5000.0f, 5000.0f, everything );
 	CHECK( !aiRetreatFallbackPoint( 0.0f, 0.0f, 2000.0f, 0.0f, 60.0f, NULL, 0, bounds, &x, &y, &influence ) );
 	CHECK_NEAR( 2000.0f, x, 0.01f );
+}
+
+
+/** AI.cpp: the way out is the one with the least threat on it, not the one out soonest.  A weak gun covers the
+	 road home and the start; two strong guns stand either side.  Straight out to the side is out soonest and runs
+	 under the strong guns; 45 degrees off the road takes longer under the weak one and nothing else. */
+TEST(a_retreat_takes_the_way_with_the_least_threat_on_it)
+{
+	Real x = 0.0f, y = 0.0f, threat = 0.0f, road = 0.0f;
+	const Real bounds[] = { -1000.0f, -1000.0f, 3000.0f, 1000.0f };
+	AIInfluenceMap influence;
+	influence.reset( -1000.0f, -1000.0f, 4000.0f, 2000.0f, 60.0f );
+	const Real weak[ AITHREAT_COUNT ] = { 10.0f, 10.0f, 0.0f };
+	const Real strong[ AITHREAT_COUNT ] = { 900.0f, 900.0f, 0.0f };
+	influence.stampEnemy( 300.0f, 0.0f, 0.0f, 320.0f, 0.0f, weak );
+	influence.stampEnemy( 0.0f, 150.0f, 0.0f, 100.0f, 0.0f, strong );
+	influence.stampEnemy( 0.0f, -150.0f, 0.0f, 100.0f, 0.0f, strong );
+	CHECK( aiRetreatFallbackPoint( 0.0f, 0.0f, 2000.0f, 0.0f, 60.0f, NULL, 0, bounds, &x, &y, &influence, NULL, &threat, &road ) );
+	CHECK( x > 200.0f );
+	CHECK_NEAR( x, y, 0.01f );
+	CHECK( threat > 0.0f );
+	CHECK( threat < road );
+	CHECK( threat < 900.0f );		// never under a strong gun
+}
+
+
+/** AI.cpp: a walk whose straight line crosses the enemy's reach goes round it by a waypoint; a clear one does not. */
+TEST(a_walk_home_goes_round_the_enemy_between)
+{
+	Real x = 0.0f, y = 0.0f, straight = 0.0f, round = 0.0f;
+	const Real bounds[] = { -1000.0f, -1000.0f, 3000.0f, 1000.0f };
+	AIInfluenceMap influence;
+	influence.reset( -1000.0f, -1000.0f, 4000.0f, 2000.0f, 60.0f );
+	CHECK( !aiDetourWaypoint( 0.0f, 0.0f, 2000.0f, 0.0f, 60.0f, bounds, &influence, AITHREAT_GROUND_MIX, &x, &y, &straight, &round ) );
+	CHECK_NEAR( 0.0f, straight, 0.001f );
+
+	const Real army[ AITHREAT_COUNT ] = { 900.0f, 900.0f, 0.0f };
+	influence.stampEnemy( 1000.0f, 0.0f, 0.0f, 200.0f, 0.0f, army );
+	CHECK( aiDetourWaypoint( 0.0f, 0.0f, 2000.0f, 0.0f, 60.0f, bounds, &influence, AITHREAT_GROUND_MIX, &x, &y, &straight, &round ) );
+	CHECK( straight > 0.0f );
+	CHECK_NEAR( 0.0f, round, 0.001f );
+	CHECK( y > 300.0f );
+	CHECK( x > 700.0f && x < 1300.0f );
+
+	// with the map edge 100 to the north, round by the south
+	const Real northEdge[] = { -1000.0f, -1000.0f, 3000.0f, 100.0f };
+	CHECK( aiDetourWaypoint( 0.0f, 0.0f, 2000.0f, 0.0f, 60.0f, northEdge, &influence, AITHREAT_GROUND_MIX, &x, &y, &straight, &round ) );
+	CHECK( y < -300.0f );
 }
 
 
@@ -19840,6 +20522,267 @@ TEST(the_menus_keep_the_4x3_box)
 	CHECK_EQ( UIRectForScreen( 1280, 1024 ).y, 64 );		// narrower than 4:3: full width, on the bottom with the bar
 }
 
+static Int hudRegionArea( const IRegion2D &r )
+{
+	return r.width() * r.height();
+}
+
+static Bool hudRegionInside( const IRegion2D &inner, const IRegion2D &outer )
+{
+	return inner.lo.x >= outer.lo.x && inner.lo.y >= outer.lo.y && inner.hi.x <= outer.hi.x && inner.hi.y <= outer.hi.y;
+}
+
+static Bool hudRegionsOverlap( const IRegion2D &a, const IRegion2D &b )
+{
+	return a.lo.x < b.hi.x && b.lo.x < a.hi.x && a.lo.y < b.hi.y && b.lo.y < a.hi.y;
+}
+
+/// Every cell in `cells` is non-empty, inside `parent`, and clear of every other.
+static void checkHudCells( const IRegion2D *const *cells, Int count, const IRegion2D &parent )
+{
+	for( Int i = 0; i < count; ++i )
+	{
+		CHECK( cells[ i ]->width() > 0 && cells[ i ]->height() > 0 );
+		CHECK( hudRegionInside( *cells[ i ], parent ) );
+		for( Int j = i + 1; j < count; ++j )
+			CHECK( !hudRegionsOverlap( *cells[ i ], *cells[ j ] ) );
+	}
+}
+
+TEST(hud_layout_rects_tile_the_screen)
+{
+	/* The sidebar layout's rectangles (docs/plans/HUD-SIDEBAR-LAYOUT.md): the 1920x1080 design as drawn,
+		 and at every other screen and HudWidth the open world, the sidebar and the strip tile the HUD
+		 area with no cell of one group on another. */
+	HudLayoutRects r;
+	HudLayoutForScreen( 1920, 1080, HUD_LAYOUT_SIDEBAR, HUD_WIDTH_FULL, &r );
+	CHECK_EQ( r.layout, (Int)HUD_LAYOUT_SIDEBAR );
+	CHECK_EQ( r.sidebar.lo.x, 1600 );
+	CHECK_EQ( r.sidebar.width(), 320 );
+	CHECK_EQ( r.sidebar.height(), 1080 );
+	CHECK_EQ( r.strip.lo.y, 1016 );
+	CHECK_EQ( r.strip.height(), 64 );
+	CHECK_EQ( r.strip.width(), 1600 );
+	CHECK_EQ( r.play.hi.x, 1600 );
+	CHECK_EQ( r.play.hi.y, 1016 );
+	CHECK_EQ( r.radar.lo.x, 1608 );
+	CHECK_EQ( r.radar.lo.y, 56 );
+	CHECK_EQ( r.radar.width(), 304 );
+	CHECK_EQ( r.tabs[ 0 ].lo.x, 1624 );
+	CHECK_EQ( r.tabs[ 0 ].width(), 70 );
+	CHECK_EQ( r.tabs[ 1 ].lo.x - r.tabs[ 0 ].hi.x, 3 );
+	CHECK_EQ( r.tabs[ 3 ].lo.x, 1843 );
+	CHECK_EQ( r.tabs[ 3 ].hi.x, 1912 );
+	CHECK_EQ( r.tabs[ 3 ].lo.y, 420 );
+	CHECK_EQ( r.cameos[ 1 ].lo.x, 1772 );
+	CHECK_EQ( r.cameos[ 1 ].lo.y, 491 );
+	CHECK_EQ( r.cameos[ 11 ].lo.y, 945 );		// 491 + 5 * 90.8
+	CHECK_EQ( r.arrowDown.lo.y, 1044 );
+	CHECK_EQ( r.pickerAll.lo.x, 1624 );
+	CHECK_EQ( r.pickerAll.width(), 50 );
+	CHECK_EQ( r.pickerAll.height(), 28 );
+	CHECK_EQ( r.pickerChips[ 0 ].lo.x, 1677 );
+	CHECK_EQ( r.pickerChips[ 0 ].lo.x - r.pickerAll.hi.x, 3 );
+	CHECK_EQ( r.pickerChips[ HUD_SIDEBAR_PICKER_CHIPS - 1 ].lo.x, 1836 );
+	CHECK_EQ( r.pickerChips[ HUD_SIDEBAR_PICKER_CHIPS - 1 ].width(), 50 );
+	CHECK_EQ( r.pickerChips[ HUD_SIDEBAR_PICKER_CHIPS - 1 ].hi.x, 1886 );
+	for( Int i = 0; i < HUD_SIDEBAR_PICKER_CHIPS; ++i )
+		CHECK_EQ( r.pickerChips[ i ].width(), r.pickerAll.width() );
+	CHECK_EQ( r.pickerChips[ 0 ].lo.y, 459 );
+	CHECK_EQ( r.pickerAll.lo.y - r.tabs[ 0 ].hi.y, 3 );
+	CHECK_EQ( r.cameos[ 0 ].lo.y - r.pickerAll.hi.y, 4 );
+	CHECK_EQ( r.pickerChips[ 0 ].height(), 28 );
+	CHECK_EQ( r.powerRail.hi.y, 1072 );
+	CHECK_EQ( r.stripButtons[ 13 ].lo.x, 840 );
+	CHECK_EQ( r.stripButtons[ 0 ].lo.y, 1020 );
+	CHECK_EQ( r.stripClock.lo.x, 1500 );
+	CHECK_EQ( r.stripSpare.lo.x, 904 );
+	CHECK_EQ( r.card.lo.x, 0 );
+	CHECK_EQ( r.card.lo.y, 896 );
+	CHECK_EQ( r.card.hi.x, 470 );
+	CHECK_EQ( r.card.hi.y, 1016 );
+	CHECK_EQ( r.medallion.hi.x, 136 );
+	CHECK_EQ( r.portrait.lo.x, 8 );
+	CHECK_EQ( r.portrait.lo.y, 904 );
+	CHECK_EQ( r.portrait.hi.x, 124 );
+	CHECK_EQ( r.portrait.hi.y, 994 );
+	CHECK_EQ( r.rankRect.lo.y, 998 );
+	CHECK_EQ( r.rankRect.hi.y, 1012 );
+	CHECK_EQ( r.labelPlate.lo.x, 136 );
+	CHECK_EQ( r.labelPlate.lo.y, 932 );
+	CHECK_EQ( r.nameText.lo.x, 146 );
+	CHECK_EQ( r.nameText.lo.y, 935 );
+	CHECK_EQ( r.nameText.hi.y, 953 );
+	CHECK_EQ( r.healthBar.lo.y, 956 );
+	CHECK_EQ( r.healthBar.hi.x, 462 );
+	CHECK_EQ( r.healthBar.hi.y, 962 );
+	CHECK_EQ( r.tray.lo.x, 140 );
+	CHECK_EQ( r.tray.lo.y, 966 );
+	CHECK_EQ( r.trayCells[ 0 ].lo.x, 146 );
+	CHECK_EQ( r.trayCells[ 0 ].lo.y, 970 );
+	CHECK_EQ( r.trayCells[ 0 ].width(), 50 );
+	CHECK_EQ( r.trayCells[ 0 ].height(), 42 );
+	CHECK_EQ( r.trayCells[ HUD_TRAY_CELLS - 1 ].lo.x, 411 );
+	CHECK_EQ( r.trayCells[ HUD_TRAY_CELLS - 1 ].hi.y, 1012 );
+	CHECK_EQ( r.powersWindow.lo.x, 1400 );
+	CHECK_EQ( r.superweaponRow.hi.x, 1600 );
+	CHECK_EQ( r.superweaponRow.hi.x, r.sidebar.lo.x );
+	CHECK_EQ( r.superweaponRow.width(), 288 );
+	CHECK_EQ( r.superweaponRow.height(), 40 );
+	CHECK_EQ( r.superweaponRow.hi.y, 1008 );
+	CHECK_EQ( r.superweaponRowPitch, 44 );
+
+	// Classic fills the area only
+	HudLayoutForScreen( 1920, 1080, HUD_LAYOUT_CLASSIC, HUD_WIDTH_FULL, &r );
+	CHECK_EQ( r.layout, (Int)HUD_LAYOUT_CLASSIC );
+	CHECK_EQ( r.area.width(), 1920 );
+	CHECK_EQ( r.sidebar.width(), 0 );
+
+	// HudWidth: 1920x1080 is the whole screen at every choice; ultrawide narrows to a centred 16:9 or 43:18
+	for( Int c = 0; c < HUD_WIDTH_COUNT; ++c )
+	{
+		CHECK_EQ( HudAreaForScreen( 1920, 1080, c ).lo.x, 0 );
+		CHECK_EQ( HudAreaForScreen( 1920, 1080, c ).hi.x, 1920 );
+	}
+	CHECK_EQ( HudAreaForScreen( 3440, 1440, HUD_WIDTH_FULL ).width(), 3440 );
+	CHECK_EQ( HudAreaForScreen( 3440, 1440, HUD_WIDTH_21_9 ).width(), 3440 );
+	CHECK_EQ( HudAreaForScreen( 3440, 1440, HUD_WIDTH_16_9 ).lo.x, 440 );
+	CHECK_EQ( HudAreaForScreen( 3440, 1440, HUD_WIDTH_16_9 ).width(), 2560 );
+	CHECK_EQ( HudAreaForScreen( 5120, 1440, HUD_WIDTH_16_9 ).lo.x, 1280 );
+	CHECK_EQ( HudAreaForScreen( 5120, 1440, HUD_WIDTH_16_9 ).width(), 2560 );
+	CHECK_EQ( HudAreaForScreen( 5120, 1440, HUD_WIDTH_21_9 ).width(), 3440 );
+	CHECK_EQ( HudAreaForScreen( 5120, 1440, HUD_WIDTH_FULL ).width(), 5120 );
+	CHECK_EQ( HudAreaForScreen( 1024, 768, HUD_WIDTH_16_9 ).width(), 1024 );
+	HudLayoutForScreen( 5120, 1440, HUD_LAYOUT_SIDEBAR, HUD_WIDTH_16_9, &r );
+	CHECK_EQ( r.sidebar.hi.x, 3840 );
+	CHECK_EQ( r.strip.lo.x, 1280 );
+	CHECK_EQ( r.world.width(), 5120 );
+
+	static const Int screens[][ 2 ] =
+	{
+		{ 1920, 1080 }, { 1024, 768 }, { 1280, 720 }, { 2560, 1080 }, { 3840, 2160 }, { 800, 600 },
+		{ 1280, 1024 }, { 3440, 1440 }, { 5120, 1440 }, { 1080, 1920 },
+	};
+	for( Int s = 0; s < (Int)( sizeof( screens ) / sizeof( screens[ 0 ] ) ); ++s )
+	{
+		for( Int c = 0; c < HUD_WIDTH_COUNT; ++c )
+		{
+			const Int w = screens[ s ][ 0 ], h = screens[ s ][ 1 ];
+			HudLayoutForScreen( w, h, HUD_LAYOUT_SIDEBAR, c, &r );
+
+			CHECK( hudRegionInside( r.area, r.screen ) );
+			CHECK_EQ( r.area.height(), h );
+			CHECK( ( w - r.area.hi.x ) - r.area.lo.x >= 0 && ( w - r.area.hi.x ) - r.area.lo.x <= 1 );		// centred, an odd pixel on the right
+			CHECK_EQ( r.world.width(), w );
+			CHECK_EQ( r.sidebar.hi.x, r.area.hi.x );
+			CHECK_EQ( r.strip.lo.x, r.area.lo.x );
+
+			// play, sidebar and strip tile the area
+			CHECK( hudRegionInside( r.play, r.area ) );
+			CHECK( hudRegionInside( r.sidebar, r.area ) );
+			CHECK( hudRegionInside( r.strip, r.area ) );
+			CHECK( !hudRegionsOverlap( r.play, r.sidebar ) );
+			CHECK( !hudRegionsOverlap( r.play, r.strip ) );
+			CHECK( !hudRegionsOverlap( r.sidebar, r.strip ) );
+			CHECK_EQ( hudRegionArea( r.play ) + hudRegionArea( r.sidebar ) + hudRegionArea( r.strip ), hudRegionArea( r.area ) );
+			if( c == HUD_WIDTH_FULL )
+				CHECK_EQ( hudRegionArea( r.area ), w * h );
+
+			const IRegion2D *side[ 32 ];
+			Int n = 0;
+			side[ n++ ] = &r.menuButton;
+			side[ n++ ] = &r.money;
+			side[ n++ ] = &r.diplomacyButton;
+			side[ n++ ] = &r.radar;
+			side[ n++ ] = &r.sellButton;
+			side[ n++ ] = &r.repairButton;
+			side[ n++ ] = &r.generalButton;
+			side[ n++ ] = &r.powerRail;
+			side[ n++ ] = &r.pickerAll;
+			side[ n++ ] = &r.arrowUp;
+			side[ n++ ] = &r.arrowDown;
+			for( Int i = 0; i < HUD_SIDEBAR_TABS; ++i )
+				side[ n++ ] = &r.tabs[ i ];
+			for( Int i = 0; i < HUD_SIDEBAR_PICKER_CHIPS; ++i )
+				side[ n++ ] = &r.pickerChips[ i ];
+			for( Int i = 0; i < HUD_SIDEBAR_CAMEOS; ++i )
+				side[ n++ ] = &r.cameos[ i ];
+			checkHudCells( side, n, r.sidebar );
+
+			const IRegion2D *strip[ HUD_STRIP_BUTTONS + 2 ];
+			n = 0;
+			for( Int i = 0; i < HUD_STRIP_BUTTONS; ++i )
+				strip[ n++ ] = &r.stripButtons[ i ];
+			strip[ n++ ] = &r.stripClock;
+			checkHudCells( strip, n, r.strip );
+			CHECK( hudRegionInside( r.stripSpare, r.strip ) );
+			CHECK( r.stripSpare.lo.x >= r.stripButtons[ HUD_STRIP_BUTTONS - 1 ].hi.x );
+			CHECK( r.stripSpare.hi.x <= r.stripClock.lo.x );
+
+			// the card welded to the strip: the medallion and the label plate side by side in it, the
+			// portrait and the rank in the medallion, the name, the groove and the tray on the plate, the
+			// tray's cells in the tray
+			const IRegion2D *card[] = { &r.medallion, &r.labelPlate };
+			checkHudCells( card, 2, r.card );
+			CHECK_EQ( r.card.hi.y, r.strip.lo.y );
+			CHECK_EQ( r.card.lo.x, r.area.lo.x );
+			CHECK_EQ( r.medallion.lo.x, r.card.lo.x );
+			CHECK_EQ( r.medallion.hi.x, r.labelPlate.lo.x );
+			CHECK_EQ( r.medallion.hi.y, r.strip.lo.y );
+			CHECK_EQ( r.labelPlate.hi.y, r.strip.lo.y );
+			CHECK( r.labelPlate.lo.y > r.medallion.lo.y );		// the plate stands lower
+			const IRegion2D *medallion[] = { &r.portrait, &r.rankRect };
+			checkHudCells( medallion, 2, r.medallion );
+			const IRegion2D *plate[] = { &r.nameText, &r.healthBar, &r.tray };
+			checkHudCells( plate, 3, r.labelPlate );
+			const IRegion2D *tray[ HUD_TRAY_CELLS ];
+			for( Int i = 0; i < HUD_TRAY_CELLS; ++i )
+			{
+				tray[ i ] = &r.trayCells[ i ];
+				CHECK( i == 0 || r.trayCells[ i ].lo.x >= r.trayCells[ i - 1 ].hi.x );
+			}
+			checkHudCells( tray, HUD_TRAY_CELLS, r.tray );
+
+			// the world-side pieces stand in the open world and clear of each other
+			CHECK( hudRegionInside( r.card, r.play ) );
+			CHECK( hudRegionInside( r.powersWindow, r.play ) );
+			CHECK( hudRegionInside( r.superweaponRow, r.play ) );
+			CHECK( !hudRegionsOverlap( r.card, r.superweaponRow ) );
+			CHECK( r.superweaponRowPitch >= r.superweaponRow.height() );
+		}
+	}
+}
+
+TEST(sidebar_scroll_keeps_the_window_full)
+{
+	/* The sidebar's cameos scroll two to a row in a window of six rows: the first row shown never goes
+		 above the top, and never so far down that the window shows empty rows a shorter scroll would
+		 have filled. */
+	const Int cols = HUD_SIDEBAR_CAMEO_COLUMNS, rows = HUD_SIDEBAR_CAMEO_ROWS;
+	CHECK_EQ( Sidebar_scroll( 0, cols, rows, 3 ), 0 );
+	CHECK_EQ( Sidebar_scroll( 5, cols, rows, 2 ), 0 );			// fits: no scrolling
+	CHECK_EQ( Sidebar_scroll( 12, cols, rows, 1 ), 0 );			// exactly the window
+	CHECK_EQ( Sidebar_scroll( 13, cols, rows, 5 ), 1 );			// seven rows, the odd cell alone on the last
+	CHECK_EQ( Sidebar_scroll( 13, cols, rows, 1 ), 1 );
+	CHECK_EQ( Sidebar_scroll( 13, cols, rows, -2 ), 0 );
+	CHECK_EQ( Sidebar_scroll( 23, cols, rows, 6 ), 6 );			// twelve rows
+	CHECK_EQ( Sidebar_scroll( 24, cols, rows, 7 ), 6 );
+	CHECK_EQ( Sidebar_scroll( 24, cols, rows, 0x7fff ), 6 );
+	CHECK_EQ( Sidebar_scroll( 24, cols, rows, 3 ), 3 );
+	CHECK_EQ( Sidebar_scroll( 24, 0, rows, 3 ), 0 );				// no grid
+	CHECK_EQ( Sidebar_scroll( 24, cols, 0, 3 ), 0 );
+}
+
+TEST(sidebar_sell_press_sells_the_selection_or_toggles_the_cursor)
+{
+	/* The owner's Sat: with own sellable structures selected the press sells them at once; with none it
+		 puts the sell cursor on; with the cursor on it takes it off, whatever is selected by then. */
+	CHECK_EQ( Sidebar_sellPress( FALSE, TRUE ), (Int)SIDEBAR_SELL_PRESS_SELECTED );
+	CHECK_EQ( Sidebar_sellPress( FALSE, FALSE ), (Int)SIDEBAR_SELL_PRESS_MODE_ON );
+	CHECK_EQ( Sidebar_sellPress( TRUE, FALSE ), (Int)SIDEBAR_SELL_PRESS_MODE_OFF );
+	CHECK_EQ( Sidebar_sellPress( TRUE, TRUE ), (Int)SIDEBAR_SELL_PRESS_MODE_OFF );
+}
+
 TEST(a_plate_covers_the_windows_its_panel_is_responsible_for)
 {
 	/* The plates are cuts of the shipped painting and the windows are at the coordinates the .wnd
@@ -21392,6 +22335,49 @@ TEST(an_order_ends_in_a_flag_on_ground_and_a_joint_on_a_target)
 	CHECK_EQ( (Int)InGameUI::markForOrderHint( InGameUI::ORDER_HINT_ABILITY, FALSE, FALSE ), (Int)InGameUI::ORDER_MARK_NONE );
 }
 
+TEST(an_order_kind_wears_one_of_five_colours)
+{
+	// a waypoint is a move, and every way of killing something is the same red
+	const UnsignedInt move = InGameUI::orderKindColor( InGameUI::ORDER_HINT_MOVE );
+	const UnsignedInt attack = InGameUI::orderKindColor( InGameUI::ORDER_HINT_ATTACK );
+	const UnsignedInt attackMove = InGameUI::orderKindColor( InGameUI::ORDER_HINT_ATTACK_MOVE );
+	const UnsignedInt guard = InGameUI::orderKindColor( InGameUI::ORDER_HINT_GUARD );
+	const UnsignedInt other = InGameUI::orderKindColor( InGameUI::ORDER_HINT_ENTER );
+	CHECK_EQ( InGameUI::orderKindColor( InGameUI::ORDER_HINT_WAYPOINT ), move );
+	CHECK_EQ( InGameUI::orderKindColor( InGameUI::ORDER_HINT_FORCE_ATTACK ), attack );
+	CHECK_EQ( InGameUI::orderKindColor( InGameUI::ORDER_HINT_ATTACK_GROUND ), attack );
+
+	// doing something to a thing is one colour, whatever the thing
+	CHECK_EQ( InGameUI::orderKindColor( InGameUI::ORDER_HINT_DOCK ), other );
+	CHECK_EQ( InGameUI::orderKindColor( InGameUI::ORDER_HINT_CAPTURE ), other );
+	CHECK_EQ( InGameUI::orderKindColor( InGameUI::ORDER_HINT_ABILITY ), other );
+
+	// the five apart from each other, and no alpha in any: the callers put their own
+	const UnsignedInt five[ 5 ] = { move, attack, attackMove, guard, other };
+	for( Int i = 0; i < 5; ++i )
+	{
+		CHECK_EQ( five[ i ] & 0xFF000000u, 0u );
+		for( Int j = i + 1; j < 5; ++j )
+			CHECK_NE( five[ i ], five[ j ] );
+	}
+
+	// The Reforged orange seat (0xFF8219, hue 27): its attack move steps to magenta, and the attack (24
+	// off) and the guard (21 off) keep theirs, so no pink-red stands beside the magenta. The Reforged
+	// blue, the local player's own, keeps every default; a red seat changes only the attack, not the
+	// attack move 29 degrees off it as well
+	const InGameUI::OrderHintKind kinds[ 5 ] = { InGameUI::ORDER_HINT_MOVE, InGameUI::ORDER_HINT_ATTACK, InGameUI::ORDER_HINT_ATTACK_MOVE, InGameUI::ORDER_HINT_GUARD, InGameUI::ORDER_HINT_ENTER };
+	CHECK_EQ( InGameUI::orderKindColor( InGameUI::ORDER_HINT_ATTACK_MOVE, 0x00FF8219 ), 0x00FF4AD8u );
+	for( Int i = 0; i < 5; ++i )
+		if( kinds[ i ] != InGameUI::ORDER_HINT_ATTACK_MOVE )
+			CHECK_EQ( InGameUI::orderKindColor( kinds[ i ], 0x00FF8219 ), InGameUI::orderKindColor( kinds[ i ], 0 ) );
+	for( Int i = 0; i < 5; ++i )
+		CHECK_EQ( InGameUI::orderKindColor( kinds[ i ], 0x004C8CFF ), InGameUI::orderKindColor( kinds[ i ], 0 ) );
+	CHECK_NE( InGameUI::orderKindColor( InGameUI::ORDER_HINT_ATTACK, 0x00FF0000 ), InGameUI::orderKindColor( InGameUI::ORDER_HINT_ATTACK, 0 ) );
+	CHECK_EQ( InGameUI::orderKindColor( InGameUI::ORDER_HINT_ATTACK_MOVE, 0x00FF0000 ), InGameUI::orderKindColor( InGameUI::ORDER_HINT_ATTACK_MOVE, 0 ) );
+	// a white seat clashes with nothing
+	CHECK_EQ( InGameUI::orderKindColor( InGameUI::ORDER_HINT_GUARD, 0x00FFFFFF ), InGameUI::orderKindColor( InGameUI::ORDER_HINT_GUARD, 0 ) );
+}
+
 TEST(empty_building_slots_are_a_check_box_that_starts_on)
 {
 	const OptionDef *def = findOptionDef( "EmptyBuildingPips" );
@@ -21499,7 +22485,7 @@ TEST(graphics_quality_slider_only_ever_turns_settings_up)
 	// the looks of 2026-10-31 rise above High, which stays the picture the Classic box's untick gives,
 	// and every one is on at Ultra and a fork's row, so a Classic page keeps them off
 	static const char *const aboveHigh[] = { "CheckInternalHdr", "CheckHemiAmbient", "CheckGroundMarks", "CheckStructureCollapse",
-		"CheckWaterSplashes", "CheckAtmosphere", "CheckAmbientOcclusion", "CheckFirelight", "CheckWeather", "CheckHeatHaze" };
+		"CheckWaterSplashes", "CheckAtmosphere", "CheckAmbientOcclusion", "CheckFirelight", "CheckWeather", "CheckHeatHaze", "CheckGroundFoliage" };
 	for( Int i = 0; i < (Int)( sizeof( aboveHigh ) / sizeof( aboveHigh[ 0 ] ) ); ++i )
 	{
 		const GraphicsQualityRow *look = findGraphicsQualityRow( aboveHigh[ i ] );
@@ -21565,7 +22551,7 @@ TEST(no_options_file_is_the_classic_game_with_every_added_row_off)
 		"ShadowsForProjectiles", "ShadowsForProps", "ShadowsForParticles", "VolumetricSmokeShadows", "SmokeFireLighting",
 		"DebrisTrails", "MapLight", "TeamGlow", "WaterFoam", "GroundMarks", "Firelight", "HemiAmbient", "AmbientOcclusion",
 		"Weather", "WaterSplashes", "Atmosphere", "StructureCollapse", "InternalHdr", "Smoke", "ParticleBounce",
-		"HeatHaze", NULL
+		"HeatHaze", "GroundFoliage", NULL
 	};
 	for( Int i = 0; off[ i ] != NULL; ++i )
 		CHECK_EQ( findOptionDef( off[ i ] )->get(), 0 );
@@ -22481,40 +23467,6 @@ TEST(a_group_is_never_more_than_five_lanes_wide)
 	// degenerate inputs are one lane, not a division by zero or a negative count
 	CHECK_EQ( Crowd_laneCount( body * 4.0f, 0.0f, 4 ), 1 );
 	CHECK_EQ( Crowd_laneCount( -50.0f, body, 4 ), 1 );
-}
-
-TEST(a_lane_goes_round_the_outside_of_a_turn_parallel_to_the_route)
-{
-	Coord3D a, c, b;
-	a.set( 0.0f, 0.0f, 0.0f );
-	c.set( 100.0f, 0.0f, 0.0f );
-	Coord2D shift;
-
-	// straight on: the lane is the plain left normal, no stretch
-	b.set( 200.0f, 0.0f, 0.0f );
-	CHECK( Crowd_laneCorner( a, c, b, 10.0f, &shift ) );
-	CHECK_NEAR( shift.x, 0.0f, 0.001f );
-	CHECK_NEAR( shift.y, 10.0f, 0.001f );
-
-	// a right-angle turn to the right: the left lane is the outside one, and its corner sits out on
-	// the diagonal, ten from both legs - the red line of the owner's drawing, not the tip of the wall
-	b.set( 100.0f, -100.0f, 0.0f );
-	CHECK( Crowd_laneCorner( a, c, b, 10.0f, &shift ) );
-	CHECK_NEAR( shift.x, 10.0f, 0.001f );
-	CHECK_NEAR( shift.y, 10.0f, 0.001f );
-
-	// the right lane of the same turn is the inside one, pulled in off the tip by the same ten
-	CHECK( Crowd_laneCorner( a, c, b, -10.0f, &shift ) );
-	CHECK_NEAR( shift.x, -10.0f, 0.001f );
-	CHECK_NEAR( shift.y, -10.0f, 0.001f );
-
-	// a hairpin stretches the offset no further than twice
-	b.set( 0.0f, -1.0f, 0.0f );
-	CHECK( Crowd_laneCorner( a, c, b, 10.0f, &shift ) );
-	CHECK( shift.length() <= 20.001f );
-
-	// a leg of no length has no direction to be beside
-	CHECK( !Crowd_laneCorner( a, a, b, 10.0f, &shift ) );
 }
 
 TEST(a_turn_costs_what_the_hull_takes_to_swing_it)
@@ -24304,6 +25256,8 @@ TEST(chroma_money_bar_is_a_thousand_credits_a_lamp)
 #include "test_camera_behavior.inc"
 #include "test_observer_camera.inc"
 #include "test_production_input.inc"
+#include "test_hotkey_scheme.inc"
+#include "test_hotkey_scheme_map.inc"
 
 // The two cursor indexes a float decides.  Mouse.ini's FPS or GameData.ini's scroll speed of inf or NaN
 // made them INT_MIN on Windows and indexed a table with that; a negative FPS made a negative frame on
@@ -24914,6 +25868,8 @@ TEST(game_speed_set_to_200_and_back_reads_what_it_read)
 #include "test_map_ini_rollback.inc"
 #include "test_hostile_map.inc"
 #include "test_pathfind_slicing.inc"
+#include "test_score_screen.inc"
+#include "test_load_screen.inc"
 
 #include "GameClient/Snow.h"
 
@@ -25120,6 +26076,19 @@ TEST(handicap_rides_the_slot_entry_and_full_health_leaves_the_string_unchanged)
 	CHECK( ParseAsciiStringToGameInfo( &guest, odd ) );
 	CHECK_EQ( guest.getSlot( 0 )->getHandicap(), (Int)HANDICAP_FULL );
 	CHECK_EQ( guest.getSlot( 1 )->getHandicap(), (Int)HANDICAP_FULL );
+
+	/* A ranked Quick Match's black start rides as SH=1, written only when set, so every other game's
+		 string and replay stays byte for byte what it was. */
+	CHECK( strstr( picked.str(), "SH=" ) == NULL );
+	host.setStartShrouded( TRUE );
+	const AsciiString shrouded = GameInfoOptionsString( &host, mapPath, 0 );
+	host.setStartShrouded( FALSE );
+	CHECK( strstr( shrouded.str(), "SH=1;" ) != NULL );
+	CHECK( ParseAsciiStringToGameInfo( &guest, shrouded ) );
+	CHECK( guest.getStartShrouded() );
+	CHECK( ParseAsciiStringToGameInfo( &guest, picked ) );
+	CHECK( !guest.getStartShrouded() );
+	CHECK_STR( GameInfoOptionsString( &host, mapPath, 0 ).str(), picked.str() );
 
 	/* A replay's slot list as startRecording writes it, the logic rate last: readReplayHeader takes the
 		 rate off and hands the parser the string as it was, so the replay is not refused as bad options. */
@@ -26246,4 +27215,279 @@ TEST(weapon_bonus_names_resolve_mark_and_rain_and_forward_post)
 	CHECK_EQ( INI::scanIndexList( "MARK_AND_RAIN", TheWeaponBonusNames ), (Int)WEAPONBONUSCONDITION_MARK_AND_RAIN );
 	CHECK_EQ( INI::scanIndexList( "FORWARD_POST", TheWeaponBonusNames ), (Int)WEAPONBONUSCONDITION_FORWARD_POST );
 	CHECK_EQ( INI::scanIndexList( "ENTHUSIASTIC", TheWeaponBonusNames ), (Int)WEAPONBONUSCONDITION_ENTHUSIASTIC );
+}
+
+#include <set>
+#include "Common/AudioEventInfo.h"
+
+/* A wav's format chunk, read the way any player's mixer would: RIFF, WAVE, then chunks until "fmt ". */
+static Bool readWavFormat( const std::string &path, Int &channels, Int &rate, Int &bits )
+{
+	std::ifstream wav( path.c_str(), std::ios::binary );
+	unsigned char head[ 12 ];
+	if( !wav.read( (char *)head, 12 ) || memcmp( head, "RIFF", 4 ) != 0 || memcmp( head + 8, "WAVE", 4 ) != 0 )
+		return FALSE;
+	unsigned char chunk[ 8 ];
+	while( wav.read( (char *)chunk, 8 ) )
+	{
+		UnsignedInt size = chunk[ 4 ] | ( chunk[ 5 ] << 8 ) | ( chunk[ 6 ] << 16 ) | ( (UnsignedInt)chunk[ 7 ] << 24 );
+		if( memcmp( chunk, "fmt ", 4 ) == 0 )
+		{
+			unsigned char fmt[ 16 ];
+			if( size < 16 || !wav.read( (char *)fmt, 16 ) )
+				return FALSE;
+			if( ( fmt[ 0 ] | ( fmt[ 1 ] << 8 ) ) != 1 )		// PCM
+				return FALSE;
+			channels = fmt[ 2 ] | ( fmt[ 3 ] << 8 );
+			rate = fmt[ 4 ] | ( fmt[ 5 ] << 8 ) | ( fmt[ 6 ] << 16 ) | ( fmt[ 7 ] << 24 );
+			bits = fmt[ 14 ] | ( fmt[ 15 ] << 8 );
+			return TRUE;
+		}
+		wav.seekg( size + ( size & 1 ), std::ios::cur );
+	}
+	return FALSE;
+}
+
+/* The Turkiye events a data file names in fields starting with `key`, as written in the file. */
+static std::set<std::string> turkiyeEventsNamed( const char *file, const char *key )
+{
+	std::ifstream data( std::string( ZH_CODE_DIR ) + file );
+	CHECK( data.good() );
+	std::set<std::string> named;
+	std::string line;
+	const size_t keyLength = strlen( key );
+	while( std::getline( data, line ) )
+	{
+		size_t start = line.find_first_not_of( " \t" );
+		size_t equals = line.find( '=' );
+		if( start == std::string::npos || equals == std::string::npos || line.compare( start, keyLength, key ) != 0 )
+			continue;
+		size_t value = line.find_first_not_of( " \t", equals + 1 );
+		if( value == std::string::npos )
+			continue;
+		std::string event = line.substr( value, line.find_first_of( " \t\r;", value ) - value );
+		if( event.compare( 0, 7, "Turkiye" ) == 0 )
+			named.insert( event );
+	}
+	return named;
+}
+
+/* Every event in `named` parsed and every wav it names is in `sounds` at `rate`, mono 16-bit PCM;
+	 the wavs go into `heard`, and the count of new ones is returned. */
+static Int checkTurkiyeEventWavs( const std::set<std::string> &named, const std::string &sounds, Int wantRate,
+	std::set<std::string> &heard )
+{
+	Int added = 0;
+	for( std::set<std::string>::const_iterator it = named.begin(); it != named.end(); ++it )
+	{
+		const AudioEventInfo *info = TheAudio->findAudioEventInfo( AsciiString( it->c_str() ) );
+		if( info == NULL )
+			printf( "  no AudioEvent %s in VoiceReforged.ini\n", it->c_str() );
+		CHECK( info != NULL );
+		if( info == NULL )
+			continue;
+		CHECK( !info->m_sounds.empty() );
+		for( size_t i = 0; i < info->m_sounds.size(); ++i )
+		{
+			const std::string name = info->m_sounds[ i ].str();
+			if( !heard.insert( name ).second )
+				continue;
+			++added;
+			Int channels = 0, rate = 0, bits = 0;
+			const Bool read = readWavFormat( sounds + name + ".wav", channels, rate, bits );
+			if( !read || channels != 1 || rate != wantRate || bits != 16 )
+				printf( "  %s.wav: %s, %d ch, %d Hz, %d bit\n", name.c_str(), read ? "read" : "missing", channels, rate, bits );
+			CHECK( read );
+			CHECK_EQ( channels, 1 );
+			CHECK_EQ( rate, wantRate );
+			CHECK_EQ( bits, 16 );
+		}
+	}
+	return added;
+}
+
+/** Every Turkiye unit speaks in its own voice, and the Mehmetcik fires his own rifle. Each Voice
+	 field in TurkiyeReforged.ini and each FireSound in TurkiyeWeaponReforged.ini that names a Turkiye
+	 event finds it in VoiceReforged.ini through the game's own parser, every wav those events name is
+	 in Data/Audio/Sounds (voices in EA's speech format, 22050 Hz mono 16-bit PCM; weapons at EA's
+	 weapon rate, 44100 Hz mono 16-bit), and no wav there is left unnamed. 98 voice events over 20
+	 units, 291 lines; 2 weapon events, 8 shots. A unit that lost its voice or its gun, an event
+	 renamed on one side only or a file left out of the folder all fail here. */
+TEST(turkiye_unit_voices_resolve_to_events_and_wavs)
+{
+	CHECK( bootOnce() );
+
+	AudioManager *savedAudio = TheAudio;
+	if( savedAudio == NULL )
+		TheAudio = NEW NullAudioManager;
+
+	CHECK( loadIni( ZH_CODE_DIR "/Data/INI/VoiceReforged.ini" ) );
+
+	const std::set<std::string> voices = turkiyeEventsNamed( "/Data/INI/TurkiyeReforged.ini", "Voice" );
+	CHECK_EQ( (Int)voices.size(), 98 );
+	const std::set<std::string> weapons = turkiyeEventsNamed( "/Data/INI/TurkiyeWeaponReforged.ini", "FireSound" );
+	CHECK( weapons.count( "TurkiyeMehmetcikWeapon" ) == 1 );
+	CHECK( weapons.count( "TurkiyeMehmetcikWeaponMpt" ) == 1 );
+	CHECK_EQ( (Int)weapons.size(), 2 );
+
+	const std::string sounds = std::string( ZH_CODE_DIR ) + "/Data/Audio/Sounds/";
+	std::set<std::string> heard;
+	CHECK_EQ( checkTurkiyeEventWavs( voices, sounds, 22050, heard ), 291 );
+	CHECK_EQ( checkTurkiyeEventWavs( weapons, sounds, 44100, heard ), 8 );
+	CHECK_EQ( (Int)heard.size(), 299 );
+
+	Int onDisk = 0;
+	for( const std::filesystem::directory_entry &entry : std::filesystem::directory_iterator( sounds ) )
+	{
+		if( entry.path().extension() != ".wav" )
+			continue;
+		++onDisk;
+		if( heard.count( entry.path().stem().string() ) == 0 )
+			printf( "  %s is in the folder and named by no event\n", entry.path().filename().string().c_str() );
+	}
+	CHECK_EQ( onDisk, 299 );
+
+	if( savedAudio == NULL )
+	{
+		delete TheAudio;
+		TheAudio = NULL;
+	}
+}
+
+#include "GameClient/Eva.h"
+
+/** Turkiye has an announcer of her own. EvaReforged.ini, parsed after an EA block the way Eva::init
+	 reads it after Eva.ini, adds a Turkiye side to the event and keeps EA's side and priority; every
+	 event with a Turkiye side names one DialogEvent from VoiceReforged.ini, a speech stream whose wav
+	 is in Data/Audio/Speech in EA's speech format, and no wav there is left unnamed. 36 events, the
+	 ones America has a real line for: an event dropped from the file, a line renamed on one side only
+	 or a wav missing from the folder fail here, and so does a parser that drops a block for a name
+	 already defined, which is what EA's did. */
+TEST(turkiye_announcer_speaks_every_event_america_does)
+{
+	CHECK( bootOnce() );
+
+	AudioManager *savedAudio = TheAudio;
+	if( savedAudio == NULL )
+		TheAudio = NEW NullAudioManager;
+	Eva *savedEva = TheEva;
+	TheEva = NEW Eva;
+
+	writeFile( TEST_INI,
+		"EvaEvent LowPower\r\n"
+		"  Priority = 2\r\n"
+		"  SideSounds\r\n"
+		"    Side = America\r\n"
+		"    Sounds = EvaUSA_LowPower\r\n"
+		"  End\r\n"
+		"End\r\n" );
+	CHECK( loadIni( TEST_INI ) );
+	remove( TEST_INI );
+	CHECK( loadIni( ZH_CODE_DIR "/Data/INI/VoiceReforged.ini" ) );
+	CHECK( loadIni( ZH_CODE_DIR "/Data/INI/EvaReforged.ini" ) );
+
+	const EvaCheckInfo *lowPower = TheEva->getEvaCheckInfo( AsciiString( "LowPower" ) );
+	CHECK( lowPower != NULL );
+	if( lowPower != NULL )
+	{
+		CHECK_EQ( (Int)lowPower->m_priority, 2 );
+		CHECK_EQ( (Int)lowPower->m_evaSideSounds.size(), 2 );
+		if( lowPower->m_evaSideSounds.size() == 2 )
+		{
+			CHECK( lowPower->m_evaSideSounds[ 0 ].m_side == "America" );
+			CHECK( lowPower->m_evaSideSounds[ 1 ].m_side == "Turkiye" );
+		}
+	}
+
+	const std::string speech = std::string( ZH_CODE_DIR ) + "/Data/Audio/Speech/";
+	std::set<std::string> heard;
+	Int events = 0;
+	for( Int m = EVA_FIRST; m < EVA_COUNT; ++m )
+	{
+		const EvaCheckInfo *check = TheEva->getEvaCheckInfo( Eva::messageToName( (EvaMessage)m ) );
+		if( check == NULL )
+			continue;
+		for( size_t s = 0; s < check->m_evaSideSounds.size(); ++s )
+		{
+			const EvaSideSounds &side = check->m_evaSideSounds[ s ];
+			if( side.m_side != "Turkiye" )
+				continue;
+			++events;
+			CHECK_EQ( (Int)side.m_soundNames.size(), 1 );
+			for( size_t n = 0; n < side.m_soundNames.size(); ++n )
+			{
+				const AudioEventInfo *info = TheAudio->findAudioEventInfo( side.m_soundNames[ n ] );
+				if( info == NULL )
+					printf( "  %s names %s, which VoiceReforged.ini lacks\n", Eva::messageToName( (EvaMessage)m ).str(), side.m_soundNames[ n ].str() );
+				CHECK( info != NULL );
+				if( info == NULL )
+					continue;
+				CHECK( info->m_soundType == AT_Streaming );
+				const std::string file = info->m_filename.str();
+				CHECK( heard.insert( file ).second );
+				Int channels = 0, rate = 0, bits = 0;
+				const Bool read = readWavFormat( speech + file, channels, rate, bits );
+				if( !read || channels != 1 || rate != 22050 || bits != 16 )
+					printf( "  %s: %s, %d ch, %d Hz, %d bit\n", file.c_str(), read ? "read" : "missing", channels, rate, bits );
+				CHECK( read );
+				CHECK_EQ( channels, 1 );
+				CHECK_EQ( rate, 22050 );
+				CHECK_EQ( bits, 16 );
+			}
+		}
+	}
+	CHECK_EQ( events, 36 );
+	CHECK_EQ( (Int)heard.size(), 36 );
+
+	Int onDisk = 0;
+	for( const std::filesystem::directory_entry &entry : std::filesystem::directory_iterator( speech ) )
+	{
+		if( entry.path().extension() != ".wav" )
+			continue;
+		++onDisk;
+		if( heard.count( entry.path().filename().string() ) == 0 )
+			printf( "  %s is in the folder and named by no event\n", entry.path().filename().string().c_str() );
+	}
+	CHECK_EQ( onDisk, 36 );
+
+	delete TheEva;
+	TheEva = savedEva;
+	if( savedAudio == NULL )
+	{
+		delete TheAudio;
+		TheAudio = NULL;
+	}
+}
+
+// The online login registers email, nick, password, birth date, keep-signed-in, Sign In, Create Account,
+// Forgot Password, Back, and hides the nick and the birth date; Tab landed on the hidden nick box.
+static Bool tabStopShown( Int window ) { return window != 2 && window != 4 && window != 5 && window != 6; }
+
+TEST(tab_order_skips_what_the_screen_hides_both_ways)
+{
+	std::list<Int> tabs;
+	for( Int window = 1; window <= 10; ++window )
+		tabs.push_back( window );		// 1 email, 2 nick, 3 password, 4-6 birth date, 7 keep signed in, 8 Sign In, 9-10
+
+	CHECK_EQ( *findTabStop( tabs.begin(), tabs.end(), 1, tabStopShown ), 3 );
+	CHECK_EQ( *findTabStop( tabs.begin(), tabs.end(), 3, tabStopShown ), 7 );
+	CHECK_EQ( *findTabStop( tabs.begin(), tabs.end(), 7, tabStopShown ), 8 );
+	CHECK_EQ( *findTabStop( tabs.begin(), tabs.end(), 10, tabStopShown ), 1 );		// round to the top
+
+	// Shift+Tab walks the list backwards
+	CHECK_EQ( *findTabStop( tabs.rbegin(), tabs.rend(), 7, tabStopShown ), 3 );
+	CHECK_EQ( *findTabStop( tabs.rbegin(), tabs.rend(), 3, tabStopShown ), 1 );
+	CHECK_EQ( *findTabStop( tabs.rbegin(), tabs.rend(), 1, tabStopShown ), 10 );
+
+	// focus on a window outside the list starts from the first shown one; a hidden one in it moves on
+	CHECK_EQ( *findTabStop( tabs.begin(), tabs.end(), 99, tabStopShown ), 1 );
+	CHECK_EQ( *findTabStop( tabs.begin(), tabs.end(), 2, tabStopShown ), 3 );
+
+	// one shown window keeps the focus, none shown gives nothing
+	std::list<Int> lone;
+	lone.push_back( 2 );
+	lone.push_back( 3 );
+	CHECK_EQ( *findTabStop( lone.begin(), lone.end(), 3, tabStopShown ), 3 );
+	lone.pop_back();
+	CHECK( findTabStop( lone.begin(), lone.end(), 2, tabStopShown ) == lone.end() );
 }
