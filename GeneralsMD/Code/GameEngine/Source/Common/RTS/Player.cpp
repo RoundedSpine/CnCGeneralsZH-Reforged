@@ -799,7 +799,7 @@ void Player::update()
 	if( TheGlobalData->m_moneyPerMinute > 0 && isPlayableSide() && isPlayerActive() )
 	{
 		const UnsignedInt now = TheGameLogic->getFrame();
-		const UnsignedInt minute = LOGICFRAMES_PER_SECOND * 60;
+		const UnsignedInt minute = LOGICFRAMES_PER_GAME_SECOND * 60;
 
 		if( now > 0 && (now % minute) == 0 )
 			m_money.deposit( (UnsignedInt)TheGlobalData->m_moneyPerMinute, FALSE );
@@ -1698,9 +1698,9 @@ Bool Player::checkBridges(Object *unit, Waypoint *way)
 }
 
 //-------------------------------------------------------------------------------------------------
-AsciiString Player::chooseApproachLabel(const Coord3D *from, const AsciiString &requested, Int pathSuffix)
+AsciiString Player::chooseApproachLabel(const Coord3D *from, const AsciiString &requested, Int pathSuffix, Team *team)
 {
-	return m_ai ? m_ai->chooseApproachLabel(from, requested, pathSuffix) : requested;
+	return m_ai ? m_ai->chooseApproachLabel(from, requested, pathSuffix, NULL, team) : requested;
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -2814,21 +2814,12 @@ void Player::doBountyForKill(const Object* killer, const Object* victim)
 
 		bounty = earnMoney( bounty );
 
-		// Display cash income floating over the recipient - but not to an enemy of a killer it cannot see,
-		// or the number gives the stealthed unit away. Client display only, the deposit above is logic.
-		const Object *seenKiller = killer->getContainedBy() ? killer->getContainedBy() : killer;
-		const Bool hiddenKiller = seenKiller->testStatus( OBJECT_STATUS_STEALTHED ) && !seenKiller->testStatus( OBJECT_STATUS_DETECTED );
-		const Player *localPlayer = ThePlayerList->getLocalPlayer();
-		if( !hiddenKiller || localPlayer->getRelationship( killer->getTeam() ) != ENEMIES )
-		{
-			UnicodeString moneyString;
-			moneyString.format( TheGameText->fetch( "GUI:AddCash" ), bounty );
-			Coord3D pos;
-			pos.zero();
-			pos.add( killer->getPosition() );
-			pos.z += 10.0f; //add a little z to make it show up above the unit.
-			TheInGameUI->addFloatingText( moneyString, &pos, GameMakeColor( 255, 255, 0, 255 ) );
-		}
+		// Display cash income floating over the killer. An enemy never sees it, so a stealthed killer
+		// is not given away. Client display only, the deposit above is logic.
+		Coord3D pos;
+		pos.set( killer->getPosition() );
+		pos.z += 10.0f; //add a little z to make it show up above the unit.
+		TheInGameUI->addMoneyText( bounty, &pos, this );
 	}
 }
 
@@ -2997,7 +2988,8 @@ Bool Player::attemptToPurchaseScience(ScienceType science)
 	else
 	{
 		Int cost = TheScienceStore->getSciencePurchaseCost(science);
-		addSciencePurchasePoints(-cost);
+		if (!hasCheat(CHEAT_UNLIMITED_POINTS))
+			addSciencePurchasePoints(-cost);
 		addScience(science);
 
 		getAcademyStats()->recordGeneralsPointsSpent( cost );
@@ -3074,8 +3066,8 @@ Bool Player::isCapableOfPurchasingScience(ScienceType science) const
 	}
 
 	Int cost = TheScienceStore->getSciencePurchaseCost(science);
-	// purchase cost of zero means "not purchasable!"
-	if (cost == 0 || cost > getSciencePurchasePoints())
+	// purchase cost of zero means "not purchasable!"; the trainer's unlimited points pay for the rest
+	if (cost == 0 || (cost > getSciencePurchasePoints() && !hasCheat(CHEAT_UNLIMITED_POINTS)))
 	{
 		return false;
 	}
@@ -4862,21 +4854,31 @@ struct GroupFactorySearch
 	Real bestDistSqr;
 };
 
-static void findGroupFactory( Object *obj, void *userData )
+Bool Player::factoryTakesGroupUnit( Object *obj, const ThingTemplate *unit ) const
 {
-	GroupFactorySearch *s = (GroupFactorySearch *)userData;
-	if( obj->getControllingPlayer() != s->owner || obj->isEffectivelyDead() )
-		return;
+	if( obj == NULL || unit == NULL || obj->getControllingPlayer() != this || obj->isEffectivelyDead() )
+		return FALSE;
 
 	// canMakeUnit is the build button's own test: prerequisites, the unit cap, money, a finished and
 	// powered factory, a free queue slot and parking
-	ProductionUpdateInterface *pu = obj->getProductionUpdateInterface();
-	if( pu == NULL || TheBuildAssistant->canMakeUnit( obj, s->unit ) != CANMAKE_OK )
+	if( obj->getProductionUpdateInterface() == NULL || TheBuildAssistant->canMakeUnit( obj, unit ) != CANMAKE_OK )
+		return FALSE;
+	// and the factory's bar offers the player the button: a mission's script-only build, or one an
+	// upgrade still locks, is refused here as the bar hides or greys it
+	return TheBuildAssistant->offersPlayerBuildButton( obj, unit );
+}
+
+static void findGroupFactory( Object *obj, void *userData )
+{
+	GroupFactorySearch *s = (GroupFactorySearch *)userData;
+	if( !s->owner->factoryTakesGroupUnit( obj, s->unit ) )
 		return;
 
+	// with no squad there is no centre, and the shortest queue with the lowest ObjectID wins
+	ProductionUpdateInterface *pu = obj->getProductionUpdateInterface();
 	const UnsignedInt queue = pu->getProductionCount();
-	const Real dx = obj->getPosition()->x - s->centre->x;
-	const Real dy = obj->getPosition()->y - s->centre->y;
+	const Real dx = s->centre ? obj->getPosition()->x - s->centre->x : 0.0f;
+	const Real dy = s->centre ? obj->getPosition()->y - s->centre->y : 0.0f;
 	const Real distSqr = dx * dx + dy * dy;
 	if( s->best != NULL )
 	{
@@ -4900,7 +4902,7 @@ static void findGroupFactory( Object *obj, void *userData )
 
 Object *Player::findFactoryForGroupUnit( const ThingTemplate *unit, const Coord3D *squadCentre ) const
 {
-	if( unit == NULL || squadCentre == NULL )
+	if( unit == NULL )
 		return NULL;
 
 	GroupFactorySearch search;

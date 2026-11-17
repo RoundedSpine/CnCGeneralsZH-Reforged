@@ -57,6 +57,7 @@
 #include "Common/GameLOD.h"
 
 #include "GameClient/InGameUI.h"
+#include "GameClient/AirliftPanel.h"
 #include "GameClient/CommandXlat.h"
 #include "GameClient/DebugDisplay.h"
 #include "GameClient/Drawable.h"
@@ -70,6 +71,8 @@
 #include "GameClient/ObserverCamera.h"
 #include "GameClient/Shell.h"
 #include "GameClient/ControlBar.h"
+#include "GameClient/ControlBarSidebar.h"
+#include "GameClient/HotkeyScheme.h"
 #include "GameClient/SelectionInfo.h"
 #include "GameClient/SelectionXlat.h"
 
@@ -84,6 +87,7 @@
 #include "GameLogic/TerrainLogic.h"
 #include "GameLogic/GhostObject.h"
 #include "GameLogic/Weapon.h"
+#include "GameLogic/Module/OCLSpecialPower.h"
 #include "GameLogic/Module/SpawnBehavior.h"
 #include "GameLogic/Module/SpecialPowerModule.h"
 
@@ -1273,6 +1277,16 @@ GameMessage::Type CommandTranslator::issueSpecialPowerCommand( const CommandButt
 	{
 		//LOCATION BASED SPECIAL
 		msgType = GameMessage::MSG_DO_SPECIAL_POWER_AT_LOCATION;
+
+		// an airlift power fires with a load: the click opens its panel at the spot, and the panel's OK
+		// sends the order (AirliftPanel.cpp)
+		Object *sourceObj = sourceDraw ? sourceDraw->getObject() : NULL;
+		if( commandType == DO_COMMAND && sourceObj && OCLSpecialPower::findAirlift( sourceObj, command->getSpecialPowerTemplate() ) )
+		{
+			AirliftPanel_open( sourceObj, command->getSpecialPowerTemplate(), pos );
+			return msgType;
+		}
+
 		if( commandType == DO_COMMAND )
 		{
 			GameMessage *msg;
@@ -3583,10 +3597,20 @@ GameMessageDisposition CommandTranslator::translateGameMessage(const GameMessage
 
 		//-----------------------------------------------------------------------------------------
 		case GameMessage::MSG_META_DEPLOY:
-			#ifdef _DEBUG
-			DEBUG_ASSERTCRASH(FALSE, ("unimplemented meta command MSG_META_DEPLOY !"));
-			#endif
-			/// @todo srj implement me
+			// the selection's first own command on the bar, pressed as its key would (HotkeyScheme.h)
+			HotkeyScheme_pressDeploy();
+			disp = DESTROY_MESSAGE;
+			break;
+
+		//-----------------------------------------------------------------------------------------
+		// the sidebar's sell and repair cursors from a key, in every layout (Red Alert's L and K)
+		case GameMessage::MSG_META_SELL_MODE:
+			Sidebar_pressSell();
+			disp = DESTROY_MESSAGE;
+			break;
+
+		case GameMessage::MSG_META_REPAIR_MODE:
+			Sidebar_pressRepair();
 			disp = DESTROY_MESSAGE;
 			break;
 
@@ -3759,6 +3783,10 @@ GameMessageDisposition CommandTranslator::translateGameMessage(const GameMessage
 				cancelledSomething = TRUE;
 			}
 
+			// the sidebar's sell or repair cursor
+			if( Sidebar_cancelCursorMode() )
+				cancelledSomething = TRUE;
+
 			// a watcher looking through one player's eyes gets the whole map back, menu shut first
 			if( cancelledSomething == FALSE && !TheInGameUI->isQuitMenuVisible() && TheObserverCamera.stopLooking() )
 			{
@@ -3890,6 +3918,23 @@ GameMessageDisposition CommandTranslator::translateGameMessage(const GameMessage
 		case GameMessage::MSG_META_TOGGLE_RADAR_COLORS:
 			if( TheRadar )
 				TheRadar->toggleSimpleColors();
+			disp = DESTROY_MESSAGE;
+			break;
+
+		// the bar's command tabs, as a click on the tab: open it, or close it when it is the one open.
+		// A tab the bar cannot show closes again on its next update (updateCommandTabButtons).  In the
+		// Red Alert style layout the four keys pick the sidebar's tabs by place, left to right as the
+		// keys Q W E R lie: Buildings, Ground, Aircraft, Defence open Bina, Yükseltmeler ve güçler, Piyade, Araç
+		case GameMessage::MSG_META_TOGGLE_COMMAND_TAB_BUILDINGS:
+		case GameMessage::MSG_META_TOGGLE_COMMAND_TAB_GROUND:
+		case GameMessage::MSG_META_TOGGLE_COMMAND_TAB_AIRCRAFT:
+		case GameMessage::MSG_META_TOGGLE_COMMAND_TAB_DEFENSE:
+			if( TheControlBar && TheControlBar->isSidebarLayout() )
+				Sidebar_selectTab( t == GameMessage::MSG_META_TOGGLE_COMMAND_TAB_BUILDINGS ? SIDEBAR_TAB_BUILDINGS
+					: t == GameMessage::MSG_META_TOGGLE_COMMAND_TAB_GROUND ? SIDEBAR_TAB_POWERS
+					: t == GameMessage::MSG_META_TOGGLE_COMMAND_TAB_AIRCRAFT ? SIDEBAR_TAB_INFANTRY : SIDEBAR_TAB_VEHICLES );
+			else if( TheControlBar && t != GameMessage::MSG_META_TOGGLE_COMMAND_TAB_DEFENSE )
+				TheControlBar->toggleCommandTab( ControlBar::COMMAND_TAB_BUILDINGS + ( t - GameMessage::MSG_META_TOGGLE_COMMAND_TAB_BUILDINGS ) );
 			disp = DESTROY_MESSAGE;
 			break;
 
@@ -4226,6 +4271,7 @@ GameMessageDisposition CommandTranslator::translateGameMessage(const GameMessage
 
 		//-----------------------------------------------------------------------------------------
 		case GameMessage::MSG_META_BEGIN_WAYPOINTS:
+		case GameMessage::MSG_META_BEGIN_WAYPOINTS_KEY:	// Z held under Red Alert; Alt and Z share the one flag
 //			DEBUG_ASSERTCRASH( !TheInGameUI->isInWaypointMode(), ("Setting m_waypointMode but it's already set!") );
 			TheInGameUI->setWaypointMode( true );
 			DEBUG_LOG(( "HOTKEYS: waypoint mode on\n" ));	// a rebound hold reads back from the log
@@ -4243,6 +4289,7 @@ GameMessageDisposition CommandTranslator::translateGameMessage(const GameMessage
 
 		//-----------------------------------------------------------------------------------------
 		case GameMessage::MSG_META_END_WAYPOINTS:
+		case GameMessage::MSG_META_END_WAYPOINTS_KEY:
 //			DEBUG_ASSERTCRASH( TheInGameUI->isInWaypointMode(), ("Clearing m_waypointMode but it's already clear!") );
 			TheInGameUI->setWaypointMode( false );
 			DEBUG_LOG(( "HOTKEYS: waypoint mode off\n" ));

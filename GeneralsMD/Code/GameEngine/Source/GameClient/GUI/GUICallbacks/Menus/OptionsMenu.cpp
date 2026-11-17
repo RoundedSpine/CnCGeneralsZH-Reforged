@@ -236,6 +236,7 @@ DisplaySettings oldDispSettings, newDispSettings;
 Bool dispChanged = FALSE;
 extern Int timer;
 extern void DoResolutionDialog();
+extern void MainMenuKeepOnlineThroughRebuild();
 
 //
 // Set by saveOptions when the resolution really changed, acted on by applyPendingShellRebuild once
@@ -426,7 +427,8 @@ static void hideMainMenuColumns( void )
 	for( Int i = 0; i < MAIN_MENU_COLUMN_COUNT; ++i )
 	{
 		GameWindow *column = TheWindowManager->winGetWindowFromId( mainMenu, TheNameKeyGenerator->nameToKey( TheMainMenuColumnNames[ i ] ) );
-		if( column->winIsHidden() )
+		// a mod's MainMenu.wnd is retail's: no MapBorder5 or MapBorder6
+		if( !column || column->winIsHidden() )
 			continue;
 		column->winHide( TRUE );
 		mainMenuColumnHidden[ i ] = TRUE;
@@ -439,7 +441,11 @@ static void showMainMenuColumns( void )
 	for( Int i = 0; i < MAIN_MENU_COLUMN_COUNT; ++i )
 	{
 		if( mainMenu != NULL && mainMenuColumnHidden[ i ] )
-			TheWindowManager->winGetWindowFromId( mainMenu, TheNameKeyGenerator->nameToKey( TheMainMenuColumnNames[ i ] ) )->winHide( FALSE );
+		{
+			GameWindow *column = TheWindowManager->winGetWindowFromId( mainMenu, TheNameKeyGenerator->nameToKey( TheMainMenuColumnNames[ i ] ) );
+			if( column )
+				column->winHide( FALSE );
+		}
 		mainMenuColumnHidden[ i ] = FALSE;
 	}
 }
@@ -1225,7 +1231,7 @@ static Bool rendererSupportsOption( const OptionDef& def )
 #endif
 	// These effects still require the Windows renderer. Ordinary engine lighting,
 	// fog and particles have separate paths and remain available.
-	static const char *const windowsEffects[] = { "MapLight", "TeamGlow", "WaterFoam", "GroundMarks", "Firelight", "HemiAmbient", "InternalHdr", "Weather", "WaterSplashes", "Atmosphere", "StructureCollapse", "HeatHaze" };
+	static const char *const windowsEffects[] = { "MapLight", "TeamGlow", "WaterFoam", "GroundMarks", "Firelight", "HemiAmbient", "InternalHdr", "Weather", "WaterSplashes", "Atmosphere", "StructureCollapse", "HeatHaze", "GroundFoliage" };
 	for( const char *key : windowsEffects )
 		if( strcmp( def.iniKey, key ) == 0 ) return FALSE;
 	return TRUE;
@@ -2212,6 +2218,10 @@ static void applyPendingShellRebuild( void )
 		return;
 	pendingShellRebuild = FALSE;
 
+	const Bool inMatch = TheGameLogic->isInGame() && !TheGameLogic->isInShellGame();
+	if( inMatch )
+		MainMenuKeepOnlineThroughRebuild();	// the main menu's destroy would end an online match
+
 	delete TheShell;
 	TheShell = NULL;
 
@@ -2227,7 +2237,7 @@ static void applyPendingShellRebuild( void )
 	// greyed out in-game at all.  The command bar has just been built from its layouts and comes up
 	// hidden, so it is put back.
 	//
-	if( TheGameLogic->isInGame() && !TheGameLogic->isInShellGame() )
+	if( inMatch )
 	{
 		//
 		// A Shell is born active - the constructor says so, because a shell that is being built is

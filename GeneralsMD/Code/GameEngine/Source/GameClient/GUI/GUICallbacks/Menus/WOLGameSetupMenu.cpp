@@ -40,9 +40,11 @@
 #include "GameClient/GameText.h"
 #include "Common/MultiplayerSettings.h"
 #include "Common/PlayerTemplate.h"
+#include "Common/RandomMapGenerator.h"
 #include "Common/CustomMatchPreferences.h"
 #include "GameClient/AnimateWindowManager.h"
 #include "GameClient/InGameUI.h"
+#include "GameClient/TankSkin.h"
 #include "GameClient/WindowLayout.h"
 #include "GameClient/Mouse.h"
 #include "GameClient/Gadget.h"
@@ -110,6 +112,25 @@ void slotListDebugLog(const char *fmt, ...)
 #else
 #define SLOTLIST_DEBUG_LOG(x) DEBUG_LOG(x)
 #endif
+
+/* A joiner that leaves on a check of its own used to vanish from the host's room with nothing said.  The
+	 room UTM goes out before the leave on the same line, so the host still has it in his room; an older
+	 host ignores a command he does not know. */
+void SendStagingLeaveReason(const char *reason, const AsciiString& detail)
+{
+	PeerRequest req;
+	req.peerRequestType = PeerRequest::PEERREQUEST_UTMROOM;
+	req.UTM.isStagingRoom = TRUE;
+	req.id = "LEFT/";
+	AsciiString options = reason;
+	if (!detail.isEmpty())
+	{
+		options.concat(' ');
+		options.concat(detail);
+	}
+	req.options = options.str();
+	TheGameSpyPeerMessageQueue->addRequest(req);
+}
 
 void SendStatsToOtherPlayers(const GameInfo *game)
 {
@@ -216,7 +237,6 @@ static NameKeyType comboBoxPeaceTimeID = NAMEKEY_INVALID;
 static NameKeyType checkBoxLimitArmiesID = NAMEKEY_INVALID;
 static NameKeyType checkBoxUnitLimitID = NAMEKEY_INVALID;
 static NameKeyType checkBoxProRulesID = NAMEKEY_INVALID;
-static NameKeyType checkBoxTurboID = NAMEKEY_INVALID;
 static NameKeyType comboBoxIncomeSharingID = NAMEKEY_INVALID;
 static NameKeyType comboBoxTechRespawnID = NAMEKEY_INVALID;
 static NameKeyType comboBoxSupplyPileLimitID = NAMEKEY_INVALID;
@@ -237,7 +257,6 @@ static GameWindow *comboBoxPeaceTime = NULL;
 static GameWindow *checkBoxLimitArmies = NULL;
 static GameWindow *checkBoxUnitLimit = NULL;
 static GameWindow *checkBoxProRules = NULL;
-static GameWindow *checkBoxTurbo = NULL;
 static GameWindow *comboBoxIncomeSharing = NULL;
 static GameWindow *comboBoxTechRespawn = NULL;
 static GameWindow *comboBoxSupplyPileLimit = NULL;
@@ -377,7 +396,6 @@ static void savePlayerInfo( void )
           pref.setInt( "IncomeSharing", TheGameSpyGame->getIncomeSharing() );
           pref.setInt( "TechRespawn", TheGameSpyGame->getTechRespawn() );
           pref.setInt( "SupplyPileLimit", TheGameSpyGame->getSupplyPileLimit() );
-          pref.setInt( "TurboMode", TheGameSpyGame->getTurbo() ? 1 : 0 );
         }
 				pref.write();
 			}
@@ -961,32 +979,6 @@ static void handleProRulesSelection()
   }
 }
 
-static void handleTurboSelection()
-{
-  GameInfo *myGame = TheGameSpyInfo->getCurrentStagingRoom();
-
-  // the same guard as the Pro Rules box above
-  if (myGame == NULL || checkBoxTurbo == NULL || myGame->getTurbo() == GadgetCheckBoxIsChecked( checkBoxTurbo ))
-    return;
-
-  myGame->setTurbo( GadgetCheckBoxIsChecked( checkBoxTurbo ) );
-  myGame->resetAccepted();
-
-  if (myGame->amIHost())
-  {
-    TheGameSpyInfo->setGameOptions();
-    WOLDisplaySlotList();// Update the accepted button UI
-  }
-}
-
-// the host's to change outside a recorded stats game, everyone's to see
-static void updateTurboCheckBox( GameInfo *game, Bool hostMayEdit )
-{
-  checkBoxTurbo->winEnable( hostMayEdit );
-  if ( GadgetCheckBoxIsChecked( checkBoxTurbo ) != game->getTurbo() )
-    GadgetCheckBoxSetChecked( checkBoxTurbo, game->getTurbo() );
-}
-
 static void handleUnitLimitSelection()
 {
   GameInfo *myGame = TheGameSpyInfo->getCurrentStagingRoom();
@@ -1070,6 +1062,7 @@ static void StartPressed(void)
 	// see if everyone's accepted and count the number of players in the game
 	UnicodeString mapDisplayName;
 	const MapMetaData *mapData = TheMapCache->findMap( myGame->getMap() );
+	const Bool isGenerated = isGeneratedMapPath( myGame->getMap() );
 	Bool willTransfer = TRUE;
 	if (mapData)
 	{
@@ -1086,13 +1079,24 @@ static void StartPressed(void)
 		if ((myGame->getSlot(i)->isAccepted() == FALSE) && (myGame->getSlot(i)->isHuman() == TRUE))
 		{
 			isReady = FALSE;
-			if (!myGame->getSlot(i)->hasMap() && !willTransfer)
+			if (!myGame->getSlot(i)->hasMap() && !willTransfer && !isGenerated)
 			{
 				UnicodeString msg;
 				msg.format(TheGameText->fetch("GUI:PlayerNoMap"), myGame->getSlot(i)->getName().str(), mapDisplayName.str());
 				TheGameSpyInfo->addText(msg, GameSpyColor[GSCOLOR_DEFAULT], listboxGameSetupChat);
 				allHaveMap = FALSE;
 			}
+		}
+		// A generated map is never usefully sent: every seat builds it from its name, and the file system
+		// serves that build over any copy that arrives, so one that came out different plays itself and
+		// splits the match at the first CRC check. A seat that accepted counts too.
+		if (isGenerated && myGame->getSlot(i)->isHuman() && !myGame->getSlot(i)->hasMap())
+		{
+			UnicodeString msg;
+			msg.format(TheGameText->fetch("GUI:PlayerMapDiffers"), myGame->getSlot(i)->getName().str(), mapDisplayName.str());
+			TheGameSpyInfo->addText(msg, GameSpyColor[GSCOLOR_DEFAULT], listboxGameSetupChat);
+			isReady = FALSE;
+			allHaveMap = FALSE;
 		}
 		if(myGame->getSlot(i)->isOccupied() && myGame->getSlot(i)->getPlayerTemplate() != PLAYERTEMPLATE_OBSERVER)
 		{
@@ -1297,8 +1301,6 @@ void WOLDisplayGameOptions( void )
     UpdateUnitLimitCheckBox( checkBoxUnitLimit, theGame, superweaponIsTheHostsToPick() );
   if ( checkBoxProRules )
     UpdateProRulesCheckBox( checkBoxProRules, theGame, superweaponIsTheHostsToPick() );
-  if ( checkBoxTurbo )
-    updateTurboCheckBox( theGame, superweaponIsTheHostsToPick() );
   if ( comboBoxIncomeSharing )
     UpdateIncomeSharingComboBox( comboBoxIncomeSharing, theGame, superweaponIsTheHostsToPick() );
   if ( comboBoxTechRespawn )
@@ -1397,7 +1399,6 @@ void InitWOLGameGadgets( void )
   checkBoxLimitArmiesID = TheNameKeyGenerator->nameToKey(AsciiString("GameSpyGameOptionsMenu.wnd:CheckBoxLimitArmies"));
   checkBoxUnitLimitID = TheNameKeyGenerator->nameToKey(AsciiString("GameSpyGameOptionsMenu.wnd:CheckBoxUnitLimit"));
   checkBoxProRulesID = TheNameKeyGenerator->nameToKey(AsciiString("GameSpyGameOptionsMenu.wnd:CheckBoxProRules"));
-  checkBoxTurboID = TheNameKeyGenerator->nameToKey(AsciiString("GameSpyGameOptionsMenu.wnd:CheckBoxTurbo"));
   comboBoxIncomeSharingID = TheNameKeyGenerator->nameToKey(AsciiString("GameSpyGameOptionsMenu.wnd:ComboBoxIncomeSharing"));
   comboBoxTechRespawnID = TheNameKeyGenerator->nameToKey(AsciiString("GameSpyGameOptionsMenu.wnd:ComboBoxTechRespawn"));
   comboBoxSupplyPileLimitID = TheNameKeyGenerator->nameToKey(AsciiString("GameSpyGameOptionsMenu.wnd:ComboBoxSupplyPileLimit"));
@@ -1439,10 +1440,6 @@ void InitWOLGameGadgets( void )
   DEBUG_ASSERTCRASH(checkBoxProRules, ("Could not find the GameSpyGameOptionsMenu.wnd:CheckBoxProRules" ));
   if ( checkBoxProRules )
     UpdateProRulesCheckBox( checkBoxProRules, TheGameSpyGame, superweaponIsTheHostsToPick() );
-  // the fork's box, which a stock or modded layout does not have
-  checkBoxTurbo = TheWindowManager->winGetWindowFromId( parentWOLGameSetup, checkBoxTurboID );
-  if ( checkBoxTurbo )
-    updateTurboCheckBox( TheGameSpyGame, superweaponIsTheHostsToPick() );
   comboBoxIncomeSharing = TheWindowManager->winGetWindowFromId( parentWOLGameSetup, comboBoxIncomeSharingID );
   DEBUG_ASSERTCRASH(comboBoxIncomeSharing, ("Could not find the GameSpyGameOptionsMenu.wnd:ComboBoxIncomeSharing" ));
   if ( comboBoxIncomeSharing )
@@ -1603,6 +1600,7 @@ void InitWOLGameGadgets( void )
 	InitAIPersonaComboBoxes( parentWOLGameSetup, "GameSpyGameOptionsMenu.wnd", comboBoxAIPersona, comboBoxAIPersonaID );
 	InitHandicapComboBoxes( parentWOLGameSetup, "GameSpyGameOptionsMenu.wnd", comboBoxHandicap, comboBoxHandicapID );
 	InitLobbySeatVisuals( parentWOLGameSetup, "GameSpyGameOptionsMenu.wnd" );
+	SnapLobbyRulesLists( parentWOLGameSetup, "GameSpyGameOptionsMenu.wnd" );
 
 	// the settings page and the chat log share one rectangle; this opens on the chat log
 	InitLobbyTabs( parentWOLGameSetup, "GameSpyGameOptionsMenu.wnd", "TabChat", "ListboxChatWindowGameSpyGameSetup" );
@@ -1627,7 +1625,6 @@ void DeinitWOLGameGadgets( void )
   comboBoxPeaceTime = NULL;
   checkBoxUnitLimit = NULL;
   checkBoxProRules = NULL;
-  checkBoxTurbo = NULL;
   comboBoxIncomeSharing = NULL;
   comboBoxTechRespawn = NULL;
   comboBoxSupplyPileLimit = NULL;
@@ -1712,7 +1709,7 @@ static void onlineStagingScript( void )
 		return;
 	}
 
-	/* -onlineoptions prorules,turbo,unitlimit,randommap: once a second seat is taken the host flips each named
+	/* -onlineoptions prorules,unitlimit,randommap: once a second seat is taken the host flips each named
 		 check box and picks a random map through the room's own controls, as clicks would, logging whether each
 		 control was live; Start waits until that is done.  A stats room left them all dead for the host. */
 	static Int s_optionStep = 0;
@@ -1724,7 +1721,7 @@ static void onlineStagingScript( void )
 		if (s_optionStep == 0)
 		{
 			const struct { const char *name; GameWindow *box; } boxes[] = {
-				{ "prorules", checkBoxProRules }, { "turbo", checkBoxTurbo }, { "unitlimit", checkBoxUnitLimit } };
+				{ "prorules", checkBoxProRules }, { "unitlimit", checkBoxUnitLimit } };
 			for (Int i = 0; i < (Int)ARRAY_SIZE(boxes); ++i)
 			{
 				GameWindow *box = boxes[i].box;
@@ -1853,6 +1850,7 @@ void WOLGameSetupMenuInit( WindowLayout *layout, void *userData )
 		CustomMatchPreferences customPref;
 		hostSlot->setColor( customPref.getPreferredColor() );
 		hostSlot->setPlayerTemplate( customPref.getPreferredFaction() );
+		hostSlot->setSkins( TankSkin_localLoadout() );
 		hostSlot->setNATBehavior((FirewallHelperClass::FirewallBehaviorType)natPref.getFirewallBehavior());
 		hostSlot->setPingString(TheGameSpyInfo->getPingString());
 		const AsciiString hostMap = onlineScriptMap( customPref.getPreferredMap() );
@@ -1870,7 +1868,6 @@ void WOLGameSetupMenuInit( WindowLayout *layout, void *userData )
 		game->setIncomeSharing( isUsingStats ? INCOME_SHARING_OFF : customPref.getInt( "IncomeSharing", INCOME_SHARING_OFF ) );
 		game->setTechRespawn( isUsingStats ? 0 : customPref.getInt( "TechRespawn", 0 ) );
 		game->setSupplyPileLimit( isUsingStats ? 0 : customPref.getInt( "SupplyPileLimit", 0 ) );
-		game->setTurbo( !isUsingStats && customPref.getInt( "TurboMode", 0 ) != 0 );
 		if (isUsingStats)
 			game->setOldFactionsOnly( 0 );
 
@@ -1930,6 +1927,13 @@ void WOLGameSetupMenuInit( WindowLayout *layout, void *userData )
 		options.format("NAT=%d", natPref.getFirewallBehavior());
 		req.options = options.str();
 		TheGameSpyPeerMessageQueue->addRequest(req);
+		if (TankSkin_localLoadout() != 0)
+		{
+			// the field without its leading comma: "Skins=K1.2.3"
+			options.format("Skins=%s", TankSkin_slotField(TankSkin_localLoadout()).str() + 1);
+			req.options = options.str();
+			TheGameSpyPeerMessageQueue->addRequest(req);
+		}
 		options.format("Ping=%s", TheGameSpyInfo->getPingString().str());
 		req.options = options.str();
 		TheGameSpyPeerMessageQueue->addRequest(req);
@@ -2153,6 +2157,7 @@ void WOLGameSetupMenuUpdate( WindowLayout * layout, void *userData)
 				// haven't seen ourselves
 				buttonPushed = true;
 				DEBUG_LOG(("Haven't seen ourselves in slotlist\n"));
+				SendStagingLeaveReason("NOSLOTLIST", AsciiString::TheEmptyString);
 				if (TheGameSpyGame)
 					TheGameSpyGame->reset();
 				TheGameSpyInfo->leaveStagingRoom();
@@ -2592,7 +2597,10 @@ void WOLGameSetupMenuUpdate( WindowLayout * layout, void *userData)
 											mapDisplayName.format(u"%hs", TheGameState->getMapLeafName(game->getMap()).str());
 											willTransfer = WouldMapTransfer(game->getMap());
 										}
-										if (willTransfer)
+										// a generated map is built on every seat from its name and never sent
+										if (isGeneratedMapPath(game->getMap()))
+											text.format(TheGameText->fetch("GUI:LocalPlayerMapDiffers"), mapDisplayName.str());
+										else if (willTransfer)
 											text.format(TheGameText->fetch("GUI:LocalPlayerNoMapWillTransfer"), mapDisplayName.str());
 										else
 											text.format(TheGameText->fetch("GUI:LocalPlayerNoMap"), mapDisplayName.str());
@@ -2612,6 +2620,7 @@ void WOLGameSetupMenuUpdate( WindowLayout * layout, void *userData)
 									// can't see ourselves
 									buttonPushed = true;
 									DEBUG_LOG(("Can't see ourselves in slotlist %s\n", options.str()));
+									SendStagingLeaveReason("DROPPED", AsciiString::TheEmptyString);
 									TheGameSpyInfo->getCurrentStagingRoom()->reset();
 									TheGameSpyInfo->leaveStagingRoom();
 									//TheGameSpyInfo->joinBestGroupRoom();
@@ -2620,6 +2629,28 @@ void WOLGameSetupMenuUpdate( WindowLayout * layout, void *userData)
 									TheShell->pop();
 								}
 							}
+						}
+					}
+					else if (!strcmp(resp.command.c_str(), "LEFT"))
+					{
+						// a joiner gave up on a check of its own; the host is the one who can act on why
+						AsciiString options = resp.commandOptions.c_str();
+						AsciiString reason;
+						options.nextToken(&reason, " ");
+						options.trim();
+						DEBUG_LOG(("Staging: %s left on its own check: %s '%s'\n", resp.nick.c_str(), reason.str(), options.str()));
+						const char *label = NULL;
+						if (reason == "NOHOST")
+							label = "GUI:JoinerLeftNoHost";
+						else if (reason == "NOSLOTLIST")
+							label = "GUI:JoinerLeftNoSlotList";
+						else if (reason == "DROPPED")
+							label = "GUI:JoinerLeftDropped";
+						if (label && TheGameSpyInfo->amIHost())
+						{
+							UnicodeString text;
+							text.format(TheGameText->fetch(label), resp.nick.c_str(), options.str());
+							TheGameSpyInfo->addText(text, GameSpyColor[GSCOLOR_DEFAULT], listboxGameSetupChat);
 						}
 					}
 					else if (!strcmp(resp.command.c_str(), "HWS"))
@@ -2741,7 +2772,10 @@ void WOLGameSetupMenuUpdate( WindowLayout * layout, void *userData)
 										willTransfer = WouldMapTransfer(game->getMap());
 									}
 									UnicodeString text;
-									if (willTransfer)
+									// a generated map is built on every seat from its name and never sent
+									if (isGeneratedMapPath(game->getMap()))
+										text.format(TheGameText->fetch("GUI:PlayerMapDiffers"), game->getSlot(slotNum)->getName().str(), mapDisplayName.str());
+									else if (willTransfer)
 										text.format(TheGameText->fetch("GUI:PlayerNoMapWillTransfer"), game->getSlot(slotNum)->getName().str(), mapDisplayName.str());
 									else
 										text.format(TheGameText->fetch("GUI:PlayerNoMap"), game->getSlot(slotNum)->getName().str(), mapDisplayName.str());
@@ -2882,6 +2916,10 @@ void WOLGameSetupMenuUpdate( WindowLayout * layout, void *userData)
 									{
 										DEBUG_LOG(("Rejecting invalid IP %d\n", uVal));
 									}
+								}
+								else if (key == "Skins")
+								{
+									change = ApplySkinRequest(game, slot, TankSkin_fromSlotField(options.str()+1));	// drawing only, nobody has to accept again
 								}
 								else if (key == "NAT")
 								{
@@ -3227,12 +3265,6 @@ WindowMsgHandledType WOLGameSetupMenuSystem( GameWindow *window, UnsignedInt msg
 				if ( controlID == checkBoxProRulesID )
 				{
 					handleProRulesSelection();
-					break;
-				}
-
-				if ( controlID == checkBoxTurboID )
-				{
-					handleTurboSelection();
 					break;
 				}
 

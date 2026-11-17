@@ -93,9 +93,9 @@ AIUpdateModuleData::AIUpdateModuleData()
 	for (int i = 0; i < MAX_TURRETS; i++)
 		m_turretData[i] = NULL;
 	m_autoAcquireEnemiesWhenIdle = 0;
-	m_moodAttackCheckRate = LOGICFRAMES_PER_SECOND * 2;
+	m_moodAttackCheckRate.setRaw( 2000 );
 #ifdef ALLOW_SURRENDER
-	m_surrenderDuration = LOGICFRAMES_PER_SECOND * 120;
+	m_surrenderDuration.setRaw( 120000 );
 #endif
 
   m_forbidPlayerCommands = FALSE;
@@ -209,9 +209,9 @@ static void AIUpdate_traceMove( const Object *obj, const Coord3D& framePos, Bool
 		{ "Turret",											AIUpdateModuleData::parseTurret,	NULL, offsetof(AIUpdateModuleData, m_turretData[0]) },
 		{ "AltTurret",									AIUpdateModuleData::parseTurret,	NULL, offsetof(AIUpdateModuleData, m_turretData[1]) },
 		{ "AutoAcquireEnemiesWhenIdle", INI::parseBitString32, TheAutoAcquireEnemiesNames, offsetof(AIUpdateModuleData, m_autoAcquireEnemiesWhenIdle) },
-		{ "MoodAttackCheckRate",				INI::parseDurationUnsignedInt,		NULL, offsetof(AIUpdateModuleData, m_moodAttackCheckRate) },
+		{ "MoodAttackCheckRate",				SPEED_FIELD( AIUpdateModuleData, m_moodAttackCheckRate ) },
 #ifdef ALLOW_SURRENDER
-		{ "SurrenderDuration",					INI::parseDurationUnsignedInt,		NULL, offsetof(AIUpdateModuleData, m_surrenderDuration) },
+		{ "SurrenderDuration",					SPEED_FIELD( AIUpdateModuleData, m_surrenderDuration ) },
 #endif
     { "ForbidPlayerCommands",				INI::parseBool,										NULL, offsetof(AIUpdateModuleData, m_forbidPlayerCommands) },
     { "TurretsLinked",							INI::parseBool,										NULL, offsetof( AIUpdateModuleData, m_turretsLinked ) },
@@ -362,6 +362,7 @@ AIUpdateInterface::AIUpdateInterface( Thing *thing, const ModuleData* moduleData
 	m_sideStepSeen = FALSE;
 	m_lastProgressPos.zero();
 	m_lastProgressAngle = 0.0f;
+	m_lastProgressTurn = 0.0f;
 	m_ditherFrom.zero();
 	m_ditherFrame = 0;
 	m_ditherTravel = 0.0f;
@@ -599,9 +600,15 @@ void AIUpdateInterface::doPathfind( PathfindServicesInterface *pathfinder )
 					getPath()->getLastNode()->getLayer());
 			}
 			//CRCDEBUG_LOG(("AIUpdateInterface::doPathfind() - m_isAttackPath = TRUE after computeAttackPath\n"));
-			m_isAttackPath = TRUE; 
+			m_isAttackPath = TRUE;
 			return;
 		}
+		/* A contact weapon's search (computeAttackPath plain-paths to the victim) that ran out of the
+			 queue's cells for this frame comes back FALSE with the search held.  Falling through asked
+			 for a plain path to an adjusted spot instead and threw the held search away; stay an attack
+			 path and let the queue resume it next frame. */
+		if (m_waitingForPath)
+			return;
 		//CRCDEBUG_LOG(("AIUpdateInterface::doPathfind() - m_isAttackPath = FALSE after computeAttackPath()\n"));
 		m_isAttackPath = FALSE;
 		if (victim) {
@@ -662,7 +669,7 @@ void AIUpdateInterface::requestPath( Coord3D *destination, Bool isFinalGoal )
 		// jba intense debug
 		//DEBUG_LOG(("Info - RePathing very quickly %d, %d.\n", m_pathTimestamp, TheGameLogic->getFrame()));
 		if (m_path && m_isBlockedAndStuck) {
-			setIgnoreCollisionTime(2*LOGICFRAMES_PER_SECOND);
+			setIgnoreCollisionTime(2*LOGICFRAMES_PER_GAME_SECOND);
 			m_blockedFrames = 0;
 			m_isBlocked = FALSE;
 			m_isBlockedAndStuck = FALSE;
@@ -1205,7 +1212,7 @@ void AIUpdateInterface::setQueueForPathTime(Int frames)
 void AIUpdateInterface::queueForPathOrRetry()
 {
 	if (!TheAI->pathfinder()->queueForPath(getObject()->getID()))
-		setQueueForPathTime(LOGICFRAMES_PER_SECOND / 2);
+		setQueueForPathTime(LOGICFRAMES_PER_GAME_SECOND / 2);
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -1664,8 +1671,8 @@ Real AIUpdateInterface::calculateMaxBlockedSpeed(Object *other) const
 
 //-------------------------------------------------------------------------------------------------
 static const Real HEAD_ON_DOT = -0.5f;					///< facing more than 120 degrees apart is driving at each other
-static const Int  HEAD_ON_PASS_FRAMES = ConvertRetailFrames(8);			///< held up head-on this long: pass through
-static const Real BUMP_RECOVERY = ConvertRetailPerFrameFactor(1.05f);	///< the bump speed limit grows by this every frame
+#define HEAD_ON_PASS_FRAMES ((Int)(ConvertRetailFrames(8)))			///< held up head-on this long: pass through
+#define BUMP_RECOVERY ((Real)(ConvertRetailPerFrameFactor(1.05f)))	///< the bump speed limit grows by this every frame
 
 Bool AIUpdateInterface::blockedBy(Object *other)
 /* Returns TRUE if we are blocked from moving by the other object.*/
@@ -1744,7 +1751,7 @@ Bool AIUpdateInterface::blockedBy(Object *other)
 	Coord3D theirDir = *other->getUnitDirectionVector2D();
 	// Dot product is our directions projected onto each other.
 	Real dotProduct = ourDir.x*theirDir.x	+ ourDir.y*theirDir.y;
-	if (getNumFramesBlocked()>LOGICFRAMES_PER_SECOND) {
+	if (getNumFramesBlocked()>LOGICFRAMES_PER_GAME_SECOND) {
 		if (dotProduct<=0.0f) return FALSE;  // we are not moving in the same direction.
 	}
 	/* The rule above is EA's way out of a head-on meeting and it never fires: doLocomotor puts
@@ -1834,37 +1841,36 @@ static const Real CROWD_AIR					= 4.0f;		///< air a body wants round it, on top 
 static const Real CROWD_SEP_STEP		= 1.5f;		///< most one retail frame of separation may move a lane
 static const Real CROWD_PASS_CLEAR	= 6.0f;		///< room a passing lane leaves beside the blocker
 static const Real CROWD_PASS_TIGHT	= 1.5f;		///< and the room it settles for rather than queue
-static const Int  CROWD_PASS_RETRY	= ConvertRetailFrames(10);			///< queued this long: ask to pass again, hold or no hold
+#define CROWD_PASS_RETRY ((Int)(ConvertRetailFrames(10)))			///< queued this long: ask to pass again, hold or no hold
 static const Real CROWD_TAPER_DIST	= PATHFIND_CELL_SIZE_F * 8.0f;	///< the band closes over the last of the route
-static const Real CROWD_PLAN_END_SLACK	= PATHFIND_CELL_SIZE_F * 3.0f;	///< how far the move state may move a planned route's end and it still be the same order
-static const Int  CROWD_BRAKE_FRAMES	= ConvertRetailFrames(8);		///< frames of closing time a brake is allowed to read
-static const Int  CROWD_FAN_FRAMES	= ConvertRetailFrames(12);			///< held up this long before spreading out
-static const Real CROWD_FAN_RATE		= ConvertRetailPerFrameRate(0.8f);		///< and then sideways at this much a frame
-static const Real CROWD_LANE_RATE_MIN	= ConvertRetailPerFrameRate(0.4f);	///< the slowest a lane change is taken, per frame
+#define CROWD_BRAKE_FRAMES ((Int)(ConvertRetailFrames(8)))		///< frames of closing time a brake is allowed to read
+#define CROWD_FAN_FRAMES ((Int)(ConvertRetailFrames(12)))			///< held up this long before spreading out
+#define CROWD_FAN_RATE ((Real)(ConvertRetailPerFrameRate(0.8f)))		///< and then sideways at this much a frame
+#define CROWD_LANE_RATE_MIN ((Real)(ConvertRetailPerFrameRate(0.4f)))	///< the slowest a lane change is taken, per frame
 // the filters below are lerp fractions per frame, written for 30 Hz
-static const Real CROWD_SEP_FILTER	= 1.0f - ConvertRetailPerFrameFactor(1.0f - 0.13f);	///< how much of a frame's sideways push is believed (~4/sec)
-static const Real CROWD_RELEASE_FILTER	= 1.0f - ConvertRetailPerFrameFactor(1.0f - 0.15f);	///< how fast the throttle comes back once a brake lifts (~half a second to full)
-static const Real CROWD_AIM_CRUISE	= 1.0f - ConvertRetailPerFrameFactor(1.0f - 0.23f);	///< how fast the aim follows the route while driving (~7/sec)
-static const Real CROWD_AIM_URGENT	= 1.0f - ConvertRetailPerFrameFactor(1.0f - 0.67f);	///< and while manoeuvring (~20/sec), where lag is worse than twitch
+#define CROWD_SEP_FILTER ((Real)(1.0f - ConvertRetailPerFrameFactor(1.0f - 0.13f)))	///< how much of a frame's sideways push is believed (~4/sec)
+#define CROWD_RELEASE_FILTER ((Real)(1.0f - ConvertRetailPerFrameFactor(1.0f - 0.15f)))	///< how fast the throttle comes back once a brake lifts (~half a second to full)
+#define CROWD_AIM_CRUISE ((Real)(1.0f - ConvertRetailPerFrameFactor(1.0f - 0.23f)))	///< how fast the aim follows the route while driving (~7/sec)
+#define CROWD_AIM_URGENT ((Real)(1.0f - ConvertRetailPerFrameFactor(1.0f - 0.67f)))	///< and while manoeuvring (~20/sec), where lag is worse than twitch
 static const Real CROWD_AIM_DEAD		= 0.035f;	///< two degrees: hold the wheel still rather than chase the noise
 //-------------------------------------------------------------------------------------------------
 /* Being stuck.  These are not crowd constants: every unit trying to drive somewhere is measured
 	 against them, whether or not the crowd model steers it.  The rungs of the ladder are spaced by continued lack of
 	 progress rather than by wall clock, so a unit that starts moving again drops off it at once. */
 //-------------------------------------------------------------------------------------------------
-static const Real STUCK_TURN_EPSILON	= ConvertRetailPerFrameRate(0.004f);	///< a quarter of a degree a retail frame: below this the hull is not turning
-static const Int  STUCK_PRESS_FRAMES	= ConvertRetailFrames(10);		///< a third of a second of getting nowhere: stop being polite
-static const Int  STUCK_REPATH_FRAMES	= ConvertRetailFrames(45);		///< a second and a half: the ladder's first rung, and the gap between rungs
-static const Int  STUCK_BACKOUT_FRAMES	= ConvertRetailFrames(66);	///< how long a backing-out manoeuvre is given before the route is tried again
-static const Int  STUCK_COOL_FRAMES	= ConvertRetailFrames(90);			///< no second drastic thing inside this, or a wedged pair rock forever
-static const Int  STUCK_CYCLE_FRAMES	= ConvertRetailFrames(150);	///< five seconds past the last rung: run the whole ladder again
-static const Int  STUCK_DITHER_FRAMES	= ConvertRetailFrames(90);		///< three seconds is long enough to tell a shuffle from a corner
+#define STUCK_TURN_EPSILON ((Real)(ConvertRetailPerFrameRate(0.004f)))	///< a quarter of a degree a retail frame: below this the hull is not turning
+#define STUCK_PRESS_FRAMES ((Int)(ConvertRetailFrames(10)))		///< a third of a second of getting nowhere: stop being polite
+#define STUCK_REPATH_FRAMES ((Int)(ConvertRetailFrames(45)))		///< a second and a half: the ladder's first rung, and the gap between rungs
+#define STUCK_BACKOUT_FRAMES ((Int)(ConvertRetailFrames(66)))	///< how long a backing-out manoeuvre is given before the route is tried again
+#define STUCK_COOL_FRAMES ((Int)(ConvertRetailFrames(90)))			///< no second drastic thing inside this, or a wedged pair rock forever
+#define STUCK_CYCLE_FRAMES ((Int)(ConvertRetailFrames(150)))	///< five seconds past the last rung: run the whole ladder again
+#define STUCK_DITHER_FRAMES ((Int)(ConvertRetailFrames(90)))		///< three seconds is long enough to tell a shuffle from a corner
 static const Real STUCK_BRIDGE_NEAR	= PATHFIND_CELL_SIZE_F * 20.0f;	///< a unit shaking this close to a deck on its route is at the ramp
 static const Real STUCK_DITHER_RATIO	= 0.3f;	///< gained less than this much of the ground it covered
-static const Int  CROWD_MERGE_FRAMES	= ConvertRetailFrames(45);		///< a second and a half: how far ahead a merge is worth noticing
-static const Int  CROWD_TTC_FRAMES	= ConvertRetailFrames(21);			///< closing this fast on somebody counts as being in our way, wherever it sits
-static const Int  CROWD_REPATH_QUEUE	= ConvertRetailFrames(24);		///< queued behind traffic this long: stop steering round it and ask for a new route
-static const UnsignedInt CROWD_SCAN_FRAMES	= 4;		///< a vehicle asks who is round it once in this many frames, staggered by id
+#define CROWD_MERGE_FRAMES ((Int)(ConvertRetailFrames(45)))		///< a second and a half: how far ahead a merge is worth noticing
+#define CROWD_TTC_FRAMES ((Int)(ConvertRetailFrames(21)))			///< closing this fast on somebody counts as being in our way, wherever it sits
+#define CROWD_REPATH_QUEUE ((Int)(ConvertRetailFrames(24)))		///< queued behind traffic this long: stop steering round it and ask for a new route
+#define CROWD_SCAN_FRAMES ((UnsignedInt)(ConvertRetailFrames(2)))		///< a vehicle asks who is round it once in this many frames (a fifteenth of a second), staggered by id
 
 //-------------------------------------------------------------------------------------------------
 /* Returns TRUE if the physics collide should apply the force.  Normally not.
@@ -2191,10 +2197,6 @@ Bool AIUpdateInterface::computePath( PathfindServicesInterface *pathServices, Co
 		destroyPath();
 	}
 
-	// the group's plan is for the path this order asks for and no other, whichever way it is answered
-	CrowdRoute planned;
-	planned.swap( m_crowdPlanned );
-
 	if (canComputeQuickPath())
 	{
 		return computeQuickPath(destination);
@@ -2239,15 +2241,8 @@ Bool AIUpdateInterface::computePath( PathfindServicesInterface *pathServices, Co
 		return computeQuickPath(destination);
 	}
 
-	if (!planned.empty() && !m_isBlockedAndStuck)
-		theNewPath = crowdPlannedPath( planned, originalDestination );
-
 	PathfindLayerEnum destinationLayer = TheTerrainLogic->getLayerForDestination(destination);
-	if (theNewPath != NULL)
-	{
-		// the lane the group planned for us: see setPlannedCrowdRoute
-	}
-	else if (TheAI->pathfinder()->validMovementPosition( getObject()->getCrusherLevel()>0, destinationLayer, m_locomotorSet, destination ) == FALSE)
+	if (TheAI->pathfinder()->validMovementPosition( getObject()->getCrusherLevel()>0, destinationLayer, m_locomotorSet, destination ) == FALSE)
 	{
 		theNewPath = NULL;
 	}
@@ -2301,7 +2296,7 @@ Bool AIUpdateInterface::computePath( PathfindServicesInterface *pathServices, Co
 			destroyPath();
 			// Stop and wait one second.
 
-			setQueueForPathTime(LOGICFRAMES_PER_SECOND);
+			setQueueForPathTime(LOGICFRAMES_PER_GAME_SECOND);
 			Coord3D goalPos;
 			Object *obj = getObject();
 			goalPos = *obj->getPosition();
@@ -2326,37 +2321,6 @@ Bool AIUpdateInterface::computePath( PathfindServicesInterface *pathServices, Co
 }
 
 //-------------------------------------------------------------------------------------------------
-/** The route the group planned for this unit, as a path from where the unit is now.
-
-		The plan was laid at order time from where the unit stood then, and the path is asked for a
-		frame or several later, so two things are checked again rather than trusted: the first leg,
-		from here, and the end, which the move state may have nudged onto free ground since.  A plan
-		that fails either is dropped for a search, which is what the unit would have had anyway. */
-//-------------------------------------------------------------------------------------------------
-Path *AIUpdateInterface::crowdPlannedPath( const CrowdRoute& planned, const Coord3D& destination )
-{
-	Object *self = getObject();
-	const CrowdRoutePoint& last = planned.back();
-	const Real endDx = last.pos.x - destination.x;
-	const Real endDy = last.pos.y - destination.y;
-	if (endDx * endDx + endDy * endDy > CROWD_PLAN_END_SLACK * CROWD_PLAN_END_SLACK)
-		return NULL;					// a different order from the one this was planned for
-
-	const Coord3D *myPos = self->getPosition();
-	if (!TheAI->pathfinder()->isLinePassable( self, m_locomotorSet.getValidSurfaces(), self->getLayer(),
-				*myPos, planned.front().pos, false, true ))
-		return NULL;
-
-	Path *path = newInstance( Path );
-	path->markOptimized();
-	path->appendNode( myPos, self->getLayer() );
-	for (Int k = 0; k + 1 < (Int)planned.size(); k++)
-		path->appendNode( &planned[ k ].pos, planned[ k ].layer );
-	path->appendNode( &destination, TheTerrainLogic->getLayerForDestination( &destination ) );
-	return path;
-}
-
-//-------------------------------------------------------------------------------------------------
 /**
  * Invoke the pathfinder to compute a path to attack the current victim.
  */
@@ -2370,7 +2334,7 @@ Bool AIUpdateInterface::computeAttackPath( PathfindServicesInterface *pathServic
 		//CRCDEBUG_LOG(("Info - RePathing very quickly %d, %d.\n", m_pathTimestamp, TheGameLogic->getFrame()));
 		if (m_path && m_isBlockedAndStuck) 
 		{
-			setIgnoreCollisionTime(2*LOGICFRAMES_PER_SECOND);
+			setIgnoreCollisionTime(2*LOGICFRAMES_PER_GAME_SECOND);
 			m_blockedFrames = 0;
 			m_isBlocked = FALSE;
 			m_isBlockedAndStuck = FALSE;
@@ -2647,7 +2611,7 @@ void AIUpdateInterface::crowdReleaseCorridor( void )
 		 gate at the top of crowdSteer wants one.  So the slot re-arms itself: the offset is zero
 		 because the new route starts under the unit's own tracks, and the per-frame fit takes it back
 		 out to its own lane within a few frames.  Only the next order clears it (clearCrowdLane). */
-	if (m_crowdLaneOf >= 1)		// 1 is a member driving a lane its group planned: see setPlannedCrowdRoute
+	if (m_crowdLaneOf >= 1)
 	{
 		m_pendingCrowdLat = 0.0f;
 		m_hasPendingCrowdLat = TRUE;
@@ -2804,10 +2768,13 @@ void AIUpdateInterface::updateProgress( void )
 	const Real dx = myPos->x - m_lastProgressPos.x;
 	const Real dy = myPos->y - m_lastProgressPos.y;
 	const Real moved = (Real)sqrt( dx * dx + dy * dy );
-	const Real turned = (Real)fabs( normalizeAngle( facing - m_lastProgressAngle ) );
+	const Real turn = normalizeAngle( facing - m_lastProgressAngle );
+	const Real turned = (Real)fabs( turn );
+	const Bool reversedTurn = turn * m_lastProgressTurn < 0.0f;
 
 	m_lastProgressPos = *myPos;
 	m_lastProgressAngle = facing;
+	m_lastProgressTurn = turn;
 
 	/* Not trying to go anywhere: nothing to be stuck at.
 
@@ -2858,6 +2825,15 @@ void AIUpdateInterface::updateProgress( void )
 		else
 			comingAbout = TRUE;
 	}
+	/* The soldier trap: a Ranger wedged between parked hulls narrower than his body swings his nose
+		 to and fro on the spot, and every swing passed the test above, so the ladder never fired and he
+		 stood there for the rest of the match (Tournament Desert).  A turn that reverses last frame's is
+		 a swing, not coming about, and a soldier turns on the spot in a frame or two, so one turning
+		 without moving is not coming about either.  PathLab --dither, source 6187fe7c.  Soldiers only:
+		 a hull weaving in its lane reverses its turn all the time, and on tanks the rule moved
+		 nothing measurable (squad30, six seeds), so it is left where the trap is. */
+	if (self->isKindOf( KINDOF_INFANTRY ) && (reversedTurn || moved < ConvertRetailPerFrameRate(0.01f)))
+		comingAbout = FALSE;
 
 	if (moved < asked * 0.2f && !comingAbout)
 	{
@@ -3055,8 +3031,8 @@ void AIUpdateInterface::stuckRescue( void )
 			ai->aiMoveAwayFromUnit( self, CMD_FROM_AI );
 		}
 
-		setIgnoreCollisionTime( LOGICFRAMES_PER_SECOND );
-		m_rescueCool = now + LOGICFRAMES_PER_SECOND;
+		setIgnoreCollisionTime( LOGICFRAMES_PER_GAME_SECOND );
+		m_rescueCool = now + LOGICFRAMES_PER_GAME_SECOND;
 		return;
 	}
 
@@ -3082,7 +3058,7 @@ void AIUpdateInterface::stuckRescue( void )
 		// and the queue behind has to open up, or we are reversing into it
 		crowdAskBehindToBackOff( tan );
 		Pathfinder::bumpEscape();
-		setIgnoreCollisionTime( LOGICFRAMES_PER_SECOND );
+		setIgnoreCollisionTime( LOGICFRAMES_PER_GAME_SECOND );
 		m_rescueUntil = now + STUCK_BACKOUT_FRAMES;
 		m_noProgress = 0;
 	}
@@ -3143,7 +3119,7 @@ Bool AIUpdateInterface::rescueSteer( Coord3D& goalPos )
 void AIUpdateInterface::crowdRepath( void )
 {
 	Pathfinder::bumpCrowdRepath();
-	m_blockedFrames = 2 * LOGICFRAMES_PER_SECOND + 1;
+	m_blockedFrames = 2 * LOGICFRAMES_PER_GAME_SECOND + 1;
 	m_repathAsked = TRUE;
 	m_isBlockedAndStuck = FALSE;
 	m_crowdQueued = 0;
@@ -4008,7 +3984,7 @@ void AIUpdateInterface::crowdSteer( Coord3D& goalPos, Real& speed )
 	if (m_crowdCap < speed)
 		speed = m_crowdCap;
 
-	if (TheGlobalData->m_showLanes && (now % LOGICFRAMES_PER_SECOND) == 0)
+	if (TheGlobalData->m_showLanes && (now % LOGICFRAMES_PER_SECOND) == 0)	// a debug drawing, paced in wall time
 	{
 		const char *mode = pressing ? "press" : (giveWay ? "yield" : (merged ? "merge"
 											 : (queued ? "brake" : (blocker != NULL ? "pass" : "free"))));
@@ -4454,8 +4430,8 @@ UpdateSleepTime AIUpdateInterface::doLocomotor( void )
 							{
 								Real dist = sqrtf(dSqr);
 								if (dist<1) dist = 1;
-								pos.x += 2*PATHFIND_CELL_SIZE_F*dx/(dist*LOGICFRAMES_PER_SECOND);
-								pos.y += 2*PATHFIND_CELL_SIZE_F*dy/(dist*LOGICFRAMES_PER_SECOND);
+								pos.x += 2*PATHFIND_CELL_SIZE_F*dx/(dist*LOGICFRAMES_PER_GAME_SECOND);
+								pos.y += 2*PATHFIND_CELL_SIZE_F*dy/(dist*LOGICFRAMES_PER_GAME_SECOND);
 								if (onGround)
 									pos.z = TheTerrainLogic->getGroundHeight( pos.x, pos.y );
 								getObject()->setPosition(&pos);
@@ -5156,7 +5132,7 @@ void AIUpdateInterface::privateMoveToPosition( const Coord3D *pos, CommandSource
 		m_blockedFrames = 0;
 		m_isBlocked = FALSE;
 		m_isBlockedAndStuck = FALSE;
-		getStateMachine()->setTemporaryState(AI_MOVE_TO, LOGICFRAMES_PER_SECOND * 20);
+		getStateMachine()->setTemporaryState(AI_MOVE_TO, LOGICFRAMES_PER_GAME_SECOND * 20);
 	} else {
 		// Normal user or script command, just do it. [8/19/2003]
 		getStateMachine()->clear();
@@ -5479,13 +5455,13 @@ void AIUpdateInterface::privateMoveAwayFromUnit( Object *unit, CommandSourceType
 	if (m_stateMachine->getTemporaryState() == AI_MOVE_OUT_OF_THE_WAY) {
 		if (m_moveOutOfWay1 == id) {
 			if (m_isBlocked) {
-				setIgnoreCollisionTime(LOGICFRAMES_PER_SECOND*2); // cheat for 2 seconds.
+				setIgnoreCollisionTime(LOGICFRAMES_PER_GAME_SECOND*2); // cheat for 2 seconds.
 			}
 			return;
 		}
 		if (m_moveOutOfWay2 == id) {
 			if (m_isBlocked) {
-				setIgnoreCollisionTime(LOGICFRAMES_PER_SECOND*2); // cheat for 2 seconds.
+				setIgnoreCollisionTime(LOGICFRAMES_PER_GAME_SECOND*2); // cheat for 2 seconds.
 			}
 			return;
 		}
@@ -5513,7 +5489,7 @@ void AIUpdateInterface::privateMoveAwayFromUnit( Object *unit, CommandSourceType
 		destroyPath();
 		m_path = newPath;
 		wakeUpNow();
-		m_stateMachine->setTemporaryState(AI_MOVE_OUT_OF_THE_WAY, 10*LOGICFRAMES_PER_SECOND);
+		m_stateMachine->setTemporaryState(AI_MOVE_OUT_OF_THE_WAY, 10*LOGICFRAMES_PER_GAME_SECOND);
 		if (m_path) 
 		{
 	 		if( !getObject()->isKindOf(KINDOF_NO_COLLIDE))// If I don't collide with things, I don't need to tell them to get out of the way
@@ -6268,7 +6244,7 @@ void AIUpdateInterface::doQuickExit( std::vector<Coord3D>* path )
 	// set path info
 	getStateMachine()->setGoalPath( path );
 
-	getStateMachine()->setTemporaryState( AI_FOLLOW_EXITPRODUCTION_PATH, 10*LOGICFRAMES_PER_SECOND);
+	getStateMachine()->setTemporaryState( AI_FOLLOW_EXITPRODUCTION_PATH, 10*LOGICFRAMES_PER_GAME_SECOND);
 	if (locked) {
 		getStateMachine()->lock("Relocking in doQuickExit.");
 	}
@@ -8005,12 +7981,13 @@ void AIUpdateInterface::crc( Xfer *x )
 	* 19: the radius a player's guard order set
 	* 20: the aggressive stance
 	* 21: the player's orders held until the exit path is done
-	* 22: the auto garrison search */
+	* 22: the auto garrison search
+	* 23: the stuck ladder's state, the closest-path retry flag and the compact group goal */
 // ------------------------------------------------------------------------------------------------
 void AIUpdateInterface::xfer( Xfer *xfer )
 {
   // version
-  const XferVersion currentVersion = 22;
+  const XferVersion currentVersion = 23;
   XferVersion version = currentVersion;
   xfer->xferVersion( &version, currentVersion );
  
@@ -8310,17 +8287,16 @@ void AIUpdateInterface::xfer( Xfer *xfer )
 
 	if (version >= 15)
 	{
-		// a group's planned lane, which a save can fall between the order and the path it is for
-		UnsignedShort corners = (UnsignedShort)m_crowdPlanned.size();
+		/* Where a group's planned lane was saved. Groups plan no lanes any more, so a save writes none
+			 and a load reads an older save's corners and drops them: the unit searches for its own path. */
+		UnsignedShort corners = 0;
 		xfer->xferUnsignedShort(&corners);
-		if (xfer->getXferMode() == XFER_LOAD)
-			m_crowdPlanned.resize( corners );
 		for (Int k = 0; k < (Int)corners; k++)
 		{
-			xfer->xferCoord3D(&m_crowdPlanned[ k ].pos);
-			Int layer = (Int)m_crowdPlanned[ k ].layer;
+			Coord3D pos;
+			Int layer = 0;
+			xfer->xferCoord3D(&pos);
 			xfer->xferInt(&layer);
-			m_crowdPlanned[ k ].layer = (PathfindLayerEnum)layer;
 		}
 	}
 
@@ -8366,6 +8342,30 @@ void AIUpdateInterface::xfer( Xfer *xfer )
 		xfer->xferBool(&m_isSeekingGarrison);
 		xfer->xferCoord3D(&m_garrisonSearchCenter);
 		xfer->xferSTLObjectIDVector(&m_garrisonSearchTried);
+	}
+
+	if (version >= 23)
+	{
+		// the stuck ladder: a save mid-episode resumes on the same rung and the same counts.  The
+		// head-on and side-step pair is written by the collisions after doLocomotor and read by the
+		// next one, so it crosses the frame a save is taken on too.
+		xfer->xferInt(&m_noProgress);
+		xfer->xferInt(&m_headOnFrames);
+		xfer->xferBool(&m_headOnSeen);
+		xfer->xferCoord2D(&m_sideStep);
+		xfer->xferBool(&m_sideStepSeen);
+		xfer->xferCoord3D(&m_lastProgressPos);
+		xfer->xferReal(&m_lastProgressAngle);
+		xfer->xferReal(&m_lastProgressTurn);
+		xfer->xferCoord3D(&m_ditherFrom);
+		xfer->xferUnsignedInt(&m_ditherFrame);
+		xfer->xferReal(&m_ditherTravel);
+		xfer->xferInt(&m_rescueStage);
+		xfer->xferCoord3D(&m_rescueTo);
+		xfer->xferUnsignedInt(&m_rescueUntil);
+		xfer->xferUnsignedInt(&m_rescueCool);
+		xfer->xferBool(&m_retryPath);
+		xfer->xferBool(&m_compactGoal);
 	}
 
 }  // end xfer

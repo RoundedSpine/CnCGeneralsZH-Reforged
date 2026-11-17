@@ -658,6 +658,25 @@ Int Pathfinder_servePathQueues( PathRequestRing &human, PathRequestRing &compute
 	return started;
 }
 
+/* Past PATHFIND_DEEP_QUEUE waiting, a second of draining at three a frame, every PATHFIND_DEEP_STEP
+	 more lets a frame start one more request (processPathfindQueue) and search perFrame more cells,
+	 up to PATHFIND_DEEP_CELLS times perFrame.  A search that reaches the budget stops there and holds
+	 the head of its line, so this is what drains a backlog of long searches.  A person's request
+	 behind a computer's stopped search gets the most at once, so that search ends within a few
+	 frames instead of up to sixteen.  Depth and line are game state every machine holds alike. */
+#define PATHFIND_DEEP_QUEUE ((Int)(3 * LOGICFRAMES_PER_GAME_SECOND))
+#define PATHFIND_DEEP_STEP ((Int)(LOGICFRAMES_PER_GAME_SECOND))
+enum { PATHFIND_DEEP_CELLS = 4 };
+inline Int Pathfinder_queueCellBudget( Int perFrame, Int depth, Bool humanWaitsOnComputer )
+{
+	Int budget = perFrame;
+	if( depth > PATHFIND_DEEP_QUEUE )
+		budget += perFrame * ( ( depth - PATHFIND_DEEP_QUEUE ) / PATHFIND_DEEP_STEP );
+	if( humanWaitsOnComputer || budget > perFrame * PATHFIND_DEEP_CELLS )
+		budget = perFrame * PATHFIND_DEEP_CELLS;
+	return budget;
+}
+
 struct TCheckMovementInfo;
 
 /** 
@@ -878,14 +897,11 @@ enum
 	PF_TRAFFIC_DEN						= 1,
 	PF_TRAFFIC_CELLS					= 4096,		///< live traffic cells tracked; past this, deposits are dropped
 
-	PF_CLAIM_BUCKET_FRAMES		= LOGICFRAMES_PER_SECOND / 2,			///< half a second
 	PF_CLAIM_BUCKETS					= 24,			///< twelve seconds of horizon
-	PF_CLAIM_REFRESH_FRAMES		= LOGICFRAMES_PER_SECOND,			///< a unit re-stamps its plan once a second
 	PF_CLAIM_TABLE_SIZE				= 32768,	///< power of two: the hash is masked, not divided
 	PF_CLAIM_PROBES						= 8,			///< linear probe depth; past it a claim is simply dropped
 	PF_CLAIM_UNITS_MAX				= 4,			///< claims beyond this on one cell-moment cost nothing more
 	PF_CLAIM_SAMPLES_MAX			= 32,			///< cells of its own plan one unit may stamp per refresh; 64 was 5% of a 530-unit battle
-	PF_CLEARANCE_REBUILD_FRAMES	= LOGICFRAMES_PER_SECOND,		///< how often a dirty clearance field is actually rebuilt
 	PF_CROSSING_NUM						= 1,			///< peak crossing penalty is NUM/DEN of a step
 	PF_CROSSING_DEN						= 2,
 
@@ -928,9 +944,13 @@ enum
 		 zero at the goal itself leaves a unit seventy feet off its own route still twenty feet off
 		 it when it arrives, and a group ordered onto one point spreads out instead of gathering on
 		 it - which is what the ramp looked like in game. */
-	PF_LANE_CLOSE_CELLS				= 3,
-	PF_LANE_HOLD_FRAMES				= 3 * LOGICFRAMES_PER_SECOND / 2		///< a second and a half
+	PF_LANE_CLOSE_CELLS				= 3
 };
+// game-time frame counts, so they follow the match's speed
+#define PF_CLAIM_BUCKET_FRAMES ((Int)(LOGICFRAMES_PER_GAME_SECOND / 2))					///< half a second
+#define PF_CLAIM_REFRESH_FRAMES ((Int)(LOGICFRAMES_PER_GAME_SECOND))						///< a unit re-stamps its plan once a second
+#define PF_CLEARANCE_REBUILD_FRAMES ((Int)(LOGICFRAMES_PER_GAME_SECOND))				///< how often a dirty clearance field is actually rebuilt
+#define PF_LANE_HOLD_FRAMES ((Int)(3 * LOGICFRAMES_PER_GAME_SECOND / 2))				///< a second and a half
 
 /** How much extra a step into a cell with this clearance costs a body needing `needClearance`.
 	  Zero out in the open, rising quadratically as the body's own margin is eaten into. */
@@ -1222,7 +1242,8 @@ public:
 		Coord3D *dest, const Coord3D *groupDest=NULL);
 
 	// Gives each ground member its own reserved goal, spreading outward from dest with the soonest
-	// arrivals nearest it. goals[k] belongs to members[k]; a member never placed keeps dest itself.
+	// arrivals nearest it, then once more from past dest so the pile sits on it rather than short of it.
+	// goals[k] belongs to members[k]; a member never placed keeps the point its flood started from.
 	void floodGroupGoals(const Coord3D *dest, const std::vector<Object *>& members, std::vector<Coord3D>& goals);
 
 	// Adjusts the destination to a spot near dest for landing that is not occupied by other units.
@@ -1250,7 +1271,8 @@ public:
 
 	static void classifyMapCell( Int x, Int y, PathfindCell *cell);					///< Classify the given map cell
 	Int clearCellForDiameter( Bool crusher, Int cellX, Int cellY, PathfindLayerEnum layer, Int pathDiameter );		///< Return true if given position is a valid movement location
-	void getRadiusAndCenter(const Object *obj, Int &iRadius, Bool &center);
+	/// forGoal: the footprint a unit reserves where it stops (a soldier of an all-infantry order: his own cell), not the body it moves with
+	void getRadiusAndCenter(const Object *obj, Int &iRadius, Bool &center, Bool forGoal = FALSE);
 
 protected:
 	virtual Path *internalFindPath( Object *obj, const LocomotorSet& locomotorSet, const Coord3D *from, const Coord3D *to);	///< Find a short, valid path between given locations
@@ -1270,6 +1292,13 @@ protected:
 																Bool crusher, Int &cellCount);
 	Bool checkForAdjust(Object *, const LocomotorSet& locomotorSet, Bool isHuman, Int cellX, Int cellY, 
 		PathfindLayerEnum layer, Int iRadius, Bool center,Coord3D *dest, const Coord3D *groupDest) ;
+	Int floodGroupGoalsFrom(const Coord3D *origin, PathfindLayerEnum layer, const std::vector<Object *>& members,
+		std::vector<Coord3D>& goals, std::vector<bool>& isPlaced);	///< one flood of floodGroupGoals, out of origin's cell on layer; how many it placed
+	void floodGroupPile(const Coord3D *dest, PathfindLayerEnum layer, const std::vector<Object *>& members,
+		std::vector<Coord3D>& goals, std::vector<bool>& isPlaced, Coord3D *pileOrigin);	///< floodGroupGoals' flood and its re-centring
+	void floodMixedSoldiers(const Coord3D *origin, PathfindLayerEnum layer, const std::vector<Object *>& members,
+		std::vector<Coord3D>& goals, const std::vector<bool>& isPlaced);	///< a mixed group's soldiers onto one cell each, round the vehicles' block
+	Bool floodSoldierBlocked(const Object *soldier, Int cellX, Int cellY) const;	///< floodMixedSoldiers: a cell in the vehicles' block, on a lane before its vehicle, or reached through a parked one
 	Bool checkForLanding(Int cellX, Int cellY, 
 		PathfindLayerEnum layer, Int iRadius, Bool center,Coord3D *dest) ;
 	Bool checkForTarget(const Object *obj, 	Int cellX, Int cellY, const Weapon *weapon,
@@ -1345,8 +1374,8 @@ protected:
 		Bool center, Int pathDiameter );	///< Work backwards from goal cell to construct final path
 	Path *buildHierachicalPath( const Coord3D *fromPos, PathfindCell *goalCell);	///< Work backwards from goal cell to construct final path
 
-	void  prependCells( Path *path, const Coord3D *fromPos, 
-																	PathfindCell *goalCell, Bool center ); ///< Add pathfind cells to a path.
+	Bool  prependCells( Path *path, const Coord3D *fromPos,
+																	PathfindCell *goalCell, Bool center ); ///< Add pathfind cells to a path; FALSE when the cells' parent chain is broken or gives no node.
 
 	void debugShowSearch( Bool pathFound );				///< Show all cells touched in the last search
 	static LocomotorSurfaceTypeMask validLocomotorSurfacesForCellType(PathfindCell::CellType t);
@@ -1440,7 +1469,12 @@ private:
 	Int						m_numWallPieces;
 	Real					m_wallHeight;
 
+	enum { MOVE_ALLIES_MAX_DEPTH = 2 };
 	Int						m_moveAlliesDepth;
+	ObjectID			m_moveAlliesObjects[MOVE_ALLIES_MAX_DEPTH];	///< unit of each active moveAllies call, by depth
+
+	std::vector<Real>	m_floodBlockArrival;	///< floodMixedSoldiers, by extent index: soonest arrival of a vehicle whose goal (one cell round) covers the cell, FLT_MAX for none; empty outside it
+	Int								m_floodBlockCells;		///< how many cells it marks: the soldiers' flood looks that many further
 
 
 	// Pathfind queue, in two lines: human players' units are answered first (Pathfinder_servePathQueues)
@@ -1450,6 +1484,7 @@ private:
 		 walking up to 2048 slots on every request. Derived from the rings, never saved. */
 	std::vector<bool>	m_isQueuedForPath;
 	Int						m_cumulativeCellsAllocated;
+	Int						m_queueCellBudget;		///< this frame's cells for the queue (Pathfinder_queueCellBudget), set each frame from the queue, never saved
 
 	/* The main cell search's state, kept here rather than on the stack so a search that runs out of
 		 the queue's cells for the frame can stop and carry on from the same cell next frame.  At most

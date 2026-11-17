@@ -155,7 +155,7 @@ static const char EVALUATE_PROGRAM[] =
 	"    if (lifetime == 0u)\n"
 	"        return;\n"
 	"    uint frames = lifetime / 4u;\n"
-	"    frames = (frames > 16u) ? 16u : ((frames == 0u) ? 1u : frames);\n"
+	"    frames = (frames > FADE_MAXu) ? FADE_MAXu : ((frames == 0u) ? 1u : frames);\n"
 	"    float left = spawn.Lifetime - k;\n"
 	"    if (left > float(frames))\n"
 	"        return;\n"
@@ -333,8 +333,13 @@ static const char DRAW_VERTEX_PROGRAM[] =
 inline void Replace(std::string &text,const char *from,const char *to){
     const auto at=text.find(from);if(at!=std::string::npos)text.replace(at,std::char_traits<char>::length(from),to);
 }
-inline std::string Evaluation(bool native=false){
+// fadeMaxFrames is ParticleClosedForm.h's PARTICLE_CLOSED_FORM_FADE_MAX_FRAMES (eight retail frames in logic
+// frames) written into closed_fade's FADE_MAX. The default of 16 is the text the shader always had, so a shipped
+// shader cache still matches it at 60 ticks a second.
+inline std::string Evaluation(bool native=false,unsigned fadeMaxFrames=16){
     std::string text=EVALUATE_PROGRAM;
+    const std::string fadeMax=std::to_string(fadeMaxFrames);
+    for(size_t at=text.find("FADE_MAX");at!=std::string::npos;at=text.find("FADE_MAX",at))text.replace(at,8,fadeMax);
     if(native){
         Replace(text,"Spawns : register(t0)","Spawns : register(t1,space0)");
         Replace(text,"Systems : register(t1)","Systems : register(t2,space0)");

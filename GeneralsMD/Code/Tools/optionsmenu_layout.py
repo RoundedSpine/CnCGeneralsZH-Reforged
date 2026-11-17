@@ -248,11 +248,16 @@ NEW_CONTROLS = [
     (CHECK,  "CheckBuildWithoutWorker", "GUI:BuildWithoutWorker"),
     (LABEL,  "LabelHealthBarColors",   "GUI:HealthBarColors"),
     (COMBO,  "ComboBoxHealthBarColors", None),
+    (LABEL,  "LabelHudLayout",         "GUI:HudLayout"),
+    (COMBO,  "ComboBoxHudLayout",      None),
+    (LABEL,  "LabelHudWidth",          "GUI:HudWidth"),
+    (COMBO,  "ComboBoxHudWidth",       None),
     (LABEL,  "LabelMenuTransitionSpeed", "GUI:MenuTransitionSpeed"),
     (SLIDER, "SliderMenuTransitionSpeed", None),
     (LABEL,  "LabelMinimapSize",       "GUI:MinimapSize"),
     (SLIDER, "SliderMinimapSize",      None),
-    (CHECK,  "CheckTurboModeMissions", "GUI:TurboModeMissions"),
+    (LABEL,  "LabelGameSpeedMissions", "GUI:GameSpeedMissions"),
+    (COMBO,  "ComboGameSpeedMissions", None),
     (CHECK,  "CheckMapLight",          "GUI:MapLight"),
     (CHECK,  "CheckTeamGlow",          "GUI:TeamGlow"),
     (CHECK,  "CheckWaterFoam",         "GUI:WaterFoam"),
@@ -268,6 +273,7 @@ NEW_CONTROLS = [
     (CHECK,  "CheckSmoothMotion",      "GUI:SmoothMotion"),
     (CHECK,  "CheckHeatHaze",          "GUI:HeatHaze"),
     (CHECK,  "CheckParticlePerfDiagnostics", "GUI:ParticlePerfDiagnostics"),
+    (CHECK,  "CheckGroundFoliage",     "GUI:GroundFoliage"),
     (LABEL,  "LabelGraphicsQuality",   "GUI:GraphicsQuality"),
     (SLIDER, "SliderGraphicsQuality",  None),
 ]
@@ -377,11 +383,16 @@ GROUP_LAYOUT = [
             ("check", "CheckStructureCollapse"),
             ("check", "CheckSmoothMotion"),
             ("check", "CheckHeatHaze"),
+            ("check", "CheckGroundFoliage"),
             # beside Classic Graphics on the Graphics page if there were room
             ("check", "CheckDetailedModels"),
             ("check", "CheckHDTextures"),
             # the Screen column is full with the monitor and the resolution note
-            setting("LabelFrameRateLimit", "ComboBoxFrameRateLimit"),
+            setting("LabelFrameRateLimit", "ComboBoxFrameRateLimit")]),
+        # from Interface, whose first column ran past the page once HUD took Layout and HUD Width
+        ("GUI:OptionsGroupMenus", [
+            setting("LabelMenuTransitionSpeed", "SliderMenuTransitionSpeed", "ValueMenuTransitionSpeed"),
+            # the Screen and Picture columns are full to the page's foot; the diagnostic keeps its place on Display here
             ("check", "CheckParticlePerfDiagnostics")])]),
 
     ("PageGraphics", [
@@ -488,12 +499,10 @@ GROUP_LAYOUT = [
 
     ("PageInterface", [
         ("GUI:OptionsGroupHud", [
+            setting("LabelHudLayout", "ComboBoxHudLayout"),
+            setting("LabelHudWidth", "ComboBoxHudWidth"),
             ("check", "CheckNetBox"),
             setting("LabelMinimapSize", "SliderMinimapSize", "ValueMinimapSize")]),
-        ("GUI:OptionsGroupMenus", [
-            setting("LabelMenuTransitionSpeed", "SliderMenuTransitionSpeed", "ValueMenuTransitionSpeed")]),
-        ("GUI:OptionsGroupSpeed", [
-            ("check", "CheckTurboModeMissions")]),
         ("GUI:OptionsGroupBattlefield", [
             setting("LabelHealthBars", "ComboBoxHealthBars"),
             setting("LabelHealthBarColors", "ComboBoxHealthBarColors"),
@@ -501,6 +510,10 @@ GROUP_LAYOUT = [
             ("check", "CheckOrderLines"),
             ("check", "CheckAircraftAltitudeLine"),
             ("check", "CheckEmptyBuildingPips")]),
+        # after the battlefield: a combo row is taller than the box it replaced, and the first column
+        # ran past the page with it there
+        ("GUI:OptionsGroupSpeed", [
+            setting("LabelGameSpeedMissions", "ComboGameSpeedMissions")]),
         ("GUI:OptionsGroupLanguage", [
             setting("LabelLanguage", "ComboBoxLanguage")]),
         ("GUI:OptionsGroupReplays", [
@@ -648,7 +661,7 @@ def make_note(label_template, name):
 def setting_of(name):
     """The setting a control belongs to, which is its name without the kind in front.  A label and
     the combo box under it are two controls for one setting and share one tooltip string."""
-    for prefix in ("ComboBox", "Slider", "Check", "Label"):
+    for prefix in ("ComboBox", "Combo", "Slider", "Check", "Label"):
         if name.startswith(prefix):
             return name[len(prefix):]
     return name
@@ -973,16 +986,22 @@ def read_strings():
 
 
 def enum_count(name):
-    """The value of an enum constant like WINDOW_MODE_COUNT, out of whichever header declares it."""
+    """The value of an enum constant like WINDOW_MODE_COUNT, out of whichever header declares it:
+    WINDOW_MODE_COUNT = 3, or the last of a list with no values, enum { HUD_LAYOUT_CLASSIC, ..., HUD_LAYOUT_COUNT }."""
     pattern = re.compile(r"\b%s\s*=\s*(\d+)" % re.escape(name))
+    listed = re.compile(r"\benum\s*\{([^{}=]*?)\b%s\s*[,}]" % re.escape(name))
     for root, _dirs, files in os.walk(INCLUDE):
         for filename in files:
             if not filename.endswith(".h"):
                 continue
             with open(os.path.join(root, filename), "rb") as fp:
-                match = pattern.search(fp.read().decode("latin-1"))
+                text = fp.read().decode("latin-1")
+            match = pattern.search(text)
             if match:
                 return int(match.group(1))
+            match = listed.search(text)
+            if match:
+                return len([entry for entry in match.group(1).split(",") if entry.strip()])
     return None
 
 

@@ -40,6 +40,7 @@
 #include "Common/LadderPreferences.h"
 #include "Common/MultiplayerSettings.h"
 #include "Common/PlayerTemplate.h"
+#include "Common/RandomMapGenerator.h"
 #include "GameClient/AnimateWindowManager.h"
 #include "GameClient/WindowLayout.h"
 #include "GameClient/Gadget.h"
@@ -159,6 +160,11 @@ static Bool s_revealShown = FALSE;			///< an opponent was announced and game.sta
 static UnsignedInt s_revealSerial = 0;
 static UnsignedInt s_revealEnds = 0;		///< when the server's game.start is due
 static UnicodeString s_progressText;
+// the -online map check before a Quick Match starts, qmMapCheckTick
+static Bool s_mapCheckPending = FALSE;
+static UnsignedInt s_mapCheckUntil = 0;
+static Int s_mapCheckSeed = 0;
+static std::map<AsciiString, std::pair<Int, UnsignedInt> > s_peerMapCRC;	///< by lowercase nick: seed and CRC it sent
 
 static void setMatchingProgress( const UnicodeString &text )
 {
@@ -251,6 +257,8 @@ static void hideUnusedQuickMatchOptions( void )
 		"WOLQuickMatchMenu.wnd:ComboBoxMaxDisconnects", "WOLQuickMatchMenu.wnd:StaticTextMaxDisconnects",
 		"WOLQuickMatchMenu.wnd:ComboBoxLadder", "WOLQuickMatchMenu.wnd:StaticTextLadder",
 		"WOLQuickMatchMenu.wnd:ButtonBuddies",
+		// every ranked match is on a map generated for it, so there is no pool to veto
+		"WOLQuickMatchMenu.wnd:ListBoxMapSelect", "WOLQuickMatchMenu.wnd:StaticTextAllowableMaps",
 	};
 	for (size_t i = 0; i < sizeof(unused) / sizeof(unused[0]); ++i)
 	{
@@ -366,7 +374,8 @@ void UpdateStartButton(void)
 	GadgetComboBoxGetSelectedPos( comboBoxLadder, &selected );
 	index = (Int)(intptr_t)GadgetComboBoxGetItemData( comboBoxLadder, selected );
 	const LadderInfo *li = TheLadderList->findLadderByIndex( index );
-	if (li)
+	// -online hides the map list: its match is on a generated map, whatever was ticked
+	if (li || OnlineIsEnabled())
 	{
 		buttonStart->winEnable(TRUE);
 		return;
@@ -1039,6 +1048,8 @@ void WOLQuickMatchMenuInit( WindowLayout *layout, void *userData )
 	UpdateStartButton();
 	s_progressText.clear();
 	onlineSearchStopped();
+	s_mapCheckPending = FALSE;
+	s_peerMapCRC.clear();
 	if (OnlineIsEnabled())
 		hideUnusedQuickMatchOptions();
 	TheTransitionHandler->setGroup("WOLQuickMatchMenuFade");
@@ -1150,6 +1161,134 @@ static const char* getMessageString(Int t)
 }
 #endif // PERF_TEST
 
+/* -online: every peer builds the match's map from the seed, and nothing in the match compares the result,
+	so a machine whose copy came out different would split the game at its first CRC check. Before the game
+	starts each peer sends the others "MC/<seed> <map CRC>", a player UTM the server passes on unread, and
+	starts only once every seat has answered with its own CRC. A seat that never answers (a build without
+	this check) calls the match off when the wait runs out instead of leaving us loading against it.
+	The state is with s_progressText above. */
+static const UnsignedInt QM_MAP_CHECK_MS = 20000;
+
+static AsciiString qmSlotNick( Int slotNum )
+{
+	AsciiString nick;
+	nick.translate( TheGameSpyGame->getGameSpySlot( slotNum )->getName() );
+	return nick;
+}
+
+/// kept whenever it comes: a peer can be matched, and send, a moment before we are
+static void qmPeerMapArrived( const std::string &nick, const std::string &options )
+{
+	Int seed = 0;
+	UnsignedInt crc = 0;
+	if (sscanf( options.c_str(), "%d %X", &seed, &crc ) != 2)
+		return;
+	AsciiString key = nick.c_str();
+	key.toLower();
+	s_peerMapCRC[key] = std::make_pair( seed, crc );
+}
+
+static void qmLaunchMatched( void )
+{
+	SendStatsToOtherPlayers(TheGameSpyGame);
+	TheGameSpyGame->startGame(0);
+	GameWindow *buttonBuddies = TheWindowManager->winGetWindowFromId(NULL, buttonBuddiesID);
+	if (buttonBuddies)
+		buttonBuddies->winEnable(FALSE);
+	GameSpyCloseOverlay(GSOVERLAY_BUDDY);
+}
+
+static void qmBeginMapCheck( Int seed )
+{
+	s_mapCheckPending = TRUE;
+	s_mapCheckSeed = seed;
+	s_mapCheckUntil = Clock_Milliseconds() + QM_MAP_CHECK_MS;
+
+	AsciiString options;
+	options.format( "%d %X", seed, TheGameSpyGame->getMapCRC() );
+	PeerRequest req;
+	req.peerRequestType = PeerRequest::PEERREQUEST_UTMPLAYER;
+	req.UTM.isStagingRoom = TRUE;
+	req.id = "MC/";
+	req.options = options.str();
+	const Int localSlot = TheGameSpyGame->getLocalSlotNum();
+	for (Int i = 0; i < MAX_SLOTS; ++i)
+	{
+		if (i == localSlot || !TheGameSpyGame->getGameSpySlot( i )->isHuman())
+			continue;
+		req.nick = qmSlotNick( i ).str();
+		TheGameSpyPeerMessageQueue->addRequest( req );
+	}
+	DEBUG_LOG(("ONLINE MAP CHECK sent seed=%d crc=%X\n", seed, TheGameSpyGame->getMapCRC()));
+}
+
+/** Calls the match off and frees the screen for another search. The server hears it as a leave inside its
+	grace, a no contest: unheard, the player stayed in the match until the next search, past the grace, and
+	the silent seat's lone win made them the abandoning loser. label is shown with slotNum's name. With label
+	NULL the server's own qm.status is why, and its case in the update loop says so and sets the buttons. */
+static void qmAbortMatch( const char *label, Int slotNum, const char *reason )
+{
+	s_mapCheckPending = FALSE;
+	s_peerMapCRC.clear();
+	OnlineCallOffQuickMatch( reason );
+	if (label)
+	{
+		UnicodeString text;
+		text.format( TheGameText->fetch( label ), TheGameSpyGame->getGameSpySlot( slotNum )->getName().str() );
+		TheGameSpyInfo->addText( text, GameSpyColor[GSCOLOR_DEFAULT], quickmatchTextWindow );
+	}
+	TheGameSpyGame->reset();
+	if (!label)
+		return;
+	buttonWiden->winEnable( FALSE );
+	buttonStart->winHide( FALSE );
+	buttonStop->winHide( TRUE );
+	enableOptionsGadgets( TRUE );
+}
+
+/// TRUE once the game started, which may take the screen away
+static Bool qmMapCheckTick( void )
+{
+	if (!s_mapCheckPending)
+		return FALSE;
+	const UnsignedInt ours = TheGameSpyGame->getMapCRC();
+	const Int localSlot = TheGameSpyGame->getLocalSlotNum();
+	Int silent = -1;
+	for (Int i = 0; i < MAX_SLOTS; ++i)
+	{
+		if (i == localSlot || !TheGameSpyGame->getGameSpySlot( i )->isHuman())
+			continue;
+		AsciiString key = qmSlotNick( i );
+		key.toLower();
+		std::map<AsciiString, std::pair<Int, UnsignedInt> >::const_iterator it = s_peerMapCRC.find( key );
+		if (it == s_peerMapCRC.end() || it->second.first != s_mapCheckSeed)
+		{
+			if (silent < 0)
+				silent = i;
+			continue;
+		}
+		if (it->second.second != ours)
+		{
+			DEBUG_LOG(("ONLINE MAP CHECK mismatch slot=%d ours=%X theirs=%X, match called off\n", i, ours, it->second.second));
+			qmAbortMatch( "GUI:QMMapDiffers", i, "mapdiffers" );
+			return FALSE;
+		}
+	}
+	if (silent >= 0)
+	{
+		if ((Int)(Clock_Milliseconds() - s_mapCheckUntil) < 0)
+			return FALSE;
+		DEBUG_LOG(("ONLINE MAP CHECK slot=%d never answered, match called off\n", silent));
+		qmAbortMatch( "GUI:QMMapNoAnswer", silent, "mapnoanswer" );
+		return FALSE;
+	}
+	s_mapCheckPending = FALSE;
+	s_peerMapCRC.clear();
+	DEBUG_LOG(("ONLINE MAP CHECK every seat has crc=%X\n", ours));
+	qmLaunchMatched();
+	return TRUE;
+}
+
 //-------------------------------------------------------------------------------------------------
 /** WOL Quick Match Menu update method */
 //-------------------------------------------------------------------------------------------------
@@ -1254,6 +1393,8 @@ void WOLQuickMatchMenuUpdate( WindowLayout * layout, void *userData)
 
 		if (OnlineIsEnabled())
 			onlineQuickMatchTick();
+		if (qmMapCheckTick())
+			return; // the game started, and the screen may be going away
 
 #ifdef PERF_TEST
 		UnsignedInt start = Clock_Milliseconds();
@@ -1275,6 +1416,8 @@ void WOLQuickMatchMenuUpdate( WindowLayout * layout, void *userData)
 			{
 			case PeerResponse::PEERRESPONSE_PLAYERUTM:
 				{
+					if (!strcasecmp(resp.command.c_str(), "MC"))
+						qmPeerMapArrived(resp.nick, resp.commandOptions);
 					if (!strcasecmp(resp.command.c_str(), "STATS"))
 					{
 						DEBUG_LOG(("Saw STATS from %s, data was '%s'\n", resp.nick.c_str(), resp.commandOptions.c_str()));
@@ -1444,6 +1587,14 @@ void WOLQuickMatchMenuUpdate( WindowLayout * layout, void *userData)
 			case PeerResponse::PEERRESPONSE_QUICKMATCHSTATUS:
 				{
 					sawImportantMessage = TRUE;
+					// Any other word from the queue while the map check waits (searching again, left, locked,
+					// refused) means the server no longer holds us in that match: drop the check before the
+					// tick launches it against a seat the server let go, and let the case below say why.
+					if (s_mapCheckPending && resp.qmStatus.status != QM_MATCHED)
+					{
+						DEBUG_LOG(("ONLINE MAP CHECK dropped by qm status %d\n", (Int)resp.qmStatus.status));
+						qmAbortMatch( NULL, 0, "qmstatus" );
+					}
 					switch( resp.qmStatus.status )
 					{
 					case QM_IDLE:
@@ -1526,15 +1677,22 @@ void WOLQuickMatchMenuUpdate( WindowLayout * layout, void *userData)
 							std::list<AsciiString> maps = TheGameSpyConfig->getQMMaps();
 							if (OnlineIsEnabled())
 							{
-								// -online: mapIdx counts the service's whole pool, installed here or not
-								for (std::list<AsciiString>::const_iterator it = maps.begin(); it != maps.end(); ++it)
-								{
-									if (resp.qmStatus.mapIdx-- == 0)
-									{
-										TheGameSpyGame->setMap(*it);
-										break;
-									}
-								}
+								/* -online is ranked: every peer generates the same map from the match seed and the seat
+									 count, and the server's mapIdx goes unused.  The map starts black and the load screen
+									 shows neither it nor a start spot, so nobody knows where anybody is. */
+								TheGameSpyGame->setStartShrouded(TRUE);
+								AsciiString generated;
+								stageRandomMap(RandomMapGenerator::quickMatchSettings(resp.qmStatus.seed, numPlayers), generated);
+								generated.toLower();
+								TheMapCache->updateCache();
+								/* No fallback map: QM peers never compare MC=, so a machine that played another map
+									 would split the match with nothing to refuse it.  A map that did not build stays
+									 set by name, and launchGame finds no such map and leaves the match with its
+									 "could not transfer map" box. */
+								TheGameSpyGame->setMap(generated);
+								if (TheMapCache->findMap(generated) == NULL)
+									DEBUG_LOG(("ONLINE MATCHED no generated map: seed=%d players=%d map=%s, leaving the match\n",
+										resp.qmStatus.seed, numPlayers, generated.str()));
 								maps.clear();
 							}
 							for (std::list<AsciiString>::const_iterator it = maps.begin(); it != maps.end(); ++it)
@@ -1572,6 +1730,7 @@ void WOLQuickMatchMenuUpdate( WindowLayout * layout, void *userData)
 									slot->setPlayerTemplate(resp.qmStatus.side[i]);
 									//slot->setProfileID(0);
 									slot->setNATBehavior((FirewallHelperClass::FirewallBehaviorType)resp.qmStatus.nat[i]);
+									slot->setSkins(resp.qmStatus.skins[i]);	// the server's word for every seat, its own included
 									slot->setLocale("");
 									slot->setTeamNumber( i/numPlayersPerTeam );
 									if (i==0)
@@ -1579,15 +1738,27 @@ void WOLQuickMatchMenuUpdate( WindowLayout * layout, void *userData)
 								}
 							}
 
+							if (OnlineIsEnabled())
+							{
+								// the options string's MC= and MS=, off the map every peer staged
+								AsciiString lowerMap = TheGameSpyGame->getMap();
+								lowerMap.toLower();
+								const MapMetaData *md = TheMapCache->findMap(lowerMap);
+								if (md)
+								{
+									TheGameSpyGame->setMapCRC(md->m_CRC);
+									TheGameSpyGame->setMapSize(md->m_filesize);
+								}
+							}
+
 							DEBUG_LOG(("Starting a QM game: options=[%s]\n", GameInfoToAsciiString(TheGameSpyGame).str()));
 							if (OnlineIsEnabled())
 								DEBUG_LOG(("ONLINE MATCHED seed=%d players=%d map=%s\n", resp.qmStatus.seed, numPlayers, TheGameSpyGame->getMap().str()));
-							SendStatsToOtherPlayers(TheGameSpyGame);
-							TheGameSpyGame->startGame(0);
-							GameWindow *buttonBuddies = TheWindowManager->winGetWindowFromId(NULL, buttonBuddiesID);
-							if (buttonBuddies)
-								buttonBuddies->winEnable(FALSE);
-							GameSpyCloseOverlay(GSOVERLAY_BUDDY);
+							// -online starts once every seat has said it built the same map; qmMapCheckTick launches
+							if (OnlineIsEnabled())
+								qmBeginMapCheck(resp.qmStatus.seed);
+							else
+								qmLaunchMatched();
 						}
 						break;
 					case QM_INCHANNEL:
@@ -1789,7 +1960,9 @@ WindowMsgHandledType WOLQuickMatchMenuSystem( GameWindow *window, UnsignedInt ms
 
 		case GBM_SELECTED:
 			{
-				if (buttonPushed)
+				// the map check holds the match for QM_MAP_CHECK_MS at most; a button under it would leave a
+				// match the other seats are about to start
+				if (buttonPushed || s_mapCheckPending)
 					break;
 				GameWindow *control = (GameWindow *)mData1;
 				Int controlID = control->winGetWindowId();
@@ -1837,23 +2010,13 @@ WindowMsgHandledType WOLQuickMatchMenuSystem( GameWindow *window, UnsignedInt ms
 					Int numMaps = GadgetListBoxGetNumEntries(listboxMapSelect);
 					if (OnlineIsEnabled())
 					{
-						// the service's qm.join maps index its whole pool, the welcome's <QMMaps>; a pool map
-						// this machine does not list (not installed, too few seats) is a veto
+						/* the service's qm.join maps index its whole pool, the welcome's <QMMaps>.  The match is
+							 played on a map generated from its seed and the pool map goes unused, so nothing is
+							 vetoed: a veto would only keep the server from pairing two players over a map neither
+							 of them plays. */
 						std::list<AsciiString> pool = TheGameSpyConfig->getQMMaps();
 						for (std::list<AsciiString>::const_iterator it = pool.begin(); it != pool.end(); ++it)
-						{
-							Bool ticked = FALSE;
-							for ( Int i=0; i<numMaps; ++i )
-							{
-								const MapMetaData *md = (const MapMetaData *)GadgetListBoxGetItemData(listboxMapSelect, i, 1);
-								if (md && md->m_fileName.compareNoCase(*it) == 0)
-								{
-									ticked = GadgetListBoxGetItemData(listboxMapSelect, i, 0) != NULL;
-									break;
-								}
-							}
-							req.qmMaps.push_back(ticked);
-						}
+							req.qmMaps.push_back(TRUE);
 					}
 					else
 					{

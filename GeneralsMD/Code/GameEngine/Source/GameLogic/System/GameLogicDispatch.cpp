@@ -103,6 +103,10 @@ static void considerBuilder( Object *candidate, BuilderPick *pick )
 		return;
 	if( !TheBuildAssistant->isPossibleToMakeUnit( candidate, pick->place ) )
 		return;
+	// the button the player pressed: a mission's script-only build or one an upgrade still locks is
+	// not on this builder's bar, so a forged or stale order cannot raise it
+	if( !TheBuildAssistant->offersPlayerBuildButton( candidate, pick->place ) )
+		return;
 
 	Real dx = candidate->getPosition()->x - pick->loc.x;
 	Real dy = candidate->getPosition()->y - pick->loc.y;
@@ -125,7 +129,55 @@ static void considerBuilderProc( Object *obj, void *userData )
 {
 	considerBuilder( obj, (BuilderPick *)userData );
 }
+
+//-------------------------------------------------------------------------------------------------
+/** The sidebar's repair cursor (MSG_DO_REPAIR with its second argument): of the player's builders
+	* the game lets repair `target` (ActionManager::canRepairObject, what a right click with one
+	* selected asks: a dozer or worker, out of any transport, the target damaged, finished, no bridge
+	* or rebuild hole), the free one nearest it, failing that the nearest one at all, the lower
+	* ObjectID on an equal distance.  Free as BuilderPick has it.  NULL when none can. */
+//-------------------------------------------------------------------------------------------------
+struct RepairPick
+{
+	const Object *target;
+	Object *best[ 2 ];				///< [0] the free one, [1] any
+	Real bestDistSqr[ 2 ];
+};
+
+static void considerRepairer( Object *obj, void *userData )
+{
+	RepairPick *pick = (RepairPick *)userData;
+	if( obj->isEffectivelyDead() || obj->testStatus( OBJECT_STATUS_SOLD ) )
+		return;
+	AIUpdateInterface *ai = obj->getAI();
+	DozerAIInterface *dozer = ai ? ai->getDozerAIInterface() : NULL;
+	if( dozer == NULL || !TheActionManager->canRepairObject( obj, pick->target, CMD_FROM_PLAYER ) )
+		return;
+
+	const Real dx = obj->getPosition()->x - pick->target->getPosition()->x;
+	const Real dy = obj->getPosition()->y - pick->target->getPosition()->y;
+	const Real distSqr = dx*dx + dy*dy;
+	const SupplyTruckAIInterface *supply = ai->getSupplyTruckAIInterface();
+	const Bool free = !dozer->isAnyTaskPending() && !( supply && supply->isCurrentlyFerryingSupplies() );
+	for( Int k = free ? 0 : 1; k < 2; k++ )
+	{
+		if( pick->best[ k ] == NULL || distSqr < pick->bestDistSqr[ k ]
+				|| ( distSqr == pick->bestDistSqr[ k ] && obj->getID() < pick->best[ k ]->getID() ) )
+		{
+			pick->best[ k ] = obj;
+			pick->bestDistSqr[ k ] = distSqr;
+		}
+	}
+}
+
+static Object *pickRepairBuilder( Player *player, const Object *target )
+{
+	RepairPick pick = { target, { NULL, NULL }, { 0.0f, 0.0f } };
+	player->iterateObjects( considerRepairer, &pick );
+	return pick.best[ 0 ] ? pick.best[ 0 ] : pick.best[ 1 ];
+}
 #include "GameLogic/Module/BodyModule.h"
+#include "GameLogic/Module/OCLSpecialPower.h"
 #include "GameLogic/Module/OpenContain.h"
 #include "GameLogic/Module/ProductionUpdate.h"
 #include "GameLogic/Module/SpecialPowerModule.h"
@@ -769,7 +821,8 @@ void GameLogic::logicMessageDispatcher( GameMessage *msg, AIGroup *orderedGroup 
 			if ( msg->getArgumentCount() >= 3 )
 				rankPoints = msg->getArgument( 2 )->integer;
 			
-			if ( msg->getArgumentCount() >= 4 )
+			// 0 leaves the pace alone (a replay that recorded none)
+			if ( msg->getArgumentCount() >= 4 && msg->getArgument( 3 )->integer != 0 )
 			{
 				Int maxFPS = msg->getArgument( 3 )->integer;
 				if (maxFPS < 1 || maxFPS > 1000)
@@ -787,6 +840,15 @@ void GameLogic::logicMessageDispatcher( GameMessage *msg, AIGroup *orderedGroup 
 				 run once more on the freshly seeded stream - a draw a copy with -noshellmap, or a replay
 				 started from the command line, never made.  The recorder writes this same number. */
 			InitRandom( GetGameLogicRandomSeed() );
+
+			/* The game time a tick advances, for the whole match: before the map loads, since the map's
+				 objects read it from their first frame.  A start without the argument (the shell map, -file)
+				 plays the native speed, as does any percent that is not one of the player's. */
+			Int gameSpeedPercent = NATIVE_GAME_SPEED_PERCENT;
+			if ( msg->getArgumentCount() >= 5 && GameSpeed_isAllowed( msg->getArgument( 4 )->integer ) )
+				gameSpeedPercent = msg->getArgument( 4 )->integer;
+			GameSpeed_set( gameSpeedPercent );
+			DEBUG_LOG(("MSG_NEW_GAME: mode %d at game speed %d, %d ticks a game second\n", gameMode, gameSpeedPercent, (Int)LOGICFRAMES_PER_GAME_SECOND));
 
 			// prepare for new game
 			prepareNewGame( gameMode, diff, rankPoints );
@@ -1794,8 +1856,29 @@ void GameLogic::logicMessageDispatcher( GameMessage *msg, AIGroup *orderedGroup 
 		}  // end get repaired
 
 		// --------------------------------------------------------------------------------------------
+		// One argument, the target: the selected builders go, as they always did.  A second one, a
+		// Boolean TRUE, is the sidebar's repair cursor: the selection is left alone and the logic sends
+		// one builder of the sender's own (pickRepairBuilder) to his own structure.  Any other shape is
+		// dropped.  The arguments came over the network, so their shape is checked.
 		case GameMessage::MSG_DO_REPAIR:
 		{
+			if( msg->getArgumentCount() == 2 )
+			{
+				if( msg->getArgumentDataType( 0 ) != ARGUMENTDATATYPE_OBJECTID
+						|| msg->getArgumentDataType( 1 ) != ARGUMENTDATATYPE_BOOLEAN || !msg->getArgument( 1 )->boolean )
+					break;
+				Object *target = TheGameLogic->findObjectByID( msg->getArgument( 0 )->objectID );
+				if( target == NULL || target->getControllingPlayer() != thisPlayer || target->isEffectivelyDead()
+						|| !target->isKindOf( KINDOF_STRUCTURE ) )
+					break;
+				Object *builder = pickRepairBuilder( thisPlayer, target );
+				if( builder != NULL )
+					builder->getAI()->aiRepair( target, CMD_FROM_PLAYER );
+				break;
+			}
+			if( msg->getArgumentCount() != 1 )
+				break;
+
 			Object *repairTarget = TheGameLogic->findObjectByID( msg->getArgument( 0 )->objectID );
 
 			// sanity
@@ -2120,32 +2203,112 @@ void GameLogic::logicMessageDispatcher( GameMessage *msg, AIGroup *orderedGroup 
 		// Group panel (fork): (Int template ID, Int squad 0-9).  No factory travels with it: the logic
 		// picks one among the sender's that can queue the unit now (Player::findFactoryForGroupUnit),
 		// and the unit joins that hotkey squad when it comes out.  A squad with nobody in it takes
-		// nothing.  The arguments came over the network, so their shape is checked.
+		// nothing.  Squad -1 is the command bar's unit tabs: no squad, the unit comes out to the
+		// factory's rally point as any other, and the factory with the shortest queue takes it.
+		// An optional third argument, ObjectID factory, is the sidebar's factory picker: squad -1 only,
+		// the sender's own factory, and it must take the unit now (Player::factoryTakesGroupUnit) or the
+		// order is dropped, with no fallback to another factory.  Two arguments play as they always did.
+		// The arguments came over the network, so their shape is checked.
 		case GameMessage::MSG_QUEUE_UNIT_FOR_GROUP:
 		{
-			if( thisPlayer == NULL || msg->getArgumentCount() < 2
+			const Int argCount = msg->getArgumentCount();
+			if( thisPlayer == NULL || argCount < 2 || argCount > 3
 					|| msg->getArgumentDataType( 0 ) != ARGUMENTDATATYPE_INTEGER
-					|| msg->getArgumentDataType( 1 ) != ARGUMENTDATATYPE_INTEGER )
+					|| msg->getArgumentDataType( 1 ) != ARGUMENTDATATYPE_INTEGER
+					|| ( argCount == 3 && msg->getArgumentDataType( 2 ) != ARGUMENTDATATYPE_OBJECTID ) )
 				break;
 
 			const ThingTemplate *whatToCreate = TheThingFactory->findByTemplateID( msg->getArgument( 0 )->integer );
 			const Int squad = msg->getArgument( 1 )->integer;
-			if( whatToCreate == NULL || whatToCreate->isKindOf( KINDOF_STRUCTURE ) || !isValidHotkeySquadIndex( squad ) )
+			if( whatToCreate == NULL || whatToCreate->isKindOf( KINDOF_STRUCTURE )
+					|| ( squad != -1 && !isValidHotkeySquadIndex( squad ) ) )
 				break;
 
-			Coord3D centre;
-			if( !thisPlayer->getHotkeySquadCentroid( squad, &centre ) )
-				break;
+			Object *factory = NULL;
+			if( argCount == 3 )
+			{
+				if( squad != -1 )
+					break;
+				factory = TheGameLogic->findObjectByID( msg->getArgument( 2 )->objectID );
+				if( !thisPlayer->factoryTakesGroupUnit( factory, whatToCreate ) )
+					break;
+			}
+			else
+			{
+				Coord3D centre;
+				if( squad != -1 && !thisPlayer->getHotkeySquadCentroid( squad, &centre ) )
+					break;
 
-			Object *factory = thisPlayer->findFactoryForGroupUnit( whatToCreate, &centre );
-			if( factory == NULL )
-				break;
+				factory = thisPlayer->findFactoryForGroupUnit( whatToCreate, squad != -1 ? &centre : NULL );
+				if( factory == NULL )
+					break;
+			}
 
 			ProductionUpdateInterface *pu = factory->getProductionUpdateInterface();
 			pu->queueCreateUnit( whatToCreate, pu->requestUniqueUnitID(), squad );
 			break;
 
 		}  // end GameMessage::MSG_QUEUE_UNIT_FOR_GROUP
+
+		//---------------------------------------------------------------------------------------------
+		// An airlift power's load (fork): (Int special power ID, Location, ObjectID source, then Int
+		// template ID, Int count pairs) from its panel.  The arguments came over the network, so their
+		// shape is checked; the power checks the rest from logic state again, the science, the
+		// countdown, the factories and the money, as any other fire of a power does
+		// (OCLSpecialPower::doAirliftOrder).
+		case GameMessage::MSG_DO_AIRLIFT_ORDER:
+		{
+			const Int argCount = msg->getArgumentCount();
+			if( thisPlayer == NULL || argCount < 5 || ( argCount - 3 ) % 2 != 0 || argCount > 3 + 2 * 32
+					|| msg->getArgumentDataType( 0 ) != ARGUMENTDATATYPE_INTEGER
+					|| msg->getArgumentDataType( 1 ) != ARGUMENTDATATYPE_LOCATION
+					|| msg->getArgumentDataType( 2 ) != ARGUMENTDATATYPE_OBJECTID )
+				break;
+
+			const SpecialPowerTemplate *power = TheSpecialPowerStore->findSpecialPowerTemplateByID( msg->getArgument( 0 )->integer );
+			const Coord3D target = msg->getArgument( 1 )->location;
+			Object *source = TheGameLogic->findObjectByID( msg->getArgument( 2 )->objectID );
+			if( power == NULL || source == NULL || source->isEffectivelyDead() || source->getControllingPlayer() != thisPlayer )
+				break;
+			if( power->getRequiredScience() != SCIENCE_INVALID && !thisPlayer->hasScience( power->getRequiredScience() ) )
+				break;
+			OCLSpecialPower *airlift = OCLSpecialPower::findAirlift( source, power );
+			if( airlift == NULL || !TheActionManager->canDoSpecialPowerAtLocation( source, &target, CMD_FROM_PLAYER, power, NULL, 0 ) )
+			{
+				DEBUG_LOG(( "AIRLIFT: frame %u player %d order refused: no airlift, not ready, or no drop at (%.0f,%.0f)\n",
+										getFrame(), thisPlayer->getPlayerIndex(), target.x, target.y ));
+				break;
+			}
+
+			// one line a unit type, in the panel's order; a type named twice adds up
+			OCLSpecialPower::AirliftOrder order;
+			Bool shaped = TRUE;
+			for( Int a = 3; a + 1 < argCount && shaped; a += 2 )
+			{
+				shaped = msg->getArgumentDataType( a ) == ARGUMENTDATATYPE_INTEGER && msg->getArgumentDataType( a + 1 ) == ARGUMENTDATATYPE_INTEGER;
+				const ThingTemplate *thing = shaped ? TheThingFactory->findByTemplateID( msg->getArgument( a )->integer ) : NULL;
+				const Int count = shaped ? msg->getArgument( a + 1 )->integer : 0;
+				shaped = thing != NULL && count > 0 && count <= 1000;
+				if( !shaped )
+					break;
+				OCLSpecialPower::AirliftOrder::iterator same = order.begin();
+				while( same != order.end() && same->thing != thing )
+					++same;
+				if( same != order.end() )
+					same->count = min( same->count + count, 1000 );
+				else
+				{
+					OCLSpecialPower::AirliftLine line;
+					line.thing = thing;
+					line.count = count;
+					order.push_back( line );
+				}
+			}
+			if( shaped )
+				airlift->doAirliftOrder( &target, order );
+			break;
+
+		}  // end GameMessage::MSG_DO_AIRLIFT_ORDER
 
 		//-------------------------------------------------------------------------------------------------
 		case GameMessage::MSG_CANCEL_UNIT_CREATE:
@@ -2242,7 +2405,24 @@ void GameLogic::logicMessageDispatcher( GameMessage *msg, AIGroup *orderedGroup 
 			pick.loc = loc;
 			pick.idle = pick.any = NULL;
 			pick.idleDistSqr = pick.anyDistSqr = 1e30f;
-			if( currentlySelectedGroup )
+
+			//
+			// The sidebar's builder pick (fork): one ObjectID after the fixed arguments names the builder
+			// to take the job, selected or not.  It came over the network, so it is only taken when it
+			// is a builder this player owns that can put this up (considerBuilder, and the control check
+			// below); anything else drops the order.  Without it, the old pick.
+			//
+			const Int fixedArgs = msg->getType() == GameMessage::MSG_DOZER_CONSTRUCT_LINE ? 4 : 3;
+			const Int argCount = msg->getArgumentCount();
+			if( argCount > fixedArgs )
+			{
+				if( argCount != fixedArgs + 1 || msg->getArgumentDataType( fixedArgs ) != ARGUMENTDATATYPE_OBJECTID || place == NULL )
+					break;
+				considerBuilder( TheGameLogic->findObjectByID( msg->getArgument( fixedArgs )->objectID ), &pick );
+				if( pick.any == NULL )
+					break;
+			}
+			else if( currentlySelectedGroup )
 			{
 				const VecObjectID& ids = currentlySelectedGroup->getAllIDs();
 				for( VecObjectID::const_iterator it = ids.begin(); it != ids.end(); ++it )
@@ -2279,13 +2459,31 @@ void GameLogic::logicMessageDispatcher( GameMessage *msg, AIGroup *orderedGroup 
 			// third of a second apart and refusing an order for that would be a new bug.  The line
 			// build checks every tile after the first for itself (buildTiledLocations).
 			//
+			// The trainer's build anywhere asks only that it lands on the map and inside nothing else
+			const Bool anywhere = thisPlayer->hasCheat( CHEAT_BUILD_ANYWHERE );
 			if( TheBuildAssistant->isLocationLegalToBuild( &loc, place, angle,
-																										BuildAssistant::TERRAIN_RESTRICTIONS |
+																										( anywhere ? 0 : BuildAssistant::TERRAIN_RESTRICTIONS ) |
 																										BuildAssistant::NO_OBJECT_OVERLAP,
 																										constructorObject, NULL ) != LBC_OK )
 				break;
 
-			if( msg->getType() == GameMessage::MSG_DOZER_CONSTRUCT )
+			//
+			// and puts it up finished on the spot, paid for, the builder left where it stands: the
+			// computer player's instant structure (AIPlayer::buildStructureNow), in the side the
+			// builder's button names
+			//
+			if( anywhere && msg->getType() == GameMessage::MSG_DOZER_CONSTRUCT )
+			{
+				const ThingTemplate *what = TheBuildAssistant->findBuildButtonTemplate( constructorObject, place );
+				Object *site = TheBuildAssistant->buildObjectNow( NULL, what, &loc, angle, thisPlayer );
+				if( site )
+				{
+					thisPlayer->getMoney()->withdraw( what->calcCostToBuild( thisPlayer ) );
+					site->clearStatus( MAKE_OBJECT_STATUS_MASK2( OBJECT_STATUS_UNDER_CONSTRUCTION, OBJECT_STATUS_RECONSTRUCTING ) );
+					site->updateUpgradeModules();
+				}
+			}
+			else if( msg->getType() == GameMessage::MSG_DOZER_CONSTRUCT )
 			{
 
 				//
@@ -2364,8 +2562,25 @@ void GameLogic::logicMessageDispatcher( GameMessage *msg, AIGroup *orderedGroup 
 		}  // end cancel dozer construction
 
 		// --------------------------------------------------------------------------------------------
+		// With no argument it sells what is selected, as it always did.  An optional ObjectID is the
+		// sidebar's sell cursor: that one structure and not the selection, only the sender's own and
+		// only one the bar would offer Sell on (AIGroup::mayPlayerSell); anything else drops the order.
 		case GameMessage::MSG_SELL:
 		{
+			const Int argCount = msg->getArgumentCount();
+			if( argCount == 1 )
+			{
+				if( msg->getArgumentDataType( 0 ) != ARGUMENTDATATYPE_OBJECTID )
+					break;
+				Object *target = TheGameLogic->findObjectByID( msg->getArgument( 0 )->objectID );
+				if( target == NULL || target->getControllingPlayer() != thisPlayer || target->isEffectivelyDead()
+						|| target->testStatus( OBJECT_STATUS_SOLD ) || !AIGroup::mayPlayerSell( target ) )
+					break;
+				TheBuildAssistant->sellObject( target );
+				break;
+			}
+			if( argCount != 0 )
+				break;
 
 			// use the selected group
 			if( currentlySelectedGroup )
@@ -2628,7 +2843,7 @@ void GameLogic::logicMessageDispatcher( GameMessage *msg, AIGroup *orderedGroup 
 				smoke->setFiniteSystemLifetime( SIGNAL_HALF_FRAMES );
 				smoke->setLifetimeRange( SIGNAL_HALF_FRAMES, SIGNAL_HALF_FRAMES );
 				// the template's second alpha key is its fade to nothing, timed for a five second puff
-				smoke->m_alphaKey[ 1 ].frame = SIGNAL_HALF_FRAMES;
+				smoke->m_alphaKey[ 1 ].frame.setRaw( ConvertFramesToRetail( SIGNAL_HALF_FRAMES ) );	// the template keeps retail frames
 				smoke->m_alphaKey[ 0 ].var.setRange( SIGNAL_SMOKE_ALPHA_MIN, SIGNAL_SMOKE_ALPHA_MAX );
 				smoke->setSizeMultiplier( SIGNAL_SMOKE_SIZE_SCALE );
 				smoke->setBurstCountMultiplier( SIGNAL_SMOKE_DENSITY_SCALE );
@@ -2697,7 +2912,15 @@ void GameLogic::logicMessageDispatcher( GameMessage *msg, AIGroup *orderedGroup 
 				case CHEAT_GOD_MODE:
 				case CHEAT_INSTANT_BUILD:
 				case CHEAT_ONE_HIT_KILL:
+				case CHEAT_BUILD_ANYWHERE:
 					thisPlayer->toggleCheat( kind );
+					break;
+
+				// a point in hand on the way in, so the general's button lights; purchases then spend none
+				case CHEAT_UNLIMITED_POINTS:
+					thisPlayer->toggleCheat( kind );
+					if( thisPlayer->hasCheat( kind ) && thisPlayer->getSciencePurchasePoints() < 1 )
+						thisPlayer->addSciencePurchasePoints( 1 );
 					break;
 
 				/* The logic half of takeControlOfPlayer, a message so the recording has it: the AIPlayer

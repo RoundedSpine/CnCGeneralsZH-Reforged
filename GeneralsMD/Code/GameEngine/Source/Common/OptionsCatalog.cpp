@@ -100,14 +100,24 @@ static void set_m_masterVolume( Int value )
 OPTION_BOOL_ACCESSORS( m_dynamicMusic )
 OPTION_BOOL_ACCESSORS( m_legacySound )
 OPTION_BOOL_ACCESSORS( m_muteInBackground )
-// The catalog loads before there is a game; the menu's Accept during a mission changes its speed
-// on the spot, which only the pacing reads.
-static Int get_m_turboMode( void ) { return TheGlobalData->m_turboMode ? 1 : 0; }
-static void set_m_turboMode( Int value )
+// The missions' game speed, in percent of retail; Options.ini and the combo hold the index.  The
+// catalog loads before there is a game.  It is the game time a tick advances, fixed when a mission
+// starts, so the menu's Accept during a mission takes effect from the next one.
+// a literal in the header because optionsmenu_layout.py's selfcheck reads it from there
+static_assert( MISSION_GAME_SPEED_COUNT == PLAYER_GAME_SPEED_COUNT, "the missions' combo offers every player game speed" );
+static Int get_missionGameSpeed( void )
 {
-	TheWritableGlobalData->m_turboMode = (value != 0);
-	if (TheGameLogic && TheGameLogic->isInSinglePlayerGame())
-		TheGameEngine->setFramesPerSecondLimit( GameEngine_matchFramesPerSecond( value != 0 ) );
+	const Int percent = ClampPlayerGameSpeedPercent( TheGlobalData->m_missionGameSpeedPercent );
+	for( Int i = 0; i < MISSION_GAME_SPEED_COUNT; ++i )
+		if( PLAYER_GAME_SPEED_PERCENTS[ i ] == percent )
+			return i;
+	return 0;
+}
+static void set_missionGameSpeed( Int level )
+{
+	if( level < 0 || level >= MISSION_GAME_SPEED_COUNT )
+		level = 0;
+	TheWritableGlobalData->m_missionGameSpeedPercent = PLAYER_GAME_SPEED_PERCENTS[ level ];
 }
 OPTION_BOOL_ACCESSORS( m_formationDrag )
 OPTION_BOOL_ACCESSORS( m_buildWithoutWorker )
@@ -134,6 +144,15 @@ OPTION_BOOL_ACCESSORS( m_hdTextures )
 OPTION_INT_ACCESSORS( m_lightingStyle )
 OPTION_INT_ACCESSORS( m_healthBarMode )
 OPTION_INT_ACCESSORS( m_healthBarColors )
+// The keys follow the layout (hotkeySchemeForHudLayout).  Options.ini's line, the menu's Accept and
+// Defaults all come through here, so the scheme in force is always the one the layout names.
+static Int get_m_hudLayout( void ) { return TheGlobalData->m_hudLayout; }
+static void set_m_hudLayout( Int value )
+{
+	TheWritableGlobalData->m_hudLayout = value;
+	TheWritableGlobalData->m_hotkeyScheme = hotkeySchemeForHudLayout( value );
+}
+OPTION_INT_ACCESSORS( m_hudWidth )
 OPTION_INT_ACCESSORS( m_playerColorScheme )
 OPTION_INT_ACCESSORS( m_textLanguage )
 OPTION_BOOL_ACCESSORS( m_showOrderLines )
@@ -153,6 +172,7 @@ OPTION_BOOL_ACCESSORS( m_explosionDebrisTrails )
 OPTION_BOOL_ACCESSORS( m_mapLight )
 OPTION_BOOL_ACCESSORS( m_teamGlow )
 OPTION_BOOL_ACCESSORS( m_waterFoam )
+OPTION_BOOL_ACCESSORS( m_groundFoliage )
 OPTION_BOOL_ACCESSORS( m_groundMarks )
 OPTION_BOOL_ACCESSORS( m_firelight )
 OPTION_BOOL_ACCESSORS( m_hemiAmbient )
@@ -357,12 +377,13 @@ const OptionDef TheOptionCatalog[] =
 		OPTION_BOOL, APPLY_LIVE, 0, 1,
 		get_m_startAtMaxZoom, set_m_startAtMaxZoom },
 
-	// Turbo mode for the campaign and the generals' challenge: twice the logic frames a second, each
-	// the same as at normal speed.  A skirmish or network lobby has its own box, the host's for the
-	// whole room, so this one never touches a skirmish or a multiplayer match.  On Options > Interface.
-	{ "TurboMode",								OPT_WND( "CheckTurboModeMissions" ), "GUI:TurboModeMissions",
-		OPTION_BOOL, APPLY_LIVE, 0, 1,
-		get_m_turboMode, set_m_turboMode },
+	// Game speed for the campaign and the generals' challenge: 1.0x, 1.25x, 1.5x or 2.0x, the game
+	// time each of the same 30 ticks a second advances, set when a mission starts.  The skirmish lobby
+	// has its own combo and a multiplayer match always plays at 1.5x, so this one never touches either.
+	// On Options > Interface.
+	{ "MissionGameSpeed",					OPT_WND( "ComboGameSpeedMissions" ), "GUI:GameSpeedMissions",
+		OPTION_ENUM, APPLY_LIVE, 0, MISSION_GAME_SPEED_COUNT - 1,
+		get_missionGameSpeed, set_missionGameSpeed },
 
 	// Pixels the pointer may travel with a button held before the press stops being a click and
 	// starts a selection box, a camera drag or a formation line.  Mouse.ini says 25, which is the
@@ -579,8 +600,21 @@ const OptionDef TheOptionCatalog[] =
 		OPTION_ENUM, APPLY_LIVE, 0, HEALTH_BAR_COLORS_COUNT - 1,
 		get_m_healthBarColors, set_m_healthBarColors },
 
-	// MenuLayout (stretch or fit), HudScale and InterfaceStyle used to sit here.  Every menu is
-	// fitted now, and there is one interface at one size.
+	// Where the in-game interface sits: 0 Classic, the bar along the bottom, 1 the Red Alert style
+	// sidebar down the right with a command strip under the world (docs/plans/HUD-SIDEBAR-LAYOUT.md).
+	// Read as the bar is laid out, so Accept builds the shell and the bar again, in a match too.
+	// Every menu is fitted; MenuLayout, HudScale and the old InterfaceStyle are gone for good.  The
+	// layout brings its keys too, Classic's or Red Alert's (set_m_hudLayout); HotkeyScheme was a row of
+	// its own until 2026-11-16, and a line left from then is a key nothing reads.
+	{ "HudLayout",								OPT_WND( "ComboBoxHudLayout" ), "GUI:HudLayout",
+		OPTION_ENUM, APPLY_SHELL_REBUILD, 0, HUD_LAYOUT_COUNT - 1,
+		get_m_hudLayout, set_m_hudLayout },
+
+	// How wide the interface may spread, for either layout: the whole screen, or a centred 21:9 or
+	// 16:9 area on a screen wider than that, the world still drawn edge to edge (HudAreaForScreen).
+	{ "HudWidth",									OPT_WND( "ComboBoxHudWidth" ), "GUI:HudWidth",
+		OPTION_ENUM, APPLY_SHELL_REBUILD, 0, HUD_WIDTH_COUNT - 1,
+		get_m_hudWidth, set_m_hudWidth },
 
 	// Whose colour a player is drawn in.  Purely local: the match still agrees on the lobby's
 	// colours and this only changes what this screen puts on top of them, so two people in the same
@@ -710,6 +744,14 @@ const OptionDef TheOptionCatalog[] =
 		OPTION_BOOL, APPLY_LIVE, 0, 1,
 		get_m_waterFoam, set_m_waterFoam },
 
+	// Grass tufts on grass ground, swaying in the map's breeze; the tree pass draws them every frame
+	// and reads this as it does.  Client only.  Off under Classic graphics; under -d3d9 it stays set,
+	// draws nothing, and the menu greys it.  On Options > Display, the Graphics and Effects columns
+	// being full.
+	{ "GroundFoliage",						OPT_WND( "CheckGroundFoliage" ), "GUI:GroundFoliage",
+		OPTION_BOOL, APPLY_LIVE, 0, 1,
+		get_m_groundFoliage, set_m_groundFoliage },
+
 	// Craters and a building's stain on the terrain, fading over minutes, and darker treads.  The
 	// scorch buffer asks every draw.  Off under Classic graphics and -d3d9.  On Options > Effects.
 	{ "GroundMarks",							OPT_WND( "CheckGroundMarks" ), "GUI:GroundMarks",
@@ -762,8 +804,9 @@ const OptionDef TheOptionCatalog[] =
 		OPTION_BOOL, APPLY_LIVE, 0, 1,
 		get_m_structureCollapse, set_m_structureCollapse },
 
-	// Models drawn between their last two logic ticks on a display faster than the logic; a 60 Hz screen
-	// shows no change.  Read every picture by W3DDisplay's smoothMotionBegin, and no sim reads it.  The
+	// Models drawn between their last two logic ticks on a display faster than the logic; a display no
+	// faster than the logic shows no change.  On by default while the logic ticks slower than 60 a second
+	// (GlobalData.cpp).  Read every picture by W3DDisplay's smoothMotionBegin, and no sim reads it.  The
 	// key is the one the launcher offered once; a line it left behind is the player's choice.
 	// -nosmoothmotion and -smoothmotion beat it for a run.  On Options > Display, under Picture.
 	{ "SmoothMotion",							OPT_WND( "CheckSmoothMotion" ), "GUI:SmoothMotion",
@@ -884,6 +927,9 @@ const GraphicsQualityRow TheGraphicsQualityTable[] =
 	{ "CheckInternalHdr",				0.0f,  {    0,    0,    0,    0,    0,    0,    0,    0,    1,    1,    1 } },
 	{ "CheckHemiAmbient",				0.0f,  {    0,    0,    0,    0,    0,    0,    0,    0,    1,    1,    1 } },
 	{ "CheckStructureCollapse",	0.0f,  {    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    1 } },
+	// not measured yet: Direct3D 11 does not present on the machine that would sweep it.  Ultra only,
+	// for the faults docs/plans/TODO.md still lists (shader cache, structures a script makes)
+	{ "CheckGroundFoliage",			0.0f,  {    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    1 } },
 	{ "ComboBoxTextureFilter",	0.1f,  {    0,    1,    2,    2,    2,    2,    2,    2,    2,    2,    2 } },
 	{ "ComboBoxBloom",					0.1f,  {    0,    1,    2,    2,    2,    2,    2,    2,    2,    2,    2 } },
 	{ "SliderAnisotropy",				0.1f,  {    2,    4,    8,   16,   16,   16,   16,   16,   16,   16,   16 } },
