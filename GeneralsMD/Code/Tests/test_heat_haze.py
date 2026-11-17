@@ -97,4 +97,10 @@ int main(){
             subprocess.run([os.environ.get('CXX','c++'),'-std=c++17','-Wall','-Wextra','-fsanitize=address,undefined',
                 '-I'+str(CODE/'Libraries/Include'),str(path/'test.cpp'),'-o',str(path/'test')],check=True)
             subprocess.run([str(path/'test')],check=True)
+    def test_composite_keeps_signed_shifts(self):
+        text=(RENDER/'SdlGpuFrameHeat.cpp').read_text()
+        pixel=text.split('const char *HeatCompositePixel()',1)[1].split('})";',1)[0]
+        # The field holds signed shifts: zeroing everything not above 0 bends only right and down.
+        self.assertNotIn('(heat>0.0)',pixel)
+        self.assertIn('clamp(heat,-65000.0,65000.0)',pixel)
 if __name__=='__main__':unittest.main()

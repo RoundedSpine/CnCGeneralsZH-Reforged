@@ -61,11 +61,12 @@ Texture2D<float4> Source:register(t0,space2);SamplerState Linear0:register(s0,sp
 Texture2D<float4> Heat:register(t1,space2);SamplerState Linear1:register(s1,space2);
 struct Out{float4 Position:SV_Position;float2 Uv:TEXCOORD0;};
 float4 main(Out input):SV_Target{
-    float4 heat=Heat.Sample(Linear1,input.Uv);heat=(heat>0.0)?min(heat,65000.0):0.0;float2 shift=heat.xy/max(heat.z,1.0);
+    // Shifts are signed: only NaN is dropped and the range is clamped, so left and up bend too.
+    float4 heat=Heat.Sample(Linear1,input.Uv);heat=any(isnan(heat))?float4(0,0,0,0):clamp(heat,-65000.0,65000.0);float2 shift=heat.xy/max(heat.z,1.0);
     shift*=saturate(Heat.Sample(Linear1,input.Uv+shift).z*4.0);
     shift=clamp(shift,float2(-0.05,-0.05),float2(0.05,0.05));
     float2 border=min(input.Uv,1.0-input.Uv);float2 settle=saturate(border/0.02);shift*=settle.x*settle.y;
-    float4 c=Source.Sample(Linear0,input.Uv+shift);return (c>0.0)?min(c,65000.0):0.0;
+    float4 c=Source.Sample(Linear0,input.Uv+shift);return any(isnan(c))?float4(0,0,0,1):clamp(c,0.0,65000.0);
 })";}
 }
 
