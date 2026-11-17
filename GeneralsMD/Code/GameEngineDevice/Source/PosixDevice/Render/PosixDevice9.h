@@ -188,6 +188,12 @@ public:
 	bool Supports_Heat_Haze() const;
 	void Set_Heat_Splats(const float *splats,unsigned count);
 	bool Begin_Heat_Haze(IDirect3DBaseTexture9 *source);
+	/// The Glow/smudge filter's scene stand-in.  With `alias` and a scaled scene, the stand-in surface and
+	/// texture are the scaled scene target itself (one picture, cleared by Begin_Render, depth included).
+	void Begin_Scene_Stand_In(IDirect3DBaseTexture9 *texture, IDirect3DSurface9 *surface, bool alias);
+	void End_Scene_Stand_In();
+	bool Scene_Stand_In_Aliased() const { return StandInAliased; }
+	bool Scene_Stand_In_Needs_Clear() const { return StandInSurface != nullptr && StandInScaled && !StandInAliased; }
 	void End_Heat_Haze();
 	bool Atmosphere(const SceneEffects::AtmosphereParameters &parameters, IDirect3DBaseTexture9 *sky,
 		IDirect3DBaseTexture9 *shroud, const float rect[4]);
@@ -409,7 +415,9 @@ protected:
     uint64_t CloakFrame=~uint64_t(0);
     bool ModernLighting = false, HemisphereAmbient = false, TeamGlow = false;
 	SDL_GPUTexture *HeatSourceTexture = nullptr, *HeatSnapshot = nullptr;
-	SDL_GPUTexture *HeatSourceAlias=nullptr; ///< engine-side name of the same picture (back buffer when scaled)
+	IDirect3DSurface9 *StandInSurface = nullptr;	///< not owned: the shader manager holds it while the stand-in lives
+	bool StandInAliased = false, StandInScaled = false;
+
 	bool SmokeGlow = false;
 	unsigned SunCasterEffect = 0;
 	float SunCasterOpacity = 1;

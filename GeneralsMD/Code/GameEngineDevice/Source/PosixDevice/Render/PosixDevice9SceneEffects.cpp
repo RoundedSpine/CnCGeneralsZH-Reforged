@@ -226,34 +226,35 @@ bool PosixDevice9::Begin_Heat_Haze(IDirect3DBaseTexture9 *source)
 {
     if(!Gpu||!source||HeatSnapshot||SunActive||Sun_Scene_Excluded())return false;
     std::string error;
-    
+    // The target the smudge quads are drawing into right now.  With a scaled scene and an aliased
+    // stand-in this is the scaled scene; otherwise it is the stand-in texture's own copy.
     SdlTarget target;
-    if (!Gpu->Get_Scene_Target(target)) {
-        if (!Resolve_Target(target, error) || !target.Colour) return false;
-    }
-    
+    if(!Resolve_Target(target,error)||!target.Colour)return false;
     auto *texture=Mirrors->Texture(source,error);
-    // Safeguard: only proceed if the engine is actually asking us to capture this specific target.
-    if(!texture) return false;
-    // With render scaling the engine names its native back buffer while the scene is
-    // drawn into a smaller offscreen target. Both name the same picture, so accept either.
-    if(texture!=target.Colour && texture!=Gpu->Back_Buffer()) return false;
-    
+    // Only capture when the engine is asking for exactly the picture being drawn into.
+    if(!texture||texture!=target.Colour)return false;
     auto *snapshot=Gpu->Capture_Distortion_Background(target,error);
-    if(!snapshot || snapshot == target.Colour) return false;
-    
-    // Force the draw path to use the snapshot. By setting HeatSourceTexture to target.Colour,
-    // we ensure PosixDevice9Draw.cpp's replacement logic (HeatSourceTexture == target.Colour) triggers.
-    HeatSourceTexture = target.Colour;
-    HeatSourceAlias   = texture;
-    if(HeatSourceAlias!=HeatSourceTexture) {
-        static bool said=false;
-        if(!said){said=true;fprintf(stderr,"[SDL_HEAT] distortion source aliased: engine bound the back buffer, capturing the scaled scene\n");}
-    }
-    HeatSnapshot = snapshot;
+    if(!snapshot||snapshot==target.Colour)return false;
+    HeatSourceTexture=target.Colour;
+    HeatSnapshot=snapshot;
     return true;
 }
-void PosixDevice9::End_Heat_Haze() {HeatSourceTexture=HeatSourceAlias=HeatSnapshot=nullptr;}
+void PosixDevice9::End_Heat_Haze() {HeatSourceTexture=HeatSnapshot=nullptr;}
+void PosixDevice9::Begin_Scene_Stand_In(IDirect3DBaseTexture9 *texture,IDirect3DSurface9 *surface,bool alias)
+{
+    End_Scene_Stand_In();
+    if(!Gpu||!texture||!surface)return;
+    const SdlTarget scene=Gpu->Back_Buffer_Target();
+    StandInScaled=Gpu->Is_Scene_Target(scene);
+    StandInSurface=surface;
+    StandInAliased=StandInScaled&&alias;
+    if(StandInAliased&&Mirrors)Mirrors->Set_Alias(texture,scene.Colour);
+}
+void PosixDevice9::End_Scene_Stand_In()
+{
+    if(Mirrors)Mirrors->Set_Alias(nullptr,nullptr);
+    StandInSurface=nullptr;StandInAliased=StandInScaled=false;
+}
 bool PosixDevice9::Atmosphere(const SceneEffects::AtmosphereParameters &parameters,IDirect3DBaseTexture9 *sky,
     IDirect3DBaseTexture9 *shroud,const float shroudRect[4])
 {
@@ -282,12 +283,7 @@ bool PosixDevice9::Atmosphere(const SceneEffects::AtmosphereParameters &paramete
         if(shroudRect[2]<=0||shroudRect[3]<=0)return false;
         shroudTexture=Mirrors->Texture(shroud,error);if(!shroudTexture)return false;
         std::memcpy(constants.ShroudRect,shroudRect,sizeof(constants.ShroudRect));
-        if(Gpu->Is_Scene_Target(target)) {
-            const float scaleX=float(target.Width)/float(Gpu->Width());
-            const float scaleY=float(target.Height)/float(Gpu->Height());
-            constants.ShroudRect[0]*=scaleX;constants.ShroudRect[1]*=scaleY;
-            constants.ShroudRect[2]/=scaleX;constants.ShroudRect[3]/=scaleY;
-        }
+        // ShroudRect is world-space (origin, 1/extent): independent of render scale.
         constants.Flags[0]=1;
     }
     return Gpu->Atmosphere(target,constants,skyTexture,shroudTexture);
@@ -332,6 +328,10 @@ unsigned RequestedObjectEffect(IDirect3DDevice9*d,float*p){if(d)return static_ca
 
 bool SupportsFirelight(IDirect3DDevice9 *device){return device&&static_cast<PosixDevice9*>(device)->Supports_Firelight();}
 bool Firelight(IDirect3DDevice9 *device,const PointLight *lights,unsigned count){return device&&static_cast<PosixDevice9*>(device)->Firelight(lights,count);}
+void BeginSceneStandIn(IDirect3DDevice9 *d,IDirect3DBaseTexture9 *t,IDirect3DSurface9 *s,bool alias){if(d)static_cast<PosixDevice9*>(d)->Begin_Scene_Stand_In(t,s,alias);}
+void EndSceneStandIn(IDirect3DDevice9 *d){if(d)static_cast<PosixDevice9*>(d)->End_Scene_Stand_In();}
+bool SceneStandInAliased(IDirect3DDevice9 *d){return d&&static_cast<PosixDevice9*>(d)->Scene_Stand_In_Aliased();}
+bool SceneStandInNeedsClear(IDirect3DDevice9 *d){return d&&static_cast<PosixDevice9*>(d)->Scene_Stand_In_Needs_Clear();}
 bool SupportsHeatHaze(IDirect3DDevice9 *device){return device&&static_cast<PosixDevice9*>(device)->Supports_Heat_Haze();}
 void SetHeatSplats(IDirect3DDevice9 *device,const float *splats,unsigned count){if(device)static_cast<PosixDevice9*>(device)->Set_Heat_Splats(splats,count);}
 bool BeginHeatHaze(IDirect3DDevice9 *device,IDirect3DBaseTexture9 *source){return device&&static_cast<PosixDevice9*>(device)->Begin_Heat_Haze(source);}

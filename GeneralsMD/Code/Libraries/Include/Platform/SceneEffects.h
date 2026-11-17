@@ -2,6 +2,7 @@
 #include "Platform/ScenePost.h"
 struct IDirect3DDevice9;
 struct IDirect3DBaseTexture9;
+struct IDirect3DSurface9;
 namespace SceneEffects {
 // Visual-only parameters shared by the native and Windows atmosphere paths.
 struct AtmosphereParameters {
@@ -28,6 +29,13 @@ bool SetPostChain(const char*);
 const ScenePost::Chain &RequestedPostChain();
 const char *PostDiagnostic();
 bool CopyScene(IDirect3DDevice9*,IDirect3DBaseTexture9*,int,int,int,int);
+// The Glow/smudge filter renders the scene into a stand-in texture.  Aliased, that texture is the (scaled)
+// scene target itself; the copy-back is then unnecessary.  NeedsClear: a scaled scene whose stand-in is a
+// separate native texture, whose depth the frame's clear never reached.
+void BeginSceneStandIn(IDirect3DDevice9*,IDirect3DBaseTexture9*,IDirect3DSurface9*,bool alias);
+void EndSceneStandIn(IDirect3DDevice9*);
+bool SceneStandInAliased(IDirect3DDevice9*);
+bool SceneStandInNeedsClear(IDirect3DDevice9*);
 enum ParticleFlag { SoftParticles=1, FireParticles=2, EmissiveParticles=4 };
 void SetParticleFlag(IDirect3DDevice9*,unsigned,bool);
 void AllowEffects(IDirect3DDevice9*,bool);

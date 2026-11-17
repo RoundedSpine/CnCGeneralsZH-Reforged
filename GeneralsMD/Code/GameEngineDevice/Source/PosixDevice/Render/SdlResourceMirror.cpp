@@ -246,6 +246,9 @@ void SdlResourceMirrors::Prepare_Update(Copy & copy)
 
 SDL_GPUTexture * SdlResourceMirrors::Texture(IDirect3DBaseTexture9 * base, std::string & refusal)
 {
+	if (AliasBase != NULL && base == AliasBase) {
+		return AliasTarget;
+	}
 	if (base->GetType() != D3DRTYPE_TEXTURE) {
 		refusal = "a cube or volume texture (A3c draws 2D textures)";
 		return NULL;

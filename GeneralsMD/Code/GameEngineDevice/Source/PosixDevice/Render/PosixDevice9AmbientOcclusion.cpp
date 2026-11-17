@@ -40,12 +40,7 @@ bool PosixDevice9::Ambient_Occlusion(IDirect3DBaseTexture9 *shroud,const float s
         shroudTexture=Mirrors->Texture(shroud,error);
         if(!shroudTexture) return false; // Do not ignore an unavailable shroud.
         std::memcpy(constants.ShroudRect,shroudRect,sizeof(constants.ShroudRect));
-        if(Gpu->Is_Scene_Target(target)) {
-            const float scaleX=float(target.Width)/float(Gpu->Width());
-            const float scaleY=float(target.Height)/float(Gpu->Height());
-            constants.ShroudRect[0]*=scaleX;constants.ShroudRect[1]*=scaleY;
-            constants.ShroudRect[2]/=scaleX;constants.ShroudRect[3]/=scaleY;
-        }
+        // ShroudRect is world-space (origin, 1/extent): independent of render scale.
         constants.Shroud[0]=1;
     }
     return Gpu->Ambient_Occlusion(target,constants,shroudTexture);

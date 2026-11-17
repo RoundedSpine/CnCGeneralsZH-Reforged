@@ -725,6 +725,11 @@ Bool ScreenDefaultFilter::preRender(Bool &skipRender, CustomScenePassModes &scen
 
 Bool ScreenDefaultFilter::postRender(enum FilterModes mode, Coord2D &scrollDelta,Bool &doExtraRender)
 {
+#if !defined(_WIN32)
+	// The scene stand-in (possibly aliased to the scaled scene target) stays valid until every use of the
+	// texture below is done, then is released on whichever way out.
+	struct StandInRelease { ~StandInRelease() { SceneEffects::EndSceneStandIn(DX8Wrapper::_Get_D3D_Device()); } } standInRelease;
+#endif
 	IDirect3DTexture9 * tex =	W3DShaderManager::endRenderToTexture();
 	DEBUG_ASSERTCRASH(tex, ("Require rendered texture."));
 	if (!tex) return false;
@@ -772,7 +777,9 @@ Bool ScreenDefaultFilter::postRender(enum FilterModes mode, Coord2D &scrollDelta
 #if !defined(_WIN32)
     // The legacy combiner saturates texture samples; a GPU copy keeps HDR scene
     // radiance intact while moving it back from the Glow/smudge render target.
-    if(!SceneEffects::CopyScene(DX8Wrapper::_Get_D3D_Device(),tex,xpos,ypos,width,height))
+    // Aliased to the scaled scene target, the scene is already where the copy would put it.
+    if(!SceneEffects::SceneStandInAliased(DX8Wrapper::_Get_D3D_Device())
+        && !SceneEffects::CopyScene(DX8Wrapper::_Get_D3D_Device(),tex,xpos,ypos,width,height))
 #endif
 	DX8Wrapper::_Draw_DX8_Primitive_UP(D3DPT_TRIANGLESTRIP, 2, v, sizeof(_TRANS_LIT_TEX_VERTEX));
 
@@ -3238,6 +3245,9 @@ void W3DShaderManager::init(void)
 void W3DShaderManager::shutdown(void)
 {
 	Direct3D11_Set_Scene_Stand_In(NULL, NULL);
+#if !defined(_WIN32)
+	SceneEffects::EndSceneStandIn(DX8Wrapper::_Get_D3D_Device());
+#endif
 	if (m_newRenderSurface) m_newRenderSurface->Release();
 	if (m_renderTexture) m_renderTexture->Release();
 	if (m_oldRenderSurface) m_oldRenderSurface->Release();
@@ -3427,7 +3437,16 @@ void W3DShaderManager::startRenderToTexture(Bool sceneStandIn)
 	IDirect3DSurface9 *depthSurface = DX8Wrapper::_Get_Non_MultiSampled_Depth_Buffer();
 	if (depthSurface == NULL) depthSurface = m_oldDepthSurface;
 	if (sceneStandIn)
+	{
 		Direct3D11_Set_Scene_Stand_In(m_renderTexture, m_newRenderSurface);
+#if !defined(_WIN32)
+		// With render scaling the frame's clear went to the scaled scene target.  Smudges alone can use it
+		// as the stand-in (one picture, one depth, already cleared); bloom samples the stand-in while it
+		// draws the glow back over the scene, so it keeps a texture of its own.
+		SceneEffects::BeginSceneStandIn(DX8Wrapper::_Get_D3D_Device(), m_renderTexture, m_newRenderSurface,
+			fixedFunctionBloomIntensity() <= 0);
+#endif
+	}
 	DX8Wrapper::_Set_DX8_Render_Target(m_newRenderSurface,depthSurface);
 	RenderResult hr = D3D_OK;
 	DEBUG_ASSERTCRASH(hr==D3D_OK, ("Set target failed unexpectedly."));
@@ -3450,6 +3469,19 @@ void W3DShaderManager::startRenderToTexture(Bool sceneStandIn)
 			clearFlags |= D3DCLEAR_STENCIL;
 		DX8Wrapper::_Get_D3D_Device()->Clear(0, NULL, clearFlags, 0, 1.0f, 0);
 	}
+#if !defined(_WIN32)
+	if (sceneStandIn && SceneEffects::SceneStandInNeedsClear(DX8Wrapper::_Get_D3D_Device()))
+	{
+		//A scaled scene was cleared in the scaled target by WW3D::Begin_Render; this native texture and its
+		//depth were not, and read back as stale or empty (a black world while smudges or bloom are on).
+		D3DSURFACE_DESC depthDesc;
+		m_oldDepthSurface->GetDesc(&depthDesc);
+		UnsignedInt clearFlags = D3DCLEAR_ZBUFFER;
+		if (depthDesc.Format == D3DFMT_D24S8 || depthDesc.Format == D3DFMT_D24X4S4 || depthDesc.Format == D3DFMT_D15S1)
+			clearFlags |= D3DCLEAR_STENCIL;
+		DX8Wrapper::_Get_D3D_Device()->Clear(0, NULL, clearFlags, 0, 1.0f, 0);
+	}
+#endif
 	m_renderingToTexture = true;
 	if (TheGlobalData->m_showSoftWaterEdge)
 	{	//Soft water edges use frame buffer destination alpha so we must clear it to a known value.

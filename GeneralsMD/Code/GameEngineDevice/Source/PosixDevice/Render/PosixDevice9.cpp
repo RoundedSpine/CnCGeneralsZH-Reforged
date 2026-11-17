@@ -595,6 +595,7 @@ RenderResult PosixDevice9::Present(const RenderRect *, const RenderRect *, Rende
 	static_assert(offsetof(D3DGAMMARAMP, green) == 512 && offsetof(D3DGAMMARAMP, blue) == 1024,
 		"D3DGAMMARAMP is the three ramps back to back, as SdlGpuFrame::Present reads it");
 	++PresentCount;
+	End_Scene_Stand_In();
 	Dump_Frame_If_Asked();
 	if (Sdl_Creation_Log_Asked()) {
 		// Every frame over 50 ms, beside the creation log's lines, to line them up.

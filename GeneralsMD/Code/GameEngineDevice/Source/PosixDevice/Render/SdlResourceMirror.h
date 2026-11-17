@@ -83,6 +83,8 @@ public:
 	/// The copy of a 2D texture, current for a draw being recorded now.  Null, with the reason, for a
 	/// texture that is not 2D (A3c draws 2D textures only) or a format there is no way up for.
 	SDL_GPUTexture * Texture(IDirect3DBaseTexture9 * texture, std::string & refusal);
+	/// While set, `base` names `target` (the scaled scene) instead of its own GPU copy.  Null clears it.
+	void Set_Alias(const void * base, SDL_GPUTexture * target) { AliasBase = target != NULL ? base : NULL; AliasTarget = target; }
 	/// Whether the object already has a GPU copy: a render target nothing has drawn into has none, and its
 	/// CPU image is then the current one.
 	bool Has_Copy(const void * owner) const;
@@ -121,6 +123,8 @@ private:
 	void Prepare_Update(Copy & copy);
 
 	SdlGpuFrame * Frame;
+	const void * AliasBase = NULL;
+	SDL_GPUTexture * AliasTarget = NULL;
 	mutable std::mutex Lock;							///< Copies and Dead: the destroyed hook runs on any thread
 	std::unordered_map<const void *, Copy> Copies;
 	std::vector<Copy> Dead;
