@@ -21,7 +21,7 @@ Scratch branch: `merge-main-into-stable-working` (local; not pushed). `Stable_wo
 | DX11GpuParticles.cpp | Stable_working had moved the shader text into `Platform/ParticleShaders.h` (shared with the SDL/Metal path). Main's frame-rate-scaled fade length (`FADE_MAX`) was ported into that shared text; `Evaluation(native, fadeMaxFrames=16)`. Default 16 leaves the text identical at 60 Hz. D3D11 and SDL (`SdlGpuFrameParticles.cpp`) both pass `8*LOGICFRAMES_PER_RETAIL_FRAME`. |
 | dx11runtime_posix.cpp | Stable_working's SceneEffects implementations kept; main's new terrain-relight/heights stubs added. |
 | ffshader.cpp | Stable_working's SDL path kept (soft particles, fire look and draw effects stay supported on SDL, plus the ShadowViewport rewrite); added main's `TerrainRelight = false` for SDL. |
-| BaseHeightMap.cpp | Both functions kept (`refreshShorelineState`, `addShoreLineTile`); doc comment re-attached to `renderShoreLines`. |
+| BaseHeightMap.cpp | Both functions kept (`addShoreLineTile`, then `refreshShorelineState`); doc comment re-attached to `renderShoreLines`. Order matters: `test_shoreline_refresh.py` slices the source from `refreshShorelineState` up to `renderShoreLines`, so putting `addShoreLineTile` between them broke the first IPA CI run. Fixed in a follow-up commit; test passes. |
 | PosixMain.cpp | Stable_working's crit-section/iOS bootstrap/crash-log lines kept; main's `GameSpeed_markMainStarted`, `-initspeed` and the pre-main-reads assert added around them. |
 | OptionsMenu.cpp | Stable_working's catalog-driven `rendererSupportsOption` kept; `GroundFoliage` added to its non-D3D11 list (foliage needs D3D11 calls). |
 | optionsmenu_layout.py | Both new check rows kept; the Particle Performance check moved into the new Menus group (see below). |
@@ -55,6 +55,7 @@ None.
 Non-portable grep on added lines: only `_WIN32`-guarded blocks and `<intrin.h>` inside `#if _DEBUG` + `_MSC_VER`.
 
 ## Build verification
+- CI run 1 failed in `test_shoreline_refresh.py` (cause above, fixed). Re-ran locally with the CI's own commands: all python tests in the workflow except `test_host_tools.py` (needs cmake) and `test_miniaudio_recovery.py` (vendored miniaudio absent in my sandbox; both fail identically on unmodified Stable_working), plus the refpack, particle-policy, ios-touch and ios-camera-pan C++ tests with ASan/UBSan and `artpack.py selfcheck`: all pass.
 - Could run: portability grep, fingerprint manifest check, `optionsmenu_layout.py selfcheck`, a g++ test of `ParticleShaders::Evaluation` (no `FADE_MAX` left; 16u/8u substitute correctly), patch applies cleanly to Stable_working.
 - **Could not run**: no CMake, Xcode or macOS here; nothing was compiled. The iOS workflow was read, not executed. Desktop build not run. Untested compile risks: `SdlGpuFrameParticles.cpp` now includes `Common/GameCommon.h`; the changed `Write_Billboard` signature; `dx11runtime_posix.cpp` stubs.
 
