@@ -328,6 +328,18 @@ static Bool loadIni( const char *name )
 	return FALSE;
 }
 
+// A path written with Windows separators, as the game's file system takes it, for the host's own fopen.
+static std::string hostPath( const char *path )
+{
+	std::string host( path );
+#if !defined(_WIN32)
+	for( size_t i = 0; i < host.size(); ++i )
+		if( host[i] == '\\' )
+			host[i] = '/';
+#endif
+	return host;
+}
+
 static void writeFile( const char *name, const char *text )
 {
 	FILE *fp = fopen( name, "wb" );
@@ -16608,7 +16620,11 @@ TEST(a_template_maps_rules_are_served_beside_it_and_in_its_name)
 	exemplar.m_numPlayers = 2;
 	std::vector<char> mapBytes;
 	RandomMapGenerator::generate( exemplar, mapBytes );
-	FILE *fp = fopen( "maps\\rmgtest rules\\rmgtest rules.map", "wb" );
+	// The game's file system reads "maps\\x\\y" as folders on every host; fopen does only on Windows, so a
+	// POSIX host would make one file with backslashes in its name and the template would never be found.
+	const std::string templateFile = hostPath( "maps\\rmgtest rules\\rmgtest rules.map" );
+	const std::string rulesFile = hostPath( "maps\\rmgtest rules\\map.ini" );
+	FILE *fp = fopen( templateFile.c_str(), "wb" );
 	CHECK( fp != NULL );
 	if( fp )
 	{
@@ -16616,7 +16632,7 @@ TEST(a_template_maps_rules_are_served_beside_it_and_in_its_name)
 		fclose( fp );
 	}
 	const char *const rules = "Weather\r\n  SnowEnabled = Yes\r\nEnd\r\n";
-	writeFile( "maps\\rmgtest rules\\map.ini", rules );
+	writeFile( rulesFile.c_str(), rules );
 
 	RandomMapSettings settings;
 	settings.m_seed = 77;
