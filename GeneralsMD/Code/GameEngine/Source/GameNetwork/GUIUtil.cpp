@@ -44,7 +44,11 @@
 #include "GameClient/GadgetPushButton.h"
 #include "GameClient/GameText.h"
 #include "GameClient/Display.h"
+#include "GameClient/DisplayString.h"
+#include "GameClient/DisplayStringManager.h"
+#include "GameClient/Gadget.h"
 #include "GameClient/Image.h"
+#include "GameNetwork/Online/OnlineQueues.h"
 #include "GameClient/Mouse.h"
 #include "GameClient/UIStyle.h"
 #include "GameLogic/GameLogic.h" // SUPERWEAPON_RESTRICT_COUNT
@@ -219,8 +223,9 @@ void PopulatePlayerSlotComboBox(GameWindow *comboBox, Int color, Bool allowTakeo
 	if (!comboBox)
 		return;
 
-	// the order the ladder climbs in; what each one is called is SlotStateName's business
-	static const SlotState seats[] =
+	// the order the ladder climbs in, the levels above Hard last (SlotPickOf); what each one is called
+	// is SlotStateName's business
+	static const Int seats[] =
 	{
 		SLOT_OPEN,
 		SLOT_CLOSED,
@@ -228,6 +233,10 @@ void PopulatePlayerSlotComboBox(GameWindow *comboBox, Int color, Bool allowTakeo
 		SLOT_EASY_AI,
 		SLOT_MED_AI,
 		SLOT_BRUTAL_AI,
+		AILevelAboveHardRating[0],
+		AILevelAboveHardRating[1],
+		AILevelAboveHardRating[2],
+		AILevelAboveHardRating[3],
 	};
 
 	// The combo box only grows its listbox when an add crosses the current length, and both
@@ -250,8 +259,9 @@ void PopulatePlayerSlotComboBox(GameWindow *comboBox, Int color, Bool allowTakeo
 	{
 		if (seats[i] == SLOT_TAKEOVER && !allowTakeover)
 			continue;
-		GadgetComboBoxAddEntry(comboBox, SlotStateName(seats[i]), color);
-		GadgetComboBoxSetItemData(comboBox, shown, (void *)seats[i]);
+		const UnicodeString name = seats[i] > SLOT_TAKEOVER ? SlotStateName(SLOT_BRUTAL_AI, seats[i]) : SlotStateName((SlotState)seats[i]);
+		GadgetComboBoxAddEntry(comboBox, name, color);
+		GadgetComboBoxSetItemData(comboBox, shown, (void *)(intptr_t)seats[i]);
 		++shown;
 	}
 	GadgetComboBoxSetSelectedPos(comboBox, 0);
@@ -1465,8 +1475,85 @@ Bool FitRandomMapToRoom(GameInfo *game)
 	return TRUE;
 }
 
+/* The online room's seats name each human with his ladder rating after the nick, MUTED, read from the
+	 card the server sent the lobby for that nick (ONLINE-UI-REDESIGN.md, "Game setup room").  The player
+	 box keeps EA's art and its text; the rating is drawn after it, so the room's combo code is untouched. */
+static GameWindow *theSeatPlayer[MAX_SLOTS];			///< each seat's player box's text entry
+static AsciiString theSeatNick[MAX_SLOTS];				///< the human in it, empty for anyone else
+static DisplayString *theSeatRating[MAX_SLOTS];
+static GameWinDrawFunc theSeatPlayerDraw = NULL;
+
+static void drawSeatPlayer(GameWindow *window, WinInstanceData *instData)
+{
+	if (theSeatPlayerDraw)
+		theSeatPlayerDraw(window, instData);
+	Int seat = -1;
+	for (Int i = 0; i < MAX_SLOTS && seat < 0; ++i)
+		if (theSeatPlayer[i] == window)
+			seat = i;
+	OnlinePlayerInfo card;
+	if (seat < 0 || theSeatNick[seat].isEmpty() || !OnlineGetPlayerInfo(theSeatNick[seat], card) || !card.hasRating)
+		return;
+	const EntryData *entry = (const EntryData *)window->winGetUserData();
+	if (!entry || !entry->text)
+		return;
+	if (!theSeatRating[seat])
+		theSeatRating[seat] = TheDisplayStringManager->newDisplayString();
+	DisplayString *rating = theSeatRating[seat];
+	if (rating->getFont() != window->winGetFont())
+		rating->setFont(window->winGetFont());
+	rating->setText(UIStyle::ratingText(card.exactRating));
+
+	// where W3DTextEntry ends the nick: its text starts seven pixels in (ten from the start), centred on
+	// the box by the font's height
+	Int x, y, width, height, w, h;
+	window->winGetScreenPosition(&x, &y);
+	window->winGetSize(&width, &height);
+	rating->getSize(&w, &h);
+	const Int at = x + (entry->drawTextFromStart ? 10 : 7) + entry->text->getWidth() + UIStyle::px(10.0f);
+	if (at + w > x + width - 5)
+		return;		// a nick that fills the box keeps it to itself
+	const Int top = y + max(1, (height - TheWindowManager->winFontHeight(instData->getFont())) / 2);
+	rating->draw(at, top, UIStyle::MUTED, UIStyle::SHADOW);
+}
+
+static void attachSeatRatings(GameWindow *parent, const char *layoutFilename)
+{
+	for (Int i = 0; i < MAX_SLOTS; ++i)
+	{
+		theSeatPlayer[i] = NULL;
+		theSeatNick[i].clear();
+		if (!OnlineIsEnabled() || strcmp(layoutFilename, "GameSpyGameOptionsMenu.wnd") != 0)
+			continue;
+		AsciiString name;
+		name.format("%s:ComboBoxPlayer%d", layoutFilename, i);
+		GameWindow *combo = TheWindowManager->winGetWindowFromId(parent, NAMEKEY(name));
+		GameWindow *box = combo ? GadgetComboBoxGetEditBox(combo) : NULL;
+		if (!box)
+			continue;
+		theSeatPlayer[i] = box;
+		if (box->winGetDrawFunc() == drawSeatPlayer)
+			continue;		// a second init on the same layout: the box is hooked already, and capturing again would recurse
+		theSeatPlayerDraw = box->winGetDrawFunc();
+		box->winSetDrawFunc(drawSeatPlayer);
+	}
+}
+
+static void detachSeatRatings(void)
+{
+	for (Int i = 0; i < MAX_SLOTS; ++i)
+	{
+		if (theSeatRating[i])
+			TheDisplayStringManager->freeDisplayString(theSeatRating[i]);
+		theSeatRating[i] = NULL;
+		theSeatPlayer[i] = NULL;
+		theSeatNick[i].clear();
+	}
+}
+
 void InitLobbySeatVisuals(GameWindow *parent, const char *layoutFilename)
 {
+	attachSeatRatings(parent, layoutFilename);
 	GameWindow **const windows[] = { theSeatCard, theSeatBar, theSeatSwatch, theSeatTeam };
 	const char *const names[] = { "SeatCard", "SeatBar", "SeatSwatch", "SeatTeam" };
 	for (Int kind = 0; kind < (Int)ARRAY_SIZE(names); ++kind)
@@ -1536,6 +1623,7 @@ void SnapLobbyRulesLists(GameWindow *parent, const char *layoutFilename)
 
 void ShutdownLobbySeatVisuals(void)
 {
+	detachSeatRatings();
 	FactionPickerDetach();
 	for (Int i = 0; i < MAX_SLOTS; ++i)
 		theSeatCard[i] = theSeatBar[i] = theSeatSwatch[i] = theSeatTeam[i] = NULL;
@@ -1554,6 +1642,13 @@ void UpdateLobbySeatVisuals(GameInfo *myGame)
 		const GameSlot *slot = myGame->getConstSlot(i);
 		const Bool occupied = slot->isOccupied();
 		const Color color = LobbySeatColor(slot);
+		if (theSeatPlayer[i])
+		{
+			if (slot->isHuman())
+				theSeatNick[i].translate(slot->getName());
+			else
+				theSeatNick[i].clear();
+		}
 		showColor(theSeatBar[i], color);
 		showColor(theSeatSwatch[i], color);
 		showColor(theSeatTeam[i], occupied ? LobbyTeamColor(slot->getTeamNumber()) : theSeatEmptyColor);
@@ -1666,7 +1761,7 @@ void UpdateSlotList( GameInfo *myGame, GameWindow *comboPlayer[],
 				Int pos = slot->getState();
 				for (Int item = 0; comboPlayer[i] && item < GadgetComboBoxGetLength(comboPlayer[i]); ++item)
 				{
-					if ((Int)(intptr_t)GadgetComboBoxGetItemData(comboPlayer[i], item) == slot->getState())
+					if ((Int)(intptr_t)GadgetComboBoxGetItemData(comboPlayer[i], item) == SlotPickOf(slot))
 					{
 						pos = item;
 						break;

@@ -111,18 +111,41 @@ private:
 /* OnlinePlayerInfo in std::string, which outlives the engine's allocator the way the session does. */
 struct OnlineCard
 {
-	long long ping, rating, games, wins, losses, rank;
+	long long ping, games, wins, losses, rank;
+	double rating;					///< two decimals, as the site keeps it
 	Bool hasRating, notOnline, hasStats;
 	std::string tier;
+	Bool hasAIRating;			///< aiRating and aiGames arrived (auth.ok, ai.rated)
+	double aiRating;				///< the rating against the AI, a scale of its own; two decimals
+	long long aiGames, aiWins;
 	UnsignedInt serial;		///< the session's cardSerial when this card last changed
 
-	OnlineCard() : ping( -1 ), rating( 0 ), games( -1 ), wins( -1 ), losses( -1 ), rank( 0 ),
-		hasRating( FALSE ), notOnline( FALSE ), hasStats( FALSE ), serial( 0 ) {}
+	OnlineCard() : ping( -1 ), games( -1 ), wins( -1 ), losses( -1 ), rank( 0 ), rating( 0 ),
+		hasRating( FALSE ), notOnline( FALSE ), hasStats( FALSE ), hasAIRating( FALSE ), aiRating( 0 ), aiGames( 0 ), aiWins( 0 ),
+		serial( 0 ) {}
 };
 
 /* The key cards are kept under: the nick in lower case.  The server finds a nick without regard to
 	 case and answers with the spelling it stored. */
 std::string OnlineNickKey( const std::string &nick );
+
+/* Steady-clock milliseconds, which no time zone or clock change moves. */
+long long OnlineNowMs( void );
+
+enum { ONLINE_PING_MS = 10000 };		///< our own ping{n} to the server, after the welcome and this often
+
+/* One history{id, mode}: the last answer, kept while a new ask is out, and the state of the last ask. */
+typedef std::pair<long long, Int> OnlineHistoryKey;		///< account id, OnlineHistoryMode
+enum { ONLINE_HISTORY_TIMEOUT_MS = 20000 };		///< an ask with no answer by then has failed
+struct OnlineHistoryEntry
+{
+	Int state;							///< OnlineLadderState
+	OnlineMessage reply;
+	UnsignedInt serial;			///< the session's historySerial when state or reply last changed
+	long long askedMs;			///< when the ask still out went (OnlineNowMs), 0 with none out
+
+	OnlineHistoryEntry() : state( ONLINE_LADDER_FAILED ), serial( 0 ), askedMs( 0 ) {}
+};
 
 struct OnlineSession
 {
@@ -146,8 +169,26 @@ struct OnlineSession
 	Bool testMode;					///< welcome.testMode: OnlineIsTestServer
 	std::string registerUrl;	///< welcome.registerUrl: OnlineGetRegisterUrl
 	std::string resetUrl;		///< welcome.resetUrl: OnlineGetResetUrl
+	std::string accountUrl;	///< welcome.accountUrl: OnlineGetAccountUrl
+	OnlineMessage counts;		///< welcome.counts or the last counts line, empty once disconnected: OnlineGetCounts
+	OnlineMessage serverInfo;	///< welcome.server{name, city}: OnlineGetServerInfo
+	Bool hasServerInfo;
+	// our own ping{n} to the server and its pong{n}: OnlineGetServerInfo's round trip
+	Int pingN;							///< the n of the last ping sent
+	Int pingHeardN;					///< the n of the last pong counted
+	long long pingSentMs;		///< when the last ping went, 0 for none this connection
+	double pingSmoothedMs;	///< the smoothed round trip, -1 before the first pong
+	Bool pingRefused;				///< the server does not know ping (error{for:ping,code:unknown}): no more this connection
 	std::string failCode;		///< the last auth.fail's code, cleared by the next requestAuth: OnlineGetLoginFailure
 	Int failRetry;					///< its retry, in seconds; 0 when it gave none
+	std::string failUntil;	///< its until (auth.fail{code:maintenance}), as the server wrote it
+	// the server's notice{kind,en,tr,until}: OnlineGetNotice.  Belongs to the connection: an empty one or a
+	// sign-out (connectionGone) clears it
+	std::string noticeKind, noticeEn, noticeTr, noticeUntil;
+	UnsignedInt noticeSerial;	///< moves on whenever the notice changes or goes
+	// a new room, game or match refused with code maintenance, until a screen takes it: OnlineTakeMaintenanceRefusal
+	Bool maintenanceRefused;
+	std::string maintenanceUntil;
 
 	// the account
 	Bool authed;						///< auth.ok arrived
@@ -157,8 +198,10 @@ struct OnlineSession
 	std::string token;
 	UnsignedByte ticket[16];
 	UnsignedInt vip;
-	OnlineMessage pendingAuth;		///< sent once the welcome arrives
+	OnlineMessage pendingAuth;		///< sent once the welcome arrives and the install files are hashed
 	Bool hasPendingAuth;
+	Bool filesSent;					///< this connection has had the install files' hashes (sendFiles)
+	std::string failFile;		///< the last auth.fail{code:files}'s file, cleared with failCode
 	Bool authWaiting;				///< a login, register or resume is out (or pending) with no answer yet
 
 	// where the player is
@@ -166,6 +209,9 @@ struct OnlineSession
 	long long gameId;				///< the staging room, 0 outside one
 	long long joiningGame;	///< game.join sent, game.joined not back yet
 	Bool hosting;
+	Bool hostStartWaiting;	///< the host's game.start went under maintenance: it launches on the server's game.start
+	std::string startRefusal;			///< the code of an error{for:game.start} the host waited on: OnlineTakeStartRefusal
+	std::string startRefusalUntil;	///< its until, else the notice's
 	OnlineMessage hostInfo;	///< CREATESTAGINGROOM's CRCs and ladder, repeated in every game.opts
 	std::string hostNick;
 	long long hostLeftGame;	///< a game removed under a guest: host left, unless game.start follows
@@ -197,6 +243,20 @@ struct OnlineSession
 	Int armiesState;				///< OnlineLadderState
 	OnlineMessage armies;
 
+	// recent matches, by account and mode; at most one ask out per key
+	std::map<OnlineHistoryKey, OnlineHistoryEntry> history;
+	std::deque<OnlineHistoryKey> historyAsked;		///< the asks out, oldest first: an older server's error{for:history} names none
+	UnsignedInt historySerial;		///< moves on with every change to any key; never reset, so a key forgotten and asked again reads new
+
+	// the abandon lock, from auth.ok's and the player's own card's lockSeconds and qm.status{locked}
+	long long qmLockUntilMs;	///< OnlineNowMs when it ends, 0 when free
+
+	// the last qm.status's window{lo, hi, nextMs} (lo and hi in win-chance points, 0 to 100), and when it
+	// arrived in steady-clock milliseconds
+	OnlineMessage qmWindow;
+	long long qmWindowMs;
+	Bool qmLeaveSent;				///< qm.leave went and no qm.status has answered it yet
+
 	// the account's skins: what it owns (bit n for id n); what it wears is TankSkin_localLoadout
 	UnsignedInt64 skinsOwned;
 	Int skinsState;				///< OnlineSkinsState of the last skins.get or skins.set
@@ -207,24 +267,51 @@ struct OnlineSession
 	Bool revealing;
 	UnsignedInt revealSerial;
 
+	// Play vs AI (OnlineRequestAIMatch): the last ai.start's answer, then the match it named
+	Int aiState;						///< OnlineAIMatchState
+	OnlineMessage aiReady;	///< the ai.ready not yet taken
+	std::string aiRefusal;	///< the ai.refused reason not yet taken
+	std::string aiMatch;		///< the match taken from ai.ready, until its ai.result goes
+	long long aiReadyMs;		///< when that ai.ready arrived, in steady-clock milliseconds
+	long long aiTickMs;			///< when the last ai.tick went
+	std::string aiWonMatch;	///< the match whose ai.result said win: only its replay goes up
+	std::string aiSentMatch;	///< the match of the last ai.result sent, kept after aiMatch clears: OnlineGetLastAIMatchId
+	OnlineMessage aiVerdict;	///< the last ai.rated or ai.unrated
+	UnsignedInt aiVerdictSerial;
+
 	OnlinePeerQueue *peer;
 	OnlineBuddyQueue *buddy;
 	OnlinePSQueue *ps;
 
 	void dial();
+	void connectionGone();		///< what belonged to the connection: counts, the server's name, the round trip
 	void forgetAccount();
+	void pingServer();				///< ping{n} once ONLINE_PING_MS passed since the last, while welcomed
+	void noteLock( long long seconds );		///< the abandon lock runs this many seconds more, 0 for free
 	void peerResponse( const PeerResponse &r );
 	void finishPeerLogin();
 	void loginFailed( DisconnectReason reason );
+	void flushAuth();					///< the pending login, once welcomed and the install files are hashed
+	void sendFiles();					///< files{seq,last,paths[],hashes[]}, once a connection
 	void gameListEntry( const OnlineMessage &m );
 	void resolveHostLeft();
 	void noteCard( const OnlineMessage &m );			///< a line's rating, tier, games and ping under its nick
 	void matched( const OnlineMessage &m );			///< qm.matched as QM_MATCHED
 	void noteSkins( const OnlineMessage &m );		///< auth.ok's or skins.ok's owned[] and skins[]
+	void noteMaintenance( const OnlineMessage &m );	///< a request refused for maintenance, with its until
+	// history (OnlineStats.cpp)
+	void noteHistory( const OnlineMessage &m );			///< an answer under its id and mode
+	void historyRefused( const OnlineMessage &m );	///< error{for:history}: the key it names, else the oldest ask
+	void historySettled( const OnlineHistoryKey &key, Int state );		///< the key's ask is over: state, serial, asks
+	void expireHistory();														///< asks out longer than ONLINE_HISTORY_TIMEOUT_MS fail
 
 private:
 	OnlineSession();
 };
+
+/* The first line on a new connection: the exe and INI CRCs, the version and the protocol (proto 2), and
+	 notice:1, which asks the server for its notices. */
+OnlineMessage OnlineHelloLine( UnsignedInt exe, UnsignedInt ini, const char *ver );
 
 /* Bytes a server line's number field holds, for vips and ids. */
 UnsignedInt OnlineHostToNet( UnsignedInt v );

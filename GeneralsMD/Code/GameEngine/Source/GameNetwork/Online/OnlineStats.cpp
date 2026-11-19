@@ -24,7 +24,10 @@
 
 #include "PreRTS.h"	// This must go first in EVERY cpp file int the GameEngine
 
+#include "Common/MultiplayerSettings.h"
+#include "Common/PlayerTemplate.h"
 #include "GameClient/GameText.h"
+#include "GameNetwork/GameSpyOverlay.h"
 #include "GameNetwork/Online/OnlineSession.h"
 #include "zhio.h"
 
@@ -32,6 +35,7 @@
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 
 OnlinePSQueue::OnlinePSQueue() : m_running( FALSE )
 {
@@ -165,6 +169,16 @@ Bool OnlineSendReport( const OnlineReport &report )
 		crcOdd.push_back( report.crcOdd[i] );
 	m.setInts( "discon", discon ).setStrings( "side", side );
 	m.setInts( "blind", blind ).setInts( "crcOdd", crcOdd );
+	// the map's folder and file, as the AI maps are named: a generated map lives under the user folder, whose
+	// path names the player's account on this machine and stays here.  A name toLine would refuse is left
+	// out, not the whole report with it.
+	const std::string path = report.map.str();
+	const size_t file = path.find_last_of( "\\/" );
+	const size_t folder = file == std::string::npos || file == 0 ? std::string::npos : path.find_last_of( "\\/", file - 1 );
+	const std::string map = folder == std::string::npos ? path.substr( file == std::string::npos ? 0 : file + 1 )
+		: "maps\\" + path.substr( folder + 1, file - folder - 1 ) + "\\" + path.substr( file + 1 );
+	if (!map.empty() && map.size() <= 255 && OnlineIsUtf8( map.data(), map.size() ))
+		m.setString( "map", map );
 	s.send( m );
 	return TRUE;
 }
@@ -228,8 +242,8 @@ void OnlineSendReplay( const char *match, const AsciiString &path )
 	OnlineSession &s = OnlineSession::get();
 	if (!match || !*match || s.replayedMatch == match)
 		return;		// a custom game, or this match's replay went up (or was given up) already
-	if (s.matchId != match)
-		return;		// a later match or a logout replaced it
+	if (s.matchId != match && s.aiWonMatch != match)
+		return;		// a later match or a logout replaced it, or an AI match that was not won
 	s.replayedMatch = match;
 	if (path.isEmpty() || !s.authed || s.status != ONLINE_WELCOMED)
 		return;
@@ -254,13 +268,13 @@ void OnlineSendReplay( const char *match, const AsciiString &path )
 	{
 		const size_t len = bytes.size() - at < chunk ? bytes.size() - at : chunk;
 		OnlineMessage m;
-		m.setString( "t", "replay" ).setString( "match", s.matchId ).setInt( "seq", seq );
+		m.setString( "t", "replay" ).setString( "match", match ).setInt( "seq", seq );
 		m.setBool( "last", at + len == bytes.size() );
 		m.setString( "data", base64( (const unsigned char *)bytes.data() + at, len ) );
 		s.send( m );
 	}
-	s.replaySentMatch = s.matchId;
-	DEBUG_LOG(("ONLINE REPLAY match=%s bytes=%d lines=%d\n", s.matchId.c_str(), (Int)bytes.size(), seq));
+	s.replaySentMatch = match;
+	DEBUG_LOG(("ONLINE REPLAY match=%s bytes=%d lines=%d\n", match, (Int)bytes.size(), seq));
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -268,13 +282,20 @@ void OnlineSendReplay( const char *match, const AsciiString &path )
 //-------------------------------------------------------------------------------------------------
 
 OnlinePlayerInfo::OnlinePlayerInfo() :
-	ping( -1 ), hasRating( FALSE ), rating( 0 ), games( -1 ), wins( -1 ), losses( -1 ), rank( 0 ),
-	notOnline( FALSE ), hasStats( FALSE ), serial( 0 )
+	ping( -1 ), hasRating( FALSE ), rating( 0 ), exactRating( 0.0f ), games( -1 ), wins( -1 ), losses( -1 ), rank( 0 ),
+	notOnline( FALSE ), hasStats( FALSE ), hasAIRating( FALSE ), aiRating( 0.0f ), aiGames( 0 ), aiWins( 0 ), serial( 0 )
 {
 }
 
-OnlineLadderRow::OnlineLadderRow() : rank( 0 ), hasRating( FALSE ), rating( 0 ), wins( 0 ), losses( 0 )
+OnlineLadderRow::OnlineLadderRow() : rank( 0 ), hasRating( FALSE ), rating( 0 ), exactRating( 0.0f ), wins( 0 ), losses( 0 ),
+	side( -1 ), color( -1 )
 {
+}
+
+// the whole number the %d screens print, from the two-decimal rating
+static Int roundRating( double rating )
+{
+	return (Int)floor( rating + 0.5 );
 }
 
 Bool OnlineGetPlayerInfo( const AsciiString &nick, OnlinePlayerInfo &out )
@@ -288,7 +309,8 @@ Bool OnlineGetPlayerInfo( const AsciiString &nick, OnlinePlayerInfo &out )
 	out.serial = c.serial;
 	out.ping = (Int)c.ping;
 	out.hasRating = c.hasRating;
-	out.rating = (Int)c.rating;
+	out.rating = roundRating( c.rating );
+	out.exactRating = (Real)c.rating;
 	out.tier = c.tier.c_str();
 	out.games = (Int)c.games;
 	out.wins = (Int)c.wins;
@@ -296,6 +318,10 @@ Bool OnlineGetPlayerInfo( const AsciiString &nick, OnlinePlayerInfo &out )
 	out.rank = (Int)c.rank;
 	out.notOnline = c.notOnline;
 	out.hasStats = c.hasStats;
+	out.hasAIRating = c.hasAIRating;
+	out.aiRating = (Real)c.aiRating;
+	out.aiGames = (Int)c.aiGames;
+	out.aiWins = (Int)c.aiWins;
 	return TRUE;
 }
 
@@ -350,6 +376,98 @@ UnicodeString OnlineRatingText( const OnlinePlayerInfo &info )
 	return text;
 }
 
+//-------------------------------------------------------------------------------------------------
+// the notice's and a maintenance refusal's until
+//-------------------------------------------------------------------------------------------------
+long long OnlineParseUtc( const char *iso )
+{
+	int y, mo, d, h, mi, s = 0, used = 0;
+	if (!iso || !isdigit( (unsigned char)iso[0] )
+		|| sscanf( iso, "%4d-%2d-%2dT%2d:%2d%n", &y, &mo, &d, &h, &mi, &used ) != 5 || used != 16)
+		return -1;
+	const char *p = iso + used;
+	if (*p == ':')
+	{
+		if (!isdigit( (unsigned char)p[1] ) || !isdigit( (unsigned char)p[2] ))
+			return -1;
+		s = (p[1] - '0') * 10 + (p[2] - '0');
+		p += 3;
+		if (*p == '.')
+		{
+			for (++p; isdigit( (unsigned char)*p ); ++p) {}
+		}
+	}
+	long long offset = 0;
+	if (*p == 'Z')
+		++p;
+	else if ((*p == '+' || *p == '-') && isdigit( (unsigned char)p[1] ) && isdigit( (unsigned char)p[2] ) && p[3] == ':'
+		&& isdigit( (unsigned char)p[4] ) && isdigit( (unsigned char)p[5] ))
+	{
+		offset = (((p[1] - '0') * 10 + (p[2] - '0')) * 60 + (p[4] - '0') * 10 + (p[5] - '0')) * 60LL;
+		if (*p == '-')
+			offset = -offset;
+		p += 6;
+	}
+	else
+		return -1;		// a time with no zone is no time the server sends
+	if (*p || mo < 1 || mo > 12 || d < 1 || d > 31 || h > 23 || mi > 59 || s > 60)
+		return -1;
+	// days since 1970-01-01 for a proleptic Gregorian date (Howard Hinnant's days_from_civil)
+	const long long yy = mo <= 2 ? y - 1 : y;
+	const long long era = (yy >= 0 ? yy : yy - 399) / 400;
+	const long long yoe = yy - era * 400;
+	const long long doy = (153 * (mo + (mo > 2 ? -3 : 9)) + 2) / 5 + d - 1;
+	const long long doe = yoe * 365 + yoe / 4 - yoe / 100 + doy;
+	const long long days = era * 146097 + doe - 719468;
+	return days * 86400 + h * 3600 + mi * 60 + s - offset;
+}
+
+UnicodeString OnlineUntilText( const AsciiString &until )
+{
+	UnicodeString text;
+	if (until.isEmpty())
+		return text;
+	const long long when = OnlineParseUtc( until.str() );
+	const time_t t = (time_t)when;
+	const struct tm *at = when >= 0 ? localtime( &t ) : NULL;
+	if (!at)
+	{
+		text.translate( until );		// not a time this reads: the server's own words
+		return text;
+	}
+	const struct tm local = *at;
+	const time_t nowT = time( NULL );
+	const struct tm *now = localtime( &nowT );
+	if (now && now->tm_year == local.tm_year && now->tm_yday == local.tm_yday)
+		text.format( u"%02d:%02d", local.tm_hour, local.tm_min );
+	else if (TheGlobalData && TheGlobalData->m_textLanguage != TEXT_LANGUAGE_ENGLISH)
+		text.format( u"%02d.%02d.%04d %02d:%02d", local.tm_mday, local.tm_mon + 1, local.tm_year + 1900, local.tm_hour, local.tm_min );
+	else
+		text.format( u"%04d-%02d-%02d %02d:%02d", local.tm_year + 1900, local.tm_mon + 1, local.tm_mday, local.tm_hour, local.tm_min );
+	return text;
+}
+
+UnicodeString OnlineMaintenanceText( const AsciiString &until )
+{
+	UnicodeString text;
+	if (!TheGameText)
+		return text;
+	const UnicodeString when = OnlineUntilText( until );
+	if (when.isEmpty())
+		return TheGameText->fetch( "GUI:OnlineMaintenance" );
+	text.format( TheGameText->fetch( "GUI:OnlineMaintenanceUntil" ), when.str() );
+	return text;
+}
+
+Bool OnlineShowMaintenanceRefusal( void )
+{
+	AsciiString until;
+	if (!OnlineIsEnabled() || !OnlineTakeMaintenanceRefusal( until ))
+		return FALSE;
+	GSMessageBoxOk( TheGameText->fetch( "GUI:OnlineMaintenanceTitle" ), OnlineMaintenanceText( until ) );
+	return TRUE;
+}
+
 void OnlineRequestLadder( Int offset )
 {
 	OnlineSession &s = OnlineSession::get();
@@ -371,10 +489,14 @@ static OnlineLadderRow ladderRow( const OnlineMessage &m )
 	r.nick = m.getString( "nick" ).c_str();
 	const OnlineValue *rating = m.find( "rating" );
 	r.hasRating = rating && rating->kind == OnlineValue::NUMBER;
-	r.rating = r.hasRating ? (Int)floor( m.getNumber( "rating" ) + 0.5 ) : 0;
+	r.exactRating = r.hasRating ? (Real)m.getNumber( "rating" ) : 0.0f;
+	r.rating = r.hasRating ? roundRating( m.getNumber( "rating" ) ) : 0;
 	r.tier = m.getString( "tier" ).c_str();
 	r.wins = (Int)m.getInt( "wins", 0 );
 	r.losses = (Int)m.getInt( "losses", 0 );
+	// qm.matched's opponents: the seat's pick, clamped as a seat clamps it, so a screen may index with it
+	r.side = OnlineSeatSide( m.getInt( "side", -1 ), ThePlayerTemplateStore ? ThePlayerTemplateStore->getPlayerTemplateCount() : 0 );
+	r.color = OnlineSeatColor( m.getInt( "color", -1 ), TheMultiplayerSettings ? TheMultiplayerSettings->getNumColors() : 0 );
 	return r;
 }
 
@@ -437,6 +559,8 @@ Bool OnlineGetMatchReveal( OnlineMatchReveal &out )
 	out.opponents.clear();
 	out.server.clear();
 	out.revealMs = 0;
+	out.hasChance = FALSE;
+	out.chance = 0.0f;
 	out.serial = s.revealSerial;
 	if (!s.revealing)
 		return FALSE;
@@ -445,7 +569,147 @@ Bool OnlineGetMatchReveal( OnlineMatchReveal &out )
 		out.opponents.push_back( ladderRow( got[i] ) );
 	out.server = s.reveal.getString( "server" ).c_str();
 	out.revealMs = (Int)s.reveal.getInt( "revealMs", 0 );
+	const OnlineValue *chance = s.reveal.find( "chance" );
+	out.hasChance = chance && chance->kind == OnlineValue::NUMBER;
+	out.chance = (Real)s.reveal.getNumber( "chance" );
 	return TRUE;
+}
+
+static const char *const HISTORY_MODES[] = { "all", "qm", "ai" };		// by OnlineHistoryMode
+
+// a mode's name as OnlineHistoryMode, -1 for one this build does not know
+static Int historyMode( const std::string &name )
+{
+	for (Int k = ONLINE_HISTORY_ALL; k <= ONLINE_HISTORY_AI; ++k)
+		if (name == HISTORY_MODES[k])
+			return k;
+	return -1;
+}
+
+void OnlineRequestHistory( Int id, OnlineHistoryMode mode, Int limit )
+{
+	OnlineSession &s = OnlineSession::get();
+	if (!s.authed || mode < ONLINE_HISTORY_ALL || mode > ONLINE_HISTORY_AI)
+		return;
+	s.expireHistory();
+	const OnlineHistoryKey key( id ? id : s.id, mode );
+	OnlineHistoryEntry &e = s.history[key];
+	if (e.askedMs)
+		return;		// one ask per key: its answer, its error or its timeout comes first
+	e.state = ONLINE_LADDER_WAITING;
+	e.askedMs = OnlineNowMs();
+	e.serial = ++s.historySerial;
+	OnlineMessage m;
+	m.setString( "t", "history" );
+	if (id)
+		m.setInt( "id", id );
+	m.setString( "mode", HISTORY_MODES[mode] ).setInt( "limit", limit < 1 ? 1 : limit > 20 ? 20 : limit );
+	s.send( m );
+	s.historyAsked.push_back( key );
+}
+
+void OnlineSession::historySettled( const OnlineHistoryKey &key, Int state )
+{
+	OnlineHistoryEntry &e = history[key];
+	e.state = state;
+	e.askedMs = 0;
+	e.serial = ++historySerial;
+	for (std::deque<OnlineHistoryKey>::iterator it = historyAsked.begin(); it != historyAsked.end(); ++it)
+	{
+		if (*it == key)
+		{
+			historyAsked.erase( it );
+			break;
+		}
+	}
+}
+
+void OnlineSession::noteHistory( const OnlineMessage &m )
+{
+	const Int k = historyMode( m.getString( "mode" ) );
+	if (k < 0)
+	{
+		DEBUG_LOG(("online: ignored a history line for mode %s\n", m.getString( "mode" ).c_str()));
+		return;
+	}
+	const OnlineHistoryKey key( m.getInt( "id", id ), k );
+	history[key].reply = m;
+	historySettled( key, ONLINE_LADDER_READY );
+}
+
+void OnlineSession::historyRefused( const OnlineMessage &m )
+{
+	// a server that names the ask in its error (id, mode) is matched on them, since a throttled ask is
+	// answered out of order; an older one names nothing, and its errors come in the order of the asks
+	const Int k = historyMode( m.getString( "mode" ) );
+	if (k >= 0)
+		historySettled( OnlineHistoryKey( m.getInt( "id", id ), k ), ONLINE_LADDER_FAILED );
+	else if (!historyAsked.empty())
+		historySettled( historyAsked.front(), ONLINE_LADDER_FAILED );
+}
+
+void OnlineSession::expireHistory()
+{
+	// a server that never answers (a handler that threw) must not leave a key waiting for ever
+	const long long now = OnlineNowMs();
+	for (std::map<OnlineHistoryKey, OnlineHistoryEntry>::iterator it = history.begin(); it != history.end(); ++it)
+		if (it->second.askedMs && now - it->second.askedMs > ONLINE_HISTORY_TIMEOUT_MS)
+			historySettled( it->first, ONLINE_LADDER_FAILED );		// an existing key: no insert, the iterator holds
+}
+
+UnsignedInt OnlineGetHistorySerial( Int id, OnlineHistoryMode mode )
+{
+	OnlineSession &s = OnlineSession::get();
+	s.expireHistory();
+	std::map<OnlineHistoryKey, OnlineHistoryEntry>::const_iterator it = s.history.find( OnlineHistoryKey( id ? id : s.id, mode ) );
+	return it == s.history.end() ? 0 : it->second.serial;
+}
+
+static void historyArmies( const OnlineMessage &m, const char *key, std::vector<OnlineHistoryArmy> &out )
+{
+	const std::vector<OnlineMessage> got = m.getObjects( key );
+	for (size_t i = 0; i < got.size(); ++i)
+	{
+		OnlineHistoryArmy a;
+		a.army = got[i].getString( "army" ).c_str();
+		a.games = (Int)got[i].getInt( "games" );
+		a.wins = (Int)got[i].getInt( "wins" );
+		out.push_back( a );
+	}
+}
+
+OnlineLadderState OnlineGetHistory( Int id, OnlineHistoryMode mode, OnlineHistory &out )
+{
+	OnlineSession &s = OnlineSession::get();
+	s.expireHistory();
+	out = OnlineHistory();
+	std::map<OnlineHistoryKey, OnlineHistoryEntry>::const_iterator it = s.history.find( OnlineHistoryKey( id ? id : s.id, mode ) );
+	if (it == s.history.end())
+		return ONLINE_LADDER_FAILED;
+	const OnlineMessage &m = it->second.reply;
+	out.arrived = m.size() > 0;
+	out.id = (Int)m.getInt( "id", it->first.first );
+	out.games = (Int)m.getInt( "games" );
+	out.wins = (Int)m.getInt( "wins" );
+	const std::vector<OnlineMessage> rows = m.getObjects( "rows" );
+	for (size_t i = 0; i < rows.size(); ++i)
+	{
+		OnlineHistoryRow r;
+		r.ai = rows[i].getString( "mode" ) == "ai";
+		r.won = rows[i].getString( "result" ) == "win";
+		r.map = rows[i].getString( "map" ).c_str();
+		r.opponent = rows[i].getString( "opponent" ).c_str();
+		r.opponentRating = (Real)rows[i].getNumber( "opponentRating" );
+		r.playerArmy = rows[i].getString( "playerArmy" ).c_str();
+		r.opponentArmy = rows[i].getString( "opponentArmy" ).c_str();
+		r.seconds = (Int)rows[i].getInt( "seconds" );
+		r.change = (Real)rows[i].getNumber( "change" );
+		r.age = (Int)rows[i].getInt( "age" );
+		out.rows.push_back( r );
+	}
+	historyArmies( m, "byArmy", out.byArmy );
+	historyArmies( m, "byOpponentArmy", out.byOpponentArmy );
+	return (OnlineLadderState)it->second.state;
 }
 
 Bool OnlineGetMatchResult( Bool &rated, Real &delta, Real &rating, AsciiString &reason )
@@ -454,8 +718,10 @@ Bool OnlineGetMatchResult( Bool &rated, Real &delta, Real &rating, AsciiString &
 	if (!s.result.size() || s.matchId.empty() || s.result.getString( "match" ) != s.matchId)
 		return FALSE;
 	rated = s.result.type() == "rated";
-	delta = (Real)s.result.getNumber( "delta" );
-	rating = (Real)s.result.getNumber( "rating" );
+	// delta and rating, or before and after from a server that sends those instead
+	const double after = s.result.getNumber( "after" );
+	delta = (Real)s.result.getNumber( "delta", after - s.result.getNumber( "before", after ) );
+	rating = (Real)s.result.getNumber( "rating", after );
 	reason = s.result.getString( "reason" ).c_str();
 	return TRUE;
 }

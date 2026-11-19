@@ -124,6 +124,7 @@
 #include "GameNetwork/CrcAgreement.h"
 #include "GameNetwork/NetworkInterface.h"
 #include "GameNetwork/GameSpy/PersistentStorageThread.h"
+#include "GameNetwork/Online/OnlineQueues.h"
 
 #include <rts/profile.h>
 
@@ -1291,6 +1292,27 @@ void GameLogic::startNewGame( Bool loadingSaveGame )
 		TheWritableGlobalData->m_peaceTime = 0;
 		TheWritableGlobalData->m_unitLimit = FALSE;
 	}
+	/* Play vs AI is rated by the server on what this machine tells it.  The hub built its slots from the
+		 server's map, seed and AI rating at the native speed, so -airating, -seed, -gamespeed, -takeover,
+		 -side and the rest of -autoskirmish's never reach it; these are the switches the match reads
+		 while it plays, and none of them may change it. */
+	else if (m_gameMode == GAME_SKIRMISH && OnlineIsAIMatchLive())
+	{
+		TheWritableGlobalData->m_scenarioFile.clear();								// -scenario
+		TheWritableGlobalData->m_peaceTime = 0;												// -peacetime
+		TheWritableGlobalData->m_unitLimit = FALSE;										// -unitlimit
+		TheWritableGlobalData->m_autoSkirmishObserver = FALSE;				// -observer
+		TheWritableGlobalData->m_noTacticsSlotParity = -1;						// -notactics
+		TheWritableGlobalData->m_aiKnobsOffParity = -1;								// -aiknobsoff
+		TheWritableGlobalData->m_aiKnobsOffMask = 0;
+		TheWritableGlobalData->m_turbo = FALSE;												// -turbo
+		TheWritableGlobalData->m_noDraw = 0;													// -jumpToFrame, -noDraw
+#if defined(_DEBUG) || defined(_INTERNAL)
+		TheWritableGlobalData->m_shroudOn = TRUE;											// -noshroud
+		TheWritableGlobalData->m_allowUnselectableSelection = FALSE;	// -selectTheUnselectable
+#endif
+		TheWritableGlobalData->m_framesPerSecondLimit = LOGICFRAMES_PER_SECOND;	// -fps, which a script puts back after a cinematic
+	}
 
 	m_showBehindBuildingMarkers = TRUE;
 	m_drawIconUI = TRUE;
@@ -1628,6 +1650,9 @@ void GameLogic::startNewGame( Bool loadingSaveGame )
 				// absent for Normal, so a Normal seat's dict is the one it always was
 				if (slot->getAIPersonality() != AIPERSONA_NORMAL)
 					d.setInt(TheKey_skirmishAIPersonality, slot->getAIPersonality());
+				// and the rating in hundredths, only on a seat off its rung's anchor (-airating)
+				if (slot->getAIRating() != AI_RATING_NONE)
+					d.setInt(TheKey_skirmishAIRating, slot->getAIRating());
 			}
 
 			// by index: the name went through an ASCII translate and back, which no name with a
@@ -2333,6 +2358,15 @@ void GameLogic::startNewGame( Bool loadingSaveGame )
 	TheTacticalView->setAngleAndPitchToDefault();
 	// the opening zoom is the view's to pick from client settings (View::setZoomToStart)
 	TheTacticalView->setZoomToStart( isInShellGame() );
+	{
+		// where the match opens, to set beside W3DView's CAMERA FIRST DRAW: a match that opened
+		// looking past the map's edge left nothing in the log to say so
+		Coord3D look;
+		TheTacticalView->getPosition( &look );
+		DEBUG_LOG(( "CAMERA START look point %.1f %.1f from %s %.1f %.1f %.1f\n", look.x, look.y,
+			way ? startingCamName.str() : "the map's middle",
+			way ? way->getLocation()->x : look.x, way ? way->getLocation()->y : look.y, way ? way->getLocation()->z : 0.0f ));
+	}
 
 	// update the loadscreen 
 	updateLoadProgress(LOAD_PROGRESS_POST_STARTING_CAMERA_2);

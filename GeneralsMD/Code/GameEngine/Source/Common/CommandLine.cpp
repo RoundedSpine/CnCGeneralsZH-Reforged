@@ -1355,6 +1355,30 @@ Int parseAIDifficulty2(char *args[], int num)
 	return 2;
 }
 
+/** -airating <r> and -airating2 <r>: an -autoskirmish AI seat's rating, every seat's and the odd seats',
+	* over -aidiff and -aidiff2, on the online ladder's scale.  Clamped to AI_RATING_EASY..AI_RATING_HARD
+	* and kept to the hundredth; the seat's rung is the nearest, so its map scripts run at that rung, and
+	* the anchors (0, 15, 30) are exactly Easy, Medium and Hard.  It goes into the slot, so the replay
+	* header carries it and playback takes no switch. */
+static Int parseRatingValue( const char *arg )
+{
+	return aiRatingToHundredths( (Real)atof( arg ) );
+}
+
+Int parseAIRating(char *args[], int num)
+{
+	if (TheWritableGlobalData && num > 1)
+		TheWritableGlobalData->m_autoSkirmishRating = parseRatingValue(args[1]);
+	return 2;
+}
+
+Int parseAIRating2(char *args[], int num)
+{
+	if (TheWritableGlobalData && num > 1)
+		TheWritableGlobalData->m_autoSkirmishRatingOdd = parseRatingValue(args[1]);
+	return 2;
+}
+
 /** -notactics even|odd: those slots keep their rung but fight without its unit tactics, so a batch can
 	* play Hard against the same Hard minus one thing, from both sides of the map.  Read only in a
 	* single-player skirmish (AIPlayer::doTactics), so a network game never sees it. */
@@ -1368,7 +1392,7 @@ Int parseNoTactics(char *args[], int num)
 	return 2;
 }
 
-/** -aiknobsoff even|odd|all engagegate,answerarmy,massunit,basewatch,strikedodge,defensequeue,costmap,abilities,maplayers,foreigntech,secondbase: those slots keep their rung with these knobs
+/** -aiknobsoff even|odd|all engagegate,answerarmy,massunit,basewatch,strikedodge,defensequeue,costmap,abilities,maplayers,foreigntech,secondbase,killzones: those slots keep their rung with these knobs
 	* of its profile off, so a batch can play Hard against Hard without them, or a scenario against the AI
 	* as it was.  A measuring aid like -notactics: read only in a single-player skirmish, never in a
 	* network game, and a replay made with it is played back with it given again. */
@@ -1392,6 +1416,7 @@ Int parseAIKnobsOff(char *args[], int num)
 		if (strstr(names.str(), "maplayers")) mask |= AIKNOB_MAP_LAYERS;
 		if (strstr(names.str(), "foreigntech")) mask |= AIKNOB_FOREIGN_TECH;
 		if (strstr(names.str(), "secondbase")) mask |= AIKNOB_SECOND_BASE;
+		if (strstr(names.str(), "killzones")) mask |= AIKNOB_KILL_ZONES;
 		TheWritableGlobalData->m_aiKnobsOffMask = mask;
 	}
 	return 3;
@@ -1784,6 +1809,16 @@ Int parseDirectorTimeline(char *args[], int num)
 {
 	if (TheWritableGlobalData && num > 1)
 		TheWritableGlobalData->m_directorTimelineFile = args[1];
+	return 2;
+}
+
+/* -directorreplays <file>: -directorrecord's third pass, which WinMain starts once the film is done
+	 when the filming pass wrote any instant replay to its Videos\<name>.replays.  The same match again,
+	 undrawn but for the replays' frames, recorded back to back as Videos\<name>_replays.mp4. */
+Int parseDirectorReplays(char *args[], int num)
+{
+	if (TheWritableGlobalData && num > 1)
+		TheWritableGlobalData->m_directorReplaysFile = args[1];
 	return 2;
 }
 
@@ -2703,6 +2738,15 @@ Int parseOnlineLogin(char *args[], int num)
 	return 1;
 }
 
+/* -testNotice maintenance|info: the online service's notice banner with no server behind it, in the shell
+	 and in a match, for a proof shot.  Anything but info is the maintenance one. */
+Int parseTestNotice(char *args[], int num)
+{
+	if (TheWritableGlobalData && num > 1)
+		TheWritableGlobalData->m_testNotice = args[1];
+	return 2;
+}
+
 Int parseQuickMatch(char *args[], int num)
 {
 	if (TheWritableGlobalData)
@@ -2985,6 +3029,8 @@ static CommandLineParam params[] =
 	{ "-autoskirmish", parseAutoSkirmish },
 	{ "-aidiff", parseAIDifficulty },
 	{ "-aidiff2", parseAIDifficulty2 },
+	{ "-airating", parseAIRating },
+	{ "-airating2", parseAIRating2 },
 	{ "-aipersona", parseAIPersona },
 	{ "-aipersona2", parseAIPersona2 },
 	{ "-aipersonaall", parseAIPersonaAll },
@@ -3003,6 +3049,7 @@ static CommandLineParam params[] =
 	{ "-recordfps", parseRecordFps },
 	{ "-directorscout", parseDirectorScout },
 	{ "-directortimeline", parseDirectorTimeline },
+	{ "-directorreplays", parseDirectorReplays },
 	{ "-wav", parseWav },
 	{ "-turbo", parseTurbo },
 	{ "-msaa", parseMSAA },
@@ -3061,6 +3108,7 @@ static CommandLineParam params[] =
 	{ "-onlineoptions", parseOnlineOptions },
 	{ "-onlinestart", parseOnlineStart },
 	{ "-onlinelogin", parseOnlineLogin },
+	{ "-testNotice", parseTestNotice },
 	{ "-quickmatch", parseQuickMatch },
 	{ "-lanlobby", parseLanLobby },
 	{ "-skirmishlobby", parseSkirmishLobby },

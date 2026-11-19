@@ -156,6 +156,9 @@ public:
 	void setHandicap( Int handicap ) { m_handicap = handicap; }	///< percent of max health this seat's units have, see IsValidHandicap
 	Int getHandicap( void ) const { return m_handicap; }
 
+	void setAIRating( Int rating );	///< an AI seat's rating off its rung's anchor (-airating), in hundredths; AI_RATING_NONE for the anchor.  A Hard seat still under its default name takes the name of the rating's level
+	Int getAIRating( void ) const { return m_aiRating; }
+
 	void setSkins( UnsignedInt64 skins ) { m_skins = skins; }	///< the SkinLoadout this seat's units are drawn in; drawing only, the logic never reads it
 	UnsignedInt64 getSkins( void ) const { return m_skins; }
 
@@ -210,6 +213,7 @@ protected:
 	Int m_teamNumber;																	///< alliance, -1 for none
 	Int m_aiPersonality;															///< AIPersonality of an AI seat, AIPERSONA_NORMAL otherwise
 	Int m_handicap;																		///< percent of max health this seat's units have, HANDICAP_FULL for none
+	Int m_aiRating;																		///< AI rating off the rung's anchor in hundredths, AI_RATING_NONE for the anchor
 	UnsignedInt64 m_skins;														///< SkinLoadout of an online human seat, 0 for none (TankSkin.h)
 	Int m_origColor;																			///< color, or -1 for random
 	Int m_origStartPos;																		///< start position, or -1 for random
@@ -452,6 +456,13 @@ Bool IsValidHandicap( Int handicap );
 AsciiString HandicapSlotField( Int handicap );
 Int HandicapFromSlotField( const char *field );
 
+// An AI seat's rating off its rung's anchor (-airating) goes after the handicap, persona and handicap
+// then written out in full: C<rung>,color,tmpl,start,team,persona,handicap,rating.  Only such a seat
+// writes it, so every other string stays the one it was, and an older parser stops at the handicap.
+// It is whole hundredths (1250 is 12.50, -1000 is -10.00).  Absent, or past AI_RATING_LIMIT either way,
+// is AI_RATING_NONE: the rung's anchor.
+Int AIRatingFromSlotField( const char *field );
+
 // A guest's "Handicap=<n>" request reaching the host.  TRUE when the slot list has to go round again,
 // which it does for a pick that does not fit in the options string as well: the guest's box has to
 // come back to what the host kept.
@@ -476,6 +487,16 @@ Bool IsAISlotState( SlotState state );
 char SlotStateToOptionsChar( SlotState state );
 Bool OptionsCharToSlotState( char c, SlotState *state );
 UnicodeString SlotStateName( SlotState state );
+/// the same, for a seat at a rating (hundredths): a Hard seat at one of the levels above Hard is called by that level
+UnicodeString SlotStateName( SlotState state, Int aiRating );
+
+// The levels above Hard are not rungs: each is a Hard seat at a rating of its own, in hundredths, so
+// the slot string, saves and replays already carry them.  The player slot box offers them after Hard,
+// and a line's item data is its pick: a SlotState, or one of these ratings, which no state reaches.
+enum { AI_LEVELS_ABOVE_HARD = 4 };
+extern const Int AILevelAboveHardRating[ AI_LEVELS_ABOVE_HARD ];
+Int SlotPickOf( const GameSlot *slot );				///< the line of the box a seat sits on
+void SlotApplyPick( GameSlot *slot, Int pick );	///< seat the pick: its state, then its rating
 
 // A seat in the lobby's game list, from the name and the profile ID the host advertised for it.  An
 // AI seat advertises its SlotState as the profile ID and "CE", "CM", "CH" (or nothing) as the name;
