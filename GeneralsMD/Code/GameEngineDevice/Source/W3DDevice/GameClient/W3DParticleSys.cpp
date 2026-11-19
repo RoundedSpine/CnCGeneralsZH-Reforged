@@ -30,6 +30,7 @@
 
 #include "Common/GlobalData.h"
 #include "Platform/SceneEffects.h"
+#include "Platform/ParticleShaders.h"
 #include "Lib/Clock.h"
 #include "GameClient/Color.h"
 #include "W3DDevice/GameClient/W3DParticleSys.h"
@@ -122,6 +123,8 @@ static_assert( sizeof( ParticleGpuSpawn ) == 80 && sizeof( ParticleGpuSystemEntr
 	"DX11GpuParticles.cpp's SpawnStride and EntryStride" );
 static_assert( PARTICLE_CLOSED_FORM_FADE_MAX_FRAMES == 8 * LOGICFRAMES_PER_RETAIL_FRAME && PARTICLE_CLOSED_FORM_FADE_LIFETIME_DIVISOR == 4,
 	"DX11GpuParticles.cpp's closed_fade" );
+// The SDL particle shader reads its fade length from ParticleShaders.h, which it cannot derive itself.
+[[maybe_unused]] static const bool s_sdlFadeMaxFrames = ( ParticleShaders::FadeMaxFrames() = PARTICLE_CLOSED_FORM_FADE_MAX_FRAMES, true );
 static_assert( GpuParticles::SYSTEM_SLOTS <= 0x10000, "a spawn record holds its slot in 16 bits" );
 static_assert( MAX_KEYFRAMES == 8, "DX11GpuParticles.cpp's SystemEntry holds eight segments of each" );
 

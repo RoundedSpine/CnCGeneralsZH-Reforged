@@ -333,9 +333,11 @@ static const char DRAW_VERTEX_PROGRAM[] =
 inline void Replace(std::string &text,const char *from,const char *to){
     const auto at=text.find(from);if(at!=std::string::npos)text.replace(at,std::char_traits<char>::length(from),to);
 }
+// The fade length the game writes into closed_fade (W3DParticleSys.cpp sets it from ParticleClosedForm.h at startup).
+// The SDL device cannot include GameEngine headers, so it reads it from here; 8 is the value at the 30 Hz logic tick.
+inline unsigned &FadeMaxFrames(){static unsigned frames=8;return frames;}
 // fadeMaxFrames is ParticleClosedForm.h's PARTICLE_CLOSED_FORM_FADE_MAX_FRAMES (eight retail frames in logic
-// frames) written into closed_fade's FADE_MAX. The default of 16 is the text the shader always had, so a shipped
-// shader cache still matches it at 60 ticks a second.
+// frames) written into closed_fade's FADE_MAX. The default of 16 is the text the shader had before this was a parameter.
 inline std::string Evaluation(bool native=false,unsigned fadeMaxFrames=16){
     std::string text=EVALUATE_PROGRAM;
     const std::string fadeMax=std::to_string(fadeMaxFrames);

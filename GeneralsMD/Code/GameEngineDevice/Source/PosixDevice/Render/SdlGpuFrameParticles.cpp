@@ -2,7 +2,6 @@
 #include "SdlGpuFrame.h"
 #include "Platform/ParticleBudget.h"
 #include "Platform/ParticleShaders.h"
-#include "Common/GameCommon.h"
 #include "Platform/IOSLifecycle.h"
 #include "sdl3shadercompile.h"
 #include <SDL3/SDL.h>
@@ -59,7 +58,7 @@ bool SdlGpuFrame::Prepare_Particles(unsigned capacity,bool *fresh){
         ||!buffer(p.Fades,NativeParticleBudget::Systems*4,SDL_GPU_BUFFERUSAGE_COMPUTE_STORAGE_READ)
         ||!buffer(p.Aged,capacity*32,SDL_GPU_BUFFERUSAGE_COMPUTE_STORAGE_WRITE|SDL_GPU_BUFFERUSAGE_GRAPHICS_STORAGE_READ))return Particle_Failure("particle buffers");
     std::string error;std::vector<unsigned char> spv;
-    if(!SDL3_Compile_HLSL(ParticleShaders::Evaluation(true,8*LOGICFRAMES_PER_RETAIL_FRAME),SdlShaderStage::Compute,spv,error)
+    if(!SDL3_Compile_HLSL(ParticleShaders::Evaluation(true,ParticleShaders::FadeMaxFrames()),SdlShaderStage::Compute,spv,error)
         ||!(p.Compute=SDL3_Create_Compute(GpuDevice,spv,error))) {SDL_SetError("%s",error.c_str());return Particle_Failure("compute shader");}
     if(!SDL3_Compile_HLSL_To_SPIRV(ParticleShaders::Vertex(true),true,spv,error)
         ||!(p.Vertex=SDL3_Create_Shader(GpuDevice,spv,true,error))) {SDL_SetError("%s",error.c_str());return Particle_Failure("vertex shader");}
