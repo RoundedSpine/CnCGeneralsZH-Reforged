@@ -1,90 +1,3 @@
-[419/1634] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/gcm.c.o
-[420/1634] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/hmac_drbg.c.o
-[421/1634] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/lms.c.o
-[422/1634] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/lmots.c.o
-[423/1634] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/md.c.o
-[424/1634] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/md5.c.o
-[425/1634] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/memory_buffer_alloc.c.o
-[426/1634] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/mps_reader.c.o
-[427/1634] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/mps_trace.c.o
-[428/1634] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/net_sockets.c.o
-[429/1634] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/nist_kw.c.o
-[430/1634] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/oid.c.o
-[431/1634] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/padlock.c.o
-[432/1634] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/pem.c.o
-[433/1634] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/pk_ecc.c.o
-[434/1634] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/pk.c.o
-[435/1634] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/pk_wrap.c.o
-[436/1634] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/pkcs12.c.o
-[437/1634] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/pkcs5.c.o
-[438/1634] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/pkcs7.c.o
-[439/1634] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/pkparse.c.o
-[440/1634] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/pkwrite.c.o
-[441/1634] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/platform.c.o
-[442/1634] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/platform_util.c.o
-[443/1634] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/poly1305.c.o
-[444/1634] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/psa_crypto_aead.c.o
-[445/1634] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/psa_crypto_cipher.c.o
-[446/1634] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/psa_crypto_client.c.o
-[447/1634] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/psa_crypto_driver_wrappers_no_static.c.o
-[448/1634] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/psa_crypto_ecp.c.o
-[449/1634] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/psa_crypto.c.o
-[450/1634] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/psa_crypto_ffdh.c.o
-[451/1634] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/psa_crypto_hash.c.o
-[452/1634] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/psa_crypto_mac.c.o
-[453/1634] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/psa_crypto_pake.c.o
-[454/1634] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/psa_crypto_random.c.o
-[455/1634] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/psa_crypto_se.c.o
-[456/1634] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/psa_crypto_rsa.c.o
-[457/1634] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/psa_crypto_slot_management.c.o
-[458/1634] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/psa_crypto_storage.c.o
-[459/1634] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/psa_its_file.c.o
-[460/1634] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/psa_util.c.o
-[461/1634] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/ripemd160.c.o
-[462/1634] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/rsa.c.o
-[463/1634] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/rsa_alt_helpers.c.o
-[464/1634] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/sha1.c.o
-[465/1634] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/sha256.c.o
-[466/1634] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/sha3.c.o
-[467/1634] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/sha512.c.o
-[468/1634] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/ssl_cache.c.o
-[469/1634] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/ssl_ciphersuites.c.o
-[470/1634] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/ssl_client.c.o
-[471/1634] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/ssl_debug_helpers_generated.c.o
-[472/1634] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/ssl_cookie.c.o
-[473/1634] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/ssl_ticket.c.o
-[474/1634] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/ssl_msg.c.o
-[475/1634] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/ssl_tls.c.o
-[476/1634] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/ssl_tls12_client.c.o
-[477/1634] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/ssl_tls12_server.c.o
-[478/1634] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/ssl_tls13_generic.c.o
-[479/1634] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/ssl_tls13_client.c.o
-[480/1634] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/ssl_tls13_keys.c.o
-[481/1634] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/threading.c.o
-[482/1634] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/timing.c.o
-[483/1634] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/ssl_tls13_server.c.o
-[484/1634] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/version_features.c.o
-[485/1634] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/version.c.o
-[486/1634] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/x509_crl.c.o
-[487/1634] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/x509_create.c.o
-[488/1634] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/x509.c.o
-[489/1634] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/x509write.c.o
-[490/1634] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/x509_csr.c.o
-[491/1634] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/x509_crt.c.o
-[492/1634] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/x509write_csr.c.o
-[493/1634] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/x509write_crt.c.o
-[494/1634] Linking CXX static library libffshader.a
-[495/1634] Linking CXX static library libsdl3_shadercross.a
-[496/1634] Building CXX object CMakeFiles/sdl3shadercompile.dir/Libraries/Source/WWVegas/WW3D2/sdl3shadercompile.cpp.o
-[497/1634] Building CXX object CMakeFiles/ffvertex.dir/Libraries/Source/WWVegas/WW3D2/ffvertex.cpp.o
-[498/1634] Generating host-tools/build_fingerprint.stamp
-[499/1634] Building CXX object CMakeFiles/engineshader.dir/Libraries/Source/WWVegas/WW3D2/engineshader.cpp.o
-[500/1634] Building C object freetype/CMakeFiles/freetype.dir/src/base/ftbbox.c.o
-[501/1634] Building C object freetype/CMakeFiles/freetype.dir/src/base/ftbdf.c.o
-[502/1634] Building C object freetype/CMakeFiles/freetype.dir/src/base/ftbitmap.c.o
-[503/1634] Building C object freetype/CMakeFiles/freetype.dir/src/autofit/autofit.c.o
-[504/1634] Building C object freetype/CMakeFiles/freetype.dir/src/base/ftcid.c.o
-[505/1634] Building C object freetype/CMakeFiles/freetype.dir/src/base/ftgasp.c.o
 [506/1634] Building C object freetype/CMakeFiles/freetype.dir/src/base/ftfstype.c.o
 [507/1634] Building C object freetype/CMakeFiles/freetype.dir/src/base/ftgxval.c.o
 [508/1634] Building C object freetype/CMakeFiles/freetype.dir/src/base/ftglyph.c.o
@@ -298,3 +211,90 @@
 [716/1634] Building C object gamespy/src/peer/CMakeFiles/gspeer.dir/peerplayers.c.o
 [717/1634] Building C object gamespy/src/peer/CMakeFiles/gspeer.dir/peerqr.c.o
 [718/1634] Building C object gamespy/src/peer/CMakeFiles/gspeer.dir/peerrooms.c.o
+[719/1634] Building C object gamespy/src/peer/CMakeFiles/gspeer.dir/peersb.c.o
+[720/1634] Building C object gamespy/src/pt/CMakeFiles/gspt.dir/ptmain.c.o
+[721/1634] Building C object gamespy/src/sake/CMakeFiles/gssake.dir/sakemain.c.o
+[722/1634] Building C object gamespy/src/sake/CMakeFiles/gssake.dir/sakerequest.c.o
+[723/1634] Building C object gamespy/src/sake/CMakeFiles/gssake.dir/sakerequestmisc.c.o
+[724/1634] Building C object gamespy/src/sake/CMakeFiles/gssake.dir/sakerequestmodify.c.o
+[725/1634] Building C object gamespy/src/sake/CMakeFiles/gssake.dir/sakerequestread.c.o
+[726/1634] Building C object gamespy/src/webservices/CMakeFiles/gswebservices.dir/authservice.c.o
+[727/1634] Building C object gamespy/src/sc/CMakeFiles/gssc.dir/sciinterface.c.o
+[728/1634] Building C object gamespy/src/sc/CMakeFiles/gssc.dir/scimain.c.o
+[729/1634] Building C object gamespy/src/sc/CMakeFiles/gssc.dir/scireport.c.o
+[730/1634] Building C object gamespy/src/sc/CMakeFiles/gssc.dir/sciserialize.c.o
+[731/1634] Building C object gamespy/src/sc/CMakeFiles/gssc.dir/sciwebservices.c.o
+[732/1634] Linking CXX static library libwwutil.a
+[733/1634] Linking C static library freetype/libfreetype.a
+[734/1634] Linking CXX static library libcompression.a
+[735/1634] Linking C static library libbenchmark.a
+[736/1634] Linking CXX static library libiosstartup.a
+[737/1634] Linking CXX static library libwwsaveload.a
+[738/1634] Linking CXX static library libglyphrasteriser.a
+[739/1634] Linking OBJC static library libminiaudio.a
+[740/1634] Linking CXX static library libonlineconnection.a
+[741/1634] Building CXX object CMakeFiles/d3dx9runtime.dir/Libraries/Source/WWVegas/WW3D2/d3dx9posix.cpp.o
+[742/1634] Building CXX object CMakeFiles/d3dx9runtime.dir/Libraries/Source/WWVegas/WW3D2/d3dx9posix_texture.cpp.o
+[743/1634] Building CXX object CMakeFiles/milesaudio.dir/Libraries/Source/WWVegas/Miles6/miniaudio/miles_miniaudio.cpp.o
+[744/1634] Building CXX object CMakeFiles/d3dx9runtime.dir/Libraries/Source/WWVegas/WW3D2/d3dx9portable.cpp.o
+[745/1634] Linking CXX static library libposixd3d9.a
+[746/1634] Building CXX object CMakeFiles/d3dx9runtime.dir/Libraries/Source/WWVegas/WW3D2/d3d8shadertranslate.cpp.o
+[747/1634] Linking C static library libgamespy.a
+[748/1634] Linking CXX static library libmilesaudio.a
+[749/1634] Linking CXX static library libd3dx9runtime.a
+[750/1634] Build fingerprint over the tracked sources (N1)
+[751/1634] Building CXX object CMakeFiles/ww3d2.dir/Libraries/Source/WWVegas/WW3D2/aabtree.cpp.o
+[752/1634] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/Audio/AudioRequest.cpp.o
+[753/1634] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/Audio/AudioEventRTS.cpp.o
+[754/1634] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/Audio/DynamicAudioEventInfo.cpp.o
+[755/1634] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/Audio/GameAudio.cpp.o
+[756/1634] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/Audio/GameMusic.cpp.o
+[757/1634] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/Audio/GameSounds.cpp.o
+[758/1634] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/Bezier/BezFwdIterator.cpp.o
+[759/1634] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/Bezier/BezierSegment.cpp.o
+[760/1634] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/BitFlags.cpp.o
+[761/1634] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/CRCDebug.cpp.o
+[762/1634] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/CommandLine.cpp.o
+[763/1634] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/Dict.cpp.o
+[764/1634] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/DamageFX.cpp.o
+[765/1634] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/DiscreteCircle.cpp.o
+[766/1634] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/DrawnPath.cpp.o
+[767/1634] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/GameLOD.cpp.o
+[768/1634] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/GameMain.cpp.o
+[769/1634] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/GameEngine.cpp.o
+[770/1634] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/GlobalData.cpp.o
+[771/1634] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/INI/INI.cpp.o
+[772/1634] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/INI/INIAiData.cpp.o
+[773/1634] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/INI/INIAnimation.cpp.o
+[774/1634] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/INI/INIAudioEventInfo.cpp.o
+[775/1634] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/INI/INICommandButton.cpp.o
+[776/1634] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/INI/INICommandSet.cpp.o
+[777/1634] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/INI/INIControlBarScheme.cpp.o
+[778/1634] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/INI/INICrate.cpp.o
+[779/1634] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/INI/INIDamageFX.cpp.o
+[780/1634] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/INI/INIDrawGroupInfo.cpp.o
+[781/1634] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/INI/INIGameData.cpp.o
+[782/1634] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/INI/INIMapCache.cpp.o
+[783/1634] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/INI/INIMapData.cpp.o
+[784/1634] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/INI/INIMappedImage.cpp.o
+[785/1634] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/INI/INIMiscAudio.cpp.o
+[786/1634] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/INI/INIModel.cpp.o
+[787/1634] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/INI/INIMultiplayer.cpp.o
+[788/1634] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/INI/INIObject.cpp.o
+[789/1634] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/INI/INIParticleSys.cpp.o
+[790/1634] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/INI/INISpecialPower.cpp.o
+[791/1634] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/INI/INITerrain.cpp.o
+[792/1634] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/INI/INITerrainBridge.cpp.o
+[793/1634] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/INI/INITerrainRoad.cpp.o
+[794/1634] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/INI/INIUpgrade.cpp.o
+[795/1634] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/INI/INIVideo.cpp.o
+[796/1634] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/INI/INIWater.cpp.o
+[797/1634] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/INI/INIWeapon.cpp.o
+[798/1634] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/INI/INIWebpageURL.cpp.o
+[799/1634] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/Language.cpp.o
+[800/1634] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/InstallFiles.cpp.o
+[801/1634] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/MapObject.cpp.o
+[802/1634] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/MessageStream.cpp.o
+[803/1634] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/MiniLog.cpp.o
+[804/1634] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/MultiplayerSettings.cpp.o
+[805/1634] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/NameKeyGenerator.cpp.o
