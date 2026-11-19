@@ -1,0 +1,6 @@
+
+Total Test time (real) =  58.11 sec
+
+The following tests FAILED:
+	 72 - test_gameengine (Failed)
+Errors while running CTest
