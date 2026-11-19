@@ -498,7 +498,11 @@ static UnicodeString tipText( Int number, Bool *exists = NULL )
 {
 	AsciiString label;
 	label.format( "GUI:LoadTip%d", number );
-	return TheGameText->fetch( label, exists );
+	// probed first: the count runs one past the last tip, and fetching that one logs it as missing text
+	const Bool there = UIStyle::hasText( label.str() );
+	if( exists )
+		*exists = there;
+	return there ? TheGameText->fetch( label ) : UnicodeString::TheEmptyString;
 }
 
 GameWindow *LoadScreenBoard::create( GameInfo *game, const char *modeLabel, Bool cardBars )
@@ -569,7 +573,7 @@ GameWindow *LoadScreenBoard::create( GameInfo *game, const char *modeLabel, Bool
 		UnicodeString detail;
 		if( slot->isAI() )
 		{
-			const UnicodeString level = SlotStateName( slot->getState() );
+			const UnicodeString level = SlotStateName( slot->getState(), slot->getAIRating() );
 			if( slot->getName().compare( level ) != 0 )
 				detail = level;
 			if( slot->getAIPersonality() != AIPERSONA_NORMAL )

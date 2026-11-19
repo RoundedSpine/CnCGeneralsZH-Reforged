@@ -56,6 +56,9 @@ GameResultsInterface *OnlineCreateGameResults( void );	///< drops EA's results: 
 	 arrived; call it once a frame from the main thread while anything online is up.  Not needed while a
 	 screen polls a queue (getResponse pumps too), but the welcome is waited for before any queue exists. */
 void OnlineUpdate( void );
+/* OnlineUpdate for an open connection only, dialling nothing: GameClient::update calls it every pass, so a
+	 notice or the server's ping is read in a match too, where no online screen pumps. */
+void OnlinePumpIfConnected( void );
 
 enum OnlineStatus
 {
@@ -77,10 +80,64 @@ AsciiString OnlineGetRegisterUrl( void );
 /* welcome.resetUrl, the site's forgotten-password page; empty when the server sent none, and the login
 	 screen then hides Forgot Password. */
 AsciiString OnlineGetResetUrl( void );
+/* welcome.accountUrl, the site's account page (the Skins tab sends the player there); empty when the
+	 server sent none. */
+AsciiString OnlineGetAccountUrl( void );
+/* Players signed in, open custom games and players in the Quick Match queue, from welcome.counts and the
+	 counts line the server sends a signed-in client every 30 s.  FALSE (all three 0) until a server that
+	 sends them did, and again once the connection is dropped. */
+Bool OnlineGetCounts( Int &players, Int &games, Int &queue );
+/* welcome.server{name, city}, UTF-8 (convert before showing), and the round trip to the server in ms,
+	 smoothed over our own ping{n} every 10 s from the welcome on; -1 until the first pong, and for good
+	 from a server that does not know ping.  FALSE when the welcome carried no server object (an older
+	 server, or one that has no name set); the names are empty then, the round trip still counts. */
+Bool OnlineGetServerInfo( AsciiString &name, AsciiString &city, Int &pingMs );
 /* The code of the last login the server refused (auth.fail: badlogin, throttled, expired...), and its
 	 retry in seconds, 0 when it gave none.  Empty when the last login never reached a refusal (the
-	 connection failed), and cleared by the next login. */
-AsciiString OnlineGetLoginFailure( Int *retrySeconds );
+	 connection failed), and cleared by the next login.  `file` gets the install file a "files" refusal names. */
+AsciiString OnlineGetLoginFailure( Int *retrySeconds, AsciiString *file = NULL, AsciiString *until = NULL );
+
+/* The server's notice (notice{kind,en,tr,until}, after the welcome and whenever it changes), shown as a
+	 banner across the top of every screen.  en and tr are UTF-8 and until is as the server wrote it, usually
+	 ISO 8601 in UTC.  FALSE with none: never sent, cleared by one with no words, or the connection gone.
+	 Without one from the server, -testNotice maintenance|info stands in, for a proof shot with no server.
+	 serial moves on with every change. */
+struct OnlineNotice
+{
+	Bool maintenance;					///< kind maintenance; anything else is info
+	AsciiString en, tr;
+	AsciiString until;
+	UnsignedInt serial;
+};
+Bool OnlineGetNotice( OnlineNotice &out );
+/* The notice's words in a TextLanguageType: Turkish for Turkish, English for every other, and the other
+	 language when that one is empty.  Pure, for the test. */
+AsciiString OnlineNoticeWords( const OnlineNotice &notice, Int language );
+/* An ISO 8601 time with its zone (2026-11-18T22:00:00Z, .000Z, +03:00) as Unix seconds; -1 for anything
+	 else.  Pure, for the test. */
+long long OnlineParseUtc( const char *iso );
+/* until as the player reads it: the local time, 22:00 today, the date before it on another day; the text
+	 itself when it is no time this reads; empty for none. */
+UnicodeString OnlineUntilText( const AsciiString &until );
+/* "Online play is down for maintenance", with when it should be back where until says. */
+UnicodeString OnlineMaintenanceText( const AsciiString &until );
+/* A new lobby, game, Quick Match or Play vs AI the server refused with code maintenance (error, qm.status
+	 or ai.refused): TRUE once, with its until, for the screen whose request it was.  The next request of those
+	 kinds drops one nobody took.  The host's start has its own, OnlineTakeStartRefusal. */
+Bool OnlineTakeMaintenanceRefusal( AsciiString &until );
+/* OnlineTakeMaintenanceRefusal in EA's message box, the maintenance sentence in it; FALSE, and no box, when
+	 there was none (or no -online). */
+Bool OnlineShowMaintenanceRefusal( void );
+/* The host's Start went while maintenance is on: the server may refuse the match (error{for:game.start,
+	 code:maintenance}), so the host launches on the server's game.start, which arrives as PEERRESPONSE_GAMESTART
+	 the way a guest's does, and not on its click. */
+Bool OnlineIsHostStartWaiting( void );
+/* That start refused (error{for:game.start}: maintenance, nothost, throttled...): TRUE once, with the code and
+	 until (the notice's when the line has none), for the staging screen that asked. */
+Bool OnlineTakeStartRefusal( AsciiString &code, AsciiString &until );
+/* A login waits on the install files' hashes (the first start on a machine reads every file): the login
+	 screen says it is checking them. */
+Bool OnlineIsCheckingFiles( void );
 /* Opens an http or https address in the player's browser; FALSE when it is not one or nothing could open
 	 it.  Windows asks the shell; elsewhere the platform layer's hook, SDL_OpenURL, set by SdlGameEngine. */
 Bool OnlineOpenURL( const char *url );
@@ -126,6 +183,9 @@ struct OnlineReport
 	Int blind[MAX_SLOTS];					///< orders player n gave at enemy objects it never saw, by this machine's game
 	Int crcOdd[MAX_SLOTS];				///< players (indexed as side[]) off the strict majority's CRC at the first mismatch
 	Int numCrcOdd;								///< how many of crcOdd[] are filled; 0 with no mismatch or no majority
+	AsciiString map;							///< the map's path as the game holds it (a generated one's is under the user folder);
+																///< only maps\<folder>\<file> goes up, for the match history, and nothing when that is
+																///< over 255 bytes or not UTF-8
 
 	OnlineReport();
 };
@@ -164,7 +224,8 @@ struct OnlinePlayerInfo
 {
 	Int ping;
 	Bool hasRating;
-	Int rating;
+	Int rating;								///< exactRating rounded, for the screens that still print %d
+	Real exactRating;					///< the site's rating, two decimals (an older server sends it whole)
 	AsciiString tier;					///< the site's tier key ("major"); OnlineTierName says it in words
 	Int games;
 	Int wins;
@@ -172,6 +233,10 @@ struct OnlinePlayerInfo
 	Int rank;									///< ladder position, 0 for none
 	Bool notOnline;						///< the last stats asked for this nick came back noplayer
 	Bool hasStats;						///< a stats answer for this nick arrived (wins and losses are then known)
+	Bool hasAIRating;					///< aiRating and aiGames arrived (auth.ok, stats, ai.rated)
+	Real aiRating;						///< the rating against the AI, a scale of its own (0 for a new player)
+	Int aiGames;
+	Int aiWins;
 	UnsignedInt serial;				///< moves on whenever this player's numbers change: redraw on it, not on everyone's
 
 	OnlinePlayerInfo();
@@ -188,10 +253,13 @@ struct OnlineLadderRow
 	Int rank;									///< 0 when the server sent none
 	AsciiString nick;
 	Bool hasRating;
-	Int rating;
+	Int rating;								///< exactRating rounded, for the screens that still print %d
+	Real exactRating;					///< two decimals
 	AsciiString tier;
 	Int wins;
 	Int losses;
+	Int side;									///< qm.matched's opponents only: a PlayerTemplate index, a Random pool below -1, or -1 random
+	Int color;								///< qm.matched's opponents only: a MultiplayerColor index, or -1 random
 
 	OnlineLadderRow();
 };
@@ -223,9 +291,76 @@ struct OnlineMatchReveal
 	std::vector<OnlineLadderRow> opponents;		///< nick, rating and tier as qm.matched gave them
 	AsciiString server;
 	Int revealMs;
+	Bool hasChance;						///< qm.matched carried chance (an older server does not)
+	Real chance;							///< the local player's win chance, 0 to 1
 	UnsignedInt serial;
 };
 Bool OnlineGetMatchReveal( OnlineMatchReveal &out );
+
+/* The band of win chances the search accepts now, from the last qm.status's window: chanceLo and
+	 chanceHi in percentage points, 0 to 100 (45 to 55 at join, 30 to 70 at the widest), not ratings and
+	 not the reveal's 0-to-1 chance.  nextMs is the milliseconds left to the next widening, counted down
+	 from the line's arrival (never below 0), and -1 at the widest.  FALSE when the last qm.status carried
+	 no window (an older server, or no search since the last match). */
+Bool OnlineGetQuickMatchChanceWindow( Real &chanceLo, Real &chanceHi, Int &nextMs );
+
+/* The abandon lock's whole seconds left, counted down here, 0 when free: from auth.ok's and the player's
+	 own card's lockSeconds and qm.status{locked}'s seconds.  It is also how the Quick Match page tells a
+	 lock from its other refusals: qm.status locked arrives as QM_COULDNOTFINDBOT like busy and a server
+	 error, and only a lock leaves this above 0 (at least 1 when the status says locked).  An older server
+	 sends no seconds, and a lock from it reads as any other refusal. */
+Int OnlineGetQuickMatchLockSeconds( void );
+
+/* A player's recent matches: OnlineRequestHistory asks (id 0 is the signed-in player, limit 1 to 20;
+	 nothing is sent while an ask for the same id and mode is still out), OnlineGetHistory reads the answer
+	 kept for that id and mode, in the ladder's three states: WAITING while an ask is out (out still holds
+	 the answer before it, if any), READY, FAILED for an error, no answer in ONLINE_HISTORY_TIMEOUT_MS
+	 (20 s), or nothing asked.  arrived says whether out holds an answer at all.  OnlineGetHistorySerial is
+	 the cheap per-frame check: it moves whenever that key's state or answer changes (a second answer
+	 too), 0 for a key never asked; copy the rows only when it moved.  An army is a player template name,
+	 random already resolved, as OnlineSendAIResult sends it. */
+enum OnlineHistoryMode
+{
+	ONLINE_HISTORY_ALL,
+	ONLINE_HISTORY_QM,
+	ONLINE_HISTORY_AI,
+};
+struct OnlineHistoryRow
+{
+	Bool ai;									///< against the computer; else a Quick Match
+	Bool won;
+	AsciiString map;
+	AsciiString opponent;			///< empty against the computer
+	Real opponentRating;			///< against the computer, the rating it played at
+	AsciiString playerArmy;
+	AsciiString opponentArmy;
+	Int seconds;							///< the match's length
+	Real change;							///< the player's rating change
+	Int age;									///< seconds ago, when the server answered
+
+	OnlineHistoryRow() : ai( FALSE ), won( FALSE ), opponentRating( 0.0f ), seconds( 0 ), change( 0.0f ), age( 0 ) {}
+};
+struct OnlineHistoryArmy
+{
+	AsciiString army;
+	Int games;
+	Int wins;
+};
+struct OnlineHistory
+{
+	Bool arrived;
+	Int id;										///< the account the answer is for
+	Int games;								///< in this mode, all of them, not only the rows
+	Int wins;
+	std::vector<OnlineHistoryRow> rows;		///< in the server's order, newest first
+	std::vector<OnlineHistoryArmy> byArmy;				///< the player's own army
+	std::vector<OnlineHistoryArmy> byOpponentArmy;
+
+	OnlineHistory() : arrived( FALSE ), id( 0 ), games( 0 ), wins( 0 ) {}
+};
+void OnlineRequestHistory( Int id, OnlineHistoryMode mode, Int limit = 5 );
+OnlineLadderState OnlineGetHistory( Int id, OnlineHistoryMode mode, OnlineHistory &out );
+UnsignedInt OnlineGetHistorySerial( Int id, OnlineHistoryMode mode );
 
 /* The account's skins.  OnlineGetSkins gives what it owns as a SkinLoadout (bit n for skin id n; what it
 	 wears is TankSkin_localLoadout), from auth.ok and every skins.ok, and the state of the last ask:
@@ -243,8 +378,73 @@ void OnlineRequestSkins( void );
 void OnlineSaveSkins( UnsignedInt64 wear );
 OnlineSkinsState OnlineGetSkins( UnsignedInt64 &owned, AsciiString &error );
 
-/* The server's verdict on the match the last game.start or qm.matched named: rated (delta, rating) or
-	 unrated (reason).  FALSE until it arrives. */
+/* The server's verdict on the match the last game.start or qm.matched named: rated (delta, rating, or
+	 before and after, which give the same two) or unrated (reason).  FALSE until it arrives. */
 Bool OnlineGetMatchResult( Bool &rated, Real &delta, Real &rating, AsciiString &reason );
+
+/* Play vs AI, a 1v1 skirmish the server rates on a scale of its own (the card's aiRating).
+	 OnlineRequestAIMatch sends ai.start{army, exe, ini}; OnlineGetAIMatch reads the answer and hands it out
+	 once: READY with ai.ready's match, the AI seat's rating and the map and seed the server picked, then
+	 the match is live; or REFUSED with ai.refused's reason ("build": this exe or its data is not the
+	 release's), "unavailable" from a server without it and "signedout" when the login went.
+	 While live, OnlineSendAITick sends ai.tick{match, frame} every ONLINE_AI_TICK_SECONDS of wall time and
+	 OnlineSendAIResult sends ai.result{match, result, seconds since ai.ready, endFrame, blind, playerArmy,
+	 aiArmy, stats{...}} once, which ends it.  OnlineDropAIMatch ends it with nothing sent (it could not start).  A win's recording goes up
+	 as a Quick Match's does: OnlineClaimAIMatch as it starts, OnlineSendReplay as it closes, and a loss's
+	 is never sent.  A logout ends it too; the server settles a match it never heard the end of.
+	 OnlineGetAIVerdict reads the last ai.rated{before, after, games}, or ai.unrated{reason} or a result's
+	 ai.refused{matchId, reason}, both unrated; ai.rated also moves the card's aiRating, aiGames and aiWins
+	 (its wins when it carries them, else one more after a win this client reported). */
+enum OnlineAIMatchState
+{
+	ONLINE_AI_IDLE,
+	ONLINE_AI_WAITING,		///< ai.start is out
+	ONLINE_AI_READY,
+	ONLINE_AI_REFUSED,
+};
+enum { ONLINE_AI_TICK_SECONDS = 30 };
+struct OnlineAIMatch
+{
+	AsciiString match;
+	Real aiRating;
+	AsciiString map;
+	Int seed;
+	AsciiString reason;		///< REFUSED only
+};
+void OnlineRequestAIMatch( const AsciiString &army );
+OnlineAIMatchState OnlineGetAIMatch( OnlineAIMatch &out );
+Bool OnlineIsAIMatchLive( void );
+void OnlineDropAIMatch( void );
+void OnlineSendAITick( Int frame );
+struct OnlineAIResult
+{
+	Bool won;
+	Int endFrame;
+	Int blind;									///< the player's orders at objects he could not see, as a Quick Match report counts them
+	AsciiString playerArmy;			///< player template names, random already resolved
+	AsciiString aiArmy;
+	Int unitsBuilt, unitsLost, unitsKilled;		///< the player's numbers on the score screen
+	Int structuresBuilt, structuresLost, structuresKilled;
+	Int moneyEarned;
+
+	OnlineAIResult() : won( FALSE ), endFrame( 0 ), blind( 0 ), unitsBuilt( 0 ), unitsLost( 0 ), unitsKilled( 0 ),
+		structuresBuilt( 0 ), structuresLost( 0 ), structuresKilled( 0 ), moneyEarned( 0 ) {}
+};
+void OnlineSendAIResult( const OnlineAIResult &result );
+AsciiString OnlineClaimAIMatch( void );
+struct OnlineAIVerdict
+{
+	AsciiString match;
+	Bool rated;
+	Real before, after;
+	Int games;
+	AsciiString reason;		///< unrated only
+	UnsignedInt serial;		///< moves on with every verdict
+};
+Bool OnlineGetAIVerdict( OnlineAIVerdict &out );		///< FALSE before the first this sign-in
+/* The match of the last ai.result this client sent (the server's 16 hex digits, so text, not a number),
+	 kept after the match ends; empty before one this sign-in.  The score screen shows a verdict only when
+	 its match equals this. */
+AsciiString OnlineGetLastAIMatchId( void );
 
 #endif // _ONLINE_QUEUES_H_

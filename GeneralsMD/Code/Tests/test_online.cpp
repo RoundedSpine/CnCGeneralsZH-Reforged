@@ -22,7 +22,10 @@
 #include "GameNetwork/Online/OnlineConnection.h"
 #include "GameNetwork/Online/OnlineSession.h"
 #include "GameNetwork/GameInfo.h"
+#include "Common/InstallFiles.h"
 #include "GameClient/TankSkin.h"
+#include "Common/MultiplayerSettings.h"
+#include "Common/GlobalData.h"		// TEXT_LANGUAGE_*
 
 #include <chrono>
 #include <stdio.h>
@@ -226,9 +229,21 @@ TEST(online_json_reads_one_level_of_objects)
 	CHECK( m.getObject( "t", me ) );
 	CHECK_EQ( m.getObjects( "u" ).size(), (size_t)1 );
 
-	// the client never sends one
+	// an object goes out as it came in (an ai.result's stats); an array of objects never does
 	std::string line;
 	CHECK( !m.toLine( line ) );
+	CHECK( line.empty() );
+	OnlineMessage stats, out, back;
+	std::vector<long long> pair;
+	pair.push_back( 1 );
+	pair.push_back( 2 );
+	stats.setInt( "unitsBuilt", 12 ).setString( "army", "FactionChina" ).setInts( "pair", pair );
+	CHECK( out.setString( "t", "ai.result" ).setObject( "stats", stats ).toLine( line ) );
+	CHECK_STR( line.c_str(), "{\"t\":\"ai.result\",\"stats\":{\"unitsBuilt\":12,\"army\":\"FactionChina\",\"pair\":[1,2]}}\n" );
+	CHECK( OnlineMessage::parse( line.data(), line.size() - 1, back ) );
+	CHECK( back.getObject( "stats", me ) );
+	CHECK_EQ( me.getInt( "unitsBuilt" ), 12LL );
+	CHECK( !out.setObject( "stats", m ).toLine( line ) );		// an object in an object
 	CHECK( line.empty() );
 }
 
@@ -751,10 +766,16 @@ TEST(online_adapter_login_waits_for_the_relay)
 	strcpy( req.arg.login.password, "secret" );
 	rig.buddy->addRequest( req );
 
-	CHECK_EQ( rig.sent.size(), (size_t)1 );
-	CHECK_STR( rig.sentType( 0 ).c_str(), "login" );
-	CHECK_STR( rig.sent[0].getString( "email" ).c_str(), "tank@example.com" );
-	CHECK_STR( rig.sent[0].getString( "pass" ).c_str(), "secret" );
+	// no install files hashed here: the list still goes, empty, so the server refuses instead of waiting
+	CHECK_EQ( rig.sent.size(), (size_t)2 );
+	CHECK_STR( rig.sentType( 0 ).c_str(), "files" );
+	CHECK_EQ( rig.sent[0].getInt( "seq", -1 ), 0ll );
+	CHECK_EQ( rig.sent[0].getInt( "last" ), 1ll );
+	CHECK( rig.sent[0].has( "paths" ) && rig.sent[0].getStrings( "paths" ).empty() );
+	CHECK( rig.sent[0].has( "hashes" ) && rig.sent[0].getStrings( "hashes" ).empty() );
+	CHECK_STR( rig.sentType( 1 ).c_str(), "login" );
+	CHECK_STR( rig.sent[1].getString( "email" ).c_str(), "tank@example.com" );
+	CHECK_STR( rig.sent[1].getString( "pass" ).c_str(), "secret" );
 	CHECK( rig.peer->isConnecting() );
 	CHECK( !rig.peer->isConnected() );
 
@@ -793,7 +814,7 @@ TEST(online_adapter_login_waits_for_the_relay)
 	}
 	CHECK( rig.peer->isConnected() );
 	CHECK_EQ( OnlineGetRelayVip(), 0x0A000003u );
-	CHECK_STR( rig.sentType( 1 ).c_str(), "stats.get" );		// our own stats, as GameSpy's login read them
+	CHECK_STR( rig.sentType( 2 ).c_str(), "stats.get" );		// our own stats, as GameSpy's login read them
 }
 
 TEST(online_adapter_login_refusal_and_no_register)
@@ -811,9 +832,10 @@ TEST(online_adapter_login_refusal_and_no_register)
 
 	req.buddyRequestType = BuddyRequest::BUDDYREQUEST_LOGIN;
 	rig.buddy->addRequest( req );
-	CHECK_EQ( rig.sent.size(), (size_t)1 );
-	CHECK_STR( rig.sentType( 0 ).c_str(), "login" );
-	CHECK_STR( rig.sent[0].getString( "email" ).c_str(), "tank@example.com" );
+	CHECK_EQ( rig.sent.size(), (size_t)2 );		// the (empty) install file list, then the login
+	CHECK_STR( rig.sentType( 0 ).c_str(), "files" );
+	CHECK_STR( rig.sentType( 1 ).c_str(), "login" );
+	CHECK_STR( rig.sent[1].getString( "email" ).c_str(), "tank@example.com" );
 
 	Int retry = -1;
 	CHECK( OnlineGetLoginFailure( &retry ).isEmpty() );
@@ -831,10 +853,11 @@ TEST(online_adapter_login_refusal_and_no_register)
 	UnsignedByte ticket[16];
 	CHECK( !OnlineGetRelayTicket( ticket ) );
 
-	// a resume with a saved token is the same login
+	// a resume with a saved token is the same login, on the same connection without the list again
 	OnlineResume( "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef" );
-	CHECK_STR( rig.sentType( 1 ).c_str(), "resume" );
-	CHECK_EQ( rig.sent[1].getString( "token" ).size(), (size_t)64 );
+	CHECK_EQ( rig.sent.size(), (size_t)3 );
+	CHECK_STR( rig.sentType( 2 ).c_str(), "resume" );
+	CHECK_EQ( rig.sent[2].getString( "token" ).size(), (size_t)64 );
 	CHECK( OnlineGetLoginFailure( &retry ).isEmpty() );		// a new login forgets the last refusal
 
 	rig.feed( "{\"t\":\"auth.fail\",\"code\":\"throttled\",\"retry\":42}" );
@@ -985,6 +1008,74 @@ TEST(online_adapter_game_list_round_trips_the_host_options)
 		CHECK_STR( r[2].stagingRoomPlayerNames[0].c_str(), "Tank" );
 		CHECK_EQ( r[2].stagingRoom.wins[0], 4 );
 		CHECK_EQ( r[2].stagingRoom.maxPlayers, 2 );
+	}
+}
+
+TEST(online_adapter_game_options_send_only_the_seated_players_paired)
+{
+	AdapterRig rig;
+	rig.login();
+	PeerRequest create;
+	create.peerRequestType = PeerRequest::PEERREQUEST_CREATESTAGINGROOM;
+	create.text = u"gap";
+	create.stagingRoomCreation.exeCRC = 1;
+	create.stagingRoomCreation.iniCRC = 2;
+	create.stagingRoomCreation.gameVersion = 3;
+	create.stagingRoomCreation.allowObservers = FALSE;
+	create.stagingRoomCreation.useStats = TRUE;
+	create.stagingRoomCreation.ladPort = 0;
+	create.stagingRoomCreation.restrictGameList = FALSE;
+	rig.peer->addRequest( create );
+	rig.feed( "{\"t\":\"game.joined\",\"action\":\"joined\",\"id\":6,\"name\":\"gap\",\"map\":\"-\",\"maxp\":8,\"host\":\"Tank\",\"hostId\":7,\"count\":1,\"opts\":\"\",\"ids\":[7],\"nicks\":[\"Tank\"]}" );
+	rig.peerResponses();
+
+	// two seated (Kim in the third seat, the second open), packed as setGameOptions packs them; past them
+	// the request holds what a stack union would, and an AI's state (3) among it
+	PeerRequest opts;
+	opts.peerRequestType = PeerRequest::PEERREQUEST_SETGAMEOPTIONS;
+	opts.options = "M=maps/a.map;S=Tank,0,0";
+	opts.gameOptsMapName = "maps/a/a.map";
+	opts.gameOptsPlayerNames[0] = "Tank";
+	opts.gameOptsPlayerNames[1] = "Kim";
+	for (Int i = 0; i < MAX_SLOTS; ++i)
+	{
+		opts.gameOptions.wins[i] = opts.gameOptions.losses[i] = 3;
+		opts.gameOptions.profileID[i] = 3;
+		opts.gameOptions.faction[i] = opts.gameOptions.color[i] = 3;
+	}
+	opts.gameOptions.profileID[0] = 7;
+	opts.gameOptions.profileID[1] = 9;
+	opts.gameOptions.numPlayers = 2;
+	opts.gameOptions.numObservers = 0;
+	opts.gameOptions.maxPlayers = 3;
+	rig.peer->addRequest( opts );
+	CHECK_STR( rig.sentType( 1 ).c_str(), "game.opts" );
+	OnlineMessage sent;
+	const std::string line = rig.sent.size() > 1 ? rig.sent[1].getString( "opts" ) : std::string();
+	CHECK( OnlineMessage::parse( line.data(), line.size(), sent ) );
+	CHECK_EQ( sent.getStrings( "names" ).size(), (size_t)2 );
+	CHECK_EQ( sent.getInts( "pids" ).size(), (size_t)2 );
+	CHECK_EQ( sent.getInts( "factions" ).size(), (size_t)2 );
+
+	OnlineMessage game;
+	game.setString( "t", "game" ).setString( "action", "add" ).setInt( "id", 6 ).setString( "name", "gap" );
+	game.setString( "map", "-" ).setInt( "maxp", 8 ).setString( "host", "Tank" ).setInt( "hostId", 7 ).setInt( "count", 2 );
+	game.setString( "opts", line );
+	PeerRequest list;
+	list.peerRequestType = PeerRequest::PEERREQUEST_STARTGAMELIST;
+	list.gameList.restrictGameList = FALSE;
+	rig.peer->addRequest( list );
+	rig.feed( game );
+	std::vector<PeerResponse> r = rig.peerResponses();
+	CHECK_EQ( r.size(), (size_t)3 );
+	if (r.size() == 3)
+	{
+		CHECK_STR( r[2].stagingRoomPlayerNames[1].c_str(), "Kim" );
+		CHECK_EQ( r[2].stagingRoom.profileID[1], 9 );
+		CHECK_STR( r[2].stagingRoomPlayerNames[2].c_str(), "" );
+		CHECK_EQ( r[2].stagingRoom.profileID[2], 0 );		// an open seat, not the AI the garbage spelled
+		CHECK_EQ( r[2].stagingRoom.numPlayers, 2 );
+		CHECK_EQ( r[2].stagingRoom.maxPlayers, 3 );
 	}
 }
 
@@ -1354,6 +1445,135 @@ TEST(online_adapter_skins_owned_saved_and_refused)
 	CHECK( owned == 0 && TankSkin_localLoadout() == 0 );
 	rig.feed( "{\"t\":\"skins.ok\",\"owned\":[1],\"skins\":[1]}" );		// a late answer for the account that left
 	CHECK( TankSkin_localLoadout() == 0 );
+}
+
+/* Play vs AI's lines: auth.ok's AI rating on the card, ai.start carrying the build, ai.ready handed out
+	 once, the first ai.tick waiting its half minute, ai.result once and a loss's replay never sent, a win's
+	 sent under its match, the verdicts, the refusals and a logout ending a live match with nothing sent. */
+TEST(online_adapter_play_vs_ai)
+{
+	AdapterRig rig;
+	OnlineSession &s = OnlineSession::get();
+	OnlineAIMatch ai;
+	OnlineRequestAIMatch( "Random" );		// signed out
+	CHECK( rig.sent.empty() );
+	CHECK_EQ( (int)OnlineGetAIMatch( ai ), (int)ONLINE_AI_REFUSED );
+	CHECK_STR( ai.reason.str(), "signedout" );
+
+	rig.feed( "{\"t\":\"auth.ok\",\"id\":7,\"nick\":\"Tank\",\"token\":\"t\",\"ticket\":\"00112233445566778899aabbccddeeff\",\"aiRating\":12.4,\"aiGames\":3,\"aiWins\":2}" );
+	OnlinePlayerInfo card;
+	CHECK( OnlineGetPlayerInfo( "Tank", card ) && card.hasAIRating );
+	CHECK_NEAR( card.aiRating, 12.4f, 0.001f );
+	CHECK_EQ( card.aiGames, 3 );
+	CHECK_EQ( card.aiWins, 2 );
+
+	rig.sent.clear();
+	OnlineRequestAIMatch( "FactionAmerica" );
+	CHECK_STR( rig.sentType( 0 ).c_str(), "ai.start" );
+	CHECK( rig.sent.size() == 1 && rig.sent[0].getString( "army" ) == "FactionAmerica" && rig.sent[0].has( "exe" ) && rig.sent[0].has( "ini" ) );
+	CHECK_EQ( (int)OnlineGetAIMatch( ai ), (int)ONLINE_AI_WAITING );
+	rig.feed( "{\"t\":\"ai.ready\",\"matchId\":\"m1\",\"aiRating\":12.4,\"map\":\"maps\\\\alpine assault\\\\alpine assault.map\",\"seed\":2147483000}" );
+	CHECK( !OnlineIsAIMatchLive() );		// live once the hub takes it
+	CHECK_EQ( (int)OnlineGetAIMatch( ai ), (int)ONLINE_AI_READY );
+	CHECK_STR( ai.match.str(), "m1" );
+	CHECK_STR( ai.map.str(), "maps\\alpine assault\\alpine assault.map" );
+	CHECK_NEAR( ai.aiRating, 12.4f, 0.001f );
+	CHECK_EQ( ai.seed, 2147483000 );
+	CHECK_EQ( (int)OnlineGetAIMatch( ai ), (int)ONLINE_AI_IDLE );		// handed out once
+	CHECK( OnlineIsAIMatchLive() );
+	CHECK_STR( OnlineClaimAIMatch().str(), "m1" );
+
+	rig.sent.clear();
+	OnlineSendAITick( 30 );
+	CHECK( rig.sent.empty() );		// the first waits its half minute
+	s.aiTickMs -= ONLINE_AI_TICK_SECONDS * 1000 + 1;
+	OnlineSendAITick( 900 );
+	CHECK( rig.sent.size() == 1 && rig.sentType( 0 ) == "ai.tick" && rig.sent[0].getString( "matchId" ) == "m1" && rig.sent[0].getInt( "frame" ) == 900 );
+
+	// a loss, once; its recording is not sent
+	const char *path = "test_online_ai_replay.tmp";
+	FILE *f = fopen( path, "wb" );
+	CHECK( f != NULL );
+	if (!f)
+		return;
+	fwrite( "GENREP", 1, 6, f );
+	fclose( f );
+	rig.sent.clear();
+	OnlineAIResult result;
+	result.endFrame = 1200;
+	result.blind = 2;
+	result.playerArmy = "FactionAmerica";
+	result.aiArmy = "FactionGLAToxinGeneral";
+	result.unitsBuilt = 14;
+	result.structuresKilled = 3;
+	result.moneyEarned = 8200;
+	OnlineSendAIResult( result );
+	result.won = TRUE;
+	OnlineSendAIResult( result );
+	CHECK_EQ( rig.sent.size(), (size_t)1 );
+	CHECK( rig.sentType( 0 ) == "ai.result" && rig.sent[0].getString( "matchId" ) == "m1" && rig.sent[0].getString( "result" ) == "loss" );
+	CHECK( rig.sent[0].getInt( "endFrame" ) == 1200 && rig.sent[0].getInt( "blind" ) == 2 && rig.sent[0].has( "seconds" ) );
+	CHECK( rig.sent[0].getString( "playerArmy" ) == "FactionAmerica" && rig.sent[0].getString( "aiArmy" ) == "FactionGLAToxinGeneral" );
+	OnlineMessage stats;
+	CHECK( rig.sent[0].getObject( "stats", stats ) && stats.size() == 7 );
+	CHECK( stats.getInt( "unitsBuilt" ) == 14 && stats.getInt( "unitsLost" ) == 0 && stats.getInt( "structuresKilled" ) == 3 );
+	CHECK( stats.getInt( "moneyEarned" ) == 8200 && stats.has( "unitsKilled" ) && stats.has( "structuresBuilt" ) && stats.has( "structuresLost" ) );
+	std::string line;
+	CHECK( rig.sent[0].toLine( line ) );
+	CHECK( !OnlineIsAIMatchLive() );
+	OnlineSendReplay( "m1", path );
+	CHECK_EQ( rig.sent.size(), (size_t)1 );
+
+	// ai.rated moves the card at once
+	rig.feed( "{\"t\":\"ai.rated\",\"matchId\":\"m1\",\"before\":12.4,\"after\":11.9,\"games\":4}" );
+	OnlineAIVerdict verdict;
+	CHECK( OnlineGetAIVerdict( verdict ) && verdict.rated );
+	CHECK_NEAR( verdict.before, 12.4f, 0.001f );
+	CHECK_NEAR( verdict.after, 11.9f, 0.001f );
+	CHECK( OnlineGetPlayerInfo( "Tank", card ) && card.aiGames == 4 && card.aiWins == 2 );
+	CHECK_NEAR( card.aiRating, 11.9f, 0.001f );
+
+	// a win: its recording goes up under the match; a new ai.start drops the last verdict
+	OnlineRequestAIMatch( "Random" );
+	CHECK( !OnlineGetAIVerdict( verdict ) );
+	rig.feed( "{\"t\":\"ai.ready\",\"matchId\":\"m2\",\"aiRating\":11.9,\"map\":\"maps\\\\winter wolf\\\\winter wolf.map\",\"seed\":5}" );
+	OnlineGetAIMatch( ai );
+	result.endFrame = 5000;
+	OnlineSendAIResult( result );
+	rig.sent.clear();
+	OnlineSendReplay( "m2", path );
+	CHECK( rig.sent.size() == 1 && rig.sentType( 0 ) == "replay" && rig.sent[0].getString( "match" ) == "m2" && rig.sent[0].getBool( "last" ) );
+	// rated without its wins, the card counts the win it reported; with them, it takes the server's
+	rig.feed( "{\"t\":\"ai.rated\",\"matchId\":\"m2\",\"before\":11.9,\"after\":12.6,\"games\":5}" );
+	CHECK( OnlineGetPlayerInfo( "Tank", card ) && card.aiGames == 5 && card.aiWins == 3 );
+	rig.feed( "{\"t\":\"ai.rated\",\"matchId\":\"m2\",\"before\":11.9,\"after\":12.6,\"games\":5,\"wins\":4}" );
+	CHECK( OnlineGetPlayerInfo( "Tank", card ) && card.aiWins == 4 );
+	rig.feed( "{\"t\":\"ai.unrated\",\"matchId\":\"m2\",\"reason\":\"gap\"}" );
+	CHECK( OnlineGetAIVerdict( verdict ) && !verdict.rated );
+	CHECK_STR( verdict.reason.str(), "gap" );
+	rig.feed( "{\"t\":\"ai.refused\",\"matchId\":\"m2\",\"reason\":\"reported\"}" );		// a result turned down
+	CHECK( OnlineGetAIVerdict( verdict ) && !verdict.rated );
+	CHECK_STR( verdict.reason.str(), "reported" );
+	remove( path );
+
+	// the server's refusal, and a server from before Play vs AI
+	OnlineRequestAIMatch( "Random" );
+	rig.feed( "{\"t\":\"ai.refused\",\"reason\":\"build\"}" );
+	CHECK_EQ( (int)OnlineGetAIMatch( ai ), (int)ONLINE_AI_REFUSED );
+	CHECK_STR( ai.reason.str(), "build" );
+	OnlineRequestAIMatch( "Random" );
+	rig.feed( "{\"t\":\"error\",\"for\":\"ai.start\",\"code\":\"unknown\"}" );
+	CHECK_EQ( (int)OnlineGetAIMatch( ai ), (int)ONLINE_AI_REFUSED );
+	CHECK_STR( ai.reason.str(), "unavailable" );
+
+	// a logout ends a live match with nothing sent: the server settles it
+	OnlineRequestAIMatch( "Random" );
+	rig.feed( "{\"t\":\"ai.ready\",\"matchId\":\"m3\",\"aiRating\":0,\"map\":\"maps\\\\winter wolf\\\\winter wolf.map\",\"seed\":1}" );
+	OnlineGetAIMatch( ai );
+	CHECK( OnlineIsAIMatchLive() );
+	s.disconnect();
+	CHECK( !OnlineIsAIMatchLive() );
+	CHECK( !OnlineGetAIVerdict( verdict ) );
 }
 
 /* proto 2 on login, the room snapshot's cards, nicks in any case, Stop ending a reveal at once. */
@@ -1917,4 +2137,838 @@ TEST(online_register_url_from_the_welcome_and_only_a_web_page_opens)
 	CHECK( !OnlineOpenURL( "C:\\Windows\\notepad.exe" ) );
 	CHECK( !OnlineOpenURL( "" ) );
 	CHECK( !OnlineOpenURL( NULL ) );
+}
+
+/* welcome.counts and accountUrl, the 30-second counts line in either spelling, and no counts once the
+	 connection is gone. */
+TEST(online_counts_and_account_url_from_the_welcome)
+{
+	AdapterRig rig;
+	Int players = -1, games = -1, queue = -1;
+	rig.feed( "{\"t\":\"welcome\",\"config\":\"\",\"motd\":\"\",\"relayPort\":8094}" );
+	CHECK( !OnlineGetCounts( players, games, queue ) );		// an older server: the screens show a dash
+	CHECK( players == 0 && games == 0 && queue == 0 );
+	CHECK( OnlineGetAccountUrl().isEmpty() );
+	rig.feed( "{\"t\":\"welcome\",\"config\":\"\",\"motd\":\"\",\"relayPort\":8094,\"accountUrl\":\"https://example.test/account\","
+		"\"counts\":{\"players\":41,\"games\":6,\"queue\":3}}" );
+	CHECK_STR( OnlineGetAccountUrl().str(), "https://example.test/account" );
+	CHECK( OnlineGetCounts( players, games, queue ) );
+	CHECK( players == 41 && games == 6 && queue == 3 );
+
+	rig.login();
+	rig.feed( "{\"t\":\"counts\",\"players\":44,\"games\":7,\"queue\":0}" );
+	CHECK( OnlineGetCounts( players, games, queue ) );
+	CHECK( players == 44 && games == 7 && queue == 0 );
+	rig.feed( "{\"t\":\"counts\",\"counts\":{\"players\":45,\"games\":8,\"queue\":2}}" );
+	CHECK( OnlineGetCounts( players, games, queue ) );
+	CHECK( players == 45 && games == 8 && queue == 2 );
+
+	OnlineSession::get().disconnect();
+	CHECK( !OnlineGetCounts( players, games, queue ) );
+}
+
+/* Ratings to two decimals wherever the server sends one; a whole number from an older server still reads. */
+TEST(online_ratings_keep_two_decimals)
+{
+	AdapterRig rig;
+	rig.login();
+	rig.feed( "{\"t\":\"auth.ok\",\"id\":7,\"nick\":\"Tank\",\"token\":\"0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef\","
+		"\"ticket\":\"00112233445566778899aabbccddeeff\",\"rating\":21.37,\"aiRating\":14.1,\"aiGames\":3,\"aiWins\":2}" );
+	OnlinePlayerInfo me;
+	CHECK( OnlineGetPlayerInfo( "Tank", me ) );
+	CHECK( me.hasRating );
+	CHECK_NEAR( me.exactRating, 21.37, 0.001 );
+	CHECK_EQ( me.rating, 21 );
+	CHECK( me.hasAIRating );
+	CHECK_NEAR( me.aiRating, 14.1, 0.001 );
+	CHECK_EQ( me.aiGames, 3 );
+	CHECK_EQ( me.aiWins, 2 );
+
+	// another player's card from stats, his AI numbers included
+	OnlineRequestStats( "Kim" );
+	rig.feed( "{\"t\":\"stats\",\"id\":9,\"nick\":\"Kim\",\"rating\":31.5,\"tier\":\"major\",\"wins\":5,\"losses\":2,\"games\":7,\"rank\":12,"
+		"\"aiRating\":9.87,\"aiGames\":11,\"aiWins\":6}" );
+	OnlinePlayerInfo kim;
+	CHECK( OnlineGetPlayerInfo( "Kim", kim ) );
+	CHECK( kim.hasStats );
+	CHECK_NEAR( kim.exactRating, 31.5, 0.001 );
+	CHECK_EQ( kim.rating, 32 );
+	CHECK( kim.hasAIRating );
+	CHECK_NEAR( kim.aiRating, 9.87, 0.001 );
+	CHECK_EQ( kim.aiGames, 11 );
+	CHECK_EQ( kim.aiWins, 6 );
+
+	// a whole number, as an older server sends it; then a move in the second decimal, which redraws the card
+	rig.feed( "{\"t\":\"player\",\"room\":\"lobby1\",\"id\":11,\"nick\":\"Lee\",\"rating\":1500}" );
+	OnlinePlayerInfo lee;
+	CHECK( OnlineGetPlayerInfo( "Lee", lee ) );
+	CHECK( lee.hasRating );
+	CHECK_EQ( lee.rating, 1500 );
+	CHECK_NEAR( lee.exactRating, 1500.0, 0.001 );
+	const UnsignedInt serial = lee.serial;
+	rig.feed( "{\"t\":\"player\",\"room\":\"lobby1\",\"id\":11,\"nick\":\"Lee\",\"rating\":1500.01}" );
+	CHECK( OnlineGetPlayerInfo( "Lee", lee ) );
+	CHECK( lee.serial != serial );
+	CHECK_NEAR( lee.exactRating, 1500.01, 0.001 );
+	CHECK_EQ( lee.rating, 1500 );
+
+	// ladder rows
+	OnlineRequestLadder( 0 );
+	rig.feed( "{\"t\":\"ladder\",\"offset\":0,\"rows\":[{\"rank\":1,\"nick\":\"Kim\",\"rating\":31.49,\"tier\":\"major\",\"wins\":5,\"losses\":2}],"
+		"\"me\":{\"rank\":40,\"nick\":\"Tank\",\"rating\":21.37,\"tier\":null,\"wins\":1,\"losses\":3}}" );
+	Int offset = -1;
+	std::vector<OnlineLadderRow> rows;
+	OnlineLadderRow mine;
+	Bool hasMe = FALSE;
+	CHECK_EQ( (int)OnlineGetLadder( offset, rows, mine, hasMe ), (int)ONLINE_LADDER_READY );
+	CHECK_EQ( rows.size(), (size_t)1 );
+	if (!rows.empty())
+	{
+		CHECK_NEAR( rows[0].exactRating, 31.49, 0.001 );
+		CHECK_EQ( rows[0].rating, 31 );
+	}
+	CHECK( hasMe );
+	CHECK_NEAR( mine.exactRating, 21.37, 0.001 );
+
+	// the match's verdict, as delta and rating or as before and after
+	Bool rated = FALSE;
+	Real delta = 0, rating = 0;
+	AsciiString reason;
+	OnlineSession::get().matchId = "q8";
+	rig.feed( "{\"t\":\"rated\",\"match\":\"q8\",\"delta\":1.23,\"rating\":22.6}" );
+	CHECK( OnlineGetMatchResult( rated, delta, rating, reason ) );
+	CHECK_NEAR( delta, 1.23, 0.001 );
+	CHECK_NEAR( rating, 22.6, 0.001 );
+	rig.feed( "{\"t\":\"rated\",\"match\":\"q8\",\"before\":22.6,\"after\":24.05}" );
+	CHECK( OnlineGetMatchResult( rated, delta, rating, reason ) );
+	CHECK_NEAR( delta, 1.45, 0.001 );
+	CHECK_NEAR( rating, 24.05, 0.001 );
+
+	// Play vs AI's verdict, which moves the player's own card too
+	rig.feed( "{\"t\":\"ai.rated\",\"matchId\":\"a1\",\"before\":14.1,\"after\":15.37,\"games\":4,\"wins\":3}" );
+	OnlineAIVerdict verdict;
+	CHECK( OnlineGetAIVerdict( verdict ) );
+	CHECK_NEAR( verdict.before, 14.1, 0.001 );
+	CHECK_NEAR( verdict.after, 15.37, 0.001 );
+	CHECK( OnlineGetPlayerInfo( "Tank", me ) );
+	CHECK_NEAR( me.aiRating, 15.37, 0.001 );
+	CHECK_EQ( me.aiWins, 3 );
+}
+
+/* history{id, mode, limit}: asked, waited on, answered with rows and both army tables, refused, asked
+	 again with the last answer still on show, forgotten at sign-out. */
+TEST(online_history_rows_and_army_tables)
+{
+	AdapterRig rig;
+	OnlineHistory h;
+	OnlineRequestHistory( 0, ONLINE_HISTORY_ALL );
+	CHECK( rig.sent.empty() );		// not signed in: nothing asked
+	CHECK_EQ( (int)OnlineGetHistory( 0, ONLINE_HISTORY_ALL, h ), (int)ONLINE_LADDER_FAILED );
+	rig.login();
+
+	OnlineRequestHistory( 0, ONLINE_HISTORY_ALL );
+	CHECK_STR( rig.sentType( 0 ).c_str(), "history" );
+	if (!rig.sent.empty())
+	{
+		CHECK( !rig.sent[0].has( "id" ) );		// absent: the signed-in player
+		CHECK_STR( rig.sent[0].getString( "mode" ).c_str(), "all" );
+		CHECK_EQ( rig.sent[0].getInt( "limit" ), 5 );
+	}
+	CHECK_EQ( (int)OnlineGetHistory( 0, ONLINE_HISTORY_ALL, h ), (int)ONLINE_LADDER_WAITING );
+	CHECK( !h.arrived );
+	rig.feed( "{\"t\":\"history\",\"id\":7,\"mode\":\"all\",\"games\":12,\"wins\":7,\"rows\":["
+		"{\"mode\":\"qm\",\"result\":\"win\",\"map\":\"Tournament Desert\",\"opponent\":\"Kim\",\"opponentRating\":31.25,"
+		"\"playerArmy\":\"FactionAmerica\",\"opponentArmy\":\"FactionChina\",\"seconds\":914,\"change\":1.37,\"age\":3600},"
+		"{\"mode\":\"ai\",\"result\":\"loss\",\"map\":\"Twilight Flame\",\"opponent\":\"\",\"opponentRating\":14.1,"
+		"\"playerArmy\":\"FactionGLA\",\"opponentArmy\":\"FactionAmericaAirForceGeneral\",\"seconds\":1200,\"change\":-0.42,\"age\":86400}],"
+		"\"byArmy\":[{\"army\":\"FactionAmerica\",\"games\":8,\"wins\":5},{\"army\":\"FactionGLA\",\"games\":4,\"wins\":2}],"
+		"\"byOpponentArmy\":[{\"army\":\"FactionChina\",\"games\":12,\"wins\":7}]}" );
+	CHECK_EQ( (int)OnlineGetHistory( 0, ONLINE_HISTORY_ALL, h ), (int)ONLINE_LADDER_READY );
+	CHECK( h.arrived );
+	CHECK_EQ( h.id, 7 );
+	CHECK_EQ( h.games, 12 );
+	CHECK_EQ( h.wins, 7 );
+	CHECK_EQ( h.rows.size(), (size_t)2 );
+	if (h.rows.size() == 2)
+	{
+		const OnlineHistoryRow &q = h.rows[0], &a = h.rows[1];
+		CHECK( !q.ai && q.won );
+		CHECK_STR( q.map.str(), "Tournament Desert" );
+		CHECK_STR( q.opponent.str(), "Kim" );
+		CHECK_NEAR( q.opponentRating, 31.25, 0.001 );
+		CHECK_STR( q.playerArmy.str(), "FactionAmerica" );
+		CHECK_STR( q.opponentArmy.str(), "FactionChina" );
+		CHECK_EQ( q.seconds, 914 );
+		CHECK_NEAR( q.change, 1.37, 0.001 );
+		CHECK_EQ( q.age, 3600 );
+		CHECK( a.ai && !a.won );
+		CHECK( a.opponent.isEmpty() );
+		CHECK_NEAR( a.opponentRating, 14.1, 0.001 );		// the rating the computer played at
+		CHECK_STR( a.opponentArmy.str(), "FactionAmericaAirForceGeneral" );
+		CHECK_NEAR( a.change, -0.42, 0.001 );
+		CHECK_EQ( a.age, 86400 );
+	}
+	CHECK_EQ( h.byArmy.size(), (size_t)2 );
+	if (h.byArmy.size() == 2)
+	{
+		CHECK_STR( h.byArmy[0].army.str(), "FactionAmerica" );
+		CHECK( h.byArmy[0].games == 8 && h.byArmy[0].wins == 5 );
+		CHECK_STR( h.byArmy[1].army.str(), "FactionGLA" );
+		CHECK( h.byArmy[1].games == 4 && h.byArmy[1].wins == 2 );
+	}
+	CHECK_EQ( h.byOpponentArmy.size(), (size_t)1 );
+	if (!h.byOpponentArmy.empty())
+	{
+		CHECK_STR( h.byOpponentArmy[0].army.str(), "FactionChina" );
+		CHECK( h.byOpponentArmy[0].games == 12 && h.byOpponentArmy[0].wins == 7 );
+	}
+	CHECK_EQ( (int)OnlineGetHistory( 7, ONLINE_HISTORY_ALL, h ), (int)ONLINE_LADDER_READY );		// the own id finds it too
+	CHECK_EQ( (int)OnlineGetHistory( 0, ONLINE_HISTORY_AI, h ), (int)ONLINE_LADDER_FAILED );		// never asked
+	CHECK( !h.arrived );
+
+	// another player's Quick Matches, the limit held to 20; the error fails that ask alone
+	rig.sent.clear();
+	OnlineRequestHistory( 9, ONLINE_HISTORY_QM, 50 );
+	CHECK_STR( rig.sentType( 0 ).c_str(), "history" );
+	if (!rig.sent.empty())
+	{
+		CHECK_EQ( rig.sent[0].getInt( "id" ), 9 );
+		CHECK_STR( rig.sent[0].getString( "mode" ).c_str(), "qm" );
+		CHECK_EQ( rig.sent[0].getInt( "limit" ), 20 );
+	}
+	rig.feed( "{\"t\":\"error\",\"for\":\"history\",\"code\":\"unknown\"}" );
+	CHECK_EQ( (int)OnlineGetHistory( 9, ONLINE_HISTORY_QM, h ), (int)ONLINE_LADDER_FAILED );
+	CHECK_EQ( (int)OnlineGetHistory( 0, ONLINE_HISTORY_ALL, h ), (int)ONLINE_LADDER_READY );
+
+	// asked again: the last answer stays on show until the new one comes
+	OnlineRequestHistory( 0, ONLINE_HISTORY_ALL );
+	CHECK_EQ( (int)OnlineGetHistory( 0, ONLINE_HISTORY_ALL, h ), (int)ONLINE_LADDER_WAITING );
+	CHECK( h.arrived );
+	CHECK_EQ( h.rows.size(), (size_t)2 );
+
+	// a line for a mode this build does not know is dropped
+	rig.feed( "{\"t\":\"history\",\"id\":7,\"mode\":\"ffa\",\"games\":1,\"wins\":0,\"rows\":[]}" );
+	CHECK_EQ( (int)OnlineGetHistory( 0, ONLINE_HISTORY_ALL, h ), (int)ONLINE_LADDER_WAITING );
+
+	OnlineSession::get().forgetAccount();
+	CHECK_EQ( (int)OnlineGetHistory( 0, ONLINE_HISTORY_ALL, h ), (int)ONLINE_LADDER_FAILED );
+	CHECK( !h.arrived );
+}
+
+/* qm.status's window, counted down to the next widening, and qm.matched's chance on the reveal. */
+TEST(online_quick_match_window_and_chance)
+{
+	AdapterRig rig;
+	rig.login();
+	Real lo = -1, hi = -1;
+	Int nextMs = 0;
+	rig.feed( "{\"t\":\"qm.status\",\"status\":\"searching\",\"pool\":4}" );
+	CHECK( !OnlineGetQuickMatchChanceWindow( lo, hi, nextMs ) );		// an older server
+	CHECK_EQ( nextMs, -1 );
+	// win-chance points: 45 to 55 at join
+	rig.feed( "{\"t\":\"qm.status\",\"status\":\"searching\",\"pool\":4,\"window\":{\"lo\":45,\"hi\":55,\"nextMs\":4000}}" );
+	CHECK( OnlineGetQuickMatchChanceWindow( lo, hi, nextMs ) );
+	CHECK_NEAR( lo, 45.0, 0.001 );
+	CHECK_NEAR( hi, 55.0, 0.001 );
+	CHECK( nextMs > 3000 && nextMs <= 4000 );		// counted down from the line's arrival
+	rig.feed( "{\"t\":\"qm.status\",\"status\":\"searching\",\"pool\":4,\"window\":{\"lo\":30,\"hi\":70}}" );
+	CHECK( OnlineGetQuickMatchChanceWindow( lo, hi, nextMs ) );
+	CHECK_NEAR( lo, 30.0, 0.001 );
+	CHECK_NEAR( hi, 70.0, 0.001 );
+	CHECK_EQ( nextMs, -1 );		// the widest
+	rig.peerResponses();
+
+	// the reveal carries the local player's chance, and the match ends the search's window
+	const char *head = "{\"t\":\"qm.matched\",\"match\":\"q3\",\"seed\":5,\"mapIdx\":0,\"nicks\":[\"Tank\",\"Kim\"],\"ids\":[7,9],"
+		"\"vips\":[167772163,167772162],\"sides\":[-1,-1],\"colors\":[-1,-1],\"revealMs\":3000,";
+	rig.feed( ( std::string( head ) + "\"chance\":0.62,\"opponents\":[{\"nick\":\"Kim\",\"rating\":1550.75}]}" ).c_str() );
+	OnlineMatchReveal rev;
+	CHECK( OnlineGetMatchReveal( rev ) );
+	CHECK( rev.hasChance );
+	CHECK_NEAR( rev.chance, 0.62, 0.001 );
+	CHECK_EQ( rev.opponents.size(), (size_t)1 );
+	if (!rev.opponents.empty())
+	{
+		CHECK_NEAR( rev.opponents[0].exactRating, 1550.75, 0.001 );
+		CHECK_EQ( rev.opponents[0].rating, 1551 );
+	}
+	CHECK( !OnlineGetQuickMatchChanceWindow( lo, hi, nextMs ) );
+
+	// an older server's reveal has no chance
+	rig.feed( ( std::string( head ) + "\"opponents\":[{\"nick\":\"Kim\",\"rating\":1550}]}" ).c_str() );
+	CHECK( OnlineGetMatchReveal( rev ) );
+	CHECK( !rev.hasChance );
+}
+
+/* The hello says proto 2, so a server sends the welcome's counts object; it still carries what an older
+	 server reads. */
+TEST(online_hello_says_proto_2)
+{
+	const OnlineMessage hello = OnlineHelloLine( 0xDEADBEEFu, 0x12345678u, "3.4.1" );
+	CHECK_STR( hello.type().c_str(), "hello" );
+	CHECK_EQ( hello.getInt( "proto" ), 2 );
+	CHECK_EQ( hello.getInt( "exe" ), 0xDEADBEEFll );
+	CHECK_EQ( hello.getInt( "ini" ), 0x12345678ll );
+	CHECK_STR( hello.getString( "ver" ).c_str(), "3.4.1" );
+	CHECK_EQ( hello.getInt( "files" ), 1ll );		// the install files' hashes come before the login
+	std::string line;
+	CHECK( hello.toLine( line ) );
+	CHECK( OnlineHelloLine( 1, 2, NULL ).toLine( line ) );		// no version: an empty one
+}
+
+/* Before the login, every install file's path and sha256 in files lines under 4096 bytes, numbered, the
+	 last marked; once a connection, so a second login on it sends the login alone.  A refusal over a file
+	 names it for the login screen. */
+TEST(online_login_sends_the_install_files_first)
+{
+	std::vector<InstallFile> files;
+	for (int i = 0; i < 300; ++i)
+	{
+		InstallFile f;
+		char path[64];
+		snprintf( path, sizeof(path), "art/textures/a_long_texture_name_number_%03d.tga", i );
+		f.path = path;
+		f.sha256 = std::string( 64, (char)('a' + i % 6) );
+		files.push_back( f );
+	}
+	InstallFiles_setList( files );
+	{
+		AdapterRig rig;
+		BuddyRequest req;
+		memset( &req, 0, sizeof(req) );
+		req.buddyRequestType = BuddyRequest::BUDDYREQUEST_LOGIN;
+		strcpy( req.arg.login.email, "tank@example.com" );
+		strcpy( req.arg.login.password, "secret" );
+		rig.buddy->addRequest( req );
+
+		CHECK( rig.sent.size() > 3 );
+		std::vector<std::string> paths, hashes;
+		size_t lines = 0;
+		while (lines < rig.sent.size() && rig.sentType( lines ) == "files")
+		{
+			const OnlineMessage &m = rig.sent[lines];
+			CHECK_EQ( m.getInt( "seq" ), (long long)lines );
+			std::string line;
+			CHECK( m.toLine( line ) );
+			CHECK( line.size() < 4096 );
+			const std::vector<std::string> p = m.getStrings( "paths" ), h = m.getStrings( "hashes" );
+			CHECK_EQ( p.size(), h.size() );
+			paths.insert( paths.end(), p.begin(), p.end() );
+			hashes.insert( hashes.end(), h.begin(), h.end() );
+			++lines;
+			CHECK_EQ( m.getInt( "last", -1 ), lines == rig.sent.size() - 1 ? 1ll : 0ll );
+		}
+		CHECK( lines > 1 );
+		CHECK_EQ( lines, rig.sent.size() - 1 );
+		CHECK_STR( rig.sentType( lines ).c_str(), "login" );
+		CHECK_EQ( paths.size(), files.size() );
+		for (size_t i = 0; i < paths.size() && i < files.size(); ++i)
+		{
+			CHECK_STR( paths[i].c_str(), files[i].path.c_str() );
+			CHECK_STR( hashes[i].c_str(), files[i].sha256.c_str() );
+		}
+
+		rig.feed( "{\"t\":\"auth.fail\",\"code\":\"files\",\"file\":\"art/textures/a_long_texture_name_number_007.tga\"}" );
+		AsciiString file;
+		CHECK_STR( OnlineGetLoginFailure( NULL, &file ).str(), "files" );
+		CHECK_STR( file.str(), "art/textures/a_long_texture_name_number_007.tga" );
+
+		rig.sent.clear();
+		rig.buddy->addRequest( req );
+		CHECK_EQ( rig.sent.size(), (size_t)1 );
+		CHECK_STR( rig.sentType( 0 ).c_str(), "login" );
+		CHECK( OnlineGetLoginFailure( NULL, &file ).isEmpty() );
+		CHECK( file.isEmpty() );
+	}
+	InstallFiles_setList( std::vector<InstallFile>() );		// the other tests log in with none
+}
+
+/* The report names its map for the match history: the folder and file under maps, never the user folder
+	 a generated map sits in; a name the line cannot carry is left out and the report still goes. */
+TEST(online_report_names_its_map_without_the_user_folder)
+{
+	AdapterRig rig;
+	rig.login();
+	OnlineReport report;
+	report.endFrame = 900;
+	report.numPlayers = 2;
+	report.side[0] = "America";
+	report.side[1] = "China";
+	const char *matched = "{\"t\":\"qm.matched\",\"match\":\"%s\",\"seed\":7,\"mapIdx\":0,\"nicks\":[\"Tank\",\"Kim\"],\"ids\":[7,9],"
+		"\"vips\":[1,2],\"sides\":[0,0],\"colors\":[0,1]}";
+	char line[512];
+	struct Case { const char *map; const char *sent; } cases[] = {
+		{ "c:\\users\\tank\\documents\\command and conquer generals zero hour data\\maps\\rmg_v3_77_2p_96c\\rmg_v3_77_2p_96c.map",
+			"maps\\rmg_v3_77_2p_96c\\rmg_v3_77_2p_96c.map" },
+		{ "maps\\tournament desert\\tournament desert.map", "maps\\tournament desert\\tournament desert.map" },
+		{ "/home/tank/.local/share/zh/maps/rmg_v3_8_2p_96c/rmg_v3_8_2p_96c.map", "maps\\rmg_v3_8_2p_96c\\rmg_v3_8_2p_96c.map" },
+		{ "lone.map", "lone.map" },
+		{ "maps\\caf\xE9\\caf\xE9.map", NULL },		// a code page's byte, not UTF-8
+		{ "", NULL },
+	};
+	for (size_t i = 0; i < sizeof(cases) / sizeof(cases[0]); ++i)
+	{
+		char match[16];
+		snprintf( match, sizeof(match), "r%d", (int)i );
+		snprintf( line, sizeof(line), matched, match );
+		rig.feed( line );
+		rig.sent.clear();
+		report.map = cases[i].map;
+		CHECK( OnlineSendReport( report ) );
+		CHECK_EQ( rig.sent.size(), (size_t)1 );
+		if (rig.sent.empty())
+			continue;
+		if (cases[i].sent)
+			CHECK_STR( rig.sent[0].getString( "map" ).c_str(), cases[i].sent );
+		else
+			CHECK( !rig.sent[0].has( "map" ) );
+	}
+
+	// over 255 bytes: left out
+	rig.feed( "{\"t\":\"qm.matched\",\"match\":\"rlong\",\"seed\":7,\"mapIdx\":0,\"nicks\":[\"Tank\",\"Kim\"],\"ids\":[7,9],\"vips\":[1,2],\"sides\":[0,0],\"colors\":[0,1]}" );
+	rig.sent.clear();
+	const std::string name( 130, 'm' );
+	report.map = ( "maps\\" + name + "\\" + name + ".map" ).c_str();
+	CHECK( OnlineSendReport( report ) );
+	CHECK( rig.sent.size() == 1 && !rig.sent[0].has( "map" ) );
+}
+
+/* What belonged to the connection (counts, the server's name, the round trip) goes with it, however it
+	 went: OnlineDisconnect, the line closing on its own and a dial that failed all run connectionGone. */
+TEST(online_connection_gone_clears_counts_server_and_ping)
+{
+	AdapterRig rig;
+	OnlineSession &s = OnlineSession::get();
+	rig.feed( "{\"t\":\"welcome\",\"config\":\"\",\"motd\":\"\",\"relayPort\":8094,\"counts\":{\"players\":4,\"games\":1,\"queue\":0},"
+		"\"server\":{\"name\":\"EU-1\",\"city\":\"Frankfurt\"}}" );
+	rig.feed( "{\"t\":\"pong\",\"n\":1}" );
+	Int players = 0, games = 0, queue = 0, pingMs = -1;
+	AsciiString name, city;
+	CHECK( OnlineGetCounts( players, games, queue ) );
+	CHECK( OnlineGetServerInfo( name, city, pingMs ) );
+	CHECK( pingMs >= 0 );
+	s.connectionGone();
+	CHECK( !OnlineGetCounts( players, games, queue ) );
+	CHECK( !OnlineGetServerInfo( name, city, pingMs ) );
+	CHECK( name.isEmpty() && city.isEmpty() );
+	CHECK_EQ( pingMs, -1 );
+	CHECK_EQ( s.pingSentMs, 0ll );		// the next welcome pings at once
+}
+
+/* welcome.server and our own ping{n}: one after the welcome, then every ONLINE_PING_MS, the pong's round
+	 trip smoothed; a stale or repeated pong counts nothing, and a server that does not know ping is left
+	 alone. */
+TEST(online_server_info_and_round_trip)
+{
+	AdapterRig rig;
+	OnlineSession &s = OnlineSession::get();
+	AsciiString name, city;
+	Int pingMs = 0;
+	rig.feed( "{\"t\":\"welcome\",\"config\":\"\",\"motd\":\"\",\"relayPort\":8094}" );
+	CHECK( !OnlineGetServerInfo( name, city, pingMs ) );		// an older server: no server object
+	CHECK_EQ( pingMs, -1 );
+	rig.sent.clear();
+
+	rig.feed( "{\"t\":\"welcome\",\"config\":\"\",\"motd\":\"\",\"relayPort\":8094,\"server\":{\"name\":\"EU-1\",\"city\":\"Frankfurt\"}}" );
+	CHECK( OnlineGetServerInfo( name, city, pingMs ) );
+	CHECK_STR( name.str(), "EU-1" );
+	CHECK_STR( city.str(), "Frankfurt" );
+	CHECK_EQ( pingMs, -1 );		// not measured yet
+	CHECK_EQ( rig.sent.size(), (size_t)1 );		// the welcome's ping
+	const long long n = rig.sent.empty() ? -1 : rig.sent[0].getInt( "n", -1 );
+	CHECK_STR( rig.sentType( 0 ).c_str(), "ping" );
+	CHECK( n > 0 );
+
+	// the pong of that ping: a first sample is taken whole
+	s.pingSentMs = OnlineNowMs() - 40;
+	char line[64];
+	snprintf( line, sizeof(line), "{\"t\":\"pong\",\"n\":%lld}", n );
+	rig.feed( line );
+	CHECK( OnlineGetServerInfo( name, city, pingMs ) );
+	CHECK( pingMs >= 40 && pingMs < 60 );
+	rig.feed( line );		// the same pong again counts nothing
+	CHECK( OnlineGetServerInfo( name, city, pingMs ) && pingMs >= 40 && pingMs < 60 );
+
+	// nothing new before ONLINE_PING_MS, then the next; its 840 ms sample moves the average an eighth
+	rig.sent.clear();
+	s.pingServer();
+	CHECK( rig.sent.empty() );
+	s.pingSentMs -= ONLINE_PING_MS + 1;
+	s.pingServer();
+	CHECK_EQ( rig.sent.size(), (size_t)1 );
+	const long long n2 = rig.sent.empty() ? -1 : rig.sent[0].getInt( "n", -1 );
+	CHECK_EQ( n2, n + 1 );
+	const double before = s.pingSmoothedMs;
+	s.pingSentMs = OnlineNowMs() - 840;
+	rig.feed( "{\"t\":\"pong\",\"n\":1000}" );		// not ours
+	CHECK( s.pingSmoothedMs == before );
+	snprintf( line, sizeof(line), "{\"t\":\"pong\",\"n\":%lld}", n2 );
+	rig.feed( line );
+	CHECK_NEAR( s.pingSmoothedMs, before + (840.0 - before) / 8, 15.0 );
+
+	// a server from before the client's ping answers unknown: no more pings this connection
+	rig.feed( "{\"t\":\"error\",\"for\":\"ping\",\"code\":\"unknown\"}" );
+	rig.sent.clear();
+	s.pingSentMs -= ONLINE_PING_MS + 1;
+	s.pingServer();
+	CHECK( rig.sent.empty() );
+	// the server's own ping is still answered
+	rig.feed( "{\"t\":\"ping\",\"n\":5}" );
+	CHECK( rig.sent.size() == 1 && rig.sentType( 0 ) == "pong" && rig.sent[0].getInt( "n" ) == 5 );
+}
+
+/* history asks: the error that names id and mode settles that key out of order, an older server's error
+	 the oldest ask, an ask with no answer fails after ONLINE_HISTORY_TIMEOUT_MS, a key has one ask out at a
+	 time, and the serial moves on every change, a second answer included. */
+TEST(online_history_errors_timeout_and_serial)
+{
+	AdapterRig rig;
+	OnlineSession &s = OnlineSession::get();
+	rig.login();
+	OnlineHistory h;
+	CHECK_EQ( OnlineGetHistorySerial( 0, ONLINE_HISTORY_ALL ), 0u );		// never asked
+
+	OnlineRequestHistory( 0, ONLINE_HISTORY_ALL );
+	OnlineRequestHistory( 9, ONLINE_HISTORY_QM );
+	OnlineRequestHistory( 9, ONLINE_HISTORY_AI );
+	OnlineRequestHistory( 9, ONLINE_HISTORY_QM );		// already out: not sent again
+	CHECK_EQ( rig.sent.size(), (size_t)3 );
+	const UnsignedInt mineAsked = OnlineGetHistorySerial( 0, ONLINE_HISTORY_ALL );
+	CHECK( mineAsked != 0 );
+	CHECK( OnlineGetHistorySerial( 9, ONLINE_HISTORY_QM ) != mineAsked );
+
+	// the throttled second ask answered first, named: only that key fails
+	rig.feed( "{\"t\":\"error\",\"for\":\"history\",\"code\":\"throttled\",\"id\":9,\"mode\":\"qm\"}" );
+	CHECK_EQ( (int)OnlineGetHistory( 9, ONLINE_HISTORY_QM, h ), (int)ONLINE_LADDER_FAILED );
+	CHECK_EQ( (int)OnlineGetHistory( 0, ONLINE_HISTORY_ALL, h ), (int)ONLINE_LADDER_WAITING );
+	CHECK_EQ( (int)OnlineGetHistory( 9, ONLINE_HISTORY_AI, h ), (int)ONLINE_LADDER_WAITING );
+	// an error naming the mode alone is the player's own
+	rig.feed( "{\"t\":\"error\",\"for\":\"history\",\"code\":\"unavailable\",\"mode\":\"all\"}" );
+	CHECK_EQ( (int)OnlineGetHistory( 0, ONLINE_HISTORY_ALL, h ), (int)ONLINE_LADDER_FAILED );
+	CHECK( OnlineGetHistorySerial( 0, ONLINE_HISTORY_ALL ) != mineAsked );
+	// an older server's error names nothing: the oldest ask still out
+	rig.feed( "{\"t\":\"error\",\"for\":\"history\",\"code\":\"unknown\"}" );
+	CHECK_EQ( (int)OnlineGetHistory( 9, ONLINE_HISTORY_AI, h ), (int)ONLINE_LADDER_FAILED );
+	CHECK( s.historyAsked.empty() );
+
+	// an ask the server never answers fails after the timeout, and the key can be asked again
+	rig.sent.clear();
+	OnlineRequestHistory( 9, ONLINE_HISTORY_QM );
+	CHECK_EQ( rig.sent.size(), (size_t)1 );
+	const UnsignedInt waiting = OnlineGetHistorySerial( 9, ONLINE_HISTORY_QM );
+	CHECK_EQ( (int)OnlineGetHistory( 9, ONLINE_HISTORY_QM, h ), (int)ONLINE_LADDER_WAITING );
+	s.history[OnlineHistoryKey( 9, ONLINE_HISTORY_QM )].askedMs -= ONLINE_HISTORY_TIMEOUT_MS + 1;
+	CHECK( OnlineGetHistorySerial( 9, ONLINE_HISTORY_QM ) != waiting );
+	CHECK_EQ( (int)OnlineGetHistory( 9, ONLINE_HISTORY_QM, h ), (int)ONLINE_LADDER_FAILED );
+	CHECK( s.historyAsked.empty() );
+	OnlineRequestHistory( 9, ONLINE_HISTORY_QM );
+	CHECK_EQ( rig.sent.size(), (size_t)2 );
+
+	// an answer, then a second answer for the same key: the serial moves both times, and reading does not move it
+	const char *answer = "{\"t\":\"history\",\"id\":9,\"mode\":\"qm\",\"games\":3,\"wins\":1,\"rows\":[],\"byArmy\":[],\"byOpponentArmy\":[]}";
+	rig.feed( answer );
+	const UnsignedInt first = OnlineGetHistorySerial( 9, ONLINE_HISTORY_QM );
+	CHECK_EQ( (int)OnlineGetHistory( 9, ONLINE_HISTORY_QM, h ), (int)ONLINE_LADDER_READY );
+	CHECK_EQ( OnlineGetHistorySerial( 9, ONLINE_HISTORY_QM ), first );
+	rig.feed( answer );
+	CHECK( OnlineGetHistorySerial( 9, ONLINE_HISTORY_QM ) != first );
+
+	// forgotten at sign-out; asked again after, the serial is new, not one a screen saw before
+	const UnsignedInt last = OnlineGetHistorySerial( 9, ONLINE_HISTORY_QM );
+	s.forgetAccount();
+	CHECK_EQ( OnlineGetHistorySerial( 9, ONLINE_HISTORY_QM ), 0u );
+	rig.login();
+	OnlineRequestHistory( 9, ONLINE_HISTORY_QM );
+	CHECK( OnlineGetHistorySerial( 9, ONLINE_HISTORY_QM ) > last );
+}
+
+/* A started custom game stays listed with playing:true: the row reads isStaging FALSE (GameSpy's own
+	 meaning), so the lobby can show it as playing and refuse a join; a game in setup is staging. */
+TEST(online_game_list_carries_playing)
+{
+	AdapterRig rig;
+	rig.login();
+	rig.feed( "{\"t\":\"game\",\"action\":\"add\",\"id\":5,\"name\":\"Fun\",\"map\":\"\",\"maxp\":2,\"host\":\"Kim\",\"hostId\":9,\"count\":2}" );
+	rig.feed( "{\"t\":\"game\",\"action\":\"update\",\"id\":5,\"name\":\"Fun\",\"map\":\"\",\"maxp\":2,\"host\":\"Kim\",\"hostId\":9,\"count\":2,\"playing\":true}" );
+	std::vector<PeerResponse> r = rig.peerResponses();
+	CHECK_EQ( r.size(), (size_t)2 );
+	if (r.size() == 2)
+	{
+		CHECK_EQ( (int)r[0].peerResponseType, (int)PeerResponse::PEERRESPONSE_STAGINGROOM );
+		CHECK_EQ( r[0].stagingRoom.id, 5 );
+		CHECK( r[0].stagingRoom.isStaging );
+		CHECK_EQ( (int)r[1].stagingRoom.action, (int)PEER_UPDATE );
+		CHECK( !r[1].stagingRoom.isStaging );		// being played
+	}
+}
+
+/* The abandon lock counted down here: from auth.ok, the player's own card (absent is free) and
+	 qm.status{locked,seconds}, never from another player's card or a stats answer; a search clears it. */
+TEST(online_quick_match_lock_seconds)
+{
+	AdapterRig rig;
+	rig.login();
+	CHECK_EQ( OnlineGetQuickMatchLockSeconds(), 0 );
+	rig.feed( "{\"t\":\"auth.ok\",\"id\":7,\"nick\":\"Tank\",\"token\":\"t\",\"ticket\":\"00112233445566778899aabbccddeeff\",\"lockSeconds\":492}" );
+	Int left = OnlineGetQuickMatchLockSeconds();
+	CHECK( left >= 491 && left <= 492 );
+	rig.feed( "{\"t\":\"player\",\"room\":\"lobby1\",\"id\":9,\"nick\":\"Kim\",\"lockSeconds\":60}" );		// someone else's
+	rig.feed( "{\"t\":\"stats\",\"id\":7,\"nick\":\"Tank\",\"wins\":1,\"losses\":0}" );		// carries none, says nothing
+	left = OnlineGetQuickMatchLockSeconds();
+	CHECK( left >= 491 && left <= 492 );
+	OnlineSession::get().qmLockUntilMs -= 491500;		// half a second left still reads a second
+	CHECK_EQ( OnlineGetQuickMatchLockSeconds(), 1 );
+	OnlineSession::get().qmLockUntilMs -= 1000;
+	CHECK_EQ( OnlineGetQuickMatchLockSeconds(), 0 );
+
+	// qm.status locked arrives as QM_COULDNOTFINDBOT like any refusal; the seconds tell it apart
+	rig.feed( "{\"t\":\"qm.status\",\"status\":\"busy\",\"pool\":2}" );
+	CHECK_EQ( OnlineGetQuickMatchLockSeconds(), 0 );
+	rig.feed( "{\"t\":\"qm.status\",\"status\":\"locked\",\"pool\":2,\"until\":1900000000000,\"seconds\":300}" );
+	std::vector<PeerResponse> r = rig.peerResponses();
+	CHECK( r.size() == 2 && r[0].qmStatus.status == QM_COULDNOTFINDBOT && r[1].qmStatus.status == QM_COULDNOTFINDBOT );
+	left = OnlineGetQuickMatchLockSeconds();
+	CHECK( left >= 299 && left <= 300 );
+	rig.feed( "{\"t\":\"qm.status\",\"status\":\"locked\",\"pool\":2,\"seconds\":0}" );
+	CHECK_EQ( OnlineGetQuickMatchLockSeconds(), 1 );		// its last fraction of a second is still a lock
+
+	// the player's own card without lockSeconds: free
+	rig.feed( "{\"t\":\"qm.status\",\"status\":\"locked\",\"pool\":2,\"seconds\":300}" );
+	rig.feed( "{\"t\":\"player\",\"room\":\"lobby1\",\"id\":7,\"nick\":\"tank\",\"ping\":30}" );
+	CHECK_EQ( OnlineGetQuickMatchLockSeconds(), 0 );
+	// and a search taken by the queue
+	rig.feed( "{\"t\":\"qm.status\",\"status\":\"locked\",\"pool\":2,\"seconds\":300}" );
+	rig.feed( "{\"t\":\"qm.status\",\"status\":\"searching\",\"pool\":3}" );
+	CHECK_EQ( OnlineGetQuickMatchLockSeconds(), 0 );
+	rig.feed( "{\"t\":\"qm.status\",\"status\":\"locked\",\"pool\":2,\"seconds\":300}" );
+	OnlineSession::get().forgetAccount();
+	CHECK_EQ( OnlineGetQuickMatchLockSeconds(), 0 );
+}
+
+/* qm.matched's opponents carry their seat's side and colour, clamped as a seat clamps them. */
+TEST(online_reveal_opponents_carry_side_and_color)
+{
+	AdapterRig rig;
+	rig.login();
+	rig.feed( "{\"t\":\"qm.matched\",\"match\":\"q9\",\"seed\":5,\"mapIdx\":0,\"nicks\":[\"Tank\",\"Kim\",\"Lee\",\"Max\"],\"ids\":[7,9,11,12],"
+		"\"vips\":[1,2,3,4],\"sides\":[-1,-25,999,-1],\"colors\":[-1,3,-1,-1],\"revealMs\":3000,"
+		"\"opponents\":[{\"nick\":\"Kim\",\"side\":-25,\"color\":3},{\"nick\":\"Lee\",\"side\":999,\"color\":99},{\"nick\":\"Max\"}]}" );
+	OnlineMatchReveal rev;
+	CHECK( OnlineGetMatchReveal( rev ) );
+	CHECK_EQ( rev.opponents.size(), (size_t)3 );
+	if (rev.opponents.size() == 3)
+	{
+		// this binary has no template store or colour list: a Random pool is the one pick that comes through
+		CHECK_EQ( rev.opponents[0].side, -25 );
+		CHECK_EQ( rev.opponents[0].color, TheMultiplayerSettings ? 3 : -1 );
+		CHECK_EQ( rev.opponents[1].side, -1 );		// past the templates: random
+		CHECK_EQ( rev.opponents[1].color, -1 );
+		CHECK_EQ( rev.opponents[2].side, -1 );		// an older server sends neither
+		CHECK_EQ( rev.opponents[2].color, -1 );
+	}
+	// a ladder row has no seat
+	OnlineLadderRow row;
+	CHECK( row.side == -1 && row.color == -1 );
+}
+
+/* The score screen matches the AI verdict to the match this client reported: the id stays after the
+	 result ends the match, and the verdict names the same match. */
+TEST(online_last_ai_match_id_outlives_the_match)
+{
+	AdapterRig rig;
+	rig.login();
+	CHECK( OnlineGetLastAIMatchId().isEmpty() );
+	OnlineAIMatch ai;
+	OnlineRequestAIMatch( "FactionAmerica" );
+	rig.feed( "{\"t\":\"ai.ready\",\"matchId\":\"0a1b2c3d4e5f6071\",\"aiRating\":12.4,\"map\":\"maps\\\\alpine assault\\\\alpine assault.map\",\"seed\":7}" );
+	CHECK_EQ( (int)OnlineGetAIMatch( ai ), (int)ONLINE_AI_READY );
+	CHECK( OnlineGetLastAIMatchId().isEmpty() );		// nothing sent yet
+	OnlineAIResult result;
+	result.won = TRUE;
+	result.playerArmy = "FactionAmerica";
+	result.aiArmy = "FactionChina";
+	OnlineSendAIResult( result );
+	CHECK( !OnlineIsAIMatchLive() );
+	CHECK_STR( OnlineGetLastAIMatchId().str(), "0a1b2c3d4e5f6071" );
+	rig.feed( "{\"t\":\"ai.rated\",\"matchId\":\"0a1b2c3d4e5f6071\",\"before\":12.4,\"after\":13.1,\"games\":4,\"wins\":3}" );
+	OnlineAIVerdict verdict;
+	CHECK( OnlineGetAIVerdict( verdict ) );
+	CHECK( verdict.match == OnlineGetLastAIMatchId() );
+	OnlineSession::get().forgetAccount();
+	CHECK( OnlineGetLastAIMatchId().isEmpty() );
+}
+
+/* The server's notice{kind,en,tr,until}: the hello asks for it, it is shown until an info with no words
+	 replaces it or the connection goes, a maintenance with no words still shows, and each change moves the
+	 serial.  The words come in the player's language, the other one when that is empty. */
+TEST(online_notice_parse_and_clear)
+{
+	CHECK_EQ( OnlineHelloLine( 1, 2, "4.1.0" ).getInt( "notice" ), 1ll );
+
+	AdapterRig rig;
+	OnlineNotice n;
+	CHECK( !OnlineGetNotice( n ) );
+	const UnsignedInt first = n.serial;
+
+	rig.feed( "{\"t\":\"notice\",\"kind\":\"info\",\"en\":\"Ladder resets Sunday\",\"tr\":\"Lig pazar s\\u0131f\\u0131rlan\\u0131yor\",\"until\":\"\"}" );
+	CHECK( OnlineGetNotice( n ) );
+	CHECK( !n.maintenance );
+	CHECK_STR( OnlineNoticeWords( n, TEXT_LANGUAGE_ENGLISH ).str(), "Ladder resets Sunday" );
+	CHECK_STR( OnlineNoticeWords( n, TEXT_LANGUAGE_TURKISH ).str(), "Lig pazar s\xC4\xB1" "f\xC4\xB1rlan\xC4\xB1yor" );
+	CHECK_STR( OnlineNoticeWords( n, TEXT_LANGUAGE_GERMAN ).str(), "Ladder resets Sunday" );
+	CHECK( n.serial != first );
+
+	rig.feed( "{\"t\":\"notice\",\"kind\":\"maintenance\",\"en\":\"Deploy\",\"tr\":\"\",\"until\":\"2026-11-18T22:00:00.000Z\"}" );
+	CHECK( OnlineGetNotice( n ) );
+	CHECK( n.maintenance );
+	CHECK_STR( n.until.str(), "2026-11-18T22:00:00.000Z" );
+	CHECK_STR( OnlineNoticeWords( n, TEXT_LANGUAGE_TURKISH ).str(), "Deploy" );		// no Turkish: the English
+
+	const UnsignedInt before = n.serial;
+	rig.feed( "{\"t\":\"notice\",\"kind\":\"maintenance\",\"en\":\"\",\"tr\":\"\",\"until\":\"\"}" );
+	CHECK( OnlineGetNotice( n ) );		// maintenance with no words still shows
+	CHECK( n.maintenance );
+	CHECK( n.serial != before );
+
+	rig.feed( "{\"t\":\"notice\",\"kind\":\"info\",\"en\":\"\",\"tr\":\"\",\"until\":\"\"}" );
+	CHECK( !OnlineGetNotice( n ) );		// an info with no words clears it
+
+	rig.feed( "{\"t\":\"notice\",\"kind\":\"info\",\"en\":\"Hello\",\"tr\":\"Merhaba\"}" );
+	CHECK( OnlineGetNotice( n ) );
+	OnlineSession::get().connectionGone();		// a sign-out or a dropped line takes it down
+	CHECK( !OnlineGetNotice( n ) );
+}
+
+/* until as the server writes it (Node's toISOString, or with an offset) in Unix seconds; anything else is
+	 no time and is shown as the server's own text. */
+TEST(online_notice_until_parses_utc)
+{
+	CHECK_EQ( OnlineParseUtc( "1970-01-01T00:00:00Z" ), 0ll );
+	CHECK_EQ( OnlineParseUtc( "2026-11-18T22:00:00.000Z" ), 1795039200ll );
+	CHECK_EQ( OnlineParseUtc( "2026-11-18T22:00Z" ), 1795039200ll );
+	CHECK_EQ( OnlineParseUtc( "2026-11-19T01:00:00+03:00" ), 1795039200ll );
+	CHECK_EQ( OnlineParseUtc( "2026-11-18T21:30:00-00:30" ), 1795039200ll );
+	CHECK_EQ( OnlineParseUtc( "2024-02-29T12:00:00Z" ), 1709208000ll );
+	CHECK_EQ( OnlineParseUtc( "2026-11-18T22:00:00" ), -1ll );		// no zone
+	CHECK_EQ( OnlineParseUtc( "22:00" ), -1ll );
+	CHECK_EQ( OnlineParseUtc( "2026-13-01T00:00:00Z" ), -1ll );
+	CHECK_EQ( OnlineParseUtc( "2026-11-18T22:00:00Zjunk" ), -1ll );
+	CHECK_EQ( OnlineParseUtc( "" ), -1ll );
+	CHECK_EQ( OnlineParseUtc( NULL ), -1ll );
+}
+
+/* Maintenance: a login refused with its until (the notice's when the line has none), and a new lobby, game,
+	 Quick Match or Play vs AI refused, each handed once to the screen that asked and dropped by the next such
+	 request.  A Quick Match the server empties is maintenance only when the player did not leave himself.
+	 Under maintenance the host waits for the server's game.start before it launches; a start refused for any
+	 reason launches nothing and goes to the staging screen alone. */
+TEST(online_maintenance_refusals)
+{
+	AdapterRig rig;
+	AsciiString until, file;
+
+	// the login
+	BuddyRequest req;
+	memset( &req, 0, sizeof(req) );
+	req.buddyRequestType = BuddyRequest::BUDDYREQUEST_LOGIN;
+	strcpy( req.arg.login.email, "tank@example.com" );
+	strcpy( req.arg.login.password, "secret" );
+	rig.buddy->addRequest( req );
+	rig.feed( "{\"t\":\"auth.fail\",\"code\":\"maintenance\",\"until\":\"2026-11-18T22:00:00.000Z\"}" );
+	CHECK_STR( OnlineGetLoginFailure( NULL, &file, &until ).str(), "maintenance" );
+	CHECK_STR( until.str(), "2026-11-18T22:00:00.000Z" );
+	rig.peerResponses();
+	rig.feed( "{\"t\":\"notice\",\"kind\":\"maintenance\",\"en\":\"\",\"tr\":\"\",\"until\":\"2026-11-18T23:00:00Z\"}" );
+	rig.buddy->addRequest( req );
+	rig.feed( "{\"t\":\"auth.fail\",\"code\":\"maintenance\",\"until\":\"\"}" );
+	OnlineGetLoginFailure( NULL, NULL, &until );
+	CHECK_STR( until.str(), "2026-11-18T23:00:00Z" );		// the notice's
+	CHECK( !OnlineTakeMaintenanceRefusal( until ) );		// a login is the login screen's, not a refusal
+	rig.peerResponses();
+
+	rig.login();
+	const char *const errors[] = { "game.host", "game.join", "qm.join", "room.join" };
+	for (size_t i = 0; i < sizeof(errors) / sizeof(errors[0]); ++i)
+	{
+		char line[128];
+		snprintf( line, sizeof(line), "{\"t\":\"error\",\"for\":\"%s\",\"code\":\"maintenance\"}", errors[i] );
+		rig.feed( line );
+		until.clear();
+		CHECK( OnlineTakeMaintenanceRefusal( until ) );
+		CHECK_STR( until.str(), "2026-11-18T23:00:00Z" );
+		CHECK( !OnlineTakeMaintenanceRefusal( until ) );		// once
+	}
+	rig.peerResponses();
+	rig.feed( "{\"t\":\"error\",\"for\":\"game.host\",\"code\":\"full\"}" );
+	CHECK( !OnlineTakeMaintenanceRefusal( until ) );
+
+	// Play vs AI
+	OnlineRequestAIMatch( "FactionAmerica" );
+	rig.feed( "{\"t\":\"ai.refused\",\"reason\":\"maintenance\"}" );
+	OnlineAIMatch ai;
+	CHECK_EQ( (int)OnlineGetAIMatch( ai ), (int)ONLINE_AI_REFUSED );
+	CHECK_STR( ai.reason.str(), "maintenance" );
+	CHECK( OnlineTakeMaintenanceRefusal( until ) );
+	OnlineRequestAIMatch( "FactionAmerica" );
+	rig.feed( "{\"t\":\"error\",\"for\":\"ai.start\",\"code\":\"maintenance\"}" );
+	CHECK_EQ( (int)OnlineGetAIMatch( ai ), (int)ONLINE_AI_REFUSED );
+	CHECK_STR( ai.reason.str(), "maintenance" );
+	CHECK( OnlineTakeMaintenanceRefusal( until ) );
+
+	// the queue: emptied by the server is maintenance, our own leave is not
+	rig.feed( "{\"t\":\"qm.status\",\"status\":\"left\",\"pool\":0}" );
+	CHECK( OnlineTakeMaintenanceRefusal( until ) );
+	PeerRequest stop;
+	stop.peerRequestType = PeerRequest::PEERREQUEST_STOPQUICKMATCH;
+	rig.peer->addRequest( stop );
+	rig.feed( "{\"t\":\"qm.status\",\"status\":\"searching\",\"pool\":1}" );		// still on its way before our left
+	rig.feed( "{\"t\":\"qm.status\",\"status\":\"left\",\"pool\":0}" );
+	CHECK( !OnlineTakeMaintenanceRefusal( until ) );
+	rig.peerResponses();
+
+	// a new request drops a refusal nobody took
+	rig.feed( "{\"t\":\"error\",\"for\":\"game.join\",\"code\":\"maintenance\"}" );
+	PeerRequest host;
+	host.peerRequestType = PeerRequest::PEERREQUEST_STARTQUICKMATCH;
+	rig.peer->addRequest( host );
+	CHECK( !OnlineTakeMaintenanceRefusal( until ) );
+	rig.peerResponses();
+	rig.sent.clear();
+
+	// the host's start waits on the server under maintenance
+	rig.feed( "{\"t\":\"game.joined\",\"id\":4,\"host\":\"Tank\",\"hostId\":7,\"ids\":[7],\"nicks\":[\"Tank\"]}" );
+	rig.peerResponses();
+	PeerRequest start;
+	start.peerRequestType = PeerRequest::PEERREQUEST_STARTGAME;
+	rig.peer->addRequest( start );
+	CHECK( OnlineIsHostStartWaiting() );
+	rig.feed( "{\"t\":\"error\",\"for\":\"game.start\",\"code\":\"maintenance\"}" );
+	CHECK( !OnlineIsHostStartWaiting() );
+	AsciiString code;
+	CHECK( OnlineTakeStartRefusal( code, until ) );		// the staging screen's alone
+	CHECK_STR( code.str(), "maintenance" );
+	CHECK_STR( until.str(), "2026-11-18T23:00:00Z" );
+	CHECK( !OnlineTakeStartRefusal( code, until ) );
+	CHECK( !OnlineTakeMaintenanceRefusal( until ) );		// no other screen sees it
+	CHECK( rig.peerResponses().empty() );		// nothing launches
+	rig.peer->addRequest( start );
+	rig.feed( "{\"t\":\"error\",\"for\":\"game.start\",\"code\":\"throttled\"}" );		// any refusal lets Start go
+	CHECK( !OnlineIsHostStartWaiting() );
+	CHECK( OnlineTakeStartRefusal( code, until ) );
+	CHECK_STR( code.str(), "throttled" );
+	rig.peer->addRequest( start );
+	CHECK( OnlineIsHostStartWaiting() );
+	rig.feed( "{\"t\":\"game.start\",\"match\":\"m1\",\"ids\":[7],\"nicks\":[\"Tank\"],\"vips\":[167772163]}" );
+	std::vector<PeerResponse> r = rig.peerResponses();
+	CHECK( r.size() == 1 && r[0].peerResponseType == PeerResponse::PEERRESPONSE_GAMESTART );
+	CHECK( !OnlineIsHostStartWaiting() );
+
+	// without maintenance the host launches on its click, as before
+	rig.feed( "{\"t\":\"notice\",\"kind\":\"info\",\"en\":\"\",\"tr\":\"\"}" );
+	rig.feed( "{\"t\":\"game.joined\",\"id\":5,\"host\":\"Tank\",\"hostId\":7,\"ids\":[7],\"nicks\":[\"Tank\"]}" );
+	rig.peerResponses();
+	rig.peer->addRequest( start );
+	CHECK( !OnlineIsHostStartWaiting() );
+	rig.feed( "{\"t\":\"game.start\",\"match\":\"m2\",\"ids\":[7],\"nicks\":[\"Tank\"],\"vips\":[167772163]}" );
+	CHECK( rig.peerResponses().empty() );
 }

@@ -322,7 +322,12 @@ public:
 	/** Which rung of the six-step ladder this AI plays at, and what it is trying to do.  Two
 		* independent axes: the rung says how well, the role says what.  See AI-ROADMAP.md D6/D8. */
 	AISkillLevel getAISkillLevel(void) const {return m_skillLevel;}
-	void setAISkillLevel(AISkillLevel level) {m_skillLevel = level;}
+	void setAISkillLevel(AISkillLevel level) {m_skillLevel = level; m_rating = aiRatingOfSkill(level); refreshRatedProfile();}	///< the rung at its anchor rating
+	/** The seat's rating on the online ladder's scale, Easy 0 and Hard 30 and no edge between or past
+		* them, which every rung-keyed knob is read at; the rung follows it as the nearest one.  Setting it
+		* holds it to AI_RATING_LIMIT, an Int's guard and no gameplay edge. */
+	Real getAIRating(void) const {return m_rating;}
+	void setAIRating(Real rating) {m_rating = aiRatingClamp(rating); m_skillLevel = aiSkillOfRating(m_rating); refreshRatedProfile();}
 	Int getIncomeBonus(void) const {return m_incomeBonus;}	///< points over the rung's IncomePercent while it falls behind (stepIncomeBonus)
 	AIRole getAIRole(void) const {return m_role;}
 
@@ -339,6 +344,8 @@ public:
 
 	/// This rung's knobs, for any behaviour that has a difficulty-dependent decision to make.
 	const AIDifficultyProfile *getSkillProfile(void) const;
+	const AIDifficultyProfile *ratedProfile(void) const {return &m_ratedProfile;}	///< the ladder at this seat's rating alone: no -aiknobsoff, no personality
+	void refreshRatedProfile(void);	///< reads m_ratedProfile off the ladder at m_rating; the only writer of it
 	Bool knobsOffHere(void) const;		///< -aiknobsoff reaches this slot; its mask says which knobs
 	Int unitAbilitiesRung(void) const;	///< the profile's UnitAbilities with -aiknobsoff's abilities applied, safe to ask of another seat
 	Int foreignTechRung(void) const;	///< the profile's ForeignTech with -aiknobsoff's foreigntech applied
@@ -358,6 +365,8 @@ public:
  	Bool isSupplySourceSafe( Int minSupplies );
 	/// Is a supply source attacked?
 	Bool isSupplySourceAttacked( void );
+	/// Would a flying gatherer of ours cross a known anti-air gun to reach this pile?
+	Bool gathererShunsPile( const Object *gatherer, const Object *pile );
 
 	Bool isLocationSafe( const Coord3D *pos, const ThingTemplate *tthing);
 
@@ -488,7 +497,7 @@ protected:
 	void buyPersonaTransports(void);											///< an Infantry AI's ground transports, a few by rung
 	void sendPersonaTransports(AIGroup *wave);	///< ... driven loaded to a wave's front, riders put down there
 	void stepIncomeBonus(void);														///< weigh its strength against its strongest enemy and move m_incomeBonus a step toward what that is owed
-	Int					m_incomeBonus;					///< points over the rung's IncomePercent, 0 to AI_INCOME_BONUS_MAX
+	Int					m_incomeBonus;					///< points over the rated IncomePercent, 0 to the rated IncomeBonusMaxPercent
 	Int					m_incomeMark;						///< money earned in all, when the income was last measured ...
 	UnsignedInt	m_incomeMarkFrame;			///< ... and the frame, 0 for never
 	Int					m_bankMark;							///< ... and the bank then
@@ -640,6 +649,7 @@ protected:
 	Int computeStructureDelay( void );	///< frames to wait before trying the next structure
 	Int computeTeamDelay( void );				///< frames to wait before trying the next team
 	Int hoardThreshold( void );					///< bank that speeds the two delays up; skirmish AI only
+	Real buildDelayScale( void );				///< the rated BuildDelayScale on both delays, last; skirmish AI only
 
 public:
 	/// the arithmetic behind the two above, free of the Player so a test can reach it
@@ -704,7 +714,9 @@ protected:
 
 	Player *m_player;									///< the Player we represent
 
-	AISkillLevel m_skillLevel;				///< rung of the ladder: how well this AI plays
+	AISkillLevel m_skillLevel;				///< rung of the ladder nearest m_rating, for what stays discrete
+	Real m_rating;										///< how well this AI plays: every rung-keyed knob is read here (aiRatingLerp)
+	AIDifficultyProfile m_ratedProfile;	///< the ladder at m_rating, written only when the rating is set or loaded (refreshRatedProfile)
 	mutable AIDifficultyProfile m_measuredProfile;	///< the rung's profile less the knobs -aiknobsoff turns off for this slot
 	AIRole		m_role;									///< what it is trying to do; rolled once, kept for the match
 
@@ -957,6 +969,18 @@ protected:
 	Bool holdsTeamsForWaves(void) const;					///< this rung parks attack teams at the current level
 	Bool readyToPush(void);												///< the economy is in and the opening is over: attack teams may leave home
 	Bool waveGoes(Real power, UnsignedInt heldFrames);	///< what is parked, worth this, leaves now
+
+	/** Kill zones: where this AI's own units died (m_lossMap), and the guns it knows on the road an attack takes.
+		* -aiknobsoff ... killzones takes all of it off a seat. */
+	Bool killZonesHere(void) const;
+	Real killZoneWeight(void) const;							///< how much of the loss record a reading counts, 0 when off
+	Real killZoneAt(const Coord3D *at) const;			///< ... the losses round one spot, weighed
+	Real gunOdds(void) const;											///< what an attack has to be worth against the guns it meets, 0 when off
+	void recordLoss(const Object *obj);						///< one of ours died here
+	Real guardedRoad(void);												///< the known guns and the losses on the quietest road to the enemy's base and at it
+	Bool attackBeatsGuns(Real power, const char *what);	///< an attack worth power may go: it beats guardedRoad at the odds, or the guns have held attacks long enough
+	AILossMap		m_lossMap;
+	UnsignedInt	m_gunHoldSince;										///< frame the guns first held an attack back, 0 when nothing is held
 	void buyEarlyIncome(void);										///< the first drop zone and black market, ahead of the army
 	void keepSiegeBehind(void);										///< artillery out with a wave trails its front unit
 	void holdAtDefences(void);
