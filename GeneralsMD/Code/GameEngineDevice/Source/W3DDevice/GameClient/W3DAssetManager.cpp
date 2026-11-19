@@ -439,7 +439,7 @@ void W3DAssetManager::applySkin(RenderObjClass *robj, Int skin)
 		}
 		TextureClass *oldTex = material->Peek_Texture(i);
 		REF_PTR_RELEASE(material);	// the mesh keeps its own reference to oldTex
-		const char *sheet = oldTex ? oldTex->Get_Texture_Name() : NULL;
+		const char *sheet = oldTex ? oldTex->Get_Texture_Name().Peek_Buffer() : NULL;	// Peek_Buffer: Apple's NULL (__null) makes the StringClass arm of ?: ambiguous
 		if (sheet == NULL || strncasecmp(sheet, "ZHC", 3) == 0)
 			continue;
 		const char *skinSheet = TankSkin_replacementSheet(skin, sheet);
