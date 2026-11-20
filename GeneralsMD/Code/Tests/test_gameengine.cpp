@@ -158,6 +158,7 @@ static int GetSystemMetrics( int which )
 #include "GameNetwork/NetPacket.h"
 #include "GameNetwork/GameInfo.h"
 #include "GameNetwork/GUIUtil.h"
+#include "GameNetwork/GameSpy/StagingRoomGameInfo.h"
 #include <float.h>
 #include "GameClient/Water.h"
 #include "GameClient/Shadow.h"
@@ -6526,6 +6527,44 @@ TEST(match_pace_is_frames_per_second_limit_at_every_game_speed)
 	game.reset();
 	CHECK_EQ( game.getGameSpeedPercent(), (Int)PLAYER_GAME_SPEED_PERCENT_DEFAULT );
 
+	delete TheWritableGlobalData;
+	TheWritableGlobalData = saved;
+}
+
+TEST(ranked_matches_play_retail_pace_and_custom_rooms_stay_native)
+{
+	/* A LAN game, a Quick Match and a Play vs AI match play RETAIL_GAME_SPEED_PERCENT, retail's own
+	   pace: a game second is the full LOGICFRAMES_PER_SECOND ticks.  The Quick Match sets it on the room
+	   after enterGame, and the next room's enterGame (host or joiner) puts it back to native, so a custom
+	   online room after a ranked one still plays NATIVE_GAME_SPEED_PERCENT. */
+	CHECK_EQ( (Int)RETAIL_GAME_SPEED_PERCENT, 100 );
+	CHECK( GameSpeed_isAllowed( RETAIL_GAME_SPEED_PERCENT ) );
+	GameSpeed_set( RETAIL_GAME_SPEED_PERCENT );
+	CHECK_EQ( LOGICFRAMES_PER_GAME_SECOND, (Int)LOGICFRAMES_PER_SECOND );
+	GameSpeed_set( NATIVE_GAME_SPEED_PERCENT );
+
+	GlobalData *saved = TheWritableGlobalData;
+	TheWritableGlobalData = NEW GlobalData;
+	SkirmishGameInfo room;
+	room.init();
+	room.enterGame();
+	CHECK_EQ( room.getGameSpeedPercent(), (Int)NATIVE_GAME_SPEED_PERCENT );
+	room.setGameSpeedPercent( RETAIL_GAME_SPEED_PERCENT );
+	CHECK_EQ( room.getGameSpeedPercent(), (Int)RETAIL_GAME_SPEED_PERCENT );
+	room.reset();		// markAsStagingRoomHost / Joiner: reset, then enterGame
+	room.enterGame();
+	CHECK_EQ( room.getGameSpeedPercent(), (Int)NATIVE_GAME_SPEED_PERCENT );
+
+	/* The online room is one object for the whole sign-in.  The Quick Match marks it ranked after its
+	   enterGame, and the next room's reset has to take that back, or a custom game scores as ranked. */
+	GameSpyStagingRoom online;
+	CHECK( !online.isQMGame() );
+	online.enterGame();
+	online.markGameAsQM();
+	CHECK( online.isQMGame() );
+	online.reset();
+	online.enterGame();
+	CHECK( !online.isQMGame() );
 	delete TheWritableGlobalData;
 	TheWritableGlobalData = saved;
 }
