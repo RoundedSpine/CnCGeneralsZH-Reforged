@@ -1,27 +1,3 @@
-[1367/1666] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameNetwork/FrameResendPolicy.cpp.o
-[1368/1666] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameNetwork/GameDataMatch.cpp.o
-[1369/1666] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameNetwork/GUIUtil.cpp.o
-[1370/1666] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameNetwork/GameInfo.cpp.o
-[1371/1666] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameNetwork/GameMessageParser.cpp.o
-[1372/1666] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameNetwork/GameSpy/Chat.cpp.o
-[1373/1666] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameNetwork/GameSpy/GSConfig.cpp.o
-[1374/1666] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameNetwork/GameSpy/LadderDefs.cpp.o
-[1375/1666] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameNetwork/GameSpy/MainMenuUtils.cpp.o
-[1376/1666] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameNetwork/GameSpy/LobbyUtils.cpp.o
-[1377/1666] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameNetwork/GameSpy/PeerDefs.cpp.o
-[1378/1666] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameNetwork/GameSpy/Thread/BuddyThread.cpp.o
-[1379/1666] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameNetwork/GameSpy/StagingRoomGameInfo.cpp.o
-[1380/1666] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameNetwork/GameSpy/Thread/GameResultsThread.cpp.o
-[1381/1666] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameNetwork/GameSpy/Thread/PeerThread.cpp.o
-[1382/1666] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameNetwork/GameSpy/Thread/PersistentStorageThread.cpp.o
-[1383/1666] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameNetwork/GameSpy/Thread/PingThread.cpp.o
-[1384/1666] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameNetwork/GameSpy/Thread/ThreadUtils.cpp.o
-[1385/1666] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameNetwork/GameSpyOverlay.cpp.o
-[1386/1666] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameNetwork/IPEnumeration.cpp.o
-[1387/1666] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameNetwork/KeepAliveSchedule.cpp.o
-[1388/1666] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameNetwork/LANAPI.cpp.o
-[1389/1666] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameNetwork/LANAPICallbacks.cpp.o
-[1390/1666] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameNetwork/LANAPIhandlers.cpp.o
 [1391/1666] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameNetwork/LANGameInfo.cpp.o
 [1392/1666] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameNetwork/NAT.cpp.o
 [1393/1666] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameNetwork/NetCommandList.cpp.o
@@ -298,3 +274,27 @@
 [1664/1666] Building CXX object CMakeFiles/test_gameengine.dir/Tests/test_gameengine.cpp.o
 [1665/1666] Linking CXX executable test_gameengine
 4 tests, 44 checks, 0 failed
+  FFT bands: height RMS 1.5/0.75/0.18; slope RMS 0.025095042/0.067304427/0.086043521; long power >512 38.311%
+  FFT unresolved slope power: independent discrete box error 1.42108547e-14; per-cascade zero-LOD and bounded mip hierarchy checked
+  SKIPPED spirv-val: ZH_SPIRV_VAL is not set (CMake found no spirv-val; install spirv-tools)
+  reference set    46 programs: generated 46, compiled 46, spirv-val SKIPPED, MSL 46 (slots kept 46), Metal 46/46
+  beyond it        23 programs: generated 23, compiled 23, spirv-val SKIPPED, MSL 23 (slots kept 23), Metal 23/23
+  23 vertex x 46 pixel programs: 1034 pairs the game can form, 1034 linked on Metal
+  foam environment constant/linear maximum finite-bin losses 0.0626234/0.0518354
+SKIPPED shared cloud spirv-val: validator unavailable
+SKIPPED shared cloud spirv-val: validator unavailable
+SKIPPED shared cloud spirv-val: validator unavailable
+SKIPPED shared cloud spirv-val: validator unavailable
+SKIPPED shared cloud spirv-val: validator unavailable
+SKIPPED shared cloud spirv-val: validator unavailable
+SKIPPED shared cloud spirv-val: validator unavailable
+SKIPPED shared cloud spirv-val: validator unavailable
+33 tests, 687507 checks, 0 failed
+Test project /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/build/ios/host-graphics
+    Start 58: test_hazard_cloud_bake
+1/4 Test #58: test_hazard_cloud_bake ...........   Passed    0.00 sec
+    Start 59: test_hazard_cloud_shared
+2/4 Test #59: test_hazard_cloud_shared .........   Passed    0.01 sec
+    Start 69: test_online
+3/4 Test #69: test_online ......................   Passed    0.57 sec
+    Start 72: test_gameengine
