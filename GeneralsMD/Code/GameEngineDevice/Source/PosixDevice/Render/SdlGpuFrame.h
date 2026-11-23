@@ -38,6 +38,7 @@
 #include "Platform/RenderTypes.h"
 #include "Platform/ScenePost.h"
 #include "Platform/WaterFftSpectrum.h"
+#include "CameraMotion.h"
 
 #include <stdint.h>
 #include <string>
@@ -196,6 +197,7 @@ public:
 		FlushUnclassified, FlushBatchLimit, FlushOcean, FlushSceneDepth,
 		FlushAmbientOcclusion, FlushAtmosphere, FlushHeat, FlushMsaa,
 		FlushNativeParticles, FlushSmoke, FlushSunShadow, FlushMaintenance,
+		FlushCameraMotion,
 		FlushCauseCount
 	};
 	/// Runs what is recorded into the back buffer; an empty batch is retired without a GPU submission.
@@ -318,6 +320,12 @@ public:
 	/// Null if sampled depth is unsupported. Borrowed for immediate draw recording, never released by
 	/// the caller, and never aliases the depth attachment being drawn into.
 	SDL_GPUTexture * Scene_Depth(const SdlTarget &source);
+	/// Camera reprojection of the resolved scene depth, in scene pixels (+X right, +Y down).
+	/// The first frame, a resize, and a viewport change clear the target and report no history.
+	/// Null until the first successful pass. Not the depth attachment and not a water snapshot.
+	bool Camera_Motion(const SdlTarget &target, const CameraMotion::View &view);
+	SDL_GPUTexture *Camera_Motion_Texture() const { return CameraMotionTexture; }
+	bool Camera_Motion_Has_History() const { return CameraMotionHistory; }
 	/// Read-only lookup; never captures after water/overlays have already changed the scene.
 	SDL_GPUTexture * Ready_Scene_Depth(const SdlTarget &source, uint64_t &serial) const;
 	/// Lazy, GPU-only Phillips spectrum/IFFT. Previous draws finish recording before maps change;
@@ -525,6 +533,17 @@ private:
 	SDL_GPUShader *SceneDepthVertex = NULL, *SceneDepthPixel = NULL;
 	SDL_GPUGraphicsPipeline *SceneDepthPipeline = NULL;
 	SDL_GPUSampler *SceneDepthSampler = NULL;
+	SDL_GPUTexture *CameraMotionTexture = nullptr, *CameraMotionDepth = nullptr;
+	SDL_GPUShader *CameraMotionVertex = nullptr, *CameraMotionPixel = nullptr;
+	SDL_GPUGraphicsPipeline *CameraMotionPipeline = nullptr;
+	SDL_GPUSampler *CameraMotionSampler = nullptr;
+	CameraMotion::View CameraMotionPrevious = {};
+	unsigned CameraMotionWidth = 0, CameraMotionHeight = 0, CameraMotionFormat = 0;
+	bool CameraMotionHavePrevious = false, CameraMotionHistory = false, CameraMotionFailed = false;
+	bool CameraMotionReadyLogged = false, CameraMotionUnsupportedLogged = false;
+	void Release_Camera_Motion();
+	bool Prepare_Camera_Motion(unsigned width, unsigned height, std::string &error);
+	bool Record_Camera_Motion(struct SDL_GPUCommandBuffer *commands, const CameraMotion::Constants &constants);
 	struct OceanResources;
 	OceanResources *Ocean = NULL;
 	bool OceanFailed = false, OceanReady = false;

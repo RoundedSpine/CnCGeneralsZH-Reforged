@@ -1552,6 +1552,11 @@ if(ZH_PLATFORM_POSIX)
   # Hazard clouds bridge the scene and SDL device; keep that bridge above the
   # D3D compatibility library so low-level device tests stay independent.
   list(FILTER POSIXD3D9_SOURCES EXCLUDE REGEX "/SdlHazardCloud[^/]*\\.cpp$")
+  add_executable(test_camera_motion ${CMAKE_CURRENT_SOURCE_DIR}/Tests/test_camera_motion.cpp)
+  target_include_directories(test_camera_motion PRIVATE GameEngineDevice/Source/PosixDevice/Render)
+  set_target_properties(test_camera_motion PROPERTIES CXX_STANDARD 17)
+  add_test(NAME test_camera_motion COMMAND test_camera_motion)
+
   add_executable(test_sdl_ao Tests/test_sdl_ao.cpp
     GameEngineDevice/Source/PosixDevice/Render/SdlAmbientOcclusion.cpp
     GameEngineDevice/Source/PosixDevice/Render/SdlAtmosphere.cpp)

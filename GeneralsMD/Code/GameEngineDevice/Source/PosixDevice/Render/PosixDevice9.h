@@ -201,6 +201,7 @@ public:
     void Set_Particle_Flag(unsigned flag,bool enabled);
     void Set_Post_Grade(float amount);
     void Finish_Scene();
+    void Capture_Camera_Motion();
     bool Copy_Scene(IDirect3DBaseTexture9*,int,int,int,int);
     bool Lights_Per_Pixel() const;
     void Set_Blast_Lights(const float*,unsigned);
@@ -528,6 +529,7 @@ protected:
 	SdlResourceMirrors *Mirrors;
 	unsigned int DrawsRecorded;
 	unsigned int PresentCount;
+	unsigned int CameraMotionPresent = ~0u;
 	std::map<std::string, unsigned int> DrawRefusals;
 	std::map<std::string, unsigned int> EngineProgramDraws;	///< draws recorded with a transcribed half, by its name (A3e)
 	RenderWindow Window;				///< null under -headless

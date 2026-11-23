@@ -322,6 +322,7 @@ SdlGpuFrame::~SdlGpuFrame()
 	Release_Post();
     Release_Particles();
 	Release_Heat();
+	Release_Camera_Motion();
 	if (StreamBuffer != NULL) SDL_ReleaseGPUBuffer(GpuDevice, StreamBuffer);
 	for (int i = 0; i < 64; ++i) if (ClearPipelines[i] != NULL) SDL_ReleaseGPUGraphicsPipeline(GpuDevice, ClearPipelines[i]);
     Release_Multisampling(true);
@@ -1228,7 +1229,7 @@ void SdlGpuFrame::Take_Timing(double & flush_ms, double & fence_ms, unsigned int
 			const char *flushNames[FlushCauseCount] = {
 				"unclassified", "batch_limit", "ocean", "scene_depth",
 				"ambient_occlusion", "atmosphere", "heat", "msaa",
-				"native_particles", "smoke", "sun_shadow", "maintenance"
+				"native_particles", "smoke", "sun_shadow", "maintenance", "camera_motion"
 			};
 			fprintf(stderr, "[GPU_FLUSH_CAUSES] intervals=%u", ParticleGpuPerfFrames);
 			for (unsigned i = 0; i < FlushCauseCount; ++i)

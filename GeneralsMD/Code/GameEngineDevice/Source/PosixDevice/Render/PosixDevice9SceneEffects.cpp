@@ -1,6 +1,7 @@
 // Distributed under the repository's GPL-3.0 terms; see LICENSE.md.
 #include "PosixDevice9.h"
 #include "PosixDevice9Scale.h"
+#include "CameraMotion.h"
 #include "SdlGpuFrame.h"
 #include "SdlAtmosphereShader.h"
 #include "SdlFirelightShader.h"
@@ -62,8 +63,30 @@ bool PosixDevice9::Copy_Scene(IDirect3DBaseTexture9 *texture,int x,int y,int wid
     const int32_t rect[4]={x,y,width,height};Gpu->Record_Blit(source,rect,target.Colour,rect,false);return true;
 }
 void PosixDevice9::Set_Post_Grade(float amount){PostGrade=std::isfinite(amount)?std::clamp(amount,0.0f,1.0f):0;}
+void PosixDevice9::Capture_Camera_Motion()
+{
+    // Only a scaled scene feeds temporal upscale, and PresentCount keeps a second
+    // Finish_Scene in the same frame from replacing the vectors with a zero delta.
+    if(!Gpu||Gpu->Render_Scale()>=100||SunActive||Sun_Scene_Excluded()||CameraMotionPresent==PresentCount
+        ||!Viewport.Width||!Viewport.Height) return;
+    SdlTarget target;std::string error;
+    if(!Resolve_Target(target,error)||!target.Depth||!target.Width||!target.Height) return;
+    Posix_Scene_Viewport scaled(Viewport,Gpu,target);
+    if(!Viewport.Width||!Viewport.Height) return;
+    CameraMotion::View view{};
+    multiply(&Transforms[D3DTS_VIEW]._11,&Transforms[D3DTS_PROJECTION]._11,view.ClipFromWorld);
+    for(float value:view.ClipFromWorld) if(!std::isfinite(value)) return;
+    const float range=Viewport.MaxZ-Viewport.MinZ;
+    if(!std::isfinite(range)||range<=1e-8f) return;
+    view.MinZ=Viewport.MinZ;view.MaxZ=Viewport.MaxZ;
+    view.Viewport[0]=float(Viewport.X);view.Viewport[1]=float(Viewport.Y);
+    view.Viewport[2]=float(Viewport.Width);view.Viewport[3]=float(Viewport.Height);
+    view.Width=target.Width;view.Height=target.Height;
+    if(Gpu->Camera_Motion(target,view)) CameraMotionPresent=PresentCount;
+}
 void PosixDevice9::Finish_Scene(){
     if(!Gpu)return;
+    Capture_Camera_Motion();
     const bool renderScaleActive=Gpu->Render_Scale()<100;
     const bool finishEffects=FinishedSceneSerial!=SceneSerial&&ModernLighting&&EffectsAllowed
         &&!SunActive&&!Sun_Scene_Excluded();
