@@ -145,8 +145,19 @@ static const char *gadgetsToHide[] =
 	"ButtonSelectMap",
 	"ButtonStart",
 	"ButtonRecord",
+	"ButtonPresets",
+	"ButtonSeatScrollUp",
+	"ButtonSeatScrollDown",
+	"SliderSeatScroll",
 	NULL // keep this last
 };
+
+// Past eight seats the lists hold only the maps with a start spot for every seat
+static Int crowdMinPlayers( void )
+{
+	const Int seats = TheSkirmishGameInfo->getNumNonObserverPlayers();
+	return seats > SHIPPED_MAP_MAX_PLAYERS ? seats : 0;
+}
 static const char *perPlayerGadgetsToHide[] =
 {
 	"SeatCard",
@@ -178,7 +189,15 @@ void showSkirmishGameOptionsUnderlyingGUIElements( Bool show )
 void SkirmishMapSelectMenuInit( WindowLayout *layout, void *userData )
 {
 
+	/* The radio selection below sends GBM_SELECTED, and its handler fills mapList before this Init
+		 has looked the new list up.  A picker closed and opened again in one frame left mapList on the
+		 old list, destroyed but not yet freed and already without its slider thumb (v4.3.2 report 4639) */
+	mapList = NULL;
+
 	// set keyboard focus to main parent
+	/* EA's "Skrimish" matches no window in our layout, so parent is NULL and every lookup below is a
+		 global one.  The OK branch counts on that: it finds SkirmishGameOptionsMenu.wnd:TextEntryMapDisplay
+		 "under parent".  Correct the name only together with those lookups */
 	AsciiString parentName( "SkirmishMapSelectMenu.wnd:SkrimishMapSelectMenuParent" );
 	NameKeyType parentID = TheNameKeyGenerator->nameToKey( parentName );
 	parent = TheWindowManager->winGetWindowFromId( NULL, parentID );
@@ -237,12 +256,12 @@ void SkirmishMapSelectMenuInit( WindowLayout *layout, void *userData )
 			TheMapCache->updateCache();
 		if (usesSystemMapDir)
 		{
-			populateMapListbox( mapList, TRUE, TRUE, TheSkirmishGameInfo->getMap() );
+			populateMapListbox( mapList, TRUE, TRUE, TheSkirmishGameInfo->getMap(), crowdMinPlayers() );
 		}
 		else
 		{
-			populateMapListbox( mapList, FALSE, FALSE, TheSkirmishGameInfo->getMap() );
-			populateMapListboxNoReset( mapList, FALSE, TRUE, TheSkirmishGameInfo->getMap() );
+			populateMapListbox( mapList, FALSE, FALSE, TheSkirmishGameInfo->getMap(), crowdMinPlayers() );
+			populateMapListboxNoReset( mapList, FALSE, TRUE, TheSkirmishGameInfo->getMap(), crowdMinPlayers() );
 		}
 		mapList->winSetTooltipFunc(mapListTooltipFunc);
 	}
@@ -442,7 +461,7 @@ WindowMsgHandledType SkirmishMapSelectMenuSystem( GameWindow *window, UnsignedIn
 			{
 				if (TheMapCache)
 					TheMapCache->updateCache();
-				populateMapListbox( mapList, TRUE, TRUE, TheSkirmishGameInfo->getMap() );
+				populateMapListbox( mapList, TRUE, TRUE, TheSkirmishGameInfo->getMap(), crowdMinPlayers() );
 				//LANPreferences pref;
 				//pref["UseSystemMapDir"] = "yes";
 				//pref.write();
@@ -451,8 +470,8 @@ WindowMsgHandledType SkirmishMapSelectMenuSystem( GameWindow *window, UnsignedIn
 			{
 				if (TheMapCache)
 					TheMapCache->updateCache();
-				populateMapListbox( mapList, FALSE, FALSE, TheSkirmishGameInfo->getMap() );
-				populateMapListboxNoReset( mapList, FALSE, TRUE, TheSkirmishGameInfo->getMap() );
+				populateMapListbox( mapList, FALSE, FALSE, TheSkirmishGameInfo->getMap(), crowdMinPlayers() );
+				populateMapListboxNoReset( mapList, FALSE, TRUE, TheSkirmishGameInfo->getMap(), crowdMinPlayers() );
 				//LANPreferences pref;
 				//pref["UseSystemMapDir"] = "no";
 				//pref.write();
@@ -464,6 +483,7 @@ WindowMsgHandledType SkirmishMapSelectMenuSystem( GameWindow *window, UnsignedIn
 				skirmishMapSelectLayout->destroyWindows();
 				skirmishMapSelectLayout->deleteInstance();
 				skirmishMapSelectLayout = NULL;
+				mapList = NULL;	// destroyed now, GWM_DESTROY only comes with the next window update
 				skirmishPositionStartSpots();
 				//TheShell->pop();
 				//do you need this ??
@@ -528,6 +548,7 @@ WindowMsgHandledType SkirmishMapSelectMenuSystem( GameWindow *window, UnsignedIn
 				skirmishMapSelectLayout->destroyWindows();
 				skirmishMapSelectLayout->deleteInstance();
 				skirmishMapSelectLayout = NULL;
+				mapList = NULL;	// destroyed now, GWM_DESTROY only comes with the next window update
 					//TheShell->pop();
 
 				}  // end if

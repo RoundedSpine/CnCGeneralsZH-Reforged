@@ -79,6 +79,9 @@ public:
 	void clearFootprint(const Coord3D *pos, const GeometryInfo &geom, Real angle);
 	/// Every structure logic holds, after a save loaded.
 	void clearStructures(void);
+	/// At the render's sync point: the structures logic made since the last look, which no build
+	/// placement told us of (a script's, an OCL's, a reinforcement's).  Nothing when no object is new.
+	void clearNewStructures(void);
 	/// The breeze and the pause, at the render's sync point (W3DTreeBuffer::stepTrees does the same).
 	void takeBreezeForDraw(void);
 	/// Draw what is near the view's focus.  contentVersion is the terrain's: a change rebakes the chunks.
@@ -94,11 +97,12 @@ public:
 private:
 	enum {
 		CHUNK_CELLS = 16,
-		MAX_SLOTS = 96,							///< the far ring's tree chunks need room beside the near ones; buffers are made as used
+		MAX_SLOTS = 128,						///< the far ring's tree chunks need room beside the near ones (96 left the farthest out); buffers are made as used
 		MAX_CHUNK_VERTICES = 16384,	///< a chunk stops taking pieces here; a full grass chunk is 6144
 		MAX_CHUNK_INDICES = 32768,
 		BUFFER_STEP = 2048,					///< a slot's buffers grow in these
-		BUILDS_PER_FRAME = 2,
+		BUILDS_PER_FRAME = 2,				///< bakes a frame, dirty slots included; missing chunks take more while BUILD_BUDGET_MS lasts
+		BUILD_BUDGET_MS = 3,				///< missing chunks only: after a minimap jump the far firs fill in a few frames, not 1 to 2 s
 		MAX_DRAWN_THIN = 25000			///< cards (tufts, twigs, pebbles) drawn in a frame at most
 	};
 
@@ -132,6 +136,7 @@ private:
 	BaseHeightMapRenderObjClass *m_terrain;
 	const WorldHeightMap *m_classifiedMap;	///< compared, never dereferenced
 	Bool m_anyFoliage;											///< a map with nothing to draw builds nothing
+	ObjectID m_seenObjectID;								///< logic's next ID at the last look at its structures: anything from it on is new
 	std::vector<UnsignedByte> m_cells;			///< FoliagePlacement::CELL_BYTES a cell, whole map, border included
 	std::vector<UnsignedByte> m_chunkFar;		///< a chunk a byte: it holds a big tree, so the far ring wants it
 	Int m_width;
@@ -176,6 +181,7 @@ private:
 	void buildChunk(Slot &slot, Int key);
 	Bool uploadChunk(Slot &slot);
 	void clearRoadsAndMapStructures(void);
+	void clearStructuresFrom(ObjectID first);
 	void flagNeighbours(WorldHeightMap *map);
 	void addGroves(const W3DTreeBuffer *trees);
 	void logCounts(void);

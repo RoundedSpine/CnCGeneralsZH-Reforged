@@ -200,6 +200,12 @@ public:
 	/// Add a tree at location.  Name is the w3d model name.
 	void addTree(DrawableID id, Coord3D location, Real scale, Real angle,
 								Real randomScaleAmount, const W3DTreeDrawModuleData *data);
+	/// A tree of the terrain skirt's scenery: no drawable, never pushed or saved, its sway given.  FALSE when full.
+	Bool addSceneryTree(Coord3D location, Real scale, Real angle, Int swayType, const W3DTreeDrawModuleData *data);
+	/// Every tree drawn, never culled, and the buffers filled only when trees come or go: for trees that
+	/// never move, so many that refilling them each frame the camera moves would cost more than drawing.
+	/// addSceneryTree then refuses what the buffers cannot hold at once.
+	void setAlwaysVisible(Bool on) {m_alwaysVisible = on;}
 	/// Notify that an object moved, so check for collisions.
 	void unitMoved(Object *unit);
 	/// Add a type of tree.  Name is the w3d model name.
@@ -236,6 +242,8 @@ public:
 	/// Called when the view changes, and sort key needs to be recalculated.
 	/// Normally sortKey gets calculated when a tree becomes visible.
 	void doFullUpdate(void) {m_updateAllKeys = true;};
+	/// The light changed: the next fill bakes the trees' vertex colour again (it bakes only when something changed).
+	void lightingChanged(void) {m_anythingChanged = true; m_lightRefill = true;};
 	void setIsTerrain(void) {m_isTerrainPass = true;}; ///< Terrain calls this to tell trees to draw.
 	Bool needToDraw(void) {return m_isTerrainPass;};
 
@@ -243,6 +251,8 @@ public:
 	/// is a conifer.  FALSE for a deleted slot.
 	Int getNumTrees(void) const {return m_numTrees;}
 	Bool getTreeForFoliage(Int i, Vector3 *location, Bool *conifer) const;
+	/// Tree i's type and where it stands, for the skirt's scenery; NULL for a deleted or fallen one.
+	const W3DTreeDrawModuleData *getTreeData(Int i, Vector3 *location) const;
 
 	Int getNumTiles(void) {return m_numTiles;}
 	TileData *getSourceTile(Int ndx) {return m_sourceTiles[ndx];}
@@ -304,6 +314,7 @@ private:
 	TTree	m_trees[MAX_TREES];			///< The tree buffer.  All trees are stored here.
 	Int			m_numTrees;						///< Number of trees in m_trees.
 	Bool		m_anythingChanged;	///< Set to true if visibility or sorting changed.
+	Bool		m_lightRefill;			///< the next fill is for a change of light: its cost goes in the log (TREE LIGHT REFILL)
 	Bool		m_anyPushChanged;		///< Set to true if push aside is active.
 	Bool		m_updateAllKeys;  ///< Set to true when the view changes.
 	Bool		m_initialized;		///< True if the subsystem initialized.
@@ -324,6 +335,14 @@ private:
 	BreezeInfo m_breezeForDraw{};
 	Bool m_pauseForDraw = FALSE;
 	Bool m_varietyBaked = FALSE;	///< the buffers hold the GroundFoliage option's scale and colour jitter
+	Bool m_alwaysVisible = FALSE;	///< setAlwaysVisible
+	Int m_alwaysVisibleTrees = -1;	///< the tree count cull last made all visible at
+	Int m_alwaysCasters = 0;	///< of those, the types that ask for a shadow
+	Int m_alwaysVertices = 0;	///< what the trees take of the buffers, drawn whole
+	Int m_alwaysIndices = 0;
+	/// The tree into m_trees; its index, or -1 when its type would not load.
+	Int insertTree(DrawableID id, Coord3D location, Real scale, Real angle, Int swayType,
+		const W3DTreeDrawModuleData *data, Bool partition);
 	Real varietyScale(const TTree &tree) const;	///< the jitter's share of a tree's scale; 1 with the option off
 	Real varietyHeight(const TTree &tree) const;	///< and its height on top of that
 	UnsignedInt varietyColour(const TTree &tree, UnsignedInt colour) const;	///< and its colour

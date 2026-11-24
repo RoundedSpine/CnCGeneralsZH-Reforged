@@ -139,6 +139,9 @@ void W3DRenderObjectSnapshot::update(RenderObjClass *robj, DrawableInfo *drawInf
 #endif
 		//Set cloned object to same state as original object.
 		m_robj->Set_Transform(robj->Get_Transform());
+		// a fractured structure hides its model this way while its fragments stand in for it
+		// (W3DFractureDraw); the memory in the fog is the model
+		m_robj->Set_Animation_Hidden(false);
 		if (robj->Class_ID() == RenderObjClass::CLASSID_HLOD)
 		{	
 			float frame,mult;
@@ -367,6 +370,10 @@ void W3DGhostObject::snapShot(int playerIndex)
 	Drawable *draw=m_parentObject->getDrawable();
 	if (draw->isDrawableEffectivelyHidden())
 		return;	//don't bother to snapshot things which nobody can see.
+	// nor a building the logic has just hidden that is still fading into its cloak's glass: the look,
+	// never the client's fade, decides, so the ghost is the one the old snap gave
+	if (draw->getStealthLook() == STEALTHLOOK_INVISIBLE)
+		return;
 	
 	W3DRenderObjectSnapshot *snap=m_parentSnapshots[playerIndex],*prevSnap=NULL;
 

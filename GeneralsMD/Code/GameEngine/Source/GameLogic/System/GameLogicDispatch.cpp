@@ -44,6 +44,7 @@
 #include "Common/NameKeyGenerator.h"
 #include "Common/ThingFactory.h"
 #include "Common/Player.h"
+#include "Common/Science.h"
 #include "Common/PlayerList.h"
 #include "Common/PlayerTemplate.h"
 #include "Common/MessageStream.h"
@@ -58,8 +59,11 @@
 #include "Common/Radar.h"
 
 #include "GameLogic/AIPathfind.h"
+#include "GameLogic/ApocalypseDirector.h"
 #include "GameLogic/ExperienceTracker.h"
 #include "GameLogic/GameLogic.h"
+#include "GameLogic/LaneWarDirector.h"
+#include "GameLogic/LaneWarStats.h"
 #include "GameLogic/Locomotor.h"
 #include "GameLogic/Object.h"
 #include "GameLogic/ObjectCreationList.h"
@@ -179,6 +183,7 @@ static Object *pickRepairBuilder( Player *player, const Object *target )
 #include "GameLogic/Module/BodyModule.h"
 #include "GameLogic/Module/OCLSpecialPower.h"
 #include "GameLogic/Module/OpenContain.h"
+#include "GameLogic/Module/RadarCoverageBehavior.h"
 #include "GameLogic/Module/ProductionUpdate.h"
 #include "GameLogic/Module/SpecialPowerModule.h"
 #include "GameLogic/ScriptActions.h"
@@ -437,8 +442,11 @@ void GameLogic::clearGameData( Bool showScoreScreen )
 
 	TheScriptActions->closeWindows(FALSE); // Close victory or defeat windows.
 
+	// a Lane War match showed its own end over the world (LaneWarEndScreen) and goes straight back to
+	// the screen it was started from, without the stock score screen
+	const Bool laneWarEnd = showScoreScreen && !isInShellGame() && TheLaneWarDirector->isActive();
 	Bool shellGame = FALSE;
-	if ((!isInShellGame() || !isInGame()) && showScoreScreen)
+	if ((!isInShellGame() || !isInGame()) && showScoreScreen && !laneWarEnd)
 	{
 		shellGame = TRUE;
 		TheTransitionHandler->setGroup("FadeWholeScreen");
@@ -464,6 +472,8 @@ void GameLogic::clearGameData( Bool showScoreScreen )
 
 	TheGameEngine->reset();
 	setGameMode(GAME_NONE);
+	if (laneWarEnd)
+		TheShell->showShell();	// what the score screen's OK does as it pops: the screen under it runs its init
 //	m_background->bringForward();
 //	if(shellGame)
 
@@ -595,17 +605,22 @@ static void makeObjectHeroic( Object *obj, void *userData )
 	* playable link keeps well under a second. */
 static const Int BLIND_ORDER_CLICK_WINDOW_FRAMES = LOGICFRAMES_PER_SECOND;
 
+/// the target's top speed, distance a frame, 0 for anything that does not drive
+static Real BlindOrder_targetSpeed( const Object *target )
+{
+	const AIUpdateInterface *ai = target->getAI();
+	if( ai && ai->getCurLocomotor() )
+		return ai->getCurLocomotor()->getMaxSpeedForCondition( BODY_PRISTINE );
+	return 0.0f;
+}
+
 /** Could the issuer have seen the target when the order was clicked?  The order executes a run-ahead
 	* after the click, and in that time the target can have walked out of sight.  So any cell the issuer
 	* has in sight within the distance the target covers in BLIND_ORDER_CLICK_WINDOW_FRAMES, plus a
 	* cell, counts as seen. */
 static Bool BlindOrder_targetWasInReach( const Object *target, Int playerIndex )
 {
-	Real speed = 0.0f;
-	const AIUpdateInterface *ai = target->getAI();
-	if( ai && ai->getCurLocomotor() )
-		speed = ai->getCurLocomotor()->getMaxSpeedForCondition( BODY_PRISTINE );		// distance a frame
-
+	const Real speed = BlindOrder_targetSpeed( target );
 	const Real cellSize = ThePartitionManager->getCellSize();
 	const Real reach = cellSize + speed * (Real)BLIND_ORDER_CLICK_WINDOW_FRAMES;
 	const Int cells = (Int)ceilf( reach / cellSize );
@@ -624,6 +639,16 @@ static Bool BlindOrder_targetWasInReach( const Object *target, Int playerIndex )
 	return FALSE;
 }
 
+/** Could the issuer have clicked the target's radar ring?  The client offers a fogged enemy to an
+	* attack only as a ring from the last sweep (InGameUI::attackListSpot), so the ring is up to a sweep
+	* plus a run-ahead older than the order; the target can have driven that far out of the circle. */
+static Bool BlindOrder_targetOnRadar( const Object *target, const Player *issuer )
+{
+	const Real slack = BlindOrder_targetSpeed( target )
+		* (Real)( RadarCoverageBehavior::sweepFrames() + BLIND_ORDER_CLICK_WINDOW_FRAMES );
+	return RadarCoverageBehavior::mayShowContact( issuer, target, slack );
+}
+
 //-------------------------------------------------------------------------------------------------
 /** The cheat witness's half of an order: one that names an enemy object the issuer could not have
 	* seen when clicking it.  The client draws an enemy only while it is in sight or, for a structure,
@@ -635,7 +660,8 @@ static Bool BlindOrder_targetWasInReach( const Object *target, Int playerIndex )
 	* on an order at a tank parked beside the enemy's command centre, across a map nobody had scouted.
 	* What it asks is Object::isUnknownTo, the logic's own "neither in sight nor remembered" (ally
 	* sight and reveals included, a passenger never unknown), and then whether the target can have
-	* been in sight a run-ahead earlier.  Never getShroudedStatus, whose "ever seen" each machine's
+	* been in sight a run-ahead earlier, or on the issuer's radar as a ring the attack circle offers
+	* (BlindOrder_targetOnRadar).  Never getShroudedStatus, whose "ever seen" each machine's
 	* drawing notes differently.  Detection only: it decides nothing and is no part of the CRC.
 	* ponytail: a target with no sight anywhere near it, so the hack it catches shows armies and bases
 	* across the map, not a unit a screen past the edge of sight. */
@@ -673,7 +699,8 @@ void GameLogic::witnessBlindOrder( const GameMessage *msg, const Player *issuer 
 			|| ( target->getContain() && target->getContain()->isGarrisonable() ) )
 		return;
 
-	if( target->isUnknownTo( index ) && !BlindOrder_targetWasInReach( target, index ) )
+	if( target->isUnknownTo( index ) && !BlindOrder_targetWasInReach( target, index )
+			&& !BlindOrder_targetOnRadar( target, issuer ) )
 	{
 		++m_blindOrders[ index ];
 		DEBUG_LOG(( "CHEATWITNESS: frame %d, player %d ordered %s at object %d, out of its sight\n", m_frame, index,
@@ -970,6 +997,14 @@ void GameLogic::logicMessageDispatcher( GameMessage *msg, AIGroup *orderedGroup 
 			const Int amount = msg->getArgument( 1 )->integer;
 			if( amount <= 0 || targetIndex < 0 || targetIndex >= ThePlayerList->getPlayerCount() )
 				break;
+			// No gifts in Direct Strike or Apocalypse: each director decides from the map, the same on every
+			// machine.  The bots' own bank-to-bank sharing never sends this message and is left alone.
+			if( ( TheLaneWarDirector != NULL && TheLaneWarDirector->isActive() )
+					|| ( TheApocalypseDirector != NULL && TheApocalypseDirector->isActive() ) )
+			{
+				DEBUG_LOG(( "MONEY TRANSFER: frame %d player %d refused, mode match\n", getFrame(), thisPlayer->getPlayerIndex() ));
+				break;
+			}
 			Player *target = ThePlayerList->getNthPlayer( targetIndex );
 			if( target == thisPlayer || !thisPlayer->isPlayableSide() || !thisPlayer->isPlayerActive()
 					|| !target->isPlayableSide() || !target->isPlayerActive() )
@@ -1017,6 +1052,25 @@ void GameLogic::logicMessageDispatcher( GameMessage *msg, AIGroup *orderedGroup 
 			DEBUG_LOG(( "TEAM REQUEST: frame %d player %d asks %d, enemy %d at (%.0f,%.0f)\n", getFrame(),
 									thisPlayer->getPlayerIndex(), kind, enemy, pos.x, pos.y ));
 			aiPostTeamRequest( thisPlayer, (AITeamRequestKind)kind, enemy, &pos );
+			break;
+		}
+
+		//---------------------------------------------------------------------------------------------
+		// A Lane War purchase (fork): (Int LaneWarOrderKind, then that kind's integers).  Only integers
+		// count, at most six after the kind (a move takes five); the director checks what they mean
+		case GameMessage::MSG_LANEWAR_ORDER:
+		{
+			if( msg->getArgumentCount() < 1 || msg->getArgumentDataType( 0 ) != ARGUMENTDATATYPE_INTEGER )
+				break;
+			Int args[ 6 ];
+			Int argCount = 0;
+			for( Int i = 1; i < msg->getArgumentCount() && argCount < 6; ++i )
+			{
+				if( msg->getArgumentDataType( i ) != ARGUMENTDATATYPE_INTEGER )
+					break;
+				args[ argCount++ ] = msg->getArgument( i )->integer;
+			}
+			TheLaneWarDirector->onOrder( thisPlayer, msg->getArgument( 0 )->integer, args, argCount );
 			break;
 		}
 
@@ -2719,7 +2773,8 @@ void GameLogic::logicMessageDispatcher( GameMessage *msg, AIGroup *orderedGroup 
 			TheTerrainLogic->getExtent(&r);
 			if (!r.isInRegionNoZ(&pos))
 				pos = TheTerrainLogic->findClosestEdgePoint(&pos);
-			const ThingTemplate *thing = TheThingFactory->findTemplate( thisPlayer->getPlayerTemplate()->getBeaconTemplate() );
+			const PlayerTemplate *beaconOwnerTemplate = thisPlayer->getPlayerTemplate();
+			const ThingTemplate *thing = beaconOwnerTemplate ? TheThingFactory->findTemplate( beaconOwnerTemplate->getBeaconTemplate() ) : NULL;
 			if (thing && !TheVictoryConditions->hasSinglePlayerBeenDefeated(thisPlayer))
 			{
 				Int count;
@@ -2956,10 +3011,12 @@ void GameLogic::logicMessageDispatcher( GameMessage *msg, AIGroup *orderedGroup 
 				for (VecObjectID::const_iterator it = selectedObjects.begin(); it != selectedObjects.end(); ++it)
 				{
 					Object *beacon = findObjectByID(*it);
-					if (beacon)
+					// the selection can hold a civilian's or a neutral thing, whose player has no template and no beacon
+					const PlayerTemplate *beaconOwnerTemplate = beacon ? beacon->getControllingPlayer()->getPlayerTemplate() : NULL;
+					if (beaconOwnerTemplate)
 					{
-						const ThingTemplate *thing = TheThingFactory->findTemplate( beacon->getControllingPlayer()->getPlayerTemplate()->getBeaconTemplate() );
-						if (thing->isEquivalentTo(beacon->getTemplate()))
+						const ThingTemplate *thing = TheThingFactory->findTemplate( beaconOwnerTemplate->getBeaconTemplate() );
+						if (thing && thing->isEquivalentTo(beacon->getTemplate()))
 						{
 							if (beacon->getControllingPlayer() == thisPlayer)
 							{
@@ -3033,7 +3090,11 @@ void GameLogic::logicMessageDispatcher( GameMessage *msg, AIGroup *orderedGroup 
 		// --------------------------------------------------------------------------------------------
 		case GameMessage::MSG_SELF_DESTRUCT:
 		{
-			thisPlayer->surrender(msg->getArgument(0)->boolean);
+			// Direct Strike: his units die with him, his team's buildings go to a teammate (LaneWarStats.h)
+			const Bool laneWar = TheLaneWarDirector->isActive();
+			if (laneWar)
+				TheLaneWarStats->onPlayerLeft(thisPlayer);
+			thisPlayer->surrender(msg->getArgument(0)->boolean && !laneWar);
 			// There is no reason to do any notification here, it now takes place in the victory conditions.
 			// bonehead.
 			break;
@@ -3197,7 +3258,8 @@ void GameLogic::logicMessageDispatcher( GameMessage *msg, AIGroup *orderedGroup 
 		//---------------------------------------------------------------------------------------------
 		case GameMessage::MSG_PURCHASE_SCIENCE:
 		{
-			ScienceType science = (ScienceType)msg->getArgument( 0 )->integer;
+			// the store's place, not the ScienceType: that is a NameKey, numbered per process
+			ScienceType science = TheScienceStore->getScienceFromMessageID( msg->getArgument( 0 )->integer );
 
 			// sanity
 			if( science == SCIENCE_INVALID )

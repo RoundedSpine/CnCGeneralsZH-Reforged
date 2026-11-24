@@ -27,6 +27,7 @@
 #include "Common/MultiplayerSettings.h"
 #include "Common/PlayerTemplate.h"
 #include "GameClient/GameText.h"
+#include "GameLogic/AI.h"
 #include "GameNetwork/GameSpyOverlay.h"
 #include "GameNetwork/Online/OnlineSession.h"
 #include "zhio.h"
@@ -131,7 +132,7 @@ GameSpyPSMessageQueueInterface *OnlineCreatePSQueue( void )
 
 OnlineReport::OnlineReport() :
 	seed( 0 ), endFrame( 0 ), winningTeam( -1 ), sawDesync( FALSE ), sawGameEnd( FALSE ), disconEnd( FALSE ),
-	surrendered( FALSE ), duration( 0 ), numPlayers( 0 ), numCrcOdd( 0 )
+	surrendered( FALSE ), duration( 0 ), numPlayers( 0 ), numCrcOdd( 0 ), speed( RETAIL_GAME_SPEED_PERCENT )
 {
 	for (Int i = 0; i < MAX_SLOTS; ++i)
 	{
@@ -155,6 +156,7 @@ Bool OnlineSendReport( const OnlineReport &report )
 	m.setBool( "disconEnd", report.disconEnd != 0 ).setBool( "surrendered", report.surrendered != 0 );
 	m.setInt( "duration", report.duration );
 	m.setInt( "hz", LOGICFRAMES_PER_SECOND );	// logic frames a second, so the server can turn endFrame into time
+	m.setInt( "speed", report.speed );			// the server settles a match unrated whose speed is not the one it set
 	std::vector<long long> discon;
 	std::vector<std::string> side;
 	std::vector<long long> blind;
@@ -282,12 +284,13 @@ void OnlineSendReplay( const char *match, const AsciiString &path )
 //-------------------------------------------------------------------------------------------------
 
 OnlinePlayerInfo::OnlinePlayerInfo() :
-	ping( -1 ), hasRating( FALSE ), rating( 0 ), exactRating( 0.0f ), games( -1 ), wins( -1 ), losses( -1 ), rank( 0 ),
+	ping( -1 ), hasRating( FALSE ), rating( 0 ), exactRating( 0.0f ), hasElo( FALSE ), elo( 0.0f ), games( -1 ), wins( -1 ), losses( -1 ), rank( 0 ),
 	notOnline( FALSE ), hasStats( FALSE ), hasAIRating( FALSE ), aiRating( 0.0f ), aiGames( 0 ), aiWins( 0 ), serial( 0 )
 {
 }
 
-OnlineLadderRow::OnlineLadderRow() : rank( 0 ), hasRating( FALSE ), rating( 0 ), exactRating( 0.0f ), wins( 0 ), losses( 0 ),
+OnlineLadderRow::OnlineLadderRow() : rank( 0 ), hasRating( FALSE ), rating( 0 ), exactRating( 0.0f ), hasElo( FALSE ), elo( 0.0f ),
+	wins( 0 ), losses( 0 ),
 	side( -1 ), color( -1 )
 {
 }
@@ -308,9 +311,11 @@ Bool OnlineGetPlayerInfo( const AsciiString &nick, OnlinePlayerInfo &out )
 	const OnlineCard &c = it->second;
 	out.serial = c.serial;
 	out.ping = (Int)c.ping;
-	out.hasRating = c.hasRating;
-	out.rating = roundRating( c.rating );
+	out.hasRating = c.hasRating || c.hasElo;
 	out.exactRating = (Real)c.rating;
+	out.hasElo = c.hasElo;
+	out.elo = (Real)c.elo;
+	out.rating = roundRating( c.hasElo ? c.elo : c.rating );
 	out.tier = c.tier.c_str();
 	out.games = (Int)c.games;
 	out.wins = (Int)c.wins;
@@ -368,9 +373,9 @@ UnicodeString OnlineRatingText( const OnlinePlayerInfo &info )
 	if (!TheGameText)
 		return text;
 	if (info.hasRating && info.tier.isNotEmpty())
-		text.format( TheGameText->fetch( "GUI:OnlineRatingTier" ), OnlineTierName( info.tier ).str(), info.rating );
+		text.format( TheGameText->fetch( info.hasElo ? "GUI:OnlineEloTier" : "GUI:OnlineRatingTier" ), OnlineTierName( info.tier ).str(), info.rating );
 	else if (info.hasRating)
-		text.format( TheGameText->fetch( "GUI:OnlineRating" ), info.rating );
+		text.format( TheGameText->fetch( info.hasElo ? "GUI:OnlineElo" : "GUI:OnlineRating" ), info.rating );
 	else if (info.tier.isNotEmpty())
 		text = OnlineTierName( info.tier );
 	return text;
@@ -487,10 +492,13 @@ static OnlineLadderRow ladderRow( const OnlineMessage &m )
 	OnlineLadderRow r;
 	r.rank = (Int)m.getInt( "rank", 0 );
 	r.nick = m.getString( "nick" ).c_str();
-	const OnlineValue *rating = m.find( "rating" );
-	r.hasRating = rating && rating->kind == OnlineValue::NUMBER;
-	r.exactRating = r.hasRating ? (Real)m.getNumber( "rating" ) : 0.0f;
-	r.rating = r.hasRating ? roundRating( m.getNumber( "rating" ) ) : 0;
+	const OnlineValue *rating = m.find( "rating" ), *elo = m.find( "elo" );
+	const Bool hasOld = rating && rating->kind == OnlineValue::NUMBER;
+	r.exactRating = hasOld ? (Real)m.getNumber( "rating" ) : 0.0f;
+	r.hasElo = elo && elo->kind == OnlineValue::NUMBER;
+	r.elo = r.hasElo ? (Real)m.getNumber( "elo" ) : 0.0f;
+	r.hasRating = hasOld || r.hasElo;
+	r.rating = r.hasRating ? roundRating( r.hasElo ? m.getNumber( "elo" ) : m.getNumber( "rating" ) ) : 0;
 	r.tier = m.getString( "tier" ).c_str();
 	r.wins = (Int)m.getInt( "wins", 0 );
 	r.losses = (Int)m.getInt( "losses", 0 );
@@ -561,9 +569,16 @@ Bool OnlineGetMatchReveal( OnlineMatchReveal &out )
 	out.revealMs = 0;
 	out.hasChance = FALSE;
 	out.chance = 0.0f;
+	out.speed = RETAIL_GAME_SPEED_PERCENT;
+	out.speedAsk = out.speedWait = 0;
+	out.speedFinal = FALSE;
 	out.serial = s.revealSerial;
 	if (!s.revealing)
 		return FALSE;
+	out.speed = OnlineMatchSpeed( s.reveal.getInt( "speed", RETAIL_GAME_SPEED_PERCENT ) );
+	out.speedAsk = s.reveal.has( "speedAsk" ) ? OnlineMatchSpeed( s.reveal.getInt( "speedAsk" ) ) : 0;
+	out.speedWait = s.reveal.has( "speedWait" ) ? OnlineMatchSpeed( s.reveal.getInt( "speedWait" ) ) : 0;
+	out.speedFinal = s.reveal.getInt( "speedFinal" ) != 0;
 	const std::vector<OnlineMessage> got = s.reveal.getObjects( "opponents" );
 	for (size_t i = 0; i < got.size(); ++i)
 		out.opponents.push_back( ladderRow( got[i] ) );
@@ -573,6 +588,17 @@ Bool OnlineGetMatchReveal( OnlineMatchReveal &out )
 	out.hasChance = chance && chance->kind == OnlineValue::NUMBER;
 	out.chance = (Real)s.reveal.getNumber( "chance" );
 	return TRUE;
+}
+
+void OnlineAnswerSpeedAsk( Bool ok )
+{
+	OnlineSession &s = OnlineSession::get();
+	if (!s.revealing || !s.reveal.has( "speedAsk" ) || s.reveal.getInt( "speedFinal" ) != 0)
+		return;		// no ask open: the reveal went, or the server settled it already
+	OnlineMessage m;
+	m.setString( "t", "qm.speedok" ).setString( "match", s.reveal.getString( "match" ) ).setInt( "ok", ok ? 1 : 0 );
+	s.send( m );
+	DEBUG_LOG(("ONLINE SPEED ANSWER match=%s ok=%d\n", s.reveal.getString( "match" ).c_str(), ok ? 1 : 0));
 }
 
 static const char *const HISTORY_MODES[] = { "all", "qm", "ai" };		// by OnlineHistoryMode
@@ -700,10 +726,21 @@ OnlineLadderState OnlineGetHistory( Int id, OnlineHistoryMode mode, OnlineHistor
 		r.map = rows[i].getString( "map" ).c_str();
 		r.opponent = rows[i].getString( "opponent" ).c_str();
 		r.opponentRating = (Real)rows[i].getNumber( "opponentRating" );
+		// the bot's strength is on the engine's scale before Elo; the AI's figures are Elo now
+		if (r.ai)
+			r.opponentRating = aiRatingOfLegacy( r.opponentRating );
 		r.playerArmy = rows[i].getString( "playerArmy" ).c_str();
 		r.opponentArmy = rows[i].getString( "opponentArmy" ).c_str();
 		r.seconds = (Int)rows[i].getInt( "seconds" );
 		r.change = (Real)rows[i].getNumber( "change" );
+		// a Quick Match row from a server with Elo: the plain opponentElo and eloChange beside the old scale's
+		const OnlineValue *opponentElo = rows[i].find( "opponentElo" );
+		if (!r.ai && opponentElo && opponentElo->kind == OnlineValue::NUMBER)
+		{
+			r.hasElo = TRUE;
+			r.opponentRating = (Real)rows[i].getNumber( "opponentElo" );
+			r.change = (Real)rows[i].getNumber( "eloChange" );
+		}
 		r.age = (Int)rows[i].getInt( "age" );
 		out.rows.push_back( r );
 	}
@@ -712,7 +749,7 @@ OnlineLadderState OnlineGetHistory( Int id, OnlineHistoryMode mode, OnlineHistor
 	return (OnlineLadderState)it->second.state;
 }
 
-Bool OnlineGetMatchResult( Bool &rated, Real &delta, Real &rating, AsciiString &reason )
+Bool OnlineGetMatchResult( Bool &rated, Real &delta, Real &rating, AsciiString &reason, Bool *elo )
 {
 	const OnlineSession &s = OnlineSession::get();
 	if (!s.result.size() || s.matchId.empty() || s.result.getString( "match" ) != s.matchId)
@@ -723,5 +760,16 @@ Bool OnlineGetMatchResult( Bool &rated, Real &delta, Real &rating, AsciiString &
 	delta = (Real)s.result.getNumber( "delta", after - s.result.getNumber( "before", after ) );
 	rating = (Real)s.result.getNumber( "rating", after );
 	reason = s.result.getString( "reason" ).c_str();
+	if (elo)
+	{
+		const OnlineValue *eloAfter = s.result.find( "eloAfter" );
+		*elo = eloAfter && eloAfter->kind == OnlineValue::NUMBER;
+		if (*elo)
+		{
+			const double now = s.result.getNumber( "eloAfter" );
+			delta = (Real)s.result.getNumber( "eloDelta", now - s.result.getNumber( "eloBefore", now ) );
+			rating = (Real)now;
+		}
+	}
 	return TRUE;
 }

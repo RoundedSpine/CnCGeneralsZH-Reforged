@@ -111,7 +111,14 @@ public:
 	virtual void smoothMotionApply(Real alpha) { }
 	virtual void smoothMotionRestore() { }
 	virtual void reactToGeometryChange() = 0;
-	
+
+	/** A weapon's hit landed on the object at pos, a blast of this radius (0 for a direct hit), and took
+		health off it: Drawable::reactToImpact, after the tick.  source is where whoever fired it stood,
+		NULL when it is gone.  Only a module that asked for it with Drawable::setTakesImpacts hears of
+		it, and nothing it does goes back to the logic. */
+	/// A radius below zero: the killing damage had no point of impact (a nuke's blast, poison); pos is the object's.
+	virtual void reactToImpact( const Coord3D &pos, Real radius, const Coord3D *source ) { }
+
 	virtual Bool isLaser() const { return false; }
 
 	// interface acquisition

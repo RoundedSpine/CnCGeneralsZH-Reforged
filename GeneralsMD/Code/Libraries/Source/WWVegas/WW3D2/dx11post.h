@@ -59,48 +59,7 @@
 
 class DX11DeviceClass;
 
-enum DX11PostEffect
-{
-	// Straight copy, which is what proves the plumbing rather than the shader: with this in the
-	// chain the frame that reaches the screen has been through the offscreen texture and the full
-	// screen pass and has to come out unchanged.
-	DX11_POST_COPY,
-
-	// Edge antialiasing in one pass over the finished world, what the D3D11 frame has against a
-	// jagged edge without multisampling.  A multisampled scene leaves it out of the chain: the
-	// edges are already resolved, and FXAA over them only blurs the textures.
-	DX11_POST_FXAA,
-
-	// Unsharp mask.  The game's textures are 2003 vintage and a 1080p window magnifies them; this
-	// is a taste knob and it is not in the default chain.
-	DX11_POST_SHARPEN,
-
-	// Ambient occlusion off the frame's own depth: the darkening a corner traps, which is what puts
-	// a building on the ground rather than over it.  Reads the depth buffer at t1.
-	DX11_POST_AO,
-
-	// Bright things bleed light, and the scene is kept in half floats so that "bright" means
-	// brighter than white rather than close to it.  Several passes rather than one, and it takes
-	// the frame from half float back to eight bits, so it can only be the first effect in a chain.
-	DX11_POST_BLOOM
-};
-
-// The effects that are one pass over one texture.  Bloom is not one of them and is handled apart.
-const unsigned DX11_POST_SIMPLE_EFFECTS = DX11_POST_BLOOM;
-
-// Room for every effect at once.  A chain longer than the effects that exist repeats one, which is
-// allowed and is how sharpening twice is asked for.
-const unsigned DX11_POST_CHAIN_LIMIT = 4;
-
-// Reads "fxaa", "bloom,fxaa", "copy", "off" or "none".  Returns false and leaves count at zero for
-// a name it does not know and for a chain with bloom anywhere but first, so a misspelt or
-// impossible switch turns the chain off loudly rather than silently drawing something else.
-// Separated from the class so it can be tested without a device.
-bool DX11Post_Parse_Chain(const char * text, DX11PostEffect effects[DX11_POST_CHAIN_LIMIT],
-	unsigned & count);
-
-// The name a parsed effect goes back to, for the report line.
-const char * DX11Post_Effect_Name(DX11PostEffect effect);
+#include "postprocess.h"
 
 // Bloom's threshold and strength in the scene's own units, where one is white, what an additive
 // draw into the scene is multiplied by (DX11BackendClass::Set_Additive_Gain) and how many pairs
@@ -172,6 +131,57 @@ void DX11Post_Set_Haze_Shroud(ID3D11ShaderResourceView * view, const float rect[
 void DX11Post_Set_Atmosphere(const float horizon[3], const float tint[3], float start, float scale,
 	float strength, float ground, float map_width, float map_height, ID3D11ShaderResourceView * sky);
 
+// The SunShafts option: the sunlight that comes through between objects.  Two things, kept apart all the
+// way to the screen so neither cancels the other.  The lift is decided on the surface a pixel shows: a
+// surface in the sun's shadow takes none, ever, and a sunlit one takes light by how near the cast
+// shadows lie either side of it across the sun's ground bearing, read from the sun's map itself, broken
+// into soft streaks along the bearing: a lit gap between two shadows takes the whole band, a sunlit
+// border of one shadow a share, ground with no shadow within Radius nothing.  The dimming is the air in
+// the sun's shadow seen in front of a sunlit surface (a wall the sun is behind, a stand of trees),
+// marched through a low layer of dust.  A shallow ray toward the sun's bearing takes a faint glare.
+// Half size, blurred by distance and laid on the scene target before the particles.  Every number is
+// the game's (W3DShaderManager's pushSunShafts); strength zero, the default and what the tests start
+// from, is no pass at all.  Set every frame.
+enum { DX11_POST_SUN_SHAFT_WATER_AREAS = 8 };
+struct DX11PostSunShafts
+{
+	float Colour[3];				// the light the band gives back, the sun's colour (scaled so no channel passes one)
+	float Strength;					// the whole effect's weight; zero is no pass
+	float Ground;					// the world height the layer's floor and its density are measured from
+	float Top;						// how far above Ground the layer reaches
+	float Falloff;					// the height over which the density falls to a third
+	float Samples;					// steps through the layer, and taps out to Radius on each side of a surface
+	float Scale;					// what a world unit of dust at full density weighs (one over a full ray's)
+	float Band;						// the light a sunlit gap between two shadows gives back, of the sun's colour
+	float Dark;						// the light shaded dust takes off what is seen through it
+	float Slack;					// world units nearer the sun a neighbour's caster must stand to count as shade
+	float Side;						// the share of the band a sunlit border of one shadow only gives back
+	float Radius;					// world units across the bearing a shadow still lights a surface by it
+	float StreakWidth;				// world units across the bearing a streak's noise cell spans; nought, a flat half (their mean)
+	float StreakLength;				// world units along the bearing it spans
+	float DarkCap;					// the most the dimming takes, as a share of what the receivers' shadow takes
+	float ShadedMost;				// the most shaded dust a ray counts, in full rays
+	float Floor;					// the world height the layer starts at, the map's lowest ground
+	float NormalOffset;				// world units off a surface along its normal its own sun is read at
+	float TowardSun[2];				// the sun's bearing on the ground, of length one
+	float Glare;					// the glare toward that bearing at a shallow ray
+	float ShallowTop;				// how steep a ray (its share of straight down) still takes any glare
+	float ShallowSpan;				// how much steeper than full glare that is
+	// The water areas the layer stops at: a ray that ends under one of these surfaces inside its box
+	// (min x, min y, max x, max y) ends on the surface, since water writes no depth.
+	float WaterCount;
+	float WaterBoxes[DX11_POST_SUN_SHAFT_WATER_AREAS][4];
+	float WaterHeights[DX11_POST_SUN_SHAFT_WATER_AREAS];
+};
+void DX11Post_Set_Sun_Shafts(const DX11PostSunShafts & shafts);
+
+// What the terrain draws past the playable map, for the Atmosphere's fade out there: border, how far the
+// heightmap's own border strip runs past the playable edge, and reach, how much further the land drawn
+// round the heightmap runs.  The ground out there goes into the horizon's colour over reach from the
+// heightmap's edge.  Reach zero, the default, is no land past the map: the ring past the playable edge
+// closes to the horizon at once.  Kept until changed.
+void DX11Post_Set_Atmosphere_Edge(float border, float reach);
+
 // A blast warping the picture around it: the frame drawn toward a point and then pushed out by a
 // ring that travels away from it.  Not an effect in the chain and not a switch: whatever chain is
 // set, one more pass goes on its end for every frame that has a warp in it, and a frame with none
@@ -182,25 +192,6 @@ void DX11Post_Set_Atmosphere(const float horizon[3], const float tint[3], float 
 // The radii are fractions of the frame's height, so a circle stays round on a wide screen.  Pull
 // is how far, as a fraction of Radius, the picture is drawn in at its strongest; RingStrength is how
 // far the ring pushes it out at its crest, a fraction of Radius as well.
-struct DX11PostWarp
-{
-	float CentreX;
-	float CentreY;
-	float Radius;
-	float Pull;
-	float RingRadius;
-	float RingWidth;
-	float RingStrength;
-	// The ring is the outline of a dome standing on the ground, not a circle on the glass.  Above
-	// the centre it is the dome's own round silhouette, rising as high as it is wide; below it, it
-	// is the dome's footprint on the ground, which the camera's pitch flattens.  This is how far it
-	// is flattened there: the footprint's depth on screen over its width, one looking straight down.
-	float RingSquash;
-};
-
-// Four blasts on one screen at once is already more than anyone can read.
-const unsigned DX11_POST_WARP_LIMIT = 4;
-
 // The game sets the frame's warps every frame, and a count of zero clears them.  A count past the
 // limit keeps the first four.
 void DX11Post_Set_Warps(const DX11PostWarp * warps, unsigned count);
@@ -281,13 +272,65 @@ public:
 	// are the scene projection's scale on each axis.  False when it drew nothing; the caller rebinds
 	// as for Occlude_Scene.  The programs come through the backend's cache as the haze's do: three
 	// sources, and the tests compile them here.
+	// traced, when given, is the occlusion already worked out at half size by the Ray Traced level's
+	// rays (DX11BackendClass::Trace_Ray_Occlusion), the first pass's format: what is kept, then the
+	// distance along the eye's axis.  The first pass is skipped and the blur and upsample take it;
+	// took_traced says whether it did (a texture not of the half size is ignored).
 	bool World_Occlude_Scene(ID3D11ShaderResourceView * depth, const float world_from_clip[16],
-		float projection_x, float projection_y);
+		float projection_x, float projection_y, ID3D11ShaderResourceView * traced = NULL, bool * took_traced = NULL);
+	// Whether World_Occlude_Scene would draw this frame, so nothing is traced for it in vain.
+	bool World_Occlusion_Ready() const;
+	// The shroud the first pass fades the occlusion by and its rectangle (Set_Shroud), for a pass
+	// that takes its place; NULL when none was handed over this frame.
+	ID3D11ShaderResourceView * World_Ao_Shroud(float rect[4]) const;
 	bool Wants_World_Ao_Programs() const;
 	const char * World_Ao_Program_Source(unsigned index) const;
 	void Load_World_Ao_Program(unsigned index, const void * bytecode, SIZE_T size);
 	void Compile_World_Ao_Programs();
 	static const unsigned WORLD_AO_PROGRAMS = 3;
+
+	// The SunShafts option (DX11Post_Set_Sun_Shafts) added into the scene target as it stands, at the
+	// haze's moment and under its terms, once a frame.  Sun_map is the sun's depth map the frame's
+	// shadows came from, sun_from_world the matrix it was filled through, bias the receivers' depth bias
+	// and shadow_strength what their shadow takes off.  Heights is the terrain's byte heights (the
+	// backend's Terrain_Heights_View) with heights_mapping its cells a world unit, border cells and world
+	// units a byte; with them a caster is told from rising ground and the lift kept on the ground, without
+	// them (NULL) only the surface's tilt keeps it there.  It borrows the occlusion's two half size
+	// targets (the lift in R, the dimming in G) and runs its own blur and composite.  Strength zero
+	// returns before binding anything.  False when it drew nothing.
+	bool Sun_Shafts_Scene(ID3D11ShaderResourceView * depth, const float world_from_clip[16],
+		ID3D11ShaderResourceView * sun_map, const float sun_from_world[16], float bias, float shadow_strength,
+		float projection_x, float projection_y, ID3D11ShaderResourceView * heights = NULL,
+		const float * heights_mapping = NULL);
+	// Three programs, the march, the blur and the composite, through the backend's cache as the haze's.
+	static const unsigned SUN_SHAFT_PROGRAMS = 3;
+	bool Wants_Sun_Shaft_Programs() const;
+	const char * Sun_Shaft_Program_Source(unsigned index) const;
+	void Load_Sun_Shaft_Program(unsigned index, const void * bytecode, SIZE_T size);
+	void Compile_Sun_Shaft_Programs();
+
+	// The shroud outside Classic (Direct3D11_Set_Shroud).  Soften_Shroud takes the view of the
+	// terrain's shroud texture, a texel a cell, and keeps two pictures of its own: the level each cell
+	// shows, eased toward the texture's over a few tenths of a second of wall time, and that smoothed
+	// up to SHROUD_SOFT_SCALE texels a cell, which it returns and which binds wherever the texture
+	// would.  Seconds is the wall time since the last call, written whether the texture changed since.
+	// Nothing draws once the levels have settled; the last picture stands.  A null cells view turns it
+	// off.  The caller binds its target and viewport again, and forgets its bindings, afterwards.
+	// Fog_light is the fogged cell's level (FogAlpha over 255) for Shroud_Memory_Scene, fogged whether
+	// any cell is below clear: with none, once the levels settle, the memory pass has nothing to grey.
+	ID3D11ShaderResourceView * Soften_Shroud(ID3D11ShaderResourceView * cells, float seconds,
+		bool written, float fog_light, bool fogged);
+	// The soft picture while Soften_Shroud last succeeded, else null.
+	ID3D11ShaderResourceView * Soft_Shroud() const { return ShroudFogLight >= 0.0f ? ShroudSoft.Resource : NULL; }
+	// Ground in the fog drained toward grey and dimmed a little, out of the depth given, at the haze's
+	// moment and under its terms.  Needs the soft picture this frame.  False when it drew nothing.
+	bool Shroud_Memory_Scene(ID3D11ShaderResourceView * depth, const float world_from_clip[16]);
+	// Its three programs (the easing, the smoothing, the memory) come through the backend's cache as the
+	// haze's do.
+	static const unsigned SHROUD_PROGRAMS = 3;
+	bool Wants_Shroud_Programs() const;
+	const char * Shroud_Program_Source(unsigned index) const;
+	void Load_Shroud_Program(unsigned index, const void * bytecode, SIZE_T size);
 
 	// -heathaze, a prototype.  The flames' splats for this frame (Direct3D11_Set_Heat_Splats has the
 	// layout); Heat_Haze_Scene then draws each into a half size target of screen shifts, added up,
@@ -358,7 +401,16 @@ private:
 		// The composite's clarity strength, or in a blur pass one when it carries the clarity's
 		// luminance along (DX11Post_Set_Clarity).
 		float Clarity;
+		// The sun shafts' composite: the pass's colour added to what the destination holds after the
+		// destination is dimmed by the pass's alpha (ONE, INV_SRC_ALPHA), the alpha kept.
+		bool Shafts;
+		// The sun's depth map at t3 and the terrain's heights at t4, for the shafts.
+		ID3D11ShaderResourceView * SunMap;
+		ID3D11ShaderResourceView * Heights;
 	};
+
+	// The occlusion's two half size targets, made the first time either user asks.
+	bool Ensure_World_Ao_Targets(unsigned & half_width, unsigned & half_height);
 
 	bool Draw_Atmosphere(unsigned index, ID3D11ShaderResourceView * depth, const float world_from_clip[16]);
 	bool Create_Shaders();
@@ -400,6 +452,8 @@ private:
 	ID3D11BlendState * BlendState;
 	ID3D11BlendState * MultiplyBlendState;
 	ID3D11BlendState * AlphaBlendState;
+	// The sun shafts' composite: the pass's colour over the destination dimmed by the pass's alpha.
+	ID3D11BlendState * ShaftBlendState;
 	ID3D11DepthStencilState * DepthState;
 	ID3D11RasterizerState * RasterizerState;
 	ID3D11Buffer * ConstantBuffer;
@@ -447,6 +501,30 @@ private:
 	ID3D11PixelShader * WorldAoShaders[WORLD_AO_PROGRAMS];
 	float WorldAoProjection[4];
 	bool WorldAoRefused;
+	// The SunShafts option's march and composite, a refusal (not tried again), and whether it ran this frame.
+	ID3D11PixelShader * SunShaftShaders[SUN_SHAFT_PROGRAMS];
+	bool SunShaftRefused;
+	bool Shafted;
+	// Soften_Shroud's: its programs, the eased levels a texel a cell (two, read one and write the
+	// other), the smoothed picture, the cell grid they were made for, how many texels a cell the
+	// picture has, the seconds left before the levels stop moving, and the fog's level, below nought
+	// while there is no picture.  Released with the device, not with the frame's targets, so a resize
+	// keeps them.
+	void Release_Shroud();
+	ID3D11PixelShader * ShroudShaders[SHROUD_PROGRAMS];
+	bool ShroudRefused;
+	Target ShroudHeld[2];
+	Target ShroudSoft;
+	unsigned ShroudHeldIndex;
+	unsigned ShroudCellsWidth;
+	unsigned ShroudCellsHeight;
+	unsigned ShroudScale;
+	float ShroudSettle;
+	float ShroudFogLight;
+	// The picture holds fog: a cell below clear, or levels still easing out of one.
+	bool ShroudFogged;
+	// Shroud_Memory_Scene ran this frame.
+	bool ShroudRemembered;
 	// -heathaze: the splats waiting for the next Heat_Haze_Scene, the half size shift target (made
 	// with the program, released with the other targets), the splat buffer the vertex program reads,
 	// its programs and its additive blend.  Refused once means never tried again.

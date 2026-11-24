@@ -55,7 +55,7 @@
 #include "GameLogic/Object.h"
 #include "GameLogic/TerrainLogic.h"
 #include "GameClient/View.h"
-#include "WW3D2/dx11runtime.h"
+#include "Platform/RenderEffects.h"
 #include "W3DDevice/GameClient/W3DAssetManager.h"
 #include "W3DDevice/GameClient/W3DGameClient.h"
 #include "W3DDevice/GameClient/W3DStatusCircle.h"
@@ -63,6 +63,7 @@
 #include "W3DDevice/GameClient/W3DShadow.h"
 #include "W3DDevice/GameClient/GroundMarks.h"
 #include "W3DDevice/GameClient/StructureCollapse.h"
+#include "W3DDevice/GameClient/Module/W3DFractureDraw.h"
 #include "W3DDevice/GameClient/Module/W3DModelDraw.h"
 #include "W3DDevice/GameClient/HeightMap.h"
 #include "WW3D2/hlod.h"
@@ -193,7 +194,7 @@ void W3DGameClient::structureFell(const Coord3D *pos, Real radius)
 	// a big one jolts the camera on top of what its FX shakes, a step under a nuke's kick; a barracks or
 	// a tower does not.  Not under Classic or Direct3D 9, which keep the old shake.
 	const Real JOLT_FROM_RADIUS = 40.0f;
-	if (radius >= JOLT_FROM_RADIUS && TheTacticalView && !TheGlobalData->m_classicGraphics && Direct3D11_Present_Is_Enabled())
+	if (radius >= JOLT_FROM_RADIUS && TheTacticalView && !TheGlobalData->m_classicGraphics && RenderEffects::WorldEffectsAvailable())
 		TheTacticalView->shake(pos, View::SHAKE_STRONG);
 }
 
@@ -205,7 +206,7 @@ void W3DGameClient::structureFell(const Coord3D *pos, Real radius)
 //-------------------------------------------------------------------------------------------------
 void W3DGameClient::splashInWater(const Coord3D *pos, Real radius)
 {
-	if (!TheGlobalData->m_waterSplashes || TheGlobalData->m_classicGraphics || TheGlobalData->m_waterStyle != 0 || !Direct3D11_Present_Is_Enabled())
+	if (!TheGlobalData->m_waterSplashes || TheGlobalData->m_classicGraphics || TheGlobalData->m_waterStyle != 0 || !RenderEffects::WorldEffectsAvailable())
 		return;
 	const Coord3D at = *pos;
 	LOGIC_AFTER_TICK( [=]() { splashInWater( &at, radius ); } );
@@ -264,11 +265,14 @@ void W3DGameClient::splashInWater(const Coord3D *pos, Real radius)
 //-------------------------------------------------------------------------------------------------
 void W3DGameClient::structureCollapsing(Drawable *draw, Real height)
 {
-	if (TheGlobalData->m_classicGraphics || !Direct3D11_Present_Is_Enabled() || W3DDisplay::m_3DScene == NULL)
+	if (TheGlobalData->m_classicGraphics || !RenderEffects::WorldEffectsAvailable() || W3DDisplay::m_3DScene == NULL)
 		return;
 	// a slab of foundation or a mine's stub has nothing to go down
 	const Real MIN_HEIGHT = 8.0f;
 	if (height < MIN_HEIGHT || draw->isDrawableEffectivelyHidden())
+		return;
+	// a structure drawn in fragments comes down by its own collapse
+	if (W3DFractureDraw::stagesCollapse(draw))
 		return;
 	for (DrawModule **dm = draw->getDrawModules(); *dm; ++dm)
 	{
@@ -336,6 +340,75 @@ void W3DGameClient::setTimeOfDay( TimeOfDay tod )
 	TheDisplay->setTimeOfDay( tod );
 
 }  // end setTimeOfDay
+
+//-------------------------------------------------------------------------------------------------
+/** The day and night cycle's night look, eased over the turn of the dusk and the dawn: the water goes
+	from the day's setting to the night's (sky, moon, colour), the day's being the map's own hour's, or
+	the afternoon's on a map authored for night, since the cycle opens every match at noon; and the
+	cloud shadow fades out as the water darkens.  The ground drops the cloud pass altogether only once
+	it is gone (DayNight_nightLookFor). */
+//-------------------------------------------------------------------------------------------------
+void W3DGameClient::setNightLook( Real night )
+{
+	TimeOfDay day = TheGlobalData->m_timeOfDay;
+	if (day == TIME_OF_DAY_NIGHT)
+		day = TIME_OF_DAY_AFTERNOON;
+	if (TheWaterRenderObj)
+		TheWaterRenderObj->setTimeOfDayBlend(day, night);
+	if (TheTerrainRenderObject)
+		TheTerrainRenderObject->setCloudStrength(1.0f - night);
+}
+
+//-------------------------------------------------------------------------------------------------
+/** The full terrain detail on Direct3D 11 with the sun per pixel: the tiles hold only the ambient
+	and the point lights, the direction and the diffuse reach the ground every frame
+	(HeightMapRenderObjClass::prepareSunPerPixel), and the cycle's ambient rides on as a shader term. */
+//-------------------------------------------------------------------------------------------------
+Bool W3DGameClient::isGroundLitEveryFrame( void )
+{
+	return TheTerrainRenderObject != NULL && TheTerrainRenderObject->sunPerPixelBaked();
+}
+
+//-------------------------------------------------------------------------------------------------
+/** The cycle wrote the hour's tables: the sun's map and the stencil volumes take light 0's direction
+	(W3DShadowManager::setTimeOfDay), the scene its lights, and the ground what
+	DayNight_groundRetint says (BaseHeightMapRenderObjClass::setTimeOfDay).  The drawables' NIGHT
+	state is not touched here: that is the logic's (GameClient::setTimeOfDay would write it). */
+//-------------------------------------------------------------------------------------------------
+void W3DGameClient::refreshMapLight( void )
+{
+	const TimeOfDay tod = TheGlobalData->m_timeOfDay;
+	if (TheW3DShadowManager)
+		TheW3DShadowManager->setTimeOfDay(tod);
+	TheDisplay->setTimeOfDay(tod);
+}
+
+//-------------------------------------------------------------------------------------------------
+/** The stencil shadows draw as one quad of the shadow colour over every marked pixel, so their
+	alpha is their darkness: the cycle fades it out while the sun sets and in under the moon.  The
+	map's own colour is kept the first time and given back at 1. */
+//-------------------------------------------------------------------------------------------------
+void W3DGameClient::setShadowFade( Real fade )
+{
+	static UnsignedInt s_baseColor = 0;
+	static Bool s_kept = FALSE;
+	if (TheW3DShadowManager == NULL)
+		return;
+	if (fade >= 1.0f)
+	{
+		if (s_kept)
+			TheW3DShadowManager->setShadowColor(s_baseColor);
+		s_kept = FALSE;
+		return;
+	}
+	if (!s_kept)
+	{
+		s_baseColor = TheW3DShadowManager->getShadowColor();
+		s_kept = TRUE;
+	}
+	const UnsignedInt alpha = (UnsignedInt)((Real)(s_baseColor >> 24) * (fade > 0.0f ? fade : 0.0f) + 0.5f);
+	TheW3DShadowManager->setShadowColor((s_baseColor & 0x00ffffffU) | (alpha << 24));
+}
 
 
 //-------------------------------------------------------------------------------------------------

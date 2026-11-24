@@ -50,6 +50,7 @@
 
 
 #include "W3DDevice/GameClient/HeightMap.h"
+#include "Platform/RenderLighting.h"
 #include "Lib/Clock.h"
 
 #ifndef USE_FLAT_HEIGHT_MAP // Flat height map uses flattened textures. jba. [3/20/2003]
@@ -100,6 +101,7 @@
 #include "WW3D2/scene.h"
 #include "W3DDevice/GameClient/W3DPoly.h"
 #include "W3DDevice/GameClient/W3DCustomScene.h"
+#include "GameLogic/DayNightCycle.h"
 
 #include "Common/PerfTimer.h"
 #include "Common/UnitTimings.h" //Contains the DO_UNIT_TIMINGS define jba.		 
@@ -900,6 +902,12 @@ Int HeightMapRenderObjClass::updateBlock(Int x0, Int y0, Int x1, Int y1,  WorldH
 		if (moved || m_drawnHalfMap != m_map) {
 			refreshDrawnHalf(ax0, ay0, ax1, ay1);
 		}
+	} else if (pMap) {
+		// Whole cells keep the diagonals too: what lies on the ground point by point (getDrawnHeight)
+		// takes the one the tiles cut by, and the map's flip bits are stale beside a foundation.
+		REF_PTR_SET(m_map, pMap);
+		takeDrawnInputs(x0 + pMap->getDrawOrgX() - 1, y0 + pMap->getDrawOrgY() - 1,
+			x1 + pMap->getDrawOrgX() + 1, y1 + pMap->getDrawOrgY() + 1);
 	}
 
 	Int i,j;
@@ -983,6 +991,8 @@ m_numBlockColumnsInLastVB(0),
 m_numBlockRowsInLastVB(0),
 m_lastRelightValid(false),
 m_sunPerPixel(FALSE),
+m_spreadRelightRow(-1),
+m_spreadRowsLeft(0),
 m_sunHeightsMap(NULL),
 m_sunHeightsVersion(0)
 {
@@ -1028,6 +1038,7 @@ void HeightMapRenderObjClass::setSunPerPixel(Bool on)
 	}
 	m_sunPerPixel = on;
 	m_terrainContentVersion++;
+	invalidateSkirt();	// it bakes the map's shade under the sun per pixel
 #ifdef DO_ROADS
 	if (m_roadBuffer) {
 		m_roadBuffer->updateLighting();
@@ -1325,6 +1336,10 @@ Bool HeightMapRenderObjClass::prepareSunPerPixel(void)
 		light[16 + i*4 + 1] = diffuse.green;
 		light[16 + i*4 + 2] = diffuse.blue;
 	}
+	// NormalLightDiffuse[3]: the day and night cycle's ambient against the ambient the tiles baked,
+	// added to the tiles' colour in TERRAIN_RELIGHT_SAMPLING; nought, and the sum exact, whenever the
+	// cycle's light is not kept (the cycle off, the Apocalypse, a script's hour)
+	DayNight_terrainAmbientDelta(&light[28]);
 	light[12] = m_useDepthFade ? 1.0f : 0.0f;
 	light[32] = (Real)count;
 	light[33] = 1.0f / MAP_XY_FACTOR;
@@ -1589,7 +1604,27 @@ void HeightMapRenderObjClass::On_Frame_Update(void)
 	// ten-unit steps.  A light lit into the tiles at the moment that turns on stays there until the
 	// tiles are next rebuilt; it only turns on with the shadow map, at the match's first frame or
 	// from the options.
-	const Bool lightsPerPixel = Direct3D11_Lights_Per_Pixel();
+	Bool lightsPerPixel = RenderLighting::PrepareTerrainLighting();
+#if !defined(_WIN32)
+	if (lightsPerPixel && !m_dynamicLightingPerPixel) {
+		// Remove every old baked contribution, including a light already removed from the scene.
+		// The backups contain authored/static diffuse; relighting never changes them.
+		bool restored = (m_vertexBufferTiles && m_vertexBufferBackup) || m_numVertexBufferTiles==0;
+		for (Int tile=0;restored && tile<m_numVertexBufferTiles;++tile) {
+			if (!m_vertexBufferTiles[tile] || !m_vertexBufferBackup[tile]) continue;
+			DX8VertexBufferClass::WriteLockClass lock(m_vertexBufferTiles[tile]);
+			auto *vertices=static_cast<VERTEX_FORMAT *>(lock.Get_Vertex_Array());
+			if (!vertices) { restored=false;continue; }
+			const auto *backup=reinterpret_cast<const VERTEX_FORMAT *>(m_vertexBufferBackup[tile]);
+			for (unsigned v=0;v<m_vertexBufferTiles[tile]->Get_Vertex_Count();++v) vertices[v].diffuse=backup[v].diffuse;
+		}
+		if (!restored) { lightsPerPixel=FALSE;RenderLighting::UseTerrainCpuLighting(); }
+		m_lastRelightValid=false;
+	}
+	if (m_dynamicLightingPerPixel && !lightsPerPixel) m_lastRelightValid=false;
+	m_dynamicLightingPerPixel=lightsPerPixel;
+#endif
+
 
 	for (pDynamicLightsIterator.First(); !pDynamicLightsIterator.Is_Done(); pDynamicLightsIterator.Next())
 	{
@@ -1785,6 +1820,28 @@ void HeightMapRenderObjClass::staticLightingChanged( void )
 	BaseHeightMapRenderObjClass::staticLightingChanged();
 }
 
+//=============================================================================
+// HeightMapRenderObjClass::spreadLightingChanged
+//=============================================================================
+/** The day and night cycle's step on a ground that bakes the light (Classic, -d3d9): everything a
+whole relight marks stale is marked, but the tiles are redone an eighth of the rows a frame
+(updateCenter), so a 70 to 200 ms rebuild is eight short ones.  A whole rebuild asked for meanwhile,
+or already waiting, takes over. */
+//=============================================================================
+void HeightMapRenderObjClass::spreadLightingChanged( void )
+{
+	const Bool wholeWanted = m_needFullUpdate;
+	BaseHeightMapRenderObjClass::staticLightingChanged();
+	m_needFullUpdate = wholeWanted;
+	if (wholeWanted)
+		return;
+	// a spread already under way goes on from its row and wraps, so steps closer than eight frames
+	// still reach every row; every row is owed again from here, in this step's light
+	if (m_spreadRelightRow < 0 || m_spreadRelightRow >= m_y)
+		m_spreadRelightRow = 0;
+	m_spreadRowsLeft = m_y;
+}
+
 #define CENTER_LIMIT 2
 #define BIG_JUMP 16
 #define WIDE_STEP 32
@@ -1900,6 +1957,8 @@ void HeightMapRenderObjClass::updateCenter(CameraClass *camera , RefRenderObjLis
 			 by a building foundation asks for it (W3DTerrainVisual::setRawMapHeight).  Logged with
 			 its cost so a stutter report can be tied to it instead of guessed at. */
 		const UnsignedInt fullUpdateStart = Clock_Milliseconds();
+		m_spreadRelightRow = -1;	// the whole rebuild relights what a spread one had left
+		m_spreadRowsLeft = 0;
 		// A whole rebuild is where the tiles may change which light they hold, and their shape.
 		setSunPerPixel(sunPerPixelWanted());
 		if (setSubdivided(subdivideWanted())) {
@@ -1913,7 +1972,24 @@ void HeightMapRenderObjClass::updateCenter(CameraClass *camera , RefRenderObjLis
 		return;
 	}
 
-	if (m_x >= m_map->getXExtent() && m_y >= m_map->getYExtent()) 
+	// a spread relight (spreadLightingChanged): an eighth of the rows this frame, from where the last
+	// slice stopped and round past the last row, until every row has been redone since the last step
+	if (m_spreadRowsLeft > 0 && m_y > 0)
+	{
+		const UnsignedInt sliceStart = Clock_Milliseconds();
+		if (m_spreadRelightRow < 0 || m_spreadRelightRow >= m_y)
+			m_spreadRelightRow = 0;
+		const Int rows = min((m_y + 7) / 8, m_spreadRowsLeft);
+		const Int y0 = m_spreadRelightRow;
+		const Int y1 = min(y0 + rows - 1, m_y - 1);
+		updateBlock(0, y0, m_x-1, y1, m_map, pLightsIterator);
+		m_spreadRowsLeft -= y1 - y0 + 1;
+		m_spreadRelightRow = y1 + 1 < m_y ? y1 + 1 : 0;
+		DEBUG_LOG(("TERRAIN SPREAD UPDATE: rows %d to %d of %d in %d ms at frame %d, %d rows left\n", y0, y1, m_y,
+							 (Int)(Clock_Milliseconds() - sliceStart), TheGameLogic ? TheGameLogic->getFrame() : 0, m_spreadRowsLeft));
+	}
+
+	if (m_x >= m_map->getXExtent() && m_y >= m_map->getYExtent())
   {
 		m_updating = false;
 		return; // no need to center. 
@@ -2118,6 +2194,33 @@ void HeightMapRenderObjClass::updateCenter(CameraClass *camera , RefRenderObjLis
 }
 
 //=============================================================================
+/** The sheets painted on the ground: the build grid, the wash inside an attack circle and the order
+	rings and markers.  After the bridges, which the grid and the rings are depth tested against so a
+	deck hides what is under it, and the building pads, which ignore depth and would paint over them.
+	After the shroud pass too, each sheet multiplied by the shroud's own texture (shadeByShroud): left
+	to that pass's multiply, which redraws the ground at EQUAL depth, they came out of the 2026-11-20
+	shots full bright on fog and on black shroud alike.  Every model drawn after the terrain covers
+	them, so the units stand on them.  Not in Modern's mirror. */
+//=============================================================================
+static void drawGroundOverlays(Bool modernFullMirror, Bool shadeByShroud)
+{
+	if (TheInGameUI == NULL || modernFullMirror)
+		return;
+	DX8Wrapper::Set_Texture(0,NULL);
+	DX8Wrapper::Set_Texture(1,NULL);
+	ShaderClass::Invalidate();
+	TheInGameUI->drawBuildGrid(shadeByShroud);
+	// the slot grid of each Lane War build plot, which its units stand on; it is there all the time,
+	// so it stays out of the classic water's mirror, which draws no ground under it
+	if (!ShaderClass::Is_Backface_Culling_Inverted())
+		TheInGameUI->drawLanePlotGrids(shadeByShroud);
+	TheInGameUI->drawAttackCircleFill(shadeByShroud);
+	TheInGameUI->drawOrderRings(shadeByShroud);
+	DX8Wrapper::Set_Texture(0,NULL);
+	ShaderClass::Invalidate();
+}
+
+//=============================================================================
 // HeightMapRenderObjClass::Render
 //=============================================================================
 /** Renders (draws) the terrain. */
@@ -2236,7 +2339,8 @@ void HeightMapRenderObjClass::Render(RenderInfoClass & rinfo)
 			terrainShader.Set_Cull_Mode(ShaderClass::CULL_MODE_DISABLE);
 		DX8Wrapper::Set_Shader(terrainShader);
 
-		if (TheGlobalData->m_timeOfDay == TIME_OF_DAY_NIGHT) {
+		// the day and night cycle's phase, when it runs, else the map's hour
+		if (DayNight_nightLookFor(TheGlobalData->m_timeOfDay == TIME_OF_DAY_NIGHT)) {
 			doCloud = false;
 		}
 
@@ -2347,6 +2451,10 @@ void HeightMapRenderObjClass::Render(RenderInfoClass & rinfo)
 		if (pass)	//shader was applied at least once?
  			W3DShaderManager::resetShader(st);
 
+		// the ground past the map's last sample, and its shroud
+		if (drawGround)
+			drawSkirt(rinfo);
+
 		// Classic water leaves the ground out: its mirror darkens the water wherever anything
 		// stands in it, so the banks would lay a dark band along every shore. Modern needs the
 		// coloured ground, including its third blend layer, but not the feather painted over water.
@@ -2414,6 +2522,7 @@ void HeightMapRenderObjClass::Render(RenderInfoClass & rinfo)
 	if (m_propBuffer) {
 		m_propBuffer->drawProps(rinfo);
 	}
+	drawSkirtProps(rinfo);
 	#ifdef DO_SCORCH
 		DX8Wrapper::Set_Texture(0,NULL);
 		DX8Wrapper::Set_Texture(1,NULL);
@@ -2435,9 +2544,14 @@ void HeightMapRenderObjClass::Render(RenderInfoClass & rinfo)
 		if (TheTerrainTracksRenderObjClassSystem)
 			TheTerrainTracksRenderObjClassSystem->flush();
 
+		// the building pads (PASS_ALWAYS) before the shroud pass, which multiplies them with the ground
+		if (!modernFullMirror)
+			m_bibBuffer->renderBibs();
+
 		// Modern reflects the ground's own shroud too. Classic leaves that ground out and the
 		// water it lands on is already shrouded, so there is no second terrain pass there.
-		if (m_shroud && rinfo.Additional_Pass_Count() && drawGround)
+		const Bool shroudPass = m_shroud && rinfo.Additional_Pass_Count() && drawGround;
+		if (shroudPass)
 		{
 			rinfo.Peek_Additional_Pass(0)->Install_Materials();
 			// The shroud installs its own culling state. Keep it on the same faces as the base.
@@ -2452,30 +2566,20 @@ void HeightMapRenderObjClass::Render(RenderInfoClass & rinfo)
 
 		ShaderClass::Invalidate();
 		DX8Wrapper::Apply_Render_State_Changes();
+
+		// over the pads, after the shroud pass, each multiplied by the shroud texture itself
+		drawGroundOverlays(modernFullMirror, shroudPass && !m_disableTextures);
 	}
 	else
-			m_bridgeBuffer->drawBridges(&rinfo.Camera, m_disableTextures, m_stageTwoTexture);
+	{
+		m_bridgeBuffer->drawBridges(&rinfo.Camera, m_disableTextures, m_stageTwoTexture);
+		if (!modernFullMirror)
+			m_bibBuffer->renderBibs();
+		drawGroundOverlays(modernFullMirror, FALSE);
+	}
 
   if ( m_waypointBuffer && !modernFullMirror )
 	  m_waypointBuffer->drawWaypoints(rinfo);
-
-	if (!modernFullMirror)
-		m_bibBuffer->renderBibs();
-
-	// the build grid goes down with the ground it describes: drawn here it is depth tested against
-	// the terrain and covered by everything drawn after it, so it reads as paint on the map rather
-	// than as a wireframe floating over the scene
-	if( TheInGameUI && !modernFullMirror )
-	{
-		TheInGameUI->drawBuildGrid();
-
-		// and the wash inside an attack circle, for the same reason: the units it is sweeping up
-		// have to stand on top of it
-		TheInGameUI->drawAttackCircleFill();
-
-		// and the ring under each unit's destination, so the unit that gets there stands on it
-		TheInGameUI->drawOrderRings();
-	}
 
 	// We do some custom blending, so tell the shader class to reset everything.
 	DX8Wrapper::Set_Texture(0,NULL);
@@ -2816,7 +2920,7 @@ void HeightMapRenderObjClass::renderExtraBlendTiles(void)
 			W3DShaderManager::ShaderTypes st = W3DShaderManager::ST_ROAD_BASE;
 
 			Bool doCloud = TheGlobalData->m_useCloudMap;
-			if (TheGlobalData->m_timeOfDay == TIME_OF_DAY_NIGHT) {
+			if (DayNight_nightLookFor(TheGlobalData->m_timeOfDay == TIME_OF_DAY_NIGHT)) {
 				doCloud = false;
 			}
 

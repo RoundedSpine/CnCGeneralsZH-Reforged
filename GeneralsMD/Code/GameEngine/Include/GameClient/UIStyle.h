@@ -39,6 +39,7 @@ class GameFont;
 class DisplayString;
 class GameWindow;
 class Image;
+class PlayerTemplate;
 struct OnlinePlayerInfo;
 
 namespace UIStyle
@@ -206,14 +207,21 @@ namespace UIStyle
 	};
 	/// the tier a rating falls in: general from 30, colonel 25, major 20, captain 15, lieutenant 10,
 	/// sergeant 5, private under that; unranked under RANKED_GAMES games or with the count unknown
-	/// (-1).  For the AI rating, which the site gives no tier; a ladder rating goes through playerTier.
-	RatingTier ratingTier( Real rating, Int games );
+	/// (-1).  A ladder rating goes through playerTier.  elo reads rating as the ladder's Elo, on the site's
+	/// TIERS: general from 1500, colonel 1350, major 1250, captain 1150, lieutenant 1075, sergeant 1000.
+	RatingTier ratingTier( Real rating, Int games, Bool elo = FALSE );
+	/// the same tiers for an AI rating, which is an Elo and has no tier from the site: Easy's 800 is
+	/// private, Medium's 1300 captain, Hard's 1800 general, each step between at its share of the ladder's
+	RatingTier aiRatingTier( Real elo, Int games );
+	/// the Elo an AI tier starts at, for the next tier's track (tierStart on the AI's scale)
+	Real aiTierStart( RatingTier tier );
 	/// a player's ladder tier: the site's (info.tier), which knows its own minimum of games and who is
 	/// banned and rates the exact value, as the ladder shows it; ratingTier only when the site sent
 	/// none or a key this build does not know
 	RatingTier playerTier( const OnlinePlayerInfo &info );
-	/// the rating a tier starts at, for the next tier's track; private and unranked start at 0
-	Real tierStart( RatingTier tier );
+	/// the rating a tier starts at, for the next tier's track; private and unranked start at 0, and on the
+	/// Elo (elo) at the site's starting 1000, so private's track is empty as the site's is
+	Real tierStart( RatingTier tier, Bool elo = FALSE );
 	/// the site's key for a tier ("major"): OnlineTierName and GUI:OnlineTier_<key> say it in words
 	const char *tierKey( RatingTier tier );
 	/// EA's rank (RANK_PRIVATE onward, as rankImage reads it) whose portrait a tier shows, -1 unranked
@@ -226,10 +234,23 @@ namespace UIStyle
 	const Image *rankImage( const AsciiString &side, Int rank );
 	/// a tier's portrait for side; NULL for unranked, who shows none
 	const Image *tierImage( RatingTier tier, const AsciiString &side );
+	/** An army's picture: a general's Generals' Challenge portrait (BioPortraitLarge, PAAirGen), else
+		* the selected portrait of the army's StartingBuilding, the Command Center (SAComCentr_L), else its
+		* button, else the army's logo; NULL for none. */
+	const Image *armyPortrait( const PlayerTemplate *army );
+	/// image scaled to cover the box, keeping its shape, the overflow cut off: sideways evenly, from the
+	/// top a quarter of it, so a portrait keeps its head.  within, when given, is a clip the caller holds:
+	/// the picture stays inside it too, and it is the clip again afterwards (else clipping goes off)
+	void coverImage( const Image *image, Int x, Int y, Int width, Int height, const IRegion2D *within = NULL );
 	/// a rating to two decimals, the language's way: 22.70, and 22,70 in Turkish, German, French,
 	/// Russian and Ukrainian; sign puts a + before a rise, for a change.  Never "-0.00".
 	UnicodeString ratingTextIn( Real rating, Bool sign, Int language );
 	UnicodeString ratingText( Real rating, Bool sign = FALSE );
+	/// an Elo, the AI rating, as a whole number rounded half up: 1213, +12 for a change.  Never "-0".
+	UnicodeString eloText( Real elo, Bool sign = FALSE );
+	/// a ladder figure: eloText when it is the Elo (elo), else the old scale's ratingText
+	UnicodeString ladderTextIn( Real value, Bool elo, Bool sign, Int language );
+	UnicodeString ladderText( Real value, Bool elo, Bool sign = FALSE );
 	/// part of whole in whole percent, rounded half up; 0 with no whole
 	Int percent( Int part, Int whole );
 	/// a percentage the language's way: 55%, %55 in Turkish (as the load screen's YÜKLENİYOR %81),

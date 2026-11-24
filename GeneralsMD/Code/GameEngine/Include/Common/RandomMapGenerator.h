@@ -34,7 +34,7 @@
 	rather than desyncing partway through it. The fingerprint test in
 	test_gameengine.cpp fails until the version and the recorded CRCs agree, so
 	the bump cannot be forgotten. */
-#define RANDOM_MAP_GENERATOR_VERSION 20
+#define RANDOM_MAP_GENERATOR_VERSION 22
 
 /** How much ground the map gives everybody, before the per-player share. Players see them as
 	Tiny, Small, Medium, Large and Extra Large. */
@@ -141,6 +141,11 @@ extern Bool stageRandomMap( const RandomMapSettings& settings, AsciiString& mapP
 	seed, template or style and size, the size read back from the cells the name carries. A room
 	calls it when its seat count changes. FALSE when the path is not a generated map. */
 extern Bool restageRandomMap( const AsciiString& path, Int numPlayers, AsciiString& mapPathOut );
+
+/** The colours, ARGB, a Lane War plot's slot grid is drawn in on the lane map at this path: its
+	lines between slots and its outline, picked per theme to read on the theme's own ground. FALSE
+	when the path is not a generated lane map. Client side only; nothing in the simulation reads it. */
+extern Bool LaneGridColours( const AsciiString& mapPath, UnsignedInt *lineARGB, UnsignedInt *edgeARGB );
 
 /** Is this the path of a generated map or its preview, or the map.ini beside a
 	map that snows? The settings are in the name, which is what lets a replay, a

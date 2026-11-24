@@ -55,8 +55,13 @@
 #include "GameLogic/AI.h" // AIPersonality, for the personality column
 #include "GameNetwork/GameInfo.h"
 #include "Common/PlayerTemplate.h"
+#include "GameClient/MessageBox.h"
 #include "GameNetwork/LANAPICallbacks.h" // for acceptTrueColor, etc
 #include "GameClient/ChallengeGenerals.h"
+#include "GameClient/DirectStrikeLayout.h"
+#include "GameClient/DirectStrikeLobby.h"
+#include "GameClient/DirectStrikeTheme.h"
+#include "GameClient/KeyDefs.h"
 #include "GameClient/FactionPicker.h"
 #include "Lib/Clock.h"
 #include "Common/RandomMapGenerator.h"
@@ -319,7 +324,13 @@ void PopulateColorComboBox(Int comboBox, GameWindow *comboArray[], GameInfo *myG
 
 // -----------------------------------------------------------------------------
 
-void PopulatePlayerTemplateComboBox(Int comboBox, GameWindow *comboArray[], GameInfo *myGame, Bool allowObservers)
+/// a side Direct Strike leaves out: Turkiye is not in the mode (LANE-MODE.md, "Sides")
+static Bool notInDirectStrike(const PlayerTemplate *fac)
+{
+	return fac->getSide().compareNoCase("Turkiye") == 0;
+}
+
+void PopulatePlayerTemplateComboBox(Int comboBox, GameWindow *comboArray[], GameInfo *myGame, Bool allowObservers, Bool directStrike)
 {
 	Int numPlayerTemplates = ThePlayerTemplateStore->getPlayerTemplateCount();
 	UnicodeString playerTemplateName;
@@ -343,6 +354,9 @@ void PopulatePlayerTemplateComboBox(Int comboBox, GameWindow *comboArray[], Game
 
 		if ( myGame->oldFactionsOnly() && !fac->isOldFaction() )
 		  continue;
+
+		if ( directStrike && notInDirectStrike( fac ) )
+			continue;
 
 		// Prevent players from selecting the disabled Generals for use.
 		// This is also enforced at game loading (GameLogic.cpp and UserPreferences.cpp).
@@ -598,6 +612,24 @@ void UpdateProRulesCheckBox(GameWindow *checkBox, GameInfo *myGame, Bool hostMay
     GadgetCheckBoxSetChecked( checkBox, proRules );
 }
 
+void UpdateStartShroudedCheckBox(GameWindow *checkBox, GameInfo *myGame, Bool hostMayEdit)
+{
+  checkBox->winEnable( hostMayEdit );
+
+  const Bool shrouded = myGame->getStartShrouded();
+  if ( GadgetCheckBoxIsChecked( checkBox ) != shrouded )
+    GadgetCheckBoxSetChecked( checkBox, shrouded );
+}
+
+void UpdateDayNightCheckBox(GameWindow *checkBox, GameInfo *myGame, Bool hostMayEdit)
+{
+  checkBox->winEnable( hostMayEdit );
+
+  const Bool dayNight = myGame->getDayNight();
+  if ( GadgetCheckBoxIsChecked( checkBox ) != dayNight )
+    GadgetCheckBoxSetChecked( checkBox, dayNight );
+}
+
 // -----------------------------------------------------------------------------
 // Income sharing.  The entries are the IncomeSharing values in order, so an entry's position is
 // its value.
@@ -747,6 +779,88 @@ Int SupplyPileLimitFromComboBox(GameWindow *comboBox)
 }
 
 // -----------------------------------------------------------------------------
+// The network rooms' game speed, PLAYER_GAME_SPEED_PERCENTS as 1.0x, 1.25x, 1.5x, 2.0x of retail: the
+// skirmish room's list, which the host picks from and a joiner sees greyed, following the host.
+void PopulateGameSpeedComboBox(GameWindow *comboBox, GameInfo *myGame, Bool hostMayEdit)
+{
+  GadgetComboBoxReset(comboBox);
+
+  Color color = comboBox->winGetEnabled() ? comboBox->winGetEnabledTextColor() : comboBox->winGetDisabledTextColor();
+  for ( Int i = 0; i < PLAYER_GAME_SPEED_COUNT; i++ )
+  {
+    const Int speed = PLAYER_GAME_SPEED_PERCENTS[i];
+    Int newIndex = GadgetComboBoxAddEntry(comboBox, GameSpeedText( speed ), color);
+    GadgetComboBoxSetItemData(comboBox, newIndex, (void *)(intptr_t)speed);
+  }
+
+  UpdateGameSpeedComboBox(comboBox, myGame, hostMayEdit);
+}
+
+UnicodeString GameSpeedText(Int percent)
+{
+  UnicodeString text;
+  // one decimal unless the second one counts, as the skirmish room writes them
+  if ( percent % 10 == 0 )
+    text.format( u"%d.%dx", percent / 100, ( percent % 100 ) / 10 );
+  else
+    text.format( u"%d.%02dx", percent / 100, percent % 100 );
+  return text;
+}
+
+// The speed a player prefers for a match the server sets up (Quick Match, Play vs AI): the same list,
+// always his to pick, percent selected without a selection message.
+void PopulatePlayerGameSpeedComboBox(GameWindow *comboBox, Int percent)
+{
+  GadgetComboBoxReset(comboBox);
+  const Color color = comboBox->winGetEnabledTextColor();
+  for ( Int i = 0; i < PLAYER_GAME_SPEED_COUNT; i++ )
+  {
+    const Int speed = PLAYER_GAME_SPEED_PERCENTS[i];
+    const Int row = GadgetComboBoxAddEntry(comboBox, GameSpeedText( speed ), color);
+    GadgetComboBoxSetItemData(comboBox, row, (void *)(intptr_t)speed);
+    if ( speed == percent )
+      GadgetComboBoxSetSelectedPos(comboBox, row, TRUE);
+  }
+}
+
+Int PlayerGameSpeedFromComboBox(GameWindow *comboBox, Int fallback)
+{
+  Int selIndex = -1;
+  if ( comboBox )
+    GadgetComboBoxGetSelectedPos(comboBox, &selIndex);
+  if ( selIndex < 0 )
+    return fallback;
+  return ClampPlayerGameSpeedPercent( (Int)(intptr_t)GadgetComboBoxGetItemData(comboBox, selIndex) );
+}
+
+void UpdateGameSpeedComboBox(GameWindow *comboBox, GameInfo *myGame, Bool hostMayEdit)
+{
+  comboBox->winEnable( hostMayEdit );
+
+  Int itemCount = GadgetComboBoxGetLength(comboBox);
+  for ( Int index = 0; index < itemCount; index++ )
+  {
+    if ( (Int)(intptr_t)GadgetComboBoxGetItemData(comboBox, index) == myGame->getGameSpeedPercent() )
+    {
+      Int selected = -1;
+      GadgetComboBoxGetSelectedPos( comboBox, &selected );
+      if ( selected != index )
+        GadgetComboBoxSetSelectedPos(comboBox, index, TRUE);
+      return;
+    }
+  }
+}
+
+Int GameSpeedFromComboBox(GameWindow *comboBox, GameInfo *myGame)
+{
+  Int selIndex = -1;
+  GadgetComboBoxGetSelectedPos(comboBox, &selIndex);
+  if ( selIndex < 0 )
+    return myGame->getDefaultGameSpeedPercent();
+  return ClampPlayerGameSpeedPercent( (Int)(intptr_t)GadgetComboBoxGetItemData(comboBox, selIndex) );
+}
+
+// -----------------------------------------------------------------------------
 // The lobby tab strip.
 static GameWindow *theLobbySettingsPage = NULL;
 static GameWindow *theLobbyOtherWindow = NULL;
@@ -842,6 +956,21 @@ static GameWindow *thePersonaSeatName[MAX_SLOTS];
 static GameWindow *thePersonaSeatArmy[MAX_SLOTS];
 static Int thePersonaSeatNarrow[MAX_SLOTS];
 static Int thePersonaSeatWide[MAX_SLOTS];
+// the arrays above and the seat windows below are kept by the layout's row; this says which row a
+// seat is on (SetLobbySeatRows)
+static Int theSeatRow[MAX_SLOTS];
+
+static void resetSeatRows(void)
+{
+	for (Int i = 0; i < MAX_SLOTS; ++i)
+		theSeatRow[i] = i;
+}
+
+void SetLobbySeatRows(const Int seatRow[])
+{
+	for (Int i = 0; i < MAX_SLOTS; ++i)
+		theSeatRow[i] = seatRow[i];
+}
 
 static GameWindow *findSeatWindow(GameWindow *parent, const char *layoutFilename, const char *name, Int seat)
 {
@@ -914,6 +1043,7 @@ static void personaListTooltip(GameWindow *listBox, WinInstanceData *, UnsignedI
 void InitAIPersonaComboBoxes(GameWindow *parent, const char *layoutFilename,
 														 GameWindow *comboPersona[], NameKeyType comboPersonaID[])
 {
+	resetSeatRows();
 	for (Int i = 0; i < MAX_SLOTS; ++i)
 	{
 		AsciiString name;
@@ -955,17 +1085,18 @@ void UpdateAIPersonaComboBoxes(GameInfo *myGame, GameWindow *comboPersona[])
 		return;
 	for (Int i = 0; i < MAX_SLOTS; ++i)
 	{
-		if (!comboPersona[i])
+		const Int row = theSeatRow[i];
+		if (!comboPersona[i] || row < 0)
 			continue;
 		const GameSlot *slot = myGame->getConstSlot(i);
 		// a takeover seat has no AI behind it, so nothing for a personality to steer
 		const Bool computer = slot->isAI() && !slot->isTakeover();
 		// the personality goes with the seat's army box, which ShowUnderlyingGUIElements hides while a
 		// map list lies over the seats, so a network update then cannot bring it back through the list
-		comboPersona[i]->winHide(!computer || thePersonaSeatArmy[i]->winIsHidden());
-		const Int width = computer ? thePersonaSeatNarrow[i] : thePersonaSeatWide[i];
-		setSeatPlayerWidth(thePersonaSeatPlayer[i], width);
-		setSeatPlayerWidth(thePersonaSeatName[i], width);
+		comboPersona[i]->winHide(!computer || thePersonaSeatArmy[row]->winIsHidden());
+		const Int width = computer ? thePersonaSeatNarrow[row] : thePersonaSeatWide[row];
+		setSeatPlayerWidth(thePersonaSeatPlayer[row], width);
+		setSeatPlayerWidth(thePersonaSeatName[row], width);
 		if (!computer)
 			continue;
 		comboPersona[i]->winEnable(myGame->amIHost());
@@ -1334,8 +1465,6 @@ void RandomMapTabInit(const char *layoutFilename, GameWindow *parent, GameWindow
 	theListTabs[1] = randomTabWindow("RadioButtonUserMaps");
 	theMapListWindow = randomTabWindow("ListboxMap");
 	theTemplateList = randomTabWindow("ListboxRandomTemplate");
-	theRandomTab->winSetDrawFunc(DrawMapListTab);
-	theRandomTab->winEnable(allowed);
 
 	theRandomPanel.clear();
 	theRandomPanel.push_back(randomTabWindow("StaticTextRandomTemplate"));
@@ -1344,9 +1473,27 @@ void RandomMapTabInit(const char *layoutFilename, GameWindow *parent, GameWindow
 	for (Int size = 0; size < RANDOM_MAP_SIZE_COUNT; ++size)
 	{
 		theSizeButtons[size] = randomTabWindow("RadioButtonRandomSize", size);
-		theSizeButtons[size]->winSetDrawFunc(DrawMapListTab);
 		theRandomPanel.push_back(theSizeButtons[size]);
 	}
+
+	// a layout without the tab (EA's own, or a mod's loose copy beating ours): the picker works as
+	// retail's did, Official and Unofficial only
+	Bool complete = theRandomTab && theListTabs[0] && theListTabs[1] && theMapListWindow;
+	for (size_t i = 0; i < theRandomPanel.size(); ++i)
+		complete = complete && theRandomPanel[i] != NULL;
+	if (!complete)
+	{
+		DEBUG_LOG(("RandomMapTabInit: %s has no Random tab; the picker offers shipped maps only\n", layoutFilename));
+		if (theRandomTab)
+			theRandomTab->winHide(TRUE);
+		RandomMapTabShutdown();
+		return;
+	}
+
+	theRandomTab->winSetDrawFunc(DrawMapListTab);
+	theRandomTab->winEnable(allowed);
+	for (Int size = 0; size < RANDOM_MAP_SIZE_COUNT; ++size)
+		theSizeButtons[size]->winSetDrawFunc(DrawMapListTab);
 
 	UserPreferences pref;
 	pref.load(theRandomMapPrefsFile);
@@ -1358,7 +1505,16 @@ void RandomMapTabInit(const char *layoutFilename, GameWindow *parent, GameWindow
 	fillTemplateList();
 	GadgetRadioSetSelection(theSizeButtons[theRandomSize], FALSE);
 
-	const Bool open = allowed && pref.getBool("Open", FALSE);
+	// more players than a shipped map holds: the lists keep the maps with a start spot for each of
+	// them (the picker fills them so), and a room already on a generated map opens on this tab
+	const Bool crowded = allowed && game->getNumNonObserverPlayers() > SHIPPED_MAP_MAX_PLAYERS;
+	if (crowded)
+	{
+		theListTabs[0]->winSetTooltip(TheGameText->fetch("TOOLTIP:MapListCrowded"));
+		theListTabs[1]->winSetTooltip(TheGameText->fetch("TOOLTIP:MapListCrowded"));
+	}
+
+	const Bool open = allowed && ((crowded && isGeneratedMapPath(game->getMap())) || pref.getBool("Open", FALSE));
 	if (open)
 		GadgetRadioSetSelection(theRandomTab, FALSE);
 	showRandomTab(open);
@@ -1419,21 +1575,72 @@ Bool RandomMapTabHandle(UnsignedInt msg, UnsignedIntPtr mData1, UnsignedIntPtr m
 /** A new map from the choice, for everybody seated now.  The seed comes off the clock: this is the
 	client choosing a map, not the simulation, and the joining machines rebuild it from the name the
 	host sends. */
-AsciiString RandomMapTabMap(void)
+static AsciiString stageRoomRandomMap(const GameInfo *game, Int size, const AsciiString &templatePath)
 {
-	if (!theRandomTabOpen)
-		return AsciiString::TheEmptyString;
-	const Int players = roomRandomMapPlayers(theRandomRoom);
+	const Int players = roomRandomMapPlayers(game);
 	RandomMapSettings settings;
 	settings.m_seed = (Int)((Clock_Milliseconds() + 7919u * ++theRolls) & 0x7fffffff);
 	settings.m_numPlayers = players;
-	settings.m_playableCells = RandomMapGenerator::cellsFor((RandomMapSize)theRandomSize, players, theRandomTemplate);
-	settings.m_template = theRandomTemplate;
+	settings.m_playableCells = RandomMapGenerator::cellsFor((RandomMapSize)size, players, templatePath);
+	settings.m_template = templatePath;
 	AsciiString map;
 	stageRandomMap(settings, map);
 	map.toLower();
 	TheMapCache->updateCache();
 	return map;
+}
+
+AsciiString RandomMapTabMap(void)
+{
+	if (!theRandomTabOpen)
+		return AsciiString::TheEmptyString;
+	return stageRoomRandomMap(theRandomRoom, theRandomSize, theRandomTemplate);
+}
+
+Bool GenerateMapForCrowdedRoom(GameInfo *game, Bool whenTooSmall)
+{
+	if (isGeneratedMapPath(game->getMap()))
+		return FALSE;
+	const Int players = game->getNumNonObserverPlayers();
+	if (players <= SHIPPED_MAP_MAX_PLAYERS && !whenTooSmall)
+		return FALSE;
+	// a map with a start spot for every seat stays, a custom one past eight included
+	const MapMetaData *current = TheMapCache->findMap(game->getMap());
+	if (current != NULL && (Int)current->m_numPlayers >= players)
+		return FALSE;
+	if (current == NULL && players <= SHIPPED_MAP_MAX_PLAYERS)
+		return FALSE;
+	// a room whose map could not be made is not asked again every frame until its map changes
+	static AsciiString theFailedMap;
+	if (game->getMap().compareNoCase(theFailedMap) == 0)
+		return FALSE;
+
+	UserPreferences pref;
+	pref.load(theRandomMapPrefsFile);
+	Int size = pref.getInt("Size", RANDOM_MAP_SIZE_NORMAL);
+	if (size < 0 || size >= RANDOM_MAP_SIZE_COUNT)
+		size = RANDOM_MAP_SIZE_NORMAL;
+	AsciiString map = stageRoomRandomMap(game, size, pref.getAsciiString("Template", AsciiString::TheEmptyString));
+	const MapMetaData *md = TheMapCache->findMap(map);
+	// a template that builds nothing for this many leaves the plain generator, which always builds
+	if (md == NULL)
+	{
+		map = stageRoomRandomMap(game, size, AsciiString::TheEmptyString);
+		md = TheMapCache->findMap(map);
+	}
+	if (md == NULL)
+	{
+		theFailedMap = game->getMap();
+		return FALSE;
+	}
+	DEBUG_LOG(("random map: the room seats %d, more than its map holds; map now '%s'\n",
+		game->getNumNonObserverPlayers(), map.str()));
+	game->setMap(map);
+	game->setMapCRC(md->m_CRC);
+	game->setMapSize(md->m_filesize);
+	game->getSlot(0)->setMapAvailability(TRUE);
+	game->resetStartSpots();
+	return TRUE;
 }
 
 void RandomMapTabShutdown(void)
@@ -1475,6 +1682,569 @@ Bool FitRandomMapToRoom(GameInfo *game)
 	return TRUE;
 }
 
+// Direct Strike ------------------------------------------------------------------------------
+
+enum { DIRECT_STRIKE_SEATS = DSLOBBY_SEATS, DIRECT_STRIKE_TEAM_SEATS = DSLOBBY_ROWS };
+
+static Int directStrikeTeamOfSeat(Int seat) { return DirectStrikeLobby_team(seat); }
+
+void DirectStrikeSeats(const GameInfo *game, Int seatOf[], Int slotAt[])
+{
+	Int start[DSLOBBY_SEATS];
+	for (Int i = 0; i < DSLOBBY_SEATS; ++i)
+	{
+		const GameSlot *slot = game->getConstSlot(i);
+		start[i] = slot != NULL && slot->isOccupied() ? slot->getStartPos() : -1;
+	}
+	DirectStrikeLobby_seats(start, seatOf, slotAt);
+}
+
+Bool DirectStrikeSeatIsOpen(const GameInfo *game, Int seat)
+{
+	if (seat < 0 || seat >= DSLOBBY_SEATS)
+		return FALSE;
+	Int seatOf[DSLOBBY_SEATS], slotAt[DSLOBBY_SEATS];
+	DirectStrikeSeats(game, seatOf, slotAt);
+	const GameSlot *slot = game->getConstSlot(slotAt[seat]);
+	return slot != NULL && slot->getState() == SLOT_OPEN;
+}
+
+Bool IsDirectStrikeMap(const AsciiString &map)
+{
+	UnsignedInt line, edge;
+	return LaneGridColours(map, &line, &edge);	// TRUE for a generated lane map and nothing else
+}
+
+Bool SetDirectStrikeMap(GameInfo *game)
+{
+	static UnsignedInt theDirectStrikeRolls = 0;
+	RandomMapSettings settings;
+	// the client choosing a map, not the simulation: every other machine rebuilds it from the name
+	settings.m_seed = (Int)((Clock_Milliseconds() + 7919u * ++theDirectStrikeRolls) & 0x7fffffff);
+	settings.m_style = RandomMapGenerator::styleNamed("lane");
+	settings.m_numPlayers = DIRECT_STRIKE_SEATS;
+	AsciiString map;
+	if (!stageRandomMap(settings, map))
+		return FALSE;
+	map.toLower();
+	TheMapCache->updateCache();
+	const MapMetaData *md = TheMapCache->findMap(map);
+	if (md == NULL)
+		return FALSE;
+	game->setMap(map);
+	game->setMapCRC(md->m_CRC);
+	game->setMapSize(md->m_filesize);
+	game->getSlot(0)->setMapAvailability(TRUE);
+	DEBUG_LOG(("Direct Strike: seed %d, map '%s'\n", settings.m_seed, map.str()));
+	return TRUE;
+}
+
+/// a seat's army as the mode allows it: Turkiye and the observer become Random, a pool loses Turkiye
+static Int directStrikeArmy(Int pick)
+{
+	if (pick == PLAYERTEMPLATE_OBSERVER)
+		return PLAYERTEMPLATE_RANDOM;
+	if (pick >= 0)
+	{
+		const PlayerTemplate *fac = ThePlayerTemplateStore->getNthPlayerTemplate(pick);
+		return fac && notInDirectStrike(fac) ? (Int)PLAYERTEMPLATE_RANDOM : pick;
+	}
+	if (pick >= PLAYERTEMPLATE_RANDOM_POOL)
+		return pick;	// plain Random keeps Turkiye out already (RandomExcluded)
+	std::vector<Int> candidates;
+	GetRandomPoolCandidates(candidates);
+	UnsignedInt mask = DecodeRandomPool(pick);
+	for (size_t n = 0; n < candidates.size() && n < RANDOM_POOL_BITS; ++n)
+		if (notInDirectStrike(ThePlayerTemplateStore->getNthPlayerTemplate(candidates[n])))
+			mask &= ~(1u << n);
+	return EncodeRandomPool(mask);
+}
+
+Bool FitDirectStrikeRoom(GameInfo *game)
+{
+	Bool changed = FALSE;
+	// where every slot shows, read once before anything below moves a start
+	Int seatOf[DSLOBBY_SEATS], slotAt[DSLOBBY_SEATS];
+	DirectStrikeSeats(game, seatOf, slotAt);
+	for (Int i = 0; i < MAX_SLOTS; ++i)
+	{
+		GameSlot *slot = game->getSlot(i);
+		if (slot == NULL)
+			continue;
+		if (i >= DIRECT_STRIKE_SEATS)
+		{
+			// a human is never thrown out; seven players cannot start (the map has six starts)
+			if (!slot->isHuman() && slot->getState() != SLOT_CLOSED)
+			{
+				slot->setState(SLOT_CLOSED);
+				changed = TRUE;
+			}
+			continue;
+		}
+		if (!slot->isOccupied())
+		{
+			if (slot->getStartPos() != -1)
+			{
+				slot->setStartPos(-1);
+				changed = TRUE;
+			}
+			continue;
+		}
+
+		const Int army = directStrikeArmy(slot->getPlayerTemplate());
+		if (army != slot->getPlayerTemplate())
+		{
+			slot->setPlayerTemplate(army);
+			changed = TRUE;
+		}
+
+		// The seat is the place: seats 1, 3, 5 are team 1's, on the left, and 2, 4, 6 team 2's, on the
+		// right, and seat n is start n, which is how the director reads the teams (LaneWar_teamOfStart:
+		// start 1 is team A's first, start 2 team B's first, start 3 A's second).  A player who moved
+		// keeps the start he took; one with none yet (a joiner, a new AI) takes the seat he was shown at.
+		const Int seat = seatOf[i];
+		const Int team = directStrikeTeamOfSeat(seat);
+		if (team != slot->getTeamNumber())
+		{
+			slot->setTeamNumber(team);
+			changed = TRUE;
+		}
+		if (seat != slot->getStartPos())
+		{
+			slot->setStartPos(seat);
+			changed = TRUE;
+		}
+	}
+
+	if (game->getUnitLimit()) { game->setUnitLimit(FALSE); changed = TRUE; }
+	if (game->getPeaceTime() != 0) { game->setPeaceTime(0); changed = TRUE; }
+	if (game->getIncomeSharing() != INCOME_SHARING_OFF) { game->setIncomeSharing(INCOME_SHARING_OFF); changed = TRUE; }
+	if (game->getTechRespawn() != 0) { game->setTechRespawn(0); changed = TRUE; }
+	if (game->getSupplyPileLimit() != 0) { game->setSupplyPileLimit(0); changed = TRUE; }
+	if (game->getProRules()) { game->setProRules(FALSE); changed = TRUE; }
+	if (game->getDayNight()) { game->setDayNight(FALSE); changed = TRUE; }	// the lane runs its own light
+	// the speed is the host's pick on the lobby's own chip, 1.0x when the room opens (the owner, 2026-11-23);
+	// the director's clock is game time, so every speed plays the same match
+	return changed;
+}
+
+void LayoutDirectStrikeRoom(GameWindow *parent, const char *layoutFilename, const GameInfo *game)
+{
+	DirectStrikeLobby_attach(parent, layoutFilename, game);
+}
+
+// Apocalypse ---------------------------------------------------------------------------------
+
+Bool SetApocalypseMap(GameInfo *game, Bool allSeats)
+{
+	static UnsignedInt theApocalypseRolls = 0;
+	RandomMapSettings settings;
+	// the client choosing a map, as for Direct Strike: the replay rebuilds it from the name
+	settings.m_seed = (Int)((Clock_Milliseconds() + 7919u * ++theApocalypseRolls) & 0x7fffffff);
+	settings.m_style = RandomMapGenerator::styleNamed("apocalypse");
+	// a network room opens on four starts so adjustSlotsForMap leaves four seats open; Start makes it again
+	// for the seats taken (FitRandomMapToRoom)
+	settings.m_numPlayers = allSeats ? (Int)APOCALYPSE_SEATS : min((Int)APOCALYPSE_SEATS, roomRandomMapPlayers(game));
+	AsciiString map;
+	if (!stageRandomMap(settings, map))
+		return FALSE;
+	map.toLower();
+	TheMapCache->updateCache();
+	const MapMetaData *md = TheMapCache->findMap(map);
+	if (md == NULL)
+		return FALSE;
+	game->setMap(map);
+	game->setMapCRC(md->m_CRC);
+	game->setMapSize(md->m_filesize);
+	game->getSlot(0)->setMapAvailability(TRUE);
+	DEBUG_LOG(("Apocalypse: seed %d, map '%s'\n", settings.m_seed, map.str()));
+	return TRUE;
+}
+
+Bool FitApocalypseRoom(GameInfo *game)
+{
+	Bool changed = FALSE;
+	Int nextStart = 0;
+	for (Int i = 0; i < MAX_SLOTS; ++i)
+	{
+		GameSlot *slot = game->getSlot(i);
+		if (slot == NULL)
+			continue;
+		// the map has four starts; a human is never thrown out
+		if (i >= APOCALYPSE_SEATS && !slot->isHuman() && slot->getState() != SLOT_CLOSED)
+		{
+			slot->setState(SLOT_CLOSED);
+			changed = TRUE;
+		}
+		/* The seats stand on starts 1, 2, 3 in seat order.  The day waves rotate over as many fronts as
+			 there are seats and the first front faces start 1, so a player alone on start 2 watched them
+			 walk into an empty lobe. */
+		const Bool seated = slot->isOccupied() && slot->getPlayerTemplate() != PLAYERTEMPLATE_OBSERVER;
+		const Int start = seated ? nextStart++ : -1;
+		if (slot->getStartPos() != start)
+		{
+			slot->setStartPos(start);
+			changed = TRUE;
+		}
+	}
+	// every seat holds out together (the director allies them), so the rules that set players apart go
+	if (game->getUnitLimit()) { game->setUnitLimit(FALSE); changed = TRUE; }
+	if (game->getPeaceTime() != 0) { game->setPeaceTime(0); changed = TRUE; }
+	if (game->getTechRespawn() != 0) { game->setTechRespawn(0); changed = TRUE; }
+	if (game->getSupplyPileLimit() != 0) { game->setSupplyPileLimit(0); changed = TRUE; }
+	if (game->getProRules()) { game->setProRules(FALSE); changed = TRUE; }
+	if (game->getDayNight()) { game->setDayNight(FALSE); changed = TRUE; }	// the mode runs its own day and night
+	return changed;
+}
+
+UnicodeString ModeNameWithVersion(const char *nameKey, const char *versionKey)
+{
+	UnicodeString name = TheGameText->fetch(nameKey);
+	Bool exists = FALSE;
+	const UnicodeString version = TheGameText->fetch(versionKey, &exists);
+	if (exists && !version.isEmpty())
+	{
+		name.concat(u" ");
+		name.concat(version);
+	}
+	return name;
+}
+
+Int TheHostGameMode = HOST_MODE_CLASSIC;
+
+void HideLobbySeatRowsFrom(GameWindow *parent, const char *layoutFilename, Int firstHiddenRow)
+{
+	// every window lobbyroom_layout.py gives a seat row, by the row's number
+	static const char *const names[] = { "ComboBoxPlayer", "StaticTextPlayer", "ComboBoxAIPersona", "ComboBoxPlayerTemplate",
+		"ComboBoxColor", "ComboBoxTeam", "ComboBoxHandicap", "SeatCard", "SeatBar", "SeatSwatch", "SeatTeam",
+		"GenericPing", "ButtonAccept" };
+	for (Int row = max(0, firstHiddenRow); row < MAX_SLOTS; ++row)
+	{
+		if (findSeatWindow(parent, layoutFilename, "ComboBoxColor", row) == NULL)
+			break;	// past the layout's rows
+		for (Int n = 0; n < (Int)ARRAY_SIZE(names); ++n)
+			if (GameWindow *window = findSeatWindow(parent, layoutFilename, names[n], row))
+				if (!window->winIsHidden())
+					window->winHide(TRUE);
+	}
+
+	/* The network rooms' chat sits under the last row (lobbyroom_layout.py, place_chat: 16 under the
+		 cards at 1080), so the rows let go left an empty band over it.  The chat grows up into the band,
+		 its foot where it was; a second call finds it there already. */
+	GameWindow *lastCard = firstHiddenRow > 0 ? findSeatWindow(parent, layoutFilename, "SeatCard", firstHiddenRow - 1) : NULL;
+	if (lastCard == NULL)
+		return;
+	Int cardX, cardY, cardW, cardH;
+	lastCard->winGetScreenPosition(&cardX, &cardY);
+	lastCard->winGetSize(&cardW, &cardH);
+	const Int top = cardY + cardH + UIStyle::px(16.0f);
+	static const char *const chats[] = { "ListboxChatWindowLanGame", "ListboxChatWindowGameSpyGameSetup" };
+	for (Int c = 0; c < (Int)ARRAY_SIZE(chats); ++c)
+	{
+		AsciiString full;
+		full.format("%s:%s", layoutFilename, chats[c]);
+		GameWindow *chat = TheWindowManager->winGetWindowFromId(parent, NAMEKEY(full));
+		if (chat == NULL)
+			continue;
+		Int x, y, width, height;
+		chat->winGetScreenPosition(&x, &y);
+		chat->winGetSize(&width, &height);
+		if (top >= y)
+			continue;
+		Int left, above;
+		chat->winGetPosition(&left, &above);
+		chat->winSetPosition(left, above + top - y);
+		chat->winSetSize(width, height + y - top);
+	}
+}
+
+Bool IsApocalypseMap(const AsciiString &map)
+{
+	const char *path = map.str();
+	const char *leaf = path;
+	for (const char *c = path; *c; ++c)
+		if (*c == '\\' || *c == '/')
+			leaf = c + 1;
+	// the generator's own name only: a template map's tail is its shipped map's folder, which could say anything
+	if (!AsciiString(leaf).startsWithNoCase("rmg_v"))
+		return FALSE;
+	Int version = 0, seed = 0, players = 0, cells = 0, rest = -1;
+	if (sscanf(leaf + 5, "%d_%d_%dp_%dc_%n", &version, &seed, &players, &cells, &rest) != 4 || rest < 0)
+		return FALSE;
+	const AsciiString tail(leaf + 5 + rest);
+	return tail.compareNoCase("apocalypse") == 0 || tail.compareNoCase("apocalypse.map") == 0;
+}
+
+/// what AskGameMode's box answers with; GameModeBoxSystem deletes it with the box
+struct GameModeBoxData
+{
+	void (*answer)(Int mode);
+};
+
+// GameModeBox.wnd's system callback (FunctionLexicon): a mode button answers and closes the box, Cancel closes it
+WindowMsgHandledType GameModeBoxSystem(GameWindow *window, UnsignedInt msg, WindowMsgData mData1, WindowMsgData mData2)
+{
+	switch (msg)
+	{
+		case GWM_DESTROY:
+			delete (GameModeBoxData *)window->winGetUserData();
+			window->winSetUserData(NULL);
+			break;
+		case GWM_INPUT_FOCUS:
+			if (mData1 == TRUE)
+				*(Bool *)mData2 = TRUE;
+			break;
+		case GBM_SELECTED:
+		{
+			const Int controlID = ((GameWindow *)mData1)->winGetWindowId();
+			static const NameKeyType classicID = NAMEKEY("GameModeBox.wnd:ButtonClassic");
+			static const NameKeyType directStrikeID = NAMEKEY("GameModeBox.wnd:ButtonDirectStrike");
+			static const NameKeyType apocalypseID = NAMEKEY("GameModeBox.wnd:ButtonApocalypse");
+			static const NameKeyType cancelID = NAMEKEY("GameModeBox.wnd:ButtonCancel");
+			const Int mode = controlID == classicID ? HOST_MODE_CLASSIC : controlID == directStrikeID ? HOST_MODE_DIRECT_STRIKE
+				: controlID == apocalypseID ? HOST_MODE_APOCALYPSE : -1;
+			if (mode < 0 && controlID != cancelID)
+				return MSG_IGNORED;
+			GameModeBoxData *data = (GameModeBoxData *)window->winGetUserData();
+			void (*answer)(Int) = data ? data->answer : NULL;
+			// the box goes first: an answer opens the next screen or a popup over where it stood
+			TheWindowManager->winDestroy(window);
+			if (answer && mode >= 0)
+				answer(mode);
+			break;
+		}
+		default:
+			return MSG_IGNORED;
+	}
+	return MSG_HANDLED;
+}
+
+/* The mode picker's face.  GameModeBox.wnd (Tools/gamemode_layout.py) brings the windows: the modal
+	 root, its panel, and four buttons whose clicks GameModeBoxSystem answers.  Nothing of EA's message
+	 box is drawn: the panel is a steel plate in the Direct Strike lobby's material (DirectStrikeTheme),
+	 the three mode buttons are cards side by side, each with a drawn emblem, its name and version tag
+	 and one fact line, and Cancel is a small key under them.  Sizes are 1080 pixels times the screen's
+	 height over 1080: the panel is 1012 by 478 at 1080 and 562 by 266 at 800x600. */
+namespace
+{
+	enum
+	{
+		PICKER_CARD_W = 300, PICKER_CARD_H = 290, PICKER_GAP = 24, PICKER_PAD = 32, PICKER_TITLE_H = 56,
+		PICKER_CANCEL_W = 220, PICKER_CANCEL_H = 44, PICKER_CANCEL_GAP = 24, PICKER_INSET = 14, PICKER_EMBLEM_H = 170,
+		PICKER_PANEL_W = 2 * PICKER_PAD + 3 * PICKER_CARD_W + 2 * PICKER_GAP,
+		PICKER_PANEL_H = 2 * PICKER_PAD + PICKER_TITLE_H + PICKER_CARD_H + PICKER_CANCEL_GAP + PICKER_CANCEL_H,
+	};
+	struct PickerCard { const char *button, *nameKey, *versionKey, *factKey; Int mode; };
+	const PickerCard thePickerCards[] =
+	{
+		{ "GameModeBox.wnd:ButtonClassic", "GUI:GameModeClassic", NULL, "GUI:GameModeClassicFact", HOST_MODE_CLASSIC },
+		{ "GameModeBox.wnd:ButtonDirectStrike", "GUI:GameModeDirectStrike", "GUI:DirectStrikeVersion", "GUI:GameModeDirectStrikeFact", HOST_MODE_DIRECT_STRIKE },
+		{ "GameModeBox.wnd:ButtonApocalypse", "GUI:GameModeApocalypse", "GUI:ApocalypseVersion", "GUI:GameModeApocalypseFact", HOST_MODE_APOCALYPSE },
+	};
+
+	Real pickerScale(void)
+	{
+		return TheDisplay && TheDisplay->getHeight() > 0 ? (Real)TheDisplay->getHeight() / 1080.0f : 1.0f;
+	}
+	Int px(Int v1080)
+	{
+		return REAL_TO_INT(v1080 * pickerScale() + 0.5f);
+	}
+	LaneHudBox screenBox(GameWindow *window)
+	{
+		LaneHudBox b;
+		window->winGetScreenPosition(&b.x, &b.y);
+		window->winGetSize(&b.w, &b.h);
+		return b;
+	}
+	LaneHudBox inset(const LaneHudBox &b, Int by)
+	{
+		LaneHudBox r = { b.x + by, b.y + by, b.w - 2 * by, b.h - 2 * by };
+		return r;
+	}
+	void fill(Int x, Int y, Int w, Int h, Color color)
+	{
+		TheDisplay->drawFillRect(x, y, w, h, color);
+	}
+
+	/// a picture of the mode from flat shapes: four bases round a field, a lane between two forts, a walled basin in red fog
+	void drawModeEmblem(Int mode, const LaneHudBox &b)
+	{
+		const Color blue = GameMakeColor(70, 120, 220, 255), red = GameMakeColor(210, 60, 50, 255);
+		const Color green = GameMakeColor(80, 170, 80, 255), gold = GameMakeColor(230, 190, 60, 255);
+		const Int u = max(1, min(b.w, b.h) / 12);
+		const Int cx = b.x + b.w / 2, cy = b.y + b.h / 2;
+		if (mode == HOST_MODE_DIRECT_STRIKE)
+		{
+			fill(b.x, b.y, b.w, b.h, GameMakeColor(18, 38, 64, 255));					// sea
+			fill(b.x + u, cy - 2 * u, b.w - 2 * u, 4 * u, GameMakeColor(92, 104, 70, 255));	// the island's lane
+			fill(b.x + 2 * u, cy - 2 * u, 3 * u, 4 * u, blue);							// the two fortresses
+			fill(b.x + b.w - 5 * u, cy - 2 * u, 3 * u, 4 * u, red);
+			for (Int i = 0; i < 3; ++i)																	// a wave down each side
+			{
+				fill(cx - (4 - i) * u * 3 / 2, cy - u / 2, u, u, blue);
+				fill(cx + (2 + i) * u * 3 / 2 - u, cy - u / 2, u, u, red);
+			}
+		}
+		else if (mode == HOST_MODE_APOCALYPSE)
+		{
+			fill(b.x, b.y, b.w, b.h, GameMakeColor(96, 20, 18, 255));					// the red fog
+			const Int r = min(b.w, b.h) / 3;
+			fill(cx - r, cy - r, 2 * r, 2 * r, GameMakeColor(58, 54, 48, 255));		// the walled basin
+			TheDisplay->drawOpenRect(cx - r, cy - r, 2 * r, 2 * r, (Real)max(2, u / 2), GameMakeColor(28, 24, 22, 255));
+			const Int s = max(2, u);
+			fill(cx - u - s / 2, cy - u - s / 2, s, s, blue);							// four seats together
+			fill(cx + u - s / 2, cy - u - s / 2, s, s, gold);
+			fill(cx - u - s / 2, cy + u - s / 2, s, s, green);
+			fill(cx + u - s / 2, cy + u - s / 2, s, s, GameMakeColor(200, 200, 200, 255));
+			for (Int i = 0; i < 6; ++i)																	// the dead at the edge
+			{
+				const Int ex = b.x + u + (i % 3) * (b.w - 3 * u) / 2, ey = i < 3 ? b.y + u : b.y + b.h - 2 * u;
+				fill(ex, ey, s, s, GameMakeColor(30, 6, 6, 255));
+			}
+		}
+		else
+		{
+			fill(b.x, b.y, b.w, b.h, GameMakeColor(52, 60, 44, 255));					// open ground
+			TheDisplay->drawLine(b.x + 3 * u, b.y + 3 * u, b.x + b.w - 3 * u, b.y + b.h - 3 * u, (Real)max(1, u / 3), GameMakeColor(120, 112, 90, 255));
+			TheDisplay->drawLine(b.x + b.w - 3 * u, b.y + 3 * u, b.x + 3 * u, b.y + b.h - 3 * u, (Real)max(1, u / 3), GameMakeColor(120, 112, 90, 255));
+			const Int s = 3 * u;
+			fill(b.x + u, b.y + u, s, s, blue);												// four bases, a corner each
+			fill(b.x + b.w - u - s, b.y + u, s, s, red);
+			fill(b.x + u, b.y + b.h - u - s, s, s, green);
+			fill(b.x + b.w - u - s, b.y + b.h - u - s, s, s, gold);
+		}
+	}
+
+	void drawPickerRoot(GameWindow *, WinInstanceData *)
+	{
+		DirectStrikeTheme::begin(DirectStrikeTheme::SIDE_AMERICA, pickerScale());
+		TheDisplay->drawFillRect(0, 0, (Int)TheDisplay->getWidth(), (Int)TheDisplay->getHeight(), DirectStrikeTheme::VEIL);
+	}
+
+	void drawPickerPanel(GameWindow *window, WinInstanceData *)
+	{
+		const LaneHudBox b = screenBox(window);
+		DirectStrikeTheme::nineSlice(b, DirectStrikeTheme::PANEL_LIT_TL);
+		DirectStrikeTheme::drawSpaced(TheGameText->fetch("GUI:GameModeTitle"), DirectStrikeTheme::font(DirectStrikeTheme::TYPE_NAME),
+			b.x + b.w / 2, b.y + px(PICKER_PAD) / 2, px(PICKER_TITLE_H), DirectStrikeTheme::TYPE_NAME * DirectStrikeTheme::TRACK_TEAM,
+			DirectStrikeTheme::TEXT_WHITE, 0);
+	}
+
+	void drawPickerCard(GameWindow *window, WinInstanceData *instData)
+	{
+		const PickerCard *card = NULL;
+		for (Int i = 0; i < (Int)ARRAY_SIZE(thePickerCards); ++i)
+			if (window->winGetWindowId() == NAMEKEY(thePickerCards[i].button))
+				card = &thePickerCards[i];
+		if (card == NULL)
+			return;
+		const Bool hot = BitTest(instData->getState(), WIN_STATE_HILITED);
+		const Bool pressed = BitTest(instData->getState(), WIN_STATE_SELECTED);
+		const LaneHudBox b = screenBox(window);
+		DirectStrikeTheme::nineSlice(b, hot ? DirectStrikeTheme::PANEL_LIT_TL : DirectStrikeTheme::PANEL_TL);
+		const LaneHudBox picture = { b.x + px(PICKER_INSET), b.y + px(PICKER_INSET), b.w - 2 * px(PICKER_INSET), px(PICKER_EMBLEM_H) };
+		drawModeEmblem(card->mode, picture);
+		if (pressed)
+			fill(picture.x, picture.y, picture.w, picture.h, GameMakeColor(0, 0, 0, 90));
+
+		// the name, and the version tag small and grey after it, the two centred together
+		GameFont *nameFont = DirectStrikeTheme::font(DirectStrikeTheme::TYPE_NAME);
+		GameFont *tagFont = DirectStrikeTheme::font(DirectStrikeTheme::TYPE_BODY);
+		const UnicodeString name = TheGameText->fetch(card->nameKey);
+		Bool tagged = FALSE;
+		const UnicodeString tag = card->versionKey ? TheGameText->fetch(card->versionKey, &tagged) : UnicodeString::TheEmptyString;
+		const Int tagGap = px(8);
+		const Int nameW = DirectStrikeTheme::textWidth(name, nameFont);
+		const Int tagW = tagged && !tag.isEmpty() ? DirectStrikeTheme::textWidth(tag, tagFont) : 0;
+		const Int pairW = nameW + (tagW > 0 ? tagGap + tagW : 0);
+		const Int nameY = picture.y + picture.h + px(10), nameH = px(40);
+		const Int left = b.x + (b.w - pairW) / 2;
+		DirectStrikeTheme::drawText(name, nameFont, left, nameY, nameH, hot ? DirectStrikeTheme::TEXT_GOLD : DirectStrikeTheme::TEXT_WHITE, -1);
+		if (tagW > 0)
+			DirectStrikeTheme::drawText(tag, tagFont, left + nameW + tagGap, nameY, nameH, DirectStrikeTheme::TEXT_GREY, -1);
+		DirectStrikeTheme::drawText(TheGameText->fetch(card->factKey), DirectStrikeTheme::font(DirectStrikeTheme::TYPE_BODY),
+			b.x + b.w / 2, nameY + nameH, px(30), DirectStrikeTheme::TEXT_GREY, 0);
+		if (hot)
+			DirectStrikeTheme::currentFrame(b);
+	}
+
+	void drawPickerCancel(GameWindow *window, WinInstanceData *instData)
+	{
+		const Bool hot = BitTest(instData->getState(), WIN_STATE_HILITED);
+		const LaneHudBox b = screenBox(window);
+		DirectStrikeTheme::nineSlice(b, hot ? DirectStrikeTheme::PANEL_LIT_TL : DirectStrikeTheme::PANEL_TL);
+		DirectStrikeTheme::drawText(TheGameText->fetch("GUI:Cancel"), DirectStrikeTheme::font(DirectStrikeTheme::TYPE_LABEL),
+			b.x + b.w / 2, b.y, b.h, hot ? DirectStrikeTheme::TEXT_GOLD : DirectStrikeTheme::TEXT_WHITE, 0);
+	}
+
+	// Escape closes the picker unanswered, as Cancel does
+	WindowMsgHandledType pickerInput(GameWindow *window, UnsignedInt msg, WindowMsgData mData1, WindowMsgData mData2)
+	{
+		if (msg == GWM_CHAR && mData1 == KEY_ESC)
+		{
+			if (BitTest(mData2, KEY_STATE_UP) && window->winGetParent())
+				TheWindowManager->winDestroy(window->winGetParent());
+			return MSG_HANDLED;
+		}
+		return MSG_IGNORED;
+	}
+}
+
+void AskGameMode(void (*answer)(Int mode))
+{
+	GameWindow *box = TheWindowManager->winCreateFromScript(AsciiString("Menus/GameModeBox.wnd"));
+	if (box == NULL)
+		return;
+	GameWindow *panel = TheWindowManager->winGetWindowFromId(box, NAMEKEY("GameModeBox.wnd:MessageBoxParent"));
+	static const char *const keys[] = { "GameModeBox.wnd:ButtonClassic", "GameModeBox.wnd:ButtonDirectStrike",
+		"GameModeBox.wnd:ButtonApocalypse", "GameModeBox.wnd:ButtonCancel" };
+	const Int count = (Int)ARRAY_SIZE(keys);
+	GameWindow *buttons[ARRAY_SIZE(keys)];
+	for (Int i = 0; i < count; ++i)
+	{
+		buttons[i] = TheWindowManager->winGetWindowFromId(box, NAMEKEY(keys[i]));
+		if (buttons[i] == NULL || panel == NULL)
+		{
+			TheWindowManager->winDestroy(box);
+			return;
+		}
+	}
+	GameModeBoxData *data = NEW GameModeBoxData;
+	data->answer = answer;
+	box->winSetUserData(data);
+	TheWindowManager->winSetModal(box);
+	TheWindowManager->winSetFocus(NULL);
+	TheWindowManager->winSetFocus(panel);
+	// the layout's own text and header band stay hidden; the plate, the cards and Cancel are drawn
+	for (GameWindow *child = panel->winGetChild(); child; child = child->winGetNext())
+		child->winHide(TRUE);
+	box->winSetDrawFunc(drawPickerRoot);
+	panel->winSetDrawFunc(drawPickerPanel);
+	panel->winSetInputFunc(pickerInput);
+
+	// the plate centred on the screen, three cards in a row, Cancel centred under them
+	Int rootW, rootH;
+	box->winGetSize(&rootW, &rootH);
+	const Int panelW = px(PICKER_PANEL_W), panelH = px(PICKER_PANEL_H);
+	panel->winSetSize(panelW, panelH);
+	panel->winSetPosition((rootW - panelW) / 2, (rootH - panelH) / 2);
+	const Int cardsY = px(PICKER_PAD + PICKER_TITLE_H);
+	for (Int i = 0; i < 3; ++i)
+	{
+		buttons[i]->winSetSize(px(PICKER_CARD_W), px(PICKER_CARD_H));
+		buttons[i]->winSetPosition(px(PICKER_PAD + i * (PICKER_CARD_W + PICKER_GAP)), cardsY);
+		buttons[i]->winSetDrawFunc(drawPickerCard);
+		buttons[i]->winHide(FALSE);
+	}
+	buttons[3]->winSetSize(px(PICKER_CANCEL_W), px(PICKER_CANCEL_H));
+	buttons[3]->winSetPosition((panelW - px(PICKER_CANCEL_W)) / 2, cardsY + px(PICKER_CARD_H + PICKER_CANCEL_GAP));
+	buttons[3]->winSetDrawFunc(drawPickerCancel);
+	buttons[3]->winHide(FALSE);
+	panel->winHide(FALSE);
+	panel->winBringToTop();
+}
+
 /* The online room's seats name each human with his ladder rating after the nick, MUTED, read from the
 	 card the server sent the lobby for that nick (ONLINE-UI-REDESIGN.md, "Game setup room").  The player
 	 box keeps EA's art and its text; the rating is drawn after it, so the room's combo code is untouched. */
@@ -1502,7 +2272,7 @@ static void drawSeatPlayer(GameWindow *window, WinInstanceData *instData)
 	DisplayString *rating = theSeatRating[seat];
 	if (rating->getFont() != window->winGetFont())
 		rating->setFont(window->winGetFont());
-	rating->setText(UIStyle::ratingText(card.exactRating));
+	rating->setText(UIStyle::ladderText(card.shown(), card.hasElo));
 
 	// where W3DTextEntry ends the nick: its text starts seven pixels in (ten from the start), centred on
 	// the box by the font's height
@@ -1553,6 +2323,8 @@ static void detachSeatRatings(void)
 
 void InitLobbySeatVisuals(GameWindow *parent, const char *layoutFilename)
 {
+	DirectStrikeLobby_restoreRoom();	// what a Direct Strike room before this one hid
+	resetSeatRows();
 	attachSeatRatings(parent, layoutFilename);
 	GameWindow **const windows[] = { theSeatCard, theSeatBar, theSeatSwatch, theSeatTeam };
 	const char *const names[] = { "SeatCard", "SeatBar", "SeatSwatch", "SeatTeam" };
@@ -1625,8 +2397,10 @@ void ShutdownLobbySeatVisuals(void)
 {
 	detachSeatRatings();
 	FactionPickerDetach();
+	DirectStrikeLobby_detach();
 	for (Int i = 0; i < MAX_SLOTS; ++i)
 		theSeatCard[i] = theSeatBar[i] = theSeatSwatch[i] = theSeatTeam[i] = NULL;
+	resetSeatRows();
 }
 
 static void showColor(GameWindow *window, Color color)
@@ -1649,17 +2423,20 @@ void UpdateLobbySeatVisuals(GameInfo *myGame)
 			else
 				theSeatNick[i].clear();
 		}
-		showColor(theSeatBar[i], color);
-		showColor(theSeatSwatch[i], color);
-		showColor(theSeatTeam[i], occupied ? LobbyTeamColor(slot->getTeamNumber()) : theSeatEmptyColor);
+		const Int row = theSeatRow[i];
+		if (row < 0)
+			continue;
+		showColor(theSeatBar[row], color);
+		showColor(theSeatSwatch[row], color);
+		showColor(theSeatTeam[row], occupied ? LobbyTeamColor(slot->getTeamNumber()) : theSeatEmptyColor);
 
-		if (theSeatCard[i] == NULL || !theSeatsShowReady)
+		if (theSeatCard[row] == NULL || !theSeatsShowReady)
 			continue;
 		// the host always sits in the first seat of a network room and is never asked to ready up
 		const Bool host = i == 0 && slot->isHuman();
 		const Bool ready = slot->isHuman() && !host && slot->isAccepted();
-		theSeatCard[i]->winSetEnabledColor(0, ready ? theCardReadyColor : UIStyle::PANEL);
-		theSeatCard[i]->winSetEnabledBorderColor(0, host ? UIStyle::GOLD : UIStyle::FRAME);
+		theSeatCard[row]->winSetEnabledColor(0, ready ? theCardReadyColor : UIStyle::PANEL);
+		theSeatCard[row]->winSetEnabledBorderColor(0, host ? UIStyle::GOLD : UIStyle::FRAME);
 	}
 }
 

@@ -35,9 +35,11 @@
 
 //#define DO_8STAGE_TERRAIN_PASS		//optimized terrain rendering for Nvidia based cards
 
+#include <vector>
 #include "WW3D2/texture.h"
 #include "WWMath/matrix3d.h"
 #include "Common/AsciiString.h"
+#include "Lib/BaseType.h"
 
 class WorldHeightMap;
 #define TILE_OFFSET 8
@@ -61,6 +63,8 @@ public:
 public:
 	int update(WorldHeightMap *htMap); ///< Sets the pixels, and returns the actual height of the texture.
 	Bool updateFlat(WorldHeightMap *htMap, Int xCell, Int yCell, Int cellWidth, Int pixelsPerCell); ///< Sets the pixels.
+	/// Lays each key's block of tiles at its origin (WorldHeightMap::getSkirtFlatTexture).
+	Bool updateSkirt(WorldHeightMap *htMap, const std::vector<Int> &keys, const std::vector<ICoord2D> &origins, Int tilePixels);
 	void setLOD(Int LOD);
 };
 
@@ -139,12 +143,28 @@ protected:
 
 
 public:
-		// Create texture from a height map.
+		// Built from TSCloudMed (CloudShadowBake.h): REPEAT retail tiles wide, scattered so the
+		// tile does not show from the highest camera; under Classic one retail tile, as EA had it.
 		CloudMapTerrainTextureClass( MipCountType mipLevelCount = MIP_LEVELS_ALL );
 
 		// just use default destructor. ~TerrainTextureClass(void);
 
 		void restore(void);
+
+		// How many retail tiles the texture spans, which the cloud's texture matrix divides its
+		// scale and its drift by (TerrainShader2Stage::updateNoise1): 1 until a texture is built.
+		static Int tilesPerRepeat(void) { return s_tilesPerRepeat; }
+
+		/// how dark the cloud shadow is, 1 as baked and 0 none, in sixteenths: the day and night cycle
+		/// fades it over the turn to the night instead of switching it off
+		void setStrength(Real strength);
+
+private:
+		static Int textureSide(void);
+		void bake(void);
+		static Int s_tilesPerRepeat;
+		std::vector<UnsignedInt> m_baked;	///< level 0 as baked, taken the first time the strength moves
+		Int m_strengthStep;								///< sixteenths of the strength the texture holds
 };
 
 

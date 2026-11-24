@@ -91,6 +91,7 @@
 #include "WW3D2/scene.h"
 #include "W3DDevice/GameClient/W3DPoly.h"
 #include "W3DDevice/GameClient/W3DCustomScene.h"
+#include "GameLogic/DayNightCycle.h"
 
 #include "Common/PerfTimer.h"
 #include "Common/UnitTimings.h" //Contains the DO_UNIT_TIMINGS define jba.		 
@@ -508,7 +509,7 @@ void FlatHeightMapRenderObjClass::Render(RenderInfoClass & rinfo)
 		terrainShader.Set_Cull_Mode(ShaderClass::CULL_MODE_DISABLE);
 	DX8Wrapper::Set_Shader(terrainShader);
 
-	if (TheGlobalData->m_timeOfDay == TIME_OF_DAY_NIGHT) {
+	if (DayNight_nightLookFor(TheGlobalData->m_timeOfDay == TIME_OF_DAY_NIGHT)) {
 		doCloud = false;
 	}
 
@@ -604,6 +605,9 @@ void FlatHeightMapRenderObjClass::Render(RenderInfoClass & rinfo)
 
 	if (pass)	//shader was applied at least once?
  		W3DShaderManager::resetShader(st);
+
+	// the ground past the map's last sample, drawn as the detailed terrain draws it, and its shroud
+	drawSkirt(rinfo);
 #if 1
 
 	//Draw feathered shorelines
@@ -654,13 +658,22 @@ void FlatHeightMapRenderObjClass::Render(RenderInfoClass & rinfo)
 	if (!modernFullMirror)
 		m_waypointBuffer->drawWaypoints(rinfo);
 
+	// the pads, darkened by the shroud the base pass laid down, as the detailed ground's shroud pass
+	// darkens them there
 	if (!modernFullMirror)
-		m_bibBuffer->renderBibs();
+		m_bibBuffer->renderBibs(m_shroud && rinfo.Additional_Pass_Count() && !m_disableTextures);
 
-	// the rings under the units' destinations and the marker where an order landed, which the
-	// detailed ground draws in the same place (HeightMapRenderObjClass::Render)
+	// the rings under the units' destinations and the marker where an order landed, depth tested
+	// against the ground and the bridges as the detailed ground draws them, over the pads.  Its shroud
+	// went in with the base pass above, so they are multiplied by the same shroud texture, which on
+	// Direct3D 11 is the soft picture the ground took (drawGroundOverlays in HeightMap.cpp draws them
+	// before its shroud pass instead)
 	if (TheInGameUI && !modernFullMirror)
-		TheInGameUI->drawOrderRings();
+		TheInGameUI->drawOrderRings(m_shroud && rinfo.Additional_Pass_Count() && !m_disableTextures);
+
+	// and the Lane War plots' slot grid, as the detailed ground draws it, never into a water mirror
+	if (TheInGameUI && !ShaderClass::Is_Backface_Culling_Inverted())
+		TheInGameUI->drawLanePlotGrids(m_shroud && rinfo.Additional_Pass_Count() && !m_disableTextures);
 #endif
 	// We do some custom blending, so tell the shader class to reset everything.
 	DX8Wrapper::Set_Texture(0,NULL);

@@ -571,14 +571,26 @@ void Direct3D11_Mark_Surface_Dirty(struct IDirect3DSurface9 * surface)
 static struct IDirect3DBaseTexture9 * SceneStandInTexture = NULL;
 static struct IDirect3DSurface9 * SceneStandInSurface = NULL;
 
+// Direct3D11_Set_Shroud's texture while its soft picture stands: every bind of it, a stage's or the
+// haze's, takes the picture instead of the copy a texel a cell.
+static struct IDirect3DBaseTexture9 * ShroudTexture = NULL;
+
+// The copy of the texture, or the soft shroud for the shroud's texture.
+static ID3D11ShaderResourceView * mirror_or_soft_shroud(struct IDirect3DBaseTexture9 * texture)
+{
+	if (texture == NULL) {
+		return NULL;
+	}
+	ID3D11ShaderResourceView * const soft = (texture == ShroudTexture) ? Post.Soft_Shroud() : NULL;
+	return (soft != NULL) ? soft : DX11Texture_Mirror(Device.Get_Device(), Device.Get_Context(), texture);
+}
+
 void Direct3D11_Mirror_Texture(unsigned stage, struct IDirect3DBaseTexture9 * texture)
 {
 	if (!Active) {
 		return;
 	}
-	ID3D11ShaderResourceView * view = texture == NULL
-		? NULL
-		: DX11Texture_Mirror(Device.Get_Device(), Device.Get_Context(), texture);
+	ID3D11ShaderResourceView * view = mirror_or_soft_shroud(texture);
 	if (texture != NULL && texture == SceneStandInTexture) {
 		Backend.Set_Scene_Stand_In(view);
 	}
@@ -591,9 +603,54 @@ void Direct3D11_Set_Haze_Shroud(struct IDirect3DBaseTexture9 * texture, const fl
 	if (!Active) {
 		return;
 	}
-	DX11Post_Set_Haze_Shroud(texture == NULL
-		? NULL
-		: DX11Texture_Mirror(Device.Get_Device(), Device.Get_Context(), texture), rect);
+	DX11Post_Set_Haze_Shroud(mirror_or_soft_shroud(texture), rect);
+}
+
+// The shroud's three programs out of the backend's cache, or compiled into it.  Nothing once loaded or
+// refused.
+static void load_shroud_programs()
+{
+	if (!Post.Wants_Shroud_Programs()) {
+		return;
+	}
+	for (unsigned index = 0; index < DX11PostProcessClass::SHROUD_PROGRAMS; ++index) {
+		std::vector<unsigned char> code;
+		if (Backend.Compile_Pixel_Program(Post.Shroud_Program_Source(index), "dx11shroud", code) && !code.empty()) {
+			Post.Load_Shroud_Program(index, &code[0], code.size());
+		} else {
+			Post.Load_Shroud_Program(index, NULL, 0);
+		}
+	}
+}
+
+void Direct3D11_Prepare_Shroud()
+{
+	if (Active) {
+		load_shroud_programs();
+	}
+}
+
+void Direct3D11_Set_Shroud(struct IDirect3DBaseTexture9 * texture, float seconds, bool written, float fog_light,
+	bool fogged)
+{
+	ShroudTexture = NULL;
+	if (!Active) {
+		return;
+	}
+	if (texture == NULL) {
+		Post.Soften_Shroud(NULL, 0.0f, false, -1.0f, true);
+		return;
+	}
+	// Built at the map's load (Direct3D11_Prepare_Shroud); here only when the Classic setting went
+	// off in a match.
+	load_shroud_programs();
+	ID3D11ShaderResourceView * const cells = DX11Texture_Mirror(Device.Get_Device(), Device.Get_Context(), texture);
+	if (Post.Soften_Shroud(cells, seconds, written, fog_light, fogged) != NULL) {
+		ShroudTexture = texture;
+	}
+	// The passes bound their own targets, programs and states on the context, and the picture the
+	// stages may still hold was a target a moment ago.
+	Backend.Forget_Bindings();
 }
 
 void Direct3D11_Set_Atmosphere(const float horizon[3], const float tint[3], float start, float scale,
@@ -840,6 +897,54 @@ unsigned Direct3D11_Requested_Draw_Effect(float parameters[4])
 	return 0;
 }
 
+// The Ambient Occlusion option's three programs out of the backend's cache, or compiled into it, the
+// first time the option or the sun shafts (which finish on its blur and upsample) ask.
+static void load_world_ao_programs()
+{
+	if (!Post.Wants_World_Ao_Programs()) {
+		return;
+	}
+	for (unsigned index = 0; index < DX11PostProcessClass::WORLD_AO_PROGRAMS; ++index) {
+		std::vector<unsigned char> code;
+		if (Backend.Compile_Pixel_Program(Post.World_Ao_Program_Source(index), "dx11worldao", code) && !code.empty()) {
+			Post.Load_World_Ao_Program(index, &code[0], code.size());
+		} else {
+			Post.Load_World_Ao_Program(index, NULL, 0);
+		}
+	}
+}
+
+// The SunShafts option over the scene, between the haze and the atmosphere, only on a frame whose sun
+// map the shadow pass filled (SunShadow::ReceivesView: renderShadowMap clears it first and sets it last),
+// so a frame the pass bailed on never marches last frame's map.  Strength zero wants no program and
+// draws nothing, which is the frame as it was.
+static bool sun_shafts_scene(const float world_from_clip[16])
+{
+	if (!DrawEffectsAllowed || !SunShadow::ReceivesView(NULL) || Backend.Shadow_Map() == NULL) {
+		return false;
+	}
+	if (Post.Wants_Sun_Shaft_Programs()) {
+		for (unsigned index = 0; index < DX11PostProcessClass::SUN_SHAFT_PROGRAMS; ++index) {
+			std::vector<unsigned char> code;
+			if (Backend.Compile_Pixel_Program(Post.Sun_Shaft_Program_Source(index), "dx11sunshafts", code) && !code.empty()) {
+				Post.Load_Sun_Shaft_Program(index, &code[0], code.size());
+			} else {
+				Post.Load_Sun_Shaft_Program(index, NULL, 0);
+			}
+		}
+	}
+	float projection_x = 0.0f;
+	float projection_y = 0.0f;
+	Backend.Scene_Projection_Scale(projection_x, projection_y);
+	// The terrain's heights, held while the ground's sun is per pixel, tell casters from rising ground
+	// and keep the lift on the ground; without them the shafts go by the surface's tilt alone.
+	float heights_mapping[3] = { 0.0f, 0.0f, 0.0f };
+	Backend.Terrain_Heights_Mapping(heights_mapping);
+	return Post.Sun_Shafts_Scene(Device.Get_Depth_Texture(), world_from_clip, Backend.Shadow_Map(),
+		Backend.Sun_View_Projection(), Backend.Shadow_Bias(), Backend.Shadow_Strength(), projection_x, projection_y,
+		Backend.Holds_Terrain_Heights() ? Backend.Terrain_Heights_View() : NULL, heights_mapping);
+}
+
 void Direct3D11_Occlude_Scene()
 {
 	if (!Active || !Backend.Draws_Into_Scene()) {
@@ -858,7 +963,10 @@ void Direct3D11_Occlude_Scene()
 	}
 	float world_from_clip[16];
 	if (Backend.Scene_World_From_Clip(world_from_clip)) {
+		// The fog's memory look first, so the haze lies over ground already drained of its colour.
+		drew = Post.Shroud_Memory_Scene(Device.Get_Depth_Texture(), world_from_clip) || drew;
 		drew = Post.Haze_Scene(Device.Get_Depth_Texture(), world_from_clip) || drew;
+		drew = sun_shafts_scene(world_from_clip) || drew;
 		drew = Post.Atmosphere_Scene(Device.Get_Depth_Texture(), world_from_clip) || drew;
 	}
 	if (drew) {
@@ -892,16 +1000,7 @@ void Direct3D11_Ambient_Occlusion()
 	if (!Active || !DrawEffectsAllowed || !Backend.Draws_Into_Scene()) {
 		return;
 	}
-	if (Post.Wants_World_Ao_Programs()) {
-		for (unsigned index = 0; index < DX11PostProcessClass::WORLD_AO_PROGRAMS; ++index) {
-			std::vector<unsigned char> code;
-			if (Backend.Compile_Pixel_Program(Post.World_Ao_Program_Source(index), "dx11worldao", code) && !code.empty()) {
-				Post.Load_World_Ao_Program(index, &code[0], code.size());
-			} else {
-				Post.Load_World_Ao_Program(index, NULL, 0);
-			}
-		}
-	}
+	load_world_ao_programs();
 	float world_from_clip[16];
 	if (!Backend.Scene_World_From_Clip(world_from_clip)) {
 		return;
@@ -910,7 +1009,72 @@ void Direct3D11_Ambient_Occlusion()
 	float projection_x = 0.0f;
 	float projection_y = 0.0f;
 	Backend.Scene_Projection_Scale(projection_x, projection_y);
-	if (Post.World_Occlude_Scene(Device.Get_Depth_Texture(), world_from_clip, projection_x, projection_y)) {
+	// At the Ray Traced level the half size term comes from rays when the grid was built this frame;
+	// at every other level this is NULL and timing does nothing.
+	float shroud_rect[4];
+	ID3D11ShaderResourceView * shroud = Post.World_Ao_Shroud(shroud_rect);
+	Backend.Time_Ray_Occlusion(true, false);
+	ID3D11ShaderResourceView * traced = Post.World_Occlusion_Ready()
+		? Backend.Trace_Ray_Occlusion(world_from_clip, shroud, shroud_rect) : NULL;
+	bool took_traced = false;
+	const bool occluded = Post.World_Occlude_Scene(Device.Get_Depth_Texture(), world_from_clip, projection_x,
+		projection_y, traced, &took_traced);
+	Backend.Time_Ray_Occlusion(false, took_traced);
+	if (occluded) {
+		Backend.Resume_Scene();
+	}
+}
+
+void Direct3D11_Set_Ray_Traced_Shadows(bool wanted)
+{
+	Backend.Set_Ray_Traced_Shadows(wanted);
+}
+
+void Direct3D11_Ray_Traced_Lights()
+{
+	if (Active && Backend.Trace_Ray_Lights()) {
+		Backend.Resume_Scene();
+	}
+}
+
+void Direct3D11_Ray_Traced_Shadows()
+{
+	if (Active && Backend.Trace_Ray_Shadows()) {
+		Backend.Resume_Scene();
+	}
+}
+
+bool Direct3D11_Ray_Shade_Waiting()
+{
+	return Active && Backend.Ray_Shade_Waiting();
+}
+
+std::string Direct3D11_Ray_Shadow_Report()
+{
+	return Active ? Backend.Ray_Shadow_Report() : std::string("no Direct3D 11 backend");
+}
+
+bool Direct3D11_Ray_Lights_Probing()
+{
+	return Active && Backend.Ray_Lights_Probing();
+}
+
+std::string Direct3D11_Ray_Light_Probe_Report()
+{
+	return Active ? Backend.Ray_Light_Probe_Report() : std::string();
+}
+
+void Direct3D11_Shroud_Memory()
+{
+	if (!Active || !Backend.Draws_Into_Scene()) {
+		return;
+	}
+	float world_from_clip[16];
+	if (!Backend.Scene_World_From_Clip(world_from_clip)) {
+		return;
+	}
+	Backend.Resolve_Scene_Depth();
+	if (Post.Shroud_Memory_Scene(Device.Get_Depth_Texture(), world_from_clip)) {
 		Backend.Resume_Scene();
 	}
 }

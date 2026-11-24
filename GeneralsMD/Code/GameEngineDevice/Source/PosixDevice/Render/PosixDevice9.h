@@ -45,6 +45,8 @@
 #define POSIXDEVICE9_H
 
 #include "Platform/RenderTypes.h"
+#include "Platform/RenderPost.h"
+#include "Platform/RenderLighting.h"
 #include "Platform/D3D9Posix.h"
 #include "Platform/WaterShoreOverlay.h"
 #include "Platform/WaterHullVisualLayout.h"
@@ -55,6 +57,7 @@
 #include <map>
 #include <string>
 #include <vector>
+enum class SdlSceneCapturePhase;
 
 class SdlGpuFrame;
 class SdlPipelineCache;
@@ -207,7 +210,64 @@ public:
 	RenderResult Create_Gpu_Frame(bool offscreen = false);
 	/// -offscreen's presents, paced at hz a second (0: unpaced); SdlGpuFrame::Set_Offscreen_Presents.
 	void Present_Offscreen(unsigned int hz);
+	void Allow_Particle_Enhancements(bool allowed);
+	void Set_Soft_Particles(bool enabled) { SoftParticlesDraw = enabled; }
+	void Set_Fire_Look(bool enabled) { FireLookDraw = enabled; }
+	void Take_Particle_Depth();
+	bool Read_Soft_Depth(struct SdlMainViewSnapshot &);
+	bool Read_Particle_Context(struct SdlGpuParticlesContext &);
+	void Refuse_Next_Sprite_For_Test(unsigned flags) { SpriteRefusalForTest = flags; }
+	void Begin_Post(const RenderPost::Settings &);
+	unsigned Begin_Post_View(bool, float, float, bool);
+	void End_Post_View(unsigned);
+	bool Read_Main_View(struct SdlMainViewSnapshot &, bool, SdlSceneCapturePhase);
+	bool Read_Post_Inputs(SdlSceneCapturePhase, struct SdlPostSceneInputs &);
+	void Post_Opaque_Scene(bool);
+	void Post_Before_Transparent();
+	void Finish_Post(bool);
+	void Release_Post(bool teardown = false);
+	bool Post_Active() const;
+	bool Post_Replaces_Bloom() const;
+	void Post_Stand_In(IDirect3DBaseTexture9 *, IDirect3DSurface9 *);
+	bool Post_Target(IDirect3DSurface9 *, struct SdlTarget &) const;
+	bool Post_Texture(IDirect3DBaseTexture9 *, struct SDL_GPUTexture *&);
+	float Post_Additive_Gain(const struct SdlTarget &) const;
+	void Set_Glow_Draw(bool e) { GlowDraw = e; }
+	bool Current_Gpu_Target(struct SdlTarget &target, std::string &error) { return Gpu && Resolve_Target(target, error); }
+	void Allow_Model_Effects(bool allowed) { ModelEffectsAllowed = allowed; }
+	bool Model_Effects_Available() const { return Gpu && ModelEffectsAllowed; }
+	bool Takes_Model_Effect(unsigned effect);
+	void Set_Model_Effect(unsigned effect, const float parameters[4]);
+	unsigned Requested_Model_Effect(float parameters[4]) const;
+	unsigned Draw_Model_Effect();
+	SDL_GPUTexture *Model_Colour();
+	bool Build_Model_Constants(struct SdlEnginePixelConstants &, bool receiving);
+	void Refuse_Next_Model_For_Test(unsigned mask) { ModelRefusalForTest |= mask; }
+	void Set_Team_Glow(bool marked) { TeamGlowDraw = marked; }
+	void Refuse_Next_Team_Glow_For_Test(unsigned mask) { TeamGlowRefusalForTest |= mask; }
+	bool Classic_Water_Foam_Available() const;
+	bool Prepare_Classic_Water_Foam();
+	struct SDL_GPUTexture *Classic_Water_Depth();
+	bool Build_Main_View_Constants(struct SdlEnginePixelConstants &, bool receiving);
+	void Refuse_Next_Foam_For_Test(unsigned flags) { FoamRefusalForTest = flags; }
+	void Set_Post_Environment(const RenderPost::Environment &);
+	bool Post_Environment_Available() const;
+	void Post_Sky(bool drawSky = true);
+	void Set_Post_Heat(const float *, unsigned);
+	void Set_Post_Warps(const RenderPost::Warp *, unsigned);
+	bool Post_Distortion_Available() const;
 	SdlGpuFrame * Get_Gpu() const { return Gpu; }
+	void Set_Headlights(const float *lights, unsigned count, const float gain[3]);
+	void Set_Blast_Lights(const float *lights, unsigned count);
+	bool Lights_Per_Pixel();
+	void Set_Hemi_Ambient(bool enabled) { HemiAmbient = enabled; }
+	void Set_Light_Environments(const RenderLighting::VertexEnvironment &full, const RenderLighting::VertexEnvironment *staticOnly);
+	bool Static_Lighting_Matches() const;
+	void Build_Light_Constants(struct SdlEnginePixelConstants &constants, bool pointLights = true) const;
+	bool Commit_Terrain_Lighting();
+	void Use_Terrain_Cpu_Lighting() { TerrainLighting.Pixel = false; }
+	bool Terrain_Lighting_Receives(int pixelProgram, const struct SdlTarget &target) const;
+	void Build_Terrain_Light_View(struct SdlEnginePixelConstants &constants) const;
 	SdlResourceMirrors * Get_Mirrors() const { return Mirrors; }
 	/// Draws recorded on the GPU, and the draws refused, by reason.
 	unsigned int Draws_Recorded() const { return DrawsRecorded; }
@@ -260,9 +320,10 @@ public:
 	/// material source naming a colour the vertex does not supply reads the material.  False, with the
 	/// reason, for what the generator does not carry: more lights than it has, table fog, fog from the
 	/// specular alpha.
-	bool Build_Vertex_Description(VertexPipelineDescription &description, std::string *refusal = NULL) const;
+	bool Build_Vertex_Description(VertexPipelineDescription &description, std::string *refusal = NULL, bool staticLights = false) const;
 	/// The two constant blocks, packed to match the descriptions above.
-	void Build_Constants(SdlVertexConstants &vertex, SdlPixelConstants &pixel) const;
+	void Build_Constants(SdlVertexConstants &vertex, SdlPixelConstants &pixel, bool staticLights = false) const;
+	void Build_Pixel_Constants(SdlPixelConstants &pixel) const;
 	void Build_Water_Constants(const SdlPixelConstants &pixel, SdlWaterPixelConstants &water) const;
 	void Build_Water_Visual_Constants(const SdlWaterPixelConstants &water, SdlWaterVisualPixelConstants &visual) const;
 	bool Water_Foam_History_Available() const;
@@ -364,10 +425,24 @@ public:
 protected:
 	struct SunCapture;
 	std::shared_ptr<SunCapture> Sun;
+	unsigned FoamRefusalForTest = 0;
 	bool SunActive = false, SunFailed = false, SunReady = false;
 	bool SmokeGlow = false;
+	bool GlowDraw = false;
+	bool ParticlesAllowed = true, SoftParticlesDraw = false, FireLookDraw = false;
+	unsigned SpriteRefusalForTest = 0;
+	bool ModelEffectsAllowed = true;
+	unsigned ModelEffect = 0, ModelRefusalForTest = 0;
+	float ModelEffectParameters[4] = {};
+	struct ModelView;
+	bool Read_Model_View(ModelView &);
+	bool TeamGlowDraw = false, TeamGlowAllowed = false;
+	unsigned TeamGlowRefusalForTest = 0;
+	struct PostSession;
+	std::shared_ptr<PostSession> Post;
 	unsigned SunCasterEffect = 0;
 	float SunCasterOpacity = 1;
+	float SunCasterCorner[2] = {0, 0};	///< the sun map's corner texel, so the cloak's noise stays on the world
 	bool Sun_Camera_Space() const;
 	bool Sun_Target(struct SdlTarget &target) const;
 	unsigned SunExclusions = 0;
@@ -490,6 +565,27 @@ protected:
 	D3DMATRIX Transforms[TRANSFORM_COUNT];
 	D3DVIEWPORT9 Viewport;
 	D3DMATERIAL9 Material;
+	struct TerrainLightPolicy {
+		bool Committed = false, Pixel = false;
+		uint64_t Scene = 0, Frame = 0;
+		struct SDL_GPUTexture *Colour = nullptr, *Depth = nullptr;
+		unsigned Width = 0, Height = 0;
+		D3DMATRIX View = {}, Projection = {};
+		D3DVIEWPORT9 Viewport = {};
+		float WorldFromClip[16] = {}, ShadowViewport[4] = {};
+	} TerrainLighting;
+	bool HemiAmbient = false;
+	float Headlights[16][8] = {}, HeadlightGain[3] = {};
+	unsigned HeadlightCount = 0;
+	float BlastLights[32][12] = {};
+	unsigned BlastLightCount = 0;
+	bool StaticLightingAvailable = false;
+	D3DLIGHT9 FullEnvironmentLights[LIGHT_COUNT] = {};
+	unsigned FullEnvironmentCount = 0;
+	RenderUInt32 FullEnvironmentAmbient = 0;
+	D3DLIGHT9 StaticLights[LIGHT_COUNT] = {};
+	bool StaticLightsEnabled[LIGHT_COUNT] = {};
+	RenderUInt32 StaticAmbient = 0;
 	D3DLIGHT9 Lights[LIGHT_COUNT];
 	bool LightsEnabled[LIGHT_COUNT];
 	float ClipPlanes[CLIP_PLANE_COUNT][4];
@@ -514,3 +610,7 @@ protected:
 
 // SDL water features require a live native GPU device.
 bool PosixWaterGpuAvailable(IDirect3DDevice9 *device);
+
+bool PosixPerPixelLightingAvailable(IDirect3DDevice9 *device);
+
+bool PosixHemisphericAmbientAvailable(IDirect3DDevice9 *device);

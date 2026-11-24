@@ -55,6 +55,7 @@
 #include "GameClient/Shadow.h"
 #include "GameClient/TankSkin.h"
 #include "GameNetwork/GameInfo.h"
+#include "GameLogic/DayNightCycle.h"
 #include "GameLogic/GameLogic.h"		// for real-time frame
 #include "GameLogic/GhostObject.h"
 #include "GameLogic/PartitionManager.h"
@@ -71,6 +72,7 @@
 #include "W3DDevice/GameClient/W3DDisplay.h"
 #include "W3DDevice/GameClient/W3DScene.h"
 #include "W3DDevice/GameClient/W3DShadow.h"
+#include "W3DDevice/GameClient/SubObjectBoneWalk.h"
 #include "W3DDevice/GameClient/BaseHeightMap.h"
 #include "W3DDevice/GameClient/W3DTerrainTracks.h"
 #include "W3DDevice/GameClient/WorldHeightMap.h"
@@ -80,7 +82,9 @@
 #include "WW3D2/rendobj.h"
 #include "WW3D2/mesh.h"
 #include "WW3D2/meshmdl.h"
+#include "WW3D2/ww3d.h"
 #include "WW3D2/dx11runtime.h"
+#include "Platform/RenderLighting.h"
 #include "WW3D2/ffshader.h"
 #include "Common/BitFlagsIO.h"
 
@@ -1853,6 +1857,11 @@ W3DModelDraw::W3DModelDraw(Thing *thing, const ModuleData* moduleData) : DrawMod
 	m_groundMotionAngle = 0.0f;
 	m_groundMotionFrame = 0;
 	memset(&m_quad, 0, sizeof(m_quad));
+	m_ragdoll = NULL;
+	m_ragdollRefused = FALSE;
+	m_ragdollWanted = getDrawable() != NULL && W3DRagdoll::wants(getDrawable()->getTemplate());
+	if (m_ragdollWanted)
+		getDrawable()->setTakesImpacts();
 
 	ModelConditionFlags emptyFlags;
 	const ModelConditionInfo* info = findBestInfo(emptyFlags);
@@ -1908,6 +1917,11 @@ void W3DModelDraw::buildRenderObjects( Bool madeInTick )
 		// ponytail: loads every map object's night and snow models once; validate per object override if memory bites
 		if (loadingMap)
 			getW3DModelDrawModuleData()->validateStuffForTimeAndWeather(getDrawable(), TRUE, TRUE);
+		// under the day and night cycle every object's lights turn at dusk (DayNight_update), so its night
+		// states load here, with the day's, and not on the first bone query of the night inside a tick
+		else if (DayNight_isOn())
+			getW3DModelDrawModuleData()->validateStuffForTimeAndWeather(getDrawable(), TRUE,
+												TheGlobalData->m_weather == WEATHER_SNOWY);
 	}
 
 	ModelConditionFlags emptyFlags;
@@ -1940,6 +1954,8 @@ W3DModelDraw::~W3DModelDraw(void)
 		m_trackRenderObject = NULL;
 	}
 
+	delete m_ragdoll;
+	m_ragdoll = NULL;
 	nukeCurrentRender(NULL);
 }
 
@@ -1971,8 +1987,10 @@ void W3DModelDraw::setHidden(Bool hidden)
 
 	if (m_shadow)
 		m_shadow->enableShadowRender(!hidden);
+	if (m_contactShadow)
+		m_contactShadow->enableShadowRender(!hidden);
 
-	m_shadowEnabled = hidden;
+	m_shadowEnabled = !hidden;	// EA stored it inverted, so a model swap after an unhide dropped the shadows
 
 	if (m_terrainDecal)
 		m_terrainDecal->enableShadowRender(!hidden);
@@ -2231,6 +2249,8 @@ void W3DModelDraw::setShadowsEnabled(Bool enable)
 {
 	if (m_shadow)
 		m_shadow->enableShadowRender(enable);
+	if (m_contactShadow)
+		m_contactShadow->enableShadowRender(enable);
 	m_shadowEnabled = enable;
 }
 
@@ -2506,6 +2526,9 @@ void W3DModelDraw::doDrawModule(const Matrix3D* transformMtx)
 		m_renderObject->Set_Transform(mtx);
 	}
 
+	if (m_ragdollWanted)
+		updateRagdoll();
+
 	handleClientTurretPositioning();
 	recalcBonesForClientParticleSystems();
   
@@ -2555,7 +2578,7 @@ void W3DModelDraw::doDrawModule(const Matrix3D* transformMtx)
 	// show where the enemy does not.  Rooftop lamps on buildings and aircraft lights stay beams only.
 	s_headlightDrawn = TRUE;
 	if (m_hasHeadlights && !m_hideHeadlights && m_renderObject && !m_renderObject->Is_Hidden()
-		&& Direct3D11_Is_Active() && !TheGlobalData->m_classicGraphics)
+		&& DX8Wrapper::Supports_Per_Pixel_Lighting() && !TheGlobalData->m_classicGraphics)
 	{
 		const Drawable* draw = getDrawable();
 		const Object* obj = draw->getObject();
@@ -2570,6 +2593,65 @@ void W3DModelDraw::doDrawModule(const Matrix3D* transformMtx)
 			}
 		}
 	}
+}
+
+//-------------------------------------------------------------------------------------------------
+void W3DModelDraw::reactToImpact( const Coord3D &pos, Real radius, const Coord3D *source )
+{
+	if (!m_ragdollWanted || radius < 0.0f)
+		return;		// below zero: a kill with no point of impact (poison, a nuke's blast), which pushes no body
+	m_ragdollImpact.pos = pos;
+	m_ragdollImpact.radius = radius;
+	m_ragdollImpact.hasSource = source != NULL;
+	if (source)
+		m_ragdollImpact.source = *source;
+	m_ragdollImpact.valid = TRUE;
+	m_ragdollImpact.syncTime = WW3D::Get_Sync_Time();
+}
+
+//-------------------------------------------------------------------------------------------------
+static Bool stateIsDying(const ModelConditionInfo* state)
+{
+	if (state == NULL)
+		return FALSE;
+	for (size_t i = 0; i < state->m_conditionsYesVec.size(); ++i)
+		if (state->m_conditionsYesVec[i].test(MODELCONDITION_DYING))
+			return TRUE;
+	return FALSE;
+}
+
+//-------------------------------------------------------------------------------------------------
+/** The Ragdoll option, every draw of an infantry model once the drawable's transform is on it.  It goes
+	by the state this module last applied, never the object, which the tick may be writing beside the
+	render.  The option is asked only before a ragdoll starts, so one switched off mid-match lies down
+	as it was going to. */
+void W3DModelDraw::updateRagdoll()
+{
+	if (m_renderObject == NULL || m_ragdollRefused)
+		return;
+	if (m_ragdoll == NULL)
+	{
+		if (!W3DRagdoll::enabled() || (!stateIsDying(m_curState) && !stateIsDying(m_nextState)))
+			return;
+		m_ragdoll = W3DRagdoll::create(m_renderObject, m_ragdollImpact, getDrawable()->getTemplate());
+		if (m_ragdoll == NULL)
+		{
+			m_ragdollRefused = TRUE;
+			return;
+		}
+	}
+	if (!m_ragdoll->update(m_renderObject))
+		dropRagdoll();
+}
+
+//-------------------------------------------------------------------------------------------------
+void W3DModelDraw::dropRagdoll()
+{
+	if (m_ragdoll == NULL)
+		return;
+	delete m_ragdoll;
+	m_ragdoll = NULL;
+	m_ragdollRefused = TRUE;
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -2980,26 +3062,22 @@ Real W3DModelDraw::getCurAnimDistanceCovered() const
 static void doHideShowBoneSubObjs(Bool state, Int numSubObjects, Int boneIdx, RenderObjClass *fullObject, const HTreeClass *htree)
 {
 #if 1	//(gth) fixed and tested this version
-	for (Int i=0; i < numSubObjects; i++) 
+	struct ParentOf
 	{
-		bool is_child = false;
-		Int parentBoneIndex = fullObject->Get_Sub_Object_Bone_Index(0, i);
-		
-		while (parentBoneIndex != 0) 
-		{
-			parentBoneIndex = htree->Get_Parent_Index(parentBoneIndex);
+		const HTreeClass *tree;
+		Int operator()(Int bone) const { return tree->Get_Parent_Index(bone); }
+	} parentOf = { htree };
 
-			if (parentBoneIndex == boneIdx) 
-			{
-				is_child = true;
-				break;
-			}
-		}
-
-		if (is_child) 
+	for (Int i=0; i < numSubObjects; i++)
+	{
+		if (SubObjectBoneWalk::isBelow(parentOf, boneIdx, fullObject->Get_Sub_Object_Bone_Index(0, i)))
 		{
 			RenderObjClass* childObject = fullObject->Get_Sub_Object(i);
-			childObject->Set_Hidden(state);
+			// a show from a skin on the root leaves an upgrade's part, written hidden, to its upgrade
+			const Bool hiddenInFile = childObject->Class_ID() == RenderObjClass::CLASSID_MESH &&
+				(((MeshClass *)childObject)->Get_W3D_Flags() & W3D_MESH_FLAG_HIDDEN) != 0;
+			if (!SubObjectBoneWalk::keepsFileHidden(boneIdx, state, hiddenInFile))
+				childObject->Set_Hidden(state);
 			childObject->Release_Ref();
 		}
 	}
@@ -3031,8 +3109,8 @@ static void doHideShowBoneSubObjs(Bool state, Int numSubObjects, Int boneIdx, Re
 	it, and on a model of one level, every retail one, that is all.  A model with levels of detail
 	carries the part once a level, and the first copy is the coarsest level's, so every copy takes the
 	order there, or an upgrade's pods would come and go as the camera zooms.  FALSE when nothing has
-	the name. */
-static Bool hideShowSubObject(RenderObjClass *fullObject, const char *name, Bool hide)
+	the name.  The skins screen's preview (W3DModelPreview.cpp) applies a default state's list with it. */
+Bool hideShowSubObject(RenderObjClass *fullObject, const char *name, Bool hide)
 {
 	Int objIndex;
 	RenderObjClass *subObj = fullObject->Get_Sub_Object_By_Name(name, &objIndex);
@@ -3779,7 +3857,7 @@ void W3DModelDraw::lightHeadlights(const Vector3& cameraPosition)
 		const Real moon = sqrtf((map[c] > 0.15f ? map[c] : 0.15f) * (mean > 0.15f ? mean : 0.15f));
 		gain[c] = LAMP[c] / moon;
 	}
-	Direct3D11_Set_Headlights(&lights[0][0], count, gain);
+	RenderLighting::SetHeadlights(&lights[0][0], count, gain);
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -3946,6 +4024,7 @@ void W3DModelDraw::setModelState(const ModelConditionInfo* newState)
 		)
 	{
 		Matrix3D transform;
+		dropRagdoll();	// its bones go with the old model
 		nukeCurrentRender(&transform);
 		Drawable* draw = getDrawable();
 
@@ -4088,7 +4167,11 @@ void W3DModelDraw::setModelState(const ModelConditionInfo* newState)
 					m_shadow->enableShadowRender(FALSE);
 				m_shadowEnabled = FALSE;
 			}
-			
+
+			// the patch under a structure; nukeCurrentRender took the old model's, so this one is sized
+			// to the new box, and it reads the hidden state just set
+			allocateContactShadow();
+
 			//
 			// set the transform for the new model to that we saved before, we do this so that the
 			// model transition is smooth and will immediately appear at the same orientation and location
@@ -4104,7 +4187,8 @@ void W3DModelDraw::setModelState(const ModelConditionInfo* newState)
 		//BONEPOS_LOG(("validateStuff() from within W3DModelDraw::setModelState()\n"));
 		//BONEPOS_DUMPREAL(getDrawable()->getScale());
 
-		newState->validateStuff(TheGameLogic->isInGameLogicUpdate() ? NULL : m_renderObject, getDrawable()->getScale(),
+		// nor while a ragdoll holds its bones: captured bones in the shared cache would reach logic
+		newState->validateStuff((TheGameLogic->isInGameLogicUpdate() || m_ragdoll) ? NULL : m_renderObject, getDrawable()->getScale(),
 			getW3DModelDrawModuleData()->m_extraPublicBones);	// the live model only outside a tick, as above
 		rebuildWeaponRecoilInfo(newState);
 

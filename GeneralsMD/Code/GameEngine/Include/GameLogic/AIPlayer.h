@@ -45,9 +45,64 @@ class BuildListInfo;
 // this header used to compile only behind whoever happened to include Team.h first
 class TeamPrototype;
 class TeamTemplateInfo;
-struct AIAbilityButton;
 struct StampShape;
 class ProductionUpdateInterface;
+class AIPlayer;
+
+/** The buttons of a unit's own the skirmish AI presses (AIPlayer::doAbilities), sorted by what rule weighs
+	* them.  Read off the command set and the weapon sets, so a unit the data gives such a button needs no
+	* line here; the special powers go by their enum, the few whose rule is known. */
+enum AIAbilityKind
+{
+	AIABILITY_LASER,		///< a special that puts the unit on its laser-guided missiles at one vehicle (Missile Defender, Sungur)
+	AIABILITY_SHOT,			///< a weapon only a button fires, at an object (Jarmen Kell's snipe)
+	AIABILITY_AREA,			///< ... at a spot on the ground (rocket pods, Kargu, the fire wall, contaminate)
+	AIABILITY_WALKUP,		///< a special the unit walks up to a target to do (charges, TNT, hacks, Designate), or sabotage
+	AIABILITY_TOGGLE,		///< a weapon switch (the flashbang, neutron shells, the Scud's warheads)
+	AIABILITY_SUICIDE,	///< a weapon fired at nothing that ends the unit (the bomb truck, the Demo general's suicide)
+	AIABILITY_DETONATE,	///< the remote charges' trigger, a special at nothing (Burton, the Demo general's Kell)
+	AIABILITY_HACK,			///< a special at a vehicle in reach, no walk (Black Lotus's vehicle hack)
+	AIABILITY_KIND_COUNT
+};
+
+struct AIAbilityButton
+{
+	const CommandButton *button;
+	Int kind;										///< AIAbilityKind
+	Int index;									///< the button's slot in its command set
+	WeaponSlotType slot;				///< the button's weapon slot, for a weapon
+	SpecialPowerType power;			///< the button's special power, for a special
+};
+
+/// the unit's buttons the AI has a rule for, kept per template and command set; none for a structure
+std::vector<AIAbilityButton> AIAbility_buttonsOf(const Object *obj);
+
+/** The on-the-spot button rules, for a unit of player's, which aiOrNull runs when an AIPlayer owns it.  Each
+	* orders the button and returns TRUE when it pays.  With no AIPlayer the AI's own extras are left out: the
+	* foreign dozer's prize in the shot, the anti-air look of an aircraft's volley.  victim is the unit's own
+	* target or NULL; rung is the AI's unit-abilities rung, below 2 keeping the volley on the victim. */
+Bool AIAbility_laser(const Player *player, AIPlayer *aiOrNull, Object *obj, const AIAbilityButton &entry, Object *victim);
+Bool AIAbility_shot(const Player *player, AIPlayer *aiOrNull, Object *obj, const AIAbilityButton &entry, Object *victim, Int rung);
+Bool AIAbility_area(const Player *player, AIPlayer *aiOrNull, Object *obj, const AIAbilityButton &entry, Object *victim, Int rung);
+Bool AIAbility_toggle(const Player *player, AIPlayer *aiOrNull, Object *obj, const AIAbilityButton &entry, Object *victim);
+Bool AIAbility_suicide(const Player *player, AIPlayer *aiOrNull, Object *obj, const AIAbilityButton &entry, Object *victim);
+Bool AIAbility_detonate(const Player *player, AIPlayer *aiOrNull, Object *obj, const AIAbilityButton &entry, Object *victim);
+Bool AIAbility_hack(const Player *player, AIPlayer *aiOrNull, Object *obj, const AIAbilityButton &entry, Object *victim);
+
+/// the unit is in the middle of one of its buttons: a special walking up or under way, or a weapon locked for a shot
+Bool AIAbility_unitBusy(const Object *obj);
+/// enemies the player knows of within radius of a point, projectiles left out, in ObjectID order
+void AIAbility_enemiesNear(const Player *player, const Coord3D *at, Real radius, std::vector<Object *> *out);
+/// the special the button fires is charged and allowed
+Bool AIAbility_specialReady(Object *obj, const CommandButton *button);
+/// a charge of the unit's own, remote or timed, lies inside its blast: it gets clear before any new order
+Bool AIAbility_besideOwnCharge(const Object *obj);
+/// a slot of any of the template's weapon sets that only a button fires, or that goes off where the unit stands
+Bool AIAbility_slotIsManual(const ThingTemplate *tmpl, WeaponSlotType slot);
+Bool AIAbility_slotIsSuicide(const ThingTemplate *tmpl, WeaponSlotType slot);
+/** One template against another money for money, aiMatchupScore of the two frames to kill: 0.5 an even
+	* trade, towards 1 the more mine wins for its price, 0 when mine cannot hurt it (the Lane War bot's pick). */
+Real AIMatchup_templates(const ThingTemplate *mine, const ThingTemplate *theirs, Real myCost, Real theirCost);
 
 /// the skirmish scripts send this team at the enemy at some point, rather than keeping it home on guard
 Bool aiTeamAttacks(const TeamTemplateInfo *info);
@@ -217,7 +272,11 @@ struct KnownDefence
 class AIPlayer : public MemoryPoolObject,
 								 public Snapshot
 {
-	MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE( AIPlayer, "AIPlayer"  )		
+	MEMORY_POOL_GLUE_WITH_USERLOOKUP_CREATE( AIPlayer, "AIPlayer"  )
+
+	// the two rules whose AI-only extras read the seat's map and its foreign-tech wish
+	friend Bool AIAbility_shot(const Player *player, AIPlayer *aiOrNull, Object *obj, const AIAbilityButton &entry, Object *victim, Int rung);
+	friend Bool AIAbility_area(const Player *player, AIPlayer *aiOrNull, Object *obj, const AIAbilityButton &entry, Object *victim, Int rung);
 
 public:
 
@@ -323,7 +382,7 @@ public:
 		* independent axes: the rung says how well, the role says what.  See AI-ROADMAP.md D6/D8. */
 	AISkillLevel getAISkillLevel(void) const {return m_skillLevel;}
 	void setAISkillLevel(AISkillLevel level) {m_skillLevel = level; m_rating = aiRatingOfSkill(level); refreshRatedProfile();}	///< the rung at its anchor rating
-	/** The seat's rating on the online ladder's scale, Easy 0 and Hard 30 and no edge between or past
+	/** The seat's rating on the Elo scale, Easy 800 and Hard 1800 and no edge between or past
 		* them, which every rung-keyed knob is read at; the rung follows it as the nearest one.  Setting it
 		* holds it to AI_RATING_LIMIT, an Int's guard and no gameplay edge. */
 	Real getAIRating(void) const {return m_rating;}
@@ -405,6 +464,7 @@ protected:
 	Bool secondBaseCenters(void) const;	///< a base away from home is a Command Center founded once home is full, not a factory on a timer
 	Int findOutposts(Coord3D *at, Int max);	///< this player's factories far from home, one per site, in object order
 	Bool onEmptyStart(const Coord3D *pos) const;	///< within reach of a start position no player started on: a second base's ground
+	Bool inAllyCorner(const Coord3D *pos, const Coord3D *from) const;	///< nearer a living ally's start position than to this base or to from: his ground, not ours to build on
 	const ThingTemplate *missingPrerequisite(Object *dozer, KindOfType kind);	///< the building a dozer button of this kind waits on, that this player has none of
 	Bool queueAtOutpost(const ThingTemplate *tmpl, const Coord3D *at, Real innerRadius, Real lean, const char *why);	///< placeNear round a base away from home, leant towards the enemy by lean
 
@@ -533,7 +593,7 @@ protected:
 	void buyMoneyUnits(void);
 	Int moneyUnitRoom(void) const;	///< how many more money units this player's army and internet centers carry
 	Bool hasEnoughMoneyUnitsFor(TeamPrototype *proto) const;	///< this team is all hackers and there is no room for more
-	Bool placeNear(const ThingTemplate *tmpl, const Coord3D *center, Real innerRadius, Bool walkOutward, Coord3D *spotOnly = NULL, Bool homeOnly = FALSE);	///< the nearest legal, safe spot by the ground from center, queued for a dozer, or only written to spotOnly. walkOutward keeps searching further out as the near ground fills; homeOnly holds any building to the base's edge as staysHome holds its own
+	Bool placeNear(const ThingTemplate *tmpl, const Coord3D *center, Real innerRadius, Bool walkOutward, Coord3D *spotOnly = NULL, Bool homeOnly = FALSE, Real homeReachScale = 1.0f);	///< the nearest legal, safe spot by the ground from center, queued for a dozer, or only written to spotOnly. walkOutward keeps searching further out as the near ground fills; homeOnly holds any building to the base's edge as staysHome holds its own; homeReachScale over 1 stretches that edge and its rings, past the base only on the side away from the enemy
 	Bool queueExtraFactory(Object *dozer, KindOfType kind, Bool doctrine = FALSE);	///< one more of this factory, beside a held expansion or around the base, once the ones standing fall behind their queues; the doctrine's without waiting for that
 	Bool holdsExtraFactory(const ThingTemplate *tmpl);	///< a factory of a kind already standing or going up, while the ones standing keep up with their queues
 	const ThingTemplate *nextBaseDefense(Object *dozer);	///< the base defence off this dozer's buttons that the base has fewest of, NULL for none
@@ -612,7 +672,7 @@ protected:
 	void logEngage(const char *cause, const std::vector<Object *> &units);	///< AI ENGAGE: what goes out, and how it weighs against the army it remembers
 	Bool refuseHold(Team *team, const char *why, Bool logIt);	///< FALSE, after logging the team holdTeamForWave lets go
 	Bool holdReinforcement(Object *obj);	///< a top-up for a team out on the map waits for the next wave instead of walking out alone
-	void rememberEnemies(void);					///< bring the seen-enemy ledger up to date with what is in sight now
+	void rememberEnemies(Bool scanned = FALSE);	///< bring the seen-enemy ledger up to date with what is in sight now; scanned: scanEnemies already ran this frame
 	void rememberedArmy(std::vector<AIVisibleEnemy> *army) const;	///< the ledger, one entry a kind, weighed by combat power
 	void sendWaveThroughTunnels(AIGroup *wave, const Coord3D *center, Waypoint *way);	///< whoever can goes by tunnel when the path is the long way round
 
@@ -1000,6 +1060,12 @@ protected:
 		Bool				stealth;		///< it can go invisible
 	};
 	std::map<ObjectID, SeenEnemy> m_seenEnemies;
+	/** The enemies in sight on a ledger turn, with their owners' indices: scanEnemies fills it, on a worker in
+		* lookAllSeats, and rememberEnemies writes it into the ledger on the logic thread, since a map node is a pool
+		* allocation.  Cleared, never shrunk, so a job grows it only past its largest turn.  Frame-local, not saved. */
+	std::vector< std::pair<Object *, Int> > m_seenScan;
+	void scanEnemies(void);											///< rememberEnemies' reading of the world, into m_seenScan
+	static void scanJob(Int index, void *context);
 	void answerArmy(void);	///< train the answer to the biggest part of the remembered enemy army nothing of ours answers
 
 	/** The fist: one unit picked because the army it remembers has no answer to it, built from the idle

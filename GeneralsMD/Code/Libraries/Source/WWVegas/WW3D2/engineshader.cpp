@@ -372,7 +372,7 @@ static void write_river_water(std::string & hlsl)
 }
 
 /*
-** The water with foam on it (the Water Foam option), Direct3D 11 only: the SDL3 text is the plain water.
+** The water with foam on it (the Water Foam option), shared by Direct3D 11 and SDL3.
 **
 ** How deep the water is under a pixel comes out of the scene's depth, the soft particles' copy at
 ** t7, which W3DWater takes right before it draws: the ground and every opaque object are in it and
@@ -520,6 +520,11 @@ static void write_river_water_foam(std::string & hlsl)
 bool EngineShader_Reads_Scene_Depth(EngineShaderProgram program)
 {
 	return program == ENGINE_SHADER_WATER_TRAPEZOID_FOAM || program == ENGINE_SHADER_WATER_RIVER_FOAM;
+}
+
+bool EngineShader_Uses_Extended_Pixel_Constants(EngineShaderProgram program)
+{
+	return EngineShader_Paints_Ground(program) || EngineShader_Reads_Scene_Depth(program);
 }
 
 /*
@@ -675,7 +680,7 @@ static bool write_engine_pixel_program(EngineShaderProgram program,
 // SDL map water has a dedicated, explicitly packed uniform block (SdlWaterPixelConstants).
 // Runtime-generated normal detail, terrain depth, refraction and the coloured planar reflection
 // are composed before the existing shore/shroud alpha blend. No additional assets are required.
-static void write_modern_water(std::string &hlsl, bool river, bool sdl = false)
+static void write_modern_water(std::string &hlsl, bool river, bool sdl = false, bool waveHeading = false)
 {
 	const auto quality = sdl ? WaterPerformanceSettings::Applied() : WaterPerformanceSettings::Configuration();
 	hlsl.clear();
@@ -934,15 +939,46 @@ float4 waterMirrorFiltered(float2 uv, int2 size)
 	hlsl += WaterSurfaceModel::ShaderSource();
 	hlsl += WaterSurfaceModel::OceanShaderSource();
 	hlsl += WaterOpticalModel::GetHlslSource();
+	if (sdl) hlsl += WaterOpticalModel::GetClarityHlslSource();
 	hlsl += ModernWaterMaterial::OpticalSource();
+	if (sdl) hlsl += ModernWaterMaterial::SurfaceSource();
 	hlsl += ModernWaterMaterial::BubbleSource();
 	hlsl += WaterHullModel::GetHlslSource();
-	hlsl += WaterFftSampling::PixelSource(WaterFftSpectrum::ForResolution(quality.activeFftResolution));
+	hlsl += WaterFftSampling::PixelSource(WaterFftSpectrum::ForResolution(quality.activeFftResolution),waveHeading,sdl);
 	hlsl += WaterWaveCageShader::Source(false);
 	char oceanBound[96];
 	snprintf(oceanBound, sizeof(oceanBound), "static const float oceanDisplacementBound = %.9g;\n",
 		(double)WaterSurfaceModel::OceanMaxDisplacement);
 	hlsl += oceanBound;
+	if (sdl) hlsl += R"HLSL(
+float waterTerrainClarity(float2 p,float baseLevel,float terrain,float offshore)
+{
+    float terrainDepth=max(baseLevel-terrain,0.0);
+    // Campaign seas can use a flat, shallow floor even beneath full-size ships. Only
+    // raised submerged shelves qualify offshore; hulls and scene hits cannot clear it.
+    [branch] if(MaterialOptics.x<=0.0 || TerrainParameters.w<0.5
+        || terrainDepth>=WaterOpticalClarityMaximumDepth) return 0.0;
+    float surroundingDepth=terrainDepth;
+    [branch] if(offshore>0.0) {
+        static const float2 directions[8]={float2(1,0),float2(0.70710678,0.70710678),
+            float2(0,1),float2(-0.70710678,0.70710678),float2(-1,0),
+            float2(-0.70710678,-0.70710678),float2(0,-1),float2(0.70710678,-0.70710678)};
+        [unroll] for(int i=0;i<8;++i) {
+            float nearHeight=terrainHeight(p+directions[i]*80.0);
+            // A dry bank interrupts the neighborhood; do not borrow lower terrain
+            // from the far side of it. Fade across its edge to avoid a hard clarity
+            // boundary. Both scales stay fixed in map coordinates.
+            if(nearHeight<baseLevel) {
+                surroundingDepth=max(surroundingDepth,baseLevel-nearHeight);
+                float outerDepth=max(baseLevel-terrainHeight(p+directions[i]*160.0),terrainDepth);
+                float wetSupport=smoothstep(0.0,0.75,baseLevel-nearHeight);
+                surroundingDepth=max(surroundingDepth,lerp(terrainDepth,outerDepth,wetSupport));
+            }
+        }
+    }
+    return MaterialOptics.x*WaterOpticalClarityEligibility(terrainDepth,surroundingDepth,offshore);
+}
+)HLSL";
 	hlsl += R"HLSL(
 float terrainWaveAttenuation(float depth, float offshore)
 {
@@ -1392,7 +1428,12 @@ float4 main(Input input) : SV_Target
     // Campaign seas can have deliberately flat, shallow terrain beneath full-size ships. Honour
     // their authored opacity offshore, while preserving the clear optical profile at coasts and
     // in enclosed pools. Actual scene ray length still governs submerged objects and refraction.
-    float3 transmission = WaterOpticalTransmission(length(bottom-opticalWorld), WaterParameters.y,
+)HLSL";
+	if (sdl) hlsl += R"HLSL(    float terrainClarity=waterTerrainClarity(world.xy,baseLevel,surfaceTerrainHeight,offshore);
+    float3 transmission = WaterClarityTransmission(length(bottom-opticalWorld), WaterParameters.y,
+        offshore, OpticalParameters.x, OpticalParameters.y, terrainClarity);
+)HLSL";
+	else hlsl += R"HLSL(    float3 transmission = WaterOpticalTransmission(length(bottom-opticalWorld), WaterParameters.y,
         offshore, OpticalParameters.x, OpticalParameters.y);
 )HLSL";
 	if (sdl) hlsl += R"HLSL(#else
@@ -1618,10 +1659,23 @@ float4 main(Input input) : SV_Target
 		hlsl += "    float4 edge = Texture3.Sample(Sampler3, input.TexCoord3);\n";
 		hlsl += "    current = float4(saturate(surface) * edge.rgb, saturate(depth * 2.0) * lerp(input.Diffuse.a * base.a, step(0.001, input.Diffuse.a * base.a), " + std::string(sdl ? "WATER_REFRACTION_QUALITY == 2 ? 1.0 : SceneParameters.x" : "SceneParameters.x") + "));\n";
 	}
+
+	// A ModernWater rule's turbidity, roughness, ripple damping and wind resistance (MaterialSurface,
+	// c189), the SDL text only; all four at zero leave the picture as it was.
+	if (sdl) {
+		const auto replace=[&](const std::string &from,const std::string &to) {for(size_t at=hlsl.find(from);at!=std::string::npos;at=hlsl.find(from,at+to.size()))hlsl.replace(at,from.size(),to);};
+		replace("    float offshore = opticalContext.r","    float materialWindGain=modernWaterWindGain(MaterialSurface.w);\n    float offshore = opticalContext.r");
+		replace("    float3 oceanWave = oceanSurface.xyz;","    float3 oceanWave = oceanSurface.xyz;\n    legacyWave*=materialWindGain;\n    oceanWave*=materialWindGain;\n    oceanSwell.xyz*=materialWindGain;\n    shoreRippleSlope*=materialWindGain;");
+		replace("    float3 waveLightingNormal = resolvedNormal;","    normal=modernWaterDampedNormal(normal,MaterialSurface.z);\n    resolvedNormal=modernWaterDampedNormal(resolvedNormal,MaterialSurface.z);\n    shoreRipple*=lerp(1.0,0.12,saturate(MaterialSurface.z));\n    float3 waveLightingNormal = resolvedNormal;");
+		replace("    float a2 = pow(roughness, 4.0);","    roughness=modernWaterSurfaceRoughness(roughness,MaterialSurface.y);\n    float a2 = pow(roughness, 4.0);");
+		replace("normalize(float3(-swellSlope,1)),offshore)","modernWaterDampedNormal(normalize(float3(-swellSlope,1)),MaterialSurface.z),offshore)");
+		replace("    reflection = lerp(reflection, waterLinear(ssr.colour), ssrWeight);","    reflection = lerp(reflection, waterLinear(ssr.colour), ssrWeight);\n    reflection=lerp(reflection,skyRadiance,saturate(MaterialSurface.y)*0.65);");
+		replace("    float3 body=WaterOpticalBody(scene,transmission,scatter,caustic,SceneParameters.x);","    caustic=lerp(1.0,caustic,materialWindGain);\n    transmission=modernWaterTurbidTransmission(transmission,MaterialSurface.x,length(bottom-opticalWorld));\n    float3 body=WaterOpticalBody(scene,transmission,scatter,caustic,SceneParameters.x);");
+	}
 }
 
 bool EngineShader_Pixel_Program(EngineShaderProgram program,
-	const PixelPipelineDescription & pipeline, std::string & hlsl, CombinerShaderTarget target)
+	const PixelPipelineDescription & pipeline, std::string & hlsl, CombinerShaderTarget target, bool waveHeading)
 {
 	// As the vertex half: D3D11 only, and SDL3 GPU as the D3D11 text rebound, without the smoke the
 	// SDL3 backend has no map for.
@@ -1633,13 +1687,13 @@ bool EngineShader_Pixel_Program(EngineShaderProgram program,
 	if (target == COMBINER_SHADER_TARGET_SDL3_GPU) {
 #if defined(__linux__)
 		if (modern_water) {
-			write_modern_water(hlsl, program == ENGINE_SHADER_WATER_RIVER, true);
+			write_modern_water(hlsl, program == ENGINE_SHADER_WATER_RIVER, true, waveHeading && program != ENGINE_SHADER_WATER_RIVER);
 			if (!CombinerShader_Append_Pixel_Pipeline(pipeline, hlsl)) return false;
 			hlsl += "    return current;\n}\n";
 			return SDL3_Shader_Retarget(hlsl, false);
 		}
 #endif // __linux__
-		return write_engine_pixel_program(program, pipeline, hlsl, EngineShader_Paints_Ground(program))
+		return write_engine_pixel_program(program, pipeline, hlsl, EngineShader_Uses_Extended_Pixel_Constants(program))
 			&& SDL3_Shader_Retarget(hlsl, false);
 	}
 	// Direct3D 11 draws the Modern water from the same text, bound by dx11water.cpp.  The Classic

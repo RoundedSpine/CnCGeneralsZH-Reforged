@@ -36,6 +36,7 @@
 #include "Common/Player.h"
 #include "Common/PlayerList.h"
 #include "Common/ThingFactory.h"
+#include "Common/ThingSort.h"
 #include "Common/ThingTemplate.h"
 #include "Common/Xfer.h"
 #include "Common/XferCRC.h"
@@ -699,6 +700,13 @@ public:
 
 		Relationship r = m_obj->getRelationship(objOther);
 		if (r != ENEMIES)
+			return false;
+
+		// Debris and hulks (EditorSorting DEBRIS) belong to the side that lost them and have a body, so
+		// they passed as enemies, and the pick by time to kill (pickBestTarget) rated a one-health
+		// Overlord barrel above every tank: an Aurora on attack-move chased one round the map at
+		// supersonic speed and bombed it. They are still there to force-fire at.
+		if (objOther->getTemplate()->getEditorSorting() == ES_DEBRIS)
 			return false;
 
 		return true;
@@ -1984,7 +1992,7 @@ Real AI::getAdjustedVisionRangeForObject(const Object *object, Int factorsToCons
 	* Since 2026-11-17 the base out there is a Command Center founded the moment home is full, so 2ndS only
 	* times the war factory -aiknobsoff secondbase keeps; 2nd still caps the count on every rung.  Hard's 2nd
 	* was MAX_PLAYER_COUNT, "every empty start", until the rating read it as a number on a line (the owner,
-	* 2026-11-17): 3 now, so a rating of 15 claims 2 and 100 about 8, and no rating claims 48 by arithmetic.
+	* 2026-11-17): 3 now, so a rating of 1300 claims 2 and 4133 about 8, and no rating claims 48 by arithmetic.
 	*
 	* inc%, 2026-11-02.  The owner: 1.5x on everything a skirmish AI earns by playing, the same on every
 	* rung, in place of the flat double it had, and up to 150 points more while it falls behind its
@@ -1993,11 +2001,11 @@ Real AI::getAdjustedVisionRangeForObject(const Object *object, Int factorsToCons
 	*
 	* inc% and bonus, 2026-11-17.  The owner: Easy earns 1.0x and at most 1.25x, Hard 1.5x and at most 2.5x,
 	* and both keep rising with the rating.  inc% is 100 to 150 and bonus, the falling-behind ceiling over it,
-	* 25 to 100, each a rising line (15 is 125 and 62.5, 100 about 267 and 275).  This overrides the rule
+	* 25 to 100, each a rising line (1300 is 125 and 62.5, 4133 about 267 and 275).  This overrides the rule
 	* above the profile that only income may exceed the baseline: an Easy seat now earns less than before.
 	*
 	* pace, 2026-11-17.  EA's StructureSeconds and TeamSeconds were the same on every rung; this factor on the
-	* finished delay is 1 on Hard, so Hard is EA's to the frame, 1.5 on Easy, falling to 1.2 at 15 and 0.56 at 100.
+	* finished delay is 1 on Hard, so Hard is EA's to the frame, 1.5 on Easy, falling to 1.2 at 1300 and 0.56 at 4133.
 	*
 	* abil, 2026-11-16.  The owner: Hard uses every unit button the rules know, Medium part of them, Easy none
 	* (AIPlayer::doAbilities).  1 is the Missile Defender's and the Sungur's laser lock, a manual shot such as
@@ -2018,9 +2026,9 @@ Real AI::getAdjustedVisionRangeForObject(const Object *object, Int factorsToCons
 	*                      scoutS maxSc decis  cntr  mass   ttk  indiv team infl focus save harv expand guard hoard econ micro  gate  answer massU  bankS  floor payoff upgr    nonc  share backlog push   minPow  siege  beam  strikeE strikeT swDef                     stall  lost retry  stage  spot arty    inflS fireLook word   odds   fireMem  watch watchOdds dodge  2ndS  2nd  reach    inc% bonus pace abil frgn */
 static const AIDifficultyProfile s_defaultSkillLadder[ AISKILL_COUNT ] =
 {
-	/* Easy      */ { 75.0f, 1,  7.0f,  0.00f, FALSE, 0.00f, FALSE, FALSE, FALSE, FALSE, FALSE, TRUE,  FALSE, FALSE,     0, FALSE, FALSE, FALSE, FALSE, FALSE, 120.0f, 6000, 4.0f, 720.0f, 0.05f, 0.05f,  90.0f, 360.0f, 1500.0f,  80.0f, 0.00f, 0.0f, 2.0f, 3,                        300.0f, 3, 300.0f, FALSE, 1, 1.00f, 4.0f, 3.00f,   0.0f, 0.60f, 10.0f, 16.0f, 1.0f, 3.25f, 1200.0f, 1, 2000.0f, 100,  25, 1.5f, 0, 0 },
-	/* Medium    */ { 45.0f, 1,  3.0f,  0.50f, FALSE, 0.35f, TRUE,  FALSE, FALSE, TRUE,  TRUE,  TRUE,  TRUE,  FALSE,  6000, FALSE, FALSE, FALSE, FALSE, FALSE,  60.0f, 5000, 2.5f, 420.0f, 0.05f, 0.25f,  75.0f, 300.0f, 2000.0f, 120.0f, 1.00f, 2.0f, 1.0f, 6,                        240.0f, 2, 240.0f, TRUE,  1, 0.50f, 2.0f, 1.00f, 150.0f, 0.80f, 20.0f,  6.0f, 1.5f, 1.50f,  720.0f, 2, 2500.0f, 125,  63, 1.2f, 1, 1 },
-	/* Hard      */ { 25.0f, 2,  1.5f,  1.00f, TRUE,  0.50f, TRUE,  TRUE,  TRUE,  TRUE,  TRUE,  TRUE,  TRUE,  TRUE,   4000, TRUE,  TRUE,  TRUE,  TRUE,  FALSE,  30.0f, 4000, 1.5f, 180.0f, 0.05f, 1.00f,  45.0f, 240.0f, 4500.0f, 160.0f, 0.25f, 3.0f, 0.0f, DEFENSES_PER_SUPERWEAPON, 180.0f, 2, 180.0f, TRUE,  2, 0.25f, 1.0f, 0.33f, 300.0f, 1.00f, 40.0f,  2.0f, 2.0f, 0.33f,  420.0f, 3, 4000.0f, 150, 100, 1.0f, 2, 2 }
+	/* Easy      */ { 75.0f, 1,  7.0f,  0.00f, FALSE, 0.00f, FALSE, FALSE, FALSE, FALSE, FALSE, TRUE,  FALSE, FALSE,     0, FALSE, FALSE, FALSE, FALSE, FALSE, 120.0f, 6000, 4.0f, 720.0f, 0.05f, 0.05f,  90.0f, 360.0f, 1500.0f,  80.0f, 0.00f, 0.0f, 2.0f, AI_HARD_DEFENSES_PER_SUPERWEAPON, 300.0f, 3, 300.0f, FALSE, 1, 1.00f, 4.0f, 3.00f,   0.0f, 0.60f, 10.0f, 16.0f, 1.0f, 3.25f, 1200.0f, 1, 2000.0f, 100,  25, 1.5f, 0, 0 },
+	/* Medium    */ { 45.0f, 1,  3.0f,  0.50f, FALSE, 0.35f, TRUE,  FALSE, FALSE, TRUE,  TRUE,  TRUE,  TRUE,  FALSE,  6000, FALSE, FALSE, FALSE, FALSE, FALSE,  60.0f, 5000, 2.5f, 420.0f, 0.05f, 0.25f,  75.0f, 300.0f, 2000.0f, 120.0f, 1.00f, 2.0f, 1.0f, AI_HARD_DEFENSES_PER_SUPERWEAPON, 240.0f, 2, 240.0f, TRUE,  1, 0.50f, 2.0f, 1.00f, 150.0f, 0.80f, 20.0f,  6.0f, 1.5f, 1.50f,  720.0f, 2, 2500.0f, 125,  63, 1.2f, 1, 1 },
+	/* Hard      */ { 25.0f, 2,  1.5f,  1.00f, TRUE,  0.50f, TRUE,  TRUE,  TRUE,  TRUE,  TRUE,  TRUE,  TRUE,  TRUE,   4000, TRUE,  TRUE,  TRUE,  TRUE,  FALSE,  30.0f, 4000, 1.5f, 180.0f, 0.05f, 1.00f,  45.0f, 240.0f, 4500.0f, 160.0f, 0.25f, 3.0f, 0.0f, AI_HARD_DEFENSES_PER_SUPERWEAPON, 180.0f, 2, 180.0f, TRUE,  2, 0.25f, 1.0f, 0.33f, 300.0f, 1.00f, 40.0f,  2.0f, 2.0f, 0.33f,  420.0f, 3, 4000.0f, 150, 100, 1.0f, 2, 2 }
 };
 
 //-------------------------------------------------------------------------------------------------
@@ -3246,6 +3254,32 @@ Real aiRatingFromHundredths( Int hundredths )
 	return aiRatingClamp( INT_TO_REAL( hundredths ) / 100.0f );
 }
 
+Real aiRatingOfLegacy( Real legacy )
+{
+	// multiplied before dividing, so 15 and 30 land on 1300 and 1800 to the bit
+	return aiRatingClamp( AI_RATING_EASY + legacy * ( AI_RATING_HARD - AI_RATING_EASY ) / 30.0f );
+}
+
+Real aiRatingOfLegacySave( Real legacy )
+{
+	static const Int OLD_LEVEL[ 4 ] = { 4500, 6000, 9000, 12000 };		// hundredths, as the slots held them
+	static const Real NEW_LEVEL[ 4 ] = { AI_RATING_BRUTAL, AI_RATING_VICIOUS, AI_RATING_SAVAGE, AI_RATING_INSANE };
+	if( !( legacy > 0.0f && legacy < 1000.0f ) )
+		return aiRatingOfLegacy( legacy );		// NaN and the old guard's ends: no level, and no (Int) of either
+	const Int hundredths = (Int)floor( legacy * 100.0f + 0.5f );
+	for( Int i = 0; i < 4; ++i )
+	{
+		if( hundredths == OLD_LEVEL[ i ] )
+			return NEW_LEVEL[ i ];
+	}
+	return aiRatingOfLegacy( legacy );
+}
+
+Real aiRatingToLegacy( Real rating )
+{
+	return ( rating - AI_RATING_EASY ) * 30.0f / ( AI_RATING_HARD - AI_RATING_EASY );
+}
+
 Real aiRatingOfSkill( AISkillLevel level )
 {
 	switch( level )
@@ -3446,7 +3480,7 @@ const AIDifficultyProfile *AI::getRatedProfile( Real rating, AIDifficultyProfile
 {
 	const AIDifficultyProfile *ladder = m_aiData != NULL ? m_aiData->m_skill : s_defaultSkillLadder;
 	const Real r = aiRatingClamp( rating );
-	// Easy and Hard are their rows; Medium's numbers are only where the curves pass at 15
+	// Easy and Hard are their rows; Medium's numbers are only where the curves pass at 1300
 	if( r == AI_RATING_EASY )
 		return &ladder[ AISKILL_EASY ];
 	if( r == AI_RATING_HARD )

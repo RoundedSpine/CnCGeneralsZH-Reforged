@@ -77,6 +77,12 @@ extern void MapSelectorTooltip(GameWindow *window, WinInstanceData *instData,	Un
 extern void gameAcceptTooltip(GameWindow *window, WinInstanceData *instData, UnsignedInt mouse);
 Color white = GameMakeColor( 255, 255, 255, 255 );
 static bool s_isIniting = FALSE;
+
+// Create Game's answer (LanLobbyMenu.cpp, TheHostGameMode), spent by the room it opens.  A joiner's room
+// is a Direct Strike one when the host's map is a lane map (IsDirectStrikeMap), an Apocalypse one when
+// it is a generated Apocalypse map (IsApocalypseMap); s_directStrike and s_apocalypse are what this room is.
+static Bool s_directStrike = FALSE;
+static Bool s_apocalypse = FALSE;
 // window ids ------------------------------------------------------------------------------
 static NameKeyType parentLanGameOptionsID = NAMEKEY_INVALID;
 
@@ -126,9 +132,12 @@ static NameKeyType comboBoxStartingCashID = NAMEKEY_INVALID;
 static NameKeyType comboBoxPeaceTimeID = NAMEKEY_INVALID;
 static NameKeyType checkBoxUnitLimitID = NAMEKEY_INVALID;
 static NameKeyType checkBoxProRulesID = NAMEKEY_INVALID;
+static NameKeyType checkBoxStartShroudedID = NAMEKEY_INVALID;
+static NameKeyType checkBoxDayNightID = NAMEKEY_INVALID;
 static NameKeyType comboBoxIncomeSharingID = NAMEKEY_INVALID;
 static NameKeyType comboBoxTechRespawnID = NAMEKEY_INVALID;
 static NameKeyType comboBoxSupplyPileLimitID = NAMEKEY_INVALID;
+static NameKeyType comboBoxGameSpeedID = NAMEKEY_INVALID;
 static NameKeyType windowMapID = NAMEKEY_INVALID;
 // Window Pointers ------------------------------------------------------------------------
 static GameWindow *parentLanGameOptions = NULL;
@@ -143,9 +152,12 @@ static GameWindow *comboBoxStartingCash = NULL;
 static GameWindow *comboBoxPeaceTime = NULL;
 static GameWindow *checkBoxUnitLimit = NULL;
 static GameWindow *checkBoxProRules = NULL;
+static GameWindow *checkBoxStartShrouded = NULL;
+static GameWindow *checkBoxDayNight = NULL;
 static GameWindow *comboBoxIncomeSharing = NULL;
 static GameWindow *comboBoxTechRespawn = NULL;
 static GameWindow *comboBoxSupplyPileLimit = NULL;
+static GameWindow *comboBoxGameSpeed = NULL;
 static GameWindow *windowMap = NULL;
 
 static GameWindow *comboBoxPlayer[MAX_SLOTS] = {NULL,NULL,NULL,NULL,
@@ -279,7 +291,7 @@ void StartPressed(void)
 		return;
 	}
 	// a seat changed since the last frame: the new map goes out and everyone accepts it again
-	if (TheLAN->AmIHost() && FitRandomMapToRoom(myGame))
+	if (TheLAN->AmIHost() && ((s_apocalypse && FitApocalypseRoom(myGame)) || FitRandomMapToRoom(myGame)))
 	{
 		PostToLanGameOptions(SEND_GAME_OPTS);
 		return;
@@ -453,7 +465,7 @@ void StartPressed(void)
 void LANEnableStartButton(Bool enabled)
 {
 	buttonStart->winEnable(enabled);
-	buttonSelectMap->winEnable(enabled);
+	buttonSelectMap->winEnable(enabled && !s_apocalypse);	// an Apocalypse room's map is the mode's
 }
 
 // The countdown's last second: shutting the menu down clears every gadget pointer below, and a
@@ -466,7 +478,8 @@ void LANDisableButtons()
 	comboBoxStartingCash->winEnable(false);
 
 	GameWindow *optionalGadgets[] = { comboBoxSuperweapons, comboBoxPeaceTime, checkBoxUnitLimit,
-		checkBoxProRules, comboBoxIncomeSharing, comboBoxTechRespawn, comboBoxSupplyPileLimit };
+		checkBoxProRules, checkBoxStartShrouded, checkBoxDayNight, comboBoxIncomeSharing, comboBoxTechRespawn, comboBoxSupplyPileLimit,
+		comboBoxGameSpeed };
 	for (Int i = 0; i < (Int)ARRAY_SIZE(optionalGadgets); ++i)
 	{
 		if (optionalGadgets[i])
@@ -823,6 +836,24 @@ static void handleSupplyPileLimitSelection()
   }
 }
 
+static void handleGameSpeedSelection()
+{
+  LANGameInfo *myGame = TheLAN->GetMyGame();
+
+  // the same guard as income sharing above
+  if (myGame == NULL || comboBoxGameSpeed == NULL || myGame->getGameSpeedPercent() == GameSpeedFromComboBox( comboBoxGameSpeed, myGame ))
+    return;
+
+  myGame->setGameSpeedPercent( GameSpeedFromComboBox( comboBoxGameSpeed, myGame ) );
+  myGame->resetAccepted();
+
+  if (myGame->amIHost() && !s_isIniting)
+  {
+    TheLAN->RequestGameOptions(GenerateGameOptionsString(), true);
+    lanUpdateSlotList(); // Update the accepted button UI
+  }
+}
+
 static void handleProRulesSelection()
 {
   LANGameInfo *myGame = TheLAN->GetMyGame();
@@ -832,6 +863,41 @@ static void handleProRulesSelection()
     return;
 
   myGame->setProRules( GadgetCheckBoxIsChecked( checkBoxProRules ) );
+  myGame->resetAccepted();
+
+  if (myGame->amIHost() && !s_isIniting)
+  {
+    TheLAN->RequestGameOptions(GenerateGameOptionsString(), true);
+    lanUpdateSlotList(); // Update the accepted button UI
+  }
+}
+
+static void handleStartShroudedSelection()
+{
+  LANGameInfo *myGame = TheLAN->GetMyGame();
+
+  // the same guard as the unit limit box below
+  if (myGame == NULL || checkBoxStartShrouded == NULL || myGame->getStartShrouded() == GadgetCheckBoxIsChecked( checkBoxStartShrouded ))
+    return;
+
+  myGame->setStartShrouded( GadgetCheckBoxIsChecked( checkBoxStartShrouded ) );
+  myGame->resetAccepted();
+
+  if (myGame->amIHost() && !s_isIniting)
+  {
+    TheLAN->RequestGameOptions(GenerateGameOptionsString(), true);
+    lanUpdateSlotList(); // Update the accepted button UI
+  }
+}
+
+static void handleDayNightSelection()
+{
+  LANGameInfo *myGame = TheLAN->GetMyGame();
+
+  if (myGame == NULL || checkBoxDayNight == NULL || myGame->getDayNight() == GadgetCheckBoxIsChecked( checkBoxDayNight ))
+    return;
+
+  myGame->setDayNight( GadgetCheckBoxIsChecked( checkBoxDayNight ) );
   myGame->resetAccepted();
 
   if (myGame->amIHost() && !s_isIniting)
@@ -880,6 +946,15 @@ static void handleSuperweaponSelection()
   }
 }
 
+/// the room's title names the mode in an Apocalypse room, the classic room's own words otherwise
+static void setLanRoomTitle( void )
+{
+	GameWindow *title = TheWindowManager->winGetWindowFromId( parentLanGameOptions, NAMEKEY( "LanGameOptionsMenu.wnd:StaticTextTitle" ) );
+	if ( title )
+		GadgetStaticTextSetText( title, s_apocalypse ? ModeNameWithVersion( "GUI:Apocalypse", "GUI:ApocalypseVersion" )
+			: TheGameText->fetch( "GUI:GameOptions" ) );
+}
+
 void lanUpdateSlotList( void )
 {
 	if(!AreSlotListUpdatesEnabled() || s_isIniting)
@@ -891,6 +966,19 @@ void lanUpdateSlotList( void )
 	UpdateLobbySeatVisuals( TheLAN->GetMyGame() );
 
 	updateMapStartSpots(TheLAN->GetMyGame(), buttonMapStartPosition);
+	// a joiner learns the mode with the host's options, which can come after his room opened
+	if (!TheLAN->AmIHost() && IsDirectStrikeMap(TheLAN->GetMyGame()->getMap()))
+		s_directStrike = TRUE;
+	if (s_directStrike)
+		LayoutDirectStrikeRoom(parentLanGameOptions, "LanGameOptionsMenu.wnd", TheLAN->GetMyGame());
+	if (!s_apocalypse && !TheLAN->AmIHost() && IsApocalypseMap(TheLAN->GetMyGame()->getMap()))
+	{
+		s_apocalypse = TRUE;
+		setLanRoomTitle();
+	}
+	// the four seats and no more
+	if (s_apocalypse)
+		HideLobbySeatRowsFrom(parentLanGameOptions, "LanGameOptionsMenu.wnd", APOCALYPSE_SEATS);
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -912,9 +1000,12 @@ void InitLanGameGadgets( void )
   comboBoxPeaceTimeID = TheNameKeyGenerator->nameToKey( AsciiString( "LanGameOptionsMenu.wnd:ComboBoxPeaceTime" ) );
   checkBoxUnitLimitID = TheNameKeyGenerator->nameToKey( AsciiString( "LanGameOptionsMenu.wnd:CheckBoxUnitLimit" ) );
   checkBoxProRulesID = TheNameKeyGenerator->nameToKey( AsciiString( "LanGameOptionsMenu.wnd:CheckBoxProRules" ) );
+  checkBoxStartShroudedID = TheNameKeyGenerator->nameToKey( AsciiString( "LanGameOptionsMenu.wnd:CheckBoxStartShrouded" ) );
+  checkBoxDayNightID = TheNameKeyGenerator->nameToKey( AsciiString( "LanGameOptionsMenu.wnd:CheckBoxDayNight" ) );
   comboBoxIncomeSharingID = TheNameKeyGenerator->nameToKey( AsciiString( "LanGameOptionsMenu.wnd:ComboBoxIncomeSharing" ) );
   comboBoxTechRespawnID = TheNameKeyGenerator->nameToKey( AsciiString( "LanGameOptionsMenu.wnd:ComboBoxTechRespawn" ) );
   comboBoxSupplyPileLimitID = TheNameKeyGenerator->nameToKey( AsciiString( "LanGameOptionsMenu.wnd:ComboBoxSupplyPileLimit" ) );
+  comboBoxGameSpeedID = TheNameKeyGenerator->nameToKey( AsciiString( "LanGameOptionsMenu.wnd:ComboBoxGameSpeed" ) );
 	windowMapID = TheNameKeyGenerator->nameToKey( AsciiString( "LanGameOptionsMenu.wnd:MapWindow" ) );
 
 	// Initialize the pointers to our gadgets
@@ -957,7 +1048,15 @@ void InitLanGameGadgets( void )
   DEBUG_ASSERTCRASH(checkBoxProRules, ("Could not find the checkBoxProRules"));
 	if (checkBoxProRules)
 		UpdateProRulesCheckBox(checkBoxProRules, TheLAN->GetMyGame(), TheLAN->AmIHost());
-  comboBoxIncomeSharing = TheWindowManager->winGetWindowFromId( parentLanGameOptions, comboBoxIncomeSharingID );
+  checkBoxStartShrouded = TheWindowManager->winGetWindowFromId( parentLanGameOptions, checkBoxStartShroudedID );
+  DEBUG_ASSERTCRASH(checkBoxStartShrouded, ("Could not find the checkBoxStartShrouded"));
+	if (checkBoxStartShrouded)
+		UpdateStartShroudedCheckBox(checkBoxStartShrouded, TheLAN->GetMyGame(), TheLAN->AmIHost());
+  checkBoxDayNight = TheWindowManager->winGetWindowFromId( parentLanGameOptions, checkBoxDayNightID );
+  DEBUG_ASSERTCRASH(checkBoxDayNight, ("Could not find the checkBoxDayNight"));
+	if (checkBoxDayNight)
+		UpdateDayNightCheckBox(checkBoxDayNight, TheLAN->GetMyGame(), TheLAN->AmIHost());
+  comboBoxIncomeSharing =TheWindowManager->winGetWindowFromId( parentLanGameOptions, comboBoxIncomeSharingID );
   DEBUG_ASSERTCRASH(comboBoxIncomeSharing, ("Could not find the comboBoxIncomeSharing"));
 	if (comboBoxIncomeSharing)
 		PopulateIncomeSharingComboBox(comboBoxIncomeSharing, TheLAN->GetMyGame(), TheLAN->AmIHost());
@@ -969,6 +1068,10 @@ void InitLanGameGadgets( void )
   DEBUG_ASSERTCRASH(comboBoxSupplyPileLimit, ("Could not find the comboBoxSupplyPileLimit"));
 	if (comboBoxSupplyPileLimit)
 		PopulateSupplyPileLimitComboBox(comboBoxSupplyPileLimit, TheLAN->GetMyGame(), TheLAN->AmIHost());
+  comboBoxGameSpeed = TheWindowManager->winGetWindowFromId( parentLanGameOptions, comboBoxGameSpeedID );
+  DEBUG_ASSERTCRASH(comboBoxGameSpeed, ("Could not find the comboBoxGameSpeed"));
+	if (comboBoxGameSpeed)
+		PopulateGameSpeedComboBox(comboBoxGameSpeed, TheLAN->GetMyGame(), TheLAN->AmIHost());
 
 	windowMap = TheWindowManager->winGetWindowFromId( parentLanGameOptions,windowMapID  );
 	DEBUG_ASSERTCRASH(windowMap, ("Could not find the LanGameOptionsMenu.wnd:MapWindow" ));
@@ -1019,7 +1122,7 @@ void InitLanGameGadgets( void )
 		comboBoxPlayerTemplateID[i] = TheNameKeyGenerator->nameToKey( tmpString );
 		comboBoxPlayerTemplate[i] = TheWindowManager->winGetWindowFromId( parentLanGameOptions, comboBoxPlayerTemplateID[i] );
 		DEBUG_ASSERTCRASH(comboBoxPlayerTemplate[i] || !comboBoxPlayer[i], ("Could not find the comboBoxPlayerTemplate[%d]",i ));
-		PopulatePlayerTemplateComboBox(i, comboBoxPlayerTemplate, TheLAN->GetMyGame(), TRUE);
+		PopulatePlayerTemplateComboBox(i, comboBoxPlayerTemplate, TheLAN->GetMyGame(), !s_directStrike, s_directStrike);
 
 		// add tooltips to the player template combobox and listbox
 		if (comboBoxPlayerTemplate[i])
@@ -1085,9 +1188,12 @@ void DeinitLanGameGadgets( void )
   comboBoxPeaceTime = NULL;
   checkBoxUnitLimit = NULL;
   checkBoxProRules = NULL;
+  checkBoxStartShrouded = NULL;
+  checkBoxDayNight = NULL;
   comboBoxIncomeSharing = NULL;
   comboBoxTechRespawn = NULL;
   comboBoxSupplyPileLimit = NULL;
+  comboBoxGameSpeed = NULL;
 	windowMap = NULL;
 	for (Int i = 0; i < MAX_SLOTS; i++)
 	{
@@ -1107,15 +1213,24 @@ void DeinitLanGameGadgets( void )
 //-------------------------------------------------------------------------------------------------
 void LanGameOptionsMenuInit( WindowLayout *layout, void *userData )
 {
-	if (TheLAN->GetMyGame() && TheLAN->GetMyGame()->isGameInProgress())
+	// A player who left the match from the quit menu has left the LAN game too, and the score
+	// screen's pop lands here with no game at all: the room was built on nothing and crashed
+	// (v4.2.0, one report).  Back to the lobby either way.
+	if (TheLAN->GetMyGame() == NULL || TheLAN->GetMyGame()->isGameInProgress())
 	{
 		// If we init while the game is in progress, we are really returning to the menu
 		// after the game.  So, we pop the menu and go back to the lobby.  Whee!
-		DEBUG_LOG(("Popping to lobby after a game!\n"));
+		DEBUG_LOG(("Popping to lobby after a game%s!\n", TheLAN->GetMyGame() == NULL ? " we had left" : ""));
 		TheShell->popImmediate();
 		return;
 	}
 	s_isIniting = TRUE;
+
+	s_directStrike = TheLAN->AmIHost() ? TheHostGameMode == HOST_MODE_DIRECT_STRIKE
+		: ( TheLAN->GetMyGame() != NULL && IsDirectStrikeMap( TheLAN->GetMyGame()->getMap() ) );
+	s_apocalypse = TheLAN->AmIHost() ? TheHostGameMode == HOST_MODE_APOCALYPSE
+		: ( TheLAN->GetMyGame() != NULL && IsApocalypseMap( TheLAN->GetMyGame()->getMap() ) );
+	TheHostGameMode = HOST_MODE_CLASSIC;	// Direct Connect's room and the next Create Game ask again
 
 	LANbuttonPushed = false;
 	LANisShuttingDown = false;
@@ -1124,6 +1239,7 @@ void LanGameOptionsMenuInit( WindowLayout *layout, void *userData )
 	EnableSlotListUpdates(FALSE);
 	InitLanGameGadgets();
 	EnableSlotListUpdates(TRUE);
+	setLanRoomTitle();
 	Int start = 0;
 
 	// Make sure the text fields are clear
@@ -1146,9 +1262,12 @@ void LanGameOptionsMenuInit( WindowLayout *layout, void *userData )
     game->setSuperweaponRestriction( pref.getSuperweaponRestriction() );
     game->setUnitLimit( pref.getInt( "UnitLimit", 0 ) != 0 );
     game->setProRules( pref.getInt( "ProRules", 1 ) != 0 );
+    game->setStartShrouded( pref.getInt( "StartShrouded", 0 ) != 0 );
+    game->setDayNight( pref.getInt( "DayNight", 0 ) != 0 );
     game->setIncomeSharing( pref.getInt( "IncomeSharing", INCOME_SHARING_OFF ) );
     game->setTechRespawn( pref.getInt( "TechRespawn", 0 ) );
     game->setSupplyPileLimit( pref.getInt( "SupplyPileLimit", 0 ) );
+    game->setGameSpeedPercent( pref.getInt( "GameSpeed", game->getDefaultGameSpeedPercent() ) );
 		AsciiString lowerMap = pref.getPreferredMap();
 		lowerMap.toLower();
 		std::map<AsciiString, MapMetaData>::iterator it = TheMapCache->find(lowerMap);
@@ -1159,6 +1278,20 @@ void LanGameOptionsMenuInit( WindowLayout *layout, void *userData )
 			TheLAN->GetMyGame()->setMapSize( it->second.m_filesize );
 
 			TheLAN->GetMyGame()->adjustSlotsForMap(); // BGC- adjust the slots for the selected map.
+		}
+
+		// the host picks the island's seed now, and it goes out with the options in the map's name
+		if (s_directStrike && SetDirectStrikeMap(game))
+			FitDirectStrikeRoom(game);
+		// a Direct Strike room opens at 1.0x whatever the classic room last played; the lobby's chip changes it
+		if (s_directStrike)
+			game->setGameSpeedPercent(RETAIL_GAME_SPEED_PERCENT);
+		// an Apocalypse map with four starts, so the room opens four seats; Start makes it for the seats taken
+		if (s_apocalypse && SetApocalypseMap(game, TRUE))
+		{
+			game->adjustSlotsForMap();
+			FitApocalypseRoom(game);
+			buttonSelectMap->winEnable( FALSE );
 		}
 
 		//GadgetTextEntrySetText(comboBoxPlayer[0], TheLAN->GetMyName());
@@ -1235,7 +1368,17 @@ void updateGameOptions( void )
 	{
 		const GameSlot *localSlot = theGame->getConstSlot(theGame->getLocalSlotNum());
 		const MapMetaData *mapData = TheMapCache->findMap( TheLAN->GetMyGame()->getMap() );
-		if (mapData && localSlot && localSlot->hasMap())
+		if (IsDirectStrikeMap(TheLAN->GetMyGame()->getMap()))
+		{
+			// a joiner has no cache entry for an island he builds from its name at load
+			mapDisplayName = TheGameText->fetch("GUI:DirectStrikeMap");
+		}
+		else if (IsApocalypseMap(TheLAN->GetMyGame()->getMap()))
+		{
+			// nor for an Apocalypse map; the mode is its name
+			mapDisplayName = ModeNameWithVersion("GUI:ApocalypseLower", "GUI:ApocalypseVersion");
+		}
+		else if (mapData && localSlot && localSlot->hasMap())
 		{
 			mapDisplayName.format(u"%ls", mapData->m_displayName.str());
 		}
@@ -1278,12 +1421,18 @@ void updateGameOptions( void )
 			UpdateUnitLimitCheckBox( checkBoxUnitLimit, theGame, TheLAN->AmIHost() );
 		if (checkBoxProRules)
 			UpdateProRulesCheckBox( checkBoxProRules, theGame, TheLAN->AmIHost() );
+		if (checkBoxStartShrouded)
+			UpdateStartShroudedCheckBox( checkBoxStartShrouded, theGame, TheLAN->AmIHost() );
+		if (checkBoxDayNight)
+			UpdateDayNightCheckBox( checkBoxDayNight, theGame, TheLAN->AmIHost() );
 		if (comboBoxIncomeSharing)
 			UpdateIncomeSharingComboBox( comboBoxIncomeSharing, theGame, TheLAN->AmIHost() );
 		if (comboBoxTechRespawn)
 			UpdateTechRespawnComboBox( comboBoxTechRespawn, theGame, TheLAN->AmIHost() );
 		if (comboBoxSupplyPileLimit)
 			UpdateSupplyPileLimitComboBox( comboBoxSupplyPileLimit, theGame, TheLAN->AmIHost() );
+		if (comboBoxGameSpeed)
+			UpdateGameSpeedComboBox( comboBoxGameSpeed, theGame, TheLAN->AmIHost() );
 	}
 }
 
@@ -1359,7 +1508,13 @@ void LanGameOptionsMenuUpdate( WindowLayout * layout, void *userData)
 		shutdownComplete(layout);
 	// hideShell leaves this layout on the stack with its gadgets gone, and the shell goes on updating it
 	// under the match it launched until showShell runs its init again.  There is no room to fit a map to.
+	// an Apocalypse room: seats past four closed before the map is made for the seats, and on starts 1..n after
+	else if (parentLanGameOptions && !LANisShuttingDown && s_apocalypse && TheLAN->AmIHost() && FitApocalypseRoom(TheLAN->GetMyGame()))
+		PostToLanGameOptions(SEND_GAME_OPTS);
 	else if (parentLanGameOptions && !LANisShuttingDown && TheLAN->AmIHost() && FitRandomMapToRoom(TheLAN->GetMyGame()))
+		PostToLanGameOptions(SEND_GAME_OPTS);
+	// a seat that joined, left or changed team: the Direct Strike rules again, and out to everyone
+	else if (parentLanGameOptions && !LANisShuttingDown && s_directStrike && TheLAN->AmIHost() && FitDirectStrikeRoom(TheLAN->GetMyGame()))
 		PostToLanGameOptions(SEND_GAME_OPTS);
 	//TheLAN->update(); // this is handled in the lobby
 }// void LanGameOptionsMenuUpdate( WindowLayout * layout, void *userData)
@@ -1466,6 +1621,10 @@ WindowMsgHandledType LanGameOptionsMenuSystem( GameWindow *window, UnsignedInt m
         {
           handleSupplyPileLimitSelection();
         }
+        else if ( controlID == comboBoxGameSpeedID )
+        {
+          handleGameSpeedSelection();
+        }
         else if ( HandleAIPersonaSelection( myGame, comboBoxAIPersona, comboBoxAIPersonaID, (NameKeyType)controlID ) )
         {
           if (!s_isIniting)
@@ -1521,7 +1680,7 @@ WindowMsgHandledType LanGameOptionsMenuSystem( GameWindow *window, UnsignedInt m
 								  if (wasAI || isAI)
 									  myGame->resetAccepted();
 								  if (wasAI ^ isAI)
-									  PopulatePlayerTemplateComboBox(i, comboBoxPlayerTemplate, myGame, wasAI);
+									  PopulatePlayerTemplateComboBox(i, comboBoxPlayerTemplate, myGame, wasAI && !s_directStrike, s_directStrike);
 								  if (!s_isIniting)
 								  {
 									  TheLAN->RequestGameOptions(GenerateGameOptionsString(), true);
@@ -1552,6 +1711,18 @@ WindowMsgHandledType LanGameOptionsMenuSystem( GameWindow *window, UnsignedInt m
 				if ( controlID == checkBoxProRulesID )
 				{
 					handleProRulesSelection();
+					break;
+				}
+
+				if ( controlID == checkBoxStartShroudedID )
+				{
+					handleStartShroudedSelection();
+					break;
+				}
+
+				if ( controlID == checkBoxDayNightID )
+				{
+					handleDayNightSelection();
 					break;
 				}
 
@@ -1748,10 +1919,22 @@ void PostToLanGameOptions( PostToLanGameType post )
 			
 			//buttonBack->winEnable( true );
 			
-			for(Int i = 0; i < MAX_SLOTS; ++i)
+			// a Direct Strike seat is its start, so the starts stay: clearing them here put every player who
+			// had changed seats back on his own slot's seat the moment the room sent the move out
+			if (!s_directStrike)
 			{
-				game->getSlot(i)->setStartPos(-1);
+				for(Int i = 0; i < MAX_SLOTS; ++i)
+				{
+					game->getSlot(i)->setStartPos(-1);
+				}
 			}
+			// an Apocalypse room's seats stand on starts 1..n; without this the host's room put them back
+			// every frame and sent the options again each time; a Direct Strike room's seats go under the
+			// mode's rules (FitDirectStrikeRoom) before the string goes out too
+			if (s_apocalypse)
+				FitApocalypseRoom(game);
+			else if (s_directStrike)
+				FitDirectStrikeRoom(game);
 
 			TheLAN->RequestGameOptions(GenerateGameOptionsString(), true);
 			break;

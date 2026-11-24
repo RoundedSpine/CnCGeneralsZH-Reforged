@@ -50,17 +50,20 @@
 #include "Common/PerfTimer.h"
 #include "Common/Player.h"
 #include "Common/PlayerList.h"
+#include "Common/Team.h"
 #include "Common/ThingFactory.h"
 #include "Common/ThingTemplate.h"
 #include "Common/Xfer.h"
 
 #include "GameLogic/ExperienceTracker.h"
 #include "GameLogic/GameLogic.h"		// for logic frame count
+#include "GameLogic/LaneWarDirector.h"
 #include "GameLogic/Object.h"
 #include "GameLogic/Module/SpecialPowerModule.h"
 
 #include <algorithm>
 #include <chrono>
+#include <map>
 #include "Common/SpecialPower.h"
 		// countdown text over a building
 #include "GameLogic/Locomotor.h"
@@ -96,6 +99,7 @@
 #include "GameClient/Mouse.h"
 #include "GameClient/Shadow.h"
 #include "GameClient/GameText.h"
+#include "GameLogic/DayNightCycle.h"
 
 //#define KRIS_BRUTAL_HACK_FOR_AIRCRAFT_CARRIER_DEBUGGING 
 #ifdef KRIS_BRUTAL_HACK_FOR_AIRCRAFT_CARRIER_DEBUGGING
@@ -110,6 +114,62 @@
 
 #define VERY_TRANSPARENT_MATERIAL_PASS_OPACITY (0.001f)
 #define MATERIAL_PASS_OPACITY_FADE_SCALAR (0.8f)
+
+// m_stealthFade runs straight at these, on the picture's clock, and the shader's front gives it its
+// shape: into stealth (glass or heat coming) a little slow so the ripple reads, out of it quick,
+// since a unit coming out is usually firing.  Not the detector pulse's scalar above.
+#define STEALTH_FADE_IN_SECONDS (0.6f)
+#define STEALTH_FADE_OUT_SECONDS (0.3f)
+// How long a detected enemy's heat holds once the logic hides it again, bridging a detector's
+// sweeps (Drawable::draw).
+#define STEALTH_HEAT_GRACE_SECONDS (0.3f)
+// An enemy going into its cloak fades out only when it was on the screen in plain sight at least this
+// long up to a moment ago; one that spawns cloaked, drawn a frame or two first, still hides at once.
+#define STEALTH_SHOWN_MS (250)
+
+// The clock the stealth fades and the detector's pulse run on, read once a client frame in
+// Drawable::draw: the wall clock, or the recorded picture's own under -video, so footage shows the
+// fades at their real length.
+static UnsignedInt theStealthClockMs = 0;
+// Whether the main pass could draw the cloak's glass (Drawable::noteStealthCloakDrawn); a frame that
+// could not ends a fade into the cloak at once.
+static Bool theStealthCloakDrawn = TRUE;
+
+void Drawable::noteStealthCloakDrawn( Bool drawn )
+{
+	theStealthCloakDrawn = drawn;
+}
+
+// The stealth fade clock now: a recorded picture's own time inside a -video range, as the shader's
+// time is (W3DDisplay::draw), but not under a frozen scripted pan, whose pictures hold one logic
+// frame (W3DView's onPictureClock); the wall clock everywhere else.
+static UnsignedInt stealthClockNow( Bool &onPicture )
+{
+	onPicture = GameEngine_isVideoFrame()
+		&& !( TheTacticalView && TheTacticalView->isTimeFrozen() && !TheTacticalView->isCameraMovementFinished() );
+	return onPicture ? GameEngine_pictureMilliseconds() : Clock_Milliseconds();
+}
+
+// stealthClockNow read once a pass (Drawable::takeStealthClock) for every drawable's takeLookForDraw
+static UnsignedInt theStealthPassMs = 0;
+
+void Drawable::takeStealthClock( void )
+{
+	Bool onPicture = FALSE;
+	theStealthPassMs = stealthClockNow( onPicture );
+}
+
+// Direct3D 11 outside Classic draws a stealth change as a fade; Direct3D 9, Classic and the SDL3 builds
+// (which draw no cloak body, only its shadow) have no cloak shader to fade with and hide and show at
+// once, as in 2003.
+static Bool stealthFadesByShader( void )
+{
+#ifdef _WIN32
+	return TheGlobalData && TheGlobalData->m_direct3D11 && !TheGlobalData->m_classicGraphics;
+#else
+	return FALSE;
+#endif
+}
 
 static const char *TheDrawableIconNames[] = 
 {
@@ -555,11 +615,174 @@ Real Drawable::getEffectiveOpacity() const
 }
 
 //-------------------------------------------------------------------------------------------------
+/** The stealth fades, moved once a rendered picture for every drawable, drawn or not, by the time
+	* since this drawable's last move on the stealth fade clock (a recorded picture's own time under
+	* -video).  They used to move in draw(), which runs only on a pass whose logic clock moved, so a
+	* fade stepped once a logic frame (every second picture at 60) and stood still off the screen. */
+//-------------------------------------------------------------------------------------------------
+void Drawable::advanceStealthFades( void )
+{
+	const UnsignedInt nowMs = theStealthPassMs;
+	Real seconds = 0.0f;
+	if( m_stealthClockMs != 0 && nowMs > m_stealthClockMs )
+		seconds = MIN( 4.0f / 30.0f, (Real)( nowMs - m_stealthClockMs ) * 0.001f );	// a level load must not fade everything out at once
+	m_stealthClockMs = nowMs;
+	if( seconds <= 0.0f )
+		return;
+
+	const Bool wantEffect = ( m_stealthLook == STEALTHLOOK_VISIBLE_FRIENDLY
+		|| m_stealthLook == STEALTHLOOK_VISIBLE_FRIENDLY_DETECTED
+		|| m_stealthLook == STEALTHLOOK_VISIBLE_DETECTED );
+	// A detector's first sweep can mark a unit for a few frames and the next one again a moment
+	// later: the heat came up, went out and came back.  Heat the logic hides again holds where it
+	// is for STEALTH_HEAT_GRACE_SECONDS before it fades, so the next sweep finds it still drawn.
+	// Deliberate, and Direct3D 11 only (the others hide at once): a unit the logic hid shows its
+	// heat at most that grace plus the fade out longer.
+	const Bool heatGrace = !wantEffect && m_stealthLook == STEALTHLOOK_INVISIBLE
+		&& m_stealthDrawnLook == STEALTHLOOK_VISIBLE_DETECTED && m_stealthFade > 0.0f
+		&& m_stealthHeatHeld < STEALTH_HEAT_GRACE_SECONDS;
+	// A heat that was still coming out of nothing when the unit went into plain sight builds to
+	// whole, then turns to paint (setStealthLook).
+	const Bool heatFinishing = m_stealthLook == STEALTHLOOK_NONE
+		&& m_stealthDrawnLook == STEALTHLOOK_VISIBLE_DETECTED && !m_stealthOverPaint;
+	// Going into hiding (an enemy seen in plain sight, setStealthLook): the fade climbs from paint
+	// to nothing and the unit is hidden there.
+	const Bool cloakingOut = m_stealthLook == STEALTHLOOK_INVISIBLE && !m_hiddenByStealth
+		&& ( m_stealthDrawnLook == STEALTHLOOK_VISIBLE_FRIENDLY
+			|| m_stealthDrawnLook == STEALTHLOOK_VISIBLE_FRIENDLY_DETECTED );
+	if( wantEffect )
+	{
+		m_stealthDrawnLook = m_stealthLook;
+		m_stealthHeatHeld = 0.0f;
+		m_stealthFade += seconds / STEALTH_FADE_IN_SECONDS;
+		if( m_stealthFade > 1.0f )
+			m_stealthFade = 1.0f;
+	}
+	else if( heatFinishing )
+	{
+		m_stealthFade += seconds / STEALTH_FADE_IN_SECONDS;
+		if( m_stealthFade >= 1.0f )
+		{
+			m_stealthFade = 1.0f;
+			m_stealthOverPaint = TRUE;
+		}
+	}
+	else if( cloakingOut )
+	{
+		// a frame that cannot draw the cloak ends it at once (takeLookForDraw ends one whose draw()
+		// stopped)
+		m_stealthFade += seconds / STEALTH_FADE_IN_SECONDS;
+		if( m_stealthFade >= 1.0f || !theStealthCloakDrawn )
+		{
+			m_stealthFade = 0.0f;
+			m_stealthDrawnLook = STEALTHLOOK_INVISIBLE;
+			m_hiddenByStealth = true;
+			updateHiddenStatus();
+			// draw() turned them off at the fade's middle; hidden it casts nothing anyway, and coming
+			// out of hiding off the screen it has to cast again before its next draw
+			if( getObject() && !getObject()->isEffectivelyDead() )
+				setShadowsEnabled( TRUE );
+		}
+	}
+	else if( heatGrace )
+	{
+		m_stealthHeatHeld += seconds;
+	}
+	else
+	{
+		m_stealthFade -= seconds / STEALTH_FADE_OUT_SECONDS;
+		if( m_stealthFade <= 0.0f )
+		{
+			m_stealthFade = 0.0f;
+			m_stealthDrawnLook = m_stealthLook;
+			if( m_stealthLook == STEALTHLOOK_INVISIBLE && !m_hiddenByStealth )
+			{
+				m_hiddenByStealth = true;
+				updateHiddenStatus();
+			}
+		}
+	}
+
+	// an own cloaked unit's amber eases in as an enemy detector finds it and out as it loses it
+	if( m_stealthLook == STEALTHLOOK_VISIBLE_FRIENDLY_DETECTED )
+		m_stealthAmber = MIN( 1.0f, m_stealthAmber + seconds / STEALTH_FADE_IN_SECONDS );
+	else if( m_stealthAmber > 0.0f )
+		m_stealthAmber = MAX( 0.0f, m_stealthAmber - seconds / STEALTH_FADE_OUT_SECONDS );
+}
+
+//-------------------------------------------------------------------------------------------------
 /** LOGIC-THREAD.md phase 3, step 3b: see LookForDraw.  Outside the window, so every getter reads the
 	* drawable's own fields. */
 //-------------------------------------------------------------------------------------------------
 void Drawable::takeLookForDraw( void )
 {
+	// A unit spawned already cloaked is drawn before its StealthUpdate's first update tells this
+	// drawable how it looks, and for that picture it stood in full paint with its health bar.  On a
+	// drawable's first pass only, a unit that can stealth now (CAN_STEALTH: innate stealth sets it at
+	// birth, an upgrade or a GPS Scrambler grant when it lands; the stealth every template inherits
+	// from the default object never has it and never updates) and whose module will hide it from this
+	// player is hidden until that first update has said.  If the next logic frame passes without a
+	// look from the logic (a module asleep, a forbidden condition), it is shown again at once.  Read at
+	// the sync point, outside the window; nothing is written back to the logic.
+	if( !m_stealthProvisionChecked )
+	{
+		m_stealthProvisionChecked = TRUE;
+		Object *obj = getObject();
+		StealthUpdate *stealth = obj ? obj->getStealth() : NULL;
+		if( !m_stealthLookKnown && m_stealthLook == STEALTHLOOK_NONE && stealthFadesByShader()
+			&& stealth && stealth->isStealthEnabled() && !stealth->isDisguised() && !obj->isEffectivelyDead()
+			&& !obj->isKindOf( KINDOF_MINE ) && obj->testStatus( OBJECT_STATUS_CAN_STEALTH )
+			&& !obj->testStatus( OBJECT_STATUS_DETECTED )
+			// not allowedToStealth: its black market check draws from the logic's random stream
+			&& ( obj->testStatus( OBJECT_STATUS_STEALTHED )
+				|| stealth->getStealthAllowedFrame() <= TheGameLogic->getFrame() ) )
+		{
+			const Player *viewer = ThePlayerList ? ThePlayerList->getNthPlayer( TheObserverCamera.getShroudPlayerIndex() ) : NULL;
+			const Team *team = obj->getTeam();
+			if( viewer && viewer->isPlayerActive() && team && team->getRelationship( viewer->getDefaultTeam() ) != ALLIES )
+			{
+				setStealthLook( STEALTHLOOK_INVISIBLE );
+				m_stealthLookKnown = FALSE;	// still the logic's to say
+				m_stealthProvisionalFrame = TheGameLogic->getFrame() + 1;
+			}
+		}
+	}
+	else if( m_stealthProvisionalFrame != 0 && TheGameLogic->getFrame() + 1 != m_stealthProvisionalFrame )
+	{
+		// a logic frame has passed: the logic set its own look (setStealthLook cleared the mark), or
+		// it said nothing and the unit is not hidden after all
+		m_stealthProvisionalFrame = 0;
+		if( !m_stealthLookKnown && m_stealthLook == STEALTHLOOK_INVISIBLE )
+		{
+			m_stealthLook = STEALTHLOOK_NONE;
+			m_stealthDrawnLook = STEALTHLOOK_NONE;
+			m_stealthFade = 0.0f;
+			m_stealthOverPaint = FALSE;
+			m_stealthEnemy = FALSE;
+			m_hiddenByStealth = false;
+			updateHiddenStatus();
+		}
+	}
+
+	advanceStealthFades();
+
+	// An enemy fading into its cloak whose own draw() stopped (the view region missed it: an aircraft
+	// high at the far edge, a unit on a hill at the near one) is gone now, not left in the frustum
+	// part-way to glass and pickable.  Every drawable comes through here every pass.
+	if( m_stealthLook == STEALTHLOOK_INVISIBLE && !m_hiddenByStealth
+		&& ( m_stealthDrawnLook == STEALTHLOOK_VISIBLE_FRIENDLY || m_stealthDrawnLook == STEALTHLOOK_VISIBLE_FRIENDLY_DETECTED ) )
+	{
+		if( m_stealthShownLastMs == 0 || theStealthPassMs - m_stealthShownLastMs > STEALTH_SHOWN_MS )
+		{
+			m_stealthFade = 0.0f;
+			m_stealthDrawnLook = STEALTHLOOK_INVISIBLE;
+			m_hiddenByStealth = true;
+			updateHiddenStatus();
+			if( getObject() && !getObject()->isEffectivelyDead() )
+				setShadowsEnabled( TRUE );
+		}
+	}
+
 	LookForDraw &look = m_lookForDraw;
 	look.hidden = isDrawableEffectivelyHidden();
 	look.fullyObscured = m_drawableFullyObscuredByShroud;
@@ -569,7 +792,9 @@ void Drawable::takeLookForDraw( void )
 	look.stealthLook = m_stealthLook;
 	look.stealthDrawnLook = m_stealthDrawnLook;
 	look.stealthFade = m_stealthFade;
-	look.stealthSolid = getStealthSolid();
+	look.stealthOverPaint = m_stealthOverPaint;
+	look.stealthAmber = m_stealthAmber;
+	look.stealthEnemy = m_stealthEnemy;
 	look.secondMaterialPassOpacity = m_secondMaterialPassOpacity;
 	look.effectiveOpacity = getEffectiveOpacity();
 	look.tintStatus = m_tintStatus;
@@ -599,6 +824,7 @@ Drawable::Drawable( const ThingTemplate *thingTemplate, DrawableStatus statusBit
 	m_clientWorkQueued = FALSE;
 	m_transformPending = FALSE;
 	m_renderPending = FALSE;
+	m_doomed = FALSE;
 
 	// Added By Sadullah Nader
 	// Initialization missing and needed
@@ -676,7 +902,9 @@ Drawable::Drawable( const ThingTemplate *thingTemplate, DrawableStatus statusBit
 	m_lookForDraw.stealthLook = STEALTHLOOK_NONE;
 	m_lookForDraw.stealthDrawnLook = STEALTHLOOK_NONE;
 	m_lookForDraw.stealthFade = 0.0f;
-	m_lookForDraw.stealthSolid = 1.0f;
+	m_lookForDraw.stealthOverPaint = FALSE;
+	m_lookForDraw.stealthAmber = 0.0f;
+	m_lookForDraw.stealthEnemy = FALSE;
 	m_lookForDraw.secondMaterialPassOpacity = 0.0f;
 	m_lookForDraw.effectiveOpacity = 1.0f;
 	m_lookForDraw.tintStatus = 0;
@@ -689,6 +917,16 @@ Drawable::Drawable( const ThingTemplate *thingTemplate, DrawableStatus statusBit
 	m_stealthLook = STEALTHLOOK_NONE;
 	m_stealthDrawnLook = STEALTHLOOK_NONE;
 	m_stealthFade = 0.0f;
+	m_stealthOverPaint = FALSE;
+	m_stealthHeatHeld = 0.0f;
+	m_stealthAmber = 0.0f;
+	m_stealthShownSinceMs = 0;
+	m_stealthShownLastMs = 0;
+	m_stealthClockMs = 0;
+	m_stealthLookKnown = FALSE;
+	m_stealthEnemy = FALSE;
+	m_stealthProvisionChecked = FALSE;
+	m_stealthProvisionalFrame = 0;
 
 	m_flashCount = 0;
 
@@ -727,7 +965,9 @@ Drawable::Drawable( const ThingTemplate *thingTemplate, DrawableStatus statusBit
 	m_drawableFullyObscuredByShroud = false;
 
   m_receivesDynamicLights = TRUE; // a good default... overridden by one of my draw modules if at all
-	
+	m_takesImpacts = FALSE;	// before the modules: one that draws hits sets it
+	m_iconUIHidden = FALSE;
+
 	// allocate any modules we need to, we should keep
 	// this at or near the end of the drawable construction so that we have
 	// all the valid data about the thing when we create the module
@@ -794,6 +1034,7 @@ Drawable::Drawable( const ThingTemplate *thingTemplate, DrawableStatus statusBit
 	m_iconInfo = NULL;								// lazily allocate!
 	m_selectionFlashEnvelope = NULL;	// lazily allocate!
 	m_orderFlash = FALSE;
+	m_hitFlashFrame = 0xffffffff;			// ActiveBody's "never hit" stamp
 	m_colorTintEnvelope = NULL;				// lazily allocate!
 
 	initStaticImages();
@@ -829,10 +1070,68 @@ Drawable::Drawable( const ThingTemplate *thingTemplate, DrawableStatus statusBit
 }  // end Drawable
 
 //-------------------------------------------------------------------------------------------------
+/** Damage Numbers, per drawable with a body: the health it had at the last look, the drop gathered
+	* since the last figure and the frame that figure rose.  The drop, not the body's last damage info:
+	* the body merges hits inside its own window and keeps one record, so ten tanks firing in one tick
+	* showed one tank's damage and a catch-up pass of several ticks lost the rest.  A rise (healing) only
+	* moves the mark.  Kept here and not on Drawable, an entry for each drawable seen while the option is
+	* on, taken away by the destructor.  updateDrawable also runs from the tick (StealthUpdate's disguise
+	* calls it), so a call on the logic thread or one of its workers returns at once: the map and the
+	* floating text list are the main thread's alone, and its next walk counts the drop.  The frames are
+	* logic frames read on the client side; nothing here is written back. */
+//-------------------------------------------------------------------------------------------------
+struct DamageNumberState
+{
+	Real lastHealth;
+	Real pending;
+	UnsignedInt shownFrame;
+};
+static std::map<DrawableID, DamageNumberState> theDamageNumbers;
+
+static void showDamageNumber( Drawable *draw, const Object *obj, UnsignedInt now )
+{
+	if( LogicThread::t_isLogicThread || LogicThread::t_isLogicWorker )
+		return;
+	const BodyModuleInterface *body = obj->getBodyModule();
+	if( body == NULL || TheInGameUI == NULL || TheGlobalData->m_headless )
+		return;
+	const UnsignedInt gather = LOGICFRAMES_PER_SECOND * 2 / 5;		// at most a figure every 0.4 wall seconds
+	const Real health = body->getHealth();
+	std::map<DrawableID, DamageNumberState>::iterator it = theDamageNumbers.find( draw->getID() );
+	if( it == theDamageNumbers.end() )
+	{
+		// first sight sets the mark and shows nothing; shownFrame a whole gather back (unsigned, so it
+		// wraps alike early on) lets the first hit rise at once
+		DamageNumberState fresh = { health, 0.0f, now - gather };
+		theDamageNumbers.insert( std::make_pair( draw->getID(), fresh ) );
+		return;
+	}
+	DamageNumberState &state = it->second;
+	state.pending += max( 0.0f, state.lastHealth - health );
+	state.lastHealth = health;
+	if( state.pending > 0.0f && now - state.shownFrame >= gather )
+	{
+		// what the player cannot see takes no figure: a stealthed unit, or one under fog or shroud
+		if( !draw->isDrawableEffectivelyHidden() && !draw->getFullyObscuredByShroud() )
+		{
+			UnicodeString text;
+			text.format( u"-%d", max( 1, REAL_TO_INT( state.pending + 0.5f ) ) );
+			Coord3D at = *draw->getPosition();
+			at.z += obj->getGeometryInfo().getMaxHeightAbovePosition();
+			TheInGameUI->addFloatingText( text, &at, GameMakeColor( 255, 48, 48, 255 ) );	// the money text's loss red
+		}
+		state.pending = 0.0f;
+		state.shownFrame = now;
+	}
+}
+
+//-------------------------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------------------------
 Drawable::~Drawable()
 {
 	Int i;
+
+	theDamageNumbers.erase( getID() );
 
 	if( m_constructDisplayString )
 		TheDisplayStringManager->freeDisplayString( m_constructDisplayString );
@@ -1411,7 +1710,9 @@ const Vector3 * Drawable::getSelectionColor( void )	const
 	if( LogicThread::isInsideWindow() )
 		return m_lookForDraw.hasSelectionColor ? &m_lookForDraw.selectionColor : NULL;
 	// the target of the local player's order, lit for a blip (Drawable_flashOrderTargets)
-	static const Vector3 ORDER_FLASH_RED( 1.0f, 0.05f, 0.02f );
+	// summed into every scene light and the ambient like the Hit Flash: red comes from taking green and
+	// blue away, since a positive tint on all three only pushes a bright target toward white
+	static const Vector3 ORDER_FLASH_RED( 0.5f, -0.6f, -0.6f );
 	if( m_orderFlash )
 		return &ORDER_FLASH_RED;
 	if (m_selectionFlashEnvelope)
@@ -1479,6 +1780,19 @@ void Drawable::startCollapse()
 }
 
 //-------------------------------------------------------------------------------------------------
+void Drawable::reactToImpact( const Coord3D &pos, Real radius, const Coord3D *source )
+{
+	if( !m_takesImpacts )
+		return;
+	const Bool hasSource = source != NULL;
+	const Coord3D from = hasSource ? *source : pos;
+	doClientWork( [this, pos, radius, hasSource, from]() {
+		for( DrawModule **dm = getDrawModulesNonDirty(); *dm; ++dm )
+			(*dm)->reactToImpact( pos, radius, hasSource ? &from : NULL );
+	}, WORK_AFTER_FLUSH );
+}
+
+//-------------------------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------------------------
 void Drawable::reactToBodyDamageStateChange(BodyDamageType newState)
 {
@@ -1539,6 +1853,9 @@ void Drawable::imitateStealthLook( Drawable& otherDraw )
   m_stealthLook = otherDraw.getStealthLook();
   m_stealthDrawnLook = otherDraw.getStealthDrawnLook();
   m_stealthFade = otherDraw.getStealthFade();
+  m_stealthOverPaint = otherDraw.getStealthOverPaint();
+  m_stealthAmber = otherDraw.getStealthAmber();
+  m_stealthEnemy = otherDraw.getStealthEnemy();
   m_secondMaterialPassOpacity = otherDraw.getSecondMaterialPassOpacity();
 
 }
@@ -1697,6 +2014,35 @@ void Drawable::updateDrawable( void )
 
 	if (m_colorTintEnvelope)
 	  m_colorTintEnvelope->update(); // defector fx, disable fx, etc...
+
+	// Hit Flash: the body stamps the frame it last took damage (healing does not stamp it), and a new
+	// stamp lights the drawable through the selection flash's envelope.  Read here, outside the render
+	// window, like the dead check above; the logic never sees the option.
+	if( TheGlobalData->m_hitFlash && obj )
+	{
+		const BodyModuleInterface *body = obj->getBodyModule();
+		const UnsignedInt hitFrame = body ? body->getLastDamageTimestamp() : 0xffffffff;
+		const UnsignedInt flashFrames = LOGICFRAMES_PER_SECOND / 5;	// a fifth of a wall second: the client walk runs once a tick
+		const UnsignedInt cooldownFrames = LOGICFRAMES_PER_SECOND * 3 / 5;	// at most one flash every 0.6 wall seconds
+		if( Drawable_hitFlashDue( hitFrame, m_hitFlashFrame, now, flashFrames, cooldownFrames ) && !obj->isEffectivelyDead() )
+		{
+			// W3DScene adds this to every scene light's diffuse and to the ambient, so it lands three or
+			// four times over: a positive green and blue brightened every channel and a struck tan tank
+			// clamped to white.  Red reads by taking green and blue away, as Frenzy's infantry tint does,
+			// and only a little of it: summed about twice over on a face (ambient plus the lights it
+			// faces), 0.15/-0.2 painted a whole Battlemaster red.  This is a hint on the shaded paint;
+			// an overbright sunlit face mostly clamps it away.
+			static const RGBColor HIT_FLASH_COLOR = { 0.04f, -0.05f, -0.05f };
+			if( m_selectionFlashEnvelope == NULL )
+				m_selectionFlashEnvelope = newInstance(TintEnvelope);
+			m_selectionFlashEnvelope->play( &HIT_FLASH_COLOR, 0, flashFrames );
+			m_hitFlashFrame = hitFrame;
+		}
+	}
+
+	// Damage Numbers: the body's health drop, read in the same place, and the figure on the floating text line
+	if( TheGlobalData->m_damageNumbers && obj )
+		showDamageNumber( this, obj, now );
 
 	if (m_selectionFlashEnvelope)
 		m_selectionFlashEnvelope->update(); // selection flashing
@@ -3176,10 +3522,23 @@ void Drawable::validatePos() const
 //=============================================================================
 void Drawable::setStealthLook(StealthLookType look)
 {
+	// a look takeLookForDraw set itself for a unit spawned cloaked, now answered by the logic
+	const Bool wasProvisional = !m_stealthLookKnown && m_stealthProvisionalFrame != 0;
+	m_stealthProvisionalFrame = 0;
+	m_stealthLookKnown = TRUE;
+	// who the look is for: an ally's cloak is glass, an enemy's goes to and from nothing
+	if( look == STEALTHLOOK_VISIBLE_FRIENDLY || look == STEALTHLOOK_VISIBLE_FRIENDLY_DETECTED )
+		m_stealthEnemy = FALSE;
+	else if( look != STEALTHLOOK_NONE )
+		m_stealthEnemy = TRUE;
 	if (look != m_stealthLook)
 	{
 		const StealthLookType previous = m_stealthLook;
 		const Bool wasHidden = m_hiddenByStealth;
+		// an enemy part-way into its cloak's glass (draw()'s cloakingOut)
+		const Bool midCloakOut = previous == STEALTHLOOK_INVISIBLE && !wasHidden
+			&& ( m_stealthDrawnLook == STEALTHLOOK_VISIBLE_FRIENDLY
+				|| m_stealthDrawnLook == STEALTHLOOK_VISIBLE_FRIENDLY_DETECTED );
 
 		m_stealthOpacity = 1.0f;	//assume not transparent
 		switch (look)
@@ -3187,6 +3546,15 @@ void Drawable::setStealthLook(StealthLookType look)
 			case STEALTHLOOK_NONE:
 				m_hiddenByStealth = false;
 				m_secondMaterialPassOpacity = 0.0f;
+				// An enemy dropping its cloak out of hiding (it fired) comes in as one's own unit leaves
+				// its cloak: glass at once, the front then crossing it to paint, instead of popping in.
+				// Not out of a provisional hiding the logic never asked for: that unit snaps in.
+				if( wasHidden && previous == STEALTHLOOK_INVISIBLE && stealthFadesByShader() && !isKindOf( KINDOF_MINE )
+					&& !wasProvisional )
+				{
+					m_stealthDrawnLook = STEALTHLOOK_VISIBLE_FRIENDLY;
+					m_stealthFade = 1.0f;
+				}
 				break;
 
 			case STEALTHLOOK_VISIBLE_FRIENDLY:
@@ -3234,6 +3602,12 @@ void Drawable::setStealthLook(StealthLookType look)
 			case STEALTHLOOK_DISGUISED_ENEMY:
 				m_hiddenByStealth = false;
 				m_secondMaterialPassOpacity = 0.0f;
+				// a disguise taken half-way into the glass shows at once, as it always did
+				if( midCloakOut )
+				{
+					m_stealthDrawnLook = STEALTHLOOK_DISGUISED_ENEMY;
+					m_stealthFade = 0.0f;
+				}
 				break;
 
 			// this is for the non-controllingplayer that can see me anyway
@@ -3249,32 +3623,55 @@ void Drawable::setStealthLook(StealthLookType look)
 
 			case STEALTHLOOK_INVISIBLE:
 				m_secondMaterialPassOpacity = 0.0f;
-				// snap hide when the unit has never been drawn stealthed: an enemy spawning cloaked
-				// must not flash a frame of its body.  Classic and Direct3D 9 have no cloak shader
-				// to fade with, so they hide at once as they did in 2003.  The D3D11 path keeps
-				// drawing while draw() eases the fade out.
+				// snap hide when the unit has not been on the screen in plain sight: an enemy spawning
+				// cloaked must not flash a frame of its body.  One that was seen goes into its cloak
+				// the way one's own does, paint to glass, and is gone once the glass is whole (draw()).
+				// Classic and Direct3D 9 have no cloak shader to fade with, so they hide at once as
+				// they did in 2003.  The D3D11 path keeps drawing while draw() eases the fade.
 				{
-					const Bool shaderFade = TheGlobalData
-						&& TheGlobalData->m_direct3D11
-						&& !TheGlobalData->m_classicGraphics;
-					if( ( previous == STEALTHLOOK_NONE && m_stealthFade <= 0.0f ) || !shaderFade )
+					const Bool fromPlainSight = previous == STEALTHLOOK_NONE && m_stealthFade <= 0.0f;
+					// a frame that could not draw the glass (a screen filter holds the target) hides at once
+					// rather than hold the painted body for the fade
+					const Bool wasShown = m_stealthShownLastMs != 0 && !isKindOf( KINDOF_MINE ) && theStealthCloakDrawn
+						&& theStealthClockMs - m_stealthShownLastMs <= STEALTH_SHOWN_MS
+						&& m_stealthShownLastMs - m_stealthShownSinceMs >= STEALTH_SHOWN_MS;
+					if( ( fromPlainSight && !wasShown ) || !stealthFadesByShader() )
 					{
 						m_hiddenByStealth = true;
 						m_stealthDrawnLook = STEALTHLOOK_INVISIBLE;
 						m_stealthFade = 0.0f;
 					}
 					else
+					{
 						m_hiddenByStealth = false;
+						if( fromPlainSight )
+							m_stealthDrawnLook = STEALTHLOOK_VISIBLE_FRIENDLY;
+					}
 				}
 				break;
 		}
 
 		m_stealthLook = look;
 
+		// the heat's far end: the paint while plain sight is either end of the fade, else nothing
+		// A heat still building out of nothing (a detector found the unit a moment before it broke
+		// its own stealth) keeps building to whole first and only then turns to paint (draw()):
+		// flipped to paint here, every pixel the heat had not reached yet came in opaque at once.
+		// Direct3D 11 only: the others draw no heat fade to finish.
+		if( look == STEALTHLOOK_NONE )
+			m_stealthOverPaint = !( stealthFadesByShader() && m_stealthDrawnLook == STEALTHLOOK_VISIBLE_DETECTED
+				&& !m_stealthOverPaint && m_stealthFade < 1.0f );
+		// A unit found part-way into its glass still shows its paint, so the heat comes up over the
+		// paint from the start instead of out of nothing.
+		else if( look == STEALTHLOOK_VISIBLE_DETECTED )
+			m_stealthOverPaint = ( previous == STEALTHLOOK_NONE || midCloakOut );
+		else if( look == STEALTHLOOK_INVISIBLE )
+			m_stealthOverPaint = FALSE;
+
 		if( look != STEALTHLOOK_INVISIBLE && look != STEALTHLOOK_NONE && look != STEALTHLOOK_DISGUISED_ENEMY )
 		{
 			m_stealthDrawnLook = look;
-			if( wasHidden )
+			if( wasHidden || ( midCloakOut && look == STEALTHLOOK_VISIBLE_DETECTED ) )
 				m_stealthFade = 0.0f;
 		}
 
@@ -3297,15 +3694,21 @@ void Drawable::draw( View *view )
 	//
 	static UnsignedInt fadeFrame = ~0;
 	static UnsignedInt fadeLastMs = 0;
+	static Bool fadeOnPicture = FALSE;
 	static Real fadeScalar = MATERIAL_PASS_OPACITY_FADE_SCALAR;
 
 	if ( fadeFrame != TheGameClient->getFrame() )
 	{
 		fadeFrame = TheGameClient->getFrame();
 
-		const UnsignedInt nowMs = Clock_Milliseconds();
-		if ( fadeLastMs == 0 )
+		// a recorded picture is its share of a logic frame however long it took to draw and save, so
+		// the fades run on the picture's clock there (stealthClockNow)
+		Bool onPicture = FALSE;
+		const UnsignedInt nowMs = stealthClockNow( onPicture );
+		if ( fadeLastMs == 0 || onPicture != fadeOnPicture || nowMs < fadeLastMs )
 			fadeLastMs = nowMs;
+		fadeOnPicture = onPicture;
+		theStealthClockMs = nowMs;
 
 		Real steps = (Real)( nowMs - fadeLastMs ) * 0.001f * 30.0f;
 		fadeLastMs = nowMs;
@@ -3325,38 +3728,47 @@ void Drawable::draw( View *view )
 		  m_secondMaterialPassOpacity = 0.0f;
   }
 
-	{
-		const Bool wantEffect = ( m_stealthLook == STEALTHLOOK_VISIBLE_FRIENDLY
-			|| m_stealthLook == STEALTHLOOK_VISIBLE_FRIENDLY_DETECTED
-			|| m_stealthLook == STEALTHLOOK_VISIBLE_DETECTED );
-		if( wantEffect )
-		{
-			m_stealthDrawnLook = m_stealthLook;
-			m_stealthFade = 1.0f - ( 1.0f - m_stealthFade ) * fadeScalar;
-			if( m_stealthFade > 0.999f )
-				m_stealthFade = 1.0f;
-		}
-		else
-		{
-			m_stealthFade *= fadeScalar;
-			if( m_stealthFade <= VERY_TRANSPARENT_MATERIAL_PASS_OPACITY )
-			{
-				m_stealthFade = 0.0f;
-				m_stealthDrawnLook = m_stealthLook;
-				if( m_stealthLook == STEALTHLOOK_INVISIBLE && !m_hiddenByStealth )
-				{
-					m_hiddenByStealth = true;
-					updateHiddenStatus();
-				}
-			}
-		}
-	}
+	// the stealth fades move in advanceStealthFades, once a rendered picture
 
 	if (m_hidden || m_hiddenByStealth || getFullyObscuredByShroud())
 		return;	// my, that was easy
 
+	// on the screen in plain sight, or fading into its glass (setStealthLook's fade into the cloak
+	// asks, and the fade itself, to tell a skipped frame)
+	if( m_stealthLook == STEALTHLOOK_NONE || ( m_stealthLook == STEALTHLOOK_INVISIBLE
+		&& ( m_stealthDrawnLook == STEALTHLOOK_VISIBLE_FRIENDLY || m_stealthDrawnLook == STEALTHLOOK_VISIBLE_FRIENDLY_DETECTED ) ) )
+	{
+		if( m_stealthShownLastMs == 0 || theStealthClockMs - m_stealthShownLastMs > STEALTH_SHOWN_MS )
+			m_stealthShownSinceMs = theStealthClockMs;
+		m_stealthShownLastMs = theStealthClockMs;
+	}
+
+	// A detected enemy's heat casts nothing, as the heat vision never did.  On Direct3D 11 the shadow
+	// changes at the fade's middle, with the body: a heat over paint keeps the paint's shadow for its
+	// first half (going) or last half (coming back), and an enemy going into its cloak keeps it until
+	// half its body is gone.  The others switch at the look, as they always did.
 	if ( getObject() && !getObject()->isEffectivelyDead() )
-		setShadowsEnabled( m_stealthLook != STEALTHLOOK_VISIBLE_DETECTED );
+	{
+		Bool shadows;
+		if( stealthFadesByShader() )
+		{
+			const Bool heat = m_stealthLook == STEALTHLOOK_VISIBLE_DETECTED || m_stealthDrawnLook == STEALTHLOOK_VISIBLE_DETECTED;
+			const Bool cloakingOut = m_stealthLook == STEALTHLOOK_INVISIBLE
+				&& ( m_stealthDrawnLook == STEALTHLOOK_VISIBLE_FRIENDLY || m_stealthDrawnLook == STEALTHLOOK_VISIBLE_FRIENDLY_DETECTED );
+			if( heat )
+				shadows = m_stealthOverPaint && m_stealthDrawnLook == STEALTHLOOK_VISIBLE_DETECTED && m_stealthFade < 0.5f;
+			else if( m_stealthLook == STEALTHLOOK_INVISIBLE )
+				shadows = cloakingOut && m_stealthFade < 0.5f;
+			else
+				// an enemy coming in out of nothing (it fired) casts from its middle on
+				shadows = !( m_stealthEnemy && m_stealthLook == STEALTHLOOK_NONE && m_stealthFade >= 0.5f
+					&& m_stealthDrawnLook == STEALTHLOOK_VISIBLE_FRIENDLY );
+		}
+		else
+			shadows = m_stealthLook != STEALTHLOOK_VISIBLE_DETECTED
+				&& !( m_stealthDrawnLook == STEALTHLOOK_VISIBLE_DETECTED && m_stealthFade > 0.0f );
+		setShadowsEnabled( shadows );
+	}
 
 
 
@@ -3974,6 +4386,15 @@ void Drawable::drawIconUI( void )
 	if( barOnly && !TheGlobalData->m_directorRecord )
 		return;
 
+	// a Lane War plot unit is a piece on a board: the board shows nothing over it
+	if( m_iconUIHidden )
+		return;
+
+	// A unit the logic hides from this player shows nothing over it, though its body may still be
+	// fading out on Direct3D 11: the bar would outlive the body and say where it went.
+	if( m_stealthLook == STEALTHLOOK_INVISIBLE )
+		return;
+
 	if( TheGameLogic->getDrawIconUI() && (TheScriptEngine->getFade()==ScriptEngine::FADE_NONE) )
 	{
 		IRegion2D healthBarRegionStorage;
@@ -4130,6 +4551,23 @@ Bool Drawable_emptySeatsShow( Bool isStructure, Bool isGarrisonable, Bool isHeal
 }
 
 // ------------------------------------------------------------------------------------------------
+Bool Drawable_hitFlashDue( UnsignedInt hitFrame, UnsignedInt flashedHitFrame, UnsignedInt now, UnsignedInt window,
+													 UnsignedInt cooldown )
+{
+	// ActiveBody's "never hit" stamp is 0xffffffff, in the future of every frame
+	if( hitFrame == flashedHitFrame || hitFrame > now )
+		return FALSE;
+	// a hit older than the flash itself is one this drawable never saw happen: the first look after a
+	// load, or after the box was ticked mid-match, finds every old stamp and lights nothing
+	if( now - hitFrame >= window )
+		return FALSE;
+	// under steady fire the body restamps every shot, and answering each one kept a tank red nine
+	// frames in ten: a hit inside the cooldown of the last flash stays dark (a never or future stamp
+	// there is no last flash)
+	return flashedHitFrame > now || now - flashedHitFrame >= cooldown;
+}
+
+// ------------------------------------------------------------------------------------------------
 // ------------------------------------------------------------------------------------------------
 Int Drawable_pipPixel( Real uiScale )
 {
@@ -4196,7 +4634,16 @@ namespace
 // ------------------------------------------------------------------------------------------------
 Int Drawable::loadPips( const IRegion2D *healthBarRegion, Bool draw ) const
 {
-	const Real s = Drawable_pipScale( TheUIScale(), TheTacticalView->getZoom() );
+	//
+	// a building's row is half as big again: under a house's wide bar the 6 pixel chips of a Troop
+	// Crawler read as a speck and players missed that it was garrisoned. The same masks and the same
+	// zoom curve, only a larger pixel, so pulled back to twice the default camera a seat is still a
+	// 5 pixel chip with a fill where a vehicle's has already turned to dots.
+	//
+	const Object *obj = getObject();
+	const Real STRUCTURE_PIP_SCALE = 1.5f;
+	const Real s = Drawable_pipScale( TheUIScale(), TheTacticalView->getZoom() )
+		* ( obj && obj->isKindOf( KINDOF_STRUCTURE ) ? STRUCTURE_PIP_SCALE : 1.0f );
 	const Int e = pipLen( 1, s, 1 );		// the edge
 	const Int gap = pipLen( 2, s, 1 );
 	const Int c = pipLen( 6, s, 2 );		// a seat's side
@@ -4527,7 +4974,9 @@ void Drawable::drawUIText()
 	}
 
 
-	if ( obj->getFormationID() != NO_FORMATION_ID )
+	// Direct Strike puts every wave in a formation to hold it to its slowest unit's speed; the player
+	// never made it, so it wears no F there
+	if ( obj->getFormationID() != NO_FORMATION_ID && ( TheLaneWarDirector == NULL || !TheLaneWarDirector->isActive() ) )
 	{
 		//draw an F, here
 		Coord3D p;
@@ -6014,7 +6463,10 @@ void Drawable::flushModelCondition( Bool onDemand ) const
 		return;
 	}
 	// a shell another drawable's work reaches before its own turn in the flush: the render objects
-	// come first, as they did in the constructor
+	// come first, as they did in the constructor; one the same tick destroyed keeps its states unapplied
+	// and is deleted at the flush unbuilt (doPendingClientWork)
+	if (m_renderPending && m_doomed)
+		return;
 	if (m_renderPending)
 		const_cast<Drawable*>(this)->buildRenderObjects();
 	LogicThread::census( onDemand ? LogicThread::CENSUS_ON_DEMAND_FLUSH : LogicThread::CENSUS_MODEL_CONDITION );
@@ -6069,6 +6521,11 @@ void Drawable::flushModelCondition( Bool onDemand ) const
 //-------------------------------------------------------------------------------------------------
 void Drawable::doPendingClientWork( Bool onDemand )
 {
+	// a shell the same tick destroyed is never drawn: a bone read on it (a queued FX, a death effect at
+	// its bones) finds no render object, which every draw module answers as no bones, rather than
+	// building one for flushDestroyedDrawables to delete
+	if (m_renderPending && m_doomed)
+		return;
 	if (m_renderPending)
 		buildRenderObjects();
 	if (m_isModelDirty || !m_pendingSteps.empty())
@@ -6594,7 +7051,12 @@ void	Drawable::setTimeOfDay(TimeOfDay tod)
 	startAmbientSound(dt, tod);
 
 	ModelConditionFlags c = m_conditionState;
-	c.set(MODELCONDITION_NIGHT, (tod == TIME_OF_DAY_NIGHT) ? 1 : 0);
+	// under the day and night cycle the object's own lights at this frame, never the hour (DayNightCycle.h)
+	const Object *obj = getObject();
+	const Bool night = DayNight_isOn()
+		? (obj != NULL && TheGameLogic != NULL && DayNight_objectLightsOn(obj, TheGameLogic->getFrame()))
+		: tod == TIME_OF_DAY_NIGHT;
+	c.set(MODELCONDITION_NIGHT, night ? 1 : 0);
 	replaceModelConditionFlags(c);
 }
 
@@ -7562,6 +8024,17 @@ void Drawable::xfer( Xfer *xfer )
 		m_stealthLook = STEALTHLOOK_NONE;
 		m_stealthDrawnLook = STEALTHLOOK_NONE;
 		m_stealthFade = 0.0f;
+		m_stealthOverPaint = FALSE;
+		m_stealthHeatHeld = 0.0f;
+		m_stealthAmber = 0.0f;
+		m_stealthShownSinceMs = 0;
+		m_stealthShownLastMs = 0;
+		m_stealthClockMs = 0;
+		m_stealthLookKnown = FALSE;
+		m_stealthEnemy = FALSE;
+		// a loaded unit is not a new one: no provisional look (takeLookForDraw)
+		m_stealthProvisionChecked = TRUE;
+		m_stealthProvisionalFrame = 0;
 		// Also, need to update the hidden status for all sub-modules.
 		if (m_hidden || m_hiddenByStealth) {
 			updateHiddenStatus();

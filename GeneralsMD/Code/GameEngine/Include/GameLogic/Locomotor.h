@@ -136,6 +136,12 @@ public:
 
 	/// the undamaged top speed, dist/frame, before the owner's SpeedScale (the build tooltip's figure)
 	Real getMaxSpeed() const { return m_maxSpeed; }
+	/// the slowest it flies, dist/frame; with the turn rate the tightest circle a delivery plane holds
+	/// (the client's ground marker draws the turning drop from these three, read only)
+	Real getMinSpeed() const { return m_minSpeed; }
+	Real getMaxTurnRate() const { return m_maxTurnRate; }				///< rads/frame, undamaged
+	Real getCirclingRadius() const { return m_circlingRadius; }	///< the holding circle; 0 the tightest, below 0 the other way round
+	LocomotorAppearance getAppearance() const { return m_appearance; }
 
 	void validate();
 
@@ -335,8 +341,6 @@ public:
 		EA's estimate, a speed halfway down to MinSpeed at TurnRate, and no entry.
 	*/
 	Real calcTurnCircle(const Object* obj, Real* entryDist) const;
-	/// which way a jet turns to break off from a target relX ahead of it and relY to its left: +1 left, -1 right (Locomotor_jetBreakOffSide)
-	Real calcJetBreakOffSide(const Object* obj, Real relX, Real relY) const;
 
 	/**
 		A live aircraft on a hovering air locomotor: Comanche, Chinook, Helix and every general's copy.

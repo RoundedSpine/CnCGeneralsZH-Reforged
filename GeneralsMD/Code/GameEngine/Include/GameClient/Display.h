@@ -151,6 +151,13 @@ public:
 	virtual void drawImage( const Image *image, Int startX, Int startY, 
 													Int endX, Int endY, Color color = 0xFFFFFFFF, DrawImageMode mode=DRAW_IMAGE_ALPHA) = 0;
 
+	/** draw the part of an image fit within the screen coordinates that a wedge from the box's centre
+		* covers: from `fromDegrees` clockwise from 12 o'clock through `sweepDegrees` (negative runs
+		* anticlockwise), a ring's piece cut by angle.  It ignores the clip region, so do not call it under
+		* one.  A display without it draws nothing. */
+	virtual void drawImageWedge( const Image *image, Int startX, Int startY, Int endX, Int endY,
+															 Real fromDegrees, Real sweepDegrees, Color color = 0xFFFFFFFF ) { }
+
 	/// draw a video buffer fit within the screen coordinates
 	virtual void drawVideoBuffer( VideoBuffer *buffer, Int startX, Int startY,
 													Int endX, Int endY ) = 0;
@@ -221,6 +228,22 @@ public:
 	virtual Bool isLetterBoxed( void ) { return FALSE; }	//WST 10/2/2002. Added query interface
 	void setLetterBoxAspect( Real widthOverHeight ) { m_letterBoxAspect = widthOverHeight; }	///< the picture the bars leave; 16:9 is the game's, and draws nothing on a 16:9 screen
 	virtual const WideChar *getRendererName( void ) const = 0;	///< the graphics API the picture is presented through, for the HUD corner
+
+	virtual Bool supportsPerPixelLighting(void) const { return FALSE; }
+	virtual Bool supportsHemisphericAmbient(void) const { return FALSE; }
+
+	/** One unit model drawn live inside a rectangle of a shell screen, over whatever 2D was drawn
+		* before it: the object template's draw module model with the skin (0 the default paint) and the
+		* house colour (0 none), standing on a steel plate, turned by turns of a full circle about its
+		* up axis (the caller drives it from the wall clock), x, y, w, h in screen pixels, darkened when
+		* dim (the model, nothing round it).  Turning, the model is framed by what its body sweeps so it
+		* never leaves the rectangle; still, a card's picture at one fixed turn, it has no plate, is seen
+		* from a little higher and is framed tight round its body at that turn.  Rotors are left out
+		* either way, so the body sets the size.  state names one model condition (CARRYING) the model
+		* is shown in, with that state's parts and animation; NULL for its default.  The models stay
+		* cached between calls; freeModelPreviews releases them and the scene, for a screen that closes. */
+	virtual void drawModelPreview( const AsciiString &templateName, Int skin, Color house, Int x, Int y, Int w, Int h, Real turns, Bool dim, Bool still = FALSE, const char *state = NULL ) {}
+	virtual void freeModelPreviews( void ) {}
 
 	virtual void setCinematicText( AsciiString string ) { m_cinematicText = string; }
 	virtual void setCinematicFont( GameFont *font ) { m_cinematicFont = font; }
@@ -407,7 +430,6 @@ struct HudLayoutRects
 	IRegion2D strip;
 	IRegion2D stripButtons[ HUD_STRIP_BUTTONS ];	///< 60x48, the art's own size, at x 8 + 64i, y 1024 (ButtonCommand01..14 in order, to 900)
 	IRegion2D stripClock;							///< 96x48, right edge 4 short of the strip's (1500,1024 at 1920)
-	IRegion2D stripSpare;							///< the strip between the last button and the clock, 8 clear of both (908..1492, y 1024..1072 at 1920): idle, SelectArmy, PlaceBeacon
 
 	// the selection card rising from the strip's top edge at area's left: 0,896 470x120 (its bounds)
 	IRegion2D card;

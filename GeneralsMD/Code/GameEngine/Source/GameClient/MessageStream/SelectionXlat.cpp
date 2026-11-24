@@ -56,6 +56,7 @@
 #include "GameClient/GameWindowManager.h"
 #include "GameClient/GroupPanel.h"
 #include "GameClient/Keyboard.h"
+#include "GameClient/LaneHud.h"
 #include "GameClient/LookAtXlat.h"
 #include "GameClient/SelectionInfo.h"
 #include "GameClient/SelectionPriority.h"
@@ -467,8 +468,9 @@ GameMessageDisposition SelectionTranslator::translateGameMessage(const GameMessa
 				delta.x = abs(pixel.x - m_selectFeedbackAnchor.x);
 				delta.y = abs(pixel.y - m_selectFeedbackAnchor.y);
 
-				// if mouse has moved while left button is down, begin drag selection
-				if (delta.x > TheMouse->m_dragTolerance || delta.y > TheMouse->m_dragTolerance)
+				// if mouse has moved while left button is down, begin drag selection.  Never in Direct Strike:
+				// the board is played by clicks and the HUD's own drags, so the release stays a plain click
+				if ((delta.x > TheMouse->m_dragTolerance || delta.y > TheMouse->m_dragTolerance) && !LaneHud_isShowing())
 				{
 					if (m_dragSelecting == false)
 					{
@@ -1338,6 +1340,7 @@ GameMessageDisposition SelectionTranslator::translateGameMessage(const GameMessa
 			if ( isValidHotkeySquadIndex( group ) )
 			{
 				DEBUG_LOG(("META: create team %d\n",group));
+				GroupPanel_squadChosen( group );	// the group panel's build tray opens for the squad just made, as a pick by its number does
 				// Assign selected items to a group
 				GameMessage *newmsg = TheMessageStream->appendMessage((GameMessage::Type)(GameMessage::MSG_CREATE_TEAM0 + group));
 				m_pendingSquad[ group ].clear();

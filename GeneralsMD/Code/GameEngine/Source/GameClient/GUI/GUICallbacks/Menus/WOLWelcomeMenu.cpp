@@ -46,8 +46,10 @@
 #include "GameLogic/AI.h"
 #include "GameLogic/GameLogic.h"
 #include "GameNetwork/GameInfo.h"
+#include "GameNetwork/NetworkInterface.h"
 
 #include "GameClient/AnimateWindowManager.h"
+#include "GameClient/TankSkin.h"
 #include "GameClient/Display.h"
 #include "GameClient/WindowLayout.h"
 #include "GameClient/Gadget.h"
@@ -83,6 +85,7 @@
 #include "GameClient/GadgetPushButton.h"
 #include "GameClient/DisplayStringManager.h"
 #include "Common/QuickmatchPreferences.h"
+#include "GameNetwork/GUIUtil.h"
 #include "GameNetwork/GeneralsOnline/OnlineBridge.h"
 #include "GameNetwork/WOLBrowser/WebBrowser.h"
 
@@ -110,7 +113,15 @@ static GameWindow *buttonBack = NULL;
 static GameWindow *buttonQuickMatch = NULL;
 static GameWindow *buttonLobby = NULL;
 static GameWindow *buttonPlayAI = NULL;
+static GameWindow *comboBoxAISpeed = NULL;		///< the speed ai.start asks for
 static GameWindow *listboxInfo = NULL;
+
+/// the speed Play vs AI asks for, kept as Quick Match keeps its own
+static Int aiGameSpeed( void )
+{
+	QuickMatchPreferences pref;
+	return OnlineMatchSpeed( pref.getInt( "AIGameSpeed", RETAIL_GAME_SPEED_PERCENT ) );
+}
 
 /// the hub's own window by its name in the master, and its id
 static GameWindow *hubWindow( const char *name, NameKeyType *id = NULL )
@@ -198,15 +209,10 @@ static void fillMOTD(void)
 		return;
 	GadgetListBoxReset(listboxInfo);
 	AsciiString aMotd = TheGameSpyInfo->getMOTD();
-	AsciiString trimmedMotd = aMotd;
-	trimmedMotd.trim();
-	// -online: the server's MOTD alone, without EA's "Welcome to Generals Zero Hour Online." over it;
-	// a line of our own when the server sent none
+	// -online: the server's MOTD alone, without EA's "Welcome to Generals Zero Hour Online." over it
 	UnicodeString headingStr;
 	if (!OnlineIsEnabled())
 		headingStr = TheGameText->fetch("MOTD:NumPlayersHeading");
-	else if (trimmedMotd.isEmpty())
-		headingStr = TheGameText->fetch("GUI:OnlineHubWelcome");
 
 	Bool first = TRUE;
 	UnicodeString line;
@@ -239,9 +245,6 @@ static void fillMOTD(void)
 		}
 		addMOTDLine( UnicodeString(MultiByteToWideCharSingleLine(aLine.str()).c_str()), c );
 	}
-
-	if (OnlineIsEnabled())
-		addMOTDLine( TheGameText->fetch("GUI:OnlineHubMotd3"), UIStyle::MUTED );
 
 	// the scroll bar only for a message longer than its card
 	const ListboxData *list = (const ListboxData *)listboxInfo->winGetUserData();
@@ -302,9 +305,9 @@ static Bool signedIn( void )
 	return TheGameSpyInfo && TheGameSpyInfo->getLocalProfileID() != 0 && !TheGameSpyInfo->isDisconnectedAfterGameStart( NULL );
 }
 
-/* The match: slot 0 the player in that army, slot 1 the computer at the server's rating, on the rung
+/* The match: slot 0 the player in that army, slot 1 the computer at the bot's Elo (OnlineGetAIMatch), on the rung
 	 nearest it as -airating seats it, its army, both colours and both start spots drawn from the seed.  The
-	 ranked speed, retail's pace as a Quick Match plays, and the native tick rate.  Built here rather than through -autoskirmish's door so no
+	 speed ai.ready echoed (the player's pick, retail's pace from an older server), and the native tick rate.  Built here rather than through -autoskirmish's door so no
 	 switch of that door reaches a match the server rates.  FALSE, with nothing started, when the map is not
 	 in this game. */
 static Bool startAIMatch( const OnlineAIMatch &ai )
@@ -330,6 +333,9 @@ static Bool startAIMatch( const OnlineAIMatch &ai )
 	player.setPlayerTemplate( s_aiArmy );
 	player.setColor( -1 );
 	player.setStartPos( -1 );
+	// what the account wears, as the server last said: drawing only, the logic and its CRC never read it,
+	// and the server strips it from the replay it keeps of the match
+	player.setSkins( TankSkin_localLoadout() );
 
 	static const SlotState RUNG_STATES[ AISKILL_COUNT ] = { SLOT_EASY_AI, SLOT_MED_AI, SLOT_BRUTAL_AI };
 	const AISkillLevel rung = aiSkillOfRating( ai.aiRating );
@@ -347,7 +353,7 @@ static Bool startAIMatch( const OnlineAIMatch &ai )
 	TheSkirmishGameInfo->setSlot( 1, computer );
 	TheSkirmishGameInfo->setLocalIP( TheSkirmishGameInfo->getSlot( 0 )->getIP() );
 	TheSkirmishGameInfo->setMap( md->m_fileName );
-	TheSkirmishGameInfo->setGameSpeedPercent( RETAIL_GAME_SPEED_PERCENT );
+	TheSkirmishGameInfo->setGameSpeedPercent( ai.speed );
 	TheSkirmishGameInfo->setSeed( ai.seed );
 	TheWritableGlobalData->m_mapName = TheSkirmishGameInfo->getMap();
 	TheSkirmishGameInfo->startGame( 0 );
@@ -358,9 +364,9 @@ static Bool startAIMatch( const OnlineAIMatch &ai )
 	msg->appendIntegerArgument( DIFFICULTY_NORMAL );
 	msg->appendIntegerArgument( 0 );
 	msg->appendIntegerArgument( LOGICFRAMES_PER_SECOND );			// the native tick, whatever -fps says
-	msg->appendIntegerArgument( RETAIL_GAME_SPEED_PERCENT );
-	DEBUG_LOG(("ONLINE AI START match=%s map=%s seed=%d aiRating=%.2f rung=%d army=%d\n", ai.match.str(),
-		md->m_fileName.str(), ai.seed, ai.aiRating, (Int)rung, s_aiArmy));
+	msg->appendIntegerArgument( ai.speed );
+	DEBUG_LOG(("ONLINE AI START match=%s map=%s seed=%d aiRating=%.2f rung=%d army=%d speed=%d\n", ai.match.str(),
+		md->m_fileName.str(), ai.seed, ai.aiRating, (Int)rung, s_aiArmy, ai.speed));
 	return TRUE;
 }
 
@@ -370,7 +376,7 @@ void WOLPlayVsAI( void )
 		return;
 	s_aiArmy = quickMatchArmy();
 	const PlayerTemplate *army = s_aiArmy >= 0 ? ThePlayerTemplateStore->getNthPlayerTemplate( s_aiArmy ) : NULL;
-	OnlineRequestAIMatch( army ? army->getName() : AsciiString( "Random" ) );
+	OnlineRequestAIMatch( army ? army->getName() : AsciiString( "Random" ), aiGameSpeed() );
 	s_aiAsked = TRUE;
 }
 
@@ -444,23 +450,22 @@ static void pressPlay( void )
 // UIStyle::px, the scale the master's boxes were fitted at; the lettering shrinks with them at 4:3
 // (hubPoints), as the master's own does, so a card's words fit the card the master fitted.
 //-------------------------------------------------------------------------------------------------
-enum { CARD_FACTS = 3, RECENT_ROWS = 5 };
+enum { CARD_FACTS = 3, RECENT_ROWS = 6 };
 static const Real FACT_WIDTH = 190.0f;
 static const Real WIDE_FACT_WIDTH = 250.0f;		///< Custom games' one fact, whose label is long in Turkish
-static const Real EXPLAIN_TOP = 238.0f;			///< a card's paragraph, from the card's top
-static const Real EXPLAIN_GAP = 6.0f;				///< between the paragraph's last line and the card's button
+static const Real LEAD_TOP = 56.0f;					///< the lead, or the status line in its place, from the card's top
+static const Real FACTS_TOP = 106.0f;				///< the facts and the figure's label under it
 
 struct HubCard
 {
 	GameWindow *window;
 	Bool portraitColumn;				///< Play vs AI and Quick Match keep the rank portrait's column
 	const Image *portrait;			///< NULL for an unranked player, who shows none
-	Color explainColor;
-	DisplayString *title, *lead, *label, *figure, *tier, *explain;
+	DisplayString *title, *lead, *label, *figure, *tier, *status;
 	DisplayString *factLabel[ CARD_FACTS ], *factValue[ CARD_FACTS ];
 	Int facts;
 	Real factWidth;							///< the facts' column at 1080
-	Int explainRoom;						///< pixels from the paragraph's top to the button under it
+	Int statusRoom;							///< pixels from the lead's top to the facts
 };
 enum { CARD_AI, CARD_QUICK_MATCH, CARD_CUSTOM, CARD_COUNT };
 static HubCard s_cards[ CARD_COUNT ];
@@ -486,6 +491,27 @@ static Int s_cardsLock = 0;					///< the Quick Match lock's seconds the card las
 static UnsignedInt s_recentSerial = 0;		///< OnlineGetHistorySerial as the rows were last built
 static Bool s_recentStale = TRUE;				///< new strings: build the rows whatever the serial says
 
+/* A match the player dropped out of that the others still play (the sign-in's match.rejoinable): the
+	 recent matches' card shows it instead, its players in two columns, with Rejoin at its foot. */
+enum { REJOIN_ROWS = 8, REJOIN_COLUMN_ROWS = 4 };
+static GameWindow *buttonRejoin = NULL;
+static NameKeyType buttonRejoinID = NAMEKEY_INVALID;
+static Bool s_rejoinShown = FALSE;				///< the card is the match still running
+static Bool s_rejoinAsked = FALSE;				///< match.rejoin is out
+static Bool s_rejoinStale = TRUE;				///< new strings: build the rows whatever the serial says
+static UnsignedInt s_rejoinSerial = 0;
+static Int s_rejoinSecond = -1;					///< the elapsed seconds the line last showed
+static UnicodeString s_rejoinHead;				///< mode and map, before the elapsed time
+static DisplayString *s_rejoinTitle = NULL;
+static DisplayString *s_rejoinLine = NULL;		///< mode, map, how long it has run
+static DisplayString *s_rejoinNote = NULL;		///< a wait or a refusal, empty otherwise
+static Color s_rejoinNoteColor = 0;
+static DisplayString *s_rejoinChip[ REJOIN_ROWS ];
+static DisplayString *s_rejoinNick[ REJOIN_ROWS ];
+static DisplayString *s_rejoinSide[ REJOIN_ROWS ];
+static Bool s_rejoinPresent[ REJOIN_ROWS ];
+static Int s_rejoinRows = 0;
+
 static std::vector<DisplayString *> s_strings;		///< every string the cards made, freed together
 
 static DisplayString *hubString( GameFont *font )
@@ -505,6 +531,11 @@ static void freeHubStrings( void )
 	memset( s_recent, 0, sizeof( s_recent ) );
 	s_recentTitle = s_recentLine = s_motdTitle = NULL;
 	s_recentRows = 0;
+	memset( s_rejoinChip, 0, sizeof( s_rejoinChip ) );
+	memset( s_rejoinNick, 0, sizeof( s_rejoinNick ) );
+	memset( s_rejoinSide, 0, sizeof( s_rejoinSide ) );
+	s_rejoinTitle = s_rejoinLine = s_rejoinNote = NULL;
+	s_rejoinRows = 0;
 }
 
 /// a layout's points on the cards: UIStyle's size at 16:9 and wider, shrunk with the fitted board at 4:3
@@ -526,27 +557,18 @@ static GameFont *headingFont( void )
 }
 static GameFont *chipFont( void )			{ return UIStyle::readableFont( hubPoints( UIStyle::TEXT_SMALL ), TRUE ); }
 
-static void makeCard( HubCard &card, const char *window, const char *button, const char *title, const char *lead,
+static void makeCard( HubCard &card, const char *window, const char *title, const char *lead,
 	const char *label, Bool portraitColumn, Real factWidth, Int facts, const char *const factKeys[] )
 {
 	card.window = hubWindow( window );
 	card.portraitColumn = portraitColumn;
 	card.portrait = NULL;
-	card.explainColor = UIStyle::MUTED;
 	card.factWidth = factWidth;
 	Int w = 0, h = 0;
 	if (card.window)
 		card.window->winGetSize( &w, &h );
-	// the paragraph has the card from its top to the button the master put under it
-	card.explainRoom = h - UIStyle::px( EXPLAIN_TOP );
-	GameWindow *action = hubWindow( button );
-	if (card.window && action)
-	{
-		Int cardX, cardY, buttonX, buttonY;
-		card.window->winGetScreenPosition( &cardX, &cardY );
-		action->winGetScreenPosition( &buttonX, &buttonY );
-		card.explainRoom = buttonY - cardY - UIStyle::px( EXPLAIN_TOP + EXPLAIN_GAP );
-	}
+	// a status line takes the lead's place and its rule, down to the facts
+	card.statusRoom = UIStyle::px( FACTS_TOP - LEAD_TOP - 6.0f );
 	GameFont *body = bodyFont();
 	const Int inner = w - UIStyle::px( 48.0f );
 	card.title = hubString( headingFont() );
@@ -560,8 +582,8 @@ static void makeCard( HubCard &card, const char *window, const char *button, con
 	card.label->setText( label ? UIStyle::fitKey( label, body, figureWidth ) : UnicodeString::TheEmptyString );
 	card.figure = hubString( UIStyle::titleFont( hubPoints( UIStyle::TEXT_DISPLAY ) ) );
 	card.tier = hubString( body );
-	card.explain = hubString( body );
-	card.explain->setWordWrap( inner );
+	card.status = hubString( body );
+	card.status->setWordWrap( inner );
 	card.facts = facts;
 	for (Int i = 0; i < facts; ++i)
 	{
@@ -575,8 +597,13 @@ static void drawModeCard( const HubCard &card, Int x, Int y, Int w )
 {
 	const Int left = x + UIStyle::px( 24.0f );
 	UIStyle::heading( card.title, left, y + UIStyle::px( 22.0f ) );
-	card.lead->draw( left, y + UIStyle::px( 56.0f ), UIStyle::MUTED, UIStyle::SHADOW );
-	TheDisplay->drawFillRect( left, y + UIStyle::px( 92.0f ), w - UIStyle::px( 48.0f ), 1, UIStyle::GRID );
+	if (card.status->getTextLength() == 0)
+	{
+		card.lead->draw( left, y + UIStyle::px( LEAD_TOP ), UIStyle::MUTED, UIStyle::SHADOW );
+		TheDisplay->drawFillRect( left, y + UIStyle::px( 92.0f ), w - UIStyle::px( 48.0f ), 1, UIStyle::GRID );
+	}
+	else
+		card.status->draw( left, y + UIStyle::px( LEAD_TOP ), UIStyle::INK, UIStyle::SHADOW );
 
 	Int figureX = left;
 	if (card.portraitColumn)
@@ -593,10 +620,8 @@ static void drawModeCard( const HubCard &card, Int x, Int y, Int w )
 
 	const Int factsX = x + w - UIStyle::px( 24.0f + card.factWidth );
 	for (Int i = 0; i < card.facts; ++i)
-		UIStyle::fact( card.factLabel[ i ], card.factValue[ i ], factsX, y + UIStyle::px( 106.0f + 36.0f * i ),
+		UIStyle::fact( card.factLabel[ i ], card.factValue[ i ], factsX, y + UIStyle::px( FACTS_TOP + 36.0f * i ),
 			UIStyle::px( card.factWidth ), UIStyle::px( 36.0f ) );
-
-	card.explain->draw( left, y + UIStyle::px( EXPLAIN_TOP ), card.explainColor, UIStyle::SHADOW );
 }
 
 /// a cell's words centred on the row, from x, or ending at x when right
@@ -643,6 +668,43 @@ static void drawRecent( Int x, Int y, Int w )
 	}
 }
 
+/// the left of the card that Rejoin leaves free: the button's 300 and its 24 inset, and 24 more between
+static Int rejoinRoom( Int w )
+{
+	return w - UIStyle::px( 24.0f + 300.0f + 24.0f + 24.0f );
+}
+
+/// the match still running, on the recent matches' card: heading, mode and map with how long it has run,
+/// then each seat with a chip saying whether it plays on, in two columns of four, and the note at the foot
+static void drawRejoin( Int x, Int y, Int w, Int h )
+{
+	const Int left = x + UIStyle::px( 24.0f );
+	UIStyle::heading( s_rejoinTitle, left, y + UIStyle::px( 20.0f ) );
+	s_rejoinLine->draw( left, y + UIStyle::px( 58.0f ), UIStyle::INK, UIStyle::SHADOW );
+	TheDisplay->drawFillRect( left, y + UIStyle::px( 92.0f ), w - UIStyle::px( 48.0f ), 1, UIStyle::GRID );
+	const Int rowTop = y + UIStyle::px( 102.0f );
+	const Int rowHeight = UIStyle::px( 34.0f );
+	const Int columnWidth = rejoinRoom( w ) / 2;
+	for (Int r = 0; r < s_rejoinRows; ++r)
+	{
+		const Int cellX = left + ( r / REJOIN_COLUMN_ROWS ) * columnWidth;
+		const Int top = rowTop + ( r % REJOIN_COLUMN_ROWS ) * rowHeight;
+		Int cw, ch;
+		s_rejoinChip[ r ]->getSize( &cw, &ch );
+		const Int chipHeight = ch + UIStyle::tallPx( 5.0f ) + UIStyle::tallPx( 4.0f );
+		const Int chipWidth = UIStyle::chip( s_rejoinChip[ r ], cellX, top + ( rowHeight - chipHeight ) / 2,
+			s_rejoinPresent[ r ] ? UIStyle::ACTIVE : UIStyle::MUTED, UIStyle::FRAME );
+		const Int nickX = cellX + chipWidth + UIStyle::px( 10.0f );
+		drawCell( s_rejoinNick[ r ], nickX, top, rowHeight, s_rejoinPresent[ r ] ? UIStyle::INK : UIStyle::MUTED );
+		Int nw, nh;
+		s_rejoinNick[ r ]->getSize( &nw, &nh );
+		drawCell( s_rejoinSide[ r ], nickX + nw + UIStyle::px( 8.0f ), top, rowHeight, UIStyle::MUTED );
+	}
+	Int nw, nh;
+	s_rejoinNote->getSize( &nw, &nh );
+	s_rejoinNote->draw( left, y + h - UIStyle::px( 24.0f ) - nh, s_rejoinNoteColor, UIStyle::SHADOW );
+}
+
 /// every card's draw: the card's box, then what it holds
 static void drawHubCard( GameWindow *window, WinInstanceData *instData )
 {
@@ -657,7 +719,9 @@ static void drawHubCard( GameWindow *window, WinInstanceData *instData )
 		if (s_cards[ c ].window == window)
 			drawModeCard( s_cards[ c ], x, y, w );
 	}
-	if (window == s_cardRecent)
+	if (window == s_cardRecent && s_rejoinShown)
+		drawRejoin( x, y, w, h );
+	else if (window == s_cardRecent)
 		drawRecent( x, y, w );
 	if (window == s_cardMOTD)
 		UIStyle::heading( s_motdTitle, x + UIStyle::px( 24.0f ), y + UIStyle::px( 20.0f ) );
@@ -677,16 +741,13 @@ static void makeCards( void )
 	static const char *const qmFacts[] = { "GUI:OnlinePlaceLabel", "GUI:OnlineHubRecord", "GUI:OnlineHubInQueue" };
 	// the client knows players online and open games, not who sits in a room or plays: one fact
 	static const char *const customFacts[] = { "GUI:OnlineLoginOnlineNow" };
-	makeCard( s_cards[ CARD_AI ], "CardPlayVsAI", "ButtonPlayVsAI", "GUI:OnlineHubVsAITitle", "GUI:OnlineHubVsAILead",
+	makeCard( s_cards[ CARD_AI ], "CardPlayVsAI", "GUI:OnlineHubVsAITitle", "GUI:OnlineHubVsAILead",
 		"GUI:OnlineAIRatingLabel", TRUE, FACT_WIDTH, 3, aiFacts );
-	makeCard( s_cards[ CARD_QUICK_MATCH ], "CardQuickMatch", "ButtonQuickMatch", "GUI:OnlineQuickMatchLabel",
+	makeCard( s_cards[ CARD_QUICK_MATCH ], "CardQuickMatch", "GUI:OnlineQuickMatchLabel",
 		"GUI:OnlineHubQuickMatchLead", "GUI:OnlineLadderRatingLabel", TRUE, FACT_WIDTH, 3, qmFacts );
-	makeCard( s_cards[ CARD_CUSTOM ], "CardCustom", "ButtonCustomMatch", "GUI:OnlineHubCustomTitle", "GUI:OnlineHubCustomLead",
+	makeCard( s_cards[ CARD_CUSTOM ], "CardCustom", "GUI:OnlineHubCustomTitle", "GUI:OnlineHubCustomLead",
 		"GUI:OnlineOpenGamesLabel", FALSE, WIDE_FACT_WIDTH, 1, customFacts );
-	// the speed every Play vs AI match plays at, startAIMatch's
-	UnicodeString speed;
-	speed.format( u"%d.%dx", RETAIL_GAME_SPEED_PERCENT / 100, RETAIL_GAME_SPEED_PERCENT % 100 / 10 );
-	s_cards[ CARD_AI ].factValue[ 2 ]->setText( speed );
+	// the Speed fact's value is the master's ComboBoxGameSpeed, over its place
 
 	s_cardRecent = hubWindow( "CardRecent" );
 	s_cardMOTD = hubWindow( "CardMOTD" );
@@ -699,6 +760,17 @@ static void makeCards( void )
 	for (Int r = 0; r < RECENT_ROWS; ++r)
 		for (Int c = 0; c < CELL_COUNT; ++c)
 			s_recent[ r ][ c ] = hubString( c == CELL_CHIP ? chipFont() : bodyFont() );
+	s_rejoinTitle = hubString( headingFont() );
+	s_rejoinTitle->setText( UIStyle::fitKey( "GUI:OnlineRejoinTitle", headingFont(), w - UIStyle::px( 48.0f ) ) );
+	s_rejoinLine = hubString( bodyFont() );
+	s_rejoinNote = hubString( bodyFont() );
+	for (Int r = 0; r < REJOIN_ROWS; ++r)
+	{
+		s_rejoinChip[ r ] = hubString( chipFont() );
+		s_rejoinNick[ r ] = hubString( bodyFont() );
+		s_rejoinSide[ r ] = hubString( bodyFont() );
+	}
+	s_rejoinStale = TRUE;
 	// the cells on this screen, each edge rounded once so the row keeps its width; the result column
 	// as wide as its widest chip (Turkish's loss outgrows "Loss"), the extra taken from the map's
 	Real at = 0.0f;
@@ -738,19 +810,15 @@ static void makeCards( void )
 	s_recentStale = TRUE;
 }
 
-/// key's "<key>_Short" form, or empty when the strings have none
-static UnicodeString shortFormOf( const char *key )
-{
-	AsciiString shortKey;
-	shortKey.format( "%s_Short", key );
-	return UIStyle::hasText( shortKey.str() ) ? TheGameText->fetch( shortKey ) : UnicodeString::TheEmptyString;
-}
-
-/** A card's paragraph in the room over its button: the text, else its short form, in the body face;
-	* then in each smaller size down to the layout's own body size, the size the master's fit gives (at
+/** A card's status line (a refusal, the Quick Match lock) in the lead's place, empty for none: in the body
+	* face, then in each smaller size down to the layout's own body size, the size the master's fit gives (at
 	* 1280x720 and at 4:3 the readable floor grows the body face past what the room holds). */
-static void fitParagraph( HubCard &card, const UnicodeString &text, const UnicodeString &shortForm )
+static void setCardStatus( HubCard &card, const UnicodeString &text )
 {
+	card.status->setFont( bodyFont() );
+	card.status->setText( text );
+	if (text.isEmpty())
+		return;
 	std::vector<GameFont *> faces( 1, bodyFont() );
 	for (Int points = hubPoints( UIStyle::TEXT_BODY ); ; ++points)
 	{
@@ -761,18 +829,11 @@ static void fitParagraph( HubCard &card, const UnicodeString &text, const Unicod
 	}
 	for (size_t i = 0; i < faces.size(); ++i)
 	{
-		card.explain->setFont( faces[ i ] );
-		const UnicodeString *forms[] = { &text, &shortForm };
-		for (size_t f = 0; f < sizeof( forms ) / sizeof( forms[ 0 ] ); ++f)
-		{
-			if (forms[ f ]->isEmpty())
-				continue;
-			card.explain->setText( *forms[ f ] );
-			Int width, height;
-			card.explain->getSize( &width, &height );
-			if (height <= card.explainRoom)
-				return;
-		}
+		card.status->setFont( faces[ i ] );
+		Int width, height;
+		card.status->getSize( &width, &height );
+		if (height <= card.statusRoom)
+			return;
 	}
 }
 
@@ -801,23 +862,19 @@ static void refreshCards( void )
 	UnicodeString text;
 
 	HubCard &ai = s_cards[ CARD_AI ];
-	const UIStyle::RatingTier aiTier = UIStyle::ratingTier( info.aiRating, info.hasAIRating ? info.aiGames : -1 );
+	const UIStyle::RatingTier aiTier = UIStyle::aiRatingTier( info.aiRating, info.hasAIRating ? info.aiGames : -1 );
 	ai.portrait = UIStyle::tierImage( aiTier, side );
-	ai.figure->setText( info.hasAIRating ? UIStyle::ratingText( info.aiRating ) : none );
+	ai.figure->setText( info.hasAIRating ? UIStyle::eloText( info.aiRating ) : none );
 	ai.tier->setText( OnlineTierName( UIStyle::tierKey( aiTier ) ) );
 	ai.factValue[ 0 ]->setText( info.hasAIRating ? UIStyle::grouped( info.aiGames ) : none );
 	ai.factValue[ 1 ]->setText( info.hasAIRating && info.aiGames > 0
 		? UIStyle::percentText( UIStyle::percent( info.aiWins, info.aiGames ) ) : none );
-	ai.explainColor = s_aiRefusal.isEmpty() ? UIStyle::MUTED : UIStyle::INK;
-	if (s_aiRefusal.isEmpty())
-		fitParagraph( ai, TheGameText->fetch( "GUI:OnlineHubVsAIExplain" ), shortFormOf( "GUI:OnlineHubVsAIExplain" ) );
-	else
-		fitParagraph( ai, s_aiRefusal, UnicodeString::TheEmptyString );
+	setCardStatus( ai, s_aiRefusal );
 
 	HubCard &qm = s_cards[ CARD_QUICK_MATCH ];
 	const UIStyle::RatingTier tier = UIStyle::playerTier( info );
 	qm.portrait = UIStyle::tierImage( tier, side );
-	qm.figure->setText( info.hasRating ? UIStyle::ratingText( info.exactRating ) : none );
+	qm.figure->setText( info.hasRating ? UIStyle::ladderText( info.shown(), info.hasElo ) : none );
 	qm.tier->setText( OnlineTierName( UIStyle::tierKey( tier ) ) );
 	// under five rated games the ladder places nobody: how far along instead (-1 is a count nobody sent)
 	if (info.hasRating && info.games >= 0 && info.games < UIStyle::RANKED_GAMES)
@@ -833,27 +890,18 @@ static void refreshCards( void )
 		text = none;
 	qm.factValue[ 1 ]->setText( text );
 	qm.factValue[ 2 ]->setText( counts[ 2 ] >= 0 ? UIStyle::grouped( counts[ 2 ] ) : none );
-	// a player who left a ranked match waits out the server's lock: how long, over Find match, greyed meanwhile
+	// a player who left a ranked match waits out the server's lock: how long, in the lead's place, Find
+	// match greyed meanwhile
 	static const Int SECONDS_PER_MINUTE = 60;
-	qm.explainColor = lock > 0 ? UIStyle::INK : UIStyle::MUTED;
+	text.clear();
 	if (lock > 0)
-	{
 		text.format( TheGameText->fetch( "GUI:OnlineHubQuickMatchLocked" ), lock / SECONDS_PER_MINUTE, lock % SECONDS_PER_MINUTE );
-		fitParagraph( qm, text, UnicodeString::TheEmptyString );
-	}
-	else
-		fitParagraph( qm, TheGameText->fetch( "GUI:OnlineHubQuickMatchExplain" ), shortFormOf( "GUI:OnlineHubQuickMatchExplain" ) );
+	setCardStatus( qm, text );
 
 	HubCard &custom = s_cards[ CARD_CUSTOM ];
 	custom.figure->setText( counts[ 1 ] >= 0 ? UIStyle::grouped( counts[ 1 ] ) : none );
 	custom.factValue[ 0 ]->setText( counts[ 0 ] >= 0 ? UIStyle::grouped( counts[ 0 ] ) : none );
-	const UnicodeString server = LobbyServerLabel();
-	text.format( TheGameText->fetch( "GUI:OnlineHubCustomExplain" ), server.str() );
-	const UnicodeString shortPattern = shortFormOf( "GUI:OnlineHubCustomExplain" );
-	UnicodeString shortText;
-	if (!shortPattern.isEmpty())
-		shortText.format( shortPattern.str(), server.str() );
-	fitParagraph( custom, text, shortText );
+	setCardStatus( custom, UnicodeString::TheEmptyString );
 }
 
 /// how long ago, in the coarsest unit that says it
@@ -902,7 +950,7 @@ static void refreshRecent( void )
 		cell[ CELL_CHIP ]->setText( TheGameText->fetch( row.won ? "GUI:OnlineWinLabel" : "GUI:OnlineLossLabel" ) );
 		cell[ CELL_MODE ]->setText( UIStyle::fitKey( row.ai ? "GUI:OnlineHubMatchAI" : "GUI:OnlineQuickMatchLabel", body,
 			s_cellWidth[ CELL_MODE ] - pad ) );
-		cell[ CELL_RATING ]->setText( UIStyle::ratingText( row.opponentRating ) );
+		cell[ CELL_RATING ]->setText( UIStyle::ladderText( row.opponentRating, row.ai || row.hasElo ) );
 		Int ratingWidth, h;
 		cell[ CELL_RATING ]->getSize( &ratingWidth, &h );
 		UnicodeString opponent;
@@ -920,9 +968,149 @@ static void refreshRecent( void )
 		else
 			map = UnicodeString( MultiByteToWideCharSingleLine( row.map.str() ).c_str() );
 		cell[ CELL_MAP ]->setText( UIStyle::fitText( map, body, s_cellWidth[ CELL_MAP ] - pad, UnicodeString::TheEmptyString, map ) );
-		cell[ CELL_CHANGE ]->setText( UIStyle::ratingText( row.change, TRUE ) );
+		cell[ CELL_CHANGE ]->setText( UIStyle::ladderText( row.change, row.hasElo, TRUE ) );
 		cell[ CELL_AGE ]->setText( ageText( row.age ) );
 	}
+}
+
+static void setRejoinNote( const UnicodeString &text, Color color )
+{
+	s_rejoinNoteColor = color;
+	Int w = 0, h = 0;
+	if (s_cardRecent)
+		s_cardRecent->winGetSize( &w, &h );
+	s_rejoinNote->setText( UIStyle::fitText( text, bodyFont(), rejoinRoom( w ) ) );
+}
+
+/// a match.refused code in words
+static UnicodeString rejoinRefusalText( const AsciiString &code )
+{
+	if (code == "crc")
+		return TheGameText->fetch( "GUI:OnlineRejoinRefusedCrc" );
+	if (code == "norelay")
+		return TheGameText->fetch( "GUI:OnlineRejoinRefusedRelay" );
+	return TheGameText->fetch( "GUI:OnlineRejoinRefused" );
+}
+
+/// the match still running: the card's rows when the offer changes, its clock every second, Rejoin's
+/// answer as it comes (the match goes to OnlineStartRejoin, a refusal onto the card or into a box when the
+/// match went with it)
+static void pressRejoin( void );
+
+static void refreshRejoin( void )
+{
+	if (s_strings.empty())
+		return;
+	OnlineRejoinable offer;
+	const Bool offered = OnlineGetRejoinable( offer );
+	// -onlinerejoin: Rejoin pressed for a script, once, the moment the card offers it
+	if (offered && TheGlobalData->m_onlineAutoRejoin && !s_rejoinAsked)
+	{
+		TheWritableGlobalData->m_onlineAutoRejoin = FALSE;
+		DEBUG_LOG(("ONLINE REJOIN PRESS match=%s\n", offer.match.str()));
+		pressRejoin();
+	}
+	if (s_rejoinStale || offer.serial != s_rejoinSerial)
+	{
+		s_rejoinStale = FALSE;
+		s_rejoinSerial = offer.serial;
+		s_rejoinSecond = -1;
+		Int w = 0, h = 0;
+		if (s_cardRecent)
+			s_cardRecent->winGetSize( &w, &h );
+		GameFont *body = bodyFont();
+		UnicodeString map;
+		if (offer.ranked || offer.map.isEmpty())
+			map = TheGameText->fetch( "GUI:Random" );		// a Quick Match's map is made from its seed
+		else if (const MapMetaData *md = TheMapCache ? TheMapCache->findMap( offer.map ) : NULL)
+			map = md->m_displayName;
+		else
+		{
+			AsciiString stem = offer.map;
+			const char *slash = strrchr( stem.str(), '\\' );
+			stem = slash ? AsciiString( slash + 1 ) : stem;
+			if (stem.endsWithNoCase( ".map" ))
+				for (Int i = 0; i < 4; ++i)
+					stem.removeLastChar();
+			map.translate( stem );
+		}
+		s_rejoinHead.format( u"%ls \x00B7 %ls \x00B7 ",
+			TheGameText->fetch( offer.ranked ? "GUI:OnlineQuickMatchLabel" : "GUI:OnlineRejoinCustom" ).str(), map.str() );
+		const Int column = rejoinRoom( w ) / 2;
+		s_rejoinRows = min( (Int)offer.players.size(), (Int)REJOIN_ROWS );
+		for (Int r = 0; r < s_rejoinRows; ++r)
+		{
+			const OnlineRejoinSeat &seat = offer.players[ r ];
+			s_rejoinPresent[ r ] = seat.present;
+			s_rejoinChip[ r ]->setText( TheGameText->fetch( seat.present ? "GUI:OnlineRejoinPlaying" : "GUI:OnlineRejoinAway" ) );
+			Int chipWidth, chipHeight;
+			s_rejoinChip[ r ]->getSize( &chipWidth, &chipHeight );
+			const Int room = column - chipWidth - 2 * UIStyle::tallPx( 8.0f ) - UIStyle::px( 10.0f + 8.0f + 12.0f );
+			const PlayerTemplate *pt = seat.side >= 0 && ThePlayerTemplateStore ? ThePlayerTemplateStore->getNthPlayerTemplate( seat.side ) : NULL;
+			const UnicodeString side = pt ? pt->getDisplayName() : TheGameText->fetch( "GUI:Random" );
+			// the nick has the room the side's words leave, at most two thirds of it
+			s_rejoinSide[ r ]->setText( UIStyle::fitText( side, body, room / 3 ) );
+			Int sideWidth, sideHeight;
+			s_rejoinSide[ r ]->getSize( &sideWidth, &sideHeight );
+			s_rejoinNick[ r ]->setText( UIStyle::fitName( UnicodeString( MultiByteToWideCharSingleLine( seat.nick.str() ).c_str() ),
+				body, room - sideWidth ) );
+		}
+		if (!s_rejoinAsked)
+			setRejoinNote( UnicodeString::TheEmptyString, UIStyle::MUTED );
+	}
+	if (offered && offer.elapsedSeconds != s_rejoinSecond)
+	{
+		s_rejoinSecond = offer.elapsedSeconds;
+		UnicodeString elapsed;
+		elapsed.format( TheGameText->fetch( "GUI:OnlineRejoinElapsed" ), offer.elapsedSeconds / 60, offer.elapsedSeconds % 60 );
+		Int w = 0, h = 0;
+		if (s_cardRecent)
+			s_cardRecent->winGetSize( &w, &h );
+		UnicodeString line = s_rejoinHead;
+		line.concat( elapsed );
+		s_rejoinLine->setText( UIStyle::fitText( line, bodyFont(), w - UIStyle::px( 48.0f ) ) );
+	}
+	s_rejoinShown = offered;
+	if (buttonRejoin)
+	{
+		buttonRejoin->winHide( !offered );
+		buttonRejoin->winEnable( offered && !s_rejoinAsked && !s_joiningRoom && !s_aiAsked );
+	}
+
+	RejoinInfo info;
+	AsciiString refusal;
+	const OnlineRejoinState state = OnlineGetRejoin( info, refusal );
+	if (state == ONLINE_REJOIN_READY)
+	{
+		s_rejoinAsked = FALSE;
+		DEBUG_LOG(("ONLINE WELCOME rejoin=%s\n", info.match.str()));
+		OnlineStartRejoin( info );
+		// the match starts from its log, which a seat in the room sends once the room stands for this one
+		if (TheNetwork && TheNetwork->isRejoining())
+		{
+			s_rejoinAsked = TRUE;
+			setRejoinNote( TheGameText->fetch( "GUI:RejoinWaitingForLog" ), UIStyle::MUTED );
+		}
+	}
+	else if (state == ONLINE_REJOIN_REFUSED)
+	{
+		s_rejoinAsked = FALSE;
+		if (OnlineGetRejoinable( offer ))
+			setRejoinNote( rejoinRefusalText( refusal ), UIStyle::INK );
+		else
+			GSMessageBoxOk( TheGameText->fetch( "GUI:GSErrorTitle" ), rejoinRefusalText( refusal ) );
+	}
+}
+
+static void pressRejoin( void )
+{
+	if (s_rejoinAsked)
+		return;
+	s_rejoinAsked = TRUE;
+	setRejoinNote( TheGameText->fetch( "GUI:OnlineRejoinWaiting" ), UIStyle::MUTED );
+	if (buttonRejoin)
+		buttonRejoin->winEnable( FALSE );
+	OnlineRequestRejoin();
 }
 
 /// whether joinBestGroupRoom sends a join: no room held, and a room besides Quick Match's channel to
@@ -1035,6 +1223,15 @@ void WOLWelcomeMenuInit( WindowLayout *layout, void *userData )
 	buttonPlayAI = hubWindow( "ButtonPlayVsAI", &buttonPlayAIID );
 	GameWindow *buttonSignOut = hubWindow( "ButtonSignOut", &buttonSignOutID );
 	listboxInfo = hubWindow( "InfoListbox" );
+	// shown while the server offers a match still running (refreshRejoin)
+	buttonRejoin = hubWindow( "ButtonRejoin", &buttonRejoinID );
+	if (buttonRejoin)
+	{
+		buttonRejoin->winSetEnabledTextColors( UIStyle::ACTIVE, UIStyle::SHADOW );
+		buttonRejoin->winHide( TRUE );
+	}
+	s_rejoinShown = FALSE;
+	s_rejoinAsked = FALSE;
 
 	// the master's frame: the tabs with Home open, the header over the panel, the cards behind the buttons
 	UIStyle::onlinePageInit( parentWOLWelcome, "WOLWelcomeMenu.wnd", UIStyle::ONLINE_TAB_HOME );
@@ -1062,6 +1259,13 @@ void WOLWelcomeMenuInit( WindowLayout *layout, void *userData )
 	{
 		buttonPlayAI->winSetEnabledTextColors( UIStyle::ACTIVE, UIStyle::SHADOW );
 		buttonPlayAI->winHide( !OnlineIsEnabled() );
+	}
+	// Play vs AI's speed in the value's place of its card's Speed fact
+	comboBoxAISpeed = hubWindow( "ComboBoxGameSpeed" );
+	if (comboBoxAISpeed)
+	{
+		PopulatePlayerGameSpeedComboBox( comboBoxAISpeed, aiGameSpeed() );
+		comboBoxAISpeed->winHide( !OnlineIsEnabled() );
 	}
 	if (buttonSignOut)
 		buttonSignOut->winHide( !OnlineIsEnabled() );
@@ -1139,6 +1343,7 @@ void WOLWelcomeMenuInit( WindowLayout *layout, void *userData )
 void WOLWelcomeMenuShutdown( WindowLayout *layout, void *userData )
 {
 	listboxInfo = NULL;
+	buttonRejoin = NULL;
 
 	if (TheFirewallHelper != NULL) {
 		delete TheFirewallHelper;
@@ -1295,6 +1500,7 @@ void WOLWelcomeMenuUpdate( WindowLayout * layout, void *userData)
 			applyControls();
 			refreshCards();
 			refreshRecent();
+			refreshRejoin();
 		}
 
 		// -online scripting: once per process, the click a player would make next.  -quickmatch opens Quick
@@ -1400,6 +1606,18 @@ WindowMsgHandledType WOLWelcomeMenuSystem( GameWindow *window, UnsignedInt msg,
 				return MSG_HANDLED;
 			}//case GWM_INPUT_FOCUS:
 
+		case GCM_SELECTED:
+			{
+				// Play vs AI's speed, kept for the next Play and the score screen's Play again
+				if ((GameWindow *)mData1 == comboBoxAISpeed)
+				{
+					QuickMatchPreferences pref;
+					pref.setInt( "AIGameSpeed", PlayerGameSpeedFromComboBox( comboBoxAISpeed, RETAIL_GAME_SPEED_PERCENT ) );
+					pref.write();
+				}
+				break;
+			}
+
 		case GBM_SELECTED:
 			{
 				if (buttonPushed || s_aiAsked)		// the server's answer to Play vs AI comes first
@@ -1439,6 +1657,10 @@ WindowMsgHandledType WOLWelcomeMenuSystem( GameWindow *window, UnsignedInt msg,
 				else if (controlID == buttonPlayAIID)
 				{
 					pressPlay();
+				}
+				else if (controlID == buttonRejoinID)
+				{
+					pressRejoin();
 				}
 				break;
 			}// case GBM_SELECTED:

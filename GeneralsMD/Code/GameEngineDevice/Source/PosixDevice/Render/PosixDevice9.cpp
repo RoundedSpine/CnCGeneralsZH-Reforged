@@ -168,6 +168,7 @@ PosixDevice9::PosixDevice9(PosixDirect3D9 *adapter, RenderWindow window, const D
 
 PosixDevice9::~PosixDevice9()
 {
+	Release_Post(true);
 	Clear_Sun_Shadow();
 	Sun.reset();
 	Shore_End();
@@ -220,6 +221,12 @@ RenderResult PosixDevice9::Create_Gpu_Frame(bool offscreen)
 	Gpu = SdlGpuFrame::Create(Window, Parameters.BackBufferWidth, Parameters.BackBufferHeight, error);
 	if (Gpu == NULL) {
 		fprintf(stderr, "PosixDevice9: a window, and no SDL3 GPU device for it: %s\n", error.c_str());
+		return D3DERR_NOTAVAILABLE;
+	}
+	if (!Gpu->Configure_Presentation(Parameters.PresentationInterval != D3DPRESENT_INTERVAL_IMMEDIATE)) {
+		fprintf(stderr, "PosixDevice9: cannot configure window presentation: %s\n", SDL_GetError());
+		delete Gpu;
+		Gpu = NULL;
 		return D3DERR_NOTAVAILABLE;
 	}
 	Set_Renderer_Name(SDL_GetGPUDeviceDriver(Gpu->Device()));
@@ -534,16 +541,30 @@ RenderResult PosixDevice9::Reset(D3DPRESENT_PARAMETERS *parameters)
 		}
 	}
 	SdlGpuFrame::ResizeFailure failure = SdlGpuFrame::RESIZE_NONE;
+	const bool previous_presentation_ready = Gpu == NULL || Gpu->Presentation_Ready();
+	const bool previous_vsync = Gpu != NULL && Gpu->Using_VSync();
+	if (Gpu != NULL && !Gpu->Configure_Presentation(parameters->PresentationInterval != D3DPRESENT_INTERVAL_IMMEDIATE)) {
+		back->Release();
+		if (depth) depth->Release();
+		return D3DERR_DEVICELOST;
+	}
 	// Restore an active capture before Resize can retire the scene attachments it restores to.
 	bool capture_submitted = true;
 	if (SunActive) End_Sun_Shadow(&capture_submitted);
+	Finish_Post(true);
 	if (!capture_submitted || (Gpu != NULL && !Gpu->Resize(parameters->BackBufferWidth,
 		parameters->BackBufferHeight, &failure))) {
+		const bool presentation_restored = previous_presentation_ready && (Gpu == NULL
+			|| (Gpu->Configure_Presentation(previous_vsync) && Gpu->Presentation_Ready()
+				&& Gpu->Using_VSync() == previous_vsync));
+		if (!presentation_restored)
+			fprintf(stderr, "PosixDevice9: cannot restore presentation after failed reset: %s\n", SDL_GetError());
 		back->Release();
 		if (depth) depth->Release();
-		return !capture_submitted || failure == SdlGpuFrame::RESIZE_FLUSH_FAILED
+		return !capture_submitted || !presentation_restored || failure == SdlGpuFrame::RESIZE_FLUSH_FAILED
 			? D3DERR_DEVICELOST : D3DERR_OUTOFVIDEOMEMORY;
 	}
+	Release_Post();
 	Shore_End();
 	Clear_Sun_Shadow();
 	Sun.reset();

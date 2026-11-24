@@ -35,6 +35,7 @@
 #include "Platform/WaterConstants.h"
 
 #include <math.h>
+#include <stddef.h>
 #include <stdio.h>
 #include <string.h>
 #include <chrono>
@@ -1955,6 +1956,204 @@ TEST(dx11backend_skinned_shadow_casters_write_the_depth_the_cpu_skinned_draws_wr
 	backend.Shutdown();
 }
 
+static unsigned covered_texels(const std::vector<unsigned> & depths)
+{
+	unsigned covered = 0;
+	for (size_t texel = 0; texel < depths.size(); ++texel) {
+		if (depths[texel] != 0x00ffffff) {
+			++covered;
+		}
+	}
+	return covered;
+}
+
+// An alpha tested caster (a tree's leaves, a fence) drawn instanced has to cut the same texels out
+// of the sun's map as the generated program's alpha test does, to the bit: the tilted quad of the
+// rigid test, twice, under a texture whose alphas sit either side of the material's 0x60 reference,
+// 0x5f and 0x60 among them, so a reference off by a level or a comparison the wrong way round shows.
+TEST(dx11backend_alpha_tested_shadow_casters_cut_the_texels_the_old_draws_cut)
+{
+	static const unsigned ALPHA_SIZE = 4;
+
+	DX11DeviceClass device;
+	CHECK(device.Create_Offscreen());
+	ID3D11Device * d3d = device.Get_Device();
+
+	DX11BackendClass backend;
+	CHECK(backend.Initialise(&device));
+	configure_unlit_pass_through(backend);
+
+	float sun[16];
+	set_identity(sun);
+	sun[0] = 0.5f;
+	sun[5] = 0.5f;
+	sun[10] = 0.1f;
+	backend.Set_Transform(D3DTS_PROJECTION, sun);
+
+	float worlds[2][16];
+	const float angles[2] = { 0.5236f, -1.1f };
+	const float moves[2][3] = { { 0.3f, -0.2f, 2.75f }, { -0.45f, 0.35f, 3.1f } };
+	for (unsigned copy = 0; copy < 2; ++copy) {
+		set_identity(worlds[copy]);
+		worlds[copy][0] = cosf(angles[copy]);
+		worlds[copy][1] = sinf(angles[copy]);
+		worlds[copy][4] = -sinf(angles[copy]);
+		worlds[copy][5] = cosf(angles[copy]);
+		worlds[copy][12] = moves[copy][0];
+		worlds[copy][13] = moves[copy][1];
+		worlds[copy][14] = moves[copy][2];
+	}
+
+	// The tilted quad, with the whole texture across it.
+	BackendVertex vertices_data[4];
+	memcpy(vertices_data, QUAD_VERTICES, sizeof(vertices_data));
+	const float depths_at[4] = { 0.37f, 1.91f, 4.13f, 2.59f };
+	const float corners[4][2] = { { 0.0f, 0.0f }, { 0.0f, 1.0f }, { 1.0f, 1.0f }, { 1.0f, 0.0f } };
+	for (unsigned index = 0; index < 4; ++index) {
+		vertices_data[index].Position[0] *= 1.3f;
+		vertices_data[index].Position[1] *= 0.9f;
+		vertices_data[index].Position[2] = depths_at[index];
+		vertices_data[index].TexCoord0[0] = corners[index][0];
+		vertices_data[index].TexCoord0[1] = corners[index][1];
+	}
+	ID3D11Buffer * vertices = NULL;
+	CHECK(DX11Resource_Create_Vertex_Buffer(d3d, sizeof(vertices_data), D3DPOOL_MANAGED, 0,
+		vertices_data, &vertices));
+	ID3D11Buffer * indices = NULL;
+	CHECK(DX11Resource_Create_Index_Buffer(d3d, sizeof(QUAD_INDICES), D3DPOOL_MANAGED, 0,
+		QUAD_INDICES, &indices));
+
+	// Sixteen texels, white, each its own alpha: kept at and above 0x60, cut below it.
+	static const unsigned char ALPHAS[ALPHA_SIZE * ALPHA_SIZE] = {
+		0xff, 0x00, 0x60, 0x5f,
+		0x5f, 0x60, 0x00, 0xff,
+		0x80, 0x40, 0xff, 0x00,
+		0x00, 0xff, 0x61, 0x5e };
+	unsigned texels[ALPHA_SIZE * ALPHA_SIZE];
+	for (unsigned texel = 0; texel < ALPHA_SIZE * ALPHA_SIZE; ++texel) {
+		texels[texel] = ((unsigned)ALPHAS[texel] << 24) | 0x00ffffff;
+	}
+	D3D11_TEXTURE2D_DESC texture_description;
+	memset(&texture_description, 0, sizeof(texture_description));
+	texture_description.Width = ALPHA_SIZE;
+	texture_description.Height = ALPHA_SIZE;
+	texture_description.MipLevels = 1;
+	texture_description.ArraySize = 1;
+	texture_description.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
+	texture_description.SampleDesc.Count = 1;
+	texture_description.Usage = D3D11_USAGE_IMMUTABLE;
+	texture_description.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+	D3D11_SUBRESOURCE_DATA texture_data;
+	texture_data.pSysMem = texels;
+	texture_data.SysMemPitch = ALPHA_SIZE * sizeof(unsigned);
+	texture_data.SysMemSlicePitch = 0;
+	ID3D11Texture2D * texture = NULL;
+	CHECK(SUCCEEDED(d3d->CreateTexture2D(&texture_description, &texture_data, &texture)));
+	ID3D11ShaderResourceView * texture_view = NULL;
+	CHECK(SUCCEEDED(d3d->CreateShaderResourceView(texture, NULL, &texture_view)));
+
+	// What renderShadowMap sets for the pass, and an alpha tested material's shader: stage 0's alpha
+	// times the opaque diffuse, tested against 0x60, both faces drawn.
+	backend.Set_Render_State(D3DRS_COLORWRITEENABLE, 0);
+	backend.Set_Render_State(D3DRS_ZENABLE, D3DZB_TRUE);
+	backend.Set_Render_State(D3DRS_ZWRITEENABLE, TRUE);
+	backend.Set_Render_State(D3DRS_ZFUNC, D3DCMP_LESSEQUAL);
+	backend.Set_Render_State(D3DRS_CULLMODE, D3DCULL_NONE);
+	backend.Set_Render_State(D3DRS_ALPHATESTENABLE, TRUE);
+	backend.Set_Render_State(D3DRS_ALPHAREF, 0x60);
+	backend.Set_Render_State(D3DRS_ALPHAFUNC, D3DCMP_GREATEREQUAL);
+	backend.Set_Texture_Stage_State(0, D3DTSS_ALPHAOP, D3DTOP_MODULATE);
+	backend.Set_Texture_Stage_State(0, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
+	backend.Set_Texture_Stage_State(0, D3DTSS_ALPHAARG2, D3DTA_DIFFUSE);
+	backend.Set_Sampler_State(0, D3DSAMP_MINFILTER, D3DTEXF_POINT);
+	backend.Set_Sampler_State(0, D3DSAMP_MAGFILTER, D3DTEXF_POINT);
+	backend.Set_Sampler_State(0, D3DSAMP_MIPFILTER, D3DTEXF_NONE);
+	backend.Set_Sampler_State(0, D3DSAMP_ADDRESSU, D3DTADDRESS_CLAMP);
+	backend.Set_Sampler_State(0, D3DSAMP_ADDRESSV, D3DTADDRESS_CLAMP);
+	backend.Set_Texture(0, texture_view);
+
+	CHECK(backend.Begin_Shadow_Map(64));
+	backend.Set_Stream_Source(vertices, sizeof(BackendVertex), 0);
+	backend.Set_Indices(indices, DXGI_FORMAT_R16_UINT);
+	for (unsigned copy = 0; copy < 2; ++copy) {
+		backend.Set_Transform(D3DTS_WORLD, worlds[copy]);
+		CHECK(backend.Draw_Indexed_Triangles(6, 0, 0));
+	}
+	backend.End_Shadow_Map();
+	std::vector<unsigned> old_depths;
+	read_shadow_depths(device, backend, old_depths);
+
+	float rows[2][12];
+	for (unsigned copy = 0; copy < 2; ++copy) {
+		for (unsigned row = 0; row < 3; ++row) {
+			for (unsigned column = 0; column < 4; ++column) {
+				rows[copy][row * 4 + column] = worlds[copy][column * 4 + row];
+			}
+		}
+	}
+	const float * const instance_rows[2] = { rows[0], rows[1] };
+	const unsigned first_bones[2] = { 0, 0 };
+	DX11BackendClass::ShadowCasterRun run;
+	run.Kind = DX11BackendClass::SHADOW_CASTER_ALPHA_TESTED;
+	run.Vertices = vertices;
+	run.Stride = sizeof(BackendVertex);
+	run.TextureOffset = (unsigned)offsetof(BackendVertex, TexCoord0);
+	run.Indices = indices;
+	run.StartIndex = 0;
+	run.IndexCount = 6;
+	run.BaseVertex = 0;
+	run.Strip = false;
+	run.CullMode = D3DCULL_NONE;
+	run.DepthFunction = D3DCMP_LESSEQUAL;
+	run.FirstInstance = 0;
+	run.InstanceCount = 2;
+
+	// The instanced draw, the cull and depth test left somewhere else first, as in the rigid test.
+	backend.Set_Render_State(D3DRS_CULLMODE, D3DCULL_CW);
+	backend.Set_Render_State(D3DRS_ZFUNC, D3DCMP_ALWAYS);
+	CHECK(backend.Begin_Shadow_Map(64));
+	CHECK(backend.Upload_Shadow_Casters(instance_rows, first_bones, 2, NULL, 0));
+	CHECK(backend.Draw_Shadow_Casters(&run, 1));
+	backend.End_Shadow_Map();
+	std::vector<unsigned> lean_depths;
+	read_shadow_depths(device, backend, lean_depths);
+
+	// The same quads opaque, which says the alpha test cut something rather than nothing or all.
+	run.Kind = DX11BackendClass::SHADOW_CASTER_RIGID;
+	run.TextureOffset = 0;
+	CHECK(backend.Begin_Shadow_Map(64));
+	CHECK(backend.Upload_Shadow_Casters(instance_rows, first_bones, 2, NULL, 0));
+	CHECK(backend.Draw_Shadow_Casters(&run, 1));
+	backend.End_Shadow_Map();
+	std::vector<unsigned> opaque_depths;
+	read_shadow_depths(device, backend, opaque_depths);
+
+	const unsigned covered = covered_texels(old_depths);
+	const unsigned opaque = covered_texels(opaque_depths);
+	printf("  %u of %u texels covered, %u opaque\n", covered, (unsigned)old_depths.size(), opaque);
+	CHECK(covered > 0);
+	CHECK(covered < opaque);
+
+	CHECK_EQ(lean_depths.size(), old_depths.size());
+	unsigned differing = 0;
+	for (size_t texel = 0; texel < old_depths.size() && texel < lean_depths.size(); ++texel) {
+		if (old_depths[texel] != lean_depths[texel]) {
+			++differing;
+		}
+	}
+	if (differing != 0) {
+		printf("  %u texels differ\n", differing);
+	}
+	CHECK_EQ(differing, 0u);
+
+	backend.Set_Texture(0, NULL);
+	texture_view->Release();
+	texture->Release();
+	indices->Release();
+	vertices->Release();
+	backend.Shutdown();
+}
+
 // The volumetric hazard clouds' text is the SDL GPU backend's too, written for DXC.  Every pass of
 // it has to go through the compiler this backend uses at shader model 5, and the device has to take
 // what comes out, or the clouds go Classic on the first hazard of the match.
@@ -2469,4 +2668,414 @@ TEST(dx11backend_a_screen_filter_after_a_multisampled_clear_draws_over_a_cleared
 	post.Shutdown();
 	device.Release();
 	DestroyWindow(window);
+}
+
+// The Ray Traced level's grid for rays in any direction: a tilted triangle and one aside binned, one
+// left by an older pass ignored, and rays along the sun's depth and across it, short and long, from
+// inside the grid and from outside it.  The sun's matrix is the identity, so the world is clip space.
+TEST(dx11backend_the_ray_grid_finds_a_triangle_from_any_side)
+{
+	DX11DeviceClass device;
+	device.Request_Debug_Layer();
+	CHECK(device.Create_Offscreen());
+	ID3D11Device * d3d = device.Get_Device();
+	ID3D11DeviceContext * context = device.Get_Context();
+	DX11BackendClass backend;
+	CHECK(backend.Initialise(&device));
+
+	// Stream out fills from slot nought, so this pass is slots 0 to 69 (the tilted triangle again and
+	// again, then the one aside) and the rest an older pass's: a length search that stops short of
+	// the second group of 64 drops the triangle aside.  That one is a cut caster, its stamp negated,
+	// its coordinates running 0 to 1 across from its first corner to its second, on a slice whose
+	// left half is clear: a ray through it counts only past the middle.
+	const unsigned slots = 200;
+	const float stamp = 5.0f;
+	std::vector<float> corners(slots * 12, 0.0f);
+	std::vector<float> cut_coordinates(slots * 12, 0.0f);
+	const float tilted[12] = { -0.3f, -0.3f, 0.3f, stamp, 0.3f, -0.3f, 0.5f, stamp, 0.0f, 0.3f, 0.7f, stamp };
+	const float stale[12] = { 0.5f, 0.5f, 0.2f, 4.0f, 0.7f, 0.5f, 0.2f, 4.0f, 0.6f, 0.7f, 0.2f, 4.0f };
+	const float aside[12] = { 0.7f, -0.8f, 0.1f, -stamp, 0.9f, -0.8f, 0.1f, -stamp, 0.8f, -0.6f, 0.9f, -stamp };
+	const float aside_cut[12] = { 0.0f, 0.5f, 0.0f, 0.5f, 1.0f, 0.5f, 0.0f, 0.5f, 0.0f, 0.5f, 0.0f, 0.5f };
+	for (unsigned slot = 0; slot < 69; ++slot) {
+		memcpy(&corners[12 * slot], tilted, sizeof(tilted));
+	}
+	memcpy(&corners[12 * 69], aside, sizeof(aside));
+	memcpy(&cut_coordinates[12 * 69], aside_cut, sizeof(aside_cut));
+	memcpy(&corners[12 * 70], stale, sizeof(stale));
+	D3D11_BUFFER_DESC description;
+	memset(&description, 0, sizeof(description));
+	description.ByteWidth = static_cast<UINT>(corners.size() * sizeof(float));
+	description.Usage = D3D11_USAGE_DEFAULT;
+	description.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+	D3D11_SUBRESOURCE_DATA data;
+	memset(&data, 0, sizeof(data));
+	data.pSysMem = &corners[0];
+	ID3D11Buffer * corner_buffer = NULL;
+	CHECK(SUCCEEDED(d3d->CreateBuffer(&description, &data, &corner_buffer)));
+	D3D11_SHADER_RESOURCE_VIEW_DESC read;
+	memset(&read, 0, sizeof(read));
+	read.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+	read.ViewDimension = D3D11_SRV_DIMENSION_BUFFER;
+	read.Buffer.NumElements = slots * 3;
+	ID3D11ShaderResourceView * corner_view = NULL;
+	CHECK(SUCCEEDED(d3d->CreateShaderResourceView(corner_buffer, &read, &corner_view)));
+	data.pSysMem = &cut_coordinates[0];
+	ID3D11Buffer * cut_buffer = NULL;
+	CHECK(SUCCEEDED(d3d->CreateBuffer(&description, &data, &cut_buffer)));
+	ID3D11ShaderResourceView * cut_view = NULL;
+	CHECK(SUCCEEDED(d3d->CreateShaderResourceView(cut_buffer, &read, &cut_view)));
+	D3D11_TEXTURE2D_DESC alpha_description;
+	memset(&alpha_description, 0, sizeof(alpha_description));
+	alpha_description.Width = 4;
+	alpha_description.Height = 1;
+	alpha_description.MipLevels = 1;
+	alpha_description.ArraySize = 1;
+	alpha_description.Format = DXGI_FORMAT_R8_UNORM;
+	alpha_description.SampleDesc.Count = 1;
+	alpha_description.Usage = D3D11_USAGE_DEFAULT;
+	alpha_description.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+	const unsigned char alpha_texels[4] = { 0, 0, 255, 255 };
+	D3D11_SUBRESOURCE_DATA alpha_data;
+	memset(&alpha_data, 0, sizeof(alpha_data));
+	alpha_data.pSysMem = alpha_texels;
+	alpha_data.SysMemPitch = sizeof(alpha_texels);
+	ID3D11Texture2D * alpha_texture = NULL;
+	CHECK(SUCCEEDED(d3d->CreateTexture2D(&alpha_description, &alpha_data, &alpha_texture)));
+	ID3D11ShaderResourceView * alpha_view = NULL;
+	CHECK(SUCCEEDED(d3d->CreateShaderResourceView(alpha_texture, NULL, &alpha_view)));
+
+	float identity[16];
+	set_identity(identity);
+	DX11RayGridClass grid;
+	grid.Set_Cut(cut_view, alpha_view);
+	grid.Build(backend, d3d, context, corner_view, 5, slots, identity);
+	CHECK(grid.Built());
+
+	// Origin and reach, then the way, and the answer expected.
+	struct GridRay { float From[4]; float Way[4]; unsigned Hit; };
+	const GridRay rays[] = {
+		{ { 0.0f, -0.05f, 0.0f, 2.0f }, { 0.0f, 0.0f, 1.0f, 0.0f }, 1 },		// up through the tilted one
+		{ { 0.0f, -0.05f, 0.0f, 0.4f }, { 0.0f, 0.0f, 1.0f, 0.0f }, 0 },		// stops short of it
+		{ { -0.9f, 0.0f, 0.55f, 2.0f }, { 1.0f, 0.0f, 0.0f, 0.0f }, 1 },		// across the sun's depth
+		{ { -0.9f, 0.0f, 0.55f, 0.5f }, { 1.0f, 0.0f, 0.0f, 0.0f }, 0 },
+		{ { 0.0f, 0.0f, 0.95f, 1.0f }, { 0.0f, 0.0f, -1.0f, 0.0f }, 1 },		// down from above the grid
+		{ { 0.6f, 0.6f, 0.0f, 2.0f }, { 0.0f, 0.0f, 1.0f, 0.0f }, 0 },		// the stale triangle only
+		{ { -5.0f, 0.0f, 0.55f, 10.0f }, { 1.0f, 0.0f, 0.0f, 0.0f }, 1 },		// from far outside the grid
+		{ { -0.6f, -0.6f, 0.0f, 3.0f }, { 0.6f, 0.6f, 0.8f, 0.0f }, 0 },		// crosses the plane outside the triangle
+		{ { 0.0f, -0.2f, 0.0f, 3.0f }, { 0.1f, 0.3f, 1.0f, 0.0f }, 1 },		// slanted, inside it
+		{ { 0.8f, -0.7f, 0.0f, 2.0f }, { 0.0f, 0.0f, 1.0f, 0.0f }, 0 },		// the one aside, a quarter across: clear
+		{ { 0.86f, -0.78f, 0.0f, 2.0f }, { 0.0f, 0.0f, 1.0f, 0.0f }, 1 },		// three quarters across: solid
+	};
+	const unsigned ray_count = sizeof(rays) / sizeof(rays[0]);
+	std::vector<float> packed;
+	for (unsigned index = 0; index < ray_count; ++index) {
+		packed.insert(packed.end(), rays[index].From, rays[index].From + 4);
+		packed.insert(packed.end(), rays[index].Way, rays[index].Way + 4);
+	}
+	description.ByteWidth = static_cast<UINT>(packed.size() * sizeof(float));
+	data.pSysMem = &packed[0];
+	ID3D11Buffer * ray_buffer = NULL;
+	CHECK(SUCCEEDED(d3d->CreateBuffer(&description, &data, &ray_buffer)));
+	read.Buffer.NumElements = ray_count * 2;
+	ID3D11ShaderResourceView * ray_view = NULL;
+	CHECK(SUCCEEDED(d3d->CreateShaderResourceView(ray_buffer, &read, &ray_view)));
+
+	description.ByteWidth = ray_count * sizeof(unsigned);
+	description.BindFlags = D3D11_BIND_UNORDERED_ACCESS;
+	ID3D11Buffer * result_buffer = NULL;
+	CHECK(SUCCEEDED(d3d->CreateBuffer(&description, NULL, &result_buffer)));
+	D3D11_UNORDERED_ACCESS_VIEW_DESC write;
+	memset(&write, 0, sizeof(write));
+	write.Format = DXGI_FORMAT_R32_UINT;
+	write.ViewDimension = D3D11_UAV_DIMENSION_BUFFER;
+	write.Buffer.NumElements = ray_count;
+	ID3D11UnorderedAccessView * result_view = NULL;
+	CHECK(SUCCEEDED(d3d->CreateUnorderedAccessView(result_buffer, &write, &result_view)));
+
+	const std::string source = DX11RayGridClass::Trace_Program()
+		+ "Buffer<float4> Rays : register(t0);\n"
+		  "RWBuffer<uint> Results : register(u0);\n"
+		  "[numthreads(16, 1, 1)]\n"
+		  "void main(uint3 id : SV_DispatchThreadID)\n"
+		  "{\n"
+		  "    uint count;\n"
+		  "    Rays.GetDimensions(count);\n"
+		  "    if (id.x * 2 >= count) return;\n"
+		  "    float4 from = Rays[id.x * 2];\n"
+		  "    float3 way = normalize(Rays[id.x * 2 + 1].xyz);\n"
+		  "    Results[id.x] = ray_occluded(from.xyz, way, from.w) ? 1 : 0;\n"
+		  "}\n";
+	std::vector<unsigned char> code;
+	CHECK(backend.Compile_Program(source, "raygrid test", "cs_5_0", code));
+	ID3D11ComputeShader * program = NULL;
+	CHECK(!code.empty() && SUCCEEDED(d3d->CreateComputeShader(&code[0], code.size(), NULL, &program)));
+
+	const float no_ground[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+	grid.Bind(context, NULL, no_ground);
+	context->CSSetShaderResources(0, 1, &ray_view);
+	context->CSSetUnorderedAccessViews(0, 1, &result_view, NULL);
+	context->CSSetShader(program, NULL, 0);
+	context->Dispatch(1, 1, 1);
+	ID3D11ShaderResourceView * no_read = NULL;
+	ID3D11UnorderedAccessView * no_write = NULL;
+	context->CSSetShaderResources(0, 1, &no_read);
+	context->CSSetUnorderedAccessViews(0, 1, &no_write, NULL);
+	grid.Unbind(context);
+
+	description.Usage = D3D11_USAGE_STAGING;
+	description.BindFlags = 0;
+	description.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
+	ID3D11Buffer * staging = NULL;
+	CHECK(SUCCEEDED(d3d->CreateBuffer(&description, NULL, &staging)));
+	context->CopyResource(staging, result_buffer);
+	D3D11_MAPPED_SUBRESOURCE mapped;
+	CHECK(SUCCEEDED(context->Map(staging, 0, D3D11_MAP_READ, 0, &mapped)));
+	const unsigned * hits = static_cast<const unsigned *>(mapped.pData);
+	for (unsigned index = 0; index < ray_count; ++index) {
+		if (hits[index] != rays[index].Hit) {
+			printf("  ray %u: hit %u, expected %u\n", index, hits[index], rays[index].Hit);
+		}
+		CHECK_EQ(hits[index], rays[index].Hit);
+	}
+	context->Unmap(staging, 0);
+
+	staging->Release();
+	program->Release();
+	result_view->Release();
+	result_buffer->Release();
+	ray_view->Release();
+	ray_buffer->Release();
+	grid.Release();
+	alpha_view->Release();
+	alpha_texture->Release();
+	cut_view->Release();
+	cut_buffer->Release();
+	corner_view->Release();
+	corner_buffer->Release();
+	backend.Shutdown();
+	device.Release();
+}
+
+// The Ray Traced shadows' multiply under a multisampled scene.  A near triangle (depth 0.2) over far
+// ground (0.9) with its edge across the pixels, the near side lit (1) and the far shadowed (0.25)
+// in a one sample shade worked out from sample 0's depth, as the trace's is: every sample has to
+// come out with its own surface's shade, the edge pixels' other samples included.
+TEST(dx11backend_the_ray_traced_multiply_gives_each_msaa_sample_its_own_surfaces_shade)
+{
+	DX11DeviceClass device;
+	device.Request_Debug_Layer();
+	CHECK(device.Create_Offscreen());
+	ID3D11Device * d3d = device.Get_Device();
+	ID3D11DeviceContext * context = device.Get_Context();
+	DX11BackendClass backend;
+	CHECK(backend.Initialise(&device));
+
+	const unsigned size = 8;
+	const unsigned sample_count = 4;
+	const float near_depth = 0.2f;
+	const float far_depth = 0.9f;
+	const float lit = 1.0f;
+	const float shadowed = 0.25f;
+	UINT quality = 0;
+	CHECK(SUCCEEDED(d3d->CheckMultisampleQualityLevels(DXGI_FORMAT_R32_FLOAT, sample_count, &quality)) && quality > 0);
+
+	D3D11_TEXTURE2D_DESC description;
+	memset(&description, 0, sizeof(description));
+	description.Width = size;
+	description.Height = size;
+	description.MipLevels = 1;
+	description.ArraySize = 1;
+	description.Format = DXGI_FORMAT_R32_FLOAT;
+	description.SampleDesc.Count = 1;
+	description.Usage = D3D11_USAGE_DEFAULT;
+	description.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
+	// Each sample's depth, sample 0's, the shade, the multiply's samples.
+	enum { SAMPLES, FIRST, SHADE, RESULT, TEXTURES };
+	ID3D11Texture2D * textures[TEXTURES] = { NULL, NULL, NULL, NULL };
+	ID3D11RenderTargetView * targets[TEXTURES] = { NULL, NULL, NULL, NULL };
+	ID3D11ShaderResourceView * reads[TEXTURES] = { NULL, NULL, NULL, NULL };
+	for (unsigned index = 0; index < TEXTURES; ++index) {
+		D3D11_TEXTURE2D_DESC texture = description;
+		texture.SampleDesc.Count = (index == SAMPLES || index == RESULT) ? sample_count : 1;
+		CHECK(SUCCEEDED(d3d->CreateTexture2D(&texture, NULL, &textures[index]))
+			&& SUCCEEDED(d3d->CreateRenderTargetView(textures[index], NULL, &targets[index]))
+			&& SUCCEEDED(d3d->CreateShaderResourceView(textures[index], NULL, &reads[index])));
+	}
+
+	// A full screen triangle, and the near one: its long edge from the top right to below the
+	// bottom left, through no pixel centre.
+	const char * const vertex_source =
+		"float4 main(uint id : SV_VertexID) : SV_Position\n"
+		"{\n"
+		"#ifdef NEAR\n"
+		"    const float2 corners[3] = { float2(-1.0, 1.0), float2(1.1, 1.0), float2(-1.0, -1.3) };\n"
+		"    return float4(corners[id], 0.0, 1.0);\n"
+		"#else\n"
+		"    float2 at = float2((id << 1) & 2, id & 2);\n"
+		"    return float4(at * float2(2.0, -2.0) + float2(-1.0, 1.0), 0.0, 1.0);\n"
+		"#endif\n"
+		"}\n";
+	const std::string near_source = std::string("#define NEAR\n") + vertex_source;
+	char near_pixel[96];
+	snprintf(near_pixel, sizeof(near_pixel), "float main() : SV_Target { return %.2f; }\n", near_depth);
+	char shade_pixel[256];
+	snprintf(shade_pixel, sizeof(shade_pixel),
+		"Texture2D<float> First : register(t0);\n"
+		"float main(float4 position : SV_Position) : SV_Target\n"
+		"{ return First.Load(int3(position.xy, 0)) < 0.5 ? %.2f : %.2f; }\n", lit, shadowed);
+	const char * const first_pixel =
+		"Texture2DMS<float> Samples : register(t0);\n"
+		"float main(float4 position : SV_Position) : SV_Target { return Samples.Load(int2(position.xy), 0); }\n";
+	const char * const read_back =
+		"Texture2DMS<float> Samples : register(t0);\n"
+		"Texture2DMS<float> Result : register(t1);\n"
+		"RWBuffer<float2> Out : register(u0);\n"
+		"[numthreads(8, 8, 1)]\n"
+		"void main(uint3 id : SV_DispatchThreadID)\n"
+		"{\n"
+		"    for (uint s = 0; s < 4; ++s)\n"
+		"        Out[(id.y * 8 + id.x) * 4 + s] = float2(Samples.Load(id.xy, s), Result.Load(id.xy, s));\n"
+		"}\n";
+	std::vector<unsigned char> code;
+	ID3D11VertexShader * full_screen = NULL;
+	ID3D11VertexShader * near_corners = NULL;
+	ID3D11PixelShader * near_program = NULL;
+	ID3D11PixelShader * first_program = NULL;
+	ID3D11PixelShader * shade_program = NULL;
+	ID3D11PixelShader * multiply = NULL;
+	ID3D11ComputeShader * reader = NULL;
+	CHECK(backend.Compile_Program(vertex_source, "msaa test", "vs_5_0", code)
+		&& SUCCEEDED(d3d->CreateVertexShader(&code[0], code.size(), NULL, &full_screen)));
+	CHECK(backend.Compile_Program(near_source, "msaa test", "vs_5_0", code)
+		&& SUCCEEDED(d3d->CreateVertexShader(&code[0], code.size(), NULL, &near_corners)));
+	CHECK(backend.Compile_Program(near_pixel, "msaa test", "ps_5_0", code)
+		&& SUCCEEDED(d3d->CreatePixelShader(&code[0], code.size(), NULL, &near_program)));
+	CHECK(backend.Compile_Program(first_pixel, "msaa test", "ps_5_0", code)
+		&& SUCCEEDED(d3d->CreatePixelShader(&code[0], code.size(), NULL, &first_program)));
+	CHECK(backend.Compile_Program(shade_pixel, "msaa test", "ps_5_0", code)
+		&& SUCCEEDED(d3d->CreatePixelShader(&code[0], code.size(), NULL, &shade_program)));
+	CHECK(backend.Compile_Program(DX11BackendClass::Ray_Samples_Program(), "msaa test", "ps_5_0", code)
+		&& SUCCEEDED(d3d->CreatePixelShader(&code[0], code.size(), NULL, &multiply)));
+	CHECK(backend.Compile_Program(read_back, "msaa test", "cs_5_0", code)
+		&& SUCCEEDED(d3d->CreateComputeShader(&code[0], code.size(), NULL, &reader)));
+
+	D3D11_RASTERIZER_DESC rasterizer_description;
+	memset(&rasterizer_description, 0, sizeof(rasterizer_description));
+	rasterizer_description.FillMode = D3D11_FILL_SOLID;
+	rasterizer_description.CullMode = D3D11_CULL_NONE;
+	rasterizer_description.MultisampleEnable = TRUE;
+	ID3D11RasterizerState * rasterizer = NULL;
+	CHECK(SUCCEEDED(d3d->CreateRasterizerState(&rasterizer_description, &rasterizer)));
+	D3D11_VIEWPORT viewport = { 0.0f, 0.0f, static_cast<float>(size), static_cast<float>(size), 0.0f, 1.0f };
+	context->RSSetViewports(1, &viewport);
+	context->RSSetState(rasterizer);
+	context->IASetInputLayout(NULL);
+	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	context->OMSetBlendState(NULL, NULL, 0xffffffff);
+	context->OMSetDepthStencilState(NULL, 0);
+	ID3D11ShaderResourceView * const no_reads[3] = { NULL, NULL, NULL };
+
+	const float far_colour[4] = { far_depth, far_depth, far_depth, far_depth };
+	context->ClearRenderTargetView(targets[SAMPLES], far_colour);
+	context->OMSetRenderTargets(1, &targets[SAMPLES], NULL);
+	context->VSSetShader(near_corners, NULL, 0);
+	context->PSSetShader(near_program, NULL, 0);
+	context->Draw(3, 0);
+
+	context->VSSetShader(full_screen, NULL, 0);
+	context->OMSetRenderTargets(1, &targets[FIRST], NULL);
+	context->PSSetShader(first_program, NULL, 0);
+	context->PSSetShaderResources(0, 1, &reads[SAMPLES]);
+	context->Draw(3, 0);
+	context->PSSetShaderResources(0, 1, no_reads);
+
+	context->OMSetRenderTargets(1, &targets[SHADE], NULL);
+	context->PSSetShader(shade_program, NULL, 0);
+	context->PSSetShaderResources(0, 1, &reads[FIRST]);
+	context->Draw(3, 0);
+	context->PSSetShaderResources(0, 1, no_reads);
+
+	context->OMSetRenderTargets(1, &targets[RESULT], NULL);
+	context->PSSetShader(multiply, NULL, 0);
+	ID3D11ShaderResourceView * const multiply_reads[3] = { reads[SHADE], reads[FIRST], reads[SAMPLES] };
+	context->PSSetShaderResources(0, 3, multiply_reads);
+	context->Draw(3, 0);
+	context->PSSetShaderResources(0, 3, no_reads);
+	ID3D11RenderTargetView * const no_target = NULL;
+	context->OMSetRenderTargets(1, &no_target, NULL);
+
+	const unsigned values = size * size * sample_count;
+	D3D11_BUFFER_DESC buffer;
+	memset(&buffer, 0, sizeof(buffer));
+	buffer.ByteWidth = values * 2 * sizeof(float);
+	buffer.Usage = D3D11_USAGE_DEFAULT;
+	buffer.BindFlags = D3D11_BIND_UNORDERED_ACCESS;
+	ID3D11Buffer * out_buffer = NULL;
+	CHECK(SUCCEEDED(d3d->CreateBuffer(&buffer, NULL, &out_buffer)));
+	D3D11_UNORDERED_ACCESS_VIEW_DESC write;
+	memset(&write, 0, sizeof(write));
+	write.Format = DXGI_FORMAT_R32G32_FLOAT;
+	write.ViewDimension = D3D11_UAV_DIMENSION_BUFFER;
+	write.Buffer.NumElements = values;
+	ID3D11UnorderedAccessView * out_view = NULL;
+	CHECK(SUCCEEDED(d3d->CreateUnorderedAccessView(out_buffer, &write, &out_view)));
+	ID3D11ShaderResourceView * const read_back_reads[2] = { reads[SAMPLES], reads[RESULT] };
+	context->CSSetShaderResources(0, 2, read_back_reads);
+	context->CSSetUnorderedAccessViews(0, 1, &out_view, NULL);
+	context->CSSetShader(reader, NULL, 0);
+	context->Dispatch(1, 1, 1);
+	ID3D11UnorderedAccessView * const no_write = NULL;
+	context->CSSetUnorderedAccessViews(0, 1, &no_write, NULL);
+	context->CSSetShaderResources(0, 2, no_reads);
+
+	buffer.Usage = D3D11_USAGE_STAGING;
+	buffer.BindFlags = 0;
+	buffer.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
+	ID3D11Buffer * staging = NULL;
+	CHECK(SUCCEEDED(d3d->CreateBuffer(&buffer, NULL, &staging)));
+	context->CopyResource(staging, out_buffer);
+	D3D11_MAPPED_SUBRESOURCE mapped;
+	CHECK(SUCCEEDED(context->Map(staging, 0, D3D11_MAP_READ, 0, &mapped)));
+	const float * read = static_cast<const float *>(mapped.pData);
+	unsigned wrong = 0;
+	unsigned against_their_pixel = 0;	// samples on the other surface from their pixel's sample 0
+	for (unsigned pixel = 0; pixel < size * size; ++pixel) {
+		const bool pixel_near = read[pixel * sample_count * 2] < 0.5f;
+		for (unsigned sample = 0; sample < sample_count; ++sample) {
+			const float own = read[(pixel * sample_count + sample) * 2];
+			const float shade = read[(pixel * sample_count + sample) * 2 + 1];
+			const bool sample_near = own < 0.5f;
+			const float wanted = sample_near ? lit : shadowed;
+			if (fabsf(shade - wanted) > 0.001f) {
+				printf("  pixel %u,%u sample %u: depth %.2f shade %.2f, wanted %.2f\n",
+					pixel % size, pixel / size, sample, own, shade, wanted);
+				++wrong;
+			}
+			if (sample_near != pixel_near) {
+				++against_their_pixel;
+			}
+		}
+	}
+	context->Unmap(staging, 0);
+	CHECK_EQ(wrong, 0u);
+	CHECK(against_their_pixel > 0);
+
+	staging->Release();
+	out_view->Release();
+	out_buffer->Release();
+	rasterizer->Release();
+	reader->Release();
+	multiply->Release();
+	shade_program->Release();
+	first_program->Release();
+	near_program->Release();
+	near_corners->Release();
+	full_screen->Release();
+	for (unsigned index = 0; index < TEXTURES; ++index) {
+		reads[index]->Release();
+		targets[index]->Release();
+		textures[index]->Release();
+	}
+	backend.Shutdown();
+	device.Release();
 }

@@ -196,6 +196,7 @@ public:
 
 	void setLastFrameInGame( UnsignedInt frame ) { m_lastFrameInGame = frame; }
 	void markAsDisconnected( void ) { m_disconnected = TRUE; }
+	void markAsReconnected( void ) { m_disconnected = FALSE; m_lastFrameInGame = 0; }	///< a dropped seat came back (-rejoin)
 	UnsignedInt lastFrameInGame( void ) const { return m_lastFrameInGame; }
 	Bool disconnected( void ) const { return isHuman() && m_disconnected; }
 
@@ -350,12 +351,22 @@ public:
   Bool getStartShrouded( void ) const { return m_startShrouded; }
   void setStartShrouded( Bool shrouded ) { m_startShrouded = shrouded; }
 
+  // The day and night cycle (GameLogic/DayNightCycle.h): the host's box in a skirmish, LAN or custom
+  // online room, off in a Quick Match and Play vs AI.  DN=1 in the options string, written only when
+  // on, so an old replay and every string with it off stay as they were.
+  Bool getDayNight( void ) const { return m_dayNight; }
+  void setDayNight( Bool on ) { m_dayNight = on; }
+
   // Game speed in percent of retail's pace, one of PLAYER_GAME_SPEED_PERCENTS: the game time each tick
-  // advances.  Only the skirmish lobby and a matched Quick Match (RETAIL_GAME_SPEED_PERCENT) set another
-  // value than the default; it is not in the options string, and reaches the engine as MSG_NEW_GAME's
-  // game speed and the replay as its GS= field.
+  // advances.  The skirmish lobby and the LAN and custom online rooms' hosts pick it, a matched Quick
+  // Match sets RETAIL_GAME_SPEED_PERCENT.  The options string carries it as SP=<percent> only when it is
+  // not the room kind's own (getDefaultGameSpeedPercent), so a room left at its default writes what it
+  // always wrote; it reaches the engine as MSG_NEW_GAME's game speed and the replay as its GS= field.
   Int getGameSpeedPercent( void ) const { return m_gameSpeedPercent; }
   void setGameSpeedPercent( Int percent ) { m_gameSpeedPercent = ClampPlayerGameSpeedPercent( percent ); }
+  // The speed a room starts at and an options string without SP= means: native for a skirmish or a
+  // custom online room, retail's for a LAN game and a Quick Match.
+  virtual Int getDefaultGameSpeedPercent( void ) const { return NATIVE_GAME_SPEED_PERCENT; }
 
   Bool hasAIPlayers( void ) const;									///< is any slot held by a computer player?
 
@@ -387,7 +398,8 @@ protected:
   Int m_techRespawn; // minutes before a destroyed tech building comes back, 0 = never
   Int m_supplyPileLimit; // players who may gather from one supply pile at once, 0 = any number
   Bool m_startShrouded; // the map starts black for every player, a ranked Quick Match
-  Int m_gameSpeedPercent; // the skirmish lobby's game speed, PLAYER_GAME_SPEED_PERCENT_DEFAULT elsewhere
+  Bool m_dayNight; // the day and night cycle runs, DN in the options string
+  Int m_gameSpeedPercent; // the lobby's game speed, getDefaultGameSpeedPercent until someone picks another
 };
 
 extern GameInfo *TheGameInfo;
@@ -460,9 +472,13 @@ Int HandicapFromSlotField( const char *field );
 // An AI seat's rating off its rung's anchor (-airating) goes after the handicap, persona and handicap
 // then written out in full: C<rung>,color,tmpl,start,team,persona,handicap,rating.  Only such a seat
 // writes it, so every other string stays the one it was, and an older parser stops at the handicap.
-// It is whole hundredths (1250 is 12.50, -1000 is -10.00).  Absent, or past AI_RATING_LIMIT either way,
+// It is the Elo in whole hundredths (125000 is 1250.00, 220000 Brutal's 2200).  Absent, or past AI_RATING_LIMIT either way,
 // is AI_RATING_NONE: the rung's anchor.
 Int AIRatingFromSlotField( const char *field );
+// A seat's rating in hundredths as a save before Elo wrote it (SkirmishGameInfo xfer 14 and 15): an old
+// level above Hard comes back as that level, anything else at the same strength (aiRatingOfLegacySave);
+// AI_RATING_NONE stays none.
+Int AIRatingFromLegacySlot( Int hundredths );
 
 // A guest's "Handicap=<n>" request reaching the host.  TRUE when the slot list has to go round again,
 // which it does for a pick that does not fit in the options string as well: the guest's box has to
@@ -491,7 +507,8 @@ UnicodeString SlotStateName( SlotState state );
 /// the same, for a seat at a rating (hundredths): a Hard seat at one of the levels above Hard is called by that level
 UnicodeString SlotStateName( SlotState state, Int aiRating );
 
-// The levels above Hard are not rungs: each is a Hard seat at a rating of its own, in hundredths, so
+// The levels above Hard are not rungs: each is a Hard seat at an Elo of its own (Brutal 2200, Vicious
+// 2600, Savage 3400, Insane 4200), in hundredths, so
 // the slot string, saves and replays already carry them.  The player slot box offers them after Hard,
 // and a line's item data is its pick: a SlotState, or one of these ratings, which no state reaches.
 enum { AI_LEVELS_ABOVE_HARD = 4 };

@@ -59,6 +59,7 @@
 #include "GameClient/GameWindowManager.h"
 #include "GameClient/GadgetStaticText.h"
 #include "GameClient/GadgetPushButton.h"
+#include "GameNetwork/GUIUtil.h"
 #include "GameClient/Mouse.h"
 #include "GameClient/WindowVideoManager.h"
 #include "GameClient/CampaignManager.h"
@@ -121,6 +122,13 @@ void DoCompressTest( void );
 // window ids -------------------------------------------------------------------------------------
 static NameKeyType mainMenuID = NAMEKEY_INVALID;
 static NameKeyType skirmishID = NAMEKEY_INVALID;
+// Direct Strike, under Skirmish in the single player menu (Tools/mainmenu_layout.py): the skirmish
+// room in that mode (SkirmishGameOptionsMenu.cpp)
+static NameKeyType directStrikeID = NAMEKEY_INVALID;
+extern Bool skirmishDirectStrike;
+// Apocalypse, under Direct Strike: the skirmish room on a generated Apocalypse map
+static NameKeyType apocalypseID = NAMEKEY_INVALID;
+extern Bool skirmishApocalypse;
 static NameKeyType onlineID = NAMEKEY_INVALID;
 static NameKeyType networkID = NAMEKEY_INVALID;
 static NameKeyType optionsID = NAMEKEY_INVALID;
@@ -638,6 +646,8 @@ void MainMenuInit( WindowLayout *layout, void *userData )
 	mainMenuID = TheNameKeyGenerator->nameToKey( AsciiString( "MainMenu.wnd:MainMenuParent" ) );
 //	campaignID = TheNameKeyGenerator->nameToKey( AsciiString("MainMenu.wnd:ButtonCampaign") );
 	skirmishID = TheNameKeyGenerator->nameToKey( AsciiString("MainMenu.wnd:ButtonSkirmish") );
+	directStrikeID = TheNameKeyGenerator->nameToKey( AsciiString("MainMenu.wnd:ButtonDirectStrike") );
+	apocalypseID = TheNameKeyGenerator->nameToKey( AsciiString("MainMenu.wnd:ButtonApocalypse") );
 	onlineID = TheNameKeyGenerator->nameToKey( AsciiString("MainMenu.wnd:ButtonOnline") );
 	networkID = TheNameKeyGenerator->nameToKey( AsciiString("MainMenu.wnd:ButtonNetwork") );
 	optionsID = TheNameKeyGenerator->nameToKey( AsciiString("MainMenu.wnd:ButtonOptions") );
@@ -723,6 +733,11 @@ void MainMenuInit( WindowLayout *layout, void *userData )
 	getUpdate = TheWindowManager->winGetWindowFromId( parentMainMenu, getUpdateID );
 //	buttonTRAINING = TheWindowManager->winGetWindowFromId( parentMainMenu, buttonTRAININGID );
 	buttonChallenge = TheWindowManager->winGetWindowFromId( parentMainMenu, buttonChallengeID );
+	// the mode's version beside its name, from the one key the lobbies read too
+	if( GameWindow *directStrike = TheWindowManager->winGetWindowFromId( parentMainMenu, directStrikeID ) )
+		GadgetButtonSetText( directStrike, ModeNameWithVersion( "GUI:DirectStrike", "GUI:DirectStrikeVersion" ) );
+	if( GameWindow *apocalypse = TheWindowManager->winGetWindowFromId( parentMainMenu, apocalypseID ) )
+		GadgetButtonSetText( apocalypse, ModeNameWithVersion( "GUI:Apocalypse", "GUI:ApocalypseVersion" ) );
 	buttonUSA = TheWindowManager->winGetWindowFromId( parentMainMenu, buttonUSAID );
 	buttonGLA = TheWindowManager->winGetWindowFromId( parentMainMenu, buttonGLAID );
 	buttonChina = TheWindowManager->winGetWindowFromId( parentMainMenu, buttonChinaID );
@@ -1335,7 +1350,7 @@ WindowMsgHandledType MainMenuSystem( GameWindow *window, UnsignedInt msg,
 
 				//showSelectiveButtons(SHOW_NONE);
 			}
-*/			else if(controlID == skirmishID)
+*/			else if(controlID == skirmishID || controlID == directStrikeID)
 			{
 				if(dontAllowTransitions && !campaignSelected)
 				{
@@ -1453,7 +1468,7 @@ WindowMsgHandledType MainMenuSystem( GameWindow *window, UnsignedInt msg,
 				
 				//showSelectiveButtons(SHOW_NONE);
 			}
-*/			else if(controlID == skirmishID)
+*/			else if(controlID == skirmishID || controlID == directStrikeID)
 			{
 				if(dontAllowTransitions && !campaignSelected && showLogo)
 				{
@@ -1651,10 +1666,12 @@ WindowMsgHandledType MainMenuSystem( GameWindow *window, UnsignedInt msg,
 				TheTransitionHandler->reverse("MainMenuLoadReplayMenuBackTransition");
 				TheShell->push(AsciiString("Menus/ReplayMenu.wnd"));
 			}
-			else if( controlID == skirmishID )
+			else if( controlID == skirmishID || controlID == directStrikeID || controlID == apocalypseID )
 			{
 				if(campaignSelected || dontAllowTransitions)
 					break;
+				skirmishDirectStrike = controlID == directStrikeID;
+				skirmishApocalypse = controlID == apocalypseID;
 				buttonPushed = TRUE;
 				campaignSelected = TRUE;
 				dropDownWindows[DROPDOWN_SINGLE]->winHide(FALSE);

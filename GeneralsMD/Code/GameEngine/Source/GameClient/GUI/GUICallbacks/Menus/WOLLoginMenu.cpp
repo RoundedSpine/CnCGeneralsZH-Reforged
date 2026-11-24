@@ -1057,13 +1057,11 @@ static void onlineServerPanel( void )
 }
 
 /// the welcome's message of the day as one text, EA's colour prefixes ("\aarrggbb", "\\") dropped as the
-/// hub drops them; the game's own welcome line when the server sent none
+/// hub drops them; empty when the server sent none
 static UnicodeString onlineMOTDText( void )
 {
 	AsciiString motd = OnlineGetMOTD();
 	motd.trim();
-	if (motd.isEmpty())
-		return TheGameText->fetch( "GUI:OnlineHubWelcome" );
 	UnicodeString text;
 	AsciiString line;
 	while (motd.nextToken( &line, "\n" ))
@@ -1080,18 +1078,13 @@ static UnicodeString onlineMOTDText( void )
 	return text;
 }
 
-/// Create Account and Forgot Password show when the welcome named their pages, the line under them when both do
+/// Create Account and Forgot Password show when the welcome named their pages
 static void onlineSiteButtons( void )
 {
-	const Bool create = OnlineGetRegisterUrl().isNotEmpty();
-	const Bool reset = OnlineGetResetUrl().isNotEmpty();
 	if (buttonCreateAccount)
-		buttonCreateAccount->winHide( !create );
+		buttonCreateAccount->winHide( OnlineGetRegisterUrl().isEmpty() );
 	if (buttonTOS)
-		buttonTOS->winHide( !reset );
-	GameWindow *browser = TheWindowManager->winGetWindowFromId( NULL, NAMEKEY( "GameSpyLoginProfile.wnd:StaticTextBrowser" ) );
-	if (browser)
-		browser->winHide( !( create && reset ) );
+		buttonTOS->winHide( OnlineGetResetUrl().isEmpty() );
 }
 
 /* The box for a login the screen keeps nothing of.  EA unticked it, so under -online, where the email is
@@ -1136,14 +1129,37 @@ static void onlineLoginError( const UnicodeString &text )
 	GSMessageBoxOk( TheGameText->fetch( "GUI:OnlineLoginFailed" ), text, focusPassword );
 }
 
+/* A ban's line: its end and the site's reason, each left out when the refusal had none (no end is an
+	 indefinite ban).  A format string missing from the language falls back to the plain line. */
+static UnicodeString onlineBannedText( const AsciiString &until, const AsciiString &reason )
+{
+	const UnicodeString when = OnlineUntilText( until );
+	const UnicodeString why( MultiByteToWideCharSingleLine( reason.str() ).c_str() );		// the site's UTF-8, on one line
+	const char *key = when.isEmpty()
+		? (why.isEmpty() ? NULL : "GUI:OnlineLoginBannedReason")
+		: (why.isEmpty() ? "GUI:OnlineLoginBannedUntil" : "GUI:OnlineLoginBannedUntilReason");
+	Bool exists = FALSE;
+	const UnicodeString format = key ? TheGameText->fetch( key, &exists ) : UnicodeString::TheEmptyString;
+	if (!exists)
+		return TheGameText->fetch( "GUI:OnlineLoginBanned" );
+	UnicodeString text;
+	if (when.isEmpty())
+		text.format( format, why.str() );
+	else if (why.isEmpty())
+		text.format( format, when.str() );
+	else
+		text.format( format, when.str(), why.str() );
+	return text;
+}
+
 /* A refused or failed sign-in: the server's code worded honestly (a wrong password and an unknown login
 	 read the same), EA's disconnect text when no refusal arrived.  The password is cleared and focused for
 	 the next try; a token the server no longer takes is forgotten. */
 static void onlineLoginFailed( Int reason )
 {
 	Int retry = 0;
-	AsciiString file, until;
-	const AsciiString code = OnlineGetLoginFailure( &retry, &file, &until );
+	AsciiString file, until, banReason;
+	const AsciiString code = OnlineGetLoginFailure( &retry, &file, &until, &banReason );
 	UnicodeString text;
 	if (code == "maintenance")
 		text = OnlineMaintenanceText( until );
@@ -1166,7 +1182,7 @@ static void onlineLoginFailed( Int reason )
 	else if (code == "expired")
 		text = TheGameText->fetch( "GUI:OnlineLoginExpired" );
 	else if (code == "banned")
-		text = TheGameText->fetch( "GUI:OnlineLoginBanned" );
+		text = onlineBannedText( until, banReason );
 	else if (code == "elsewhere")
 		text = TheGameText->fetch( "GUI:OnlineLoginElsewhere" );
 	else
@@ -1280,7 +1296,6 @@ static void onlineLoginScreen( void )
 	// the server panel: the server's heading, the counts drawn over it, the message of the day
 	s_serverText = loginText( "StaticTextServer", UIStyle::ACTIVE );
 	s_serverLaidOut = FALSE;
-	loginText( "StaticTextLauncher", UIStyle::MUTED );
 	s_onlineMOTD = loginText( "StaticTextMOTD", UIStyle::INK );
 	const char *countKeys[ONLINE_COUNTS] = { "GUI:OnlineLoginOnlineNow", "GUI:OnlineOpenGamesLabel", "GUI:OnlineLoginInQuickMatch" };
 	for (Int i = 0; i < ONLINE_COUNTS; ++i)
@@ -1291,19 +1306,21 @@ static void onlineLoginScreen( void )
 		s_countFigure[i] = newLoginString( UIStyle::titleFont( UIStyle::TEXT_DISPLAY ), UnicodeString::TheEmptyString );
 		s_countShown[i] = -1;
 	}
-	GameWindow *help = loginText( "StaticTextHelp", UIStyle::MUTED, TheGameText->fetch( "GUI:OnlineLoginHelp" ) );
-	if (s_onlineMOTD && help)
+	if (s_onlineMOTD && s_serverText)
 	{
 		// from its top, as a page reads, where a static text centres its words in the box
 		TextData *motd = (TextData *)s_onlineMOTD->winGetUserData();
 		if (motd)
 			motd->centeredVertically = FALSE;
-		// under the counts as the master has it, or alone from the help line's height, as tall as it can be
-		Int y, height;
+		// under the counts as the master has it, or alone under the server's heading where the counts
+		// would stand, as tall as it can be
+		Int x, y, width, height;
 		s_onlineMOTD->winGetPosition( &s_motdX, &s_motdUnderCounts );
 		s_onlineMOTD->winGetSize( &s_motdWidth, &height );
 		s_motdBottom = s_motdUnderCounts + height;
-		help->winGetPosition( &y, &s_motdAlone );
+		s_serverText->winGetPosition( &x, &y );
+		s_serverText->winGetSize( &width, &height );
+		s_motdAlone = y + height + UIStyle::px( 8.0f );
 		s_onlineMOTD->winSetPosition( s_motdX, s_motdAlone );
 		s_onlineMOTD->winSetSize( s_motdWidth, s_motdBottom - s_motdAlone );
 	}
@@ -1318,16 +1335,14 @@ static void onlineLoginScreen( void )
 
 	// the sign-in panel
 	loginText( "StaticTextSignIn", UIStyle::ACTIVE );
-	loginText( "StaticTextKeepHint", UIStyle::MUTED );
-	loginText( "StaticTextBrowser", UIStyle::MUTED );
 	s_onlineStatus = loginText( "StaticTextStatus", UIStyle::MUTED );
-	// the field labels in the body face, as the help line over them (EA's labels are a size up)
+	// the field labels in the body face, as the status line under them (EA's labels are a size up)
 	const char *labels[] = { "StaticTextEmail", "StaticTextPassword" };
-	for (Int i = 0; help && i < (Int)ARRAY_SIZE(labels); ++i)
+	for (Int i = 0; s_onlineStatus && i < (Int)ARRAY_SIZE(labels); ++i)
 	{
 		GameWindow *label = loginWindow( labels[i] );
 		if (label)
-			label->winSetFont( help->winGetFont() );
+			label->winSetFont( s_onlineStatus->winGetFont() );
 	}
 	// Create Account and Forgot Password are small buttons: 21 of a layout button's 28 at 1080, scaled
 	// from their own fitted face so a squarer screen keeps the ratio
@@ -1363,7 +1378,6 @@ static void onlineLoginScreen( void )
 	}
 	if (checkBoxRememberPassword)
 	{
-		// the master's StaticTextKeepHint is its second line
 		GadgetCheckBoxSetText( checkBoxRememberPassword, TheGameText->fetch( "GUI:OnlineKeepSignedIn" ) );
 		checkBoxRememberPassword->winSetTooltip( TheGameText->fetch( "TOOLTIP:OnlineKeepSignedIn" ) );
 	}

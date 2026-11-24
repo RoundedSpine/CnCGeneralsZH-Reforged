@@ -425,6 +425,7 @@ public:  // ********************************************************************
 	virtual Bool isMessagesOn( void ) { return m_messagesOn; }	///< are the display messages on
 	void freeMessageResources( void );				///< empty the message list
 	Color getMessageColor(Bool altColor) { return (altColor)?m_messageColor2:m_messageColor1; }
+	Int getMessageLinesBottom( void ) const;	///< the foot of the six message lines in the top left, all six up
 	
 	// interface for military style messages
 	virtual void militarySubtitle( const AsciiString& label, Int duration );			// time in milliseconds
@@ -611,7 +612,7 @@ public:  // ********************************************************************
 	void updateAttackCircle( const ICoord2D& pt );
 	Bool issueAttackCircle( void );		///< FALSE when the press never became a drag, so it was an ordinary attack click
 	Int issueAttackLine( const std::vector<Coord3D>& line );	///< enemies the stroke crosses, shared along it across the units that can shoot
-	Bool isAttackListTarget( const Object *obj, const Player *local ) const;	///< would the circle or the attack line take this
+	const Coord3D *attackListSpot( const Object *obj, const Player *local ) const;	///< where the circle or the attack line measures this, NULL when they do not take it
 	void cancelAttackCircle( void ) { m_isAttackCircling = FALSE; }
 	Bool isAttackCircling( void ) const { return m_isAttackCircling; }
 	const ICoord2D& getAttackCircleAnchor( void ) const { return m_attackCircleAnchor; }
@@ -1107,6 +1108,45 @@ public:  // ********************************************************************
 	virtual void setRadiusCursor(RadiusCursorType r, const SpecialPowerTemplate* sp, WeaponSlotType wslot);
 	virtual void setRadiusCursorNone() { setRadiusCursor(RADIUSCURSOR_NONE, NULL, PRIMARY_WEAPON); }
 
+	/** The Machined Reticle ground markers (W3DGroundMarkers) draw the radius cursors, the delivery
+		* planes' lanes, the countdowns and the click markers: under the Reforged graphics, once their
+		* atlas texture really loaded.  Otherwise the retail decals and the old marks stay.  The delivery
+		* modules ask it from the logic thread before they make their decal, which is the client's alone
+		* (no CRC and no save carries one), so it reads two flags and looks nothing up. */
+	static Bool groundMarkersOn( void );
+	/// W3DGroundMarkers says, once, on the main thread, whether its atlas loaded
+	static void setGroundMarkersLoaded( Bool loaded );
+
+	/// what the player is aiming, kept while the cursor is up: the press is the timeline's zero
+	struct GroundMarkerAim
+	{
+		RadiusCursorType type;									///< RADIUSCURSOR_NONE while nothing is aimed
+		const SpecialPowerTemplate *power;			///< NULL for the guard and weapon cursors
+		ObjectID caster;												///< who fires it, picked the way the order picks it
+		Real radius;														///< the radius now, the guard's wheel in it
+		Real unwheeled;													///< the radius before the wheel, which sizes the bands
+		Real radiusFrom;												///< what it was before the last wheel step, eased from
+		UnsignedInt radiusMs;										///< when that step came
+		UnsignedInt pressMs;										///< when the button was pressed (Clock_Milliseconds)
+		UnsignedInt endMs;											///< when the cursor last went away, 0 while it is up
+		Coord3D pos;														///< the ground under the cursor at the sync point
+		Bool hasPos;
+	};
+	/// the click that fired what was aimed, taken by the ground markers at the next sync point
+	struct GroundMarkerShot
+	{
+		GroundMarkerAim aim;										///< as it stood at the click, pos the clicked point
+		UnsignedInt clickMs;
+		UnsignedInt clickFrame;									///< the logic frame then
+		ObjectID firstNewID;										///< anything the order makes carries this id or a later one
+	};
+	const GroundMarkerAim &getGroundMarkerAim( void ) const { return m_markerAim; }
+	/// a ground order (power NULL: the guard's) or a power at a location was just sent: the cursor
+	/// that aimed it becomes a marker there
+	void noteGroundMarkerClick( const Coord3D &pos, const SpecialPowerTemplate *power );
+	/// the clicks since the last call, oldest first; the list is emptied
+	void takeGroundMarkerShots( std::vector<GroundMarkerShot> &out ) { out.swap( m_markerShots ); m_markerShots.clear(); }
+
 	virtual void setInputEnabled( Bool enable );										///< Set the input enabled or disabled
 	virtual void clearModifierModes( void );												///< forget every mode a held key puts us in (see the definition)
 	virtual Bool getInputEnabled( void ) { LOGIC_CENSUS( CENSUS_CLIENT_READ ); return m_inputEnabled; }	///< Get the current input status
@@ -1315,7 +1355,7 @@ public:  // ********************************************************************
 	virtual void addIdleWorker( Object *obj );
 	void addIdleWorkerFor( Object *obj, Int playerIndex );	///< addIdleWorker with the owner read at the call
 	virtual void removeIdleWorker( Object *obj, Int playerNumber );
-	virtual Object *selectNextIdleWorker( void );	///< what it selected, NULL with no idle worker; never moves the camera
+	virtual Object *selectNextIdleWorker( void );	///< what it selected, NULL with no idle worker; the camera goes to it on the Classic layout only, as in the original game
 	Object *selectNextIdleUnit( KindOfMaskType mustBeSet, KindOfMaskType mustBeClear );	///< the same cycle for fighting units of those kinds standing with no order; what it selected, or NULL
 	Int selectAllIdleUnits( KindOfMaskType mustBeSet, KindOfMaskType mustBeClear );	///< every one that cycle visits at once, the camera left alone; how many
 	static Bool isIdleCombatUnit( const Object *obj );	///< the local player's fighting unit standing with no order
@@ -1432,14 +1472,20 @@ public:
 	/** The pathfinder's build grid under a pending structure.  Public and called from the terrain
 		* renderer rather than from preDraw: it is geometry lying on the ground, and it has to go down
 		* with the terrain so that everything drawn after the terrain covers it. */
-	virtual void drawBuildGrid( void ) { }
+	virtual void drawBuildGrid( Bool shadeByShroud ) { }
+
+	/** The slot grid of every Lane War build plot, on the ground for the same reason: a unit standing
+		* in a slot stands on top of its lines. */
+	virtual void drawLanePlotGrids( Bool shadeByShroud ) { }
 
 	/** The wash inside the attack circle, on the ground for the same reason: the units being swept
 		* up stand on top of it instead of being painted over. */
-	virtual void drawAttackCircleFill( void ) { }
+	virtual void drawAttackCircleFill( Bool shadeByShroud ) { }
 
-	/** The order rings (getOrderRings), on the ground with the terrain so the units stand on them. */
-	virtual void drawOrderRings( void ) { }
+	/** The order rings (getOrderRings), on the ground with the terrain so the units stand on them.
+		* shadeByShroud multiplies these three sheets by the shroud's texture, as the ground under them
+		* was: the terrain draws them after whatever shroud it laid down. */
+	virtual void drawOrderRings( Bool shadeByShroud ) { }
 
 	/// the control socket's "spectator" verb: the camera, the followed player, the fog, and replay
 	/// pause, seek and speed
@@ -1666,6 +1712,15 @@ protected:
 	IRegion2D										m_heroCell;								///< the hero's cell over the queue, empty when not drawn
 	IRegion2D										m_superweaponPlace[ SUPERWEAPON_LIST_CELLS ];
 	ObjectID										m_superweaponJump[ SUPERWEAPON_LIST_CELLS ];	///< the building a click looks at, INVALID_ID for none
+	/// the Classic layout's superweapon lines: laid out by postDraw, drawn by drawHudOverlay, over the health bars
+	struct ClassicSuperweaponLine
+	{
+		SuperweaponInfo *info;
+		Int x, y;
+		Color color;
+		Bool timeOnly;		///< the "..." that stands for the lines past the margin
+	};
+	std::vector< ClassicSuperweaponLine >	m_classicSuperweaponLines;
 	Int													m_superweaponCells;				///< cells drawn
 	IRegion2D										m_superweaponTab;
 	UnsignedInt									m_hudCellPass;						///< client passes, counted by update()
@@ -1790,6 +1845,8 @@ protected:
 	RadiusDecal									m_curRadiusCursor;
 	RadiusDecal									m_curRadiusCursorCentre;	///< the guard marker's shield, apart from its ring so it never stretches
 	RadiusCursorType						m_curRcType;
+	GroundMarkerAim							m_markerAim;							///< the same cursor for the ground markers, which keep its press across a refresh
+	std::vector<GroundMarkerShot>	m_markerShots;					///< clicks not yet taken (takeGroundMarkerShots)
 
 	//Floating Text Data
 	FloatingTextList						m_floatingTextList;				///< Our list of floating text

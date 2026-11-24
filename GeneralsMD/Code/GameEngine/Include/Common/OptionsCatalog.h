@@ -162,7 +162,14 @@ enum { CLOUD_STYLE_COUNT = 2 };
 
 // Shadow quality is the size of the sun's depth map, low, medium and high: 1024, 2048 and 4096
 // texels a side (W3DVolumetricShadow.cpp, renderShadowMap).  Medium is the size the map always had.
-enum { SHADOW_QUALITY_COUNT = 3 };
+// Ray Traced is the High map with the opaque scene's sun shadows traced one ray a pixel, what
+// -rtShadows forces; only Direct3D 11 on Windows traces, so elsewhere the menu leaves it out and a
+// stored Ray Traced draws High.
+enum { SHADOW_QUALITY_HIGH = 2, SHADOW_QUALITY_RAY_TRACED = 3, SHADOW_QUALITY_COUNT = 4 };
+
+// The sun shafts: off, Low (6 steps a ray) or High (12), half size either way (W3DShaderManager.cpp,
+// pushSunShafts).  Strings: GUI:SunShafts, GUI:SunShafts0..2, TOOLTIP:SunShafts.
+enum { SUN_SHAFTS_LEVEL_COUNT = 3 };
 
 // What colours a health bar: 0 the health, green through red, 1 the owner's player colour.
 enum { HEALTH_BAR_COLORS_COUNT = 2 };
@@ -172,7 +179,17 @@ enum { HEALTH_BAR_COLORS_COUNT = 2 };
 // bottom (docs/plans/HUD-SIDEBAR-LAYOUT.md).  HudLayoutForScreen (GameClient/Display.h) places it.
 // Strings: GUI:HudLayout, GUI:HudLayout0, GUI:HudLayout1, TOOLTIP:HudLayout; the sidebar's own
 // GUI:SidebarTab0..3 (Bina, Yükseltmeler ve güçler, Piyade, Araç), GUI:SidebarAll, later GUI:SidebarSell, GUI:SidebarRepair.
-enum { HUD_LAYOUT_CLASSIC, HUD_LAYOUT_SIDEBAR, HUD_LAYOUT_COUNT };
+// The owner's two looks of the bottom bar (2026-11-20, TODO "HUD Design and Features" 5): 0, the code's
+// HUD_LAYOUT_CLASSIC since it is the Classic bar's geometry, is shown as "Reforged", the bar with
+// everything the fork added; 2 HUD_LAYOUT_RETAIL, shown as "Classic", stands on the same rectangles, so
+// everything that places windows reads it as 0, and leaves off the command tabs and their socket, the
+// signal keys over the radar, the production list, the hero cell, the squad list and its build tray,
+// writes EA's own superweapon countdowns and stands the general's powers in one column up from the
+// bottom.  A third, plain Reforged, came and went the same day; a stored value past the range reads as 0
+// (OptionsCatalog.cpp, parseOptionValue).  GUI:HudLayout2.
+enum { HUD_LAYOUT_CLASSIC, HUD_LAYOUT_SIDEBAR, HUD_LAYOUT_RETAIL, HUD_LAYOUT_COUNT };
+/// the bottom bar's Buildings, Ground and Aircraft tabs and their painted socket: every layout but Classic (the sidebar has its own)
+inline Bool hudLayoutHasCommandTabs( Int layout ) { return layout != HUD_LAYOUT_RETAIL; }
 
 // How wide the in-game interface may spread ("HudWidth", GlobalData m_hudWidth), for either layout: 0 the
 // whole screen, the default; 1 a centred 21:9 area, 2 a centred 16:9 one, so a player on a wider screen

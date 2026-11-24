@@ -82,6 +82,7 @@
 #include "GameClient/ObserverCamera.h"
 #include "GameClient/ParticleSys.h"
 #include "GameClient/PlaceEventTranslator.h"
+#include "GameClient/RadarContactMarks.h"
 #include "GameClient/RayEffect.h"
 #include "GameClient/SelectionXlat.h"
 #include "GameClient/Shell.h"
@@ -965,7 +966,8 @@ void GameClient::update( void )
 				//to getShroudStatus() because they are only made for visible on-screen
 				//objects.
 				Object *object=draw->getObject();
-				if (object)
+				// one that does not name this drawable back is freed (the walk below says so)
+				if (object && object->getDrawable() == draw)
 				{
 					// keep the other players' view of this object current too, so their fog memory is
 					// right the moment you become one of them.  Fog memory is the ghost's snapshot, and
@@ -1021,6 +1023,21 @@ void GameClient::update( void )
 	for( Drawable *draw = m_drawableList; draw; draw = draw->getNextDrawable() )
 	{
 		Object *object = draw->getObject();
+		// An object that does not name this drawable back has been bound to another one, and destroying
+		// it destroyed that one only: this drawable's pointer outlived it.  The walk above only read the
+		// freed object's fields; TankSkin_seenPlayerIndex follows its stealth module, and v4.2.0 died there
+		// (AV in TankSkin.cpp:214) on frame 2 of a second match.  destroyDrawable asserts the same pairing.
+		if( object && object->getDrawable() != draw )
+		{
+			static Bool s_unpairedLogged = FALSE;
+			if( !s_unpairedLogged )
+			{
+				s_unpairedLogged = TRUE;
+				DEBUG_LOG(( "GameClient::update - drawable %d (%s) names an object that does not name it back, frame %d\n",
+					(Int)draw->getID(), draw->getTemplate() ? draw->getTemplate()->getName().str() : "?", TheGameLogic->getFrame() ));
+			}
+			object = NULL;
+		}
 		Drawable::ObjectForDraw forDraw = draw->getObjectForDraw();
 		forDraw.hasObject = object != NULL;
 		if( object )
@@ -1057,6 +1074,10 @@ void GameClient::update( void )
 		}
 		draw->setShroudForDraw( status, FALSE );
 	}
+
+	// what a Turkiye radar paints in the fog, laid for the draw below from the walk above: from
+	// InGameUI::update, after the draw, a ring stayed one picture under a unit that walked into sight
+	RadarContactMarks_update();
 
 	// update all particle systems
 	if( !freezeTime )

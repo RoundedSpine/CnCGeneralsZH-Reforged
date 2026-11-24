@@ -583,6 +583,18 @@ TOOLTIP:DetailedModels
 "The rebuilt units and buildings, for the Reforged picture, when you downloaded them. They change only what you see: you play with anyone, whether they have them or not. Untick it for a higher frame rate in big battles. Takes effect the next time the game starts."
 END
 
+GUI:FullDetailAtDistance
+"Full Detail at Distance"
+END
+
+TOOLTIP:FullDetailAtDistance
+"The rebuilt units and buildings swap to lighter versions as they get small on the screen. Tick it to draw every one at full detail however far the camera is, at some cost to the frame rate in big battles. Applies when you press Accept."
+END
+
+GUI:OptionsGroupModels
+"Models"
+END
+
 GUI:HDTextures
 "HD Textures"
 END
@@ -905,6 +917,30 @@ END
 
 TOOLTIP:EmptyBuildingPips
 "The row of empty slots over a building with nobody inside, like the ten over a Tunnel Network. Off, a building shows its slots only while someone is in it."
+END
+
+GUI:HitFlash
+"Hit Flash"
+END
+
+TOOLTIP:HitFlash
+"A unit or building that takes damage lights up red for a moment, so you see what is being shot at."
+END
+
+GUI:DamageNumbers
+"Damage Numbers"
+END
+
+TOOLTIP:DamageNumbers
+"The damage a hit does rises over the unit in red."
+END
+
+GUI:IdleWorkerCamera
+"Jump to Idle Worker"
+END
+
+TOOLTIP:IdleWorkerCamera
+"The idle worker button and key move the camera to the worker."
 END
 
 GUI:ArchiveReplays
@@ -1390,6 +1426,22 @@ TOOLTIP:Superweapons
 "How many superweapons a player may have standing. Allow: as many as he can pay for. Limit: one, and four for the USA Superweapon General. No: none at all, except the Superweapon General, who keeps one. He is the exception because his superweapons are what he pays for a weaker army with. Under No anyone, computer players too, may still put up one Nuclear Missile silo to buy China's upgrades in. It has no missile: no launch button, no countdown, no announcement."
 END
 
+GUI:StartShrouded
+"Hidden Map"
+END
+
+GUI:DayNight
+"Day/Night"
+END
+
+TOOLTIP:DayNight
+"Night falls after every ten minutes of day, and at night every unit sees a fifth less far."
+END
+
+TOOLTIP:StartShrouded
+"The map starts black for every player. Ground your side has not seen stays black until one of your units gets there, and the load screen does not give the start spots away. Off, everyone starts with the whole map in view under the fog, the way multiplayer has always played."
+END
+
 GUI:UnitLimit
 "Unit Limit"
 END
@@ -1463,7 +1515,11 @@ GUI:GameSpeed
 END
 
 TOOLTIP:GameSpeed
-"How fast the skirmish runs. 1.0x is the original game and the speed of LAN, ranked and Play vs AI matches, 1.5x the speed of online rooms. Only the pace changes."
+"How fast the skirmish runs. 1.0x is the original game and the speed of LAN matches, 1.5x the speed of online rooms. Ranked and Play vs AI play the speed picked before the match. Only the pace changes."
+END
+
+TOOLTIP:RoomGameSpeed
+"Match speed, picked by the host"
 END
 
 GUI:GameSpeedMissions
@@ -1917,8 +1973,12 @@ GUI:ShadowQuality2
 "High"
 END
 
+GUI:ShadowQuality3
+"Ray Traced"
+END
+
 TOOLTIP:ShadowQuality
-"How sharp unit and building shadows are. High takes about 64 MB of video memory, Low frees memory on a weak card. Direct3D 11 only, and not with Classic Graphics. Applies when you press Accept."
+"How sharp unit and building shadows are. High takes about 64 MB of video memory, Low frees memory on a weak card. Ray Traced follows every pixel's line to the sun past the real shape of each tank and building, so their shadows stay sharp at any zoom; it costs up to 1.6 ms a frame and is still experimental. Direct3D 11 only, and not with Classic Graphics. Applies when you press Accept."
 END
 
 GUI:VolumetricSmoke
@@ -2065,12 +2125,40 @@ TOOLTIP:HeatHaze
 "The air shimmers over fires, along laser beams and behind missile exhaust. Direct3D 11 only, and off under Classic Graphics. Applies when you press Accept."
 END
 
+GUI:SunShafts
+"Sun Shafts"
+END
+
+GUI:SunShafts0
+"Off"
+END
+
+GUI:SunShafts1
+"Low"
+END
+
+GUI:SunShafts2
+"High"
+END
+
+TOOLTIP:SunShafts
+"Low sunlight falls in bands through the dust between buildings and trees, and the air glows a little toward the sun. Strongest at morning and evening. Direct3D 11 only, and off under Classic Graphics. Applies when you press Accept."
+END
+
 GUI:GroundFoliage
 "Ground Foliage"
 END
 
 TOOLTIP:GroundFoliage
 "Grass, bushes, ferns and stones grow on the ground and sway in the breeze with the trees. Looks only: units walk through it. Direct3D 11 only, and off under Classic Graphics. Applies when you press Accept."
+END
+
+GUI:Ragdoll
+"Ragdoll Deaths"
+END
+
+TOOLTIP:Ragdoll
+"A soldier who dies goes limp and falls the way the shot or the blast pushed him, instead of playing his death animation. Looks only: where the body lies and when it goes are the same either way, and other players see their own setting. Off under Classic Graphics. Applies to the next death when you press Accept."
 END
 
 GUI:StructureCollapse
@@ -2151,7 +2239,7 @@ GUI:HudLayout
 END
 
 GUI:HudLayout0
-"Classic"
+"Reforged"
 END
 
 GUI:HudLayout1
@@ -2159,7 +2247,7 @@ GUI:HudLayout1
 END
 
 TOOLTIP:HudLayout
-"Classic keeps the command bar along the bottom and the game's own keys. Red Alert Style moves building and training into a sidebar down the right, puts the selected units' commands in a strip along the bottom, and takes Red Alert 2's keys where they fit this game: Q W E R for the build tabs, D to deploy, L to sell, K to repair, Z held for waypoints. Each layout keeps its own key changes on the Hotkeys page."
+"Reforged keeps the command bar along the bottom with everything this version adds: the build tabs, the signal keys over the minimap, the production list, the squad list with its build tray, the hero's button, superweapon icons and the general's powers in a tray. Classic is that bar as the original game had it, none of those: the superweapons written out as a name and a time, the general's powers in one column climbing the right edge. Red Alert Style moves building and training into a sidebar down the right, puts the selected units' commands in a strip along the bottom, and takes Red Alert 2's keys where they fit this game: Q W E R for the build tabs, D to deploy, L to sell, K to repair, Z held for waypoints. Reforged and Classic share the game's own keys and Red Alert Style keeps its own; change either on the Hotkeys page."
 END
 
 GUI:HudWidth
@@ -4243,6 +4331,154 @@ GUI:RandomMapAnyTemplate
 "Surprise me"
 END
 
+TOOLTIP:MapListCrowded
+"With more than eight players only the maps with a start position for every player are listed; the Random tab builds one for any number"
+END
+
+GUI:LobbyPresetsButton
+"PRESETS"
+END
+
+GUI:LobbyPresets
+"Presets"
+END
+
+TOOLTIP:LobbyPresets
+"Fill every seat with computers and teams"
+END
+
+GUI:SkirmishPresetGroup
+"%d players"
+END
+
+GUI:SkirmishPresetCustomGroup
+"Your own"
+END
+
+GUI:SkirmishPresetCustom
+"Custom %d: %d players"
+END
+
+GUI:SkirmishPresetCustomGenerated
+"generated map"
+END
+
+GUI:SkirmishPresetCustomEmpty
+"Custom %d: empty, click to save this room"
+END
+
+GUI:SkirmishPresetLoad
+"LOAD"
+END
+
+GUI:SkirmishPresetSave
+"SAVE"
+END
+
+GUI:SkirmishPresetClear
+"CLEAR"
+END
+
+GUI:SkirmishPreset7v1
+"7 v 1: you against 7 Hard AIs"
+END
+
+GUI:SkirmishPreset4v4
+"4 v 4, Medium AIs"
+END
+
+GUI:SkirmishPresetFFA8
+"8-player free-for-all, mixed AIs"
+END
+
+GUI:SkirmishPreset2x4
+"2 v 2 v 2 v 2, Medium AIs"
+END
+
+GUI:SkirmishPreset11v1
+"11 v 1: you against 11 Hard AIs"
+END
+
+GUI:SkirmishPreset3x4
+"3 teams of 4, Medium AIs"
+END
+
+GUI:SkirmishPreset15v1
+"15 v 1: you against 15 Hard AIs"
+END
+
+GUI:SkirmishPreset8v8
+"8 v 8, Hard AIs"
+END
+
+GUI:SkirmishPresetFFA16
+"16-player free-for-all, mixed AIs"
+END
+
+GUI:SkirmishPreset4x4
+"4 teams of 4, Medium AIs"
+END
+
+GUI:SkirmishPreset23v1
+"23 v 1: you against 23 Hard AIs"
+END
+
+GUI:SkirmishPreset12v12
+"12 v 12, Hard AIs"
+END
+
+GUI:SkirmishPresetFFA24
+"24-player free-for-all, mixed AIs"
+END
+
+GUI:SkirmishPreset3x8
+"3 teams of 8, Medium AIs"
+END
+
+GUI:SkirmishPreset31v1
+"31 v 1: you against 31 Hard AIs"
+END
+
+GUI:SkirmishPreset16v16
+"16 v 16: you and 15 Hard allies against 16 Hard AIs"
+END
+
+GUI:SkirmishPresetFFA32
+"32-player free-for-all, mixed AIs"
+END
+
+GUI:SkirmishPreset4Teams
+"4 teams of 8, Medium AIs"
+END
+
+GUI:SkirmishPreset8Teams
+"8 teams of 4, mixed AIs"
+END
+
+GUI:SkirmishPreset16v16Brutal
+"16 v 16, all Brutal"
+END
+
+GUI:SkirmishPreset4v28
+"4 v 28: you and 3 Medium allies against 28 Easy AIs"
+END
+
+GUI:SkirmishPresetLastStand
+"Last stand: you and 1 ally against 30 Hard AIs"
+END
+
+GUI:SkirmishPreset3Way
+"Three-way war: 11 v 11 v 10, Medium AIs"
+END
+
+GUI:SkirmishPresetFFA12
+"12-player free-for-all, mixed AIs"
+END
+
+GUI:SkirmishPreset6v6
+"6 v 6, Hard AIs"
+END
+
 GUI:RandomMapSize
 "Map size"
 END
@@ -4509,11 +4745,7 @@ GUI:OnlineLoginName
 "Email or Nickname"
 END
 
-// the online login screen under -online: its title, buttons, help text and status line
-GUI:OnlineLoginTitle
-"ZERO HOUR REFORGED ONLINE"
-END
-
+// the online login screen under -online: its buttons and status line
 GUI:OnlineSignIn
 "SIGN IN"
 END
@@ -4527,27 +4759,15 @@ GUI:OnlineKeepSignedIn
 END
 
 TOOLTIP:OnlineKeepSignedIn
-"Stays signed in on this computer. Your password is never stored"
+"Your password is never stored"
 END
 
 TOOLTIP:OnlineNeedsLauncher
-"Online play starts from the launcher: open Online there and press Play online"
-END
-
-GUI:OnlineLoginHelp
-"Sign in with your zerohour.gg account: your email or your nickname, and your password."
-END
-
-GUI:OnlineLoginHelpRegister
-"No account yet? Create Account opens the sign-up page in your browser."
-END
-
-GUI:OnlineLoginHelpReset
-"Forgot your password? Forgot Password opens the reset page in your browser."
+"Start online play from the launcher"
 END
 
 GUI:OnlineLoginSavedToken
-"Your saved sign-in will be used. No password needed."
+"Saved sign-in"
 END
 
 GUI:OnlineSigningIn
@@ -4602,6 +4822,18 @@ GUI:OnlineLoginBanned
 "This account is banned."
 END
 
+GUI:OnlineLoginBannedReason
+"This account is banned: %ls"
+END
+
+GUI:OnlineLoginBannedUntil
+"This account is banned until %ls."
+END
+
+GUI:OnlineLoginBannedUntilReason
+"This account is banned until %ls: %ls"
+END
+
 GUI:OnlineMaintenance
 "Online play is down for maintenance. Try again later."
 END
@@ -4652,11 +4884,6 @@ END
 
 GUI:OnlineLoginFilesNone
 "The server could not check your game files. Restart the game and sign in again; if it happens again, reinstall the game from the launcher."
-END
-
-// the online hub's info box when the server sent no message of the day
-GUI:OnlineHubWelcome
-"Welcome to Zero Hour Reforged online."
 END
 
 // EA's lobby and staging-room player tooltips without "Region:", which -online never knows
@@ -4729,6 +4956,22 @@ TOOLTIP:WaterRefractionQuality
 "For Modern water. Full distorts the view below the surface. Simple keeps clear water without distortion. Off uses opaque tinted water for better performance. Applied when you Accept."
 END
 
+GUI:MapAwareWaveHeading
+"Map-Aware Waves"
+END
+
+TOOLTIP:MapAwareWaveHeading
+"For Modern water. Swells bend toward the shore, run along channels and drop behind islands, each sea from its own side. Off keeps the waves as they were. Applied when you Accept."
+END
+
+GUI:UnderwaterClarity
+"Underwater Clarity"
+END
+
+TOOLTIP:UnderwaterClarity
+"For Modern water. Shallow shelves, reefs and sunken ruins show through the sea. Broad flat seabeds and deep water stay as murky as the map made them. Applied when you Accept."
+END
+
 GUI:WaterReflectionDetail
 "Reflection detail"
 END
@@ -4765,22 +5008,6 @@ TOOLTIP:WaterReflection
 "For Modern water when Scene reflections is on. Legacy uses the original reflections. SSR reflects visible screen content. Hybrid combines both and is the default. Applied when you Accept."
 END
 
-GUI:QMSearchTime
-"Searching for an opponent: %d:%02d"
-END
-
-GUI:QMSearchTimePool
-"Searching for an opponent: %d:%02d, %d in the queue"
-END
-
-GUI:QMStartsIn
-"Match starts in %d"
-END
-
-GUI:QMOpponentFound
-"Opponent found: %ls"
-END
-
 GUI:QMAnOpponent
 "unknown player"
 END
@@ -4799,6 +5026,15 @@ END
 
 GUI:OnlineRatingTier
 "%ls, rating %d"
+END
+
+// the same from a server that sends the ladder's Elo (the old two lines stay for one that does not)
+GUI:OnlineElo
+"ELO %d"
+END
+
+GUI:OnlineEloTier
+"%ls, ELO %d"
 END
 
 GUI:OnlineLadderPlace
@@ -4869,12 +5105,8 @@ GUI:OnlineSkinsWaiting
 "Asking zerohour.gg..."
 END
 
-GUI:OnlineSkinsHint
-"Pick one look per unit and press Save. Greyed-out skins unlock with a code redeemed at zerohour.gg."
-END
-
 GUI:OnlineSkinsNone
-"Your account owns no skins yet. Redeem a code at zerohour.gg, then open this screen again."
+"Your account owns no skins yet. Each card says how to get its skin; open this screen again once you have one."
 END
 
 GUI:OnlineSkinsSaved
@@ -4897,25 +5129,9 @@ GUI:OnlineSkinsRefused
 "zerohour.gg refused that pick, so your skins stay as they were. Open this screen again to see what your account holds."
 END
 
-// Play vs AI on the online hub: the button, the speed and AI rating beside it, and why a match did not start
+// Play vs AI on the online hub: the button, and why a match did not start
 GUI:OnlineVsAIButton
 "PLAY VS AI"
-END
-
-GUI:OnlineAISpeed
-"1.0x speed"
-END
-
-GUI:OnlineAIRating
-"1.0x speed, AI rating %.2f"
-END
-
-GUI:OnlineAIRated
-"1.0x speed, AI rating %.2f -> %.2f"
-END
-
-GUI:OnlineAIUnrated
-"1.0x speed, not rated: %ls"
 END
 
 GUI:OnlineAIGames
@@ -4958,6 +5174,83 @@ SKIN:Splinter
 "SPLINTER CAMO"
 END
 
+SKIN:Iron
+"IRON"
+END
+
+SKIN:Bronze
+"BRONZE"
+END
+
+SKIN:Silver
+"SILVER"
+END
+
+SKIN:Gold
+"GOLD"
+END
+
+SKIN:Emerald
+"EMERALD"
+END
+
+SKIN:Reforged
+"REFORGED"
+END
+
+SKIN:BugHunter
+"BUG HUNTER"
+END
+
+// the Skins page's button on a look the account lacks, which opens zerohour.gg
+SKIN:EarnedCode
+"REDEEM A CODE"
+END
+
+SKIN:EarnedIron
+"IRON SUPPORTER"
+END
+
+SKIN:EarnedBronze
+"BRONZE SUPPORTER"
+END
+
+SKIN:EarnedSilver
+"SILVER SUPPORTER"
+END
+
+SKIN:EarnedGold
+"GOLD SUPPORTER"
+END
+
+SKIN:EarnedEmerald
+"EMERALD SUPPORTER"
+END
+
+SKIN:EarnedReforged
+"REFORGED SUPPORTER"
+END
+
+SKIN:EarnedBugHunter
+"BUG HUNTER BADGE"
+END
+
+SKIN:SpecialThanks
+"SPECIAL THANKS"
+END
+
+SKIN:EarnedSpecialThanks
+"SPECIAL THANKS"
+END
+
+SKIN:UnitUsaDozer
+"USA Dozer"
+END
+
+SKIN:UnitChinaDozer
+"China Dozer"
+END
+
 GUI:OnlineLadderRank
 "#"
 END
@@ -4967,7 +5260,7 @@ GUI:OnlineLadderPlayer
 END
 
 GUI:OnlineLadderRating
-"Rating"
+"ELO"
 END
 
 GUI:OnlineLadderTier
@@ -4996,6 +5289,10 @@ END
 
 GUI:OnlineRatedResult
 "Rating %+.1f -> %d"
+END
+
+GUI:OnlineEloResult
+"ELO %+d -> %d"
 END
 
 GUI:OnlineUnrated
@@ -5040,14 +5337,6 @@ END
 
 GUI:OnlineUnrated_cancelled
 "Not rated: the match was called off."
-END
-
-GUI:OnlineSendingResultsTitle
-"Sending Results"
-END
-
-GUI:OnlineSendingResults
-"The match result and replay are being sent. Please wait, and do not close the game."
 END
 
 // The general's ranks past EA's five, named the way the first five are (EA's 6 to 8 were joke names
@@ -5810,7 +6099,7 @@ SCIENCE:DemolitionTalent10A
 END
 
 CONTROLBAR:ToolTipDemolitionTalent10A
-"Each Scud Storm missile hits 20 percent harder, 720 at the centre instead of 600."
+"Each Scud Storm missile hits 10 percent harder, 660 at the centre instead of 600."
 END
 
 SCIENCE:DemolitionTalent10B
@@ -5904,15 +6193,15 @@ GUI:OnlineTabCustom
 END
 
 GUI:OnlineAIShort
-"AI"
+"Bot ELO"
 END
 
 GUI:OnlineLadderRatingLabel
-"Ladder rating"
+"ELO"
 END
 
 GUI:OnlineAIRatingLabel
-"AI rating"
+"Bot ELO"
 END
 
 GUI:OnlineGamesLabel
@@ -6013,16 +6302,8 @@ GUI:OnlineLoginInQuickMatch
 "In Quick Match"
 END
 
-GUI:OnlineLoginLauncher
-"The launcher picks the server, the nearest by ping unless you choose another there."
-END
-
 GUI:OnlineLoginHeading
 "Sign in"
-END
-
-GUI:OnlineLoginKeepHint
-"Your password is never stored"
 END
 
 GUI:OnlineLoginFailed
@@ -6033,25 +6314,17 @@ GUI:OnlineLoginBadBody
 "Wrong email, nickname or password. Check them and try again."
 END
 
-GUI:OnlineLoginBrowser
-"Both open zerohour.gg in your browser."
-END
-
 // hub
 GUI:OnlineHubVsAITitle
 "Play vs AI"
 END
 
 GUI:OnlineHubVsAILead
-"Unranked · against the computer"
+"Unranked"
 END
 
 GUI:OnlineHubRecord
 "W–L"
-END
-
-GUI:OnlineHubVsAIExplain
-"Random official 1v1 map. The computer plays at your AI rating; a win raises it, a loss lowers it."
 END
 
 GUI:OnlineHubPlay
@@ -6066,10 +6339,6 @@ GUI:OnlineHubInQueue
 "In queue"
 END
 
-GUI:OnlineHubQuickMatchExplain
-"One opponent near your ladder rating, on a map generated for the match. The result moves you on the ladder."
-END
-
 GUI:OnlineHubFindMatch
 "FIND MATCH"
 END
@@ -6079,11 +6348,7 @@ GUI:OnlineHubCustomTitle
 END
 
 GUI:OnlineHubCustomLead
-"Unranked · 2 to 8 players"
-END
-
-GUI:OnlineHubCustomExplain
-"Host a room with your own rules or join one. Chat with whoever is on %ls."
+"Unranked · 2-8"
 END
 
 GUI:OnlineHubBrowse
@@ -6112,10 +6377,6 @@ END
 
 GUI:OnlineHubFrom
 "From %ls"
-END
-
-GUI:OnlineHubMotd3
-"The ladder and every match are on zerohour.gg."
 END
 
 GUI:OnlineHubMyCard
@@ -6188,10 +6449,6 @@ GUI:OnlineCardArmyUsaAir
 END
 
 // ladder
-GUI:OnlineLadderSub
-"Every server, one ladder"
-END
-
 GUI:OnlineLadderPage
 "Ranks %d–%d"
 END
@@ -6262,10 +6519,6 @@ GUI:OnlineLobbyRoomCount
 "%ls %d"
 END
 
-GUI:OnlineLobbySay
-"Say something to %ls"
-END
-
 GUI:OnlineLobbyJoin
 "JOIN"
 END
@@ -6277,10 +6530,6 @@ END
 // Quick Match page
 GUI:QMRandomArmy
 "Random army"
-END
-
-GUI:QMRandomHint
-"One of the twelve, drawn when the match starts"
 END
 
 GUI:QMNoGeneral
@@ -6303,28 +6552,17 @@ GUI:QMSearching
 "Searching for an opponent"
 END
 
-GUI:QMWindow
-"Window"
-END
-
+// the search's chance window as a format: "%%" is the percent sign
 GUI:QMWindowValue
-"Opponents you would beat %d to %d times in 100"
+"Win chance %d-%d%%"
 END
 
 GUI:QMWidens
-"Widens to %d to %d in %d:%02d"
-END
-
-GUI:QMWidenCap
-"Stops widening at %d to %d"
+"Widens in %d:%02d"
 END
 
 GUI:QMYourPicks
 "Your picks"
-END
-
-GUI:QMPicksHint
-"Stop the search to change them."
 END
 
 GUI:QMStop
@@ -6349,6 +6587,26 @@ END
 
 GUI:QMStartsBanner
 "MATCH STARTS IN %d"
+END
+
+GUI:QMSpeedBanner
+"PLAY AT %s?"
+END
+
+GUI:QMSpeedAsk
+"%s wants to play at %s. Accept?\n\nDeclining in %d s"
+END
+
+GUI:QMSpeedWaiting
+"Waiting for %s to accept %s"
+END
+
+GUI:QMSpeedAccepted
+"Accepted, playing at %s"
+END
+
+GUI:QMSpeedDeclined
+"Declined, playing at %s"
 END
 
 // room
@@ -6387,7 +6645,7 @@ GUI:OnlineScoreSubRanked
 END
 
 GUI:OnlineScoreSubAI
-"Play vs AI · %ls · %ls · not on the ladder"
+"Play vs AI · %ls · %ls"
 END
 
 GUI:OnlineScoreSending
@@ -6395,11 +6653,11 @@ GUI:OnlineScoreSending
 END
 
 GUI:OnlineScoreConfirmed
-"Result confirmed by both players. Replay stored on zerohour.gg."
+"Result confirmed"
 END
 
 GUI:OnlineScoreAISaved
-"Saved to your account. The next computer plays at %ls."
+"Next AI: %ls"
 END
 
 GUI:OnlineScoreAIHeld
@@ -6414,69 +6672,13 @@ GUI:OnlineScorePlayAgain
 "PLAY AGAIN"
 END
 
-GUI:OnlineScoreHow
-"How the AI rating moves"
-END
-
-GUI:OnlineScoreHow1
-"A win against the computer raises your AI rating and a loss lowers it. The next computer plays at the new number. Your ladder rating moves only in Quick Match."
-END
-
 // skins
-GUI:OnlineSkinsSub
-"One look per unit"
-END
-
-GUI:OnlineSkinsUsaTank
-"USA tank"
-END
-
-GUI:OnlineSkinsChinaTank
-"China tank"
-END
-
-GUI:OnlineSkinsGlaTank
-"GLA tank"
-END
-
-GUI:OnlineSkinsWorn
-"Worn"
-END
-
 GUI:OnlineSkinsOwned
 "Owned"
 END
 
-GUI:OnlineSkinsLocked
-"Not owned"
-END
-
-GUI:OnlineSkinsUnsaved
-"Picked, not saved"
-END
-
-GUI:OnlineSkinsLockedHint
-"Redeem a code at zerohour.gg"
-END
-
-GUI:OnlineSkinsGet
-"Getting skins"
-END
-
-GUI:OnlineSkinsGet1
-"A skin belongs to your zerohour.gg account. Redeem a code on the account page, then open this page again."
-END
-
 GUI:OnlineSkinsOpenSite
 "OPEN ZEROHOUR.GG"
-END
-
-GUI:OnlineSkinsWho
-"Who sees them"
-END
-
-GUI:OnlineSkinsWho1
-"Everyone in your Quick Match and custom games. LAN and skirmish games never show a skin."
 END
 
 GUI:OnlineSkinsPending
@@ -6487,30 +6689,55 @@ GUI:OnlineSkinsPending1
 "1 change not saved yet"
 END
 
+// the Skins page: list sides, the collected count, the filter, the platform's words and button
+GUI:OnlineSkinsSideUsa
+"USA"
+END
+
+GUI:OnlineSkinsSideChina
+"China"
+END
+
+GUI:OnlineSkinsSideGla
+"GLA"
+END
+
+GUI:OnlineSkinsAll
+"All"
+END
+
+GUI:OnlineSkinsFilterLocked
+"Locked"
+END
+
+GUI:OnlineSkinsWear
+"WEAR"
+END
+
+GUI:OnlineSkinsWornButton
+"WORN"
+END
+
+GUI:OnlineSkinsPickedButton
+"PICKED"
+END
+
 // the load screen's next tip (it counts GUI:LoadTip<n> until one is missing)
 GUI:LoadTip11
-"Play vs AI online keeps its own AI rating and never touches your ladder rating."
+"Play vs AI online keeps its own Bot ELO and never touches your ladder ELO."
 END
 
 // online screens, second pass: the Quick Match page on generated maps, the lobby and hub states
 GUI:OnlineLadderShort
-"Ladder"
+"ELO"
 END
 
 GUI:QMQueueHere
 "%d others are searching on %ls"
 END
 
-GUI:QMGeneratedLine
-"Every match is played on a map made for it alone, so neither of you has seen it before."
-END
-
 GUI:QMNewMap
 "New map"
-END
-
-GUI:QMMapGenerated
-"Made for this match alone. Neither of you has played it."
 END
 
 GUI:QMCheckingMap
@@ -6522,7 +6749,7 @@ GUI:QMRefused
 END
 
 GUI:OnlineLobbyEmpty
-"No open games on %ls. Host one."
+"No open games"
 END
 
 GUI:OnlineLobbyJoining
@@ -6590,19 +6817,702 @@ GUI:OnlineScoreNoAnswer
 "The server has not answered yet. The result will show on zerohour.gg."
 END
 
-// the hub card paragraphs where the whole text does not fit (UIStyle::fitKey, "<label>_Short")
-GUI:OnlineHubVsAIExplain_Short
-"Official 1v1 map. A win raises your AI rating, a loss lowers it."
-END
-
-GUI:OnlineHubQuickMatchExplain_Short
-"One opponent near your rating on a generated map. Counts for the ladder."
-END
-
-GUI:OnlineHubCustomExplain_Short
-"Host or join a room. Chat with whoever is on %ls."
-END
-
 GUI:GroupTrayTraining
 "+%d in production"
+END
+
+GUI:SlotEasyAI
+"Easy AI"
+END
+
+GUI:SlotMediumAI
+"Medium AI"
+END
+
+GUI:SlotHardAI
+"Hard AI"
+END
+
+GUI:SlotBrutalAI
+"Brutal AI"
+END
+
+GUI:SlotViciousAI
+"Vicious AI"
+END
+
+GUI:SlotSavageAI
+"Savage AI"
+END
+
+GUI:SlotInsaneAI
+"Insane AI"
+END
+
+GUI:SaveFromOtherLogicRate
+"This save was made by a version of Reforged whose game logic ran %d times a second. This version runs it %d times a second, so the save cannot be loaded. That version's \"Mission Start\" saves still load and carry the campaign on from that mission's beginning."
+END
+
+SCIENCE:TurkiyeTalent6AShort
+"Buildings 15 percent cheaper"
+END
+
+SCIENCE:TurkiyeTalent6BShort
+"Soldiers 15 percent cheaper"
+END
+
+SCIENCE:TurkiyeTalent7AShort
+"Altay Tanks tougher"
+END
+
+SCIENCE:TurkiyeTalent7BShort
+"UAVs see further"
+END
+
+SCIENCE:TurkiyeTalent8AShort
+"Siper Bunkers tougher"
+END
+
+SCIENCE:TurkiyeTalent8BShort
+"Sungur Gunners tougher"
+END
+
+SCIENCE:TurkiyeTalent9AShort
+"2 more drones in the swarm"
+END
+
+SCIENCE:TurkiyeTalent9BShort
+"4 more soldiers drop"
+END
+
+SCIENCE:TurkiyeTalent10AShort
+"Tayfun hits a wider area"
+END
+
+SCIENCE:TurkiyeTalent10BShort
+"Berets start veteran"
+END
+
+SCIENCE:ChinaTalent6AShort
+"Hackers 40 percent cheaper"
+END
+
+SCIENCE:ChinaTalent6BShort
+"Soldiers 20 percent cheaper"
+END
+
+SCIENCE:ChinaTalent7AShort
+"Battlemasters tougher"
+END
+
+SCIENCE:ChinaTalent7BShort
+"Gattling Tanks tougher"
+END
+
+SCIENCE:ChinaTalent8AShort
+"Bunkers, Cannons tougher"
+END
+
+SCIENCE:ChinaTalent8BShort
+"Infernos tougher and faster"
+END
+
+SCIENCE:ChinaTalent9AShort
+"One more wave of shells"
+END
+
+SCIENCE:ChinaTalent9BShort
+"Mines cover more ground"
+END
+
+SCIENCE:ChinaTalent10AShort
+"Overlords start veteran"
+END
+
+SCIENCE:ChinaTalent10BShort
+"EMP lasts 45 seconds"
+END
+
+SCIENCE:TankTalent7AShort
+"Emperors tougher"
+END
+
+SCIENCE:TankTalent7BShort
+"Dragons, Gattlings tougher"
+END
+
+SCIENCE:TankTalent8AShort
+"Tanks repair out of combat"
+END
+
+SCIENCE:TankTalent8BShort
+"Battlemasters tougher"
+END
+
+SCIENCE:TankTalent10AShort
+"Emperors start elite"
+END
+
+SCIENCE:TankTalent10BShort
+"2 more tanks drop"
+END
+
+SCIENCE:InfantryTalent7AShort
+"Minigunners run faster"
+END
+
+SCIENCE:InfantryTalent7BShort
+"Tank Hunters tougher"
+END
+
+SCIENCE:InfantryTalent8AShort
+"Fortified Bunkers tougher"
+END
+
+SCIENCE:InfantryTalent8BShort
+"Crawlers tougher and faster"
+END
+
+SCIENCE:InfantryTalent10AShort
+"Soldiers heal out of combat"
+END
+
+SCIENCE:InfantryTalent10BShort
+"5 more Minigunners drop"
+END
+
+SCIENCE:NukeTalent7AShort
+"Overlords tougher"
+END
+
+SCIENCE:NukeTalent7BShort
+"Nuke Cannons tougher"
+END
+
+SCIENCE:NukeTalent8AShort
+"Reactors, Bunkers tougher"
+END
+
+SCIENCE:NukeTalent8BShort
+"MiGs tougher"
+END
+
+SCIENCE:NukeTalent10AShort
+"Nuke Cannons start elite"
+END
+
+SCIENCE:NukeTalent10BShort
+"Overlords self-repair"
+END
+
+SCIENCE:AmericaTalent6AShort
+"Vehicles and aircraft cheaper"
+END
+
+SCIENCE:AmericaTalent6BShort
+"Units rank up faster"
+END
+
+SCIENCE:AmericaTalent9AShort
+"One more A-10"
+END
+
+SCIENCE:AmericaTalent9BShort
+"4 more Rangers drop"
+END
+
+SCIENCE:USATalent7AShort
+"Crusaders, Paladins tougher"
+END
+
+SCIENCE:USATalent7BShort
+"Rangers tougher"
+END
+
+SCIENCE:USATalent8AShort
+"Patriots, Fire Bases tougher"
+END
+
+SCIENCE:USATalent8BShort
+"Comanches, Raptors tougher"
+END
+
+SCIENCE:USATalent10AShort
+"Big bombs hit wider"
+END
+
+SCIENCE:USATalent10BShort
+"Vehicles repair out of combat"
+END
+
+SCIENCE:SuperweaponTalent7AShort
+"Aurora Alphas tougher"
+END
+
+SCIENCE:SuperweaponTalent7BShort
+"Humvees, Avengers tougher"
+END
+
+SCIENCE:SuperweaponTalent8AShort
+"EMP Patriots tougher"
+END
+
+SCIENCE:SuperweaponTalent8BShort
+"Tomahawks tougher, faster"
+END
+
+SCIENCE:SuperweaponTalent10AShort
+"Superweapons a quarter off"
+END
+
+SCIENCE:SuperweaponTalent10BShort
+"Defences repair faster"
+END
+
+SCIENCE:LaserTalent7AShort
+"Laser Tanks tougher"
+END
+
+SCIENCE:LaserTalent7BShort
+"Avengers tougher"
+END
+
+SCIENCE:LaserTalent8AShort
+"Laser Turrets tougher"
+END
+
+SCIENCE:LaserTalent8BShort
+"Laser Tanks drive faster"
+END
+
+SCIENCE:LaserTalent10AShort
+"Laser Tanks start veteran"
+END
+
+SCIENCE:LaserTalent10BShort
+"Defences 30 percent cheaper"
+END
+
+SCIENCE:AirForceTalent7AShort
+"Comanches tougher"
+END
+
+SCIENCE:AirForceTalent7BShort
+"King Raptors tougher"
+END
+
+SCIENCE:AirForceTalent8AShort
+"Airfields, Patriots tougher"
+END
+
+SCIENCE:AirForceTalent8BShort
+"Chinooks tougher and faster"
+END
+
+SCIENCE:AirForceTalent10AShort
+"King Raptors start veteran"
+END
+
+SCIENCE:AirForceTalent10BShort
+"Aircraft always self-repair"
+END
+
+SCIENCE:GLATalent6AShort
+"Buildings 20 percent cheaper"
+END
+
+SCIENCE:GLATalent6BShort
+"Infantry run faster"
+END
+
+SCIENCE:GLATalent7AShort
+"Technicals, Buggies faster"
+END
+
+SCIENCE:GLATalent7BShort
+"RPG Troopers tougher"
+END
+
+SCIENCE:GLATalent8AShort
+"Stinger Sites tougher"
+END
+
+SCIENCE:GLATalent8BShort
+"Tougher Scorpion, Marauder"
+END
+
+SCIENCE:GLATalent9AShort
+"4 more Rebels ambush"
+END
+
+SCIENCE:GLATalent9BShort
+"Anthrax Bomb hits wider"
+END
+
+SCIENCE:GLATalent10AShort
+"Scud Storm hits wider"
+END
+
+SCIENCE:GLATalent10BShort
+"Marauders start veteran"
+END
+
+SCIENCE:ToxinTalent7AShort
+"Tractors tougher and faster"
+END
+
+SCIENCE:ToxinTalent7BShort
+"Marauders tougher"
+END
+
+SCIENCE:ToxinTalent8AShort
+"Tunnels tougher"
+END
+
+SCIENCE:ToxinTalent8BShort
+"Launchers tougher, faster"
+END
+
+SCIENCE:ToxinTalent10AShort
+"Scud poison lasts longer"
+END
+
+SCIENCE:ToxinTalent10BShort
+"Tractors start veteran"
+END
+
+SCIENCE:DemolitionTalent7AShort
+"Combat Cycles tougher"
+END
+
+SCIENCE:DemolitionTalent7BShort
+"Bomb Trucks tougher, faster"
+END
+
+SCIENCE:DemolitionTalent8AShort
+"Demo Traps half price"
+END
+
+SCIENCE:DemolitionTalent8BShort
+"Rocket Buggies tougher"
+END
+
+SCIENCE:DemolitionTalent10AShort
+"Scud missiles hit harder"
+END
+
+SCIENCE:DemolitionTalent10BShort
+"Scud Launchers start veteran"
+END
+
+SCIENCE:StealthTalent7AShort
+"Jarmen Kell tougher"
+END
+
+SCIENCE:StealthTalent7BShort
+"Technicals, Buggies tougher"
+END
+
+SCIENCE:StealthTalent8AShort
+"Tunnels, Stingers tougher"
+END
+
+SCIENCE:StealthTalent8BShort
+"Bomb Trucks tougher, faster"
+END
+
+SCIENCE:StealthTalent10AShort
+"Technicals, Buggies hide"
+END
+
+SCIENCE:StealthTalent10BShort
+"Scrambler hides a wider area"
+END
+
+GUI:HudLayout2
+"Classic"
+END
+
+Network:WaitingForReconnect
+"Waiting for %ls to reconnect (%d:%02d)"
+END
+
+Network:PlayerLostConnection
+"%ls lost connection"
+END
+
+Network:PlayerIsBack
+"%ls is back"
+END
+
+Network:BackInMatch
+"Back in the match"
+END
+
+GUI:OnlineRejoinTitle
+"Your match is still running"
+END
+
+GUI:OnlineRejoinCustom
+"Custom game"
+END
+
+GUI:OnlineRejoinElapsed
+"Playing for %d:%02d"
+END
+
+GUI:OnlineRejoinPlaying
+"Playing"
+END
+
+GUI:OnlineRejoinAway
+"Away"
+END
+
+GUI:OnlineRejoin
+"Rejoin"
+END
+
+GUI:OnlineRejoinWaiting
+"Asking the server..."
+END
+
+GUI:OnlineRejoinRefusedCrc
+"This match started on another build of the game and cannot be rejoined from this one."
+END
+
+GUI:OnlineRejoinRefusedRelay
+"Still connecting to the relay. Try again in a moment."
+END
+
+GUI:OnlineRejoinRefused
+"This match can no longer be rejoined."
+END
+
+GUI:RejoinAwayForfeit
+"%ls is away. The match is yours in %d:%02d unless they come back."
+END
+
+GUI:RejoinCatchingUp
+"Rejoining match %d%%"
+END
+
+GUI:RejoinWaitingForLog
+"Waiting for the match log"
+END
+GUI:DirectStrike
+"DIRECT STRIKE"
+END
+
+GUI:DirectStrikeLower
+"Direct Strike"
+END
+
+GUI:DirectStrikeVersion
+"v1.0"
+END
+
+GUI:Apocalypse
+"APOCALYPSE"
+END
+
+GUI:ApocalypseVersion
+"v1.0"
+END
+
+TOOLTIP:Apocalypse
+"Hold out together against endless waves of the dead, up to four players."
+END
+
+TOOLTIP:DirectStrike
+"Buy units onto your plot. Every 30 seconds one player of each team sends a copy of his plot down the lane, and the first team to break the other's fortress wins. Up to 3 against 3, on a new island every match."
+END
+
+GUI:DirectStrikeMap
+"Random island"
+END
+
+GUI:DirectStrikeTeam
+"TEAM %d"
+END
+
+GUI:GameModeTitle
+"Create Game"
+END
+
+GUI:GameModeBody
+"Which mode is this game for?"
+END
+
+GUI:GameModeClassic
+"CLASSIC"
+END
+
+GUI:GameModeDirectStrike
+"DIRECT STRIKE"
+END
+
+GUI:GameModeApocalypse
+"APOCALYPSE"
+END
+
+GUI:GameModeClassicFact
+"Any map"
+END
+
+GUI:GameModeDirectStrikeFact
+"Up to 6 players"
+END
+
+GUI:GameModeApocalypseFact
+"Up to 4, co-op"
+END
+
+GUI:ApocalypseLower
+"Apocalypse"
+END
+
+GUI:DirectStrikeIslandNote
+"A new island every match"
+END
+
+GUI:DirectStrikeTeamSize
+"%d v %d"
+END
+
+GUI:DirectStrikeStart
+"START"
+END
+
+GUI:DirectStrikeReady
+"READY"
+END
+
+GUI:DirectStrikeEasy
+"Easy"
+END
+
+GUI:DirectStrikeMedium
+"Medium"
+END
+
+GUI:DirectStrikeHard
+"Hard"
+END
+
+GUI:DirectStrikeBrutal
+"Brutal"
+END
+
+GUI:Munkee
+""
+END
+
+OBJECT:LaneWarFortress
+"Fortress"
+END
+
+OBJECT:LaneWarWatchTower
+"Watch Tower"
+END
+
+GUI:LaneTier
+"Tier %d"
+END
+
+GUI:LaneUpgrades
+"Upgrades"
+END
+
+GUI:LaneIncome
+"Income %d/%d"
+END
+
+GUI:LaneAbilities
+"Abilities"
+END
+
+GUI:LaneMenu
+"Menu"
+END
+
+GUI:LaneDiplomacy
+"Diplomacy"
+END
+
+GUI:LaneEndTeamWins
+"Team %d wins"
+END
+
+GUI:LaneEndDraw
+"Draw"
+END
+
+GUI:LaneEndLeft
+"Team %d left the game"
+END
+
+GUI:LaneMatchClock
+"Match time"
+END
+
+GUI:LaneEndWaves
+"Waves"
+END
+
+GUI:LaneEndUnits
+"Units"
+END
+
+GUI:LaneEndEarned
+"Earned"
+END
+
+GUI:LaneEndSpent
+"Spent"
+END
+
+GUI:LaneEndKills
+"Kills"
+END
+
+GUI:LaneEndDamage
+"Damage"
+END
+
+GUI:LaneEndMiddle
+"Middle held"
+END
+
+GUI:LaneEndRematch
+"Rematch"
+END
+
+GUI:LaneEndLobby
+"Lobby"
+END
+
+GUI:LaneEndReplay
+"Watch replay"
+END
+
+GUI:QMMapNotBuilt
+"Your game could not build this match's map, so the match was called off."
+END
+
+OBJECT:ApocalypseZombie
+"Zombie"
+END
+
+OBJECT:ApocalypseZombieRunner
+"Runner Zombie"
+END
+
+OBJECT:ApocalypseZombieBrute
+"Brute Zombie"
+END
+
+// EA's text asked for DirectX 8.1; the device is refused for other reasons now (driver, a held screen).
+ERROR:D3DFailureMessage
+"The graphics card did not start.\n\nUpdate the graphics driver. Close overlays and other fullscreen programs. Do not start the game over remote desktop or on a locked screen. Restart the PC, or start the game with -win."
 END

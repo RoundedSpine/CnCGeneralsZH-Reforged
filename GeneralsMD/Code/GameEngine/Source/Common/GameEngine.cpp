@@ -182,8 +182,11 @@ void DeepCRCSanityCheck::reset(void)
 	// EA wrote the whole deep CRC out to CRCAfter<n>Maps.dat in the user data folder here, on every
 	// player's machine, for a comparison only this function makes and only against the number.  A
 	// folder that refused the write threw out of the shell map's first frame as "Uncaught exception
-	// in WinMain"; the number alone is all the check needs.
-	UnsignedInt thisCRC = TheGameLogic->getCRC( CRC_RECALC );
+	// in WinMain"; the number alone is all the check needs.  Not the light CRC a frame sends, though:
+	// that one folds in the logic random seed, which every match moves and the next match seeds again,
+	// so it differed after every game and Debug asserted on the first reset after one.  EA's deep CRC
+	// was taken in save mode and never had the seed in it.
+	UnsignedInt thisCRC = TheGameLogic->getCRC( CRC_RECALC_WITHOUT_SEED );
 
 	DEBUG_LOG(("DeepCRCSanityCheck: CRC is %X\n", thisCRC));
 	DEBUG_ASSERTCRASH(timesThrough == 0 || thisCRC == lastCRC,
@@ -203,12 +206,37 @@ GameEngine *TheGameEngine = NULL;
 SubsystemInterfaceList* TheSubsystemList = NULL;
 
 //-------------------------------------------------------------------------------------------------
+/* Two machines died of 0xC0000374 at every stage from the EA logo to a map load, four times with the
+	 log ending just before the Direct3D device was made: something writes past a heap block while the
+	 game starts, and the heap only notices later, somewhere else.  The process heap is walked before and
+	 after every subsystem's init, and the first walk that finds it broken says between which two, which
+	 is the line a crash report's log tail carries.  Startup only; once broken, no more walks. */
+static Int s_startupHeapChecks = 0;
+static Bool s_startupHeapBroken = FALSE;
+
+static void startupHeapCheck( const char *when, const AsciiString &name )
+{
+#if defined(_WIN32)
+	if ( s_startupHeapBroken )
+		return;
+	++s_startupHeapChecks;
+	if ( !HeapValidate( GetProcessHeap(), 0, NULL ) )
+	{
+		s_startupHeapBroken = TRUE;
+		DEBUG_LOG(( "HEAPCHECK: the process heap is corrupt %s %s (check %d)\n", when, name.str(), s_startupHeapChecks ));
+	}
+#endif
+}
+
+//-------------------------------------------------------------------------------------------------
 template<class SUBSYSTEM>
-void initSubsystem(SUBSYSTEM*& sysref, AsciiString name, SUBSYSTEM* sys, Xfer *pXfer,  const char* path1 = NULL, 
+void initSubsystem(SUBSYSTEM*& sysref, AsciiString name, SUBSYSTEM* sys, Xfer *pXfer,  const char* path1 = NULL,
 									 const char* path2 = NULL, const char* dirpath = NULL)
 {
+	startupHeapCheck( "before", name );
 	sysref = sys;
 	TheSubsystemList->initSubsystem(sys, path1, path2, dirpath, pXfer, name);
+	startupHeapCheck( "after", name );
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -465,7 +493,7 @@ static void checksumModels( XferCRC &xferCRC )
 		++modelsCounted;
 
 		ModelChecksum entry;
-		const Bool sourceKnown = TheLocalFileSystem->getFileInfo( source, &entry.source );
+		Bool sourceKnown = TheLocalFileSystem->getFileInfo( source, &entry.source );
 
 		std::string key( modelChecksumSourceKey( source ).str() );
 		key.append( "|" );
@@ -480,13 +508,25 @@ static void checksumModels( XferCRC &xferCRC )
 		{
 			// the loose master, never the Reforged batch copy TheFileSystem may hand the renderer instead
 			File *file = loose ? TheLocalFileSystem->openFile( model.str(), File::READ ) : TheArchiveFileSystem->openRetailFile( model );
-			Int fileSize = file->size();
-			char *contents = file->readEntireAndClose();
-			CRC modelCRC;
-			modelCRC.computeCRC( contents, fileSize );
-			delete [] contents;
-			entry.crc = modelCRC.get();
-			++modelsRead;
+			if (file != NULL)
+			{
+				Int fileSize = file->size();
+				char *contents = file->readEntireAndClose();
+				CRC modelCRC;
+				modelCRC.computeCRC( contents, fileSize );
+				delete [] contents;
+				entry.crc = modelCRC.get();
+				++modelsRead;
+			}
+			else
+			{
+				// There but not readable: a build's copy into Run\Art\W3D holding it, a lock, no rights.
+				// Its name goes in with no bytes, so this start's CRC refuses every join rather than
+				// vouching for a file nobody read, and it stays out of the cache to be read next start.
+				DEBUG_LOG(( "INI CRC: %s would not open; counted as unread, so this start's CRC matches no one's\n", model.str() ));
+				entry.crc = 0;
+				sourceKnown = FALSE;
+			}
 		}
 		if (sourceKnown)
 			current[key] = entry;
@@ -849,6 +889,10 @@ static void startAutoSkirmish( Int numPlayersWanted )
 		else if (takeover && (TheGlobalData->m_autoSkirmishTakeoverSlot < 0 || TheGlobalData->m_autoSkirmishTakeoverSlot == i))
 		{
 			slot.setState( SLOT_TAKEOVER );
+			// the one at the keyboard drives it, so it carries his name with its seat, not "Human"
+			UnicodeString seatName;
+			seatName.format( u"%ls %d", localName.str(), i + 1 );
+			slot.setName( seatName );
 		}
 		else
 		{
@@ -907,6 +951,8 @@ static void startAutoSkirmish( Int numPlayersWanted )
 	TheSkirmishGameInfo->setIncomeSharing( TheGlobalData->m_incomeSharing );
 	TheSkirmishGameInfo->setTechRespawn( TheGlobalData->m_techRespawn );
 	TheSkirmishGameInfo->setSupplyPileLimit( TheGlobalData->m_supplyPileLimit );
+	TheSkirmishGameInfo->setStartShrouded( TheGlobalData->m_startShrouded );
+	TheSkirmishGameInfo->setDayNight( TheGlobalData->m_dayNight );
 	TheSkirmishGameInfo->setSuperweaponRestriction( (UnsignedShort)TheGlobalData->m_superweapons );
 	TheSkirmishGameInfo->setGameSpeedPercent( TheGlobalData->m_autoSkirmishGameSpeedPercent );
 	if (TheGlobalData->m_startingCash > 0)
@@ -1015,9 +1061,29 @@ static void startAutoNetGame( void )
 	if (TheLAN == NULL)
 		TheLAN = NEW LANAPI();
 
-	TheLAN->StartAutomatedGame( mapName, TheGlobalData->m_fixedSeed, slotIPs, numSlots,
+	const Bool started = TheLAN->StartAutomatedGame( mapName, TheGlobalData->m_fixedSeed, slotIPs, numSlots,
 		TheGlobalData->m_netGameLocalSlot );
 	TheWritableGlobalData->m_netGameStarted = TRUE;
+
+	/* -rejoin <file> plays the match from a replay on this disk, -rejoinfrom <slot> from the one that seat
+		 sends once the room has taken this seat back.  A refused replay would start the match from frame 0
+		 against seats that are far into it. */
+	if (started && (TheGlobalData->m_rejoinReplay.isNotEmpty() || TheGlobalData->m_rejoinFromSlot >= 0))
+	{
+		AsciiString path = TheGlobalData->m_rejoinReplay;
+		Int from = MAX_SLOTS;
+		if (TheGlobalData->m_rejoinFromSlot >= 0)
+		{
+			from = TheGlobalData->m_rejoinFromSlot;
+			TheFileSystem->createDirectory( TheRecorder->getReplayDir() );
+			path.format( "%srejoin.rep", TheRecorder->getReplayDir().str() );
+		}
+		if (!TheNetwork->startRejoin( path, from ))
+		{
+			DEBUG_LOG(("-rejoin: cannot come back from '%s', quitting\n", path.str()));
+			TheGameEngine->setQuitting( TRUE );
+		}
+	}
 }
 
 /** -----------------------------------------------------------------------------------------------
@@ -1267,7 +1333,7 @@ void GameEngine::init( int argc, char *argv[] )
 
 
 		initSubsystem(TheScienceStore,"TheScienceStore", MSGNEW("GameEngineSubsystem") ScienceStore(), &xferCRC, "Data\\INI\\Default\\Science.ini", "Data\\INI\\Science.ini");
-		// New sciences only: a name EA already defined stops the load
+		// A name EA already defined is edited in place and only the fields written here change; a new name is added
 		ini.load( AsciiString( "Data\\INI\\ScienceReforged.ini" ), INI_LOAD_MULTIFILE, &xferCRC );
 		initSubsystem(TheMultiplayerSettings,"TheMultiplayerSettings", MSGNEW("GameEngineSubsystem") MultiplayerSettings(), &xferCRC, "Data\\INI\\Default\\Multiplayer.ini", "Data\\INI\\Multiplayer.ini");
 		// The fork's player colours, after EA's eight
@@ -1383,6 +1449,9 @@ void GameEngine::init( int argc, char *argv[] )
 		ini.load( AsciiString( "Data\\INI\\TurkiyeReforged.ini" ), INI_LOAD_MULTIFILE, &xferCRC );
 		// The general's talents, ranks 6 to 10: each card a science and whatever it grants
 		ini.load( AsciiString( "Data\\INI\\TalentsReforged.ini" ), INI_LOAD_MULTIFILE, &xferCRC );
+		/* The Apocalypse mode's zombies, their locomotors and weapons: every name new, so OVERWRITE,
+			 which MULTIFILE would refuse for an object that is not a reskin. */
+		ini.load( AsciiString( "Data\\INI\\ApocalypseReforged.ini" ), INI_LOAD_OVERWRITE, &xferCRC );
 
 	#ifdef DUMP_PERF_STATS///////////////////////////////////////////////////////////////////////////
 	GetPrecisionTimer(&endTime64);//////////////////////////////////////////////////////////////////
@@ -1478,6 +1547,9 @@ void GameEngine::init( int argc, char *argv[] )
 		checksumFileContents( xferCRC, "Data\\INI\\CommandButton.ini" );
 		checksumFileContents( xferCRC, "Data\\INI\\CommandSet.ini" );
 		checksumFileContents( xferCRC, "Data\\INI\\CommandSetReforged.ini" );
+		// TheChallengeGenerals loads it without the checksum, and its StartsEnabled decides the Random
+		// pool's candidates and whether a seat gets its starting buildings (GameLogic::startNewGame)
+		checksumFileContents( xferCRC, "Data\\INI\\ChallengeMode.ini" );
 		checksumModels( xferCRC );
 
 		xferCRC.close();
@@ -1671,6 +1743,12 @@ void GameEngine::init( int argc, char *argv[] )
 
 	TheSubsystemList->resetAll();
 	HideControlBar();
+
+	startupHeapCheck( "after", AsciiString( "resetAll" ) );
+#if defined(_WIN32)
+	if ( !s_startupHeapBroken )
+		DEBUG_LOG(( "HEAPCHECK: the process heap was whole at all %d checks of startup\n", s_startupHeapChecks ));
+#endif
 
 	/* Now that every subsystem has been reset, the recorder can be handed the replay and keep
 		 it: the file stays open, the mode stays PLAYBACK, and the MSG_NEW_GAME appended here is
@@ -2841,8 +2919,11 @@ static void updateHeadlessRun( void )
 
 	/* Except that a run with a control socket open is not unattended at all - somebody is driving
 		 it from the other end, and tearing the process down the moment a match is decided takes the
-		 socket with it.  Whoever is driving says when it ends, by sending "quit". */
-	if (TheGlobalData->m_controlPort > 0)
+		 socket with it.  Whoever is driving says when it ends, by sending "quit".  A -maxframes on the
+		 same command line is an end the driver asked for, so that one still fires (a seated -control
+		 run given -maxframes 1020 played on to frame 71641); a decision still does not. */
+	const Bool controlled = TheGlobalData->m_controlPort > 0;
+	if (controlled && TheGlobalData->m_maxGameFrames <= 0)
 		return;
 
 	/* -directorrecord films one match.  A replay that runs out, or a match that ends some other way
@@ -2850,7 +2931,7 @@ static void updateHeadlessRun( void )
 		 finishes the movie. */
 	static Bool directorRecordSawMatch = FALSE;
 	const Bool scouting = !TheGlobalData->m_directorScoutFile.isEmpty();
-	if ((TheGlobalData->m_directorRecord || scouting) && !TheGameEngine->getQuitting())
+	if (!controlled && (TheGlobalData->m_directorRecord || scouting) && !TheGameEngine->getQuitting())
 	{
 		const Bool inMatch = TheGameLogic->isInGame() && !TheGameLogic->isInShellGame();
 		// -directorreplays ends past its last replay, or as soon as its match went another way than the film's
@@ -2959,7 +3040,7 @@ static void updateHeadlessRun( void )
 	if (maxGameFrames > 0)
 		maxGameFrames += frameLimitOvershoot();		// a test's overshoot: 0 for every real run
 
-	const char *why = GameEngine_headlessRunResult( frame, TheVictoryConditions->getEndFrame(),
+	const char *why = GameEngine_headlessRunResult( frame, controlled ? 0 : TheVictoryConditions->getEndFrame(),
 																									maxGameFrames );
 	if (why == NULL)
 		return;

@@ -52,6 +52,18 @@ static const Int g_lanHostNameLength = 1;
 static const Int g_lanGameNameLength = 16; // reduced length because of game option length
 static const Int g_lanGameNameReservedLength = 16; // save N wchars for ID info
 static const Int g_lanMaxChatLength = 100;
+
+/// how much of a chat line's `left` characters at `text` the next packet carries: all of it when it fits, else up
+/// to the last space inside g_lanMaxChatLength, or a hard cut when the first g_lanMaxChatLength hold no space
+inline Int LANChatPiece( const WideChar *text, Int left )
+{
+	if( left <= g_lanMaxChatLength )
+		return left;
+	for( Int take = g_lanMaxChatLength; take > 0; --take )
+		if( text[ take ] == u' ' )
+			return take;
+	return g_lanMaxChatLength;
+}
 /* The game options go out in parts: a 32-seat room's string is several times what one datagram
 	 holds.  g_lanOptionsPartLength is what one LANMessage carries (its fixed fields and the two part
 	 bytes come off the packet), m_lanMaxOptionsLength the whole string, g_lanOptionsParts of those. */
@@ -233,6 +245,9 @@ public:
 	virtual void fillInLANMessage( LANMessage *msg );																	///< Fill in default params
 	virtual void checkMOTD( void );
 
+	/// the last round trip to the room's player at ip in ms, -1 while none came back in the last few seconds
+	Int getPeerPing( UnsignedInt ip ) const;
+
 	/// -netgame: build a game out of a slot list handed to us and start it, with no lobby traffic
 	Bool StartAutomatedGame( AsciiString mapName, Int seed, const UnsignedInt *slotIPs,
 													 Int numSlots, Int localSlot );
@@ -262,6 +277,7 @@ protected:
 	UnsignedInt					m_expiration;						///< When should we give up on our action?
 	UnsignedInt					m_actionTimeout;
 	UnsignedInt					m_directConnectRemoteIP;///< The IP address of the game we are direct connecting to.
+	Int									m_joinDenyDataMatch;		///< GameDataMatchResult of the last JOIN_DENY when the host said, else 0 (GAMEDATA_MATCHES)
 
 	// Resend timer ---------------------------------------------------------------------------
 	UnsignedInt					m_lastResendTime; // in ms
@@ -299,6 +315,16 @@ protected:
 	};
 	std::map<UnsignedInt64, OptionsAssembly>	m_optionsAssembly;
 	AsciiString					m_assembledOptions;	///< the whole options string of the message being handled
+
+	/// a room's round trips: every second a PING to each other human seat, its PONG timed on return
+	struct PeerPing
+	{
+		Int ms;
+		UnsignedInt heard;	///< Clock_Milliseconds of the PONG
+	};
+	std::map<UnsignedInt, PeerPing>	m_peerPing;		///< by IP
+	UnsignedInt					m_lastPingTime;
+	void pingRoom( UnsignedInt now );
 
 protected:
 	void sendMessage(LANMessage *msg, UnsignedInt ip = 0); // Convenience function
@@ -364,6 +390,10 @@ struct LANMessage
 		MSG_INACTIVE,						///< I've alt-tabbed out.  Unaccept me cause I'm a poo-flinging monkey.
 
 		MSG_REQUEST_GAME_INFO,	///< For direct connect, get the game info from a specific IP Address
+
+		// A room's round trips, appended: an older build logs them as unknown and drops them
+		MSG_PING,								///< Send this stamp back to me.
+		MSG_PONG,								///< Your stamp, back.
 
 		MSG_MAX
 	} LANMessageType;
@@ -431,6 +461,11 @@ struct LANMessage
 			UnsignedInt gameIP;
 			UnsignedInt playerIP;
 			LANAPIInterface::ReturnType reason;
+			/* Which half differs on RET_CRC_MISMATCH, a GameDataMatchResult, valid only beside
+				 LAN_JOIN_DENY_DATA_TAG: an older host leaves both as stack bytes, an older joiner reads
+				 only the reason before them, so either side of the pair keeps its bare "mismatch". */
+			UnsignedInt dataTag;
+			Int dataMatch;
 		} GameNotJoined;
 
 		// Accept is sent with SET_ACCEPT
@@ -464,6 +499,12 @@ struct LANMessage
 			char options[g_lanOptionsPartLength+1];
 		} GameOptions;
 
+		// Ping is sent with PING, and the same stamp comes back with PONG
+		struct
+		{
+			UnsignedInt stamp;		///< the sender's Clock_Milliseconds when it sent the PING
+		} Ping;
+
 	};
 };
 #pragma pack(pop)
@@ -495,9 +536,13 @@ static_assert(offsetof(LANMessage, GameToJoin.iniCRC) == 42, "LANMessage::GameTo
 static_assert(offsetof(LANMessage, GameToJoin.serial) == 46, "LANMessage::GameToJoin.serial");
 static_assert(offsetof(LANMessage, GameJoined.slotPosition) == 76, "LANMessage::GameJoined.slotPosition");
 static_assert(offsetof(LANMessage, GameNotJoined.reason) == 76, "LANMessage::GameNotJoined.reason");
+static_assert(offsetof(LANMessage, GameNotJoined.dataTag) == 80, "LANMessage::GameNotJoined.dataTag follows the reason");
+static_assert(offsetof(LANMessage, GameNotJoined.dataMatch) == 84, "LANMessage::GameNotJoined.dataMatch");
+static const UnsignedInt LAN_JOIN_DENY_DATA_TAG = 0x4744524Du;	///< marks GameNotJoined.dataMatch as written; a stack byte pattern will not hit it
 static_assert(offsetof(LANMessage, Accept.isAccepted) == 68, "LANMessage::Accept.isAccepted");
 static_assert(offsetof(LANMessage, MapStatus.hasMap) == 72, "LANMessage::MapStatus.hasMap");
 static_assert(offsetof(LANMessage, Chat.chatType) == 68, "LANMessage::Chat.chatType");
+static_assert(offsetof(LANMessage, Ping.stamp) == 34, "LANMessage::Ping.stamp");
 static_assert(offsetof(LANMessage, Chat.message) == 72, "LANMessage::Chat.message");
 static_assert(offsetof(LANMessage, GameOptions.optionsPart) == 34, "LANMessage::GameOptions.optionsPart");
 static_assert(offsetof(LANMessage, GameOptions.options) == 36, "LANMessage::GameOptions.options");

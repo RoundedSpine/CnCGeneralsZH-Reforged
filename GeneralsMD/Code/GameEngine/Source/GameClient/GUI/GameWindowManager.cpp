@@ -1340,7 +1340,15 @@ Int GameWindowManager::drawWindow( GameWindow *window )
 	{
 
 		if( !BitTest( window->m_status, WIN_STATUS_SEE_THRU ) && window->m_draw )
+		{
+			/* A copy, so the crash report never reads a freed window's name.  Not cleared when the
+				 draw faults: the exception leaves through here, and ReleaseCrash prints it */
+			static char drawingName[ 256 ];
+			strlcpy( drawingName, window->m_instData.m_decoratedNameString.str(), sizeof( drawingName ) );
+			TheReleaseCrashDrawingWindow = drawingName;
 			window->m_draw( window, &window->m_instData );
+			TheReleaseCrashDrawingWindow = NULL;
+		}
 
 		/// @todo visit list boxes and borders, this is stupid!
 		// for list boxes only draw the borders BEFORE the children
@@ -1539,6 +1547,12 @@ Int GameWindowManager::winDestroy( GameWindow *window )
 
 	if( m_grabWindow == window )
 		m_grabWindow = NULL;
+
+	// An open combo box is the lone window, and nothing else let go of it when its menu went: Options'
+	// Accept straight after a pick left the pointer on a freed box, which the next press hit-tested and
+	// sent GGM_CLOSE to.  No GGM_CLOSE here, the box is going anyway
+	if( m_loneWindow == window )
+		m_loneWindow = NULL;
 
 	// a menu closed mid-transition: the transition must not run on the window once it is freed
 	if( TheTransitionHandler )

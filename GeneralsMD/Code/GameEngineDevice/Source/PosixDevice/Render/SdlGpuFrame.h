@@ -61,18 +61,43 @@ struct SdlTarget
 	uint32_t Height;
 	// Zero retains the scene format; independent depth-only targets name their format.
 	uint32_t DepthFormat = 0;
+	uint32_t ColourFormat = 0;
+};
+
+enum class SdlSceneCapturePhase { OpaqueScene, BeforeTransparent, BeforePost, TerrainOverlay, CloakScene };
+struct SdlSceneCaptureRequest
+{
+	SdlTarget Source = {};
+	uint64_t Frame = 0;
+	SdlSceneCapturePhase Phase = SdlSceneCapturePhase::OpaqueScene;
+	uint64_t Generation = 0; // owner increments on source replacement, resize, or device recreation
+	uint64_t ViewKey = 0; // explicit main-view owner; nested mirror/camera-space draws do not replace it
+	bool Colour = false;
+	bool Depth = false;
+	bool Same_Identity(const SdlSceneCaptureRequest &other) const;
+};
+
+// Consumed synchronously by Record_Native_Draw; no borrowed constant pointer survives the call.
+// The current recorder supports VS slots 0..1 and PS slots 0..3.
+struct SdlNativeUniformBlock
+{
+	unsigned Stage; // 0 vertex, 1 fragment
+	unsigned Slot;
+	const void *Bytes;
+	uint32_t Size;
 };
 
 /// One draw as the flush replays it, everything by value.  The device's resolve fills it.
 struct SdlRecordedDraw
 {
-	enum { MAXIMUM_SAMPLERS = 16, MAXIMUM_UNIFORM_SLOTS = 4, WATER_PIXEL_BLOCKS = 3 };
+	enum { MAXIMUM_SAMPLERS = 16, MAXIMUM_UNIFORM_SLOTS = 4, WATER_PIXEL_BLOCKS = 3, MAXIMUM_VERTEX_STORAGE_BUFFERS = 8 };
 	SDL_GPUGraphicsPipeline * Pipeline;
 	SDL_GPUBuffer * VertexBuffer;		///< a GPU copy, or null for the batch's staging stream
 	uint32_t VertexOffset;				///< bytes into it
 	SDL_GPUBuffer * IndexBuffer;		///< as VertexBuffer, when IndexSize is not 0
 	uint32_t IndexOffset;
 	uint32_t IndexSize;					///< 0 (not indexed), 2 or 4
+	uint32_t InstanceCount;              ///< zero retains the existing single-instance draw
 	uint32_t Count;						///< vertices, or indices
 	uint32_t First;						///< the first vertex, or the first index
 	int32_t BaseVertex;
@@ -87,14 +112,20 @@ struct SdlRecordedDraw
 	uint32_t SamplerCount;
 	SDL_GPUTexture * Textures[MAXIMUM_SAMPLERS];
 	SDL_GPUSampler * Samplers[MAXIMUM_SAMPLERS];
+	uint32_t VertexStorageCount;
+	SDL_GPUBuffer *VertexStorageBuffers[MAXIMUM_VERTEX_STORAGE_BUFFERS];
 	uint32_t VertexSamplerCount;
 	SDL_GPUTexture * VertexTextures[MAXIMUM_SAMPLERS];
 	SDL_GPUSampler * VertexSamplers[MAXIMUM_SAMPLERS];
 	float Viewport[6];					///< x, y, width, height, min depth, max depth: as the GPU takes it
 	int32_t Scissor[4];					///< x, y, width, height
 	uint32_t StencilReference;
+	bool FloatBlendFactor = false;
+	float BlendConstants[4] = {};
 	uint32_t BlendFactor;				///< D3DCOLOR
 };
+
+struct SdlNativeDrawPacket { SdlTarget Target; SdlRecordedDraw Draw; const SdlNativeUniformBlock *Blocks; unsigned Count; };
 
 class SdlGpuFrame
 {
@@ -151,6 +182,21 @@ public:
 
 	/// Runs what is recorded into the back buffer.  False when the GPU refused the work.
 	bool Flush();
+	bool Has_Pending_Work() const;
+	using OwnerReleaseHook = bool (*)(SdlGpuFrame *);
+	bool Register_Owner_Release_Hook(OwnerReleaseHook);
+	void Unregister_Owner_Release_Hook(OwnerReleaseHook);
+	void Release_Owner_Hooks_For_Teardown();
+	bool Capture_Scene_Colour(const SdlTarget &source, SDL_GPUTexture *destination);
+	// Final owner teardown only: prevents abandoned CPU packets borrowing released resources.
+	void Discard_Pending_Work_For_Teardown();
+	void Fail_Next_Native_Record_For_Test(unsigned count = 1) { NativeRecordRefusalsForTest = count; }
+	uint64_t Scene_Frame() const { return SceneFrame; }
+	uint64_t Scene_Generation() const { return SceneGeneration; }
+	uint64_t Device_Generation() const { return DeviceGeneration; }
+	static unsigned Target_Colour_Format(const SdlTarget &target);
+	bool Record_Native_Draw(const SdlTarget &, const SdlRecordedDraw &, const SdlNativeUniformBlock *, unsigned);
+	bool Record_Native_Draw_Batch(const SdlNativeDrawPacket *, unsigned);
 
 	// ---- The batch (A3c).  Offsets are into this batch only: a flush starts the next one empty.
 
@@ -160,11 +206,15 @@ public:
 	/// Where the next Stage() would put its bytes: the stream's end, aligned as Stage aligns it.
 	uint32_t Stage_Offset_Next() const;
 	/// Room for bytes going to a GPU copy, and the uploads that take them there in the copy pass.  A
-	/// buffer or level-0 upload cycles its target, so draws already submitted keep what they read.
+	/// buffer or full-chain level-0 upload cycles its target, so submitted draws keep what they read.
 	uint8_t * Upload_Space(uint32_t size, uint32_t & offset);
+	uint64_t Pending_Upload_Bytes() const { return UploadBytes.size(); }
 	void Queue_Buffer_Upload(SDL_GPUBuffer * buffer, uint32_t upload_offset, uint32_t size);
 	void Queue_Texture_Upload(SDL_GPUTexture * texture, unsigned int level, unsigned int width, unsigned int height,
 		uint32_t upload_offset);
+	/// Partial mip updates must preserve the other levels and therefore must not cycle the texture.
+	void Queue_Texture_Upload(SDL_GPUTexture * texture, unsigned int level, unsigned int width, unsigned int height,
+		uint32_t upload_offset, bool cycle);
 	/// A constant block's bytes, for stage 0 (vertex) or 1 (pixel); the same bytes as that stage's block
 	/// before at the same slot share its offset, so the flush pushes only a change.
 	uint32_t Constants(unsigned int stage, const void * bytes, uint32_t size, unsigned int slot=0);
@@ -182,9 +232,17 @@ public:
 	unsigned int Depth_Usage() const;
 	/// Device capability selected at frame creation, including the R32F resolve target.
 	bool Supports_Scene_Depth() const { return DepthSampleable; }
+	// Independent normalized R32 depth: submits existing writers/readers first.
+	// No shared water snapshot or scene attachment is returned to the consumer.
+	bool Capture_Scene_Depth(const SdlTarget &source, SDL_GPUTexture *destination);
 
 	/// Flush, then the back buffer to the window through the gamma ramp (null: none, a straight blit).
 	bool Present(const uint16_t (*ramp)[256]);
+	/// The claimed window's presentation policy. No window is a no-op, including
+	/// -offscreen's independent pacer. Unsupported immediate mode falls back to VSYNC.
+	bool Configure_Presentation(bool vsync);
+	bool Presentation_Ready() const { return Window == NULL || PresentationKnown; }
+	bool Using_VSync() const { return Window != NULL && VSync; }
 
 	/// PERF1's timing aid (PosixDevice9's ZH_GPU_TIMING): with Serialize_Submits, every submit waits for
 	/// its fence, so the waits add up to the GPU's time for the work (CPU and GPU no longer overlap, so a
@@ -306,15 +364,18 @@ private:
 	bool Record_Passes(struct SDL_GPUCommandBuffer * commands, SDL_GPUBuffer * stream);
 	bool Begin_Pass(struct SDL_GPUCommandBuffer * commands, const SdlTarget & target, bool clear_colour, bool clear_depth,
 		bool clear_stencil, uint32_t argb, float z, uint32_t stencil_value, struct SDL_GPURenderPass ** pass);
-	SDL_GPUGraphicsPipeline * Clear_Pipeline(unsigned int which);
+	SDL_GPUGraphicsPipeline * Clear_Pipeline(unsigned int which, const SdlTarget &destination);
 	void End_Batch();
 	bool Present_Into(struct SDL_GPUCommandBuffer * commands, SDL_GPUTexture * target, unsigned int width,
 		unsigned int height, unsigned int format, const uint16_t (*ramp)[256]);
 	SDL_GPUGraphicsPipeline * Gamma_Pipeline(unsigned int format);
 	bool Upload_Ramp(struct SDL_GPUCommandBuffer * commands, const uint16_t (*ramp)[256]);
+	void Finish_Ramp_Upload(bool submitted);
 
 	SDL_GPUDevice * GpuDevice;
 	SDL_Window * Window;				///< C2's, claimed; null for an offscreen frame
+	bool VSync;					///< last confirmed swapchain mode; SDL claims a window with VSYNC
+	bool PresentationKnown;		///< a failed backend change must be retried, never treated as a cache hit
 	SDL_GPUTexture * BackBuffer;
 	SDL_GPUTexture * DepthStencil;
 	SDL_GPUTexture * FrontCopy;			///< the last presented picture
@@ -394,6 +455,7 @@ private:
 		SDL_GPUTexture * Texture;
 		unsigned int Level, Width, Height;
 		uint32_t Offset, Size;
+		bool CycleTexture;
 	};
 	std::vector<Command> Commands;
 	std::vector<SdlTarget> Targets;		///< this batch's, in first use order
@@ -413,7 +475,11 @@ private:
 	uint64_t BatchNumber;
 	SDL_GPUShader * ClearVertex;			///< the clear draw's programs, and its pipelines by what it clears
 	SDL_GPUShader * ClearPixel;
-	SDL_GPUGraphicsPipeline * ClearPipelines[8];
+	struct ClearPipelineEntry { unsigned Which, ColourFormat, DepthFormat; SDL_GPUGraphicsPipeline *Pipeline; };
+	std::vector<ClearPipelineEntry> ClearPipelines;
+	uint64_t SceneFrame = 0, SceneGeneration = 0, DeviceGeneration = 0;
+	unsigned NativeRecordRefusalsForTest = 0;
+	void Append_Native_Draw(const SdlTarget &, const SdlRecordedDraw &, const SdlNativeUniformBlock *, unsigned);
 	SDL_GPUBuffer * StreamBuffer;		///< the staging stream on the GPU, grown as needed
 	uint32_t StreamBufferSize;
 	struct SDL_GPUTransferBuffer * Transfer;
@@ -426,7 +492,9 @@ private:
 	unsigned int GammaPipelineFormat;
 	SDL_GPUTexture * RampTexture;		///< 256 x 1, the three ramps in R, G and B
 	SDL_GPUSampler * PointSampler;
-	std::vector<uint16_t> UploadedRamp;	///< what RampTexture holds, to upload only a change
+	uint16_t UploadedRamp[3][256];	///< raw channels: compare before packing or allocating
+	bool UploadedRampValid;			///< published only after its command buffer was submitted
+	bool RampUploadPending;			///< recorded this frame; a failed frame must retry it
 };
 
 /// Whether the three ramps are D3D9's identity, value i as i * 257, which Present takes as a blit.

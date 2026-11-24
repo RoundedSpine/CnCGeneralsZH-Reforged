@@ -77,6 +77,21 @@ ROW_PITCH = ROW_HEIGHT + 6
 COLUMNS_RIGHT = SEAT_RIGHT - (ROW_HEIGHT - CONTROL_HEIGHT) // 2
 GAP = 8
 
+# The skirmish room holds every seat the game has (MAX_SLOTS, NetworkDefs.h). It has no chat, so its
+# rows run down to the foot of the rules page, as many as fit (SKIRMISH_SEAT_ROWS, cloned from the
+# eighth); the first row is always the local player's, and the rows under it scroll over the rest
+# with a scroll bar at the cards' right, the buttons and track of the room's own list boxes (a seat's
+# dropdown lists, whose art the layout copies). Its cards stop short of the bar; the network rooms
+# keep eight rows and no bar.
+SCROLL_WIDTH, SCROLL_BUTTON_HEIGHT = 21, 22
+SEAT_ROW_PREFIXES = ("ComboBoxPlayer", "ComboBoxColor", "ComboBoxPlayerTemplate", "ComboBoxTeam",
+                     "ComboBoxAIPersona", "ComboBoxHandicap")
+SEAT_SCROLL_UP, SEAT_SCROLL_DOWN, SEAT_SCROLL_SLIDER = "ButtonSeatScrollUp", "ButtonSeatScrollDown", "SliderSeatScroll"
+SEAT_SCROLL = (SEAT_SCROLL_UP, SEAT_SCROLL_DOWN, SEAT_SCROLL_SLIDER)
+SEAT_SCROLL_ART = "ComboBoxTeam1"
+SLIDER_TEMPLATE = ("WOLCustomLobby", "SliderChatAdjust")
+SCROLL_SEAT_RIGHT = SEAT_RIGHT - SCROLL_WIDTH - 6
+
 # a seat row: colour bar, then the columns; the bar's fill is drawn a pixel inside each edge, so
 # eight here is UIStyle's six pixel stripe on screen
 BAR_WIDTH = 8
@@ -96,6 +111,7 @@ CHECK_WIDTH = 228
 SPOT = 28
 
 UNDER_SEATS_BOTTOM = 916
+SKIRMISH_SEAT_ROWS = (PAGE_BOTTOM - ROW_TOP - ROW_HEIGHT) // ROW_PITCH + 1
 BUTTON_TOP, BUTTON_HEIGHT = 932, 56
 BACK_WIDTH, BUDDIES_WIDTH = 300, 260
 EMOTE_WIDTH = 64
@@ -113,6 +129,20 @@ RECORD_WINDOWS = ("RecordVeil", "RecordPopover", "StaticTextRecordTitle", "Butto
 RECORD_VEIL = (0, 0, 0, 160)
 # the button's label is in capitals like every layout button's; GUI:LobbyRecord titles the popover
 RECORD_TEXT, RECORD_BUTTON_TEXT, CLOSE_TEXT = "GUI:LobbyRecord", "GUI:LobbyRecordButton", "GUI:LobbyRecordClose"
+
+# The skirmish room's presets: a Presets button after Record opens a popover over the seats' foot, a
+# title, the list of big games (filled by the menu code) and Close, under the record's veil. The list
+# wears a seat dropdown's open-list art; the record's own list is a table of medals.
+PRESET_SLOT_BUTTONS = (("ButtonPresetLoad", "GUI:SkirmishPresetLoad"), ("ButtonPresetSave", "GUI:SkirmishPresetSave"),
+                       ("ButtonPresetClear", "GUI:SkirmishPresetClear"))
+PRESET_SLOT_BUTTON_WIDTH = 150
+PRESET_WINDOWS = ("ButtonPresets", "PresetPopover", "StaticTextPresetTitle", "ListboxPresets",
+                  "ButtonPresetsClose") + tuple(name for name, _text in PRESET_SLOT_BUTTONS)
+PRESET_TEXT, PRESET_BUTTON_TEXT, PRESET_TOOLTIP = "GUI:LobbyPresets", "GUI:LobbyPresetsButton", "TOOLTIP:LobbyPresets"
+# as tall as the seat table, its presets grouped under a heading a seat count
+PRESET_POPOVER_WIDTH, PRESET_POPOVER_HEIGHT = 760, UNDER_SEATS_BOTTOM - HEADER_TOP
+PRESET_LIST_DATA = ("LENGTH: 64, AUTOSCROLL: 0, SCROLLIFATEND: 0, AUTOPURGE: 0, SCROLLBAR: 1, MULTISELECT: 0, "
+                    "COLUMNS: 1, FORCESELECT: 0")
 
 # UIStyle's tokens (UIStyle.cpp, UI-STYLE.md in the wrapper's docs/reference)
 PANEL = (0, 0, 0, 200)
@@ -138,12 +168,13 @@ RETIRED_PERSONA_HEADING = "StaticTextAIPersona"
 HANDICAP_PREFIX, HANDICAP_TOOLTIP = "ComboBoxHandicap", "TOOLTIP:Handicap"
 HANDICAP_HEADING, HANDICAP_TEXT = "StaticTextHandicap", "GUI:Handicap"
 
-# The skirmish room's game speed, a label and a combo cloned from the tech respawn row's, so they
-# inherit that row's art and lettering; the menu code fills the combo. The network rooms have no
-# speed to pick (a multiplayer match always plays at 1.5x) and take the turbo box out that the
-# previous grid had cloned into them.
+# The game speed, a label and a combo cloned from the tech respawn row's, so they inherit that row's
+# art and lettering; the menu code fills the combo, and in the network rooms only the host may change
+# it. All three rooms take the turbo box out that an earlier grid had cloned into the network ones.
 GAME_SPEED_ROW = (("LabelGameSpeed", "LabelTechRespawn"), ("ComboBoxGameSpeed", "ComboBoxTechRespawn"))
 GAME_SPEED_TEXT, GAME_SPEED_TOOLTIP = "GUI:GameSpeed", "TOOLTIP:GameSpeed"
+# the network rooms' tooltip says the host picks it; the skirmish one talks about a skirmish
+ROOM_GAME_SPEED_TOOLTIP = "TOOLTIP:RoomGameSpeed"
 GAME_SPEED_DROPDOWN = tuple(name for name, _template in GAME_SPEED_ROW)
 RETIRED_TURBO_BOX = "CheckBoxTurbo"
 TABS = ("TabInfo", "TabChat", "TabLobbySettings")
@@ -192,15 +223,23 @@ MATCH_RULES = [("StartingCashLabel", "ComboBoxStartingCash"), ("LabelSuperweapon
                ("LabelIncomeSharing", "ComboBoxIncomeSharing"), ("LabelSupplyPileLimit", "ComboBoxSupplyPileLimit"),
                ("LabelTechRespawn", "ComboBoxTechRespawn")]
 SKIRMISH_RULES = [GAME_SPEED_DROPDOWN] + MATCH_RULES
-NETWORK_RULES = MATCH_RULES[:1] + [("LabelPeaceTime", "ComboBoxPeaceTime")] + MATCH_RULES[1:]
-SKIRMISH_CHECKS = ["CheckBoxUnitLimit"]
-LAN_CHECKS = ["CheckBoxProRules", "CheckBoxUnitLimit"]
+NETWORK_RULES = [GAME_SPEED_DROPDOWN] + MATCH_RULES[:1] + [("LabelPeaceTime", "ComboBoxPeaceTime")] + MATCH_RULES[1:]
+# The Hidden Map box in all three rooms, cloned from the unit limit box so it wears that box's art;
+# the menu code ticks it from the game's start shroud (SH in the options string). It shares the unit
+# limit's row in the skirmish room and opens a row of its own in the network rooms.
+START_SHROUDED = ("CheckBoxStartShrouded", "GUI:StartShrouded", "TOOLTIP:StartShrouded")
+# The day and night cycle's box (DN in the options string), cloned the same way, after Hidden Map.
+DAY_NIGHT = ("CheckBoxDayNight", "GUI:DayNight", "TOOLTIP:DayNight")
+SKIRMISH_CHECKS = ["CheckBoxUnitLimit", START_SHROUDED[0], DAY_NIGHT[0]]
+LAN_CHECKS = ["CheckBoxProRules", "CheckBoxUnitLimit", START_SHROUDED[0], DAY_NIGHT[0]]
 GAMESPY_CHECKS = ["CheckBoxUseStats", "CheckBoxLimitArmies"] + LAN_CHECKS
 
 ROOMS = {
     "SkirmishGameOptionsMenu": dict(container="SubParent", rule="Line", title="StaticTextTitle",
                                     columns=SEAT_COLUMNS, rules=SKIRMISH_RULES, checks=SKIRMISH_CHECKS,
-                                    row_pitch=ROW_PITCH, row_height=ROW_HEIGHT),
+                                    checks_per_row=3,  # three boxes in one row, so the map keeps its size
+                                    row_pitch=ROW_PITCH, row_height=ROW_HEIGHT, seat_right=SCROLL_SEAT_RIGHT,
+                                    seat_rows=SKIRMISH_SEAT_ROWS),
     "LanGameOptionsMenu": dict(container="GadgetParent", rule="LINE", title="StaticTextTitle",
                                columns=SEAT_COLUMNS, rules=NETWORK_RULES, checks=LAN_CHECKS,
                                row_pitch=ROW_PITCH, row_height=ROW_HEIGHT, chat="ListboxChatWindowLanGame"),
@@ -215,7 +254,7 @@ NAMED = ["MapWindow", "ButtonSelectMap", "TextEntryMapDisplay", "StaticTextMapPr
          "ButtonStart", "PageLobbySettings"]
 NAMED_PER_SEAT = ["ComboBoxColor", "ComboBoxPlayerTemplate", "ComboBoxTeam", PERSONA_PREFIX,
                   "ButtonMapStartPosition"] + list(SEAT_WINDOWS)
-NAMED_SKIRMISH = ["ButtonRecord", "ListboxInfo"] + list(RECORD_WINDOWS)
+NAMED_SKIRMISH = ["ButtonRecord", "ListboxInfo"] + list(RECORD_WINDOWS) + list(SEAT_SCROLL) + list(PRESET_WINDOWS)
 NAMED_NETWORK_PER_SEAT = ["ButtonAccept"]
 
 
@@ -246,16 +285,32 @@ def draw_data(color, border, image="NoImage"):
 # ---------------------------------------------------------------------------
 
 def add_game_speed_row(layout, menu):
-    """Clone the tech respawn row into the game speed row, once; a second run finds it there."""
+    """Clone the tech respawn row into the game speed row, once; a second run finds it there and
+    only sets the room's tooltip again."""
+    tooltip = GAME_SPEED_TOOLTIP if menu == "SkirmishGameOptionsMenu" else ROOM_GAME_SPEED_TOOLTIP
     for name, template in GAME_SPEED_ROW:
-        if layout.find(name) is not None:
-            continue
-        source = need(layout, template)
-        control = clone(source, "%s.wnd:%s" % (menu, name))
-        if name.startswith("Label"):
-            control.put_prop("TEXT", '"%s"' % GAME_SPEED_TEXT)
-        control.put_prop("TOOLTIPTEXT", '"%s"' % GAME_SPEED_TOOLTIP)
-        layout.root.parent_of(source).children.append(control)
+        control = layout.find(name)
+        if control is None:
+            source = need(layout, template)
+            control = clone(source, "%s.wnd:%s" % (menu, name))
+            if name.startswith("Label"):
+                control.put_prop("TEXT", '"%s"' % GAME_SPEED_TEXT)
+            layout.root.parent_of(source).children.append(control)
+        control.put_prop("TOOLTIPTEXT", '"%s"' % tooltip)
+
+
+def add_start_shrouded_box(layout, menu, spec=START_SHROUDED, after="CheckBoxUnitLimit"):
+    """Clone the unit limit box into the Hidden Map box (or another box of that kind, put after
+    `after`), once; a second run finds it there."""
+    name, text, tooltip = spec
+    if layout.find(name) is not None:
+        return
+    source = need(layout, after)
+    box = clone(source, "%s.wnd:%s" % (menu, name))
+    box.put_prop("TEXT", '"%s"' % text)
+    box.put_prop("TOOLTIPTEXT", '"%s"' % tooltip)
+    parent = layout.root.parent_of(source)
+    parent.children.insert(parent.children.index(source) + 1, box)
 
 
 def remove(layout, names):
@@ -336,15 +391,31 @@ def add_ruler(layout, menu, container):
     ruler.set_prop("ENABLEDDRAWDATA", draw_data((0, 0, 0, 255), (0, 0, 0, 255), RULER_IMAGE))
 
 
+def seat_rows(spec):
+    return spec.get("seat_rows", SEAT_COUNT)
+
+
+def add_seat_rows(layout, menu, spec):
+    """The skirmish room's rows past the eighth: each seat control cloned from the eighth row's, once,
+    next to it in its container; place_seats puts them on their rows."""
+    for prefix in SEAT_ROW_PREFIXES:
+        source = need(layout, "%s%d" % (prefix, SEAT_COUNT - 1))
+        container = layout.root.parent_of(source)
+        for seat in range(SEAT_COUNT, seat_rows(spec)):
+            if layout.find("%s%d" % (prefix, seat)) is None:
+                container.children.insert(container.children.index(source),
+                                          clone(source, "%s.wnd:%s%d" % (menu, prefix, seat)))
+
+
 def add_seat_windows(layout, menu, container, spec):
     """One card, bar and two swatches a seat, put at the front of the container so they draw under
     the seat's controls. The game draws the swatches' check box frame itself."""
     remove(layout, ["%s%d" % (kind, seat) for kind in SEAT_WINDOWS + RETIRED_SEAT_WINDOWS
-                    for seat in range(SEAT_COUNT)])
+                    for seat in range(seat_rows(spec))])
     template = need(layout, spec["container"])
     named = lambda kind, seat: "%s.wnd:%s%d" % (menu, kind, seat)
     added = {kind: [] for kind in SEAT_WINDOWS}
-    for seat in range(SEAT_COUNT):
+    for seat in range(seat_rows(spec)):
         for kind in SEAT_WINDOWS:
             card = kind == "SeatCard"
             added[kind].append(plain_window(template, named(kind, seat), False,
@@ -353,19 +424,27 @@ def add_seat_windows(layout, menu, container, spec):
     container.children[0:0] = [window for kind in SEAT_WINDOWS for window in added[kind]]
 
 
-def column_widths(columns):
+def columns_right(spec):
+    """Where a room's last seat column stops, as far inside its cards' right edge as COLUMNS_RIGHT."""
+    return spec.get("seat_right", SEAT_RIGHT) - (SEAT_RIGHT - COLUMNS_RIGHT)
+
+
+def column_widths(columns, right=COLUMNS_RIGHT):
     """The one column without a width takes what the fixed ones and their gaps leave."""
     fixed = sum(width for _h, _p, width in columns if width is not None)
     gaps = sum(6 if prefixes[0] in SWATCHES else GAP for _h, prefixes, _w in columns[:-1])
-    rest = COLUMNS_RIGHT - SEAT_COLUMNS_LEFT - fixed - gaps
+    rest = right - SEAT_COLUMNS_LEFT - fixed - gaps
     return [rest if width is None else width for _h, _p, width in columns]
 
 
 def place_seats(layout, spec, seat_zero_player):
     pitch, height = spec["row_pitch"], spec["row_height"]
-    for seat in range(SEAT_COUNT):
+    seat_right = spec.get("seat_right", SEAT_RIGHT)
+    right = columns_right(spec)
+    rows = seat_rows(spec)
+    for seat in range(rows):
         top = ROW_TOP + seat * pitch
-        need(layout, "SeatCard%d" % seat).place(INNER_LEFT, top, SEAT_RIGHT - INNER_LEFT, height)
+        need(layout, "SeatCard%d" % seat).place(INNER_LEFT, top, seat_right - INNER_LEFT, height)
         need(layout, "SeatBar%d" % seat).place(INNER_LEFT, top, BAR_WIDTH, height)
         accept = layout.find("ButtonAccept%d" % seat)
         if accept is not None:
@@ -374,7 +453,7 @@ def place_seats(layout, spec, seat_zero_player):
 
     left = SEAT_COLUMNS_LEFT
     columns = spec["columns"]
-    widths = column_widths(columns)
+    widths = column_widths(columns, right)
     for index, (heading_name, prefixes, _width) in enumerate(columns):
         width = widths[index]
         if heading_name is not None:
@@ -386,7 +465,7 @@ def place_seats(layout, spec, seat_zero_player):
                 span = COLUMN_LEFT - left
             heading.place(left - TEXT_NUDGE, HEADER_TOP, span, HEADER_HEIGHT)
             left_align(heading)
-        for seat in range(SEAT_COUNT):
+        for seat in range(rows):
             top = ROW_TOP + seat * pitch
             for prefix in prefixes:
                 name = "%s%d" % (prefix, seat)
@@ -400,9 +479,55 @@ def place_seats(layout, spec, seat_zero_player):
                 else:
                     control.place(left, top + (height - CONTROL_HEIGHT) // 2, width, CONTROL_HEIGHT)
         left += width + (6 if prefixes[0] in SWATCHES else GAP)
-    if min(widths) <= 0 or left - GAP != COLUMNS_RIGHT:
-        raise ValueError("seat columns %s do not fill the seat table to %d" % (widths, COLUMNS_RIGHT))
-    return ROW_TOP + (SEAT_COUNT - 1) * pitch + height
+    if min(widths) <= 0 or left - GAP != right:
+        raise ValueError("seat columns %s do not fill the seat table to %d" % (widths, right))
+    return ROW_TOP + (rows - 1) * pitch + height
+
+
+def statement(window, key):
+    """A property's value as one line, without its keyword and semicolon."""
+    text = window.prop(key)
+    if text is None:
+        raise KeyError("%s has no %s" % (short(window), key))
+    return text.split("=", 1)[1].strip().rstrip(";").strip()
+
+
+def place_seat_scroll(layout, menu, container, spec):
+    """The skirmish room's scroll bar beside the rows under the local player's: an up and a
+    down button and the track between them where a list box puts its own, wearing the art of a
+    seat's dropdown list. The buttons start from Back's and the track from the online lobby's chat
+    slider, once; every run sets their art and place. The menu code sets the range."""
+    named = lambda name: "%s.wnd:%s" % (menu, name)
+    art = need(layout, SEAT_SCROLL_ART)
+    for name in (SEAT_SCROLL_UP, SEAT_SCROLL_DOWN):
+        if layout.find(name) is None:
+            button = clone(need(layout, "ButtonBack"), named(name))
+            container.children.append(button)
+    if layout.find(SEAT_SCROLL_SLIDER) is None:
+        menu_name, template_name = SLIDER_TEMPLATE
+        template = wndlayout.load(os.path.join(MENUS, menu_name + ".wnd")).find(template_name)
+        container.children.append(clone(template, named(SEAT_SCROLL_SLIDER)))
+
+    for name, part in ((SEAT_SCROLL_UP, "UP"), (SEAT_SCROLL_DOWN, "DOWN")):
+        button = need(layout, name)
+        button.set_prop("STATUS", "ENABLED+IMAGE+NOFOCUS")
+        button.set_prop("HEADERTEMPLATE", '"[None]"')
+        button.set_prop("TEXT", '""')
+        for state in ("ENABLED", "DISABLED", "HILITE"):
+            button.set_prop(state + "DRAWDATA", statement(art, "LISTBOX%s%sBUTTONDRAWDATA" % (state, part)))
+    slider = need(layout, SEAT_SCROLL_SLIDER)
+    slider.set_prop("STATUS", "ENABLED+IMAGE")
+    for state in ("ENABLED", "DISABLED", "HILITE"):
+        slider.set_prop(state + "DRAWDATA", statement(art, "LISTBOX%sSLIDERDRAWDATA" % state))
+        slider.set_prop("SLIDERTHUMB%sDRAWDATA" % state, statement(art, "SLIDERTHUMB%sDRAWDATA" % state))
+
+    pitch, height = spec["row_pitch"], spec["row_height"]
+    left = spec["seat_right"] + 6
+    top = ROW_TOP + pitch
+    bottom = ROW_TOP + (seat_rows(spec) - 1) * pitch + height
+    need(layout, SEAT_SCROLL_UP).place(left, top, SCROLL_WIDTH, SCROLL_BUTTON_HEIGHT)
+    need(layout, SEAT_SCROLL_DOWN).place(left, bottom - SCROLL_BUTTON_HEIGHT, SCROLL_WIDTH, SCROLL_BUTTON_HEIGHT)
+    slider.place(left, top + SCROLL_BUTTON_HEIGHT + 1, SCROLL_WIDTH, bottom - top - 2 * SCROLL_BUTTON_HEIGHT - 2)
 
 
 def place_map(layout, caption_top):
@@ -424,9 +549,11 @@ def place_map(layout, caption_top):
     left_align(name)
 
 
-def place_rules(layout, rules, checks):
-    """The rules page stands on the column's foot, as tall as its rows; returns its top."""
-    rows = len(rules) + (len(checks) + 1) // 2
+def place_rules(layout, rules, checks, per_row=2):
+    """The rules page stands on the column's foot, as tall as its rows; returns its top. The check
+    boxes go per_row to a row across the two-box width."""
+    rows = len(rules) + (len(checks) + per_row - 1) // per_row
+    check_width = (2 * CHECK_WIDTH + GAP - (per_row - 1) * GAP) // per_row
     page_top = PAGE_BOTTOM - 2 * PAGE_PADDING - rows * SETTING_PITCH + 4
     page = need(layout, "PageLobbySettings")
     page.place(COLUMN_LEFT, page_top, INNER_RIGHT - COLUMN_LEFT, PAGE_BOTTOM - page_top)
@@ -441,8 +568,8 @@ def place_rules(layout, rules, checks):
                                        INNER_RIGHT - PAGE_PADDING - left - SETTING_LABEL_WIDTH, SETTING_HEIGHT)
         top += SETTING_PITCH
     for index, name in enumerate(checks):
-        need(layout, name).place(left + (index % 2) * (CHECK_WIDTH + GAP), top + (index // 2) * SETTING_PITCH,
-                                 CHECK_WIDTH, SETTING_HEIGHT)
+        need(layout, name).place(left + (index % per_row) * (check_width + GAP), top + (index // per_row) * SETTING_PITCH,
+                                 check_width, SETTING_HEIGHT)
     return page_top
 
 
@@ -551,27 +678,98 @@ def place_record(layout, menu, container):
     record.set_prop("TEXT", '"%s"' % RECORD_BUTTON_TEXT)
 
 
+def drop_prop(window, key):
+    at = window.prop_index(key)
+    if at >= 0:
+        end = at
+        while ";" not in window.props[end]:
+            end += 1
+        del window.props[at:end + 1]
+
+
+def place_presets(layout, menu, container):
+    """The Presets button after Record and its popover, standing on the seats' foot over the Presets
+    button's corner, last in the container so it draws over the seats; once there, a second run finds
+    them and only places them and sets their art."""
+    named = lambda name: "%s.wnd:%s" % (menu, name)
+    record = need(layout, "ButtonRecord")
+    if layout.find("ButtonPresets") is None:
+        container.children.insert(container.children.index(record) + 1, clone(record, named("ButtonPresets")))
+    popover = layout.find("PresetPopover")
+    if popover is None:
+        popover = plain_window(container, named("PresetPopover"), False, POPOVER_COLOR, POPOVER_BORDER)
+        popover.set_prop("STATUS", "ENABLED+HIDDEN+NOFOCUS")
+        popover.children = [clone(need(layout, "StaticTextRecordTitle"), named("StaticTextPresetTitle")),
+                            clone(need(layout, "ListboxInfo"), named("ListboxPresets")),
+                            clone(need(layout, "ButtonRecordClose"), named("ButtonPresetsClose"))]
+        container.children.append(popover)
+
+    button = need(layout, "ButtonPresets")
+    button.place(INNER_LEFT + BACK_WIDTH + 16 + BUDDIES_WIDTH + 16, BUTTON_TOP, BUDDIES_WIDTH, BUTTON_HEIGHT)
+    button.set_prop("TEXT", '"%s"' % PRESET_BUTTON_TEXT)
+    button.put_prop("TOOLTIPTEXT", '"%s"' % PRESET_TOOLTIP)
+
+    left, top = INNER_LEFT, UNDER_SEATS_BOTTOM - PRESET_POPOVER_HEIGHT
+    width, height = PRESET_POPOVER_WIDTH, PRESET_POPOVER_HEIGHT
+    popover.place(left, top, width, height)
+    popover.set_prop("ENABLEDDRAWDATA", draw_data(POPOVER_COLOR, POPOVER_BORDER))
+    right, bottom = left + width - POPOVER_PADDING, top + height - POPOVER_PADDING
+    title = need(layout, "StaticTextPresetTitle")
+    title.place(left + POPOVER_PADDING - TEXT_NUDGE, top + POPOVER_PADDING, width // 2, POPOVER_TITLE_HEIGHT)
+    title.set_prop("TEXT", '"%s"' % PRESET_TEXT)
+    close_top = bottom - BUTTON_HEIGHT
+    need(layout, "ButtonPresetsClose").place(right - CLOSE_WIDTH, close_top, CLOSE_WIDTH, BUTTON_HEIGHT)
+    # the custom slots' Load, Save and Clear, Close's twins, left to right ahead of it
+    for index, (name, text) in enumerate(PRESET_SLOT_BUTTONS):
+        button = layout.find(name)
+        if button is None:
+            button = clone(need(layout, "ButtonPresetsClose"), named(name))
+            popover.children.append(button)
+        button.set_prop("TEXT", '"%s"' % text)
+        button.place(left + POPOVER_PADDING + index * (PRESET_SLOT_BUTTON_WIDTH + GAP), close_top,
+                     PRESET_SLOT_BUTTON_WIDTH, BUTTON_HEIGHT)
+
+    # the list in a seat dropdown's open-list art, lettering and scroll bar, one column of text
+    art = need(layout, SEAT_SCROLL_ART)
+    listbox = need(layout, "ListboxPresets")
+    body_top = top + POPOVER_PADDING + POPOVER_TITLE_HEIGHT + GAP
+    listbox.place(left + POPOVER_PADDING, body_top, width - 2 * POPOVER_PADDING, close_top - GAP - body_top)
+    drop_prop(listbox, "TOOLTIPTEXT")
+    for key in ("FONT", "HEADERTEMPLATE", "TEXTCOLOR"):
+        listbox.set_prop(key, statement(art, key))
+    for state in ("ENABLED", "DISABLED", "HILITE"):
+        listbox.set_prop(state + "DRAWDATA", statement(art, "COMBOBOXLISTBOX%sDRAWDATA" % state))
+        for part in ("UPBUTTON", "DOWNBUTTON", "SLIDER"):
+            key = "LISTBOX%s%sDRAWDATA" % (state, part)
+            listbox.put_prop(key, statement(art, key))
+        listbox.put_prop("SLIDERTHUMB%sDRAWDATA" % state, statement(art, "SLIDERTHUMB%sDRAWDATA" % state))
+    listbox.set_prop("LISTBOXDATA", PRESET_LIST_DATA)
+
+
 def build(layout, menu):
     spec = ROOMS[menu]
     widen(layout)
     add_combo_column(layout, menu, PERSONA_PREFIX, "ComboBoxPlayerTemplate", PERSONA_TOOLTIP)
     add_handicap_column(layout, menu)
+    add_seat_rows(layout, menu, spec)
     remove(layout, TABS + (RETIRED_PERSONA_HEADING, RETIRED_TURBO_BOX))
-    if menu == "SkirmishGameOptionsMenu":
-        add_game_speed_row(layout, menu)
-    else:
-        remove(layout, GAME_SPEED_DROPDOWN)
+    add_game_speed_row(layout, menu)
+    add_start_shrouded_box(layout, menu)
+    add_start_shrouded_box(layout, menu, DAY_NIGHT, START_SHROUDED[0])
     container = need(layout, spec["container"])
     add_ruler(layout, menu, container)
     add_seat_windows(layout, menu, container, spec)
     place_frame(layout, spec)
     seats_bottom = place_seats(layout, spec, "TextEntryPlayerName" if menu == "SkirmishGameOptionsMenu" else None)
-    page_top = place_rules(layout, spec["rules"], spec["checks"])
+    if "seat_right" in spec:
+        place_seat_scroll(layout, menu, container, spec)
+    page_top = place_rules(layout, spec["rules"], spec["checks"], spec.get("checks_per_row", 2))
     place_map(layout, page_top - 14 - CONTROL_HEIGHT)
     if "chat" in spec:
         place_chat(layout, spec["chat"], seats_bottom + 16)
     else:
         place_record(layout, menu, container)
+        place_presets(layout, menu, container)
     if menu == "GameSpyGameOptionsMenu":
         need(layout, "ButtonCommunicator").place(INNER_LEFT + BACK_WIDTH + 16, BUTTON_TOP, BUDDIES_WIDTH,
                                                  BUTTON_HEIGHT)
@@ -591,7 +789,7 @@ def overlaps(container):
     found = []
     for index, (name, (left, top, right, bottom)) in enumerate(visible):
         for other, (other_left, other_top, other_right, other_bottom) in visible[index + 1:]:
-            pair = sorted((name.rstrip("01234567"), other.rstrip("01234567")))
+            pair = sorted((name.rstrip("0123456789"), other.rstrip("0123456789")))
             if pair == ["ComboBoxPlayer", "StaticTextPlayer"] and name[-1] == other[-1]:
                 continue
             if left < other_right and other_left < right and top < other_bottom and other_top < bottom:
@@ -608,10 +806,13 @@ def selfcheck():
         layout = wndlayout.parse(tracked)
         names = list(NAMED) + [spec["container"], spec["title"]]
         for _heading, prefixes, _width in spec["columns"]:
-            names += ["%s%d" % (prefix, seat) for prefix in prefixes for seat in range(SEAT_COUNT)
+            names += ["%s%d" % (prefix, seat) for prefix in prefixes for seat in range(seat_rows(spec))
                       if not (seat == 0 and prefix == "ComboBoxPlayer" and menu == "SkirmishGameOptionsMenu")]
         per_seat = NAMED_PER_SEAT + (NAMED_NETWORK_PER_SEAT if "chat" in spec else [])
+        # a map has at most eight start spots, however many rows the room has
         names += ["%s%d" % (prefix, seat) for prefix in per_seat for seat in range(SEAT_COUNT)]
+        names += ["%s%d" % (prefix, seat) for prefix in NAMED_PER_SEAT if prefix != "ButtonMapStartPosition"
+                  for seat in range(SEAT_COUNT, seat_rows(spec))]
         if "chat" not in spec:
             names += NAMED_SKIRMISH
         for rule in spec["rules"]:
@@ -631,7 +832,8 @@ def selfcheck():
                             % (menu, len(stale), stale[0]))
         try:
             rebuilt = build(wndlayout.parse(tracked), menu).text()
-            if rebuilt != tracked:
+            # WND writers use CRLF; Git checkouts may use LF. Compare all content, including final newlines.
+            if rebuilt.replace("\r\n", "\n") != tracked.replace("\r\n", "\n"):
                 problems.append("%s.wnd is not what lobbyroom_layout.py writes; regenerate it" % menu)
         except (KeyError, ValueError) as error:
             problems.append("%s.wnd no longer builds: %s" % (menu, error))

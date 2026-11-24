@@ -23,8 +23,8 @@
 // (which slot a system has, where the ring's head and tail are, what died) is the particle
 // manager's, in W3DParticleSys.cpp; this only holds what the device holds.
 //
-// DX11GpuParticles.cpp is the Direct3D 11 answer.  GpuParticlesUnsupported.cpp answers for every
-// build without one, where Supported is false and the particle manager never asks for the rest.
+// DX11GpuParticles.cpp supplies Direct3D 11; SdlGpuParticlesAdapter.cpp supplies native SDL GPU.
+// Builds without a device provider use GpuParticlesUnsupported.cpp and retain CPU particles.
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
@@ -82,6 +82,11 @@ void Set_Ground( const float *heights, unsigned width, unsigned height, const fl
 	* load swaps it), and left as it is otherwise.  A null texture leaves the slice clear; every slice
 	* starts clear. */
 void Set_Slice_Texture( unsigned slice, IDirect3DBaseTexture9 *texture );
+
+/** The multiply Evaluate puts over the colour of the systems whose entry carries flag 4 (smoke and
+	* dust, ParticleSystemManager::setSmokeTint); white leaves them as they are.  A change ages the
+	* ring again. */
+void Set_Smoke_Tint( const float tint[ 3 ] );
 
 /** Age the count records from ring index first (wrapping) to the frame now plus smooth, a fraction
 	* of an update, in closed form, once a frame before either pass draws.  Nothing is aged again when

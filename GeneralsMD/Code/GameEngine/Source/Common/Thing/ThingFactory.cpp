@@ -44,10 +44,13 @@
 #include "GameLogic/Object.h"
 #include "Common/Player.h"
 #include "Common/PlayerList.h"
+#include "Common/PlayerTemplate.h"
+#include "Common/Science.h"
 #include "Common/Team.h"
 #include "GameLogic/PartitionManager.h"
 #include "GameLogic/Module/CreateModule.h"
 #include "GameLogic/Module/AIUpdate.h"
+#include "GameLogic/Module/UpgradeModule.h"
 #include "Common/ProductionPrerequisite.h"
 #include "GameClient/GameClient.h"
 #include "GameClient/Drawable.h"
@@ -664,8 +667,48 @@ static void checkLocomotors( ThingTemplate *first )
 	 Technical reskins lost their AI, physics, contain and die modules, and the first AI that recruited one
 	 crashed.  Each reskin missing one of its source's behaviour modules (by module name) is logged,
 	 "ReskinCheck: <name> lacks ...", whichever build, for Tests/run_locomotor_check.sh to read, and is a
-	 DEBUG_CRASH in a debug build. */
+	 DEBUG_CRASH in a debug build. A module whose tag the reskin's own RemoveModule took out is exempt;
+	 a loss with no such line, or a RemoveModule naming a tag that was not there, is still reported.
+	 The source is read as it stands after every patch, so a fix to the source in place that the reskin
+	 did not get is reported too.  One more exemption: an upgrade module every TriggeredBy upgrade of
+	 which is granted only by another side's talent cards (PlayerTemplate TalentSciences, GrantsUpgrade).
+	 TalentsReforged.ini adds the American talents' MaxHealthUpgrades to the American sources after the
+	 Turkish reskins were copied, and a Turkish player never holds those upgrades. */
 //-------------------------------------------------------------------------------------------------
+static Bool isForeignTalentUpgradeModule( const AsciiString& moduleName, const ModuleData *data, const AsciiString& side )
+{
+	if( data == NULL || ThePlayerTemplateStore == NULL || TheScienceStore == NULL || TheModuleFactory == NULL )
+		return FALSE;
+	// only UpgradeModule itself has exactly this mask, and none of its subclasses widens it, so the data is an
+	// UpgradeModuleData; a module mixing the upgrade interface into another one keeps its mux elsewhere
+	if( TheModuleFactory->findModuleInterfaceMask( moduleName, MODULETYPE_BEHAVIOR ) != MODULEINTERFACE_UPGRADE )
+		return FALSE;
+	const std::vector<AsciiString>& triggers = ((const UpgradeModuleData *)data)->m_upgradeMuxData.m_activationUpgradeNames;
+	if( triggers.empty() )
+		return FALSE;
+	for( const AsciiString& upgrade : triggers )
+	{
+		Bool foreign = FALSE;
+		for( Int i = 0; i < ThePlayerTemplateStore->getPlayerTemplateCount(); ++i )
+		{
+			const PlayerTemplate *pt = ThePlayerTemplateStore->getNthPlayerTemplate( i );
+			if( pt == NULL )
+				continue;
+			for( ScienceType science : pt->getTalentSciences() )
+			{
+				if( TheScienceStore->getGrantedUpgradeName( science ) != upgrade )
+					continue;
+				if( pt->getSide() == side )
+					return FALSE;	// the reskin's own side can earn it
+				foreign = TRUE;
+			}
+		}
+		if( !foreign )
+			return FALSE;
+	}
+	return TRUE;
+}
+
 static void checkReskins( ThingTemplate *first )
 {
 	Int reskins = 0, lacking = 0;
@@ -675,20 +718,15 @@ static void checkReskins( ThingTemplate *first )
 		if( source == NULL )
 			continue;
 		++reskins;
-		const ModuleInfo &have = t->getBehaviorModuleInfo(), &want = source->getBehaviorModuleInfo();
-		AsciiString missing;
-		for( Int i = 0; i < want.getCount(); ++i )
+		const ModuleInfo& sourceModules = source->getBehaviorModuleInfo();
+		std::vector<ModuleInfo::InheritedModule> wanted;
+		for( Int i = 0; i < sourceModules.getCount(); ++i )
 		{
-			const AsciiString name = want.getNthName( i );
-			Bool found = FALSE;
-			for( Int j = 0; j < have.getCount() && !found; ++j )
-				found = have.getNthName( j ) == name;
-			if( !found )
-			{
-				missing.concat( " " );
-				missing.concat( name );
-			}
+			if( isForeignTalentUpgradeModule( sourceModules.getNthName( i ), sourceModules.getNthData( i ), t->getDefaultOwningSide() ) )
+				continue;
+			wanted.push_back( { sourceModules.getNthName( i ), sourceModules.getNthTag( i ) } );
 		}
+		const AsciiString missing = t->getBehaviorModuleInfo().missingInheritedTypes( wanted );
 		if( missing.isEmpty() )
 			continue;
 		++lacking;

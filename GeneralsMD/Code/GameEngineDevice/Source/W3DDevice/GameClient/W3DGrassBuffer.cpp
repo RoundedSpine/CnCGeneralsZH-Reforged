@@ -33,6 +33,7 @@
 #include "Common/GameCommon.h"
 #include "Common/Geometry.h"
 #include "Common/GlobalData.h"
+#include "Lib/Clock.h"
 #include "Common/MapObject.h"
 #include "Common/TerrainTypes.h"
 #include "Common/ThingTemplate.h"
@@ -352,6 +353,7 @@ W3DGrassBuffer::W3DGrassBuffer(BaseHeightMapRenderObjClass *terrain) :
 	m_terrain(terrain),
 	m_classifiedMap(NULL),
 	m_anyFoliage(FALSE),
+	m_seenObjectID(INVALID_ID),
 	m_width(0),
 	m_height(0),
 	m_border(0),
@@ -443,6 +445,7 @@ void W3DGrassBuffer::takeGrid(const W3DGrassBuffer &from)
 	clear();
 	m_classifiedMap = from.m_classifiedMap;
 	m_anyFoliage = from.m_anyFoliage;
+	m_seenObjectID = from.m_seenObjectID;
 	m_cells = from.m_cells;
 	m_chunkFar = from.m_chunkFar;
 	m_width = from.m_width;
@@ -456,6 +459,7 @@ void W3DGrassBuffer::clear(void)
 {
 	m_classifiedMap = NULL;
 	m_anyFoliage = FALSE;
+	m_seenObjectID = INVALID_ID;
 	m_cells.clear();
 	m_chunkFar.clear();
 	m_width = m_height = m_border = m_chunksX = m_chunksY = 0;
@@ -830,14 +834,31 @@ void W3DGrassBuffer::clearFootprint(const Coord3D *pos, const GeometryInfo &geom
 
 void W3DGrassBuffer::clearStructures(void)
 {
+	clearStructuresFrom(INVALID_ID);
+}
+
+/** BuildAssistant tells the terrain of a player's placement, and nothing tells it of a structure a
+	script, an OCL or a reinforcement made, so those kept the grass under them.  Logic's IDs only rise,
+	so a counter that moved is the only sign worth a walk, and the walk clears only the newer ones. */
+void W3DGrassBuffer::clearNewStructures(void)
+{
+	if (m_cells.empty() || TheGameLogic == NULL || TheGameLogic->getObjectIDCounter() == m_seenObjectID) {
+		return;
+	}
+	clearStructuresFrom(m_seenObjectID);
+}
+
+void W3DGrassBuffer::clearStructuresFrom(ObjectID first)
+{
 	if (m_cells.empty() || TheGameLogic == NULL) {
 		return;
 	}
 	for (Object *obj = TheGameLogic->getFirstObject(); obj; obj = obj->getNextObject()) {
-		if (obj->isKindOf(KINDOF_STRUCTURE)) {
+		if (obj->getID() >= first && obj->isKindOf(KINDOF_STRUCTURE)) {
 			clearFootprint(obj->getPosition(), obj->getGeometryInfo(), obj->getOrientation());
 		}
 	}
+	m_seenObjectID = TheGameLogic->getObjectIDCounter();
 }
 
 void W3DGrassBuffer::dirtyCells(Int loX, Int loY, Int hiX, Int hiY)
@@ -1484,12 +1505,20 @@ void W3DGrassBuffer::drawGrass(CameraClass *camera, Int contentVersion, const Ma
 		return a.dist != b.dist ? a.dist < b.dist : a.key < b.key;
 	});
 
-	// a slot each, at most BUILDS_PER_FRAME baked this frame; a dirty one draws its old pieces meanwhile
+	// a slot each, nearest first.  A dirty one rebakes BUILDS_PER_FRAME a frame and draws its old pieces
+	// meanwhile (a light or height change dirties every slot, and that stays two a frame).  A missing
+	// one, which draws nothing, bakes past that while BUILD_BUDGET_MS lasts: two a frame alone took a
+	// minimap jump's far firs 1 to 2 s to fill in.  The clock only paces the bake; nothing reaches logic.
 	Slot *draw[MAX_NEAR];
 	Real share[MAX_NEAR];
 	Int numDraw = 0;
 	Int builds = 0;
 	Int wantedThin = 0;
+	const long long buildStart = Clock_Ticks();
+	const long long buildBudget = Clock_Ticks_Per_Second() * BUILD_BUDGET_MS / 1000;
+	auto mayBuild = [&]() {
+		return builds < BUILDS_PER_FRAME || Clock_Ticks() - buildStart < buildBudget;
+	};
 	for (Int n = 0; n < numNear; n++) {
 		const Int key = nearby[n].key;
 		Slot *slot = NULL;
@@ -1506,7 +1535,7 @@ void W3DGrassBuffer::drawGrass(CameraClass *camera, Int contentVersion, const Ma
 				continue;	// the upload failed
 			}
 		}
-		if (slot == NULL && builds < BUILDS_PER_FRAME) {
+		if (slot == NULL && mayBuild()) {
 			// a free slot, or the one drawn longest ago that this frame has not claimed
 			for (Int i = 0; i < MAX_SLOTS; i++) {
 				if (m_slots[i].key < 0) {

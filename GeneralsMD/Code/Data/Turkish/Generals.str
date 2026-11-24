@@ -266,7 +266,7 @@ GUI:CreateGame
 END
 
 GUI:AutoLogin
-"Bundan Sonra Otomatik Giriş Yap"
+"Otomatik Giriş"
 END
 
 GUI:AddBuddy
@@ -726,7 +726,7 @@ GUI:LadderRandomMaps
 END
 
 GUI:AllowObservers
-"Gözlemcilere İzin Ver"
+"Gözlemci İzni"
 END
 
 GUI:USA
@@ -762,7 +762,7 @@ GUI:GLAEnemies
 END
 
 GUI:EndCampaign
-"KAMPANYAYI BİTİR"
+"KAMPANYADAN ÇIK"
 END
 
 GUI:Retry
@@ -774,7 +774,7 @@ GUI:RecentSave
 END
 
 GUI:GetUpdate
-"Güncellemeyi İndir"
+"Güncellemeyi Al"
 END
 
 GUI:DirectConnect
@@ -870,7 +870,7 @@ GUI:SystemMaps
 END
 
 GUI:UserMaps
-"Resmî Olmayan Haritalar"
+"Özel Haritalar"
 END
 
 GUI:WaitingToBeginConnection
@@ -926,7 +926,7 @@ GUI:Ignore
 END
 
 GUI:Unignore
-"Yok Saymayı Kaldır"
+"Yok Saymayı Kes"
 END
 
 GUI:Stats
@@ -934,7 +934,7 @@ GUI:Stats
 END
 
 GUI:GetMapPack
-"Harita Paketini İndir"
+"Harita Paketi"
 END
 
 GUI:Defeat
@@ -1014,7 +1014,7 @@ GUI:Host
 END
 
 GUI:LocaleSelect
-"KONUMUNUZU SEÇİN"
+"BÖLGENİZİ SEÇİN"
 END
 
 GUI:GeneralsOnline
@@ -1022,7 +1022,7 @@ GUI:GeneralsOnline
 END
 
 GUI:SendDelay
-"Gönderme Gecikmesi"
+"Gönd. Gecikmesi"
 END
 
 GUI:FirewallRefresh
@@ -1058,7 +1058,7 @@ GUI:3DSound
 END
 
 GUI:ScrollSpeed
-"Kamera Kaydırma Hızı"
+"Kaydırma Hızı"
 END
 
 GUI:Resolution
@@ -1070,7 +1070,7 @@ GUI:Detail
 END
 
 GUI:GraphicsQuality
-"Performans / Kalite"
+"Hız / Kalite"
 END
 
 TOOLTIP:GraphicsQuality
@@ -1486,7 +1486,7 @@ GUI:TOS
 END
 
 GUI:RememberInfo
-"Bilgilerimi Hatırla"
+"Bilgileri Sakla"
 END
 
 GUI:HostWantsToStart
@@ -1518,7 +1518,7 @@ GUI:HostLeftTitle
 END
 
 GUI:WidenSearch
-"ARAMAYI GENİŞLET"
+"GENİŞ ARA"
 END
 
 GUI:QMAborted
@@ -1526,11 +1526,11 @@ GUI:QMAborted
 END
 
 GUI:DrawScrollAnchor
-"Kaydırma Çapasını Çiz"
+"Çapayı Göster"
 END
 
 GUI:MoveScrollAnchor
-"Kaydırma Çapasını Taşı"
+"Çapayı Taşı"
 END
 
 GUI:GroupRoom1
@@ -1610,7 +1610,7 @@ GUI:NewGame
 END
 
 GUI:RestartGame
-"OYUNU YENİDEN BAŞLAT"
+"YENİDEN BAŞLAT"
 END
 
 GUI:MatchingProgress
@@ -3502,7 +3502,7 @@ GUI:SaveCamera
 END
 
 GUI:UseCamera
-"Kayıtlı Kamerayı İzle"
+"Kayıt Kamerası"
 END
 
 Mouse:Windows
@@ -7954,7 +7954,7 @@ Network:PacketRouterTimeout
 END
 
 GUI:EstablishingConnectionPaths
-"BAĞLANTI YOLLARI KURULUYOR"
+"BAĞLANILIYOR"
 END
 
 UPGRADE:RadarVanScan
@@ -8626,7 +8626,7 @@ Buddy:MultipleOnlineNotification
 END
 
 GUI:ResetHonors
-"Nişanları Sıfırla"
+"Nişan Sıfırla"
 END
 
 Chat:Observers
@@ -8965,6 +8965,10 @@ TOOLTIP:LanIP
 "Ağ oyunlarında oyunculara bağlanmak için kullanılan IP adresi"
 END
 
+GUI:IPAddresses
+"Yerel IP:"
+END
+
 TOOLTIP:GamesBeingformed
 "Bu oyundaki oyunculara bağlantı hızınız"
 END
@@ -9117,6 +9121,10 @@ TOOLTIP:HTTPProxy
 "C&C Generals Zero Hour Online için kullanılacak HTTP Proxy'yi ayarlayın"
 END
 
+GUI:HTTPProxy
+"Proxy Sunucusu:"
+END
+
 CONTROLBAR:BriefingHistory
 "Görev Brifingleri"
 END
@@ -9186,7 +9194,7 @@ ERROR:D3DFailurePrompt
 END
 
 ERROR:D3DFailureMessage
-"Lütfen DirectX 8.1 veya üstünün kurulu olduğundan emin olun. Ekran kartınızın asgari gereksinimleri karşıladığını da kontrol edin"
+"Ekran kartı açılmadı.\n\nEkran kartı sürücüsünü güncelle. Overlay'leri ve tam ekran açık başka programları kapat. Oyunu uzak masaüstünden ya da kilitli ekrandan açma. Bilgisayarı yeniden başlat ya da oyunu -win ile aç."
 END
 
 GUI:AudioHardware
@@ -9409,6 +9417,10 @@ CONTROLBAR:ObsLookingThrough
 "Haritayı %ls oyuncusunun gözünden izliyorsun. Esc tüm haritayı geri getirir."
 END
 
+GUI:ScoreboardFavourite
+"FAVORİ"
+END
+
 GUI:LowTextureDetail
 "Düşük Doku Ayrıntısı"
 END
@@ -9610,7 +9622,7 @@ TOOLTIP:Shadows
 END
 
 GUI:BehindBuilding
-"Bina Arkasındaki Birlikler"
+"Arkadaki Birlik"
 END
 
 TOOLTIP:BehindBuilding
@@ -9618,7 +9630,7 @@ TOOLTIP:BehindBuilding
 END
 
 GUI:ShowProps
-"Ağaçlar ve Çalılar"
+"Ağaç ve Çalılar"
 END
 
 TOOLTIP:ShowProps
@@ -9670,7 +9682,7 @@ GUI:ToggleOnOff
 END
 
 GUI:RestartMission
-"GÖREVİ YENİDEN BAŞLAT"
+"YENİDEN BAŞLAT"
 END
 
 GUI:ExitMission
@@ -9750,7 +9762,7 @@ TOOLTIP:UnlockMaxFPS
 END
 
 GUI:TreeSway
-"Sallanan Ağaçlar"
+"Sallanan Ağaç"
 END
 
 TOOLTIP:TreeSway
@@ -10630,7 +10642,7 @@ GUI:ClassicMouse
 END
 
 GUI:AlternateMouse
-"Alternatif Fare Düzeni"
+"Alternatif Fare"
 END
 
 TOOLTIP:AlternateMouse
@@ -10662,7 +10674,7 @@ TOOLTIP:MapMaxBrutalSuccess
 END
 
 GUI:LimitArmies
-"Sadece Ana Ordular"
+"Sadece Ana Ordu"
 END
 
 TOOLTIP:LimitArmies
@@ -10677,10 +10689,6 @@ GUI:OnlineLoginName
 "E-posta veya Kullanıcı Adı"
 END
 
-GUI:OnlineLoginTitle
-"ZERO HOUR REFORGED ÇEVRİMİÇİ"
-END
-
 GUI:OnlineSignIn
 "GİRİŞ"
 END
@@ -10690,31 +10698,19 @@ GUI:OnlineForgotPassword
 END
 
 GUI:OnlineKeepSignedIn
-"Oturumum açık kalsın"
+"Beni hatırla"
 END
 
 TOOLTIP:OnlineKeepSignedIn
-"Bu bilgisayarda oturumun açık kalır. Şifren hiçbir yere kaydedilmez"
+"Şifren hiçbir yere kaydedilmez"
 END
 
 TOOLTIP:OnlineNeedsLauncher
-"Çevrimiçi oyun başlatıcıdan açılır: orada Çevrimiçi'ye girip Çevrimiçi oyna'ya basın"
-END
-
-GUI:OnlineLoginHelp
-"zerohour.gg hesabınla giriş yap: e-postan ya da kullanıcı adın, bir de şifren."
-END
-
-GUI:OnlineLoginHelpRegister
-"Hesabın yok mu? Hesap Oluştur kayıt sayfasını tarayıcında açar."
-END
-
-GUI:OnlineLoginHelpReset
-"Şifreni mi unuttun? Şifremi Unuttum sıfırlama sayfasını tarayıcında açar."
+"Çevrimiçi oyunu başlatıcıdan aç"
 END
 
 GUI:OnlineLoginSavedToken
-"Kayıtlı oturumun kullanılacak, şifre gerekmiyor."
+"Kayıtlı oturum"
 END
 
 GUI:OnlineSigningIn
@@ -10767,6 +10763,18 @@ END
 
 GUI:OnlineLoginBanned
 "Bu hesap yasaklı."
+END
+
+GUI:OnlineLoginBannedReason
+"Bu hesap yasaklı: %ls"
+END
+
+GUI:OnlineLoginBannedUntil
+"Bu hesap %ls tarihine kadar yasaklı."
+END
+
+GUI:OnlineLoginBannedUntilReason
+"Bu hesap %ls tarihine kadar yasaklı: %ls"
 END
 
 GUI:OnlineMaintenance
@@ -10825,9 +10833,6 @@ TOOLTIP:OnlinePlayerInfo
 "\n %d galibiyet/%d mağlubiyet"
 END
 
-GUI:OnlineHubWelcome
-"Zero Hour Reforged çevrimiçine hoş geldin."
-END
 
 TOOLTIP:OnlineStagingPlayerInfo
 "\n Ping: %d ms \n %d galibiyet/%d mağlubiyet \n %d bağlantı kopması \n Favori ordu: %ls"
@@ -10838,7 +10843,7 @@ GUI:???
 END
 
 GUI:UseStats
-"İstatistik Kaydet"
+"İstatistik Tut"
 END
 
 TOOLTIP:UseStats
@@ -13582,7 +13587,7 @@ TOOLTIP:ChallengeButton
 END
 
 GUI:GeneralsChallenge
-"GENERALİNİZİ SEÇİN"
+"GENERAL SEÇİN"
 END
 
 GUI:Biography
@@ -14134,7 +14139,7 @@ ACADEMY:Firestorm
 END
 
 GUI:HeatEffects
-"Sıcak Hava Titremesi"
+"Isı Titremesi"
 END
 
 TOOLTIP:HeatEffects
@@ -14722,11 +14727,11 @@ OBJECT:CINE_TreeBirds
 END
 
 TOOLTIP:NoUserMaps
-"İstatistik Kaydet oyunlarında resmî olmayan haritalara izin verilmez"
+"İstatistik tutulan oyunlarda resmî olmayan haritalara izin verilmez"
 END
 
 GUI:FireWallPort
-"Özel Güvenlik Duvarı Portu:"
+"Firewall Portu:"
 END
 
 TOOLTIP:FireWallPort
@@ -15110,7 +15115,7 @@ GUI:DetailNote4
 END
 
 GUI:TextureFilter
-"Kaplama Filtreleme"
+"Filtreleme"
 END
 
 GUI:TextureFilter0
@@ -15130,7 +15135,7 @@ TOOLTIP:TextureFilter
 END
 
 GUI:Anisotropy
-"Anizotropik Örnekleme"
+"Anizotropi"
 END
 
 TOOLTIP:Anisotropy
@@ -15142,7 +15147,7 @@ GUI:AnisotropyCardMaximum
 END
 
 GUI:TextureResolution
-"Kaplama Kalitesi"
+"Kaplama Netliği"
 END
 
 GUI:ParticleLimit
@@ -15150,7 +15155,7 @@ GUI:ParticleLimit
 END
 
 GUI:NeverLowerDetail
-"Ayrıntıyı Asla Düşürme"
+"Sabit Ayrıntı"
 END
 
 GUI:OptionsGroupScreen
@@ -15182,7 +15187,7 @@ GUI:OptionsGroupCamera
 END
 
 GUI:OptionsGroupPlacement
-"Bina Yerleştirme"
+"Bina Yerleşimi"
 END
 
 GUI:OptionsGroupLighting
@@ -15218,7 +15223,7 @@ GUI:OptionsGroupExtras
 END
 
 GUI:OptionsGroupParticles
-"Duman ve Parçacıklar"
+"Duman, Parçacık"
 END
 
 GUI:WindowMode
@@ -15246,7 +15251,7 @@ GUI:ResolutionNote0
 END
 
 GUI:FullscreenScaling
-"Tam Ekran Sığdırma"
+"Ekrana Sığdırma"
 END
 
 GUI:FullscreenScaling0
@@ -15254,7 +15259,7 @@ GUI:FullscreenScaling0
 END
 
 GUI:FullscreenScaling1
-"Oranı koru, şerit ekle"
+"Oranı koru"
 END
 
 TOOLTIP:FullscreenScaling
@@ -15346,7 +15351,7 @@ TOOLTIP:FrameRateLimit
 END
 
 GUI:ClassicGraphics
-"Klasik Grafikler"
+"Klasik Grafik"
 END
 
 TOOLTIP:ClassicGraphics
@@ -15354,11 +15359,23 @@ TOOLTIP:ClassicGraphics
 END
 
 GUI:DetailedModels
-"Ayrıntılı Modeller"
+"Ayrıntılı Model"
 END
 
 TOOLTIP:DetailedModels
 "Yeniden yapılan birlikler ve binalar, Reforged görüntüsü için, indirdiyseniz. Yalnızca gördüğünüzü değiştirirler: onlara sahip olsun olmasın herkesle oynarsınız. Büyük savaşlarda daha yüksek kare hızı için işareti kaldırın. Oyun bir sonraki açılışında geçerli olur."
+END
+
+GUI:FullDetailAtDistance
+"Uzakta Ayrıntı"
+END
+
+TOOLTIP:FullDetailAtDistance
+"Yeniden yapılan birlikler ve binalar ekranda küçüldükçe daha hafif hallerine geçer. İşaretlerseniz kamera ne kadar uzakta olursa olsun hepsi tam ayrıntıyla çizilir; büyük savaşlarda kare hızından biraz götürür. Kabul Et'e basınca uygulanır."
+END
+
+GUI:OptionsGroupModels
+"Modeller"
 END
 
 GUI:HDTextures
@@ -15370,7 +15387,7 @@ TOOLTIP:HDTextures
 END
 
 GUI:InfantryShadows
-"Piyade Gölgeleri"
+"Piyade Gölgesi"
 END
 
 TOOLTIP:InfantryShadows
@@ -15422,7 +15439,7 @@ TOOLTIP:Smoke
 END
 
 GUI:ParticleBounce
-"Parçacıklar Yere Çarpar"
+"Sekan Parçacık"
 END
 
 TOOLTIP:ParticleBounce
@@ -15438,7 +15455,7 @@ TOOLTIP:MiddleMousePans
 END
 
 GUI:ZoomToCursor
-"İmlece Yakınlaştır"
+"İmlece Yakınlaş"
 END
 
 TOOLTIP:ZoomToCursor
@@ -15446,7 +15463,7 @@ TOOLTIP:ZoomToCursor
 END
 
 GUI:StartAtMaxZoom
-"Uzak Kamerayla Başla"
+"Uzaktan Başla"
 END
 
 TOOLTIP:StartAtMaxZoom
@@ -15454,7 +15471,7 @@ TOOLTIP:StartAtMaxZoom
 END
 
 GUI:ZoomSpeed
-"Yakınlaştırma Hızı"
+"Yakınlaşma Hızı"
 END
 
 TOOLTIP:ZoomSpeed
@@ -15490,7 +15507,7 @@ GUI:OptionsGroupMusic
 END
 
 GUI:DynamicMusic
-"Müzik Çatışmayı İzlesin"
+"Dinamik Müzik"
 END
 
 TOOLTIP:DynamicMusic
@@ -15538,7 +15555,7 @@ GUI:SpeakerType3
 END
 
 GUI:MuteInBackground
-"Arka Planda Sessiz"
+"Arka Planda Sus"
 END
 
 TOOLTIP:MuteInBackground
@@ -15554,7 +15571,7 @@ TOOLTIP:LegacySound
 END
 
 GUI:CameraShake
-"Kamera Sarsıntısı"
+"Sarsıntı"
 END
 
 TOOLTIP:CameraShake
@@ -15562,7 +15579,7 @@ TOOLTIP:CameraShake
 END
 
 GUI:IsometricCamera
-"İzometrik Kamera"
+"İzometrik Bakış"
 END
 
 TOOLTIP:IsometricCamera
@@ -15570,7 +15587,7 @@ TOOLTIP:IsometricCamera
 END
 
 GUI:EdgeScrollWindowed
-"Pencerede Kenardan Kaydır"
+"Kenardan Kaydır"
 END
 
 TOOLTIP:EdgeScrollWindowed
@@ -15578,7 +15595,7 @@ TOOLTIP:EdgeScrollWindowed
 END
 
 GUI:SnapCamera45
-"Adımlı Kamera Dönüşü"
+"Adımlı Kamera"
 END
 
 TOOLTIP:SnapCamera45
@@ -15586,7 +15603,7 @@ TOOLTIP:SnapCamera45
 END
 
 GUI:GridBuild
-"Izgaralı Bina Yerleşimi"
+"Izgaralı İnşa"
 END
 
 TOOLTIP:GridBuild
@@ -15594,7 +15611,7 @@ TOOLTIP:GridBuild
 END
 
 GUI:NudgeBuild
-"Engelli Yerleşimi Kaydır"
+"Engelde Kaydır"
 END
 
 TOOLTIP:NudgeBuild
@@ -15602,7 +15619,7 @@ TOOLTIP:NudgeBuild
 END
 
 GUI:SnapBuild45
-"Adımlı Bina Dönüşü"
+"Adımlı Bina"
 END
 
 TOOLTIP:SnapBuild45
@@ -15610,7 +15627,7 @@ TOOLTIP:SnapBuild45
 END
 
 GUI:SnapBuildNeighbour
-"Yakındaki Binalara Yapıştır"
+"Binaya Yapıştır"
 END
 
 TOOLTIP:SnapBuildNeighbour
@@ -15658,7 +15675,7 @@ TOOLTIP:NetBox
 END
 
 GUI:MinimapSize
-"Mini Harita Boyutu"
+"Mini Harita"
 END
 
 TOOLTIP:MinimapSize
@@ -15670,11 +15687,35 @@ GUI:OptionsGroupHud
 END
 
 GUI:EmptyBuildingPips
-"Boş Bina Yuvaları"
+"Boş Bina Yuvası"
 END
 
 TOOLTIP:EmptyBuildingPips
 "İçinde kimse olmayan binanın üstündeki boş yuva sırası, örneğin Tünel Ağının üstündeki on yuva. Kapalıyken bina yuvalarını yalnızca içinde biri varken gösterir."
+END
+
+GUI:HitFlash
+"Vuruş Parlaması"
+END
+
+TOOLTIP:HitFlash
+"Hasar alan birim ya da bina bir anlığına kırmızı parlar, neyin vurulduğunu görürsün."
+END
+
+GUI:DamageNumbers
+"Hasar Sayıları"
+END
+
+TOOLTIP:DamageNumbers
+"Vuruşun hasarı birimin üstünde kırmızı çıkar."
+END
+
+GUI:IdleWorkerCamera
+"Boş İşçiye Git"
+END
+
+TOOLTIP:IdleWorkerCamera
+"Boştaki işçi tuşu kamerayı işçiye götürür."
 END
 
 GUI:ArchiveReplays
@@ -15714,7 +15755,7 @@ GUI:OptionsGroupInput
 END
 
 GUI:ChromaLighting
-"Razer Chroma Işıkları"
+"Razer Chroma"
 END
 
 TOOLTIP:ChromaLighting
@@ -15730,7 +15771,7 @@ TOOLTIP:OrderLines
 END
 
 GUI:AircraftAltitudeLine
-"Uçak Yükseklik Çizgileri"
+"İrtifa Çizgisi"
 END
 
 TOOLTIP:AircraftAltitudeLine
@@ -15754,7 +15795,7 @@ GUI:PlayerColors0
 END
 
 GUI:PlayerColors1
-"Siz, Müttefik, Düşman"
+"Siz/Dost/Düşman"
 END
 
 GUI:PlayerColors2
@@ -15841,6 +15882,22 @@ GUI:SuperweaponsNone
 "Süper Silah Yok"
 END
 
+GUI:StartShrouded
+"Gizli Harita"
+END
+
+GUI:DayNight
+"Gün/Gece"
+END
+
+TOOLTIP:DayNight
+"On dakikalık gündüzün ardından gece çöker, gece her birlik beşte bir daha az uzağı görür."
+END
+
+TOOLTIP:StartShrouded
+"Harita her oyuncu için kapkara başlar. Tarafınızın görmediği yerler birlikleriniz oraya varana kadar kara kalır, yükleme ekranı da başlangıç noktalarını göstermez. Kapalıyken herkes haritanın tamamını sisin altında görerek başlar, çok oyunculu oyun hep böyle oynandı."
+END
+
 GUI:UnitLimit
 "Birlik Sınırı"
 END
@@ -15910,11 +15967,15 @@ TOOLTIP:ProRules
 END
 
 TOOLTIP:GameSpeed
-"Çatışma ne kadar hızlı oynansın. 1.0x orijinal oyun, LAN, dereceli ve YZ'ye karşı maçların hızı; 1.5x de online odaların hızı. Tempodan başka hiçbir şey değişmez."
+"Çatışma ne kadar hızlı oynansın. 1.0x orijinal oyun ve LAN maçlarının hızı, 1.5x de online odaların hızı. Dereceli ve YZ'ye karşı maçlar, maçtan önce seçilen hızda oynanır. Tempodan başka hiçbir şey değişmez."
+END
+
+TOOLTIP:RoomGameSpeed
+"Maç hızı, odayı kuran seçer"
 END
 
 GUI:GameSpeedMissions
-"Görevlerde Oyun Hızı"
+"Görev Oyun Hızı"
 END
 
 TOOLTIP:GameSpeedMissions
@@ -16478,7 +16539,7 @@ GUI:CampaignMission
 END
 
 GUI:CampaignZeroHour
-"GENERALS ZERO HOUR"
+"ZERO HOUR"
 END
 
 GUI:CampaignGenerals
@@ -16533,8 +16594,12 @@ GUI:ShadowQuality2
 "Yüksek"
 END
 
+GUI:ShadowQuality3
+"Işın İzlemeli"
+END
+
 TOOLTIP:ShadowQuality
-"Birim ve bina gölgelerinin keskinliği. Yüksek yaklaşık 64 MB video belleği kullanır, Düşük zayıf kartta bellek açar. Yalnızca Direct3D 11'de ve Klasik Grafikler kapalıyken. Kabul Et'e basınca uygulanır."
+"Birim ve bina gölgelerinin keskinliği. Yüksek yaklaşık 64 MB video belleği kullanır, Düşük zayıf kartta bellek açar. Işın İzlemeli her pikselden güneşe giden çizgiyi her tankın ve binanın gerçek biçiminden geçirir, gölgeleri her yakınlıkta net kalır; karede 1,6 ms'ye kadar tutar ve hâlâ deneyseldir. Yalnızca Direct3D 11'de ve Klasik Grafikler kapalıyken. Kabul Et'e basınca uygulanır."
 END
 
 GUI:VolumetricSmoke
@@ -16562,7 +16627,7 @@ TOOLTIP:LightingStyle
 END
 
 GUI:SmokeFireLighting
-"Ateşin Aydınlattığı Duman"
+"Işıklı Duman"
 END
 
 TOOLTIP:SmokeFireLighting
@@ -16602,7 +16667,7 @@ TOOLTIP:CloudStyle
 END
 
 GUI:DebrisTrails
-"Patlama Parça İzleri"
+"Enkaz İzleri"
 END
 
 TOOLTIP:DebrisTrails
@@ -16610,7 +16675,7 @@ TOOLTIP:DebrisTrails
 END
 
 GUI:MapLight
-"Sıcak Işık ve Pus"
+"Sıcak Işık, Pus"
 END
 
 TOOLTIP:MapLight
@@ -16618,7 +16683,7 @@ TOOLTIP:MapLight
 END
 
 GUI:TeamGlow
-"Takım Rengi Parlaması"
+"Takım Parlaması"
 END
 
 TOOLTIP:TeamGlow
@@ -16650,7 +16715,7 @@ TOOLTIP:Firelight
 END
 
 GUI:HemiAmbient
-"Gökyüzü ve Zemin Işığı"
+"Gök/Yer Işığı"
 END
 
 TOOLTIP:HemiAmbient
@@ -16666,7 +16731,7 @@ TOOLTIP:AmbientOcclusion
 END
 
 GUI:InternalHdr
-"Dahili HDR Ton Eşleme"
+"HDR Ton Eşleme"
 END
 
 TOOLTIP:InternalHdr
@@ -16706,11 +16771,31 @@ TOOLTIP:SmoothMotion
 END
 
 GUI:HeatHaze
-"Isı Dalgalanması"
+"Hava Dalgalanır"
 END
 
 TOOLTIP:HeatHaze
 "Yangınların üstünde, lazer ışınları boyunca ve füze egzozunun arkasında hava dalgalanır. Yalnızca Direct3D 11 ile, Klasik Grafikler açıkken kapalıdır. Kabul Et'e basınca uygulanır."
+END
+
+GUI:SunShafts
+"Güneş Huzmeleri"
+END
+
+GUI:SunShafts0
+"Kapalı"
+END
+
+GUI:SunShafts1
+"Düşük"
+END
+
+GUI:SunShafts2
+"Yüksek"
+END
+
+TOOLTIP:SunShafts
+"Alçak güneşin ışığı binaların ve ağaçların arasındaki tozdan şerit şerit süzülür, güneşe doğru hava hafifçe parlar. En çok sabah ve akşam görünür. Yalnızca Direct3D 11 ile, Klasik Grafikler açıkken kapalıdır. Kabul Et'e basınca uygulanır."
 END
 
 GUI:GroundFoliage
@@ -16719,6 +16804,14 @@ END
 
 TOOLTIP:GroundFoliage
 "Yerde otlar, çalılar, eğrelti otları ve taşlar biter, ağaçlarla birlikte rüzgârda sallanır. Yalnızca görüntüdür, birlikler içinden geçer. Yalnızca Direct3D 11 ile, Klasik Grafikler açıkken kapalıdır. Kabul Et'e basınca uygulanır."
+END
+
+GUI:Ragdoll
+"Gevşek Ölümler"
+END
+
+TOOLTIP:Ragdoll
+"Ölen asker ölüm animasyonunu oynatmak yerine gevşer ve kurşunun ya da patlamanın ittiği yöne düşer. Yalnızca görüntüdür: cesedin yattığı yer ve kaybolduğu an aynıdır, diğer oyuncular kendi ayarını görür. Klasik Grafikler açıkken kapalıdır. Kabul Et'e basınca bir sonraki ölümden itibaren uygulanır."
 END
 
 GUI:StructureCollapse
@@ -16730,7 +16823,7 @@ TOOLTIP:StructureCollapse
 END
 
 GUI:FormationDrag
-"Sürükleyerek Düzen Kur"
+"Sürükleyip Diz"
 END
 
 TOOLTIP:FormationDrag
@@ -16738,7 +16831,7 @@ TOOLTIP:FormationDrag
 END
 
 GUI:BuildWithoutWorker
-"İşçi Seçmeden İnşa"
+"İşçisiz İnşa"
 END
 
 GUI:CommandTabBuildings
@@ -16778,11 +16871,11 @@ TOOLTIP:BuildWithoutWorker
 END
 
 GUI:HealthBarColors
-"Can Çubuğu Rengi"
+"Can Barı Rengi"
 END
 
 GUI:HealthBarColors0
-"Yeşilden Kırmızıya"
+"Yeşil-Kırmızı"
 END
 
 GUI:HealthBarColors1
@@ -16798,7 +16891,7 @@ GUI:HudLayout
 END
 
 GUI:HudLayout0
-"Klasik"
+"Reforged"
 END
 
 GUI:HudLayout1
@@ -16806,11 +16899,11 @@ GUI:HudLayout1
 END
 
 TOOLTIP:HudLayout
-"Klasik, komuta çubuğunu altta ve oyunun kendi tuşlarını tutar. Red Alert tarzı bina ve birim üretimini sağdaki yan panele taşır, seçili birimlerin komutlarını alttaki şeride koyar ve Red Alert 2'nin tuşlarını bu oyuna uyduğu yerde alır: yapım sekmeleri için Q W E R, konuşlanmak için D, satmak için L, onarmak için K, ara noktalar için basılı Z. Her düzen Kısayollar sayfasındaki tuş değişikliklerini ayrı tutar."
+"Reforged, komuta çubuğunu altta, bu sürümün eklediği her şeyle tutar: yapım sekmeleri, mini haritanın üstündeki işaret tuşları, üretim listesi, takım listesi ve üretim tepsisi, kahraman tuşu, süper silah simgeleri ve tepsideki general güçleri. Klasik, aynı çubuğun ilk oyundaki hâlidir, bunların hiçbiri yok: süper silahlar ad ve süre olarak yazılır, generalin güçleri sağ kenarda tek sütunda aşağıdan yukarı dizilir. Red Alert tarzı bina ve birim üretimini sağdaki yan panele taşır, seçili birimlerin komutlarını alttaki şeride koyar ve Red Alert 2'nin tuşlarını bu oyuna uyduğu yerde alır: yapım sekmeleri için Q W E R, konuşlanmak için D, satmak için L, onarmak için K, ara noktalar için basılı Z. Reforged ve Klasik oyunun kendi tuşlarını paylaşır, Red Alert tarzı kendi tuşlarını tutar; ikisi de Kısayollar sayfasında değişir."
 END
 
 GUI:HudWidth
-"Arayüz Genişliği"
+"HUD Genişliği"
 END
 
 GUI:HudWidth0
@@ -18848,6 +18941,154 @@ GUI:RandomMapAnyTemplate
 "Sürpriz yap"
 END
 
+TOOLTIP:MapListCrowded
+"Sekizden fazla oyuncuda yalnız her oyuncuya bir başlangıç noktası olan haritalar listelenir; Rastgele sekmesi her sayıya bir harita üretir"
+END
+
+GUI:LobbyPresetsButton
+"HAZIR MAÇLAR"
+END
+
+GUI:LobbyPresets
+"Hazır maçlar"
+END
+
+TOOLTIP:LobbyPresets
+"Tüm koltukları bilgisayar ve takımlarla doldur"
+END
+
+GUI:SkirmishPresetGroup
+"%d oyuncu"
+END
+
+GUI:SkirmishPresetCustomGroup
+"Senin kurulumların"
+END
+
+GUI:SkirmishPresetCustom
+"Özel %d: %d oyuncu"
+END
+
+GUI:SkirmishPresetCustomGenerated
+"üretilen harita"
+END
+
+GUI:SkirmishPresetCustomEmpty
+"Özel %d: boş, bu odayı kaydetmek için tıkla"
+END
+
+GUI:SkirmishPresetLoad
+"YÜKLE"
+END
+
+GUI:SkirmishPresetSave
+"KAYDET"
+END
+
+GUI:SkirmishPresetClear
+"SİL"
+END
+
+GUI:SkirmishPreset7v1
+"7'ye 1: sen, 7 Zor YZ'ye karşı"
+END
+
+GUI:SkirmishPreset4v4
+"4'e 4, Orta YZ"
+END
+
+GUI:SkirmishPresetFFA8
+"8 kişilik herkes herkese karşı, karışık YZ"
+END
+
+GUI:SkirmishPreset2x4
+"2'ye 2'ye 2'ye 2, Orta YZ"
+END
+
+GUI:SkirmishPreset11v1
+"11'e 1: sen, 11 Zor YZ'ye karşı"
+END
+
+GUI:SkirmishPreset3x4
+"4'er kişilik 3 takım, Orta YZ"
+END
+
+GUI:SkirmishPreset15v1
+"15'e 1: sen, 15 Zor YZ'ye karşı"
+END
+
+GUI:SkirmishPreset8v8
+"8'e 8, Zor YZ"
+END
+
+GUI:SkirmishPresetFFA16
+"16 kişilik herkes herkese karşı, karışık YZ"
+END
+
+GUI:SkirmishPreset4x4
+"4'er kişilik 4 takım, Orta YZ"
+END
+
+GUI:SkirmishPreset23v1
+"23'e 1: sen, 23 Zor YZ'ye karşı"
+END
+
+GUI:SkirmishPreset12v12
+"12'ye 12, Zor YZ"
+END
+
+GUI:SkirmishPresetFFA24
+"24 kişilik herkes herkese karşı, karışık YZ"
+END
+
+GUI:SkirmishPreset3x8
+"8'er kişilik 3 takım, Orta YZ"
+END
+
+GUI:SkirmishPreset31v1
+"31'e 1: sen, 31 Zor YZ'ye karşı"
+END
+
+GUI:SkirmishPreset16v16
+"16'ya 16: sen ve 15 Zor müttefik, 16 Zor YZ'ye karşı"
+END
+
+GUI:SkirmishPresetFFA32
+"32 kişilik herkes herkese karşı, karışık YZ"
+END
+
+GUI:SkirmishPreset4Teams
+"8'er kişilik 4 takım, Orta YZ"
+END
+
+GUI:SkirmishPreset8Teams
+"4'er kişilik 8 takım, karışık YZ"
+END
+
+GUI:SkirmishPreset16v16Brutal
+"16'ya 16, hepsi Acımasız"
+END
+
+GUI:SkirmishPreset4v28
+"4'e 28: sen ve 3 Orta müttefik, 28 Kolay YZ'ye karşı"
+END
+
+GUI:SkirmishPresetLastStand
+"Son direniş: sen ve 1 müttefik, 30 Zor YZ'ye karşı"
+END
+
+GUI:SkirmishPreset3Way
+"Üç cephe: 11'e 11'e 10, Orta YZ"
+END
+
+GUI:SkirmishPresetFFA12
+"12 kişilik herkes herkese karşı, karışık YZ"
+END
+
+GUI:SkirmishPreset6v6
+"6'ya 6, Zor YZ"
+END
+
 GUI:RandomMapSize
 "Harita boyutu"
 END
@@ -18976,8 +19217,24 @@ TOOLTIP:WaterRefractionQuality
 "Modern su için. Tam'da suyun altı dalgayla kırılıp kayar. Basit'te su yine berrak ama altı kırılmaz. Kapalı'da suyun altı görünmez, su düz bir renk alır ve oyun hızlanır. Kabul Et'e basınca uygulanır."
 END
 
+GUI:MapAwareWaveHeading
+"Akıllı Dalgalar"
+END
+
+TOOLTIP:MapAwareWaveHeading
+"Modern su için. Dalgalar kıyıya döner, kanal boyunca akar, adanın arkasında söner. Her deniz kendi yönünden dalga alır. Kapalıyken dalgalar eskisi gibi kalır. Kabul Et'e basınca uygulanır."
+END
+
+GUI:UnderwaterClarity
+"Berrak Sığlık"
+END
+
+TOOLTIP:UnderwaterClarity
+"Modern su için. Sığ kayalıklar, resifler, batık yıkıntılar suyun altından görünür. Geniş düz deniz dibi ve derin su, haritada nasılsa o kadar bulanık kalır. Kabul Et'e basınca uygulanır."
+END
+
 GUI:WaterReflectionDetail
-"Yansıma Ayrıntısı"
+"Su Yansıması"
 END
 
 GUI:WaterReflectionDetail0
@@ -19012,22 +19269,6 @@ TOOLTIP:WaterReflection
 "Sahne Yansıması açıkken Modern su için. Orijinal, oyunun eski yansımasını kullanır. SSR ekranda gördüğün her şeyi yansıtır. Hibrit ikisini birleştirir, varsayılan da bu. Kabul Et'e basınca uygulanır."
 END
 
-GUI:QMSearchTime
-"Rakip aranıyor: %d:%02d"
-END
-
-GUI:QMSearchTimePool
-"Rakip aranıyor: %d:%02d, sırada %d kişi var"
-END
-
-GUI:QMStartsIn
-"Maç %d saniyeye başlıyor"
-END
-
-GUI:QMOpponentFound
-"Rakip bulundu: %ls"
-END
-
 GUI:QMAnOpponent
 "bilinmeyen oyuncu"
 END
@@ -19046,6 +19287,14 @@ END
 
 GUI:OnlineRatingTier
 "%ls, puan %d"
+END
+
+GUI:OnlineElo
+"ELO %d"
+END
+
+GUI:OnlineEloTier
+"%ls, ELO %d"
 END
 
 GUI:OnlineLadderPlace
@@ -19116,12 +19365,8 @@ GUI:OnlineSkinsWaiting
 "zerohour.gg'ye soruluyor..."
 END
 
-GUI:OnlineSkinsHint
-"Her birim için bir görünüm seç, Kaydet'e bas. Gri skinler zerohour.gg'de kullanılan bir kodla açılır."
-END
-
 GUI:OnlineSkinsNone
-"Hesabında henüz skin yok. zerohour.gg'de bir kod kullan, sonra bu ekranı yeniden aç."
+"Hesabında henüz skin yok. Her kart, skinini nasıl alacağını söyler; birini aldıktan sonra bu ekranı yeniden aç."
 END
 
 GUI:OnlineSkinsSaved
@@ -19148,21 +19393,6 @@ GUI:OnlineVsAIButton
 "YAPAY ZEKÂYA KARŞI"
 END
 
-GUI:OnlineAISpeed
-"1.0x hız"
-END
-
-GUI:OnlineAIRating
-"1.0x hız, YZ puanı %.2f"
-END
-
-GUI:OnlineAIRated
-"1.0x hız, YZ puanı %.2f -> %.2f"
-END
-
-GUI:OnlineAIUnrated
-"1.0x hız, puanlanmadı: %ls"
-END
 
 GUI:OnlineAIGames
 "%d maç · %%%d galibiyet"
@@ -19204,6 +19434,82 @@ SKIN:Splinter
 "PARÇALI KAMUFLAJ"
 END
 
+SKIN:Iron
+"DEMİR"
+END
+
+SKIN:Bronze
+"BRONZ"
+END
+
+SKIN:Silver
+"GÜMÜŞ"
+END
+
+SKIN:Gold
+"ALTIN"
+END
+
+SKIN:Emerald
+"ZÜMRÜT"
+END
+
+SKIN:Reforged
+"REFORGED"
+END
+
+SKIN:BugHunter
+"HATA AVCISI"
+END
+
+SKIN:EarnedCode
+"KOD KULLAN"
+END
+
+SKIN:EarnedIron
+"DEMİR DESTEKÇİ"
+END
+
+SKIN:EarnedBronze
+"BRONZ DESTEKÇİ"
+END
+
+SKIN:EarnedSilver
+"GÜMÜŞ DESTEKÇİ"
+END
+
+SKIN:EarnedGold
+"ALTIN DESTEKÇİ"
+END
+
+SKIN:EarnedEmerald
+"ZÜMRÜT DESTEKÇİ"
+END
+
+SKIN:EarnedReforged
+"REFORGED DESTEKÇİ"
+END
+
+SKIN:EarnedBugHunter
+"HATA AVCISI ROZETİ"
+END
+
+SKIN:SpecialThanks
+"ÖZEL TEŞEKKÜR"
+END
+
+SKIN:EarnedSpecialThanks
+"ÖZEL TEŞEKKÜR"
+END
+
+SKIN:UnitUsaDozer
+"ABD Dozeri"
+END
+
+SKIN:UnitChinaDozer
+"Çin Dozeri"
+END
+
 GUI:OnlineLadderRank
 "#"
 END
@@ -19213,7 +19519,7 @@ GUI:OnlineLadderPlayer
 END
 
 GUI:OnlineLadderRating
-"Puan"
+"ELO"
 END
 
 GUI:OnlineLadderTier
@@ -19242,6 +19548,10 @@ END
 
 GUI:OnlineRatedResult
 "Puan %+.1f -> %d"
+END
+
+GUI:OnlineEloResult
+"ELO %+d -> %d"
 END
 
 GUI:OnlineUnrated
@@ -19288,13 +19598,6 @@ GUI:OnlineUnrated_cancelled
 "Puana sayılmadı: maç iptal oldu."
 END
 
-GUI:OnlineSendingResultsTitle
-"Sonuçlar Gönderiliyor"
-END
-
-GUI:OnlineSendingResults
-"Maç sonucu ve tekrarı gönderiliyor. Lütfen bekleyin, oyunu kapatmayın."
-END
 
 GUI:Talents
 "YETENEKLER"
@@ -20001,7 +20304,7 @@ SCIENCE:DemolitionTalent10A
 END
 
 CONTROLBAR:ToolTipDemolitionTalent10A
-"SCUD Fırtınasının her füzesi yüzde 20 daha sert vurur, merkezde 600 yerine 720."
+"SCUD Fırtınasının her füzesi yüzde 10 daha sert vurur, merkezde 600 yerine 660."
 END
 
 SCIENCE:DemolitionTalent10B
@@ -20095,15 +20398,15 @@ GUI:OnlineTabCustom
 END
 
 GUI:OnlineAIShort
-"Bilgisayar"
+"Bot ELO"
 END
 
 GUI:OnlineLadderRatingLabel
-"Lig puanı"
+"ELO"
 END
 
 GUI:OnlineAIRatingLabel
-"Bilgisayar puanı"
+"Bot ELO"
 END
 
 GUI:OnlineGamesLabel
@@ -20204,17 +20507,11 @@ GUI:OnlineLoginInQuickMatch
 "Hızlı maçta"
 END
 
-GUI:OnlineLoginLauncher
-"Sunucuyu başlatıcı seçer: sen orada başkasını seçmedikçe ping'i en düşük olanı."
-END
 
 GUI:OnlineLoginHeading
 "Giriş yap"
 END
 
-GUI:OnlineLoginKeepHint
-"Şifren hiçbir yere kaydedilmez"
-END
 
 GUI:OnlineLoginFailed
 "Giriş yapılamadı"
@@ -20224,9 +20521,6 @@ GUI:OnlineLoginBadBody
 "E-posta, kullanıcı adı ya da şifre yanlış. Kontrol edip yeniden dene."
 END
 
-GUI:OnlineLoginBrowser
-"İkisi de zerohour.gg'yi tarayıcında açar."
-END
 
 // merkez
 GUI:OnlineHubVsAITitle
@@ -20234,16 +20528,13 @@ GUI:OnlineHubVsAITitle
 END
 
 GUI:OnlineHubVsAILead
-"Lige sayılmaz · bilgisayara karşı"
+"Lige sayılmaz"
 END
 
 GUI:OnlineHubRecord
 "G–M"
 END
 
-GUI:OnlineHubVsAIExplain
-"Rastgele resmi 1v1 haritası. Bilgisayar senin puanınla oynar; kazanırsan puan artar, kaybedersen düşer."
-END
 
 GUI:OnlineHubPlay
 "OYNA"
@@ -20257,9 +20548,6 @@ GUI:OnlineHubInQueue
 "Sırada"
 END
 
-GUI:OnlineHubQuickMatchExplain
-"Lig puanına yakın bir rakip, maç için üretilen bir haritada. Sonuç ligdeki yerini değiştirir."
-END
 
 GUI:OnlineHubFindMatch
 "MAÇ ARA"
@@ -20270,11 +20558,7 @@ GUI:OnlineHubCustomTitle
 END
 
 GUI:OnlineHubCustomLead
-"Lige sayılmaz · 2-8 oyuncu"
-END
-
-GUI:OnlineHubCustomExplain
-"Kendi kurallarınla oda kur ya da birine katıl. %ls sunucusundaki herkesle sohbet et."
+"Lige sayılmaz · 2-8"
 END
 
 GUI:OnlineHubBrowse
@@ -20305,9 +20589,6 @@ GUI:OnlineHubFrom
 "%ls duyurusu"
 END
 
-GUI:OnlineHubMotd3
-"Lig ve tüm maçlar zerohour.gg'de."
-END
 
 GUI:OnlineHubMyCard
 "KARTIM"
@@ -20323,7 +20604,7 @@ GUI:OnlineCardInRoom
 END
 
 GUI:OnlineCardTabAI
-"BİLGİSAYARA KARŞI"
+"YAPAY ZEKÂ"
 END
 
 GUI:OnlineCardByOwn
@@ -20351,7 +20632,7 @@ GUI:OnlineCardColAI
 END
 
 GUI:OnlineCardProfile
-"ZEROHOUR.GG PROFİLİ"
+"SİTEDEKİ PROFİL"
 END
 
 GUI:OnlineCardArmyChinaTank
@@ -20379,10 +20660,6 @@ GUI:OnlineCardArmyUsaAir
 END
 
 // lig
-GUI:OnlineLadderSub
-"Tüm sunucular, tek lig"
-END
-
 GUI:OnlineLadderPage
 "%d–%d. sıralar"
 END
@@ -20453,9 +20730,6 @@ GUI:OnlineLobbyRoomCount
 "%ls %d"
 END
 
-GUI:OnlineLobbySay
-"%ls odasına bir şey yaz"
-END
 
 GUI:OnlineLobbyJoin
 "KATIL"
@@ -20470,9 +20744,6 @@ GUI:QMRandomArmy
 "Rastgele ordu"
 END
 
-GUI:QMRandomHint
-"On ikiden biri, maç başlarken çekilir"
-END
 
 GUI:QMNoGeneral
 "Generalsiz"
@@ -20494,29 +20765,18 @@ GUI:QMSearching
 "Rakip aranıyor"
 END
 
-GUI:QMWindow
-"Aralık"
-END
-
 GUI:QMWindowValue
-"100 maçta %d ile %d arası yeneceğin rakipler"
+"Kazanma şansı %d-%d%%"
 END
 
 GUI:QMWidens
-"%d ile %d arasına %d:%02d sonra açılır"
-END
-
-GUI:QMWidenCap
-"%d ile %d arasında durur"
+"%d:%02d sonra genişler"
 END
 
 GUI:QMYourPicks
 "Seçimlerin"
 END
 
-GUI:QMPicksHint
-"Değiştirmek için aramayı durdur."
-END
 
 GUI:QMStop
 "DURDUR"
@@ -20540,6 +20800,26 @@ END
 
 GUI:QMStartsBanner
 "MAÇ %d SANİYE SONRA BAŞLIYOR"
+END
+
+GUI:QMSpeedBanner
+"%s HIZINDA OYNANSIN MI?"
+END
+
+GUI:QMSpeedAsk
+"%s, %s hızında oynamak istiyor. Kabul ediyor musun?\n\n%d sn içinde reddedilecek"
+END
+
+GUI:QMSpeedWaiting
+"%s oyuncusunun %s hızını kabul etmesi bekleniyor"
+END
+
+GUI:QMSpeedAccepted
+"Kabul edildi, %s hızında oynanacak"
+END
+
+GUI:QMSpeedDeclined
+"Reddedildi, %s hızında oynanacak"
 END
 
 // oda
@@ -20578,7 +20858,7 @@ GUI:OnlineScoreSubRanked
 END
 
 GUI:OnlineScoreSubAI
-"Bilgisayara karşı · %ls · %ls · lige sayılmaz"
+"Bilgisayara karşı · %ls · %ls"
 END
 
 GUI:OnlineScoreSending
@@ -20586,11 +20866,11 @@ GUI:OnlineScoreSending
 END
 
 GUI:OnlineScoreConfirmed
-"Sonuç iki oyuncu tarafından onaylandı. Tekrar zerohour.gg'de saklandı."
+"Sonuç onaylandı"
 END
 
 GUI:OnlineScoreAISaved
-"Hesabına kaydedildi. Sıradaki bilgisayarın puanı: %ls."
+"Sıradaki bilgisayar: %ls"
 END
 
 GUI:OnlineScoreAIHeld
@@ -20605,69 +20885,15 @@ GUI:OnlineScorePlayAgain
 "YENİDEN OYNA"
 END
 
-GUI:OnlineScoreHow
-"Bilgisayar puanı nasıl değişir"
-END
-
-GUI:OnlineScoreHow1
-"Bilgisayarı yenersen bilgisayar puanın artar, kaybedersen düşer. Sıradaki bilgisayar yeni puanla oynar. Lig puanın yalnızca hızlı maçta değişir."
-END
 
 // skinler
-GUI:OnlineSkinsSub
-"Birim başına bir görünüm"
-END
-
-GUI:OnlineSkinsUsaTank
-"ABD tankı"
-END
-
-GUI:OnlineSkinsChinaTank
-"Çin tankı"
-END
-
-GUI:OnlineSkinsGlaTank
-"GLA tankı"
-END
-
-GUI:OnlineSkinsWorn
-"Giyili"
-END
-
 GUI:OnlineSkinsOwned
 "Sende var"
 END
 
-GUI:OnlineSkinsLocked
-"Sende yok"
-END
-
-GUI:OnlineSkinsUnsaved
-"Seçildi, kaydedilmedi"
-END
-
-GUI:OnlineSkinsLockedHint
-"Kodu zerohour.gg'de kullan"
-END
-
-GUI:OnlineSkinsGet
-"Skin edinmek"
-END
-
-GUI:OnlineSkinsGet1
-"Skin, zerohour.gg hesabına aittir. Kodu hesap sayfasında kullan, sonra bu sayfayı yeniden aç."
-END
 
 GUI:OnlineSkinsOpenSite
 "ZEROHOUR.GG'Yİ AÇ"
-END
-
-GUI:OnlineSkinsWho
-"Kim görür"
-END
-
-GUI:OnlineSkinsWho1
-"Hızlı maç ve özel oyunlardaki herkes. LAN ve çatışma oyunları skin göstermez."
 END
 
 GUI:OnlineSkinsPending
@@ -20678,31 +20904,57 @@ GUI:OnlineSkinsPending1
 "1 değişiklik henüz kaydedilmedi"
 END
 
+GUI:OnlineSkinsSideUsa
+"ABD"
+END
+
+GUI:OnlineSkinsSideChina
+"Çin"
+END
+
+GUI:OnlineSkinsSideGla
+"GLA"
+END
+
+GUI:OnlineSkinsAll
+"Tümü"
+END
+
+GUI:OnlineSkinsFilterLocked
+"Kilitli"
+END
+
+GUI:OnlineSkinsWear
+"GİY"
+END
+
+GUI:OnlineSkinsWornButton
+"GİYİLİ"
+END
+
+GUI:OnlineSkinsPickedButton
+"SEÇİLDİ"
+END
+
 // yükleme ekranının sıradaki ipucu
 GUI:LoadTip11
-"Çevrimiçi bilgisayara karşı oyun kendi bilgisayar puanını tutar, lig puanına dokunmaz."
+"Çevrimiçi bilgisayara karşı oyunun kendi Bot ELO'su var, sıralama ELO'na dokunmaz."
 END
 
 // çevrimiçi ekranlar, ikinci tur: üretilen haritalarla Hızlı maç sayfası, lobi ve merkez durumları
 GUI:OnlineLadderShort
-"Lig"
+"ELO"
 END
 
 GUI:QMQueueHere
 "%d kişi daha %ls sunucusunda arıyor"
 END
 
-GUI:QMGeneratedLine
-"Her maç, yalnızca o maç için üretilen bir haritada oynanır. İkiniz de haritayı daha önce görmediniz."
-END
 
 GUI:QMNewMap
 "Yeni harita"
 END
 
-GUI:QMMapGenerated
-"Yalnızca bu maç için üretildi. İkiniz de bu haritayı oynamadınız."
-END
 
 GUI:QMCheckingMap
 "Harita rakibinle doğrulanıyor"
@@ -20713,7 +20965,7 @@ GUI:QMRefused
 END
 
 GUI:OnlineLobbyEmpty
-"%ls sunucusunda açık oyun yok. Bir tane kur."
+"Açık oyun yok"
 END
 
 GUI:OnlineLobbyJoining
@@ -20781,19 +21033,691 @@ GUI:OnlineScoreNoAnswer
 "Sunucu henüz yanıt vermedi. Sonuç zerohour.gg'de görünecek."
 END
 
-// merkez kartlarının paragrafları, tam metin sığmadığında (UIStyle::fitKey, "<etiket>_Short")
-GUI:OnlineHubVsAIExplain_Short
-"Resmi 1v1 haritası. Kazanırsan puanın artar, kaybedersen düşer."
-END
-
-GUI:OnlineHubQuickMatchExplain_Short
-"Puanına yakın bir rakip, üretilen bir haritada. Lige sayılır."
-END
-
-GUI:OnlineHubCustomExplain_Short
-"Oda kur ya da katıl. %ls sunucusundakilerle sohbet et."
-END
 
 GUI:GroupTrayTraining
 "+%d üretimde"
+END
+
+GUI:SlotEasyAI
+"Kolay YZ"
+END
+
+GUI:SlotMediumAI
+"Orta YZ"
+END
+
+GUI:SlotHardAI
+"Zor YZ"
+END
+
+GUI:SlotBrutalAI
+"Acımasız YZ"
+END
+
+GUI:SlotViciousAI
+"Gaddar YZ"
+END
+
+GUI:SlotSavageAI
+"Vahşi YZ"
+END
+
+GUI:SlotInsaneAI
+"Çılgın YZ"
+END
+
+GUI:SaveFromOtherLogicRate
+"Bu kayıt, oyun mantığını saniyede %d kez çalıştıran bir Reforged sürümüyle yapılmış. Bu sürüm saniyede %d kez çalıştırıyor, o yüzden kayıt yüklenemez. O sürümün \"Görev Başlangıcı\" kayıtları yine yüklenir ve kampanyayı o görevin başından sürdürür."
+END
+
+SCIENCE:TurkiyeTalent6AShort
+"Binalar yüzde 15 ucuz"
+END
+
+SCIENCE:TurkiyeTalent6BShort
+"Askerler yüzde 15 ucuz"
+END
+
+SCIENCE:TurkiyeTalent7AShort
+"Altay tankları daha sağlam"
+END
+
+SCIENCE:TurkiyeTalent7BShort
+"İHA'lar daha uzağı görür"
+END
+
+SCIENCE:TurkiyeTalent8AShort
+"Siperler daha sağlam"
+END
+
+SCIENCE:TurkiyeTalent8BShort
+"Sungur'lar daha sağlam"
+END
+
+SCIENCE:TurkiyeTalent9AShort
+"Sürüye 2 drone daha"
+END
+
+SCIENCE:TurkiyeTalent9BShort
+"4 asker fazla iner"
+END
+
+SCIENCE:TurkiyeTalent10AShort
+"Tayfun daha geniş vurur"
+END
+
+SCIENCE:TurkiyeTalent10BShort
+"Bereliler tecrübeli çıkar"
+END
+
+SCIENCE:ChinaTalent6AShort
+"Hackerlar yüzde 40 ucuz"
+END
+
+SCIENCE:ChinaTalent6BShort
+"Askerler yüzde 20 ucuz"
+END
+
+SCIENCE:ChinaTalent7AShort
+"Battlemaster'lar daha sağlam"
+END
+
+SCIENCE:ChinaTalent7BShort
+"Gatling Tankları daha sağlam"
+END
+
+SCIENCE:ChinaTalent8AShort
+"Sığınak ve top sağlam"
+END
+
+SCIENCE:ChinaTalent8BShort
+"Toplar sağlam, hızlı"
+END
+
+SCIENCE:ChinaTalent9AShort
+"Bir dalga mermi daha"
+END
+
+SCIENCE:ChinaTalent9BShort
+"Mayınlar daha geniş alana"
+END
+
+SCIENCE:ChinaTalent10AShort
+"Overlordlar tecrübeli çıkar"
+END
+
+SCIENCE:ChinaTalent10BShort
+"EMP 45 saniye sürer"
+END
+
+SCIENCE:TankTalent7AShort
+"Emperorlar daha sağlam"
+END
+
+SCIENCE:TankTalent7BShort
+"Ejder ve Gatling daha sağlam"
+END
+
+SCIENCE:TankTalent8AShort
+"Tank hasar almazsa onarılır"
+END
+
+SCIENCE:TankTalent8BShort
+"Battlemaster'lar daha sağlam"
+END
+
+SCIENCE:TankTalent10AShort
+"Emperorlar seçkin çıkar"
+END
+
+SCIENCE:TankTalent10BShort
+"2 tank fazla iner"
+END
+
+SCIENCE:InfantryTalent7AShort
+"Minigun Erleri hızlı koşar"
+END
+
+SCIENCE:InfantryTalent7BShort
+"Tank Avcıları daha sağlam"
+END
+
+SCIENCE:InfantryTalent8AShort
+"Sığınaklar daha sağlam"
+END
+
+SCIENCE:InfantryTalent8BShort
+"Taşıyıcılar sağlam, hızlı"
+END
+
+SCIENCE:InfantryTalent10AShort
+"Asker hasar almazsa iyileşir"
+END
+
+SCIENCE:InfantryTalent10BShort
+"5 Minigun Eri fazla iner"
+END
+
+SCIENCE:NukeTalent7AShort
+"Overlordlar daha sağlam"
+END
+
+SCIENCE:NukeTalent7BShort
+"Nükleer Toplar daha sağlam"
+END
+
+SCIENCE:NukeTalent8AShort
+"Reaktör ve sığınak sağlam"
+END
+
+SCIENCE:NukeTalent8BShort
+"MiG'ler daha sağlam"
+END
+
+SCIENCE:NukeTalent10AShort
+"Nükleer Toplar seçkin çıkar"
+END
+
+SCIENCE:NukeTalent10BShort
+"Overlord kendini onarır"
+END
+
+SCIENCE:AmericaTalent6AShort
+"Araç ve uçaklar ucuz"
+END
+
+SCIENCE:AmericaTalent6BShort
+"Daha hızlı tecrübe"
+END
+
+SCIENCE:AmericaTalent9AShort
+"Bir A-10 fazla"
+END
+
+SCIENCE:AmericaTalent9BShort
+"4 Ranger fazla iner"
+END
+
+SCIENCE:USATalent7AShort
+"Crusader, Paladin sağlam"
+END
+
+SCIENCE:USATalent7BShort
+"Ranger'lar daha sağlam"
+END
+
+SCIENCE:USATalent8AShort
+"Patriot, Ateş Üssü sağlam"
+END
+
+SCIENCE:USATalent8BShort
+"Comanche, Raptor sağlam"
+END
+
+SCIENCE:USATalent10AShort
+"Büyük bombalar geniş vurur"
+END
+
+SCIENCE:USATalent10BShort
+"Araç hasar almazsa onarılır"
+END
+
+SCIENCE:SuperweaponTalent7AShort
+"Aurora Alpha daha sağlam"
+END
+
+SCIENCE:SuperweaponTalent7BShort
+"Humvee, Avenger sağlam"
+END
+
+SCIENCE:SuperweaponTalent8AShort
+"EMP Patriot'lar sağlam"
+END
+
+SCIENCE:SuperweaponTalent8BShort
+"Tomahawk'lar sağlam, hızlı"
+END
+
+SCIENCE:SuperweaponTalent10AShort
+"Süper silahlar yüzde 25 ucuz"
+END
+
+SCIENCE:SuperweaponTalent10BShort
+"Savunmalar hızlı onarılır"
+END
+
+SCIENCE:LaserTalent7AShort
+"Lazer Tankları sağlam"
+END
+
+SCIENCE:LaserTalent7BShort
+"Avenger'lar daha sağlam"
+END
+
+SCIENCE:LaserTalent8AShort
+"Lazer Kuleleri sağlam"
+END
+
+SCIENCE:LaserTalent8BShort
+"Lazer Tankları hızlı gider"
+END
+
+SCIENCE:LaserTalent10AShort
+"Lazer Tankı tecrübeli çıkar"
+END
+
+SCIENCE:LaserTalent10BShort
+"Savunma yüzde 30 ucuz"
+END
+
+SCIENCE:AirForceTalent7AShort
+"Comanche'lar daha sağlam"
+END
+
+SCIENCE:AirForceTalent7BShort
+"King Raptor'lar sağlam"
+END
+
+SCIENCE:AirForceTalent8AShort
+"Hava Üssü, Patriot sağlam"
+END
+
+SCIENCE:AirForceTalent8BShort
+"Chinook'lar sağlam, hızlı"
+END
+
+SCIENCE:AirForceTalent10AShort
+"King Raptor tecrübeli çıkar"
+END
+
+SCIENCE:AirForceTalent10BShort
+"Uçaklar hep kendini onarır"
+END
+
+SCIENCE:GLATalent6AShort
+"Binalar yüzde 20 ucuz"
+END
+
+SCIENCE:GLATalent6BShort
+"Piyade daha hızlı koşar"
+END
+
+SCIENCE:GLATalent7AShort
+"Pikap ve Cipler hızlı"
+END
+
+SCIENCE:GLATalent7BShort
+"RPG Askerleri sağlam"
+END
+
+SCIENCE:GLATalent8AShort
+"Stinger Mevzileri sağlam"
+END
+
+SCIENCE:GLATalent8BShort
+"Scorpion, Marauder sağlam"
+END
+
+SCIENCE:GLATalent9AShort
+"Pusuya 4 Asi fazla"
+END
+
+SCIENCE:GLATalent9BShort
+"Şarbon daha geniş vurur"
+END
+
+SCIENCE:GLATalent10AShort
+"SCUD Fırtınası geniş vurur"
+END
+
+SCIENCE:GLATalent10BShort
+"Marauder'lar tecrübeli çıkar"
+END
+
+SCIENCE:ToxinTalent7AShort
+"Traktörler sağlam, hızlı"
+END
+
+SCIENCE:ToxinTalent7BShort
+"Marauder'lar daha sağlam"
+END
+
+SCIENCE:ToxinTalent8AShort
+"Tüneller daha sağlam"
+END
+
+SCIENCE:ToxinTalent8BShort
+"SCUD Rampası sağlam, hızlı"
+END
+
+SCIENCE:ToxinTalent10AShort
+"SCUD zehri uzun kalır"
+END
+
+SCIENCE:ToxinTalent10BShort
+"Traktörler tecrübeli çıkar"
+END
+
+SCIENCE:DemolitionTalent7AShort
+"Savaş Motorları sağlam"
+END
+
+SCIENCE:DemolitionTalent7BShort
+"Kamyonlar sağlam, hızlı"
+END
+
+SCIENCE:DemolitionTalent8AShort
+"Tuzaklar yarı fiyatına"
+END
+
+SCIENCE:DemolitionTalent8BShort
+"Roketli Cipler sağlam"
+END
+
+SCIENCE:DemolitionTalent10AShort
+"SCUD füzeleri sert vurur"
+END
+
+SCIENCE:DemolitionTalent10BShort
+"Rampalar tecrübeli çıkar"
+END
+
+SCIENCE:StealthTalent7AShort
+"Jarmen Kell daha sağlam"
+END
+
+SCIENCE:StealthTalent7BShort
+"Pikap ve Cipler sağlam"
+END
+
+SCIENCE:StealthTalent8AShort
+"Tünel ve Stinger sağlam"
+END
+
+SCIENCE:StealthTalent8BShort
+"Kamyonlar sağlam, hızlı"
+END
+
+SCIENCE:StealthTalent10AShort
+"Pikap ve Cipler gizlenir"
+END
+
+SCIENCE:StealthTalent10BShort
+"Karıştırıcı geniş saklar"
+END
+
+GUI:HudLayout2
+"Klasik"
+END
+
+Network:WaitingForReconnect
+"%ls için yeniden bağlantı bekleniyor (%d:%02d)"
+END
+
+Network:PlayerLostConnection
+"%ls bağlantıyı kaybetti"
+END
+
+Network:PlayerIsBack
+"%ls geri döndü"
+END
+
+Network:BackInMatch
+"Maça geri döndün"
+END
+
+GUI:OnlineRejoinTitle
+"Maçın hâlâ sürüyor"
+END
+
+GUI:OnlineRejoinCustom
+"Özel oyun"
+END
+
+GUI:OnlineRejoinElapsed
+"%d:%02d süredir oynanıyor"
+END
+
+GUI:OnlineRejoinPlaying
+"Oynuyor"
+END
+
+GUI:OnlineRejoinAway
+"Bağlı değil"
+END
+
+GUI:OnlineRejoin
+"Maça dön"
+END
+
+
+GUI:OnlineRejoinWaiting
+"Sunucuya soruluyor..."
+END
+
+GUI:OnlineRejoinRefusedCrc
+"Bu maç oyunun başka bir sürümüyle başladı, bu sürümle maça dönülemez."
+END
+
+GUI:OnlineRejoinRefusedRelay
+"Aktarma sunucusuna hâlâ bağlanılıyor. Birazdan yeniden dene."
+END
+
+GUI:OnlineRejoinRefused
+"Bu maça artık dönülemez."
+END
+
+GUI:RejoinAwayForfeit
+"%ls oyundan düştü. Geri dönmezse %d:%02d sonra maç senin."
+END
+
+GUI:RejoinCatchingUp
+"Maça dönülüyor %%%d"
+END
+
+GUI:RejoinWaitingForLog
+"Maç kaydı bekleniyor"
+END
+GUI:DirectStrike
+"DIRECT STRIKE"
+END
+
+GUI:DirectStrikeLower
+"Direct Strike"
+END
+
+GUI:Apocalypse
+"KIYAMET"
+END
+
+TOOLTIP:Apocalypse
+"Bitmeyen ölü dalgalarına karşı birlikte dayanın, en fazla dört oyuncu."
+END
+
+TOOLTIP:DirectStrike
+"Arsana birlik al. Her 30 saniyede her takımdan bir oyuncunun arsasının bir kopyası koridordan yürür; karşı kaleyi ilk yıkan takım kazanır. En çok 3'e 3, her maçta yeni bir ada."
+END
+
+GUI:DirectStrikeMap
+"Rastgele ada"
+END
+
+GUI:DirectStrikeTeam
+"TAKIM %d"
+END
+
+GUI:GameModeTitle
+"Oyun Kur"
+END
+
+GUI:GameModeBody
+"Bu oyun hangi modda oynanacak?"
+END
+
+GUI:GameModeClassic
+"KLASİK"
+END
+
+GUI:GameModeDirectStrike
+"DIRECT STRIKE"
+END
+
+GUI:GameModeApocalypse
+"KIYAMET"
+END
+
+GUI:GameModeClassicFact
+"Her harita"
+END
+
+GUI:GameModeDirectStrikeFact
+"En çok 6 oyuncu"
+END
+
+GUI:GameModeApocalypseFact
+"En çok 4, co-op"
+END
+
+GUI:ApocalypseLower
+"Kıyamet"
+END
+
+GUI:DirectStrikeIslandNote
+"Her maçta yeni bir ada"
+END
+
+GUI:DirectStrikeTeamSize
+"%d - %d"
+END
+
+GUI:DirectStrikeStart
+"BAŞLAT"
+END
+
+GUI:DirectStrikeReady
+"HAZIR"
+END
+
+GUI:DirectStrikeEasy
+"Kolay"
+END
+
+GUI:DirectStrikeMedium
+"Orta"
+END
+
+GUI:DirectStrikeHard
+"Zor"
+END
+
+GUI:DirectStrikeBrutal
+"Acımasız"
+END
+
+GUI:Munkee
+""
+END
+
+OBJECT:LaneWarFortress
+"Kale"
+END
+
+OBJECT:LaneWarWatchTower
+"Gözetleme Kulesi"
+END
+
+GUI:LaneTier
+"Kademe %d"
+END
+
+GUI:LaneUpgrades
+"Geliştirmeler"
+END
+
+GUI:LaneIncome
+"Gelir %d/%d"
+END
+
+GUI:LaneAbilities
+"Yetenekler"
+END
+
+GUI:LaneMenu
+"Menü"
+END
+
+GUI:LaneDiplomacy
+"Diplomasi"
+END
+
+GUI:LaneEndTeamWins
+"%d. takım kazandı"
+END
+
+GUI:LaneEndDraw
+"Berabere"
+END
+
+GUI:LaneEndLeft
+"%d. takım oyundan ayrıldı"
+END
+
+GUI:LaneMatchClock
+"Maç süresi"
+END
+
+GUI:LaneEndWaves
+"Dalga"
+END
+
+GUI:LaneEndUnits
+"Birlik"
+END
+
+GUI:LaneEndEarned
+"Kazanılan"
+END
+
+GUI:LaneEndSpent
+"Harcanan"
+END
+
+GUI:LaneEndKills
+"Öldürülen"
+END
+
+GUI:LaneEndDamage
+"Hasar"
+END
+
+GUI:LaneEndMiddle
+"Ortayı tuttu"
+END
+
+GUI:LaneEndRematch
+"Rövanş"
+END
+
+GUI:LaneEndLobby
+"Lobi"
+END
+
+GUI:LaneEndReplay
+"Tekrarı izle"
+END
+
+GUI:QMMapNotBuilt
+"Oyunun bu maçın haritasını kuramadı, o yüzden maç iptal edildi."
+END
+
+OBJECT:ApocalypseZombie
+"Zombi"
+END
+
+OBJECT:ApocalypseZombieRunner
+"Koşucu Zombi"
+END
+
+OBJECT:ApocalypseZombieBrute
+"Dev Zombi"
 END

@@ -114,14 +114,16 @@ struct OnlineCard
 	long long ping, games, wins, losses, rank;
 	double rating;					///< two decimals, as the site keeps it
 	Bool hasRating, notOnline, hasStats;
+	Bool hasElo;					///< elo arrived beside rating (a server with Elo sends both)
+	double elo;						///< the ladder's Elo, whole
 	std::string tier;
 	Bool hasAIRating;			///< aiRating and aiGames arrived (auth.ok, ai.rated)
-	double aiRating;				///< the rating against the AI, a scale of its own; two decimals
+	double aiRating;				///< the Bot ELO, aiElo or an older server's aiRating mapped onto Elo
 	long long aiGames, aiWins;
 	UnsignedInt serial;		///< the session's cardSerial when this card last changed
 
 	OnlineCard() : ping( -1 ), games( -1 ), wins( -1 ), losses( -1 ), rank( 0 ), rating( 0 ),
-		hasRating( FALSE ), notOnline( FALSE ), hasStats( FALSE ), hasAIRating( FALSE ), aiRating( 0 ), aiGames( 0 ), aiWins( 0 ),
+		hasRating( FALSE ), notOnline( FALSE ), hasStats( FALSE ), hasElo( FALSE ), elo( 0 ), hasAIRating( FALSE ), aiRating( 0 ), aiGames( 0 ), aiWins( 0 ),
 		serial( 0 ) {}
 };
 
@@ -181,7 +183,8 @@ struct OnlineSession
 	Bool pingRefused;				///< the server does not know ping (error{for:ping,code:unknown}): no more this connection
 	std::string failCode;		///< the last auth.fail's code, cleared by the next requestAuth: OnlineGetLoginFailure
 	Int failRetry;					///< its retry, in seconds; 0 when it gave none
-	std::string failUntil;	///< its until (auth.fail{code:maintenance}), as the server wrote it
+	std::string failUntil;	///< its until: maintenance's as the server wrote it, banned's Unix ms as UTC text
+	std::string failReason;	///< its reason (auth.fail{code:banned}), empty when the site gave none
 	// the server's notice{kind,en,tr,until}: OnlineGetNotice.  Belongs to the connection: an empty one or a
 	// sign-out (connectionGone) clears it
 	std::string noticeKind, noticeEn, noticeTr, noticeUntil;
@@ -228,6 +231,14 @@ struct OnlineSession
 	std::string replayAnswered;	///< the match of the last replay.ok or replay.err
 	std::string resultLine;	///< the last ONLINE RATED / ONLINE UNRATED line logged
 	OnlineMessage result;		///< the last rated or unrated line itself
+	Bool relayTicketFresh;	///< a match.hold for us carried a new relay ticket, not yet taken: OnlineTakeRelayTicket
+	// a dropped match the others still play: the sign-in's match.rejoinable, then the answer to match.rejoin
+	OnlineMessage rejoinable;	///< empty for none: OnlineGetRejoinable
+	long long rejoinableMs;	///< when it arrived, OnlineNowMs
+	UnsignedInt rejoinSerial;
+	Int rejoinState;				///< OnlineRejoinState
+	OnlineMessage rejoinOk;	///< the match.rejoin.ok not yet taken
+	std::string rejoinRefusal;	///< the match.refused code not yet taken
 
 	// what the server says about players, and who is in the room the screens show
 	std::map<std::string, OnlineCard> cards;		///< by OnlineNickKey
@@ -273,6 +284,7 @@ struct OnlineSession
 	std::string aiRefusal;	///< the ai.refused reason not yet taken
 	std::string aiMatch;		///< the match taken from ai.ready, until its ai.result goes
 	long long aiReadyMs;		///< when that ai.ready arrived, in steady-clock milliseconds
+	Int aiSpeed;						///< the speed that match plays, ai.ready's echo; its ai.result says it again
 	long long aiTickMs;			///< when the last ai.tick went
 	std::string aiWonMatch;	///< the match whose ai.result said win: only its replay goes up
 	std::string aiSentMatch;	///< the match of the last ai.result sent, kept after aiMatch clears: OnlineGetLastAIMatchId

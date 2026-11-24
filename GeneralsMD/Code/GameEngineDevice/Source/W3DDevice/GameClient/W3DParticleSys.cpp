@@ -28,6 +28,7 @@
 // W3D Particle System implementation
 // Author: Michael S. Booth, November 2001
 
+#include "Platform/RenderPost.h"
 #include "Common/GlobalData.h"
 #include "Lib/Clock.h"
 #include "GameClient/Color.h"
@@ -48,9 +49,11 @@
 #include "WW3D2/dx8wrapper.h"
 #include "WW3D2/dx11runtime.h"
 #include "Platform/SunShadow.h"
+#include "Platform/RenderLighting.h"
 #include "Common/JobSystem.h"
 #include "Common/LogicThread.h"
 #include "GameLogic/GameLogic.h"
+#include "GameLogic/DayNightCycle.h"
 #include "GameLogic/Object.h"
 #include "GameLogic/Module/LifetimeUpdate.h"
 #include "GameLogic/PartitionManager.h"
@@ -112,6 +115,7 @@ static UnsignedInt gpuCapacityAsked( void )
 /// and its particles rest on the terrain (ParticleBounce) instead of falling through it.
 static const UnsignedInt PARTICLE_GPU_ALIVE = 1;
 static const UnsignedInt PARTICLE_GPU_GROUND_CLAMPED = 2;
+static const UnsignedInt PARTICLE_GPU_SMOKE = 4;		///< smoke or dust: takes the smoke tint (smokeTintFor)
 
 #ifdef DEBUG_LOGGING
 extern Real TheParticleFillMS;
@@ -520,7 +524,7 @@ static void gatherHeatHaze( CameraClass &camera, const std::vector<ParticleSyste
 			++count;
 		}
 	}
-	Direct3D11_Set_Heat_Splats( s_heatSplats.empty() ? NULL : &s_heatSplats[ 0 ], (unsigned)count );
+	RenderPost::SetHeatSplats( s_heatSplats.empty() ? NULL : &s_heatSplats[ 0 ], (unsigned)count );
 }
 
 /** The same for a GPU system, from the spawns it keeps (ParticleSystem::getGpuSample) aged in closed
@@ -770,6 +774,35 @@ struct BillboardFillJob
 	Bool																			glowAfterShade;
 };
 
+/** The manager's smoke tint, or on a night map with the cycle off the cycle's own full night: smoke
+	* and dust are unlit, and nothing else darkens them, so Dark Night's dust glowed tan on moonlit
+	* ground.  The cycle (DayNight_mapNightCondition is false under it) and the Apocalypse set the
+	* tint themselves, and a tint they set is never plain white at night.  Classic keeps retail's. */
+static RGBColor managerSmokeTint( void )
+{
+	RGBColor tint = TheParticleSystemManager->getSmokeTint();
+	if (tint.red == 1.0f && tint.green == 1.0f && tint.blue == 1.0f
+		&& !TheGlobalData->m_classicGraphics && DayNight_mapNightCondition())
+	{
+		// ponytail: NIGHT_SMOKE in DayNightCycle.cpp, copied; move it to DayNightCycle.h if it changes
+		tint.red = 0.42f;
+		tint.green = 0.48f;
+		tint.blue = 0.66f;
+	}
+	return tint;
+}
+
+/** The tint the manager puts over smoke and dust (ParticleSystemManager::setSmokeTint), white for
+	* anything that glows: additive systems and emissive alpha ones keep their own colour. */
+static RGBColor smokeTintFor( ParticleSystem *sys )
+{
+	RGBColor tint;
+	tint.red = tint.green = tint.blue = 1.0f;
+	if (TheParticleSystemManager != NULL && sys->getShaderType() == ParticleSystemInfo::ALPHA && !sys->getTemplate()->isEmissive())
+		tint = managerSmokeTint();
+	return tint;
+}
+
 /// systems a pool thread claims at once; a system is a few hundred particles, so one claim a system
 /// would spend more on the interlocked claim than the work is worth
 static const Int BILLBOARD_FILLS_PER_CLAIM = 4;
@@ -788,6 +821,7 @@ static void fillBillboards( Int index, void *context )
 	const Int lightCount = pickSmokeLights( fill.system, job->lights, job->lightCount, lights );
 	const ParticleSystemInfo::ParticleShaderType shaderType = fill.system->getShaderType();
 	const UnsignedInt flipbookLog2 = fill.system->getTemplate()->getFlipbookGridLog2();
+	const RGBColor tint = smokeTintFor( fill.system );
 
 	for (Particle *p = fill.system->getFirstParticle(); p; p = p->m_systemNext)
 	{
@@ -821,6 +855,9 @@ static void fillBillboards( Int index, void *context )
 		Real alpha = p->getAlpha();
 		if (fill.fade < 1.0f)
 			stealthFadeParticle( shaderType, fill.fade, red, green, blue, alpha );
+		red *= tint.red;
+		green *= tint.green;
+		blue *= tint.blue;
 		const unsigned packed = DX8Wrapper::Convert_Color_Clamp( Vector4( red, green, blue, alpha ) );
 		// The orientation table's index wraps, as it did on Windows (Platform/MsvcFloatCasts.h).
 		const uint8 orientation = floatToByteAsMsvc( p->getAngle() * 255.0f / (2.0f * PI) );
@@ -911,6 +948,50 @@ struct FieldBatch
 };
 
 static std::vector<FieldBatch>			s_fieldBatches;
+
+/** A particle texture by its name's buffer.  Get_Texture copies the name, lowercases it and hashes it,
+	* and the draws asked that once a system every pass.  A system copies its template's name, so the
+	* systems of one template share one buffer; the entry holds a copy of the name, so that buffer can
+	* never be freed and handed to another string while it is the key.  Each entry holds one reference
+	* until the match ends (W3DParticleSystemManager::reset), the way the GPU path holds its slices', so
+	* every pass draws the very texture Get_Texture would have returned: nothing in a match takes a
+	* texture out of the asset manager's table while another reference stands on it, and a lost device
+	* is the texture's own business.  A changed name is another buffer and so another lookup.  The
+	* particle editor's Reload Textures empties the table under the cache, so under -particleEdit every
+	* pass asks the asset manager as before.  Main thread only, as the draws are.  The pointer returned
+	* is borrowed: the caller takes no reference and releases none. */
+struct ParticleTextureEntry
+{
+	AsciiString			name;
+	TextureClass *	texture;
+};
+static std::unordered_map<const char *, ParticleTextureEntry>	s_particleTextures;
+
+static TextureClass *particleTexture( const AsciiString &name )
+{
+	std::unordered_map<const char *, ParticleTextureEntry>::const_iterator known = s_particleTextures.find( name.str() );
+	if (known != s_particleTextures.end())
+		return known->second.texture;
+	TextureClass *texture = W3DDisplay::m_assetManager->Get_Texture( name.str() );
+	if (texture == NULL || TheGlobalData->m_particleEdit)
+	{
+		if (texture)
+			texture->Release_Ref();	// the draw state takes its own; the editor's reload frees the rest
+		return texture;
+	}
+	ParticleTextureEntry entry;
+	entry.name = name;
+	entry.texture = texture;
+	s_particleTextures[ name.str() ] = entry;
+	return texture;
+}
+
+static void releaseParticleTextures( void )
+{
+	for (std::unordered_map<const char *, ParticleTextureEntry>::iterator it = s_particleTextures.begin(); it != s_particleTextures.end(); ++it)
+		it->second.texture->Release_Ref();
+	s_particleTextures.clear();
+}
 
 /** Writes one pass of a chunk and draws it; the index buffer is already set. */
 static void drawFieldPass( const FieldChunk &chunk, const std::vector<unsigned> &colors, const ShaderClass &shader )
@@ -2077,7 +2158,7 @@ static Int collectGroundFields( const AABoxClass &view, CameraClass &sceneCamera
 		s_fieldChunks.push_back( chunk );
 
 		batch.chunkCount = (Int)s_fieldChunks.size() - batch.firstChunk;
-		batch.texture = W3DDisplay::m_assetManager->Get_Texture( draw.texture.str() );
+		batch.texture = particleTexture( draw.texture );
 		s_fieldBatches.push_back( batch );
 	}
 	return laid;
@@ -2121,9 +2202,7 @@ static void drawGroundFields( void )
 		}
 	}
 
-	for (size_t b = 0; b < s_fieldBatches.size(); ++b)
-		s_fieldBatches[ b ].texture->Release_Ref();	// the draw state holds its own reference to the last one
-	s_fieldBatches.clear();
+	s_fieldBatches.clear();	// the textures are the cache's, and the draw state holds its own reference to the last one
 }
 
 W3DParticleSystemManager::W3DParticleSystemManager()
@@ -2197,6 +2276,7 @@ W3DParticleSystemManager::~W3DParticleSystemManager()
 	REF_PTR_RELEASE(m_frameBuffer);
 
 	resetGpuParticles();		// the texture references it holds
+	releaseParticleTextures();
 }
 
 /** A reset can be followed by an update on the same logic frame, so the fires' frame alone would
@@ -2216,6 +2296,7 @@ void W3DParticleSystemManager::reset()
 	m_sunMapCasters.clear();
 	invalidateGroundFields();	// the object IDs it holds belong to the game that ended
 	resetGpuParticles();			// the client frame starts again, and every system is gone
+	releaseParticleTextures();	// the match's textures, let go for the next one's
 }
 
 void W3DParticleSystemManager::invalidateGroundFields(bool fadeIn)
@@ -2539,7 +2620,7 @@ void W3DParticleSystemManager::doParticles(RenderInfoClass &rinfo)
 		fill.glow = FALSE;
 		fill.fire = sys->getTemplate()->isFireLook();
 		fill.hardEdge = sys->isAttachedToMine();
-		fill.texture =W3DDisplay::m_assetManager->Get_Texture( sys->getParticleTypeName().str() );
+		fill.texture = particleTexture( sys->getParticleTypeName() );
 		PointGroupClass::Reserve_Sorted_Billboards( fill.capacity, &fill.range );
 		m_billboardFills.push_back( fill );
 	}
@@ -2558,9 +2639,9 @@ void W3DParticleSystemManager::doParticles(RenderInfoClass &rinfo)
 	if (!ShaderClass::Is_Backface_Culling_Inverted())
 	{
 		s_firelightCount = 0;
-		if (TheGlobalData->m_firelight && Direct3D11_Lights_Per_Pixel())
+		if (TheGlobalData->m_firelight && RenderLighting::LightsPerPixel())
 			gatherFirelights( bbox, m_lastLogicFrameUpdate, m_frameFires, m_frameFireFades );
-		if (TheGlobalData->m_heatHaze && !TheGlobalData->m_classicGraphics && Direct3D11_Present_Is_Enabled())
+		if (TheGlobalData->m_heatHaze && !TheGlobalData->m_classicGraphics && RenderPost::DistortionAvailable())
 			gatherHeatHaze( rinfo.Camera, m_frameFires, m_frameFireFades, m_frameExhausts, m_frameExhaustFades );
 	}
 	// Only a CPU drawn smoke system takes a light (pickSmokeLights); with none, the walk over every
@@ -2638,7 +2719,6 @@ void W3DParticleSystemManager::doParticles(RenderInfoClass &rinfo)
 			BillboardFill &fill = m_billboardFills[ nextFill++ ];
 			PointGroupClass::Insert_Sorted_Billboards( &fill.range, fill.drawn, fill.texture, fill.shader, fill.glow != FALSE, fill.fire != FALSE,
 				sys->getTemplate()->isEmissive() != FALSE, fill.hardEdge != FALSE );
-			fill.texture->Release_Ref();	// the draw state took its own reference
 			m_fieldParticleCount += fill.fieldIncrement * fill.drawn;
 			m_onScreenParticleCount += fill.drawn;
 #ifdef DEBUG_LOGGING
@@ -2708,6 +2788,7 @@ void W3DParticleSystemManager::doParticles(RenderInfoClass &rinfo)
 			( sys->getPriority() == AREA_EFFECT && sys->m_isGroundAligned != FALSE ) ? 1 : 0;
 		SmokeLight lights[ SMOKE_LIGHTS_PER_SYSTEM ];
 		const Int lightCount = pickSmokeLights( sys, fillJob.lights, fillJob.lightCount, lights );
+		const RGBColor tint = smokeTintFor( sys );
 
 
 
@@ -2750,9 +2831,12 @@ void W3DParticleSystemManager::doParticles(RenderInfoClass &rinfo)
 				lightSmoke( pos, RGBAArray[count].W, lights, lightCount, RGBAArray[count].X, RGBAArray[count].Y, RGBAArray[count].Z );
 			if (fade < 1.0f)
 				stealthFadeParticle( sys->getShaderType(), fade, RGBAArray[count].X, RGBAArray[count].Y, RGBAArray[count].Z, RGBAArray[count].W );
+			RGBAArray[count].X *= tint.red;
+			RGBAArray[count].Y *= tint.green;
+			RGBAArray[count].Z *= tint.blue;
 
 			angleArray[count] = floatToByteAsMsvc( p->getAngle() * 255.0f / (2.0f * PI) );
-			
+
 			if (++count == MAX_POINTS_PER_GROUP)
 			{
 #ifdef DEBUG_LOGGING
@@ -2765,15 +2849,19 @@ void W3DParticleSystemManager::doParticles(RenderInfoClass &rinfo)
 		if ( count == 0 )
 			continue;	//this system has no particles to render
 
-		TextureClass *texture = W3DDisplay::m_assetManager->Get_Texture( sys->getParticleTypeName().str() );
+		TextureClass *texture = particleTexture( sys->getParticleTypeName() );
 
 		
-		if ( m_streakLine && sys->isUsingStreak() && (count >= 2) ) 
+		if ( m_streakLine && sys->isUsingStreak() && (count >= 2) )
 		{
 			m_streakLine->Reset_Line();
 
+			// The Reforged look draws the streak smooth (StreakRendererClass::RenderSmoothStreak, streakRender.cpp
+			// has why), on both devices; Classic keeps EA's.  The head stays on the newest particle: pulled back
+			// toward the smooth-motion model it left a gap behind the rocket's nozzle (2026-11-21 proof).
+			m_streakLine->Set_Smooth( !TheGlobalData->m_classicGraphics );
+
 			m_streakLine->Set_Texture( texture );
-			texture->Release_Ref();//release reference since it's held by streakline
 			switch( sys->getShaderType() )
 			{
 				case ParticleSystemInfo::ADDITIVE:
@@ -2821,7 +2909,6 @@ void W3DParticleSystemManager::doParticles(RenderInfoClass &rinfo)
 			{
 				// render all the systems' particles
 				m_pointGroup->Set_Texture( texture );
-				texture->Release_Ref();//release reference since it's held by pointGroup
 				m_pointGroup->Set_Flag( PointGroupClass::TRANSFORM, true );	// transform to screen space
 
 				switch( sys->getShaderType() )
@@ -3027,7 +3114,8 @@ UnsignedInt W3DParticleSystemManager::gpuSlotFor( ParticleSystem *system )
 		entry.m_drift[ 0 ] = drift.x;
 		entry.m_drift[ 1 ] = drift.y;
 		entry.m_textureSlice = slice;
-		entry.m_flags = PARTICLE_GPU_ALIVE | ( system->isGpuGroundClamped() ? PARTICLE_GPU_GROUND_CLAMPED : 0u );
+		entry.m_flags = PARTICLE_GPU_ALIVE | ( system->isGpuGroundClamped() ? PARTICLE_GPU_GROUND_CLAMPED : 0u )
+			| ( system->getShaderType() == ParticleSystemInfo::ALPHA && !system->getTemplate()->isEmissive() ? PARTICLE_GPU_SMOKE : 0u );
 		// the fade is taken at the sync point (refreshGpuSystems), which runs before the next draw
 		m_gpuFades[ slot ] = 1.0f;
 		m_gpuFadesDirty = TRUE;
@@ -3322,6 +3410,11 @@ void W3DParticleSystemManager::drawGpuParticles( RenderInfoClass &rinfo )
 		++m_gpuTail;
 	const UnsignedInt range = (UnsignedInt)( m_gpuWritten - m_gpuTail );
 
+	{
+		const RGBColor smoke = managerSmokeTint();
+		const float tint[ 3 ] = { smoke.red, smoke.green, smoke.blue };
+		GpuParticles::Set_Smoke_Tint( tint );
+	}
 	GpuParticles::Evaluate( (UnsignedInt)( m_gpuTail % m_gpuCapacity ), range, now, TheSmoothMotionAlpha );
 
 	const HazardCloud::Camera cloud = cloudCamera( rinfo.Camera );

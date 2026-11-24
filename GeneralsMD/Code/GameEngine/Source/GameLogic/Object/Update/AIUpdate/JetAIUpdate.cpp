@@ -253,6 +253,20 @@ Bool JetAIUpdate::isReturningForLanding() const
 }
 
 //-------------------------------------------------------------------------------------------------
+Bool JetAIUpdate::isFlyingHome() const
+{
+	StateID id = getStateMachine()->getCurrentStateID();
+	return id == RETURNING_FOR_LANDING || id == RETURN_TO_DEAD_AIRFIELD;
+}
+
+//-------------------------------------------------------------------------------------------------
+Bool JetAIUpdate::isGoingHomeOnItsOwn() const
+{
+	const StateID id = getStateMachine()->getCurrentStateID();
+	return id == RETURNING_FOR_LANDING || id == RETURN_TO_DEAD_AIRFIELD || id == CIRCLING_DEAD_AIRFIELD;
+}
+
+//-------------------------------------------------------------------------------------------------
 static ParkingPlaceBehaviorInterface* getPP(ObjectID id, Object** airfieldPP = NULL)
 {
 	if (airfieldPP)
@@ -2901,6 +2915,12 @@ void JetAIUpdate::aiDoCommand(const AICommandParms* parms)
 
 	// note that we always store this, even if nothing will be "pending".
 	m_mostRecentCommand.store(*parms);
+
+	// A player's (or a script's) order ends a group panel reinforcement's walk to its squad, which
+	// AIUpdateInterface::aiDoCommand does too late here: an order held for the wheels to come up left the
+	// walk set, and its re-send on the next idle stored over the held order, so the jet flew to the squad.
+	if (parms->m_cmdSource != CMD_FROM_AI)
+		getObject()->setReinforcement( -1, NULL, FALSE );
 
 	if (getFlag(TAKEOFF_IN_PROGRESS) || getFlag(LANDING_IN_PROGRESS))
 	{

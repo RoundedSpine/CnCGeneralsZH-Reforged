@@ -94,8 +94,9 @@ Bool OnlineGetCounts( Int &players, Int &games, Int &queue );
 Bool OnlineGetServerInfo( AsciiString &name, AsciiString &city, Int &pingMs );
 /* The code of the last login the server refused (auth.fail: badlogin, throttled, expired...), and its
 	 retry in seconds, 0 when it gave none.  Empty when the last login never reached a refusal (the
-	 connection failed), and cleared by the next login.  `file` gets the install file a "files" refusal names. */
-AsciiString OnlineGetLoginFailure( Int *retrySeconds, AsciiString *file = NULL, AsciiString *until = NULL );
+	 connection failed), and cleared by the next login.  `file` gets the install file a "files" refusal names,
+	 `until` a maintenance or ban end as UTC text, `reason` a ban's reason. */
+AsciiString OnlineGetLoginFailure( Int *retrySeconds, AsciiString *file = NULL, AsciiString *until = NULL, AsciiString *reason = NULL );
 
 /* The server's notice (notice{kind,en,tr,until}, after the welcome and whenever it changes), shown as a
 	 banner across the top of every screen.  en and tr are UTF-8 and until is as the server wrote it, usually
@@ -186,6 +187,7 @@ struct OnlineReport
 	AsciiString map;							///< the map's path as the game holds it (a generated one's is under the user folder);
 																///< only maps\<folder>\<file> goes up, for the match history, and nothing when that is
 																///< over 255 bytes or not UTF-8
+	Int speed;										///< the game speed the match played, percent of retail
 
 	OnlineReport();
 };
@@ -223,9 +225,12 @@ Bool OnlineIsSendingResults( void );
 struct OnlinePlayerInfo
 {
 	Int ping;
-	Bool hasRating;
-	Int rating;								///< exactRating rounded, for the screens that still print %d
-	Real exactRating;					///< the site's rating, two decimals (an older server sends it whole)
+	Bool hasRating;						///< a rating or an Elo arrived
+	Int rating;								///< shown() rounded, for the screens that print %d
+	Real exactRating;					///< the site's old-scale rating, two decimals (an older server sends it whole)
+	Bool hasElo;							///< the server sent the ladder's Elo beside the rating; an older one does not
+	Real elo;									///< the ladder's Elo, whole
+	Real shown( void ) const { return hasElo ? elo : exactRating; }	///< the figure the screens show
 	AsciiString tier;					///< the site's tier key ("major"); OnlineTierName says it in words
 	Int games;
 	Int wins;
@@ -234,7 +239,7 @@ struct OnlinePlayerInfo
 	Bool notOnline;						///< the last stats asked for this nick came back noplayer
 	Bool hasStats;						///< a stats answer for this nick arrived (wins and losses are then known)
 	Bool hasAIRating;					///< aiRating and aiGames arrived (auth.ok, stats, ai.rated)
-	Real aiRating;						///< the rating against the AI, a scale of its own (0 for a new player)
+	Real aiRating;						///< the Bot ELO, the rating against the AI (aiElo, or an older server's aiRating mapped onto Elo)
 	Int aiGames;
 	Int aiWins;
 	UnsignedInt serial;				///< moves on whenever this player's numbers change: redraw on it, not on everyone's
@@ -245,16 +250,19 @@ Bool OnlineGetPlayerInfo( const AsciiString &nick, OnlinePlayerInfo &out );		///
 void OnlineRequestStats( const AsciiString &nick );		///< stats{nick}; the answer lands in OnlineGetPlayerInfo
 UnsignedInt OnlinePlayerInfoSerial( void );						///< moves on whenever a player's numbers change
 UnicodeString OnlineTierName( const AsciiString &tier );		///< GUI:OnlineTier_<key>, or the key itself
-UnicodeString OnlineRatingText( const OnlinePlayerInfo &info );	///< "Major, rating 21", "Rating 21", "Major", or empty
+UnicodeString OnlineRatingText( const OnlinePlayerInfo &info );	///< "Major, ELO 1213", "ELO 1213" (or an older server's "rating 21"), "Major", or empty
 
 /* The ladder, 20 rows a page: OnlineRequestLadder(offset) asks, OnlineGetLadder reads the last answer. */
 struct OnlineLadderRow
 {
 	Int rank;									///< 0 when the server sent none
 	AsciiString nick;
-	Bool hasRating;
-	Int rating;								///< exactRating rounded, for the screens that still print %d
-	Real exactRating;					///< two decimals
+	Bool hasRating;						///< a rating or an Elo arrived
+	Int rating;								///< shown() rounded, for the screens that print %d
+	Real exactRating;					///< the old scale, two decimals
+	Bool hasElo;							///< the row carried elo
+	Real elo;
+	Real shown( void ) const { return hasElo ? elo : exactRating; }	///< the figure the screens show
 	AsciiString tier;
 	Int wins;
 	Int losses;
@@ -293,9 +301,22 @@ struct OnlineMatchReveal
 	Int revealMs;
 	Bool hasChance;						///< qm.matched carried chance (an older server does not)
 	Real chance;							///< the local player's win chance, 0 to 1
+	/* The match speed, percent of retail: qm.matched's speed (100 from an older server), then qm.speed's.
+		 When the picks differ the slower player is asked (speedAsk, the faster pick) while the faster one waits
+		 (speedWait); speedFinal says qm.speed came, after which the reveal's countdown starts again. */
+	Int speed;
+	Int speedAsk;							///< the speed this player is asked to accept, 0 for none
+	Int speedWait;						///< the speed the opponent is asked to accept, 0 for none
+	Bool speedFinal;
 	UnsignedInt serial;
 };
 Bool OnlineGetMatchReveal( OnlineMatchReveal &out );
+/* The asked player's answer, qm.speedok{match, ok}.  The server declines by itself SPEED_ASK_MS after
+	 qm.matched, so a box left open past ONLINE_SPEED_ASK_MS closes as a decline. */
+enum { ONLINE_SPEED_ASK_MS = 15000 };
+void OnlineAnswerSpeedAsk( Bool ok );
+/// a speed off the wire: one of PLAYER_GAME_SPEED_PERCENTS, anything else (or none) retail's 100
+Int OnlineMatchSpeed( long long percent );
 
 /* The band of win chances the search accepts now, from the last qm.status's window: chanceLo and
 	 chanceHi in percentage points, 0 to 100 (45 to 55 at join, 30 to 70 at the widest), not ratings and
@@ -331,14 +352,15 @@ struct OnlineHistoryRow
 	Bool won;
 	AsciiString map;
 	AsciiString opponent;			///< empty against the computer
-	Real opponentRating;			///< against the computer, the rating it played at
+	Real opponentRating;			///< against the computer, the Elo it played at (the site's engine-scale figure mapped onto Elo)
 	AsciiString playerArmy;
 	AsciiString opponentArmy;
 	Int seconds;							///< the match's length
 	Real change;							///< the player's rating change
 	Int age;									///< seconds ago, when the server answered
+	Bool hasElo;							///< a Quick Match row with opponentElo: opponentRating and change are then Elo
 
-	OnlineHistoryRow() : ai( FALSE ), won( FALSE ), opponentRating( 0.0f ), seconds( 0 ), change( 0.0f ), age( 0 ) {}
+	OnlineHistoryRow() : ai( FALSE ), won( FALSE ), opponentRating( 0.0f ), seconds( 0 ), change( 0.0f ), age( 0 ), hasElo( FALSE ) {}
 };
 struct OnlineHistoryArmy
 {
@@ -378,18 +400,97 @@ void OnlineRequestSkins( void );
 void OnlineSaveSkins( UnsignedInt64 wear );
 OnlineSkinsState OnlineGetSkins( UnsignedInt64 &owned, AsciiString &error );
 
-/* The server's verdict on the match the last game.start or qm.matched named: rated (delta, rating, or
-	 before and after, which give the same two) or unrated (reason).  FALSE until it arrives. */
-Bool OnlineGetMatchResult( Bool &rated, Real &delta, Real &rating, AsciiString &reason );
+/* A seat of an online match that went silent is held for its player to come back instead of dropped after
+	 NetworkSilentPlayerDropTime: the match stays frozen on the disconnect screen, at most this long counted
+	 from the seat's last packet, and a unanimous vote still drops it at once (DisconnectManager).  The
+	 server's match.hold and match.resume about other seats are only logged: each peer holds a silent seat on
+	 its own clock.  OnlineTakeRelayTicket: TRUE once when a match.hold naming us carried a new relay ticket
+	 (the relay lost our session while our line stayed up), which Transport::pumpRelay sends in a HELLO_AUTH. */
+enum { ONLINE_RECONNECT_HOLD_MS = 4 * 60 * 1000 };
+Bool OnlineTakeRelayTicket( UnsignedByte out[16] );
 
-/* Play vs AI, a 1v1 skirmish the server rates on a scale of its own (the card's aiRating).
-	 OnlineRequestAIMatch sends ai.start{army, exe, ini}; OnlineGetAIMatch reads the answer and hands it out
+/* A match this account dropped out of that the others still play, kept bound to the account by the
+	 server until it settles.  OnlineGetRejoinable reads the sign-in's match.rejoinable{match, ranked, map,
+	 players[{id, nick, side, present}], elapsed, logPeer} for the hub's card; FALSE when none came, or once
+	 the match was rated, unrated or refused as settled.  map is a custom game's map path, empty for a Quick
+	 Match (made from the seed); side is the seat's Quick Match pick, -1 random or unknown; elapsedSeconds
+	 counts on from the line's arrival.  serial moves with every change.
+	 OnlineRequestRejoin sends match.rejoin{match} for it; OnlineGetRejoin reads the answer, WAITING while it
+	 is out, then READY with match.rejoin.ok as a RejoinInfo, or REFUSED with match.refused's code (crc,
+	 settled, nomatch, norelay; signedout with no line, none with no match offered), each handed out once,
+	 after which it reads IDLE.  READY also makes the match the session's own (reports, replays, holds). */
+struct OnlineRejoinSeat
+{
+	long long id;
+	AsciiString nick;
+	Int side;
+	Bool present;		///< still in the match: no report, no leave
+};
+struct OnlineRejoinable
+{
+	AsciiString match;
+	Bool ranked;
+	AsciiString map;
+	std::vector<OnlineRejoinSeat> players;
+	Int elapsedSeconds;
+	long long logPeer;		///< a present player's account id, the one to fetch the match so far from
+	UnsignedInt serial;
+};
+Bool OnlineGetRejoinable( OnlineRejoinable &out );
+
+/* match.rejoin.ok as the game takes it: the seats in game.start's order, this one at me with its new relay
+	 vip, the build the match started on, and its setup (seed, sides, colors, skins for a Quick Match; map and
+	 opts, the host's game options string, for a custom game).  vips are the server's numbers, as game.start's. */
+struct RejoinInfo
+{
+	AsciiString match;
+	Bool ranked;
+	std::vector<long long> ids;
+	std::vector<AsciiString> nicks;
+	std::vector<UnsignedInt> vips;
+	Int me;
+	UnsignedInt exe, ini;
+	long long logPeer;
+	Int elapsedSeconds;
+	Int seed;
+	std::vector<Int> sides, colors;		///< clamped as a Quick Match seat's
+	std::vector<AsciiString> skins;		///< each seat's "K1.3", empty for none
+	AsciiString map, opts;
+	Int speed;		///< the match's game speed as the server set it up, 0 from a server that sends none
+
+	RejoinInfo() : ranked( FALSE ), me( -1 ), exe( 0 ), ini( 0 ), logPeer( 0 ), elapsedSeconds( 0 ), seed( 0 ), speed( 0 ) {}
+};
+enum OnlineRejoinState
+{
+	ONLINE_REJOIN_IDLE,
+	ONLINE_REJOIN_WAITING,
+	ONLINE_REJOIN_READY,
+	ONLINE_REJOIN_REFUSED,
+};
+void OnlineRequestRejoin( void );
+OnlineRejoinState OnlineGetRejoin( RejoinInfo &out, AsciiString &refusal );
+
+/* The game side of a rejoin: load the match info describes, fetch its frames from logPeer and catch up
+	 while the others wait.  The hub calls it once with match.rejoin.ok's info.  A stub that only logs until
+	 the netcode lands (OnlinePeer.cpp). */
+void OnlineStartRejoin( const RejoinInfo &info );
+
+/* The server's verdict on the match the last game.start or qm.matched named: rated (delta, rating, or
+	 before and after, which give the same two) or unrated (reason).  FALSE until it arrives.  With elo
+	 given, a verdict that carries eloAfter (a server with Elo) gives eloDelta and eloAfter instead and sets
+	 it TRUE; one without leaves the old scale's and sets it FALSE. */
+Bool OnlineGetMatchResult( Bool &rated, Real &delta, Real &rating, AsciiString &reason, Bool *elo = NULL );
+
+/* Play vs AI, a 1v1 skirmish the server rates on Elo (the card's aiRating, its aiElo).  Every AI figure
+	 here is an Elo: the bot's is ai.ready's botElo, the verdict's eloBefore and eloAfter; from a server
+	 that sends only the old 0 to 30 aiRating, before and after, they are mapped onto Elo (aiRatingOfLegacy).
+	 OnlineRequestAIMatch sends ai.start{army, exe, ini, speed}; OnlineGetAIMatch reads the answer and hands it out
 	 once: READY with ai.ready's match, the AI seat's rating and the map and seed the server picked, then
 	 the match is live; or REFUSED with ai.refused's reason ("build": this exe or its data is not the
 	 release's), "unavailable" from a server without it and "signedout" when the login went.
 	 While live, OnlineSendAITick sends ai.tick{match, frame} every ONLINE_AI_TICK_SECONDS of wall time and
 	 OnlineSendAIResult sends ai.result{match, result, seconds since ai.ready, endFrame, blind, playerArmy,
-	 aiArmy, stats{...}} once, which ends it.  OnlineDropAIMatch ends it with nothing sent (it could not start).  A win's recording goes up
+	 aiArmy, speed, stats{...}} once, which ends it.  OnlineDropAIMatch ends it with nothing sent (it could not start).  A win's recording goes up
 	 as a Quick Match's does: OnlineClaimAIMatch as it starts, OnlineSendReplay as it closes, and a loss's
 	 is never sent.  A logout ends it too; the server settles a match it never heard the end of.
 	 OnlineGetAIVerdict reads the last ai.rated{before, after, games}, or ai.unrated{reason} or a result's
@@ -406,12 +507,13 @@ enum { ONLINE_AI_TICK_SECONDS = 30 };
 struct OnlineAIMatch
 {
 	AsciiString match;
-	Real aiRating;
+	Real aiRating;				///< the AI seat's Elo, the strength it plays at
 	AsciiString map;
 	Int seed;
+	Int speed;						///< the speed ai.ready echoed, 100 from an older server
 	AsciiString reason;		///< REFUSED only
 };
-void OnlineRequestAIMatch( const AsciiString &army );
+void OnlineRequestAIMatch( const AsciiString &army, Int speed = 100 );
 OnlineAIMatchState OnlineGetAIMatch( OnlineAIMatch &out );
 Bool OnlineIsAIMatchLive( void );
 void OnlineDropAIMatch( void );
@@ -446,5 +548,11 @@ Bool OnlineGetAIVerdict( OnlineAIVerdict &out );		///< FALSE before the first th
 	 kept after the match ends; empty before one this sign-in.  The score screen shows a verdict only when
 	 its match equals this. */
 AsciiString OnlineGetLastAIMatchId( void );
+
+/* The mode the custom lobby's Host button was answered with is TheHostGameMode (GUIUtil.h).  It goes out
+	 in game.host, the host popup leaves Limit Armies out under Direct Strike, and the staging room the host
+	 opens stands on that mode's map from the start.  A joiner reads the mode off the host's map instead
+	 (IsDirectStrikeMap, IsApocalypseMap), and every game.opts the host sends names the mode and seed that
+	 map carries ("classic", "directstrike" or "apocalypse"), for the server's records and room list only. */
 
 #endif // _ONLINE_QUEUES_H_

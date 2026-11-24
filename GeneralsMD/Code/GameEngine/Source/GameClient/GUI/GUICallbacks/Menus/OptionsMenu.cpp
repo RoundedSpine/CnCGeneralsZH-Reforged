@@ -43,6 +43,10 @@
 #include "Common/Monitors.h"
 #include "Common/EarlyOptions.h"
 #include "Common/OptionsCatalog.h"
+#include "Platform/RenderEffects.h"
+#include "Platform/RenderPost.h"
+#include "Platform/RenderTeamGlow.h"
+#include "Platform/RenderWaterFoam.h"
 #include "Common/Registry.h"
 #include "Common/version.h"
 
@@ -300,6 +304,18 @@ void OptionsHotkeysClose( void );
 static Bool modernWaterSettingsSupported( void )
 {
 	return WaterScreenReflection::Supported();
+}
+
+// Ray Traced, ShadowQuality's last entry, is traced by Direct3D 11 on Windows only.  Elsewhere the combo
+// ends at High, which is what a stored Ray Traced draws there, and Accept leaves that line alone.
+static Bool rayTracedShadowsHidden( const OptionDef& def )
+{
+#ifdef _WIN32
+	const Bool traced = TheGlobalData->m_direct3D11;
+#else
+	const Bool traced = FALSE;
+#endif
+	return !traced && strcmp( def.iniKey, "ShadowQuality" ) == 0;
 }
 
 // Nine tabs leave less space for translated captions. Fit the actual glyphs,
@@ -1252,13 +1268,14 @@ static void fillCatalogWidgets( void )
 			case OPTION_ENUM:
 			{
 				GadgetComboBoxReset( widget );
-				for( Int entry = def.lo; entry <= def.hi; ++entry )
+				const Int shownHi = rayTracedShadowsHidden( def ) ? (Int)SHADOW_QUALITY_HIGH : def.hi;
+				for( Int entry = def.lo; entry <= shownHi; ++entry )
 				{
 					AsciiString key;
 					key.format( "%s%d", def.labelKey, entry );
 					GadgetComboBoxAddEntry( widget, TheGameText->fetch( key ), entryColor );
 				}
-				GadgetComboBoxSetSelectedPos( widget, value - def.lo );
+				GadgetComboBoxSetSelectedPos( widget, min( value, shownHi ) - def.lo );
 				break;
 			}
 
@@ -1332,6 +1349,9 @@ static void readCatalogWidgets( OptionPreferences &out )
 				if( selected < 0 )
 					continue;
 				value = clampOptionValue( def, def.lo + selected );
+				// a stored Ray Traced shown as High where nothing traces stays the player's choice
+				if( rayTracedShadowsHidden( def ) && value == SHADOW_QUALITY_HIGH && def.get() > value )
+					continue;
 				break;
 			}
 
@@ -2372,6 +2392,15 @@ static GameWindow *classicGraphicsCheckBox( void )
 	return findOptionWidget( *findOptionDef( "ClassicGraphics" ) );
 }
 
+/** The sun shafts read the sun's map, which Classic Graphics and Direct3D 9 never draw, so their box is
+	* greyed while the Classic box is ticked as well as under -d3d9, and follows the box when it is clicked. */
+static void showSunShaftsAvailable( void )
+{
+	GameWindow *control = findOptionWidget( *findOptionDef( "SunShafts" ) );
+	if( control != NULL )
+		control->winEnable( TheGlobalData->m_direct3D11 && !GadgetCheckBoxIsChecked( classicGraphicsCheckBox() ) );
+}
+
 /** The row's control when the quality slider sets it, otherwise NULL.  It leaves a control the player
 	* cannot change - greyed in a match or under Direct3D 9, hidden where the device lacks it - and,
 	* while Classic Graphics is ticked, every row the fork added: under it a preset is EA's detail
@@ -2568,6 +2597,7 @@ static void showClassicGraphicsChoice( void )
 
 	if( !GadgetCheckBoxIsChecked( classicGraphicsCheckBox() ) )
 	{
+		showSunShaftsAvailable();
 		showDetailPreset( HIGHDETAIL );
 		return;
 	}
@@ -2580,6 +2610,7 @@ static void showClassicGraphicsChoice( void )
 			setGraphicsQualityControl( control, TheGraphicsQualityTable[ row ].values[ 0 ] );
 	}
 	ignoreSelected = FALSE;
+	showSunShaftsAvailable();
 	updateSliderReadouts();
 }
 
@@ -2616,6 +2647,7 @@ static void showClassicDefaults( void )
 	}
 	GadgetCheckBoxSetChecked( checkCloudShadows, optionDefaultValue( *findOptionDef( "UseCloudMap" ) ) != 0 );
 	ignoreSelected = FALSE;
+	showSunShaftsAvailable();
 
 	defaultsPressed = TRUE;
 	updateSliderReadouts();
@@ -3150,10 +3182,29 @@ void OptionsMenuInit( WindowLayout *layout, void *userData )
 	// three looks only the Direct3D 11 picture draws; under -d3d9 their boxes keep the saved value, greyed
 	if( !TheGlobalData->m_direct3D11 )
 	{
-		static const char *const direct3D11Only[] = { "MapLight", "TeamGlow", "WaterFoam", "GroundMarks", "Firelight", "HemiAmbient", "AmbientOcclusion", "InternalHdr", "Weather", "WaterSplashes", "Atmosphere", "StructureCollapse", "HeatHaze", "GroundFoliage" };
+		static const char *const direct3D11Only[] = { "MapLight", "TeamGlow", "WaterFoam", "GroundMarks", "Firelight", "HemiAmbient", "AmbientOcclusion", "InternalHdr", "Weather", "WaterSplashes", "Atmosphere", "StructureCollapse", "HeatHaze", "GroundFoliage", "SunShafts" };
 		for( Int i = 0; i < (Int)( sizeof( direct3D11Only ) / sizeof( direct3D11Only[ 0 ] ) ); ++i )
 			findOptionWidget( *findOptionDef( direct3D11Only[ i ] ) )->winEnable( FALSE );
 	}
+	showSunShaftsAvailable();
+
+#if !defined(_WIN32)
+	// This existing next-map option has an actual native HDR provider as well.
+	// Enabling its widget never changes the saved value or retags already loaded meshes.
+	findOptionWidget(*findOptionDef("TeamGlow"))->winEnable(RenderTeamGlow::Available());
+	findOptionWidget(*findOptionDef("WaterFoam"))->winEnable(RenderWaterFoam::Available());
+	static const char *const worldEffects[] = { "GroundMarks", "WaterSplashes", "StructureCollapse" };
+	for( Int i = 0; i < (Int)( sizeof( worldEffects ) / sizeof( worldEffects[ 0 ] ) ); ++i )
+		findOptionWidget( *findOptionDef( worldEffects[ i ] ) )->winEnable( RenderEffects::WorldEffectsAvailable() );
+	findOptionWidget(*findOptionDef("Firelight"))->winEnable(TheDisplay && TheDisplay->supportsPerPixelLighting());
+	findOptionWidget(*findOptionDef("HemiAmbient"))->winEnable(TheDisplay && TheDisplay->supportsHemisphericAmbient());
+#endif
+#if defined(__linux__)
+	// The game side of the haze, the atmosphere and the weather is built for Linux only so far.
+	findOptionWidget(*findOptionDef("Atmosphere"))->winEnable(RenderPost::EnvironmentAvailable());
+	findOptionWidget(*findOptionDef("Weather"))->winEnable(RenderPost::EnvironmentAvailable());
+	findOptionWidget(*findOptionDef("MapLight"))->winEnable(RenderPost::EnvironmentAvailable());
+#endif
 
 	// A preset is its own step on the quality slider, whatever step Options.ini kept from a Custom mix,
 	// as long as the boxes show that step.  An Options.ini from before the slider can hold a preset

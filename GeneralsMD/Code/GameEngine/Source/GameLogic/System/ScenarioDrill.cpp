@@ -41,6 +41,8 @@
 #include "GameLogic/AIPathfind.h"
 #include "GameLogic/ExperienceTracker.h"
 #include "GameLogic/GameLogic.h"
+#include "GameLogic/LaneWarDirector.h"
+#include "Common/Upgrade.h"
 #include "GameLogic/Module/AIUpdate.h"
 #include "GameLogic/Module/BehaviorModule.h"
 #include "GameLogic/Module/CreateModule.h"
@@ -274,6 +276,30 @@ static Bool parseActionType( const AsciiString &token, ScenarioActionType *actio
 		*action = SCENARIO_ACTION_AIRLIFT;
 	else if (token == "health")
 		*action = SCENARIO_ACTION_HEALTH;
+	else if (token == "lanemarch")
+		*action = SCENARIO_ACTION_LANEMARCH;
+	else if (token == "laneplace")
+		*action = SCENARIO_ACTION_LANEPLACE;
+	else if (token == "lanetier")
+		*action = SCENARIO_ACTION_LANETIER;
+	else if (token == "lanesell")
+		*action = SCENARIO_ACTION_LANESELL;
+	else if (token == "lanemove")
+		*action = SCENARIO_ACTION_LANEMOVE;
+	else if (token == "laneupgrade")
+		*action = SCENARIO_ACTION_LANEUPGRADE;
+	else if (token == "laneability")
+		*action = SCENARIO_ACTION_LANEABILITY;
+	else if (token == "lanevet")
+		*action = SCENARIO_ACTION_LANEVET;
+	else if (token == "lanegarrison")
+		*action = SCENARIO_ACTION_LANEGARRISON;
+	else if (token == "laneunitupgrade")
+		*action = SCENARIO_ACTION_LANEUNITUPGRADE;
+	else if (token == "lanecash")
+		*action = SCENARIO_ACTION_LANECASH;
+	else if (token == "groupqueue")
+		*action = SCENARIO_ACTION_GROUPQUEUE;
 	else
 		return FALSE;
 
@@ -388,6 +414,18 @@ static Int tokensNeededFor( ScenarioActionType action )
 		case SCENARIO_ACTION_HANDOVER:		return SCENARIO_TOKENS_ATTACK;
 		case SCENARIO_ACTION_AIRLIFT:			return SCENARIO_TOKENS_ATTACK;
 		case SCENARIO_ACTION_HEALTH:			return SCENARIO_TOKENS_STANCE;
+		case SCENARIO_ACTION_LANEMARCH:		return SCENARIO_TOKENS_MOVE;
+		case SCENARIO_ACTION_LANEPLACE:		return SCENARIO_TOKENS_ATTACK;
+		case SCENARIO_ACTION_LANETIER:		return SCENARIO_TOKENS_MOVE;
+		case SCENARIO_ACTION_LANESELL:		return SCENARIO_TOKENS_ATTACK;
+		case SCENARIO_ACTION_LANEMOVE:		return SCENARIO_TOKENS_ATTACK + 2;
+		case SCENARIO_ACTION_LANEUPGRADE:	return SCENARIO_TOKENS_STOP;
+		case SCENARIO_ACTION_LANEABILITY:	return SCENARIO_TOKENS_ATTACK;
+		case SCENARIO_ACTION_LANEVET:			return SCENARIO_TOKENS_ATTACK;
+		case SCENARIO_ACTION_LANEGARRISON:	return SCENARIO_TOKENS_ATTACK + 1;
+		case SCENARIO_ACTION_LANEUNITUPGRADE:	return SCENARIO_TOKENS_ATTACK + 1;
+		case SCENARIO_ACTION_LANECASH:		return SCENARIO_TOKENS_STOP;
+		case SCENARIO_ACTION_GROUPQUEUE:	return SCENARIO_TOKENS_MOVE;
 	}
 	return SCENARIO_TOKENS_STOP;
 }
@@ -411,8 +449,11 @@ ScenarioParseResult ScenarioDrill_parseLine( const char *line, ScenarioAction *a
 	if (!parseActionType( tokens[ 1 ], &actionType ))
 		return SCENARIO_PARSE_BAD_ACTION;
 
+	// "civilian" acts for PlyrCivilian, the Apocalypse map's dead among them
 	Int slot = 0;
-	if (!parseWholeNumber( tokens[ 2 ], &slot ))
+	if (tokens[ 2 ] == SCENARIO_CIVILIAN_TOKEN)
+		slot = SCENARIO_CIVILIAN_SLOT;
+	else if (!parseWholeNumber( tokens[ 2 ], &slot ))
 		return SCENARIO_PARSE_BAD_SLOT;
 
 	if (count < tokensNeededFor( actionType ))
@@ -435,6 +476,7 @@ ScenarioParseResult ScenarioDrill_parseLine( const char *line, ScenarioAction *a
 	switch (actionType)
 	{
 		case SCENARIO_ACTION_TOPUP:
+		case SCENARIO_ACTION_GROUPQUEUE:
 			if (!parseWholeNumber( tokens[ 4 ], &action->count ) || action->count < 1)
 				return SCENARIO_PARSE_BAD_COUNT;
 			break;
@@ -505,6 +547,13 @@ ScenarioParseResult ScenarioDrill_parseLine( const char *line, ScenarioAction *a
 			action->targetSelector = tokens[ 5 ];
 			if (actionType == SCENARIO_ACTION_SHIFTPOWER)
 				action->name = tokens[ SCENARIO_SHIFTPOWER_NAME_TOKEN ];
+			if (actionType == SCENARIO_ACTION_FORCEATTACK && count > 6)
+			{
+				// a FIRE_WEAPON button clicked on that unit instead (Jarmen Kell's snipe is his secondary)
+				action->name = tokens[ 6 ];
+				if (action->name != "primary" && action->name != "secondary" && action->name != "tertiary")
+					return SCENARIO_PARSE_BAD_ACTION;
+			}
 			break;
 		}
 
@@ -582,6 +631,81 @@ ScenarioParseResult ScenarioDrill_parseLine( const char *line, ScenarioAction *a
 			if (count > 5 && (!parseWholeNumber( tokens[ 5 ], &action->targetSlot ) || action->targetSlot > LEVEL_HEROIC))
 				return SCENARIO_PARSE_BAD_COUNT;
 			break;
+
+		case SCENARIO_ACTION_LANEMARCH:
+		{
+			// how far along x each unit goes from where it stands, negative for west
+			const char *text = tokens[ 4 ].str();
+			char *end = NULL;
+			action->at.x = (Real)strtod( text, &end );
+			if (end == text || *end != 0)
+				return SCENARIO_PARSE_BAD_POSITION;
+			break;
+		}
+
+		case SCENARIO_ACTION_LANETIER:
+		case SCENARIO_ACTION_LANESELL:
+		case SCENARIO_ACTION_LANEMOVE:
+		case SCENARIO_ACTION_LANEVET:
+		{
+			// the order's integers, kept as written and read again when it runs; a sale and a rank take
+			// a passenger's index after the slot
+			const Bool passenger = actionType == SCENARIO_ACTION_LANESELL || actionType == SCENARIO_ACTION_LANEVET;
+			const Int last = passenger && count > tokensNeededFor( actionType ) ? tokensNeededFor( actionType ) + 1 : tokensNeededFor( actionType );
+			for (Int t = 3; t < last; ++t)
+			{
+				Int value;
+				if (!parseWholeNumber( tokens[ t ], &value ))
+					return SCENARIO_PARSE_BAD_POSITION;
+				if (t > 3)
+					action->name.concat( ' ' );
+				action->name.concat( tokens[ t ] );
+			}
+			break;
+		}
+
+		case SCENARIO_ACTION_LANEGARRISON:
+		case SCENARIO_ACTION_LANEUNITUPGRADE:
+		{
+			// the name in selector, then the plot unit's grid, column and row
+			for (Int t = 4; t < SCENARIO_TOKENS_ATTACK + 1; ++t)
+			{
+				Int value;
+				if (!parseWholeNumber( tokens[ t ], &value ))
+					return SCENARIO_PARSE_BAD_POSITION;
+				if (t > 4)
+					action->name.concat( ' ' );
+				action->name.concat( tokens[ t ] );
+			}
+			break;
+		}
+
+		case SCENARIO_ACTION_LANECASH:
+			if (!parseWholeNumber( tokens[ 3 ], &action->count ) || action->count < 1)
+				return SCENARIO_PARSE_BAD_COUNT;
+			break;
+
+		case SCENARIO_ACTION_LANEPLACE:
+		{
+			// the slot on the seat's own plot grid, whole numbers from its low corner
+			Int slotX, slotY;
+			if (!parseWholeNumber( tokens[ 4 ], &slotX ) || !parseWholeNumber( tokens[ 5 ], &slotY ))
+				return SCENARIO_PARSE_BAD_POSITION;
+			action->at.x = (Real)slotX;
+			action->at.y = (Real)slotY;
+			break;
+		}
+
+		case SCENARIO_ACTION_LANEABILITY:
+		{
+			// the button's command set slot and the switch, 0 off or 1 on
+			Int slot, on;
+			if (!parseWholeNumber( tokens[ 4 ], &slot ) || !parseWholeNumber( tokens[ 5 ], &on ) || on > 1)
+				return SCENARIO_PARSE_BAD_POSITION;
+			action->at.x = (Real)slot;
+			action->at.y = (Real)on;
+			break;
+		}
 
 		case SCENARIO_ACTION_GIVEMONEY:
 			if (!parseWholeNumber( tokens[ 3 ], &action->targetSlot ))
@@ -697,10 +821,31 @@ struct ScenarioResponse
 static const Real SCENARIO_RESPOND_AIM = 0.26f;	// 15 degrees
 static std::vector<ScenarioResponse> theScenarioResponses;
 
+/// per seat, what its spawn lines made since its last lanemarch took them: the wave that lanemarch
+/// sends, so a survivor of an older wave of the same template is not ordered again
+static std::map<Int, std::vector<ObjectID> > theScenarioFreshSpawns;
+
+/** One lanemarch line: the units it sent and the y each was told to hold, read every
+	  SCENARIO_LANEMARCH_REPORT_FRAMES for the HEADLESS LANEMARCH line.  Read-only. */
+struct ScenarioLaneMarch
+{
+	Int slot;
+	AsciiString selector;
+	UnsignedInt fromFrame;
+	Int reports;
+	std::vector<ObjectID> ids;
+	std::vector<Real> laneY;
+};
+#define SCENARIO_LANEMARCH_REPORT_FRAMES ((UnsignedInt)(5 * LOGICFRAMES_PER_GAME_SECOND))
+static const Int SCENARIO_LANEMARCH_MAX_REPORTS = 30;
+static std::vector<ScenarioLaneMarch> theScenarioLaneMarches;
+
 static void resetScenario( void )
 {
 	theScenarioArrivals.clear();
 	theScenarioResponses.clear();
+	theScenarioFreshSpawns.clear();
+	theScenarioLaneMarches.clear();
 	theScenarioActions.clear();
 	theScenarioTopups.clear();
 	theScenarioCursor = 0;
@@ -824,9 +969,14 @@ static Bool selectorMatches( const AsciiString &selector, const Object *obj )
 	return tmpl->getName() == selector;
 }
 
-/** Whether this player owns the object, it matches the selector and it can be given an order at all. */
+/** Whether this player owns the object, it matches the selector and it can be given an order at all.
+	  An order to "*" is an order to the seat's army: the dozer or worker every side starts with would
+	  otherwise walk along into the fight, so a builder only takes an order that names it.  A tally of
+	  "*" still counts it. */
 static Bool isOrderableMatch( const Player *player, const AsciiString &selector, Object *obj )
 {
+	if (selector == SCENARIO_SELECTOR_ALL && obj->isKindOf( KINDOF_DOZER ))
+		return FALSE;
 	return obj->getControllingPlayer() == player && !obj->isEffectivelyDead()
 			&& obj->getAIUpdateInterface() != NULL && selectorMatches( selector, obj );
 }
@@ -1064,8 +1214,12 @@ static Bool executeSpawn( const ScenarioAction &action, Player *player, const Co
 			}
 		}
 
-		if (spawnOne( action, tmpl, team, &pos ))
+		Object *obj = spawnOne( action, tmpl, team, &pos );
+		if (obj != NULL)
+		{
+			theScenarioFreshSpawns[ action.slot ].push_back( obj->getID() );
 			++made;
+		}
 	}
 
 	theScenarioUnitsSpawned += made;
@@ -1586,10 +1740,18 @@ static Bool executeTally( const ScenarioAction &action, Player *player )
 	// and how fast the slowest and the fastest of them are moving: an Angry Mob's men keep one pace
 	Real slowest = 1.0e9f;
 	Real fastest = 0.0f;
+	// and their ranks and the experience behind them: the engine logs no promotion, so a rule that
+	// stops veterancy (Direct Strike's) is read here
+	Int ranks[ LEVEL_COUNT ] = { 0 };
+	Int experience = 0;
 	for( Object *obj = TheGameLogic->getFirstObject(); obj; obj = obj->getNextObject() )
 	{
 		if (obj->getControllingPlayer() != player || obj->isEffectivelyDead() || !selectorMatches( action.selector, obj ))
 			continue;
+
+		++ranks[ obj->getVeterancyLevel() ];
+		if (obj->getExperienceTracker())
+			experience += obj->getExperienceTracker()->getCurrentExperience();
 
 		if (alive < SPREAD_MAX)
 			spot[ alive ] = *obj->getPosition();
@@ -1608,6 +1770,9 @@ static Bool executeTally( const ScenarioAction &action, Player *player )
 	DEBUG_LOG(("HEADLESS TALLY: frame %d slot %d '%s': %d alive, health %.0f of %.0f, worth %d, %d inside, money %d\n",
 						 action.frame, action.slot, action.selector.str(), alive, health, maxHealth, worth, inside,
 						 player->getMoney()->countMoney()));
+	DEBUG_LOG(("HEADLESS RANKS: frame %d slot %d '%s': regular %d veteran %d elite %d heroic %d, experience %d\n",
+						 action.frame, action.slot, action.selector.str(), ranks[ LEVEL_REGULAR ], ranks[ LEVEL_VETERAN ],
+						 ranks[ LEVEL_ELITE ], ranks[ LEVEL_HEROIC ], experience));
 	if (alive >= 2 && alive <= SPREAD_MAX)
 	{
 		// each unit's distance to its nearest neighbour on the ground: the closest pair and the mean
@@ -1803,6 +1968,34 @@ static Bool executeForceAttack( const ScenarioAction &action, Player *player, AI
 {
 	Player *targetPlayer = findPlayerForSlot( action.targetSlot );
 	Object *target = (targetPlayer != NULL) ? findFirstMatching( targetPlayer, action.targetSelector ) : NULL;
+
+	/* With a weapon slot, a FIRE_WEAPON button with NEED_TARGET_ENEMY_OBJECT clicked on the target, as
+		 GUICommandTranslator sends it: MSG_DO_WEAPON_AT_OBJECT, which locks that slot until the attack is
+		 done.  Jarmen Kell's vehicle snipe is one; the attack key alone fires his rifle. */
+	if (action.name.isNotEmpty())
+	{
+		if (target == NULL)
+		{
+			DEBUG_LOG(("SCENARIO: frame %d forceattack %s: slot %d has no '%s'\n",
+								 action.frame, action.name.str(), action.targetSlot, action.targetSelector.str()));
+			TheAI->destroyGroup( group );
+			return FALSE;
+		}
+		const WeaponSlotType weaponSlot = (action.name == "primary") ? PRIMARY_WEAPON
+																		: (action.name == "secondary") ? SECONDARY_WEAPON : TERTIARY_WEAPON;
+		GameMessage *msg = newInstance( GameMessage )( GameMessage::MSG_DO_WEAPON_AT_OBJECT );
+		msg->friend_setPlayerIndex( player->getPlayerIndex() );
+		msg->appendIntegerArgument( weaponSlot );
+		msg->appendObjectIDArgument( target->getID() );
+		msg->appendIntegerArgument( 0x7fffffff );		// CommandButton's MaxShotsToFire when the INI says none
+		TheGameLogic->logicMessageDispatcher( msg, group );
+		msg->deleteInstance();
+		DEBUG_LOG(("SCENARIO: frame %d forceattack slot %d '%s' x%d %s -> slot %d '%s' %d\n",
+							 action.frame, action.slot, action.selector.str(), taken, action.name.str(), action.targetSlot,
+							 action.targetSelector.str(), target->getID()));
+		return TRUE;
+	}
+
 	Bool canShoot = FALSE;
 	const VecObjectID ids = group->getAllIDs();
 	for( VecObjectID::const_iterator it = ids.begin(); target != NULL && it != ids.end(); ++it )
@@ -1944,7 +2137,7 @@ static Bool executePurchase( const ScenarioAction &action, Player *player )
 
 	GameMessage *msg = newInstance( GameMessage )( GameMessage::MSG_PURCHASE_SCIENCE );
 	msg->friend_setPlayerIndex( player->getPlayerIndex() );
-	msg->appendIntegerArgument( science );
+	msg->appendIntegerArgument( TheScienceStore->getScienceMessageID( science ) );
 	TheGameLogic->logicMessageDispatcher( msg, NULL );
 	msg->deleteInstance();
 
@@ -1953,10 +2146,157 @@ static Bool executePurchase( const ScenarioAction &action, Player *player )
 	return player->hasScience( science );
 }
 
+void ScenarioDrill_watchLaneMarch( Int slot, const AsciiString &label, AIGroup *group, Real dx )
+{
+	ScenarioLaneMarch march;
+	march.slot = slot;
+	march.selector = label;
+	march.fromFrame = TheGameLogic->getFrame();
+	march.reports = 0;
+
+	Real fastest = 0.0f;
+	const VecObjectID &ids = group->getAllIDs();
+	for (size_t i = 0; i < ids.size(); ++i)
+	{
+		const Object *obj = TheGameLogic->findObjectByID( ids[ i ] );
+		const AIUpdateInterface *ai = obj != NULL ? obj->getAI() : NULL;
+		if (ai == NULL)
+			continue;
+		march.ids.push_back( ids[ i ] );
+		march.laneY.push_back( obj->getPosition()->y );
+		if (ai->getCurLocomotorSpeed() > fastest)
+			fastest = ai->getCurLocomotorSpeed();
+	}
+	theScenarioLaneMarches.push_back( march );
+
+	// out of the log line: getSpeed recomputes a dirty group, which is CRC'd state, and a build
+	// without logging must do the same as one with it
+	const Real speed = group->getSpeed();
+	DEBUG_LOG(("LANEMARCH: frame %u slot %d '%s' x%d by %.0f along x, speed %.2f a frame (fastest member %.2f)\n",
+						 march.fromFrame, slot, label.str(), (Int)march.ids.size(), dx, speed, fastest));
+}
+
+/** lanemarch: the seat's newest wave walks the lane, each unit straight along its own y to dx further
+	  on, fighting what it meets, and none faster than the slowest (AIGroup::groupLaneMarch). */
+static Bool executeLaneMarch( const ScenarioAction &action, Player *player )
+{
+	std::vector<ObjectID> &fresh = theScenarioFreshSpawns[ action.slot ];
+	std::vector<ObjectID> untaken;
+	AIGroup *group = TheAI->createGroup();
+	for (size_t i = 0; i < fresh.size(); ++i)
+	{
+		Object *obj = TheGameLogic->findObjectByID( fresh[ i ] );
+		if (obj == NULL || obj->isEffectivelyDead())
+			continue;
+		if (isOrderableMatch( player, action.selector, obj ))
+			group->add( obj );
+		else
+			untaken.push_back( fresh[ i ] );
+	}
+	fresh.swap( untaken );
+
+	if (group->isEmpty())
+	{
+		TheAI->destroyGroup( group );
+		DEBUG_LOG(("SCENARIO: frame %d lanemarch: slot %d spawned nothing matching '%s' since its last lanemarch\n",
+							 action.frame, action.slot, action.selector.str()));
+		return FALSE;
+	}
+
+	group->groupLaneMarch( action.at.x, SCENARIO_ATTACK_SHOTS, CMD_FROM_SCRIPT );
+	ScenarioDrill_watchLaneMarch( action.slot, action.selector, group, action.at.x );
+	return TRUE;
+}
+
+/** Every SCENARIO_LANEMARCH_REPORT_FRAMES, where each lanemarch wave is: how many stand, the x of its
+	  rearmost and its foremost, and how far the worst of them has strayed off the y it was sent along.
+	  A depth that holds says nobody outran the slowest; a small drift says each kept its own line. */
+static void updateLaneMarches( UnsignedInt now )
+{
+	for (size_t m = 0; m < theScenarioLaneMarches.size(); ++m)
+	{
+		ScenarioLaneMarch &march = theScenarioLaneMarches[ m ];
+		if (march.reports >= SCENARIO_LANEMARCH_MAX_REPORTS || now <= march.fromFrame
+				|| (now - march.fromFrame) % SCENARIO_LANEMARCH_REPORT_FRAMES != 0)
+			continue;
+
+		Int alive = 0;
+		Real minX = 0.0f, maxX = 0.0f, drift = 0.0f;
+		for (size_t i = 0; i < march.ids.size(); ++i)
+		{
+			const Object *obj = TheGameLogic->findObjectByID( march.ids[ i ] );
+			if (obj == NULL || obj->isEffectivelyDead())
+				continue;
+			const Coord3D *pos = obj->getPosition();
+			if (alive == 0 || pos->x < minX)
+				minX = pos->x;
+			if (alive == 0 || pos->x > maxX)
+				maxX = pos->x;
+			const Real off = (Real)fabs( pos->y - march.laneY[ i ] );
+			if (off > drift)
+				drift = off;
+			++alive;
+		}
+		if (alive == 0)
+		{
+			march.reports = SCENARIO_LANEMARCH_MAX_REPORTS;
+			continue;
+		}
+
+		++march.reports;
+		DEBUG_LOG(("HEADLESS LANEMARCH: frame %u (+%u) slot %d '%s' from %u: %d of %d alive, x %.0f..%.0f depth %.0f, worst y drift %.0f\n",
+							 now, now - march.fromFrame, march.slot, march.selector.str(), march.fromFrame,
+							 alive, (Int)march.ids.size(), minX, maxX, maxX - minX, drift));
+	}
+}
+
+/** health's work on one object: the rank first, since a rank's health bonus moves the maximum the
+	  share is taken of, then the share. */
+static void setScenarioHealth( const ScenarioAction &action, Object *obj )
+{
+	BodyModuleInterface *body = obj->getBodyModule();
+	if (body == NULL)
+		return;
+	if (action.targetSlot >= 0 && obj->getExperienceTracker())
+		obj->getExperienceTracker()->setVeterancyLevel( (VeterancyLevel)action.targetSlot, FALSE );
+	body->internalChangeHealth( body->getMaxHealth() * action.count / 100.0f - body->getHealth() );
+	DEBUG_LOG(("SCENARIO: frame %d health slot %d '%s' %d rank %d: %.0f of %.0f\n", action.frame, action.slot,
+						 obj->getTemplate()->getName().str(), obj->getID(), (Int)obj->getVeterancyLevel(), body->getHealth(), body->getMaxHealth()));
+}
+
+/** health on what takes no order (a Command Center, a wall: no AI, so no group can hold it), set here
+	  before the group is gathered.  TRUE when nothing that does take orders matches, so no group is
+	  made: a match with orderable units makes the same group it always did. */
+static Bool setHealthOfStructures( const ScenarioAction &action, Player *player, Int *set )
+{
+	Bool orderable = FALSE;
+	*set = 0;
+	for( Object *obj = TheGameLogic->getFirstObject(); obj; obj = obj->getNextObject() )
+	{
+		if (obj->getControllingPlayer() != player || obj->isEffectivelyDead() || !selectorMatches( action.selector, obj ))
+			continue;
+		if (obj->getAIUpdateInterface() != NULL)
+		{
+			orderable = TRUE;
+			continue;
+		}
+		setScenarioHealth( action, obj );
+		++*set;
+	}
+	return !orderable;
+}
+
 static Bool executeOrder( const ScenarioAction &action, Player *player, const Coord3D &dest )
 {
 	if (action.action == SCENARIO_ACTION_SHIFTUPGRADE)
 		return executeShiftUpgrade( action, player );
+	Int structures = 0;
+	if (action.action == SCENARIO_ACTION_HEALTH && setHealthOfStructures( action, player, &structures ))
+	{
+		if (structures == 0)
+			DEBUG_LOG(("SCENARIO: frame %d: slot %d owns nothing matching '%s'\n", action.frame, action.slot, action.selector.str()));
+		return structures > 0;
+	}
 
 	AIGroup *group = TheAI->createGroup();
 	const Int taken = gatherIntoGroup( player, action.selector, group );
@@ -2125,19 +2465,12 @@ static Bool executeOrder( const ScenarioAction &action, Player *player, const Co
 
 		case SCENARIO_ACTION_HEALTH:
 		{
-			// the rank first: a rank's health bonus moves the maximum the share is taken of
 			const VecObjectID &ids = group->getAllIDs();
 			for (VecObjectID::const_iterator it = ids.begin(); it != ids.end(); ++it)
 			{
 				Object *obj = TheGameLogic->findObjectByID( *it );
-				BodyModuleInterface *body = obj ? obj->getBodyModule() : NULL;
-				if (body == NULL)
-					continue;
-				if (action.targetSlot >= 0 && obj->getExperienceTracker())
-					obj->getExperienceTracker()->setVeterancyLevel( (VeterancyLevel)action.targetSlot, FALSE );
-				body->internalChangeHealth( body->getMaxHealth() * action.count / 100.0f - body->getHealth() );
-				DEBUG_LOG(("SCENARIO: frame %d health slot %d '%s' %d rank %d: %.0f of %.0f\n", action.frame, action.slot,
-									 obj->getTemplate()->getName().str(), obj->getID(), (Int)obj->getVeterancyLevel(), body->getHealth(), body->getMaxHealth()));
+				if (obj)
+					setScenarioHealth( action, obj );
 			}
 			break;
 		}
@@ -2148,6 +2481,7 @@ static Bool executeOrder( const ScenarioAction &action, Player *player, const Co
 		case SCENARIO_ACTION_POWER:
 		case SCENARIO_ACTION_PRODUCE:
 		case SCENARIO_ACTION_REPEAT:
+		case SCENARIO_ACTION_GROUPQUEUE:
 		case SCENARIO_ACTION_GIVEMONEY:
 		case SCENARIO_ACTION_TALLY:
 		case SCENARIO_ACTION_RESPOND:
@@ -2155,6 +2489,17 @@ static Bool executeOrder( const ScenarioAction &action, Player *player, const Co
 		case SCENARIO_ACTION_TOPUP:
 		case SCENARIO_ACTION_HANDOVER:
 		case SCENARIO_ACTION_AIRLIFT:
+		case SCENARIO_ACTION_LANEMARCH:
+		case SCENARIO_ACTION_LANEPLACE:
+		case SCENARIO_ACTION_LANETIER:
+		case SCENARIO_ACTION_LANESELL:
+		case SCENARIO_ACTION_LANEMOVE:
+		case SCENARIO_ACTION_LANEUPGRADE:
+		case SCENARIO_ACTION_LANEABILITY:
+		case SCENARIO_ACTION_LANEVET:
+		case SCENARIO_ACTION_LANEGARRISON:
+		case SCENARIO_ACTION_LANEUNITUPGRADE:
+		case SCENARIO_ACTION_LANECASH:
 			ordered = FALSE;		// handled before the group is built
 			break;
 	}
@@ -2252,6 +2597,31 @@ static Bool executeRepeat( const ScenarioAction &action, Player *player )
 
 	DEBUG_LOG(("SCENARIO: frame %d repeat slot %d '%s' %d '%s' %s\n", action.frame, action.slot,
 						 action.selector.str(), building->getID(), action.targetSelector.str(), action.name.str()));
+	return TRUE;
+}
+
+/** A command bar unit tab's click, count times: MSG_QUEUE_UNIT_FOR_GROUP with squad -1 onto the message
+	  stream, as ControlBarCommand sends it, so the dispatcher picks the factory with the shortest queue,
+	  the replay records it and a network match sends it on.  Only the local player can click. */
+static Bool executeGroupQueue( const ScenarioAction &action, Player *player )
+{
+	const ThingTemplate *made = TheThingFactory->findTemplate( action.selector );
+	if (player != ThePlayerList->getLocalPlayer() || made == NULL)
+	{
+		DEBUG_LOG(("SCENARIO: frame %d groupqueue: slot %d is not the local player, or '%s' is no template\n",
+							 action.frame, action.slot, action.selector.str()));
+		return FALSE;
+	}
+
+	for (Int i = 0; i < action.count; ++i)
+	{
+		GameMessage *msg = TheMessageStream->appendMessage( GameMessage::MSG_QUEUE_UNIT_FOR_GROUP );
+		msg->appendIntegerArgument( made->getTemplateID() );
+		msg->appendIntegerArgument( -1 );
+	}
+
+	DEBUG_LOG(("SCENARIO: frame %d groupqueue slot %d '%s' x%d squad -1\n", action.frame, action.slot,
+						 action.selector.str(), action.count));
 	return TRUE;
 }
 
@@ -2407,6 +2777,88 @@ Bool ScenarioDrill_execute( const ScenarioAction &action )
 		return TRUE;
 	}
 
+	if (action.action == SCENARIO_ACTION_LANEMARCH)
+		return executeLaneMarch( action, player );
+
+	if (action.action == SCENARIO_ACTION_LANEPLACE)
+		return TheLaneWarDirector->placeUnit( player, TheThingFactory->findTemplate( action.selector, FALSE ),
+																					(Int)action.at.x, (Int)action.at.y );
+
+	if (action.action == SCENARIO_ACTION_LANEABILITY)
+	{
+		const ThingTemplate *tmpl = TheThingFactory->findTemplate( action.selector, FALSE );
+		const Int args[ 3 ] = { tmpl ? (Int)tmpl->getTemplateID() : -1, (Int)action.at.x, (Int)action.at.y };
+		TheLaneWarDirector->onOrder( player, LANEWAR_ORDER_ABILITY, args, 3 );
+		return TRUE;
+	}
+
+	if (action.action == SCENARIO_ACTION_LANECASH)
+	{
+		player->getMoney()->deposit( (UnsignedInt)action.count, FALSE );
+		DEBUG_LOG(("SCENARIO: frame %d lanecash slot %d %d, %u now\n", action.frame, action.slot, action.count, player->getMoney()->countMoney()));
+		return TRUE;
+	}
+
+	// a garrison names its man and an object upgrade its upgrade, found on the plot unit's command set
+	if (action.action == SCENARIO_ACTION_LANEGARRISON || action.action == SCENARIO_ACTION_LANEUNITUPGRADE)
+	{
+		Int args[ 4 ] = { -1, -1, -1, -1 };
+		sscanf( action.name.str(), "%d %d %d", &args[ 0 ], &args[ 1 ], &args[ 2 ] );
+		if (action.action == SCENARIO_ACTION_LANEGARRISON)
+		{
+			const ThingTemplate *tmpl = TheThingFactory->findTemplate( action.selector, FALSE );
+			args[ 3 ] = tmpl ? (Int)tmpl->getTemplateID() : -1;
+			TheLaneWarDirector->onOrder( player, LANEWAR_ORDER_GARRISON, args, 4 );
+			return TRUE;
+		}
+		const Int index = TheLaneWarDirector->plotUnitAt( player, args[ 0 ], args[ 1 ], args[ 2 ] );
+		LaneWarDirector::UnitUpgrade list[ MAX_COMMANDS_PER_SET ];
+		const Int listed = index >= 0 ? TheLaneWarDirector->getUnitUpgrades( index, list, MAX_COMMANDS_PER_SET ) : 0;
+		for (Int i = 0; i < listed; ++i)
+			if (list[ i ].upgrade->getUpgradeName() == action.selector)
+				args[ 3 ] = list[ i ].slot;
+		if (args[ 3 ] < 0)
+			DEBUG_LOG(("SCENARIO: frame %d laneunitupgrade: no '%s' on the command set of slot %d's plot unit there\n", action.frame,
+								 action.selector.str(), action.slot));
+		TheLaneWarDirector->onOrder( player, LANEWAR_ORDER_UNIT_UPGRADE, args, 4 );
+		return TRUE;
+	}
+
+	// the other Lane War orders go in as MSG_LANEWAR_ORDER's integers do
+	if (action.action == SCENARIO_ACTION_LANETIER || action.action == SCENARIO_ACTION_LANESELL
+			|| action.action == SCENARIO_ACTION_LANEMOVE || action.action == SCENARIO_ACTION_LANEUPGRADE
+			|| action.action == SCENARIO_ACTION_LANEVET)
+	{
+		Int args[ 6 ];
+		Int argCount = 0;
+		Int kind = LANEWAR_ORDER_TIER;
+		if (action.action == SCENARIO_ACTION_LANEUPGRADE)
+		{
+			kind = LANEWAR_ORDER_UPGRADE;
+			const UpgradeTemplate *list[ LANEWAR_ROSTER_MAX ];
+			const Int listed = LaneWar_upgrades( player, list, LANEWAR_ROSTER_MAX );
+			args[ argCount++ ] = -1;
+			for (Int i = 0; i < listed; ++i)
+				if (list[ i ]->getUpgradeName() == action.selector)
+					args[ 0 ] = i;
+		}
+		else
+		{
+			kind = action.action == SCENARIO_ACTION_LANESELL ? LANEWAR_ORDER_SELL
+					 : action.action == SCENARIO_ACTION_LANEMOVE ? LANEWAR_ORDER_MOVE
+					 : action.action == SCENARIO_ACTION_LANEVET ? LANEWAR_ORDER_VETERANCY : LANEWAR_ORDER_TIER;
+			const char *at = action.name.str();
+			Int value = 0, used = 0;
+			while (argCount < 6 && sscanf( at, "%d%n", &value, &used ) == 1)
+			{
+				args[ argCount++ ] = value;
+				at += used;
+			}
+		}
+		TheLaneWarDirector->onOrder( player, kind, args, argCount );
+		return TRUE;
+	}
+
 	Coord3D position;
 	if (!resolveScenarioPosition( action, &position ))
 		return FALSE;
@@ -2431,6 +2883,9 @@ Bool ScenarioDrill_execute( const ScenarioAction &action )
 
 	if (action.action == SCENARIO_ACTION_REPEAT)
 		return executeRepeat( action, player );
+
+	if (action.action == SCENARIO_ACTION_GROUPQUEUE)
+		return executeGroupQueue( action, player );
 
 	if (action.action == SCENARIO_ACTION_GIVEMONEY)
 		return executeGiveMoney( action, player );
@@ -2477,6 +2932,7 @@ void ScenarioDrill_tick( void )
 	// before the file test, because an arrive typed down the control socket has no file behind it
 	updateArrivals( now );
 	updateResponses( now );
+	updateLaneMarches( now );
 
 	if (TheGlobalData->m_scenarioFile.isEmpty())
 		return;

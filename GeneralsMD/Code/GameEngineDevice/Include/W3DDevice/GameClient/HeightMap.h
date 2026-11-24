@@ -89,6 +89,7 @@ public:
 
 
 	virtual void staticLightingChanged(void);
+	virtual void spreadLightingChanged(void);
 	virtual	void adjustTerrainLOD(Int adj);
 	virtual void reset(void);
 	virtual void doPartialUpdate(const IRegion2D &partialRange, WorldHeightMap *htMap, RefRenderObjListIterator *pLightsIterator);
@@ -158,6 +159,9 @@ protected:
 		DynamicLightInputs lights[MAX_ENABLED_DYNAMIC_LIGHTS];
 	};
 	DynamicLightPass m_lastRelight;	///< compared with memcmp, so only ever written by memset and memcpy
+#if !defined(_WIN32)
+	Bool m_dynamicLightingPerPixel = FALSE; // GPU tiles contain static-only diffuse
+#endif
 	Bool m_lastRelightValid;	///< false once anything has rewritten the vertex buffers since that relight
 
 	/** The map's sun per pixel on Direct3D 11 (TERRAIN_RELIGHT_SAMPLING): the tiles and the 3-way tiles
@@ -166,6 +170,8 @@ protected:
 		disagree for more than the frame that notices; off under -d3d9, -headless and Classic, which keep
 		EA's per-vertex light. */
 	Bool m_sunPerPixel;
+	Int m_spreadRelightRow;	///< the next row of tiles a spread relight redoes (spreadLightingChanged); -1 none
+	Int m_spreadRowsLeft;		///< rows the spread still owes since the last step, wrapping past the last
 	WorldHeightMap *m_sunHeightsMap;	///< map, and its content version, the heights texture last took
 	Int m_sunHeightsVersion;
 	static Bool sunPerPixelWanted(void);
@@ -174,6 +180,7 @@ protected:
 public:
 	virtual Bool sunPerPixelBaked(void) const { return m_sunPerPixel; }
 protected:
+	virtual Bool hasTerrainAtlas(void) const { return TRUE; }
 
 	/** Each cell drawn as two by two smaller ones (m_subdivided, TerrainSubdivide.h): nine vertices a
 		cell in place of four, their heights off the samples' Catmull-Rom patch held near the cell's

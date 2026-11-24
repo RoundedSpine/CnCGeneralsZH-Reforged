@@ -172,7 +172,8 @@ AsciiString LANPreferences::getPreferredMap(void)
 
 	ret = QuotedPrintableToAsciiString(it->second);
 	ret.trim();
-	if (ret.isEmpty() || !isValidMap(ret, TRUE))
+	// a mode's generated map is that mode room's, never a classic room's starting map
+	if (ret.isEmpty() || !isValidMap(ret, TRUE) || IsDirectStrikeMap(ret) || IsApocalypseMap(ret))
 	{
 		ret = getDefaultMap(TRUE);
 		return ret;
@@ -298,6 +299,16 @@ static GameWindow *staticToolTip = NULL;
 static GameWindow *textEntryPlayerName = NULL;
 static GameWindow *textEntryChat = NULL;
 static GameWindow *staticTextGameInfo = NULL;
+
+// Create Game's answer (AskGameMode): the room LanGameOptionsMenu.cpp opens is a classic one, or stands
+// on a Direct Strike island or an Apocalypse map from the start (TheHostGameMode, spent by the room)
+static void hostRoom( Int mode )
+{
+	if (TheLAN == NULL)
+		return;	// the lobby went while the question was up
+	TheHostGameMode = mode;
+	TheLAN->RequestGameCreate( UnicodeString(u""), FALSE );
+}
 
 //external declarations of the Gadgets the callbacks can use
 NameKeyType listboxChatWindowID = NAMEKEY_INVALID;
@@ -790,8 +801,9 @@ WindowMsgHandledType LanLobbyMenuSystem( GameWindow *window, UnsignedInt msg,
 				} //if ( controlID == buttonBack )
 				else if ( controlID == buttonHostID )
 				{
-					TheLAN->RequestGameCreate( UnicodeString(u""), FALSE);
-					
+					// which mode the room is for; the answer creates it (hostRoom)
+					AskGameMode( hostRoom );
+
 				}//else if ( controlID == buttonHostID )
 				else if ( controlID == buttonClearID )
 				{

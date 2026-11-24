@@ -58,6 +58,7 @@
 #include "statistics.h"
 #include "wwstring.h"
 #include "lightenvironment.h"
+#include "Platform/RenderLighting.h"
 #include "shader.h"
 #include "vector4.h"
 #include "cpudetect.h"
@@ -208,6 +209,11 @@ struct RenderStateStruct
 	TextureBaseClass * Textures[MAX_TEXTURE_STAGES];
 	D3DLIGHT9 Lights[4];
 	bool LightEnable[4];
+#if !defined(_WIN32)
+	bool HasLightingEnvironment = false, HasStaticLighting = false, HasNativeAmbient = false;
+	unsigned NativeAmbient = 0;
+	RenderLighting::VertexEnvironment FullLighting = {}, StaticLighting = {};
+#endif
   //unsigned lightsHash;
 	Matrix4x4 world;
 	Matrix4x4 view;
@@ -459,6 +465,8 @@ public:
 	static bool Is_Device_Lost() { return IsDeviceLost; }
 	static bool Is_Initted(void) { return IsInitted; }
 
+	static bool Supports_Per_Pixel_Lighting(void);
+	static bool Supports_Hemispheric_Ambient(void);
 	static bool Has_Stencil (void);
 	static void Get_Format_Name(unsigned int format, StringClass *tex_format);
 
@@ -484,6 +492,9 @@ public:
 	static void Set_Index_Buffer_Index_Offset(unsigned offset);
 
 	static void Get_Render_State(RenderStateStruct& state);
+#if !defined(_WIN32)
+	static void Apply_Queued_Light_Environment(const RenderStateStruct &state);
+#endif
 	static void Set_Render_State(const RenderStateStruct& state);
 	static void Release_Render_State();
 
@@ -857,8 +868,17 @@ public:
 	// Caps exist only while a device does: initted with no device yet, or after one was refused or
 	// released, Get_Current_Caps is NULL.
 	static bool				Has_Current_Caps() { return CurrentCaps != NULL; }
-	// Every refusal met on the way to a device since the start, "; " between them; empty when none.
+	// Every refusal met on the way to a device since the start (or since the last clear), "; " between
+	// them; empty when none.  W3DDisplay logs and clears it between its fallback tries, so each try's
+	// refusals get a line of their own and the buffer never fills.
 	static const char *	Get_Device_Failures(void);
+	static void				Clear_Device_Failures(void);
+	// How many times Create_Device asks again, 250 ms apart, after GetDeviceCaps NOTAVAILABLE or
+	// CreateDevice DEVICELOST; 12 (3 s) until changed.
+	static void				Set_Device_Retries(int retries);
+	// Makes adapter dev the one the next Set_Render_Device(-1, ...) creates on.  Set_Render_Device(0)
+	// means "the preferred adapter" and cannot pick adapter 0 again once another one is current.
+	static void				Select_Render_Device(int dev);
 
 #if defined(_WIN32)	// the registry: Windows only
 	static bool Registry_Save_Render_Device( const char * sub_key );
@@ -1515,6 +1535,10 @@ WWINLINE void DX8Wrapper::Set_Alpha (const float alpha, unsigned int &color)
 WWINLINE void DX8Wrapper::Get_Render_State(RenderStateStruct& state)
 {
 	state=render_state;
+#if !defined(_WIN32)
+	state.HasNativeAmbient=true;
+	state.NativeAmbient=RenderStates[D3DRS_AMBIENT];
+#endif
 }
 
 WWINLINE void DX8Wrapper::Get_Shader(ShaderClass& shader)
@@ -1736,6 +1760,9 @@ WWINLINE void DX8Wrapper::Set_Render_State(const RenderStateStruct& state)
 
 	render_state=state;
 	render_state_changed=0xffffffff;
+#if !defined(_WIN32)
+	Apply_Queued_Light_Environment(state);
+#endif
 
 	if (render_state.index_buffer) {
 		render_state.index_buffer->Add_Engine_Ref();
@@ -1833,6 +1860,14 @@ WWINLINE RenderStateStruct& RenderStateStruct::operator= (const RenderStateStruc
 		REF_PTR_SET(Textures[i],src.Textures[i]);
 	}
 
+#if !defined(_WIN32)
+	HasLightingEnvironment=src.HasLightingEnvironment;
+	HasStaticLighting=src.HasStaticLighting;
+	HasNativeAmbient=src.HasNativeAmbient;
+	NativeAmbient=src.NativeAmbient;
+	if (HasLightingEnvironment) FullLighting=src.FullLighting;
+	if (HasStaticLighting) StaticLighting=src.StaticLighting;
+#endif
 	LightEnable[0]=src.LightEnable[0];
 	LightEnable[1]=src.LightEnable[1];
 	LightEnable[2]=src.LightEnable[2];

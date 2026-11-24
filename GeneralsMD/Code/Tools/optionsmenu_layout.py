@@ -172,6 +172,7 @@ NEW_CONTROLS = [
     (CHECK,  "CheckClassicGraphics",   "GUI:ClassicGraphics"),
     (CHECK,  "CheckDetailedModels",    "GUI:DetailedModels"),
     (CHECK,  "CheckHDTextures",        "GUI:HDTextures"),
+    (CHECK,  "CheckFullDetailAtDistance", "GUI:FullDetailAtDistance"),
     (LABEL,  "LabelWaterStyle",       "GUI:WaterStyle"),
     (COMBO,  "ComboBoxWaterStyle",      None),
     (LABEL,  "LabelCloudStyle",        "GUI:CloudStyle"),
@@ -185,7 +186,9 @@ NEW_CONTROLS = [
     (COMBO,  "ComboBoxWaterFftResolution", None),
     (LABEL,  "LabelWaterRefractionQuality", "GUI:WaterRefractionQuality"),
     (COMBO,  "ComboBoxWaterRefractionQuality", None),
-    (LABEL,  "LabelMSAA",              "GUI:MSAA"),
+    (CHECK,  "CheckMapAwareWaveHeading", "GUI:MapAwareWaveHeading"),
+    (CHECK,  "CheckUnderwaterClarity", "GUI:UnderwaterClarity"),
+    (LABEL,  "LabelMSAA",             "GUI:MSAA"),
     (COMBO,  "ComboBoxMSAA",           None),
     (LABEL,  "LabelBloom",             "GUI:Bloom"),
     (COMBO,  "ComboBoxBloom",          None),
@@ -204,6 +207,9 @@ NEW_CONTROLS = [
     (CHECK,  "CheckSelectionOutlines", "GUI:SelectionOutlines"),
     (CHECK,  "CheckNetBox",            "GUI:NetBox"),
     (CHECK,  "CheckEmptyBuildingPips", "GUI:EmptyBuildingPips"),
+    (CHECK,  "CheckHitFlash",          "GUI:HitFlash"),
+    (CHECK,  "CheckDamageNumbers",     "GUI:DamageNumbers"),
+    (CHECK,  "CheckIdleWorkerCamera",  "GUI:IdleWorkerCamera"),
     (CHECK,  "CheckZoomToCursor",      "GUI:ZoomToCursor"),
     (CHECK,  "CheckIsometricCamera",   "GUI:IsometricCamera"),
     (CHECK,  "CheckCameraShake",       "GUI:CameraShake"),
@@ -274,6 +280,9 @@ NEW_CONTROLS = [
     (CHECK,  "CheckSmoothMotion",      "GUI:SmoothMotion"),
     (CHECK,  "CheckHeatHaze",          "GUI:HeatHaze"),
     (CHECK,  "CheckGroundFoliage",     "GUI:GroundFoliage"),
+    (CHECK,  "CheckRagdoll",           "GUI:Ragdoll"),
+    (LABEL,  "LabelSunShafts",         "GUI:SunShafts"),
+    (COMBO,  "ComboBoxSunShafts",      None),
     (LABEL,  "LabelGraphicsQuality",   "GUI:GraphicsQuality"),
     (SLIDER, "SliderGraphicsQuality",  None),
 ]
@@ -384,14 +393,21 @@ GROUP_LAYOUT = [
             ("check", "CheckSmoothMotion"),
             ("check", "CheckHeatHaze"),
             ("check", "CheckGroundFoliage"),
-            # beside Classic Graphics on the Graphics page if there were room
-            ("check", "CheckDetailedModels"),
-            ("check", "CheckHDTextures"),
             # the Screen column is full with the monitor and the resolution note
-            setting("LabelFrameRateLimit", "ComboBoxFrameRateLimit")]),
+            setting("LabelFrameRateLimit", "ComboBoxFrameRateLimit"),
+            # the column's last row, down to the page's foot
+            setting("LabelSunShafts", "ComboBoxSunShafts")]),
         # from Interface, whose first column ran past the page once HUD took Layout and HUD Width
         ("GUI:OptionsGroupMenus", [
-            setting("LabelMenuTransitionSpeed", "SliderMenuTransitionSpeed", "ValueMenuTransitionSpeed")])]),
+            setting("LabelMenuTransitionSpeed", "SliderMenuTransitionSpeed", "ValueMenuTransitionSpeed")]),
+        # the art the Reforged picture draws its models and textures with; beside Classic Graphics on the
+        # Graphics page if there were room
+        ("GUI:OptionsGroupModels", [
+            ("check", "CheckDetailedModels"),
+            ("check", "CheckHDTextures"),
+            ("check", "CheckFullDetailAtDistance"),
+            # how a soldier's model falls; the Picture column is full down to Sun Shafts
+            ("check", "CheckRagdoll")])]),
 
     ("PageGraphics", [
         # the particle limit went to Effects' Particles group to make room for the quality slider
@@ -447,7 +463,9 @@ GROUP_LAYOUT = [
     ("PageWater", [
         ("GUI:OptionsGroupModernWater", [
             setting("LabelWaterFftResolution", "ComboBoxWaterFftResolution"),
-            setting("LabelWaterRefractionQuality", "ComboBoxWaterRefractionQuality")]),
+            setting("LabelWaterRefractionQuality", "ComboBoxWaterRefractionQuality"),
+            ("check", "CheckMapAwareWaveHeading"),
+            ("check", "CheckUnderwaterClarity")]),
         ("GUI:OptionsGroupReflections", [
             ("check", "CheckWaterReflectionEnabled"),
             setting("LabelWaterReflection", "ComboBoxWaterReflection"),
@@ -500,7 +518,11 @@ GROUP_LAYOUT = [
             setting("LabelHudLayout", "ComboBoxHudLayout"),
             setting("LabelHudWidth", "ComboBoxHudWidth"),
             ("check", "CheckNetBox"),
-            setting("LabelMinimapSize", "SliderMinimapSize", "ValueMinimapSize")]),
+            setting("LabelMinimapSize", "SliderMinimapSize", "ValueMinimapSize"),
+            # here and not under the battlefield, whose column is full to the page's foot
+            ("check", "CheckHitFlash"),
+            ("check", "CheckDamageNumbers"),
+            ("check", "CheckIdleWorkerCamera")]),
         ("GUI:OptionsGroupBattlefield", [
             setting("LabelHealthBars", "ComboBoxHealthBars"),
             setting("LabelHealthBarColors", "ComboBoxHealthBarColors"),
@@ -1141,7 +1163,8 @@ def selfcheck():
     water_controls = ["LabelWaterFftResolution", "ComboBoxWaterFftResolution",
                       "LabelWaterRefractionQuality", "ComboBoxWaterRefractionQuality",
                       "CheckWaterReflectionEnabled", "LabelWaterReflection", "ComboBoxWaterReflection",
-                      "LabelWaterReflectionDetail", "ComboBoxWaterReflectionDetail"]
+                      "LabelWaterReflectionDetail", "ComboBoxWaterReflectionDetail",
+                      "CheckMapAwareWaveHeading", "CheckUnderwaterClarity"]
     for name in water_controls:
         control = layout.find(name)
         if not water_page or not control or control not in water_page.children:

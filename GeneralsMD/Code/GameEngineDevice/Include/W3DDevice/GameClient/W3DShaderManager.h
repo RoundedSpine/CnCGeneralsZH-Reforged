@@ -112,11 +112,20 @@ public:
 
 	// Filter methods
 	static Bool filterPreRender(FilterTypes filter, Bool &skipRender, CustomScenePassModes &scenePassMode); ///< Set up at start of render.  Only applies to screen filter shaders.
+	static void beginMainPostScene(void);
 	static Bool filterPostRender(FilterTypes filter, enum FilterModes mode, Coord2D &scrollDelta, Bool &doExtraRender); ///< Called after render.  Only applies to screen filter shaders.
 	static Bool filterSetup(FilterTypes filter, enum FilterModes mode);
 	/// The Warm Light haze for this frame (levels, sun, shroud), once a frame from
 	/// W3DDisplay::draw before the views render, whatever screen filter is running.
 	static void pushProtoHaze(void);
+#if defined(__linux__)
+	static void invalidateNativePostEnvironment(void);
+#endif
+	/// The horizon's colour at this time of day under the map's own light: the Atmosphere's fade,
+	/// and what the land past the map fades into on any device.
+	static void getHorizonColour(float rgb[3]);
+	/// The Atmosphere option fades this frame's far ground and paints its sky (pushProtoHaze decides).
+	static Bool isAtmosphereDrawn(void) { return m_atmosphereDrawn; }
 
 	// Support routines for filter methods.
 	static Bool canRenderToTexture(void) { return (m_oldRenderSurface && m_newRenderSurface);}
@@ -128,7 +137,7 @@ public:
 	static IDirect3DTexture9 * endRenderToTexture(void); ///< Ends render to texture, & returns texture.
 	static IDirect3DTexture9 * getRenderTexture(void);	///< returns last used render target texture
 	static Bool isRenderingToTexture(void) {return m_renderingToTexture; }
-	static void drawViewport(Int color);	///<draws 2 triangles covering the current tactical viewport
+	static void drawViewport(Int color, Real depth = 0.0f);	///<draws 2 triangles covering the current tactical viewport, at this depth
 
 
 protected:
@@ -146,7 +155,7 @@ protected:
 	static IDirect3DTexture9 *m_renderTexture;		///<texture into which rendering will be redirected.
 	static IDirect3DSurface9 *m_newRenderSurface;	///<new render target inside m_renderTexture
 	static IDirect3DSurface9 *m_oldDepthSurface;	///<previous depth buffer surface
-
+	static Bool m_atmosphereDrawn;	///<pushProtoHaze handed the Atmosphere a frame to draw
 
 };
 
@@ -268,5 +277,38 @@ protected:
 	static Bool m_skipRender;
 	static TextureClass *m_fadePatternTexture;	///<shape/pattern of the fade
 };
+
+#if defined(__linux__)
+#include <cstdint>
+// Producer policy is independent of transient post-scene readiness. These pure
+// helpers also let fixtures exercise the decisions without a running game.
+namespace NativePostEnvironmentPolicy {
+enum Haze { None, WarmLight, Weather };
+inline Haze chooseHaze(bool available, bool classic, bool hasMap, bool warmLight,
+	bool weatherActive, bool weatherVisible)
+{
+	return !available || classic || !hasMap ? None
+		: weatherActive && weatherVisible ? Weather : warmLight ? WarmLight : None;
+}
+inline bool atmosphere(bool available, bool classic, bool requested, bool hasMap,
+	bool hasSky, bool authoredSkybox, bool isometric)
+{
+	return available && !classic && requested && hasMap && hasSky && !authoredSkybox && !isometric;
+}
+struct MapEpoch {
+	std::uint64_t Generation = 1;
+	const void *Map = nullptr, *Samples = nullptr;
+	int Width = 0, Height = 0;
+	void invalidate() {
+		if (++Generation == 0) ++Generation;
+		Map = Samples = nullptr; Width = Height = 0;
+	}
+	bool observe(const void *map, const void *samples, int width, int height) {
+		if (Map == map && Samples == samples && Width == width && Height == height) return false;
+		invalidate(); Map = map; Samples = samples; Width = width; Height = height; return true;
+	}
+};
+}
+#endif
 
 #endif //__W3DSHADERMANAGER_H_

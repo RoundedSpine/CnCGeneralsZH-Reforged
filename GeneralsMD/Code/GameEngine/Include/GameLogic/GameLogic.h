@@ -102,7 +102,8 @@ inline Bool isRecordableGameMode( Int gameMode )
 enum
 {
 	CRC_CACHED,
-	CRC_RECALC
+	CRC_RECALC,
+	CRC_RECALC_WITHOUT_SEED		///< the world alone: what a reset has to clear, with the logic random seed a match moved left out
 };
 
 
@@ -202,6 +203,8 @@ public:
 
 	void updateLoadProgress( Int progress );
 	void deleteLoadScreen( void );
+	void showRejoinProgress( Int percent, Bool waitingForLog );	///< the load screen stays up while a seat coming back catches up
+	void endRejoinScreen( void );																	///< the seat is back in the room: the game view again
 	
 	//Kris: Cut setGameLoading() and replaced with setLoadingMap() and setLoadingSave() -- reason: nomenclature
 	//void setGameLoading( Bool loading ) { m_loadingScene = loading; }
@@ -328,6 +331,11 @@ public:
 			same time, allies counted one each.  0 when the option is off.  Fixed when the match starts
 			and carried by a save. */
 	Int getSupplyPileLimit( void ) const { return m_supplyPileLimit; }
+
+	/** The day and night cycle runs: the lobby's box (DN in the options string), stood down under the
+			Apocalypse and Lane War once their directors have read the map.  Fixed when the match starts and
+			saved ahead of the objects.  DayNight_isOn in DayNightCycle.h is the question to ask. */
+	Bool isDayNight( void ) const { return m_dayNight; }
 
 	/** A save carries the logic random stream as it stood, but the load itself draws from the stream
 			and the engine reset before it reseeded from the clock.  GameState calls this after every
@@ -510,6 +518,7 @@ private:
 	Int m_incomeSharing;							///< which earnings allies split, an IncomeSharing
 	UnsignedInt m_techRespawnDelay;		///< frames a destroyed tech building stays down, 0 = for good
 	Int m_supplyPileLimit;						///< players who may gather from one supply pile at once, 0 = any number
+	Bool m_dayNight;									///< the lobby's day and night cycle box
 
 	/// a destroyed tech building waiting to stand again
 	struct PendingTechBuilding

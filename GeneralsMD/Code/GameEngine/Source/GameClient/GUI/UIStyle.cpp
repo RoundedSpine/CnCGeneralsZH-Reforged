@@ -26,6 +26,10 @@
 #include "GameClient/UIStyle.h"
 #include "Common/GlobalData.h"
 #include "Common/NameKeyGenerator.h"
+#include "Common/PlayerTemplate.h"
+#include "Common/ThingFactory.h"
+#include "Common/ThingTemplate.h"
+#include "GameClient/ChallengeGenerals.h"
 #include "GameClient/Display.h"
 #include "GameClient/DisplayString.h"
 #include "GameClient/DisplayStringManager.h"
@@ -37,6 +41,7 @@
 #include "GameClient/GameWindowManager.h"
 #include "GameClient/GlobalLanguage.h"
 #include "GameClient/Image.h"
+#include "GameLogic/AI.h"
 #include "GameNetwork/GameSpy/GSConfig.h"
 #include "GameNetwork/GameSpy/PeerDefs.h"
 #include "GameNetwork/Online/OnlineQueues.h"
@@ -678,20 +683,34 @@ Int chip( DisplayString *label, Int x, Int y, Color color, Color edge )
 // website/app/Models/Player.php TIERS, the rating each tier starts at; private's 0 is only the
 // floor of its track, as a rating can fall under it
 static const Real TIER_START[ TIER_COUNT ] = { 0.0f, 0.0f, 5.0f, 10.0f, 15.0f, 20.0f, 25.0f, 30.0f };
+// the same on the ladder's Elo (TIERS); private has no floor there, its track runs from the site's
+// starting Elo (app/Online/Elo.php START), so it shows empty as the site's meter does
+static const Real ELO_TIER_START[ TIER_COUNT ] = { 1000.0f, 1000.0f, 1000.0f, 1075.0f, 1150.0f, 1250.0f, 1350.0f, 1500.0f };
 static const char *const TIER_KEY[ TIER_COUNT ] = { "unranked", "private", "sergeant", "lieutenant", "captain", "major", "colonel", "general" };
 // EA's rank table below, by name: RANK_NAME[ 7 ] is the portrait called General
 static const Int TIER_RANK[ TIER_COUNT ] = { -1, 0, 2, 3, 4, 5, 6, 7 };
 
-RatingTier ratingTier( Real rating, Int games )
+RatingTier ratingTier( Real rating, Int games, Bool elo )
 {
 	if( games < RANKED_GAMES )
 		return TIER_UNRANKED;
+	const Real *start = elo ? ELO_TIER_START : TIER_START;
 	for( Int tier = TIER_GENERAL; tier > TIER_PRIVATE; tier-- )
 	{
-		if( rating >= TIER_START[ tier ] )
+		if( rating >= start[ tier ] )
 			return (RatingTier)tier;
 	}
 	return TIER_PRIVATE;
+}
+
+RatingTier aiRatingTier( Real elo, Int games )
+{
+	return ratingTier( aiRatingToLegacy( elo ), games );
+}
+
+Real aiTierStart( RatingTier tier )
+{
+	return aiRatingOfLegacy( tierStart( tier ) );
 }
 
 RatingTier playerTier( const OnlinePlayerInfo &info )
@@ -701,12 +720,14 @@ RatingTier playerTier( const OnlinePlayerInfo &info )
 		if( info.tier.compareNoCase( TIER_KEY[ tier ] ) == 0 )
 			return (RatingTier)tier;
 	}
-	return ratingTier( info.exactRating, info.hasRating ? info.games : -1 );
+	return ratingTier( info.shown(), info.hasRating ? info.games : -1, info.hasElo );
 }
 
-Real tierStart( RatingTier tier )
+Real tierStart( RatingTier tier, Bool elo )
 {
-	return tier >= 0 && tier < TIER_COUNT ? TIER_START[ tier ] : 0.0f;
+	if( tier < 0 || tier >= TIER_COUNT )
+		return elo ? ELO_TIER_START[ TIER_UNRANKED ] : 0.0f;
+	return elo ? ELO_TIER_START[ tier ] : TIER_START[ tier ];
 }
 
 const char *tierKey( RatingTier tier )
@@ -762,6 +783,54 @@ const Image *tierImage( RatingTier tier, const AsciiString &side )
 	return rank < 0 ? NULL : rankImage( side.isEmpty() ? AsciiString( "Random" ) : side, rank );
 }
 
+const Image *armyPortrait( const PlayerTemplate *army )
+{
+	if( army == NULL )
+		return NULL;
+	const GeneralPersona *persona = TheChallengeGenerals ? TheChallengeGenerals->getGeneralByTemplateName( army->getName() ) : NULL;
+	if( persona && persona->getBioPortraitLarge() )
+		return persona->getBioPortraitLarge();
+	const AsciiString hqName = army->getStartingBuilding();
+	const ThingTemplate *hq = TheThingFactory && hqName.isNotEmpty() ? TheThingFactory->findTemplate( hqName, FALSE ) : NULL;
+	if( hq && hq->getSelectedPortraitImage() )
+		return hq->getSelectedPortraitImage();
+	if( hq && hq->getButtonImage() )
+		return hq->getButtonImage();
+	return army->getGeneralImage() ? army->getGeneralImage() : army->getSideIconImage();
+}
+
+void coverImage( const Image *image, Int x, Int y, Int width, Int height, const IRegion2D *within )
+{
+	if( image == NULL || width <= 0 || height <= 0 || image->getImageWidth() <= 0 || image->getImageHeight() <= 0 )
+		return;
+	const Real scale = max( (Real)width / image->getImageWidth(), (Real)height / image->getImageHeight() );
+	const Int drawnWidth = max( width, REAL_TO_INT( image->getImageWidth() * scale + 0.5f ) );
+	const Int drawnHeight = max( height, REAL_TO_INT( image->getImageHeight() * scale + 0.5f ) );
+	const Int left = x - ( drawnWidth - width ) / 2;
+	const Int top = y - ( drawnHeight - height ) / 4;
+	IRegion2D box;
+	box.lo.x = x;
+	box.lo.y = y;
+	box.hi.x = x + width;
+	box.hi.y = y + height;
+	if( within )
+	{
+		box.lo.x = max( box.lo.x, within->lo.x );
+		box.lo.y = max( box.lo.y, within->lo.y );
+		box.hi.x = min( box.hi.x, within->hi.x );
+		box.hi.y = min( box.hi.y, within->hi.y );
+	}
+	if( box.hi.x > box.lo.x && box.hi.y > box.lo.y )
+	{
+		TheDisplay->setClipRegion( &box );
+		TheDisplay->drawImage( image, left, top, left + drawnWidth, top + drawnHeight );
+	}
+	if( within )
+		TheDisplay->setClipRegion( const_cast<IRegion2D *>( within ) );
+	else
+		TheDisplay->enableClipping( FALSE );
+}
+
 /// the languages that write a decimal comma; every one the game has but English
 static Bool decimalComma( Int language )
 {
@@ -784,6 +853,26 @@ UnicodeString ratingTextIn( Real rating, Bool sign, Int language )
 UnicodeString ratingText( Real rating, Bool sign )
 {
 	return ratingTextIn( rating, sign, TheGlobalData->m_textLanguage );
+}
+
+UnicodeString eloText( Real elo, Bool sign )
+{
+	const Int whole = (Int)floor( elo + 0.5 );
+	AsciiString text;
+	text.format( sign && whole > 0 ? "+%d" : "%d", whole );
+	UnicodeString wide;
+	wide.translate( text );
+	return wide;
+}
+
+UnicodeString ladderTextIn( Real value, Bool elo, Bool sign, Int language )
+{
+	return elo ? eloText( value, sign ) : ratingTextIn( value, sign, language );
+}
+
+UnicodeString ladderText( Real value, Bool elo, Bool sign )
+{
+	return elo ? eloText( value, sign ) : ratingText( value, sign );
 }
 
 Int percent( Int part, Int whole )
@@ -1026,8 +1115,8 @@ void onlinePageInit( GameWindow *parent, const char *layout, OnlineTab open )
 	}
 	s_header[ HEADER_MARK ]->setText( UnicodeString( u"Zero Hour" ) );
 	s_header[ HEADER_MARK_BLUE ]->setText( UnicodeString( u" Reforged" ) );
-	s_header[ HEADER_LADDER ]->setText( wordOr( "GUI:OnlineLadderShort", u"Ladder" ) );
-	s_header[ HEADER_AI ]->setText( wordOr( "GUI:OnlineAIShort", u"AI" ) );
+	s_header[ HEADER_LADDER ]->setText( wordOr( "GUI:OnlineLadderShort", u"ELO" ) );
+	s_header[ HEADER_AI ]->setText( wordOr( "GUI:OnlineAIShort", u"Bot ELO" ) );
 }
 
 void onlinePageShutdown( GameWindow *parent )
@@ -1074,8 +1163,8 @@ static void drawPlayerLine( Int right )
 		s_lineSerial = info.serial;
 		const UnicodeString none( u"\x2013" );		// an en dash for a number nobody sent
 		t[ HEADER_TIER ]->setText( OnlineTierName( tierKey( playerTier( info ) ) ) );
-		t[ HEADER_LADDER_VALUE ]->setText( info.hasRating ? ratingText( info.exactRating ) : none );
-		t[ HEADER_AI_VALUE ]->setText( info.hasAIRating ? ratingText( info.aiRating ) : none );
+		t[ HEADER_LADDER_VALUE ]->setText( info.hasRating ? ladderText( info.shown(), info.hasElo ) : none );
+		t[ HEADER_AI_VALUE ]->setText( info.hasAIRating ? eloText( info.aiRating ) : none );
 		Int rest = 3 * gap + 2 * space;
 		for( Int each = HEADER_TIER; each <= HEADER_AI_VALUE; each++ )
 		{

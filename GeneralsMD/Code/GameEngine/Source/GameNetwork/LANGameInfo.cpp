@@ -36,6 +36,7 @@
 #include "GameClient/GadgetListBox.h"
 #include "GameNetwork/LANGameInfo.h"
 #include "GameNetwork/LANAPICallbacks.h"
+#include "GameNetwork/GUIUtil.h"
 #include "Common/MultiplayerSettings.h"
 #include "strtok_r.h"
 /*
@@ -102,6 +103,8 @@ LANGameInfo::LANGameInfo()
 	//
 	for (Int i = 0; i< MAX_SLOTS; ++i)
 		setSlotPointer(i, &m_LANSlot[i]);
+	// GameInfo's constructor reset to its own default, before this class was there to answer
+	setGameSpeedPercent(getDefaultGameSpeedPercent());
 
 	setLocalIP(TheLAN->GetLocalIP());
 }
@@ -236,6 +239,17 @@ void LANDisplayGameList( GameWindow *gameListbox, LANGameInfo *gameList )
 			if( gameList->isGameInProgress() )
 			{
 				txtGName.concat(u"]");
+			}
+			// the mode is the map, which the announcement carries
+			if( IsDirectStrikeMap( gameList->getMap() ) )
+			{
+				txtGName.concat(u" - ");
+				txtGName.concat(ModeNameWithVersion("GUI:DirectStrikeLower", "GUI:DirectStrikeVersion"));
+			}
+			else if( IsApocalypseMap( gameList->getMap() ) )
+			{
+				txtGName.concat(u" - ");
+				txtGName.concat(ModeNameWithVersion("GUI:ApocalypseLower", "GUI:ApocalypseVersion"));
 			}
 			Int addedIndex = GadgetListBoxAddEntryText(gameListbox, txtGName, (gameList->isGameInProgress())?gameInProgressColor:gameColor, -1, -1);
 			GadgetListBoxSetItemData(gameListbox, (void *)gameList, addedIndex, 0 );

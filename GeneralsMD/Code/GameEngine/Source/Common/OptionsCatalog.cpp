@@ -160,6 +160,9 @@ OPTION_BOOL_ACCESSORS( m_selectionOutlines )
 OPTION_BOOL_ACCESSORS( m_showNetBox )
 OPTION_INT_ACCESSORS( m_minimapSize )
 OPTION_BOOL_ACCESSORS( m_showEmptyBuildingPips )
+OPTION_BOOL_ACCESSORS( m_hitFlash )
+OPTION_BOOL_ACCESSORS( m_damageNumbers )
+OPTION_BOOL_ACCESSORS( m_idleWorkerCamera )
 OPTION_BOOL_ACCESSORS( m_useShadowVolumesForSkins )
 OPTION_BOOL_ACCESSORS( m_shadowsForProjectiles )
 OPTION_BOOL_ACCESSORS( m_shadowsForProps )
@@ -172,11 +175,15 @@ OPTION_BOOL_ACCESSORS( m_explosionDebrisTrails )
 OPTION_BOOL_ACCESSORS( m_mapLight )
 OPTION_BOOL_ACCESSORS( m_teamGlow )
 OPTION_BOOL_ACCESSORS( m_waterFoam )
+OPTION_BOOL_ACCESSORS( m_mapAwareWaveHeading )
+OPTION_BOOL_ACCESSORS( m_underwaterClarity )
 OPTION_BOOL_ACCESSORS( m_groundFoliage )
+OPTION_BOOL_ACCESSORS( m_ragdoll )
 OPTION_BOOL_ACCESSORS( m_groundMarks )
 OPTION_BOOL_ACCESSORS( m_firelight )
 OPTION_BOOL_ACCESSORS( m_hemiAmbient )
 OPTION_BOOL_ACCESSORS( m_ambientOcclusion )
+OPTION_INT_ACCESSORS( m_sunShafts )
 OPTION_BOOL_ACCESSORS( m_weatherEffects )
 OPTION_BOOL_ACCESSORS( m_waterSplashes )
 OPTION_BOOL_ACCESSORS( m_atmosphere )
@@ -184,6 +191,7 @@ OPTION_BOOL_ACCESSORS( m_structureCollapse )
 OPTION_BOOL_ACCESSORS( m_smoothMotion )
 OPTION_BOOL_ACCESSORS( m_internalHdr )
 OPTION_BOOL_ACCESSORS( m_heatHaze )
+OPTION_BOOL_ACCESSORS( m_fullDetailAtDistance )
 OPTION_INT_ACCESSORS( m_shadowQuality )
 OPTION_INT_ACCESSORS( m_graphicsQuality )
 
@@ -555,6 +563,19 @@ const OptionDef TheOptionCatalog[] =
 		OPTION_ENUM, APPLY_LIVE, 0, WATER_REFLECTION_DETAIL_COUNT - 1,
 		get_m_waterReflectionDetail, set_m_waterReflectionDetail },
 
+	// Swells that bend toward the shore and drop behind islands (the SDL Modern water only, off under
+	// Classic graphics).  An opt-in of its own, so the quality slider leaves it alone.
+	{ "MapAwareWaveHeading", OPT_WND( "CheckMapAwareWaveHeading" ), "GUI:MapAwareWaveHeading",
+		OPTION_BOOL, APPLY_LIVE, 0, 1,
+		get_m_mapAwareWaveHeading, set_m_mapAwareWaveHeading },
+
+	// Shallow shelves and ruins show through the sea where the map's authored opacity hid them;
+	// broad flat basins and deep water keep it (the SDL Modern water only, off under Classic graphics,
+	// never on rivers).  An opt-in of its own like the row above.
+	{ "UnderwaterClarity", OPT_WND( "CheckUnderwaterClarity" ), "GUI:UnderwaterClarity",
+		OPTION_BOOL, APPLY_LIVE, 0, 1,
+		get_m_underwaterClarity, set_m_underwaterClarity },
+
 	// Client appearance only; hazard area, lifetime and damage remain unchanged.
 	{ "CloudStyle", OPT_WND( "ComboBoxCloudStyle" ), "GUI:CloudStyle",
 		OPTION_ENUM, APPLY_LIVE, 0, CLOUD_STYLE_COUNT - 1,
@@ -603,7 +624,9 @@ const OptionDef TheOptionCatalog[] =
 		get_m_healthBarColors, set_m_healthBarColors },
 
 	// Where the in-game interface sits: 0 Classic, the bar along the bottom, 1 the Red Alert style
-	// sidebar down the right with a command strip under the world (docs/plans/HUD-SIDEBAR-LAYOUT.md).
+	// sidebar down the right with a command strip under the world (docs/plans/HUD-SIDEBAR-LAYOUT.md),
+	// 2 the same bar with the fork's pieces left off (HUD_LAYOUT_RETAIL, shown as Classic; 0 is shown
+	// as Reforged).
 	// Read as the bar is laid out, so Accept builds the shell and the bar again, in a match too.
 	// Every menu is fitted; MenuLayout, HudScale and the old InterfaceStyle are gone for good.  The
 	// layout brings its keys too, Classic's or Red Alert's (set_m_hudLayout); HotkeyScheme was a row of
@@ -671,6 +694,28 @@ const OptionDef TheOptionCatalog[] =
 	{ "EmptyBuildingPips",				OPT_WND( "CheckEmptyBuildingPips" ), "GUI:EmptyBuildingPips",
 		OPTION_BOOL, APPLY_LIVE, 0, 1,
 		get_m_showEmptyBuildingPips, set_m_showEmptyBuildingPips },
+
+	// A unit or building that takes damage lights up red for a blink, through the selection flash's
+	// envelope (Drawable::updateDrawable watches the body's last damage frame).  Off by default, as
+	// every row the fork adds.  Client only: logic never reads it, so two players in one match can
+	// differ.  Not a graphics look, so Classic Graphics leaves it alone and it has no quality row.
+	{ "HitFlash",									OPT_WND( "CheckHitFlash" ), "GUI:HitFlash",
+		OPTION_BOOL, APPLY_LIVE, 0, 1,
+		get_m_hitFlash, set_m_hitFlash },
+
+	// The damage a hit did rises over the struck unit or building as a red figure, on the money text's
+	// floating line (Drawable::updateDrawable gathers the body's health drop).  Off by default.  Client
+	// only, like Hit Flash, and drawn only on ground the screen's player sees clear.
+	{ "DamageNumbers",						OPT_WND( "CheckDamageNumbers" ), "GUI:DamageNumbers",
+		OPTION_BOOL, APPLY_LIVE, 0, 1,
+		get_m_damageNumbers, set_m_damageNumbers },
+
+	// The idle worker key and buttons centre the camera on the worker they pick, every press, on every
+	// layout (InGameUI::selectNextIdleWorker reads it).  On by default: that is the original game, and
+	// off is the fork's camera-stays-put, which Classic's bar still overrides.  Client only, no quality row.
+	{ "IdleWorkerCamera",					OPT_WND( "CheckIdleWorkerCamera" ), "GUI:IdleWorkerCamera",
+		OPTION_BOOL, APPLY_LIVE, 0, 1,
+		get_m_idleWorkerCamera, set_m_idleWorkerCamera },
 
 	// Which language the words are in.  English is the string table the game shipped with, and every
 	// other entry is a translation laid over it, so a line the translation lacks stays English.  The
@@ -763,6 +808,16 @@ const OptionDef TheOptionCatalog[] =
 		OPTION_BOOL, APPLY_LIVE, 0, 1,
 		get_m_groundFoliage, set_m_groundFoliage },
 
+	// A dying soldier goes limp and falls by the last hit instead of playing his death animation.
+	// W3DRagdoll asks at each death, so a switch mid-match reaches the next one and a body already
+	// falling finishes.  Client only: the logic never reads it, and the dead object is the same with
+	// it on or off.  Off under Classic graphics; -ragdoll turns it on for a run over both.  Either
+	// renderer.  On Options > Display beside Ground Foliage.  No quality slider row: it is a taste,
+	// a few microseconds of CPU a body, not a picture's price.
+	{ "Ragdoll",									OPT_WND( "CheckRagdoll" ), "GUI:Ragdoll",
+		OPTION_BOOL, APPLY_LIVE, 0, 1,
+		get_m_ragdoll, set_m_ragdoll },
+
 	// Craters and a building's stain on the terrain, fading over minutes, and darker treads.  The
 	// scorch buffer asks every draw.  Off under Classic graphics and -d3d9.  On Options > Effects.
 	{ "GroundMarks",							OPT_WND( "CheckGroundMarks" ), "GUI:GroundMarks",
@@ -787,6 +842,14 @@ const OptionDef TheOptionCatalog[] =
 	{ "AmbientOcclusion",					OPT_WND( "CheckAmbientOcclusion" ), "GUI:AmbientOcclusion",
 		OPTION_BOOL, APPLY_LIVE, 0, 1,
 		get_m_ambientOcclusion, set_m_ambientOcclusion },
+
+	// Sunlight caught in a low dust layer between buildings and trees, and a glare toward the sun's
+	// bearing, marched against the sun's shadow map.  W3DShaderManager pushes it every frame, and no sim
+	// reads it.  Off under Classic graphics and -d3d9, which draw no sun map.  On Options > Display, under
+	// Picture: every column of Graphics and Effects is full.
+	{ "SunShafts",								OPT_WND( "ComboBoxSunShafts" ), "GUI:SunShafts",
+		OPTION_ENUM, APPLY_LIVE, 0, SUN_SHAFTS_LEVEL_COUNT - 1,
+		get_m_sunShafts, set_m_sunShafts },
 
 	// Rain, blowing sand or snow by the map's ground, and a wind on trees and smoke.  Read every frame, and
 	// no sim reads it, so two players may differ.  Off under Classic graphics and -d3d9.  On Options > Effects.
@@ -838,6 +901,15 @@ const OptionDef TheOptionCatalog[] =
 	{ "HeatHaze",									OPT_WND( "CheckHeatHaze" ), "GUI:HeatHaze",
 		OPTION_BOOL, APPLY_LIVE, 0, 1,
 		get_m_heatHaze, set_m_heatHaze },
+
+	// The rebuilt models switch to lighter levels of detail as they grow small on the screen
+	// (chooseLODByScreenSize in W3DScene.cpp, every frame); on, every model draws its full level at any
+	// distance.  Retail models have one level and Classic graphics mounts no other, so neither changes.
+	// No sim reads it.  On Options > Display, in the Models group beside Detailed Models: every column of
+	// Graphics and Effects is full.
+	{ "FullDetailAtDistance",			OPT_WND( "CheckFullDetailAtDistance" ), "GUI:FullDetailAtDistance",
+		OPTION_BOOL, APPLY_LIVE, 0, 1,
+		get_m_fullDetailAtDistance, set_m_fullDetailAtDistance },
 
 	// The size of the sun's depth map.  The shadow pass asks for it every frame and the backend makes
 	// the map again when the size changes, so a new level shows on the next frame.  On Options >
@@ -939,6 +1011,10 @@ const GraphicsQualityRow TheGraphicsQualityTable[] =
 	{ "ComboBoxBloom",					0.1f,  {    0,    1,    2,    2,    2,    2,    2,    2,    2,    2,    2 } },
 	{ "SliderAnisotropy",				0.1f,  {    2,    4,    8,   16,   16,   16,   16,   16,   16,   16,   16 } },
 	{ "CheckParticleShadows",		0.15f, {    0,    0,    0,    0,    0,    0,    0,    1,    1,    1,    1 } },
+	// 1.81 against 1.98 ms GPU in two pairs on the sweep's fight from a far camera (2026-11-21,
+	// experiments/proofs/2026-11-21/lod-bridges/cost.ps1); the lighter levels are what a slow card's far
+	// camera is saved by, so it waits for Ultra
+	{ "CheckFullDetailAtDistance", 0.15f, {   0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    1 } },
 	{ "LowResSlider",						0.2f,  {    1,    2,    2,    2,    2,    2,    2,    2,    2,    2,    2 } },
 	{ "CheckPropShadows",				0.2f,  {    0,    0,    0,    0,    0,    0,    1,    1,    1,    1,    1 } },
 	{ "CheckWaterSplashes",			0.2f,  {    0,    0,    0,    0,    0,    0,    0,    0,    1,    1,    1 } },
@@ -949,6 +1025,9 @@ const GraphicsQualityRow TheGraphicsQualityTable[] =
 	{ "CheckHeatHaze",					0.25f, {    0,    0,    0,    0,    0,    0,    0,    0,    1,    1,    1 } },
 	{ "CheckAmbientOcclusion",	0.3f,  {    0,    0,    0,    0,    0,    0,    0,    0,    1,    1,    1 } },
 	{ "CheckMapLight",					0.35f, {    0,    0,    0,    0,    0,    0,    0,    0,    1,    1,    1 } },
+	// about 0.4 ms GPU at 1920x1080 in the filmed rounds of 2026-11-22, from the DX11 GPU frame
+	// lines on against off; Low above High, High at Ultra, and nothing without the sun's map from step 5
+	{ "ComboBoxSunShafts",			0.4f,  {    0,    0,    0,    0,    0,    0,    0,    0,    1,    1,    2 } },
 	{ "CheckFirelight",					0.4f,  {    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    1 } },
 	// 0.79 and 0.33 ms in the two pairs on 2026-11-01, the widest spread in the table
 	{ "CheckGroundMarks",				0.55f, {    0,    0,    0,    0,    0,    0,    0,    0,    0,    1,    1 } },
@@ -994,7 +1073,9 @@ Bool isModernWaterOption( const OptionDef& def )
 		|| strcmp( def.iniKey, "WaterReflectionEnabled" ) == 0
 		|| strcmp( def.iniKey, "WaterFftResolution" ) == 0
 		|| strcmp( def.iniKey, "WaterRefractionQuality" ) == 0
-		|| strcmp( def.iniKey, "WaterReflectionDetail" ) == 0;
+		|| strcmp( def.iniKey, "WaterReflectionDetail" ) == 0
+		|| strcmp( def.iniKey, "MapAwareWaveHeading" ) == 0
+		|| strcmp( def.iniKey, "UnderwaterClarity" ) == 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -1027,7 +1108,12 @@ static Int parseOptionValue( const OptionDef& def, const AsciiString& stored )
 		return on ? 1 : 0;
 	}
 
-	return clampOptionValue( def, atoi( stored.str() ) );
+	// a layout gone from the list (the plain Reforged one was 3 for an afternoon) is the default bar,
+	// not whichever layout happens to be last
+	const Int number = atoi( stored.str() );
+	if( strcmp( def.iniKey, "HudLayout" ) == 0 && ( number < def.lo || number > def.hi ) )
+		return def.lo;
+	return clampOptionValue( def, number );
 }
 
 //-----------------------------------------------------------------------------

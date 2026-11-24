@@ -49,6 +49,19 @@ class VideoBuffer;
 class VideoStreamInterface;
 class WindowVideoManager;
 class LoadScreenBoard;
+class AudioManager;
+
+/// Separate original-Generals narration, cued once without restoring legacy window animation.
+class CampaignBriefingVoice
+{
+public:
+	CampaignBriefingVoice() : m_attempted(FALSE) {}
+	void reset() { m_attempted = FALSE; }
+	void cancel() { m_attempted = TRUE; }
+	void update(AudioManager &audio, const AudioEventRTS &voice, Int movieFrame, Bool skipMovie);
+private:
+	Bool m_attempted;
+};
 
 
 
@@ -67,6 +80,7 @@ public:
 	virtual void update( Int percent ); ///< Update the state of the slider bars
 	virtual void processProgress(Int playerId, Int percentage) = 0;
 	virtual void setProgressRange( Int min, Int max ) = 0;
+	virtual void showRejoin( Int percent, Bool waitingForLog ) { }	///< a seat coming back catches up behind the board
 protected:
 	void setLoadScreen( GameWindow *g ) { m_loadScreen = g; }
 	GameWindow *m_loadScreen;		///< The GameWindow that is our loadscreen
@@ -118,6 +132,8 @@ private:
 	VideoStreamInterface *m_videoStream;
 	LoadScreenBoard *m_board;					///< the mission's name, briefing and tip, over the picture once the movie is done
 
+	CampaignBriefingVoice m_briefingVoice;
+	void startBriefingAudio(const Mission &mission, Int movieFrame, Bool skipMovie = FALSE);
 	void moveWindows( Int frame );
 
 	AudioEventRTS m_ambientLoop;
@@ -245,6 +261,7 @@ public:
 	virtual void update(Int percent);		 ///< Update the state of the progress bar
 	void processProgress(Int playerId, Int percentage);
 	virtual void setProgressRange( Int min, Int max ) { }
+	virtual void showRejoin( Int percent, Bool waitingForLog );
 private:
 	LoadScreenBoard *m_board;
 
@@ -268,6 +285,7 @@ public:
 	virtual void update(Int percent);		 ///< Update the state of the progress bar
 	void processProgress(Int playerId, Int percentage);
 	virtual void setProgressRange( Int min, Int max ) { }
+	virtual void showRejoin( Int percent, Bool waitingForLog );
 private:
 	LoadScreenBoard *m_board;
 };

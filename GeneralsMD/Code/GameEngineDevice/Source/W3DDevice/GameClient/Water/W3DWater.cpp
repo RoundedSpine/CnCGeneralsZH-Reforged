@@ -35,9 +35,12 @@
 // INCLUDES ///////////////////////////////////////////////////////////////////////////////////////
 #include "stdio.h"
 #include "Lib/Clock.h"
+#include "Platform/RenderWaterFoam.h"
 #include "Platform/WaterSurfaceModel.h"
 #include "Platform/WaterPerformanceSettings.h"
 #include "Platform/ModernWaterMaterial.h"
+#include "Platform/WaterWaveHeading.h"
+#include "Platform/WaterUnderwaterClarity.h"
 #include "Platform/WaterShoreOverlay.h"
 #include "Platform/WaterFoamWindow.h"
 #include "Platform/WaterFoamParticlePolicy.h"
@@ -55,6 +58,7 @@
 #include "W3DDevice/GameClient/Module/W3DModelDraw.h"
 #include "W3DDevice/GameClient/W3DWater.h"
 #include "W3DDevice/GameClient/HeightMap.h"
+#include "W3DDevice/GameClient/TerrainSkirt.h"
 #include "W3DDevice/GameClient/W3DShroud.h"
 #include "W3DDevice/GameClient/W3DWaterTracks.h"
 #include "W3DDevice/GameClient/W3DAssetManager.h"
@@ -257,7 +261,12 @@ static Bool wireframeForDebug = 0;
 static Bool waterFoam(void)
 {
 	return TheGlobalData->m_waterFoam && !TheGlobalData->m_classicGraphics
-		&& TheGlobalData->m_waterStyle == 0 && Direct3D11_Present_Is_Enabled();
+		&& TheGlobalData->m_waterStyle == 0
+#if defined(_WIN32)
+		&& Direct3D11_Present_Is_Enabled();
+#else
+		&& RenderWaterFoam::Ready();
+#endif
 }
 
 // What the foam programs read out of the texture factor: green is the swell's phase, alpha the
@@ -527,6 +536,212 @@ void WaterRenderObjClass::takeWaterPolygonsForDraw(void)
 		for (Int i=0;i<trigger->getNumPoints();++i) polygon.points.push_back(*trigger->getPoint(i));
 		m_waterPolygonsForDraw.push_back(std::move(polygon));
 	}
+	addSkirtSeas();
+}
+
+enum { SKIRT_SEA_LEFT, SKIRT_SEA_RIGHT, SKIRT_SEA_BOTTOM, SKIRT_SEA_TOP };
+
+/** The sea past the heightmap's edge, over the land drawn there (TerrainSkirt).  Every side of a
+	sea's polygon that runs along the map's border band (anywhere from the playable edge out) and faces
+	out of it, of a polygon that reaches the heightmap's edge, gets strips out to the skirt's rim at the
+	side's own level, only where the heightmap's edge lies under that level (addSkirtSeaRuns), and a
+	corner of the heightmap with sea on past both its edges a square (addSkirtSeaCorners), as polygons
+	of their own after the authored ones.  The water stopped dead in a ruler line along the edge on
+	Tournament Island.  Nothing moves an authored point, so the water inside the map is the polygon's
+	exactly; rivers keep their banks.  The skirt takes its sea floor from these strips alone
+	(getSkirtSeaLevel), so no sea floor lies dry, and is built again when they change. */
+void WaterRenderObjClass::addSkirtSeas(void)
+{
+	m_skirtSeasFirst = m_waterPolygonsForDraw.size();
+	m_skirtSeaRuns.clear();
+	WorldHeightMap *map = TheTerrainRenderObject ? TheTerrainRenderObject->getMap() : NULL;
+	if (map == NULL || map->getXExtent() < 2 || map->getYExtent() < 2)
+		return;
+	const Int SNAP = (map->getBorderSize() + 2)*MAP_XY_FACTOR;	// a point this near the heightmap's edge is in the border band
+	const Int lowX = -map->getBorderSize()*MAP_XY_FACTOR, highX = (map->getXExtent() - 1 - map->getBorderSize())*MAP_XY_FACTOR;
+	const Int lowY = -map->getBorderSize()*MAP_XY_FACTOR, highY = (map->getYExtent() - 1 - map->getBorderSize())*MAP_XY_FACTOR;
+	const size_t authored = m_waterPolygonsForDraw.size();
+	uintptr_t added = 0;
+	for (size_t p = 0; p < authored; ++p) {
+		if (m_waterPolygonsForDraw[p].river || m_waterPolygonsForDraw[p].points.size() < 3)
+			continue;
+		const std::vector<ICoord3D> points = m_waterPolygonsForDraw[p].points;
+		const uintptr_t owner = m_waterPolygonsForDraw[p].owner;
+		double area = 0.0;	// the strips wind the way their polygon does
+		Int minX = points[0].x, maxX = points[0].x, minY = points[0].y, maxY = points[0].y;
+		for (size_t i = 0; i < points.size(); ++i) {
+			const ICoord3D &a = points[i], &b = points[(i + 1) % points.size()];
+			area += (double)a.x*b.y - (double)b.x*a.y;
+			minX = min(minX, a.x); maxX = max(maxX, a.x);
+			minY = min(minY, a.y); maxY = max(maxY, a.y);
+		}
+		// Only a sea that reaches the heightmap's edge itself goes on past it: a lake in the border band
+		// sent channels of water out through the land.
+		const Bool reachesLeft = minX <= lowX + MAP_XY_FACTOR, reachesRight = maxX >= highX - MAP_XY_FACTOR;
+		const Bool reachesBottom = minY <= lowY + MAP_XY_FACTOR, reachesTop = maxY >= highY - MAP_XY_FACTOR;
+		const Int winding = area > 0.0 ? 1 : -1;
+		for (size_t i = 0; i < points.size(); ++i) {
+			const ICoord3D &a = points[i], &b = points[(i + 1) % points.size()];
+			// the side's outward normal: a side facing back into the polygon (the far shore of a sea
+			// along the edge) would lay a strip over the water it already has
+			const Int normalX = winding*(b.y - a.y), normalY = -winding*(b.x - a.x);
+			Int edge;
+			if (reachesLeft && normalX < 0 && a.x <= lowX + SNAP && b.x <= lowX + SNAP) edge = SKIRT_SEA_LEFT;
+			else if (reachesRight && normalX > 0 && a.x >= highX - SNAP && b.x >= highX - SNAP) edge = SKIRT_SEA_RIGHT;
+			else if (reachesBottom && normalY < 0 && a.y <= lowY + SNAP && b.y <= lowY + SNAP) edge = SKIRT_SEA_BOTTOM;
+			else if (reachesTop && normalY > 0 && a.y >= highY - SNAP && b.y >= highY - SNAP) edge = SKIRT_SEA_TOP;
+			else continue;
+			addSkirtSeaRuns(a, b, edge, winding, owner, &added);
+		}
+	}
+	addSkirtSeaCorners(&added);
+	double sum = 0.0;
+	for (size_t p = m_skirtSeasFirst; p < m_waterPolygonsForDraw.size(); ++p)
+		for (const ICoord3D &point : m_waterPolygonsForDraw[p].points)
+			sum = sum*1.000003 + point.x*3.0 + point.y*7.0 + point.z*11.0;
+	if (sum != m_skirtSeasSum) {
+		m_skirtSeasSum = sum;
+		TheTerrainRenderObject->invalidateSkirt();
+	}
+}
+
+/** A side's strips past the heightmap's edge: one for each stretch of it over edge samples lower than
+	the water, so a polygon drawn wide under dry ground (Golden Oasis' south, 7% of it wet) carries no
+	sea out over the land. */
+void WaterRenderObjClass::addSkirtSeaRuns(const ICoord3D &a, const ICoord3D &b, Int edge, Int winding, uintptr_t owner, uintptr_t *added)
+{
+	WorldHeightMap *map = TheTerrainRenderObject->getMap();
+	const UnsignedByte *data = map->getDataPtr();
+	if (data == NULL)
+		return;
+	const Int w = map->getXExtent(), h = map->getYExtent(), border = map->getBorderSize();
+	const Bool alongX = edge == SKIRT_SEA_BOTTOM || edge == SKIRT_SEA_TOP;
+	const Int ua = alongX ? a.x : a.y, ub = alongX ? b.x : b.y;
+	if (ua == ub)
+		return;
+	const Int REACH = (Int)TerrainSkirt::REACH;
+	const Int CELL = (Int)MAP_XY_FACTOR;
+	const Int HALF_CELL = CELL/2;
+	const Int lowU = min(ua, ub), highU = max(ua, ub);
+	const Int first = (Int)ceilf((Real)lowU/CELL), last = (Int)floorf((Real)highU/CELL);
+	const Int samples = alongX ? w : h;
+	auto pointAt = [&](Int u) {
+		const Real t = (Real)(u - ua)/(Real)(ub - ua);
+		ICoord3D p;
+		p.x = REAL_TO_INT_FLOOR(a.x + (b.x - a.x)*t + 0.5f);
+		p.y = REAL_TO_INT_FLOOR(a.y + (b.y - a.y)*t + 0.5f);
+		p.z = REAL_TO_INT_FLOOR(a.z + (b.z - a.z)*t + 0.5f);
+		return p;
+	};
+	Int runStart = 0;
+	Bool inRun = FALSE;
+	for (Int s = first; s <= last + 1; ++s) {
+		Bool wet = FALSE;
+		if (s <= last) {
+			const Int cell = max(0, min(samples - 1, s + border));
+			const Int index = edge == SKIRT_SEA_BOTTOM ? cell : (edge == SKIRT_SEA_TOP ? (h - 1)*w + cell
+				: (edge == SKIRT_SEA_LEFT ? cell*w : cell*w + w - 1));
+			wet = data[index]*MAP_HEIGHT_SCALE < (Real)pointAt(s*CELL).z;
+		}
+		if (wet && !inRun) {
+			runStart = s;
+			inRun = TRUE;
+		} else if (!wet && inRun) {
+			inRun = FALSE;
+			const Int start = max(lowU, runStart*CELL - HALF_CELL), end = min(highU, (s - 1)*CELL + HALF_CELL);
+			if (end <= start)
+				continue;
+			const ICoord3D near0 = pointAt(start), near1 = pointAt(end);
+			ICoord3D quad[4] = { near0, near1, near1, near0 };
+			if (edge == SKIRT_SEA_LEFT) quad[2].x = quad[3].x = -border*CELL - REACH;
+			else if (edge == SKIRT_SEA_RIGHT) quad[2].x = quad[3].x = (w - 1 - border)*CELL + REACH;
+			else if (edge == SKIRT_SEA_BOTTOM) quad[2].y = quad[3].y = -border*CELL - REACH;
+			else quad[2].y = quad[3].y = (h - 1 - border)*CELL + REACH;
+			addSkirtSeaQuad(quad, winding, owner, added);
+			SkirtSeaRun run = { edge, start, end, near0.z, near1.z, winding, owner };
+			m_skirtSeaRuns.push_back(run);
+		}
+	}
+}
+
+/** A square past each corner of the heightmap whose two edges both carry sea on to it, at the level of
+	the run along the lower edge.  Tournament Island's corners stood bare between two seas. */
+void WaterRenderObjClass::addSkirtSeaCorners(uintptr_t *added)
+{
+	WorldHeightMap *map = TheTerrainRenderObject->getMap();
+	const Int border = map->getBorderSize();
+	const Int REACH = (Int)TerrainSkirt::REACH;
+	const Int CELL = (Int)MAP_XY_FACTOR;
+	const Int SNAP = (border + 2)*CELL;
+	const Int lowX = -border*CELL, highX = (map->getXExtent() - 1 - border)*CELL;
+	const Int lowY = -border*CELL, highY = (map->getYExtent() - 1 - border)*CELL;
+	for (Int corner = 0; corner < 4; ++corner) {
+		const Bool right = (corner & 1) != 0, top = (corner & 2) != 0;
+		const SkirtSeaRun *across = NULL, *beside = NULL;	// along the bottom or top edge, and the left or right
+		for (const SkirtSeaRun &run : m_skirtSeaRuns) {
+			if (run.edge == (top ? SKIRT_SEA_TOP : SKIRT_SEA_BOTTOM) && (right ? run.end >= highX - SNAP : run.start <= lowX + SNAP))
+				across = &run;
+			if (run.edge == (right ? SKIRT_SEA_RIGHT : SKIRT_SEA_LEFT) && (top ? run.end >= highY - SNAP : run.start <= lowY + SNAP))
+				beside = &run;
+		}
+		if (across == NULL || beside == NULL)
+			continue;
+		ICoord3D quad[4];
+		const Int x = right ? across->end : across->start, y = top ? beside->end : beside->start;
+		const Int farX = right ? highX + REACH : lowX - REACH, farY = top ? highY + REACH : lowY - REACH;
+		const Int z = right ? across->endZ : across->startZ;
+		quad[0].x = x;    quad[0].y = y;    quad[0].z = z;
+		quad[1].x = farX; quad[1].y = y;    quad[1].z = z;
+		quad[2].x = farX; quad[2].y = farY; quad[2].z = z;
+		quad[3].x = x;    quad[3].y = farY; quad[3].z = z;
+		addSkirtSeaQuad(quad, across->winding, across->owner, added);
+	}
+}
+
+/** One strip or square as a polygon of the draw copy, wound as the polygon it came from. */
+void WaterRenderObjClass::addSkirtSeaQuad(const ICoord3D quad[4], Int winding, uintptr_t owner, uintptr_t *added)
+{
+	WaterPolygonForDraw sea;
+	sea.river = FALSE;
+	sea.riverStart = 0;
+	sea.owner = ~owner - (*added)++;	// no polygon's address: the bow foam keys its patches by owner
+	sea.points.assign(quad, quad + 4);
+	double quadArea = 0.0;
+	for (Int i = 0; i < 4; ++i) {
+		const ICoord3D &a = sea.points[i], &b = sea.points[(i + 1) % 4];
+		quadArea += (double)a.x*b.y - (double)b.x*a.y;
+	}
+	if (quadArea == 0.0)
+		return;
+	if ((quadArea > 0.0) != (winding > 0))
+		std::swap(sea.points[1], sea.points[3]);
+	Real minX = 1.0e9f, minY = 1.0e9f, maxX = -1.0e9f, maxY = -1.0e9f;
+	for (Int i = 0; i < 4; ++i) {
+		minX = min(minX, (Real)sea.points[i].x); maxX = max(maxX, (Real)sea.points[i].x);
+		minY = min(minY, (Real)sea.points[i].y); maxY = max(maxY, (Real)sea.points[i].y);
+	}
+	sea.center.x = 0.5f*(minX + maxX);
+	sea.center.y = 0.5f*(minY + maxY);
+	sea.center.z = 0.0f;
+	sea.radius = 0.5f*sqrtf((maxX - minX)*(maxX - minX) + (maxY - minY)*(maxY - minY));
+	m_waterPolygonsForDraw.push_back(std::move(sea));
+}
+
+Real WaterRenderObjClass::getSkirtSeaLevel(Real x, Real y) const
+{
+	Real level = INVALID_WATER_HEIGHT;
+	for (size_t p = m_skirtSeasFirst; p < m_waterPolygonsForDraw.size(); ++p) {
+		const std::vector<ICoord3D> &points = m_waterPolygonsForDraw[p].points;
+		Bool inside = FALSE;	// even-odd over the strip's four sides
+		for (size_t i = 0, j = points.size() - 1; i < points.size(); j = i++) {
+			const Real xi = (Real)points[i].x, yi = (Real)points[i].y, xj = (Real)points[j].x, yj = (Real)points[j].y;
+			if ((yi > y) != (yj > y) && x < xi + (xj - xi)*(y - yi)/(yj - yi))
+				inside = !inside;
+		}
+		if (inside && (Real)points[0].z > level)
+			level = (Real)points[0].z;
+	}
+	return level;
 }
 
 void WaterRenderObjClass::takeMotionReadsForRender(void)
@@ -582,6 +797,11 @@ void WaterRenderObjClass::takeReadsForRender(void)
 		}
 		m_modernObjectsForDraw.emplace((UnsignedInt)object->getID(),read);
 	}
+}
+#else
+Real WaterRenderObjClass::getSkirtSeaLevel(Real, Real) const
+{
+	return INVALID_WATER_HEIGHT;	// no draw copy of the polygons to extend: the skirt stays land
 }
 #endif
 
@@ -1272,12 +1492,19 @@ void WaterRenderObjClass::setupModernWaterShader(Bool river, Bool heightCorrecti
 	const D3DXVECTOR4 optics(TheWaterTransparency->m_transparentWaterDepth,
 		TheWaterTransparency->m_minWaterOpacity, optical ? 1.0f : 0.0f, heightCorrection && !river ? 1.0f : 0.0f);
 	setModernWaterConstants(6, optics, 1);
-	D3DXVECTOR4 materialColor, materialParameters;
-	getModernWaterMaterial(&materialColor.x, &materialParameters.x);
+	D3DXVECTOR4 materialColor, materialParameters, materialSurface;
+	getModernWaterMaterial(&materialColor.x, &materialParameters.x, &materialSurface.x);
+	if (WaterScreenReflection::Supported())
+		setModernWaterConstants(ModernWaterMaterial::RegisterSurface, materialSurface, 1);
 	if (WaterScreenReflection::Supported())
 		materialParameters.w = WaterScreenReflection::Traces(m_waterReflectionMode) ? 1.0f : 0.0f;
 	setModernWaterConstants(ModernWaterMaterial::RegisterColor, materialColor, 1);
 	setModernWaterConstants(ModernWaterMaterial::RegisterParameters, materialParameters, 1);
+	if (WaterUnderwaterClarity::Supported()) {
+		const float clarity = TheGlobalData->m_underwaterClarity && !TheGlobalData->m_classicGraphics && !river
+			? WaterUnderwaterClarity::Strength : 0.0f;
+		setModernWaterConstants(WaterUnderwaterClarity::Register, D3DXVECTOR4(clarity, 0, 0, 0), 1);
+	}
 	const RGBColor &ambient = TheGlobalData->m_terrainAmbient[0];
 	const D3DXVECTOR4 hullParameters(river ? 0.0f : float(m_modernHulls.size()), ambient.red, ambient.green, ambient.blue);
 	setModernWaterConstants(7, hullParameters, 1);
@@ -1321,6 +1548,15 @@ void WaterRenderObjClass::setupModernWaterShader(Bool river, Bool heightCorrecti
 			&packets[0][0], WaterHullVisualLayout::PacketRegisters);
 	}
 	DX8Wrapper::Set_DX8_Texture(4, optical ? optical->Peek_D3D_Texture() : NULL);
+#if defined(__linux__)
+	TextureClass *heading=NULL;D3DXVECTOR4 prevailing(0,0,0,0);
+	if(!river && optical && m_modernHeadingEnabled)
+		for(const ModernOpticalTexture &cached:m_modernOpticalTextures)
+			if(cached.level==m_modernOpticalLevel){heading=cached.heading;prevailing.x=cached.prevailingRotation;prevailing.y=cached.swellStep;break;}
+	prevailing.z=heading?1.0f:0.0f;
+	DX8Wrapper::Set_DX8_Texture(WaterWaveHeading::PixelTextureSlot,heading?heading->Peek_D3D_Texture():NULL);
+	setModernWaterConstants(WaterWaveHeading::PrevailingRegister,prevailing,1);
+#endif
 	bindModernWaterFoam(m_modernOpticalLevel, river);
 	TextureClass *heightTexture = m_modernHeightTexture;
 	if (waveCage && !river && heightCorrection)
@@ -1482,6 +1718,7 @@ void WaterRenderObjClass::clearModernWaterOpticalTextures(void)
 	m_modernObstacleIndex.Clear();
 	for (size_t i=0;i<m_modernOpticalTextures.size();++i) {
 		REF_PTR_RELEASE(m_modernOpticalTextures[i].texture);
+		REF_PTR_RELEASE(m_modernOpticalTextures[i].heading);
 		REF_PTR_RELEASE(m_modernOpticalTextures[i].waveCage);
 	}
 	m_modernOpticalTextures.clear();
@@ -1519,6 +1756,12 @@ void WaterRenderObjClass::refreshModernWaterOpticalPolygons(void)
 TextureClass *WaterRenderObjClass::modernWaterOpticalTexture(Real level)
 {
 #if ZH_MODERN_WATER
+	const Bool headingWanted=TheGlobalData && TheGlobalData->m_mapAwareWaveHeading
+		&& !TheGlobalData->m_classicGraphics && TheGlobalData->m_waterStyle!=0 && WaterWaveHeading::Supported();
+	if(headingWanted!=m_modernHeadingEnabled) {
+		invalidateModernWaterShore();clearModernWaterOpticalTextures();
+		m_modernHeadingEnabled=headingWanted;
+	}
 	if (!m_modernOpticalPolygonsValid) return NULL;
 	for (size_t i=0;i<m_modernOpticalTextures.size();++i)
 		if (m_modernOpticalTextures[i].level==level) return m_modernOpticalTextures[i].texture;
@@ -1529,7 +1772,7 @@ TextureClass *WaterRenderObjClass::modernWaterOpticalTexture(Real level)
 	WaterOpticalContext::Field field;
 	if (!WaterOpticalContext::Build(m_modernHeights.empty()?NULL:m_modernHeights.data(),
 		m_modernHeightWidth,m_modernHeightHeight,m_modernHeightBorder,MAP_XY_FACTOR,MAP_HEIGHT_SCALE,
-		level,m_modernOpticalPolygons,field)) return NULL;
+		level,m_modernOpticalPolygons,field,m_modernHeadingEnabled)) return NULL;
 	m_modernOpticalTextures.back().shoreContext=field;
 	TextureClass *texture=NEW_REF(TextureClass,(m_modernHeightSide,m_modernHeightSide,WW3D_FORMAT_A8R8G8B8,MIP_LEVELS_1));
 	SurfaceClass *surface=texture->Get_Surface_Level();
@@ -1545,6 +1788,29 @@ TextureClass *WaterRenderObjClass::modernWaterOpticalTexture(Real level)
 	if (!bits) { REF_PTR_RELEASE(texture); return NULL; }
 	ModernOpticalTexture &cached=m_modernOpticalTextures.back();
 	cached.texture=texture;
+#if defined(__linux__)
+	if(m_modernHeadingEnabled) {
+		WaterWaveHeading::Field heading;
+		if(WaterWaveHeading::Build(field.wet.data(),field.exposure.data(),
+			m_modernHeightWidth,m_modernHeightHeight,m_modernHeightBorder,MAP_XY_FACTOR,heading,field.links.data())) {
+			TextureClass *headingTexture=NEW_REF(TextureClass,(2*m_modernHeightSide,m_modernHeightSide,WW3D_FORMAT_A8R8G8B8,MIP_LEVELS_1));
+			SurfaceClass *headingSurface=headingTexture?headingTexture->Get_Surface_Level():NULL;
+			Int headingPitch=0;void *headingBits=headingSurface?headingSurface->Lock(&headingPitch):NULL;
+			const Bool uploaded=headingBits && headingPitch>=m_modernHeightSide*8;
+			if(uploaded)
+				for(Int y=0;y<m_modernHeightSide;++y) for(Int x=0;x<m_modernHeightSide;++x) {
+					const size_t n=size_t(min(y,m_modernHeightHeight-1))*m_modernHeightWidth+min(x,m_modernHeightWidth-1);
+					((UnsignedInt*)((char*)headingBits+y*headingPitch))[2*x]=heading.texels[2*n];
+					((UnsignedInt*)((char*)headingBits+y*headingPitch))[2*x+1]=heading.texels[2*n+1];
+				}
+			if(headingBits)headingSurface->Unlock();
+			REF_PTR_RELEASE(headingSurface);
+			if(uploaded){cached.heading=headingTexture;cached.prevailingRotation=WaterWaveHeading::Rotation(heading.prevailing);cached.swellStep=heading.uStep;}
+			else REF_PTR_RELEASE(headingTexture);
+		}
+	}
+#endif
+
 	{
 		WaterWaveCage::Field cage;
 		if(WaterWaveCage::Build(m_modernHeights.data(),m_modernHeightWidth,m_modernHeightHeight,
@@ -2768,6 +3034,56 @@ void WaterRenderObjClass::setTimeOfDay(TimeOfDay tod)
 		generateVertexBuffer(PATCH_SIZE,PATCH_SIZE,sizeof(SEA_PATCH_VERTEX),true);	//update the water mesh with new lighting/alpha
 }
 
+static UnsignedInt blendColor(UnsignedInt a, UnsignedInt b, Real t)
+{
+	UnsignedInt out = 0;
+	for (Int shift = 0; shift < 32; shift += 8)
+	{
+		const Real ca = (Real)((a >> shift) & 0xff), cb = (Real)((b >> shift) & 0xff);
+		out |= ((UnsignedInt)(ca + (cb - ca) * t + 0.5f) & 0xff) << shift;
+	}
+	return out;
+}
+
+//-------------------------------------------------------------------------------------------------
+/** The day and night cycle's water: at the turn of the dusk and the dawn it moves from the day's
+	setting to the night's over a few seconds instead of in one picture.  The blend is built in the
+	setting slot no hour uses (TIME_OF_DAY_INVALID) and drawn from there, the colours mixed and the
+	textures and their scroll the day's; at either end it is the plain hour again. */
+//-------------------------------------------------------------------------------------------------
+void WaterRenderObjClass::setTimeOfDayBlend(TimeOfDay day, Real night)
+{
+	if (night <= 0.0f || day == TIME_OF_DAY_NIGHT)
+	{
+		setTimeOfDay(night >= 1.0f ? TIME_OF_DAY_NIGHT : day);
+		return;
+	}
+	if (night >= 1.0f)
+	{
+		setTimeOfDay(TIME_OF_DAY_NIGHT);
+		return;
+	}
+	const Setting &a = m_settings[day];
+	const Setting &b = m_settings[TIME_OF_DAY_NIGHT];
+	// the textures cannot blend: the day's until the colours are fully the night's, so they change
+	// where the water is darkest, at the end of the dusk's ease and the start of the dawn's
+	const Setting &nearer = a;
+	Setting &mix = m_settings[TIME_OF_DAY_INVALID];
+	REF_PTR_SET(mix.skyTexture, nearer.skyTexture);
+	REF_PTR_SET(mix.waterTexture, nearer.waterTexture);
+	mix.waterRepeatCount = nearer.waterRepeatCount;
+	mix.skyTexelsPerUnit = nearer.skyTexelsPerUnit;
+	mix.uScrollPerMs = nearer.uScrollPerMs;
+	mix.vScrollPerMs = nearer.vScrollPerMs;
+	mix.vertex00Diffuse = blendColor(a.vertex00Diffuse, b.vertex00Diffuse, night);
+	mix.vertex10Diffuse = blendColor(a.vertex10Diffuse, b.vertex10Diffuse, night);
+	mix.vertex11Diffuse = blendColor(a.vertex11Diffuse, b.vertex11Diffuse, night);
+	mix.vertex01Diffuse = blendColor(a.vertex01Diffuse, b.vertex01Diffuse, night);
+	mix.waterDiffuse = blendColor(a.waterDiffuse, b.waterDiffuse, night);
+	mix.transparentWaterDiffuse = blendColor(a.transparentWaterDiffuse, b.transparentWaterDiffuse, night);
+	setTimeOfDay(TIME_OF_DAY_INVALID);
+}
+
 //-------------------------------------------------------------------------------------------------
 /**Copies GDF settings dealing with a particular time of day into our own
 	* structures.  Also allocates any required W3D assets (textures). */
@@ -3199,6 +3515,18 @@ void WaterRenderObjClass::Render(RenderInfoClass & rinfo)
 		Direct3D11_Take_Scene_Depth();
 
 #if ZH_MODERN_WATER
+	// A rule's WindResistance calms the CPU mesh too; a change throws the cached heights away.
+	Real windGain = 1.0f;
+	if (m_useModernWater && WaterScreenReflection::Supported()) {
+		Real color[4], parameters[4], surface[4];
+		getModernWaterMaterial(color, parameters, surface);
+		windGain = ModernWaterMaterial::WindGain(surface[3]);
+	}
+	if (windGain != m_modernWindGain) {
+		clearModernWaterRenderCaches();
+		m_modernProjectedSamples.clear();
+		m_modernWindGain = windGain;
+	}
 	WaterShoreOverlay::Scope shoreScope(DX8Wrapper::_Get_D3D_Device(),
 		m_useModernWater && m_waterType==WATER_TYPE_0_TRANSLUCENT && m_trapezoidWaterPixelShader &&
 		!TheGlobalData->m_isWorldBuilder && !TheGlobalData->m_usingWaterTrackEditor);
@@ -3207,6 +3535,9 @@ void WaterRenderObjClass::Render(RenderInfoClass & rinfo)
 	unsigned oldModernBaseCoordIndex=0,oldModernBaseTransformFlags=0;
 	Bool oldModernStagesKnown=FALSE;
 	IDirect3DBaseTexture9 *oldModernBed=NULL,*oldModernOptical=NULL,*oldModernFoam=NULL;
+#if defined(__linux__)
+	IDirect3DBaseTexture9 *oldModernHeading=NULL;
+#endif
 	if (m_useModernWater) {
 		// The wrapper's own record: under Direct3D 11 the Direct3D 9 device is behind it (Defer_D3D9_State).
 		// Stage 14 is past the wrapper's stages and is set on the device at once.
@@ -3219,6 +3550,9 @@ void WaterRenderObjClass::Render(RenderInfoClass & rinfo)
 		oldModernOptical=DX8Wrapper::Get_DX8_Texture(4);
 		if (oldModernOptical) oldModernOptical->AddRef();
 		DX8Wrapper::_Get_D3D_Device()->GetTexture(14,&oldModernFoam);
+#if defined(__linux__)
+		DX8Wrapper::_Get_D3D_Device()->GetTexture(WaterWaveHeading::PixelTextureSlot,&oldModernHeading);
+#endif
 		updateModernWaterTextures();
 		refreshModernWaterOpticalPolygons();
 		m_modernRenderCamera=&rinfo.Camera;
@@ -3463,11 +3797,19 @@ void WaterRenderObjClass::Render(RenderInfoClass & rinfo)
 		if (oldModernOptical) oldModernOptical->Release();
 		DX8Wrapper::Set_DX8_Texture(14,oldModernFoam);
 		if(oldModernFoam) oldModernFoam->Release();
+#if defined(__linux__)
+		DX8Wrapper::Set_DX8_Texture(WaterWaveHeading::PixelTextureSlot,oldModernHeading);
+		if(oldModernHeading) oldModernHeading->Release();
+#endif
 		m_modernBowAdmissions.End();
 
 		m_modernRenderCamera=NULL;
 	}
 #endif
+
+	// the land past the map into the rim's colour, over any sea drawn on it
+	if (TheTerrainRenderObject)
+		TheTerrainRenderObject->drawSkirtFade();
 
 	// A mod whose art has no new_skybox model still turns the sky box on (DrawSkyBox, or a map
 	// script), and the draw called through a null model at match start (crash report 4123).
@@ -4710,7 +5052,7 @@ void WaterRenderObjClass::drawModernWaterPatch(const Vector3 points[4], Bool riv
 						p.y / MAP_XY_FACTOR + m_modernHeightBorder, MAP_XY_FACTOR).height;
 					sample.fftDamping = WaterFftGeometry::SafeDamping(hullFreeDamping, terrainDepth);
 					sample.height = sample.damping > 0 ? WaterSurfaceModel::EvaluateBlendedHeight(p.x, p.y, m_modernWaveTime,
-						offshore) * sample.damping : 0;
+						offshore) * sample.damping * m_modernWindGain : 0;
 					if (share) {
 						if (reuseWater) m_modernRenderCaches.samples.Store(key,sample);
 						else if (m_modernProjectedSamples.size()<WaterSurfaceModel::VertexBudget) m_modernProjectedSamples.emplace(key,sample);
@@ -4870,6 +5212,7 @@ void WaterRenderObjClass::drawModernWaterPatch(const Vector3 points[4], Bool riv
 				}
 				vertex->x = p.x;
 				vertex->y = p.y;
+				ModernWaterMaterial::ApplyWindGain(wave, m_modernWindGain);
 				vertex->z = p.z + damping * wave.height;
 				// The flat modern shader uses only alpha for colour/shroud. PRELIT_DIFFUSE passes RGB
 				// through unchanged, so red carries the obstacle profile independently of terrain.
@@ -5852,3 +6195,25 @@ void WaterRenderObjClass::renderSkyBody(Matrix3D *mat)
 /* The save's grid data (the snapshot that was here) is WaterGrid::xfer's; W3DTerrainVisual::xfer
 	 still writes it in the same place. */
 
+
+namespace WaterWaveHeading {
+bool Supported()
+{
+#if defined(__linux__)
+	return PosixWaterGpuAvailable(DX8Wrapper::_Get_D3D_Device());
+#else
+	return false;
+#endif
+}
+}
+
+namespace WaterUnderwaterClarity {
+bool Supported()
+{
+#if defined(_WIN32)
+	return false;
+#else
+	return PosixWaterGpuAvailable(DX8Wrapper::_Get_D3D_Device());
+#endif
+}
+}

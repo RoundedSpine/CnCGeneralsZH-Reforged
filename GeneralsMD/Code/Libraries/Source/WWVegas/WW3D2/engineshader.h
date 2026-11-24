@@ -102,7 +102,7 @@ bool EngineShader_Vertex_Program(EngineShaderProgram program, std::string & hlsl
 // D3D11 applies neither.
 bool EngineShader_Pixel_Program(EngineShaderProgram program,
 	const PixelPipelineDescription & pipeline, std::string & hlsl,
-	CombinerShaderTarget target = COMBINER_SHADER_TARGET_D3D11);
+	CombinerShaderTarget target = COMBINER_SHADER_TARGET_D3D11, bool waveHeading = false);
 
 // Which transcribed programs paint the ground, and so read the sun's shadow map.  The water and
 // the trees are not among them: both have shadows of their own.
@@ -111,6 +111,8 @@ bool EngineShader_Paints_Ground(EngineShaderProgram program);
 // Which transcribed programs read the scene's depth copy at t7: the foam water, for how deep the
 // water is under each pixel.  The copy is the soft particles' (DX11BackendClass::Take_Scene_Depth).
 bool EngineShader_Reads_Scene_Depth(EngineShaderProgram program);
+// Ground and classic foam use the same extended b0 layout on native rendering.
+bool EngineShader_Uses_Extended_Pixel_Constants(EngineShaderProgram program);
 
 // The two programs the Modern water style draws with: the plain names, which W3DWater registers
 // only under that style.  Their text reads the water's own constant block and fifteen stages.

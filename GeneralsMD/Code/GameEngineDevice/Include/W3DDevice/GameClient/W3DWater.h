@@ -136,11 +136,15 @@ public:
 	void enableWaterGrid(Bool state);	///< used to active custom water for special maps. (i.e DAM).  The grid is TerrainLogic's WaterGrid; this builds its buffers
 	void updateMapOverrides(void);	///< used to update any map specific map overrides for water appearance.
 	void setTimeOfDay(TimeOfDay tod); ///<change sky/water for time of day
+	/// between `day`'s setting and the night's, `night` 0 to 1: the colours blended, the textures the day's until 1
+	void setTimeOfDayBlend(TimeOfDay day, Real night);
 	void toggleCloudLayer(Bool state)	{	m_useCloudLayer=state;}	///<enables/disables the cloud layer
 	void updateRenderTargetTextures(CameraClass *cam);	///< renders into any required textures.	
 	void ReleaseResources(void);	///< Release all dx8 resources so the device can be reset.
 	void ReAcquireResources(void);  ///< Reacquire all resources after device reset.
 	Real getWaterHeight(Real x, Real y);	///<return water height at given point - for use by WB.
+	/// The level of the sea drawn past the heightmap's edge (addSkirtSeas) at a point, INVALID_WATER_HEIGHT where none is.
+	Real getSkirtSeaLevel(Real x, Real y) const;
 
 	void replaceSkyboxTexture(const AsciiString& oldTexName, const AsciiString& newTextName);
 	TextureClass *getSkyTexture(void) const { return m_settings[m_tod].skyTexture; }	///< the time of day's sky, as WaterSet names it
@@ -295,6 +299,15 @@ protected:
 	};
 	std::vector<WaterPolygonForDraw> m_waterPolygonsForDraw;
 	void takeWaterPolygonsForDraw(void);
+	void addSkirtSeas(void);	///< the sea on past the heightmap's edge, over the land drawn there
+	/// One strip past the heightmap's edge: a polygon side's stretch over edge samples under its water.
+	struct SkirtSeaRun { Int edge; Int start, end, startZ, endZ, winding; uintptr_t owner; };
+	std::vector<SkirtSeaRun> m_skirtSeaRuns;	///< this pass's, which the corners are filled from
+	void addSkirtSeaRuns(const ICoord3D &a, const ICoord3D &b, Int edge, Int winding, uintptr_t owner, uintptr_t *added);
+	void addSkirtSeaCorners(uintptr_t *added);
+	void addSkirtSeaQuad(const ICoord3D quad[4], Int winding, uintptr_t owner, uintptr_t *added);
+	size_t m_skirtSeasFirst=0;	///< where addSkirtSeas's strips start in m_waterPolygonsForDraw
+	double m_skirtSeasSum=0.0;	///< what they were last, so the skirt is built again under a sea that moved
 	void takeMotionReadsForRender(void);
 	void synchronizeWaterReflection(void);
 #endif
@@ -350,6 +363,8 @@ protected:
 	Real m_modernOpticalLevel = 0.0f;
 	struct ModernOpticalTexture {
 		Real level; TextureClass *texture;
+		TextureClass *heading = NULL;
+		Real prevailingRotation = 0.0f, swellStep = 0.0f;
 		TextureClass *waveCage=NULL;
 		std::vector<UnsignedByte> waveCageSupport; // same quantized alpha sampled by the shader
 		std::vector<UnsignedByte> ocean;
@@ -357,6 +372,8 @@ protected:
 		Real oceanExtent=0.0f;
 	};
 	std::vector<ModernOpticalTexture> m_modernOpticalTextures;
+	Bool m_modernHeadingEnabled = FALSE;
+	Real m_modernWindGain = 1.0f;		///< a ModernWater rule's WindResistance as a wave height gain (SDL only)
 	std::vector<WaterOpticalContext::Polygon> m_modernOpticalPolygons;
 	Bool m_modernOpticalPolygonsValid = FALSE;
 	IDirect3DPixelShader9 *	m_waterPixelShader;		///<D3D pixel shader.

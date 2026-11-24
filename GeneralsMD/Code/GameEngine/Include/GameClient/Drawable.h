@@ -120,6 +120,12 @@ extern Real Drawable_pipScale( Real uiScale, Real zoom );
 extern Bool Drawable_emptySeatsShow( Bool isStructure, Bool isGarrisonable, Bool isHealContain,
 																		 Bool showEmptyBuildingPips );
 
+///< whether a body's last damage frame is a hit this drawable has not flashed for yet, recent enough
+///< to show (within window frames of now) and at least cooldown frames after the hit that lit the last
+///< flash; a stale stamp seen first after a load or after the Hit Flash box is ticked mid-match stays dark
+extern Bool Drawable_hitFlashDue( UnsignedInt hitFrame, UnsignedInt flashedHitFrame, UnsignedInt now, UnsignedInt window,
+																	UnsignedInt cooldown );
+
 ///< whether these disabled flags mean the health bar is drawn blue instead of the owner's colour
 extern Bool Drawable_disabledShowsBlueHealthBar( DisabledMaskType disabledFlags );
 
@@ -410,7 +416,7 @@ public:
 	DrawableID getID( void ) const;																			///< return this drawable's unique ID
 
 	void friend_bindToObject( Object *obj ); ///< bind this drawable to an object ID. for use ONLY by GameLogic!
-	void friend_forgetObject( void ) { m_object = NULL; }	///< GameClient::destroyDrawable, for a deletion that waits for the flush
+	void friend_forgetObject( void ) { m_object = NULL; m_doomed = TRUE; }	///< GameClient::destroyDrawable, for a deletion that waits for the flush
 	void setIndicatorColor(Color color);
 	void refreshIndicatorColor( void );			///< re-apply the last colour asked for, under whatever scheme is on now
 	
@@ -447,24 +453,19 @@ public:
 
 
 	void setStealthLook(StealthLookType look);
+	// The scene's main pass says once a frame whether it can draw the cloak's glass (W3DScene.cpp).
+	static void noteStealthCloakDrawn( Bool drawn );
 	StealthLookType getStealthLook() const { return LogicThread::isInsideWindow() ? m_lookForDraw.stealthLook : m_stealthLook; }
 	StealthLookType getStealthDrawnLook() const { return LogicThread::isInsideWindow() ? m_lookForDraw.stealthDrawnLook : m_stealthDrawnLook; }
 	Real getStealthFade() const { return LogicThread::isInsideWindow() ? m_lookForDraw.stealthFade : m_stealthFade; }
-	// 1 is own paint with no bend, the stealth floor (about a half) is glass.  Cloak-in fade 0
-	// is solid.  The mix goes to that floor so the first frames still have travel while the
-	// pulse has not left 1.0; once faded, the 2003 breath owns it.  Decloak: fade 1 is the
-	// pulse, fade 0 is solid.  The shader keeps coverage: this is the mix, not alpha.
-	Real getStealthSolid() const
-	{
-		if( LogicThread::isInsideWindow() )
-			return m_lookForDraw.stealthSolid;
-		const Real breath = getEffectiveOpacity();
-		const Real fade = getStealthFade();
-		if( getStealthLook() == STEALTHLOOK_NONE )
-			return breath + ( 1.0f - breath ) * ( 1.0f - fade );
-		const Real dest = m_stealthOpacity + ( breath - m_stealthOpacity ) * fade;
-		return 1.0f - fade * ( 1.0f - dest );
-	}
+	// Whether the far end of the heat's fade is the unit's own paint (it is leaving or entering
+	// plain sight) rather than nothing (it is going back into hiding or came out of it).
+	Bool getStealthOverPaint() const { return LogicThread::isInsideWindow() ? m_lookForDraw.stealthOverPaint : m_stealthOverPaint; }
+	// How far an own cloaked unit's detected amber has come in, 0 to 1 (Drawable::draw eases it).
+	Real getStealthAmber() const { return LogicThread::isInsideWindow() ? m_lookForDraw.stealthAmber : m_stealthAmber; }
+	// The stealth looks were last set for someone the unit hides from (INVISIBLE, the heat, a disguise):
+	// its cloak fades go to and from nothing, never to a glass body.
+	Bool getStealthEnemy() const { return LogicThread::isInsideWindow() ? m_lookForDraw.stealthEnemy : m_stealthEnemy; }
 
 	void updateDrawableClipStatus( UnsignedInt shotsRemaining, UnsignedInt maxShots, WeaponSlotType slot ); ///< This will do the show/hide work if ProjectileBoneFeedbackEnabled is set.
 	void updateDrawableSupplyStatus( Int maxSupply, Int currentSupply ); ///< This will do visual feedback on Supplies carried
@@ -515,6 +516,11 @@ public:
 		rest an on-demand flush leaves for after the tick. */
 	void doClientWork( const std::function<void()>& work, ClientWorkOrder order, Bool movesBones = FALSE );
 	void startCollapse();		///< the Collapse option, on the way to rubble
+	/** Logic tells the client where a hit that took health landed (DamageInfoInput's impact): the draw
+		modules hear it after the tick (DrawModule::reactToImpact), and only on a drawable one of them
+		asked for it, so every other hit costs a flag test. */
+	void reactToImpact( const Coord3D &pos, Real radius, const Coord3D *source );
+	void setTakesImpacts( void ) { m_takesImpacts = TRUE; }	///< a draw module's constructor: it draws the hits
 
 	//---------------------------------------------------------------------------
 	void setDrawableStatus( DrawableStatus bit )  { BitSet( m_status, bit ); }
@@ -586,7 +592,9 @@ public:
 		StealthLookType	stealthLook;
 		StealthLookType	stealthDrawnLook;
 		Real						stealthFade;
-		Real						stealthSolid;
+		Bool						stealthOverPaint;
+		Real						stealthAmber;
+		Bool						stealthEnemy;
 		Real						secondMaterialPassOpacity;
 		Real						effectiveOpacity;
 		UnsignedInt			tintStatus;
@@ -595,6 +603,8 @@ public:
 		Coord3D					position;
 	};
 	void takeLookForDraw( void );
+	void advanceStealthFades( void );	///< takeLookForDraw's: the stealth fades, once a rendered picture
+	static void takeStealthClock( void );	///< once a pass, before the drawables' takeLookForDraw
 	/** Where it stood at the sync point, for the draw's own walks of the drawables: the Thing's cache moves with the tick. */
 	const Coord3D *getPositionForDraw( void ) const { return &m_lookForDraw.position; }
 
@@ -785,7 +795,10 @@ public:
   
   Bool getReceivesDynamicLights( void ) { return LogicThread::isInsideWindow() ? m_lookForDraw.receivesDynamicLights : m_receivesDynamicLights; };
   void setReceivesDynamicLights( Bool set ) { m_receivesDynamicLights = set; };
-  
+
+	/// no health bar, pips, rank or status icons over it: a Lane War plot unit (LaneHud_preDraw sets it at the sync point)
+	void setIconUIHidden( Bool hidden ) { m_iconUIHidden = hidden; }
+
   //---------------------------------------------------------------------------------
   // Stuff for overriding ambient sound
   const AudioEventInfo * getBaseSoundAmbientInfo() const; //< Possible starting point if only some parameters are customized
@@ -863,6 +876,7 @@ private:
 	// note, these are lazily allocated!
 	TintEnvelope*		m_selectionFlashEnvelope;	///< used for selection flash, works WITH m_colorTintEnvelope
 	Bool						m_orderFlash;							///< lit red as an order's target, set at the sync point (Drawable_flashOrderTargets)
+	UnsignedInt			m_hitFlashFrame;					///< the body's damage frame that lit the last Hit Flash (Drawable_hitFlashDue)
 	TintEnvelope*		m_colorTintEnvelope;			///< house color flashing, etc... works WITH m_selectionFlashEnvelope
 																//   this used to use m_ambientLight... but this replaces it
 																//   int most places. It works harder to change the drawable's
@@ -922,6 +936,16 @@ private:
 	StealthLookType m_stealthLook;
 	StealthLookType m_stealthDrawnLook;	///< look the shader is fading, while m_stealthLook is the target
 	Real m_stealthFade;									///< 0 invisible / 1 fully the drawn look
+	Bool m_stealthOverPaint;						///< getStealthOverPaint: the heat fades to or from the paint
+	Real m_stealthHeatHeld;							///< seconds a hidden-again unit's heat has held (STEALTH_HEAT_GRACE_SECONDS)
+	Real m_stealthAmber;								///< getStealthAmber
+	UnsignedInt m_stealthShownSinceMs;	///< the stealth fade clock when this run of plain-sight draws began
+	UnsignedInt m_stealthShownLastMs;		///< the stealth fade clock at the last draw in plain sight, 0 never
+	UnsignedInt m_stealthClockMs;				///< the stealth fade clock when this drawable's fades last moved, 0 never
+	Bool m_stealthLookKnown;						///< the logic has set a look at least once (setStealthLook)
+	Bool m_stealthProvisionChecked;			///< takeLookForDraw has asked once whether to hide a unit spawned cloaked
+	UnsignedInt m_stealthProvisionalFrame;	///< logic frame + 1 of a look takeLookForDraw set itself, 0 none
+	Bool m_stealthEnemy;								///< getStealthEnemy
 
 	Int m_flashCount;           ///< number of times to flash the drawable
 	Color m_flashColor;					///< color to flash the drawable
@@ -960,6 +984,8 @@ private:
   Bool m_ambientSoundEnabledFromScript;
 
   Bool m_receivesDynamicLights;
+	Bool m_takesImpacts;					///< reactToImpact reaches the draw modules; client only, never saved
+	Bool m_iconUIHidden;					///< drawIconUI draws nothing for it; client only, never saved
 
 #ifdef DIRTY_CONDITION_FLAGS
 	mutable Bool m_isModelDirty;				///< if true, must call replaceModelConditionState() before drawing or accessing drawmodule info
@@ -967,6 +993,7 @@ private:
 	mutable Bool m_clientWorkQueued;		///< this drawable's ID is in the list flushPendingClientWork walks
 	Bool m_transformPending;						///< the tick moved it; the draw modules have not been told
 	Bool m_renderPending;								///< made in a tick: the draw modules have not built their render objects
+	Bool m_doomed;											///< destroyed in a tick, deleted at its flush (friend_forgetObject)
 	Int m_clipFeedbackSlots;						///< the draw modules' getProjectileClipFeedbackSlots, or'd at creation
 	struct PendingStep
 	{

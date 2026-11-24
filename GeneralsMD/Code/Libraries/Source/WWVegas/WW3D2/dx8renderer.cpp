@@ -43,6 +43,8 @@
 //#define ENABLE_STRIPING
 
 #include "Platform/SunShadow.h"
+#include "Platform/RenderEffects.h"
+#include "Platform/RenderTeamGlow.h"
 #include "dx8renderer.h"
 #include "dx8wrapper.h"
 #include "dx8polygonrenderer.h"
@@ -262,6 +264,20 @@ void DX8TextureCategoryClass::Add_Polygon_Renderer(DX8PolygonRendererClass* p_re
 
 void DX8TextureCategoryClass::Remove_Polygon_Renderer(DX8PolygonRendererClass* p_renderer)
 {
+	// Crash reports 4137 and 3839 drew a polygon renderer whose category was NULL.  This is one of
+	// the two places that writes it; a renderer leaving while a draw queued this frame still names
+	// it is the stale-list way there.  Once a run, through the WWDebug handler WinMain installs.
+	static bool s_saidQueued = false;
+	if (!s_saidQueued) {
+		for (PolyRenderTaskClass * task = render_task_head; task != NULL; task = task->Get_Next_Visible()) {
+			if (task->Peek_Polygon_Renderer() == p_renderer) {
+				s_saidQueued = true;
+				WWRELEASE_SAY(("DX8TextureCategoryClass::Remove_Polygon_Renderer: renderer %p leaves its category "
+					"with a draw still queued (W3D frame %u)\n", (void *)p_renderer, WW3D::Get_Frame_Count()));
+				break;
+			}
+		}
+	}
 	PolygonRendererList.Remove(p_renderer);
 	p_renderer->Set_Texture_Category(NULL);
 	if (PolygonRendererList.Peek_Head() == NULL) {
@@ -1926,22 +1942,30 @@ void DX8TextureCategoryClass::Render(void)
 		// The object's look on the Direct3D 11 frame (RTS3DScene::renderOneObject picks it), for this
 		// mesh's draws only.  A sorted mesh draws later, from the sorting pool, which keeps the look
 		// with its triangles (SortingRendererClass::Insert_Triangles), and on Linux its sun shadow
-		// coverage too.  The cloak writes alpha 1 (effect_cloak), so a mesh that blends by its own
-		// alpha (the Stealth General's yard emblem, a campfire card, a well's water) would come out
-		// as a solid quad; it draws without the look, as under -d3d9.  The whole mesh goes: one that
-		// mixes opaque polygons with a blended card loses the glass on its opaque ones too.
+		// coverage too.  The cloak writes alpha 1 (effect_cloak) over an opaque mesh.  A mesh that
+		// blends by its own alpha (the Stealth General's yard emblem, a campfire card, a well's water,
+		// the Pathfinder's ghillie cards) came out as a solid quad that way, and left out of the look
+		// it stood as a solid house-colour block on the glass body, a sorted mesh taking no stealth
+		// opacity either; it keeps the look and its own alpha instead, asked by two more in y.
 		unsigned draw_effect = mesh->Get_Draw_Effect();
+		const float * draw_effect_parameters = mesh->Get_Draw_Effect_Parameters();
+		float own_alpha_parameters[4];
 		if (draw_effect == DRAW_EFFECT_CLOAK && mesh->Is_Alpha()) {
-			draw_effect = DRAW_EFFECT_NONE;
+			memcpy(own_alpha_parameters, draw_effect_parameters, sizeof(own_alpha_parameters));
+			own_alpha_parameters[1] += 2.0f;
+			draw_effect_parameters = own_alpha_parameters;
 		}
 		if (draw_effect != 0) {
-			SunShadow::SetCasterEffect(DX8Wrapper::_Get_D3D_Device(),draw_effect, mesh->Get_Draw_Effect_Parameters());
+			SunShadow::SetCasterEffect(DX8Wrapper::_Get_D3D_Device(),draw_effect, draw_effect_parameters);
+#if !defined(_WIN32)
+			RenderEffects::SetDrawEffect(draw_effect, draw_effect_parameters);
+#endif
 		}
 		// A house colour mesh under the Team Glow option.  Immediate draws only: a sorted one draws later,
 		// after this has been put back, and goes without.
 		const bool team_glow = mesh->Peek_Model()->Get_Flag(MeshGeometryClass::TEAM_GLOW) != 0;
 		if (team_glow) {
-			Direct3D11_Set_Team_Glow(true);
+			RenderTeamGlow::SetDraw(true);
 		}
 
 		if ((!!mesh->Peek_Model()->Get_Flag(MeshGeometryClass::SORT)) && WW3D::Is_Sorting_Enabled()) {
@@ -2001,9 +2025,12 @@ void DX8TextureCategoryClass::Render(void)
 		if (draw_effect != 0) {
 			static const float no_effect[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 			SunShadow::SetCasterEffect(DX8Wrapper::_Get_D3D_Device(),0, no_effect);
+#if !defined(_WIN32)
+			RenderEffects::SetDrawEffect(0, no_effect);
+#endif
 		}
 		if (team_glow) {
-			Direct3D11_Set_Team_Glow(false);
+			RenderTeamGlow::SetDraw(false);
 		}
 //--------------------------------------------------------------------
 		if (mesh->Get_ObjectScale() != 1.0f)
@@ -2861,6 +2888,16 @@ static void Invalidate_FVF_Category_Container_List(FVFCategoryList& list)
 void DX8MeshRendererClass::Invalidate( bool shutdown)
 {
 	WWMEMLOG(MEM_RENDERER);
+	// The other NULL-writing way (crash reports 4137, 3839): every category goes, and a mesh queued
+	// for this frame keeps renderers that point at none.  Map loads land here too, so the first few
+	// calls are said, with the frame, and a mid-match one reads as such beside the crash.
+	// Not at shutdown: the debug log may already be closed by then.
+	static int s_saidInvalidates = 0;
+	if (!shutdown && s_saidInvalidates < 8) {
+		++s_saidInvalidates;
+		WWRELEASE_SAY(("DX8MeshRendererClass::Invalidate %d at W3D frame %u\n",
+			s_saidInvalidates, WW3D::Get_Frame_Count()));
+	}
 	_RegisteredMeshList.Reset_List();
 
 	for (int i=0;i<texture_category_container_lists_rigid.Count();++i) {

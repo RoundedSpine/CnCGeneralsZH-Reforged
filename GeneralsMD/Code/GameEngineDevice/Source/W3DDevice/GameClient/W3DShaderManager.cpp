@@ -55,6 +55,7 @@
 //
 //-----------------------------------------------------------------------------
 
+#include "Platform/RenderPost.h"
 #include "dx8wrapper.h"
 #include "Lib/Clock.h"
 #include "assetmgr.h"
@@ -67,6 +68,8 @@
 #include "W3DDevice/GameClient/W3DCustomScene.h"
 #include "W3DDevice/GameClient/W3DSmudge.h"
 #include "W3DDevice/GameClient/W3DWater.h"
+#include "W3DDevice/GameClient/TerrainTex.h"
+#include "W3DDevice/GameClient/TerrainSkirt.h"
 #include "GameClient/View.h"
 #include "GameClient/Snow.h"
 #include "GameClient/CommandXlat.h"
@@ -75,7 +78,12 @@
 #include "GameClient/UiAnimClock.h"
 #include "GameLogic/GameLogic.h"
 #include "GameLogic/PolygonTrigger.h"
+#include "GameLogic/DayNightCycle.h"
 #include "Common/GlobalData.h"
+#include "Common/OptionsCatalog.h"
+#if defined(_WIN32)
+#include "Common/EarlyOptions.h"	// findEarlyOptionValue: the sun shafts' hidden tuning keys
+#endif
 #include "Common/GameLOD.h"
 #include "d3dx9runtime.h"
 #include "WW3D2/dx11runtime.h"
@@ -159,6 +167,7 @@ TextureClass *W3DShaderManager::m_Textures[8];
 W3DShaderManager::ShaderTypes W3DShaderManager::m_currentShader;
 FilterTypes W3DShaderManager::m_currentFilter=FT_NULL_FILTER; ///< Last filter that was set.
 Int W3DShaderManager::m_currentShaderPass;
+Bool W3DShaderManager::m_atmosphereDrawn = FALSE;
 ChipsetType W3DShaderManager::m_currentChipset;
 GraphicsVenderID W3DShaderManager::m_currentVendor;
 Int64 W3DShaderManager::m_driverVersion;
@@ -278,7 +287,7 @@ static GlowTuning glowTuning(void)
 	return tuning;
 }
 
-#if defined(_WIN32)
+#if defined(_WIN32) || defined(__linux__)
 /* The Warm Light option's ground haze (MapLight, DX11Post_Set_Haze).  It lies in the ground below the level most
 	of the map stands on: full at the lowest ground, thinning to nothing PROTO_HAZE_ABOVE_MIDDLE over
 	the median height of the playable cells, never thinner than PROTO_HAZE_MIN_RISE.  The median and
@@ -296,6 +305,35 @@ static const Real PROTO_HAZE_STRENGTH = 0.38f;		// most of the haze colour the l
 static const Real PROTO_HAZE_RELIEF = 60.0f;		// depth at which the haze is at full strength
 static const Real PROTO_HAZE_REACH = 700.0f;		// eye distance at which it stops thickening
 static const Real PROTO_HAZE_COLOUR[3] = { 0.88f, 0.84f, 0.76f };
+
+#if defined(__linux__)
+static RenderPost::Environment s_nativeEnvironment;
+static NativePostEnvironmentPolicy::MapEpoch s_nativeMapEpoch;
+#endif
+static void setGroundHaze(const float colour[3], float top, float thickness, float strength,
+	float reach, float water, const float towardSun[3], float warmth)
+{
+#if defined(_WIN32)
+	DX11Post_Set_Haze(colour, top, thickness, strength, reach, water, towardSun, warmth);
+#else
+	RenderPost::GroundHazeSettings &haze = s_nativeEnvironment.Haze;
+	memcpy(haze.Colour, colour, sizeof(haze.Colour)); haze.Top = top; haze.Thickness = thickness;
+	haze.Strength = strength; haze.Reach = reach; haze.WaterHeight = water;
+	memcpy(haze.TowardSun, towardSun, sizeof(haze.TowardSun)); haze.Warmth = warmth;
+#endif
+}
+static void setAtmosphere(const float horizon[3], const float tint[3], float start, float scale,
+	float strength, float ground, float width, float height, IDirect3DBaseTexture9 *sky)
+{
+#if defined(_WIN32)
+	Direct3D11_Set_Atmosphere(horizon, tint, start, scale, strength, ground, width, height, sky);
+#else
+	RenderPost::AtmosphereSettings &atmosphere = s_nativeEnvironment.Atmosphere;
+	memcpy(atmosphere.Horizon, horizon, sizeof(atmosphere.Horizon)); memcpy(atmosphere.Tint, tint, sizeof(atmosphere.Tint));
+	atmosphere.Start = start; atmosphere.Scale = scale; atmosphere.Strength = strength; atmosphere.Ground = ground;
+	atmosphere.MapSize[0] = width; atmosphere.MapSize[1] = height; s_nativeEnvironment.Sky = sky;
+#endif
+}
 
 /** The median height of the playable cells, every second cell each way, in world units. */
 static Real protoHazeMiddle(WorldHeightMap *map)
@@ -338,6 +376,87 @@ static Int s_hazeLevelsHeight = 0;
 static Real s_hazeLevelTop = 0.0f;
 static Real s_hazeLevelRise = PROTO_HAZE_MIN_RISE;
 static Real s_hazeLevelWater = -1.0e6f;
+static Real s_hazeLevelMiddle = 0.0f;
+// Every water area under the sun shafts' layer top, its box and surface, for the shafts, which reach
+// higher than the haze's top: the first DX11_POST_SUN_SHAFT_WATER_AREAS of them the trigger list holds.
+// An area above the top has no layer air over it and takes no slot.
+// ponytail: a map with more water areas than that under the top loses the rest (a DEBUG_LOG line says
+// so), so their beds glow; rank by size if one shows.
+#if defined(_WIN32)
+static const Real SUN_SHAFT_TOP = 150.0f;					// world units the dust reaches above the median ground
+static Int s_shaftWaterCount = 0;
+// The look the shafts draw with this map: the SUN_SHAFT_* constants below, or the hidden Options.ini
+// keys a filmed sweep sets over them (readSunShaftTuning, once a map).
+struct SunShaftTuning
+{
+	Real band, radius, side, streakWidth, streakLength, dark, darkCap, top, falloff, glare, duskGain, mostStrength;
+};
+static SunShaftTuning s_shaftTuning;
+static void readSunShaftTuning(void);
+static float s_shaftWaterBoxes[DX11_POST_SUN_SHAFT_WATER_AREAS][4];
+static float s_shaftWaterHeights[DX11_POST_SUN_SHAFT_WATER_AREAS];
+#endif
+
+/** The haze's levels for this map, worked out the first time a frame asks for them on it: the haze's top
+	and rise, the median ground and the highest water surface under the top.  The sun shafts read the
+	median and the water too, with or without the haze. */
+static void updateHazeLevels(WorldHeightMap *map)
+{
+	if (map == s_hazeLevelsMap && map->getDataPtr() == s_hazeLevelsData
+		&& map->getXExtent() == s_hazeLevelsWidth && map->getYExtent() == s_hazeLevelsHeight)
+		return;
+	s_hazeLevelsMap = map;
+	s_hazeLevelsData = map->getDataPtr();
+	s_hazeLevelsWidth = map->getXExtent();
+	s_hazeLevelsHeight = map->getYExtent();
+	const Real low = TheTerrainRenderObject->getMinHeight();
+	s_hazeLevelMiddle = protoHazeMiddle(map);
+	s_hazeLevelRise = max(s_hazeLevelMiddle + PROTO_HAZE_ABOVE_MIDDLE - low, PROTO_HAZE_MIN_RISE);
+	s_hazeLevelTop = low + s_hazeLevelRise;
+	s_hazeLevelWater = -1.0e6f;
+#if defined(_WIN32)
+	s_shaftWaterCount = 0;
+	readSunShaftTuning();
+#endif
+	// An accepted logic read inside the render window, left out of the LOGICTHREAD WINDOW census on
+	// purpose (LOGIC-THREAD.md phase 3).  The list is linked by the map load and unlinked by
+	// TerrainLogic::reset, neither of which runs beside the render, so the walk never meets a link
+	// changing.  The one write a tick makes is TerrainLogic::setWaterHeight's setPoint, an aligned
+	// Int z put in place: this read takes the old height or the new, and the haze keeps it for the
+	// map either way, since a script's water change never re-keyed it.  It runs once a map.
+	for (const PolygonTrigger *area = PolygonTrigger::getFirstPolygonTrigger(); area; area = area->getNext())
+	{
+		if (!area->isWaterArea() || area->getNumPoints() < 3)
+			continue;
+		const Real surface = (Real)area->getPoint(0)->z;
+		if (surface < s_hazeLevelTop && surface > s_hazeLevelWater)
+			s_hazeLevelWater = surface;
+#if defined(_WIN32)
+		if (surface >= s_hazeLevelMiddle + s_shaftTuning.top)
+			continue;
+		if (s_shaftWaterCount >= DX11_POST_SUN_SHAFT_WATER_AREAS)
+		{
+			DEBUG_LOG(("SUNSHAFTS: water area at %.1f left out, the shafts hold %d\n", surface, (Int)DX11_POST_SUN_SHAFT_WATER_AREAS));
+		}
+		else
+		{
+			float *box = s_shaftWaterBoxes[s_shaftWaterCount];
+			box[0] = box[2] = (float)area->getPoint(0)->x;
+			box[1] = box[3] = (float)area->getPoint(0)->y;
+			for (Int i = 1; i < area->getNumPoints(); ++i)
+			{
+				const ICoord3D *point = area->getPoint(i);
+				box[0] = min(box[0], (float)point->x);
+				box[1] = min(box[1], (float)point->y);
+				box[2] = max(box[2], (float)point->x);
+				box[3] = max(box[3], (float)point->y);
+			}
+			s_shaftWaterHeights[s_shaftWaterCount] = surface;
+			++s_shaftWaterCount;
+		}
+#endif
+	}
+}
 
 static void pushProtoHazeFrame(void)
 {
@@ -350,27 +469,7 @@ static void pushProtoHazeFrame(void)
 	Real warmth = 0.0f;
 	if (TheTerrainRenderObject != NULL && TheTerrainRenderObject->getMap() != NULL)
 	{
-		WorldHeightMap *map = TheTerrainRenderObject->getMap();
-		if (map != s_hazeLevelsMap || map->getDataPtr() != s_hazeLevelsData
-			|| map->getXExtent() != s_hazeLevelsWidth || map->getYExtent() != s_hazeLevelsHeight)
-		{
-			s_hazeLevelsMap = map;
-			s_hazeLevelsData = map->getDataPtr();
-			s_hazeLevelsWidth = map->getXExtent();
-			s_hazeLevelsHeight = map->getYExtent();
-			const Real low = TheTerrainRenderObject->getMinHeight();
-			s_hazeLevelRise = max(protoHazeMiddle(map) + PROTO_HAZE_ABOVE_MIDDLE - low, PROTO_HAZE_MIN_RISE);
-			s_hazeLevelTop = low + s_hazeLevelRise;
-			s_hazeLevelWater = -1.0e6f;
-			for (const PolygonTrigger *area = PolygonTrigger::getFirstPolygonTrigger(); area; area = area->getNext())
-			{
-				if (!area->isWaterArea() || area->getNumPoints() < 3)
-					continue;
-				const Real surface = (Real)area->getPoint(0)->z;
-				if (surface < s_hazeLevelTop && surface > s_hazeLevelWater)
-					s_hazeLevelWater = surface;
-			}
-		}
+		updateHazeLevels(TheTerrainRenderObject->getMap());
 		rise = s_hazeLevelRise;
 		top = s_hazeLevelTop;
 		water = s_hazeLevelWater;
@@ -394,7 +493,7 @@ static void pushProtoHazeFrame(void)
 		const Real daylight = (0.299f * objectSun.diffuse.red + 0.587f * objectSun.diffuse.green + 0.114f * objectSun.diffuse.blue - 0.25f) / 0.5f;
 		warmth = max(min(daylight, 1.0f), 0.0f);
 	}
-	DX11Post_Set_Haze(colour, top, rise, strength, PROTO_HAZE_REACH, water, towardSun, warmth);
+	setGroundHaze(colour, top, rise, strength, PROTO_HAZE_REACH, water, towardSun, warmth);
 }
 
 // The fog the terrain draws, through the terrain's own mapping (ShroudTextureShader::set): the
@@ -407,12 +506,22 @@ static void pushShroudFrame(void)
 	{
 		const float shroudRect[4] = { shroud->getDrawOriginX() - shroud->getCellWidth(), shroud->getDrawOriginY() - shroud->getCellHeight(),
 			1.0f / (shroud->getCellWidth() * shroud->getTextureWidth()), 1.0f / (shroud->getCellHeight() * shroud->getTextureHeight()) };
+#if defined(_WIN32)
 		Direct3D11_Set_Haze_Shroud(shroud->getShroudTexture()->Peek_D3D_Base_Texture(), shroudRect);
+#else
+		s_nativeEnvironment.Shroud = shroud->getShroudTexture()->Peek_D3D_Base_Texture();
+		memcpy(s_nativeEnvironment.ShroudRect, shroudRect, sizeof(shroudRect));
+#endif
 	}
 	else
 	{
 		const float wholeRect[4] = { 0.0f, 0.0f, 1.0f, 1.0f };
+#if defined(_WIN32)
 		Direct3D11_Set_Haze_Shroud(NULL, wholeRect);
+#else
+		s_nativeEnvironment.Shroud = NULL;
+		memcpy(s_nativeEnvironment.ShroudRect, wholeRect, sizeof(wholeRect));
+#endif
 	}
 }
 
@@ -423,7 +532,7 @@ static void pushWeatherHaze(void)
 	Real strength;
 	TheSnowManager->getWeatherHaze(colour, &strength);
 	const float up[3] = { 0.0f, 0.0f, 1.0f };
-	DX11Post_Set_Haze(colour, 1.0e5f, 1.0f, strength, PROTO_HAZE_REACH, -1.0e6f, up, 0.0f);
+	setGroundHaze(colour, 1.0e5f, 1.0f, strength, PROTO_HAZE_REACH, -1.0e6f, up, 0.0f);
 }
 
 /* The Atmosphere option (DX11Post_Set_Atmosphere).  The horizon's colour goes by the time of day, scaled by
@@ -434,20 +543,22 @@ static const Real ATMOSPHERE_START = 500.0f;		// the least eye distance the fade
 static const Real ATMOSPHERE_SCALE = 2200.0f;		// how far past it the fade takes to reach about two thirds
 static const Real ATMOSPHERE_STRENGTH = 0.85f;		// the most of the horizon's colour the far ground takes
 static const Real ATMOSPHERE_SKY_FLOOR = 0.7f;		// a night's sky keeps this much, or the stars go
-static const float ATMOSPHERE_HORIZON[TIME_OF_DAY_COUNT][3] = {
-	{ 0.72f, 0.80f, 0.90f },	// invalid, as afternoon
-	{ 0.80f, 0.80f, 0.84f },	// morning
-	{ 0.72f, 0.80f, 0.90f },	// afternoon
-	{ 0.80f, 0.58f, 0.44f },	// evening
-	{ 0.07f, 0.10f, 0.18f } };	// night
 
-static void pushAtmosphere(Bool weatherHaze)
+static Bool pushAtmosphere(Bool weatherHaze)
 {
 	static Bool s_on = FALSE;
+#if defined(_WIN32)
 	const Bool on = TheGlobalData->m_atmosphere && !TheGlobalData->m_classicGraphics && Direct3D11_Present_Is_Enabled()
 		&& !TheGlobalData->m_drawSkyBox && !TheGlobalData->m_isometricCamera
 		&& TheTerrainRenderObject != NULL && TheTerrainRenderObject->getMap() != NULL
 		&& TheWaterRenderObj != NULL && TheWaterRenderObj->getSkyTexture() != NULL;
+#else
+	const Bool on = NativePostEnvironmentPolicy::atmosphere(RenderPost::EnvironmentAvailable(),
+		TheGlobalData->m_classicGraphics, TheGlobalData->m_atmosphere,
+		TheTerrainRenderObject != NULL && TheTerrainRenderObject->getMap() != NULL,
+		TheWaterRenderObj != NULL && TheWaterRenderObj->getSkyTexture() != NULL,
+		TheGlobalData->m_drawSkyBox, TheGlobalData->m_isometricCamera);
+#endif
 	if (on)
 	{
 		const GlobalData::TerrainLighting &sun = TheGlobalData->m_terrainLighting[TheGlobalData->m_timeOfDay][0];
@@ -455,11 +566,9 @@ static void pushAtmosphere(Bool weatherHaze)
 			min(sun.ambient.blue + sun.diffuse.blue, 1.0f) };
 		float horizon[3];
 		float tint[3];
+		W3DShaderManager::getHorizonColour(horizon);
 		for (Int i = 0; i < 3; ++i)
-		{
-			horizon[i] = ATMOSPHERE_HORIZON[TheGlobalData->m_timeOfDay][i] * light[i];
 			tint[i] = max(light[i], ATMOSPHERE_SKY_FLOOR);
-		}
 		if (weatherHaze)
 		{
 			Real strength;
@@ -472,19 +581,188 @@ static void pushAtmosphere(Bool weatherHaze)
 		// The ground under the focus, at the map's lowest: a height at the focus would pulse the fade as
 		// the camera scrolled over a ridge, and reading the logic's is a read inside the overlap window.
 		WorldHeightMap *map = TheTerrainRenderObject->getMap();
-		Direct3D11_Set_Atmosphere(horizon, tint, ATMOSPHERE_START, ATMOSPHERE_SCALE, ATMOSPHERE_STRENGTH,
+		setAtmosphere(horizon, tint, ATMOSPHERE_START, ATMOSPHERE_SCALE, ATMOSPHERE_STRENGTH,
 			TheTerrainRenderObject->getMinHeight(),
 			(map->getXExtent() - 1 - map->getBorderSizeInline() * 2) * MAP_XY_FACTOR,
 			(map->getYExtent() - 1 - map->getBorderSizeInline() * 2) * MAP_XY_FACTOR, sky->Peek_D3D_Base_Texture());
+#if defined(_WIN32)
+		DX11Post_Set_Atmosphere_Edge(map->getBorderSizeInline() * MAP_XY_FACTOR, TerrainSkirt::REACH);
+#endif
 	}
 	else if (s_on)
 	{
 		const float none[3] = { 0.0f, 0.0f, 0.0f };
+#if defined(_WIN32)
 		DX11Post_Set_Atmosphere(none, none, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, NULL);
+#else
+		setAtmosphere(none, none, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, NULL);
+#endif
 	}
 	s_on = on;
+	return on;
 }
 #endif
+
+#if defined(_WIN32)
+/* The SunShafts option (DX11Post_Set_Sun_Shafts): the sunlight that comes through between objects.  A
+	sunlit surface with cast shadows close on both sides across the sun's bearing (a lane between houses,
+	grass between two tree shadows) takes a warm band in soft streaks along the bearing, the sunlit border
+	of one shadow a share of it, open ground and every shaded surface nothing.  Apart from that, shaded dust
+	in a layer over the median ground takes a little light off a sunlit surface seen through it, water
+	takes nothing, and a shallow ray toward the sun takes a faint glare.  Every knob a filmed check tunes is
+	here.  The strength goes with how low the sun stands (every retail daytime sun is under 27 degrees; the
+	night's stands at 55 and takes none), how bright its light is, the level (Low a share of High), and the
+	day and night cycle: none at night, more at the middle of the dusk and the dawn, and the colour pulled
+	warm there.  The cycle's light is read from the logic frame and DayNight_amount, a read only; nothing
+	here reaches the logic.  Off under Classic graphics and with no Direct3D 11 frame. */
+// SUN_SHAFT_TOP is with the water areas above, and each of these has a hidden Options.ini key over it
+// (readSunShaftTuning), clamped so a key can make it weaker or reshape it and never brighter than these
+// defaults, which are the owner's most (round 4's step 1: a clear gap about +25 levels at High, the
+// dimming about -8 to -15, the glare about +7 at the top facing the sun).  The program holds its own
+// bounds on top: the light added at 0.14 of the sun's colour (about 36 levels), the band at 0.12, the
+// one-sided share at 0.3, the radius at 60, the glare at 0.08, the dimming at 0.25 a ray and DARK_CAP of
+// the shadow, the strength at 1.3.  A wider radius or a larger share only spreads more light over more
+// ground, so their keys stop at the defaults too, and the streaks' width at 4 (nought would turn them off).
+static const Real SUN_SHAFT_STRENGTH = 1.0f;				// the whole effect, before the sun's own factors
+static const Real SUN_SHAFT_MOST_STRENGTH = 1.3f;		// the most it reaches, dusk gain and all
+static const Real SUN_SHAFT_DARK = 0.2f;					// of the scene a fully shaded ray of dust takes off
+static const Real SUN_SHAFT_DARK_CAP = 0.35f;				// the most it takes, as a share of what the sun's shadow takes
+static const Real SUN_SHAFT_SHADED_MOST = 1.0f;			// the most shaded dust a ray counts, in full rays
+static const Real SUN_SHAFT_BAND = 0.12f;					// of the sun's colour a sunlit gap between two shadows takes, at most
+static const Real SUN_SHAFT_RADIUS = 60.0f;				// world units across the bearing a shadow still lights a surface by it
+static const Real SUN_SHAFT_SIDE = 0.3f;					// the share a sunlit border of one shadow only takes
+static const Real SUN_SHAFT_STREAK_WIDTH = 10.0f;		// world units across the bearing a streak's noise cell spans
+static const Real SUN_SHAFT_STREAK_LENGTH = 100.0f;		// and along it
+static const Real SUN_SHAFT_SLACK = 8.0f;					// world units nearer the sun a neighbour must be shaded from to count
+static const Real SUN_SHAFT_FALLOFF = 60.0f;				// height over which its density falls to a third
+static const Real SUN_SHAFT_FULL_STRETCH = 50.0f;		// world units of dust at full density a fully lit ray holds, about
+static const Real SUN_SHAFT_HAZE_GAIN = 1.4f;				// denser dust under the Warm Light or the weather's haze
+static const Real SUN_SHAFT_NORMAL_OFFSET = 2.0f;		// world units off a surface its own sun is read at
+static const Real SUN_SHAFT_GLARE = 0.05f;					// of the sun's colour toward its bearing at the shallowest rays
+static const Real SUN_SHAFT_GLARE_STEEPEST = 0.6f;		// a ray steeper than this share of straight down takes no glare,
+static const Real SUN_SHAFT_GLARE_SPAN = 0.3f;			// and one this much shallower takes all of it (the top of the screen)
+static const Real SUN_SHAFT_LOW_SUN_DEGREES = 45.0f;	// a sun this high casts none,
+static const Real SUN_SHAFT_LOW_SUN_SPAN = 27.0f;		// and one this much lower (18 degrees, the shipped mornings) the whole strength
+static const Real SUN_SHAFT_DUSK_GAIN = 3.0f;				// extra strength at the middle of the dusk and the dawn
+static const float SUN_SHAFT_DUSK_COLOUR[3] = { 1.0f, 0.66f, 0.42f };
+static const Real SUN_SHAFT_SAMPLES[3] = { 0.0f, 6.0f, 12.0f };	// steps and taps a side by level: Off, Low, High
+static const Real SUN_SHAFT_LEVEL_GAIN[3] = { 0.0f, 0.6f, 1.0f };	// strength by level
+
+/** One hidden tuning key of Options.ini, clamped; the constant when the line is not there.  For a filmed
+	sweep that picks the look without a build: no menu row, no string, client only. */
+static Real sunShaftTuning(const char *key, Real fallback, Real lo, Real hi)
+{
+	char value[64];
+	if (!findEarlyOptionValue(key, value, sizeof(value)))
+		return fallback;
+	const Real wanted = (Real)atof(value);
+	const Real kept = max(min(wanted, hi), lo);
+	DEBUG_LOG(("SUNSHAFTS: %s = %g\n", key, kept));
+	return kept;
+}
+
+// Every key's clamp is on its own line here, beside the constant it stands over.  The program and
+// DX11Post_Set_Sun_Shafts hold their own hard bounds as well.
+static void readSunShaftTuning(void)
+{
+	s_shaftTuning.band = sunShaftTuning("SunShaftsBand", SUN_SHAFT_BAND, 0.0f, SUN_SHAFT_BAND);
+	s_shaftTuning.radius = sunShaftTuning("SunShaftsRadius", SUN_SHAFT_RADIUS, 10.0f, SUN_SHAFT_RADIUS);
+	s_shaftTuning.side = sunShaftTuning("SunShaftsSide", SUN_SHAFT_SIDE, 0.0f, SUN_SHAFT_SIDE);
+	s_shaftTuning.streakWidth = sunShaftTuning("SunShaftsStreakWidth", SUN_SHAFT_STREAK_WIDTH, 4.0f, 60.0f);
+	s_shaftTuning.streakLength = sunShaftTuning("SunShaftsStreakLength", SUN_SHAFT_STREAK_LENGTH, 20.0f, 400.0f);
+	s_shaftTuning.dark = sunShaftTuning("SunShaftsDark", SUN_SHAFT_DARK, 0.0f, 0.25f);
+	s_shaftTuning.darkCap = sunShaftTuning("SunShaftsDarkCap", SUN_SHAFT_DARK_CAP, 0.0f, SUN_SHAFT_DARK_CAP);
+	s_shaftTuning.top = sunShaftTuning("SunShaftsTop", SUN_SHAFT_TOP, 20.0f, 400.0f);
+	s_shaftTuning.falloff = sunShaftTuning("SunShaftsFalloff", SUN_SHAFT_FALLOFF, 10.0f, 300.0f);
+	s_shaftTuning.glare = sunShaftTuning("SunShaftsGlare", SUN_SHAFT_GLARE, 0.0f, SUN_SHAFT_GLARE);
+	s_shaftTuning.duskGain = sunShaftTuning("SunShaftsDuskGain", SUN_SHAFT_DUSK_GAIN, 0.0f, SUN_SHAFT_DUSK_GAIN);
+	s_shaftTuning.mostStrength = sunShaftTuning("SunShaftsMostStrength", SUN_SHAFT_MOST_STRENGTH, 0.0f, SUN_SHAFT_MOST_STRENGTH);
+}
+
+static void pushSunShafts(Bool denserDust)
+{
+	DX11PostSunShafts shafts;
+	memset(&shafts, 0, sizeof(shafts));
+	const Int level = TheGlobalData->m_sunShafts;
+	if (level > 0 && level < SUN_SHAFTS_LEVEL_COUNT && !TheGlobalData->m_classicGraphics && Direct3D11_Present_Is_Enabled()
+		&& TheTerrainRenderObject != NULL && TheTerrainRenderObject->getMap() != NULL)
+	{
+		updateHazeLevels(TheTerrainRenderObject->getMap());
+		const GlobalData::TerrainLighting &sun = TheGlobalData->m_terrainObjectsLighting[TheGlobalData->m_timeOfDay][0];
+		const Real length = (Real)sqrt(sun.lightPos.x * sun.lightPos.x + sun.lightPos.y * sun.lightPos.y
+			+ sun.lightPos.z * sun.lightPos.z);
+		const Real across = (Real)sqrt(sun.lightPos.x * sun.lightPos.x + sun.lightPos.y * sun.lightPos.y);
+		const Real sine = (length > 0.0001f) ? max(min(-sun.lightPos.z / length, 1.0f), -1.0f) : 1.0f;
+		const Real elevation = (Real)asin(sine) * (180.0f / 3.14159265f);
+		const Real low = max(min((SUN_SHAFT_LOW_SUN_DEGREES - elevation) / SUN_SHAFT_LOW_SUN_SPAN, 1.0f), 0.0f);
+		const Real day = max(min((0.299f * sun.diffuse.red + 0.587f * sun.diffuse.green + 0.114f * sun.diffuse.blue - 0.25f) / 0.5f,
+			1.0f), 0.0f);
+		// the night the picture is lit by, in the light's own steps, so the shafts go with the light on screen
+		const Real night = max(min(DayNight_lightAmount(), 1.0f), 0.0f);
+		const Real dusk = 4.0f * night * (1.0f - night);
+		const SunShaftTuning &tuning = s_shaftTuning;
+		shafts.Strength = min(SUN_SHAFT_STRENGTH * low * day * (1.0f - night) * (1.0f + tuning.duskGain * dusk),
+			tuning.mostStrength) * SUN_SHAFT_LEVEL_GAIN[level];
+		const float diffuse[3] = { sun.diffuse.red, sun.diffuse.green, sun.diffuse.blue };
+		for (Int i = 0; i < 3; ++i)
+			shafts.Colour[i] = diffuse[i] + (SUN_SHAFT_DUSK_COLOUR[i] - diffuse[i]) * low * dusk;
+		shafts.Ground = s_hazeLevelMiddle;
+		shafts.Top = tuning.top;
+		shafts.Falloff = tuning.falloff;
+		shafts.Samples = SUN_SHAFT_SAMPLES[level];
+		shafts.Scale = (denserDust ? SUN_SHAFT_HAZE_GAIN : 1.0f) / SUN_SHAFT_FULL_STRETCH;
+		shafts.Band = tuning.band;
+		shafts.Radius = tuning.radius;
+		shafts.StreakWidth = tuning.streakWidth;
+		shafts.StreakLength = tuning.streakLength;
+		shafts.Slack = SUN_SHAFT_SLACK;
+		shafts.Dark = tuning.dark;
+		shafts.Side = tuning.side;
+		shafts.DarkCap = tuning.darkCap;
+		shafts.ShadedMost = SUN_SHAFT_SHADED_MOST;
+		// the dust reaches down to the map's lowest ground at full density, so valleys keep their air
+		shafts.Floor = TheTerrainRenderObject->getMinHeight();
+		shafts.NormalOffset = SUN_SHAFT_NORMAL_OFFSET;
+		memcpy(shafts.WaterBoxes, s_shaftWaterBoxes, sizeof(shafts.WaterBoxes));
+		memcpy(shafts.WaterHeights, s_shaftWaterHeights, sizeof(shafts.WaterHeights));
+		shafts.WaterCount = (float)s_shaftWaterCount;
+		if (across > 0.0001f)
+		{
+			shafts.TowardSun[0] = -sun.lightPos.x / across;
+			shafts.TowardSun[1] = -sun.lightPos.y / across;
+		}
+		shafts.Glare = tuning.glare;
+		shafts.ShallowTop = SUN_SHAFT_GLARE_STEEPEST;
+		shafts.ShallowSpan = SUN_SHAFT_GLARE_SPAN;
+	}
+	DX11Post_Set_Sun_Shafts(shafts);
+}
+#endif
+
+#if defined(__linux__)
+void W3DShaderManager::invalidateNativePostEnvironment(void)
+{
+	s_nativeMapEpoch.invalidate(); s_nativeEnvironment = {};
+	s_hazeLevelsMap = NULL; s_hazeLevelsData = NULL; s_hazeLevelsWidth = s_hazeLevelsHeight = 0;
+	RenderPost::SetEnvironment(s_nativeEnvironment);
+}
+#endif
+
+static const float HORIZON_BY_TIME_OF_DAY[TIME_OF_DAY_COUNT][3] = {
+	{ 0.72f, 0.80f, 0.90f },	// invalid, as afternoon
+	{ 0.80f, 0.80f, 0.84f },	// morning
+	{ 0.72f, 0.80f, 0.90f },	// afternoon
+	{ 0.80f, 0.58f, 0.44f },	// evening
+	{ 0.07f, 0.10f, 0.18f } };	// night
+
+void W3DShaderManager::getHorizonColour(float rgb[3])
+{
+	const GlobalData::TerrainLighting &sun = TheGlobalData->m_terrainLighting[TheGlobalData->m_timeOfDay][0];
+	const float light[3] = { min(sun.ambient.red + sun.diffuse.red, 1.0f), min(sun.ambient.green + sun.diffuse.green, 1.0f),
+		min(sun.ambient.blue + sun.diffuse.blue, 1.0f) };
+	for (Int i = 0; i < 3; ++i)
+		rgb[i] = HORIZON_BY_TIME_OF_DAY[TheGlobalData->m_timeOfDay][i] * light[i];
+}
 
 void W3DShaderManager::pushProtoHaze(void)
 {
@@ -505,9 +783,57 @@ void W3DShaderManager::pushProtoHaze(void)
 		DX11Post_Set_Haze(none, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, none, 0.0f);
 	}
 	s_hazed = weatherHaze || TheGlobalData->m_mapLight;
-	pushAtmosphere(weatherHaze);
-	if ((TheGlobalData->m_mapLight || TheGlobalData->m_ambientOcclusion || TheGlobalData->m_atmosphere || weatherHaze) && Direct3D11_Is_Active())
+	m_atmosphereDrawn = pushAtmosphere(weatherHaze);
+	pushSunShafts(weatherHaze || TheGlobalData->m_mapLight);
+	// Outside Classic the fog's memory look reads it too (W3DShroud::pushDirect3D11).
+	if ((TheGlobalData->m_mapLight || TheGlobalData->m_ambientOcclusion || TheGlobalData->m_atmosphere || weatherHaze
+			|| !TheGlobalData->m_classicGraphics) && Direct3D11_Is_Active())
 		pushShroudFrame();
+#elif defined(__linux__)
+	s_nativeEnvironment = {};
+	WorldHeightMap *map = TheTerrainRenderObject != NULL ? TheTerrainRenderObject->getMap() : NULL;
+	if (s_nativeMapEpoch.observe(map, map ? map->getDataPtr() : NULL,
+		map ? map->getXExtent() : 0, map ? map->getYExtent() : 0)) {
+		s_hazeLevelsMap = NULL; s_hazeLevelsData = NULL; s_hazeLevelsWidth = s_hazeLevelsHeight = 0;
+	}
+	if (TheGlobalData == NULL || !map || !RenderPost::EnvironmentAvailable() || TheGlobalData->m_classicGraphics) {
+		RenderPost::SetEnvironment(s_nativeEnvironment); return;
+	}
+	s_nativeEnvironment.MapIdentity = reinterpret_cast<std::uintptr_t>(map);
+	s_nativeEnvironment.MapGeneration = s_nativeMapEpoch.Generation;
+	const Bool weatherActive = TheSnowManager != NULL && TheSnowManager->getWeatherKind() != WEATHER_KIND_NONE;
+	const Bool weatherVisible = TheSnowManager != NULL && TheSnowManager->isVisible();
+	const auto haze = NativePostEnvironmentPolicy::chooseHaze(true, false, true,
+		TheGlobalData->m_mapLight, weatherActive, weatherVisible);
+	if (haze == NativePostEnvironmentPolicy::Weather) pushWeatherHaze();
+	else if (haze == NativePostEnvironmentPolicy::WarmLight) pushProtoHazeFrame();
+	pushAtmosphere(haze == NativePostEnvironmentPolicy::Weather);
+	// AO can need shroud even when neither atmosphere nor haze is enabled.
+	if (TheGlobalData->m_ambientOcclusion || haze != NativePostEnvironmentPolicy::None || s_nativeEnvironment.Atmosphere.Strength > 0)
+		pushShroudFrame();
+	RenderPost::SetEnvironment(s_nativeEnvironment); // copies/AddRefs before returning
+#endif
+}
+
+/** The SDL3 frame's post chain, opened with the same chain, glow, grade and HDR choices the
+	Direct3D 11 frame takes from the options.  Nothing on Windows. */
+void W3DShaderManager::beginMainPostScene(void)
+{
+#if !defined(_WIN32)
+	if (!TheGlobalData) return;
+	const GlowTuning tuning = glowTuning();
+	RenderPost::Settings settings;
+	settings.Chain = TheGlobalData->m_direct3D11PostChain.str();
+	settings.Classic = TheGlobalData->m_classicGraphics != FALSE;
+	settings.ClearAlpha = TheWaterTransparency->m_minWaterOpacity;
+	settings.WorldAO = TheGlobalData->m_ambientOcclusion != FALSE;
+	settings.BloomThreshold = tuning.threshold; settings.BloomIntensity = tuning.intensity;
+	settings.BloomSaturation = tuning.saturation;
+	settings.AdditiveGain = tuning.additiveGain; settings.BlurPasses = tuning.blurPasses;
+	settings.Grade = TheGlobalData->m_lightingStyle == LIGHTING_STYLE_REFORGED ? 1.0f : 0.0f;
+	settings.Clarity = TheGlobalData->m_lightingStyle == LIGHTING_STYLE_REFORGED ? REFORGED_CLARITY : 0.0f;
+	settings.InternalHDR = TheGlobalData->m_internalHdr != FALSE;
+	RenderPost::BeginMain(settings);
 #endif
 }
 
@@ -530,7 +856,7 @@ static Int fixedFunctionBloomIntensity(void)
 #endif
 		return 0;
 	}
-	return bloomIntensity();
+	return RenderPost::ReplacesLegacyBloom() ? 0 : bloomIntensity();
 }
 
 static void releaseBloomTargets(void)
@@ -724,7 +1050,7 @@ Bool ScreenDefaultFilter::postRender(enum FilterModes mode, Coord2D &scrollDelta
 	if (!tex) return false;
 	// Direct3D 11 never left its own scene target (Direct3D11_Set_Scene_Stand_In): there is nothing
 	// to copy back, and the copy would clip the Glow option's fires at white.
-	if (Direct3D11_Is_Active()) return true;
+	if (Direct3D11_Is_Active() || RenderPost::ReplacesLegacyBloom()) return true;
 	if (!set(mode)) return false;
 
 
@@ -2148,7 +2474,11 @@ void TerrainShader2Stage::updateNoise1(D3DXMATRIX *destMatrix,D3DXMATRIX *curVie
 
 	D3DXMATRIX scale;
 
-	D3DXMatrixScaling(&scale, STRETCH_FACTOR, STRETCH_FACTOR,1);
+	/* The cloud texture spans several of EA's tiles (CloudMapTerrainTextureClass, CloudShadowBake.h),
+		 so it is spread that many times wider and slides that many times slower in its own coordinates:
+		 a texel covers the ground it did and the clouds cross it at the speed they did. */
+	const float repeat = (float)CloudMapTerrainTextureClass::tilesPerRepeat();
+	D3DXMatrixScaling(&scale, STRETCH_FACTOR / repeat, STRETCH_FACTOR / repeat, 1);
 	*destMatrix = *curViewInverse * scale;
 
 	D3DXMATRIX offset;
@@ -2156,8 +2486,19 @@ void TerrainShader2Stage::updateNoise1(D3DXMATRIX *destMatrix,D3DXMATRIX *curVie
 	Int delta = m_curTick;
 	m_curTick = WW3D::Get_Sync_Time();//Clock_Milliseconds_Coarse();
 	delta = m_curTick-delta;
-	m_xOffset += m_xSlidePerSecond*delta/1000;
-	m_yOffset += m_ySlidePerSecond*delta/1000;
+	m_xOffset += m_xSlidePerSecond / repeat * delta / 1000;
+	m_yOffset += m_ySlidePerSecond / repeat * delta / 1000;
+	/* -turbo: W3D's clock follows the wall, and a turbo run draws a varying number of pictures at a
+		 varying pace before its shot, so the clouds' shadow stood somewhere else at the same logic frame on
+		 every run (tree-check, 2026-10-30).  Place them by the logic frame instead, the game time it holds,
+		 so two turbo shots of one frame match.  Still not the paced shot's place. */
+	if (TheGlobalData && TheGlobalData->m_turbo && TheGameLogic)
+	{
+		const Real gameSeconds = (Real)TheGameLogic->getFrame() * MSEC_PER_LOGICFRAME_REAL
+			* ( (Real)GAME_SPEED_PERCENT / 100.0f ) / 1000.0f;
+		m_xOffset = fmodf( m_xSlidePerSecond / repeat * gameSeconds, 1.0f );
+		m_yOffset = fmodf( m_ySlidePerSecond / repeat * gameSeconds, 1.0f );
+	}
 
 
 	//m_xOffset += m_xSlidePerSecond*delta/500;
@@ -3151,6 +3492,9 @@ W3DShaderManager::W3DShaderManager(void)
 //=============================================================================
 void W3DShaderManager::init(void)
 {
+#if defined(__linux__)
+	invalidateNativePostEnvironment();
+#endif
 	int i,j;
 
 	D3DSURFACE_DESC desc;
@@ -3224,7 +3568,10 @@ void W3DShaderManager::init(void)
 //=============================================================================
 void W3DShaderManager::shutdown(void)
 {
-	Direct3D11_Set_Scene_Stand_In(NULL, NULL);
+#if defined(__linux__)
+	invalidateNativePostEnvironment();
+#endif
+	RenderPost::SetSceneStandIn(NULL, NULL);
 	if (m_newRenderSurface) m_newRenderSurface->Release();
 	if (m_renderTexture) m_renderTexture->Release();
 	if (m_oldRenderSurface) m_oldRenderSurface->Release();
@@ -3351,7 +3698,7 @@ static void rttComplain( const char *why )
 }
 
 /*Draws 2 triangles covering the viewport given the current render states*/
-void W3DShaderManager::drawViewport(Int color)
+void W3DShaderManager::drawViewport(Int color, Real depth)
 {
 
 	struct _TRANS_LIT_TEX_VERTEX {
@@ -3368,16 +3715,16 @@ void W3DShaderManager::drawViewport(Int color)
 	height=TheTacticalView->getHeight();
 
 	//bottom right
-	v[0].p = D3DXVECTOR4( xpos+width-0.5f, ypos+height-0.5f, 0.0f, 1.0f );
+	v[0].p = D3DXVECTOR4( xpos+width-0.5f, ypos+height-0.5f, depth, 1.0f );
 	v[0].u = (Real)(xpos+width)/(Real)TheDisplay->getWidth();	v[0].v = (Real)(ypos+height)/(Real)TheDisplay->getHeight();
 	//top right
-	v[1].p = D3DXVECTOR4( xpos+width-0.5f, ypos-0.5f, 0.0f, 1.0f );
+	v[1].p = D3DXVECTOR4( xpos+width-0.5f, ypos-0.5f, depth, 1.0f );
 	v[1].u = (Real)(xpos+width)/(Real)TheDisplay->getWidth();	v[1].v = (Real)(ypos)/(Real)TheDisplay->getHeight();
 	//bottom left
-	v[2].p = D3DXVECTOR4(  xpos-0.5f, ypos+height-0.5f, 0.0f, 1.0f );
+	v[2].p = D3DXVECTOR4(  xpos-0.5f, ypos+height-0.5f, depth, 1.0f );
 	v[2].u = (Real)(xpos)/(Real)TheDisplay->getWidth();	v[2].v = (Real)(ypos+height)/(Real)TheDisplay->getHeight();
 	//top left
-	v[3].p = D3DXVECTOR4(  xpos-0.5f,  ypos-0.5f, 0.0f, 1.0f );
+	v[3].p = D3DXVECTOR4(  xpos-0.5f,  ypos-0.5f, depth, 1.0f );
 	v[3].u = (Real)(xpos)/(Real)TheDisplay->getWidth();	v[3].v = (Real)(ypos)/(Real)TheDisplay->getHeight();
 	v[0].color = color;
 	v[1].color = color;
@@ -3414,7 +3761,7 @@ void W3DShaderManager::startRenderToTexture(Bool sceneStandIn)
 	IDirect3DSurface9 *depthSurface = DX8Wrapper::_Get_Non_MultiSampled_Depth_Buffer();
 	if (depthSurface == NULL) depthSurface = m_oldDepthSurface;
 	if (sceneStandIn)
-		Direct3D11_Set_Scene_Stand_In(m_renderTexture, m_newRenderSurface);
+		RenderPost::SetSceneStandIn(m_renderTexture, m_newRenderSurface);
 	DX8Wrapper::_Set_DX8_Render_Target(m_newRenderSurface,depthSurface);
 	RenderResult hr = D3D_OK;
 	DEBUG_ASSERTCRASH(hr==D3D_OK, ("Set target failed unexpectedly."));
@@ -3474,7 +3821,7 @@ IDirect3DTexture9 *W3DShaderManager::endRenderToTexture(void)
 		return NULL;
 	}
 	DX8Wrapper::_Set_DX8_Render_Target(m_oldRenderSurface,m_oldDepthSurface);	//restore original render target
-	Direct3D11_Set_Scene_Stand_In(NULL, NULL);
+	RenderPost::SetSceneStandIn(NULL, NULL);
 	RenderResult hr = D3D_OK;
 	DEBUG_ASSERTCRASH(hr==D3D_OK, ("Set target failed unexpectedly."));
 	if (hr != D3D_OK)

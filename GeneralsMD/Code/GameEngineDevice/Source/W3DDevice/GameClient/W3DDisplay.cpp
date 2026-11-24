@@ -36,6 +36,9 @@
 static void drawFramerateBar(void);
 
 // SYSTEM INCLUDES ////////////////////////////////////////////////////////////
+#include "Platform/RenderEffects.h"
+#include "Platform/RenderParticles.h"
+#include "Platform/RenderPost.h"
 #include <stdlib.h>
 #include <algorithm>
 #include "Lib/Clock.h"
@@ -62,6 +65,8 @@ static void drawFramerateBar(void);
 #include "ffprobe.h"
 #include "ffshadercache.h"
 #include "dx11runtime.h"
+#include "W3DDevice/GameClient/W3DCinematicCamera.h"
+#include "Common/Recorder.h"
 #include "Common/PerfTimer.h"
 #include "Common/JobSystem.h"
 #include "Common/FileSystem.h"
@@ -76,6 +81,7 @@ static void drawFramerateBar(void);
 
 #include "GameClient/Drawable.h"
 #include "W3DDevice/GameClient/W3DSmoothMotion.h"
+#include "W3DDevice/GameClient/Module/W3DFractureDraw.h"
 #include "W3DDevice/GameClient/Module/W3DModelDraw.h"
 #include "GameLogic/Object.h"
 #include "GameClient/Keyboard.h"		// TheKeyboard; on Windows WinMain.h brought it too
@@ -88,6 +94,7 @@ static void drawFramerateBar(void);
 #include "GameClient/GraphDraw.h"
 #include "GameClient/Line2D.h"
 #include "GameClient/Mouse.h"
+#include "GameClient/Shell.h"
 #include "GameClient/ObserverCamera.h"
 #include "GameClient/CinemaDirector.h"
 #include "GameClient/GlobalLanguage.h"
@@ -141,9 +148,8 @@ static void drawFramerateBar(void);
 
 #include "GameLogic/ScriptEngine.h"		// For TheScriptEngine - jkmcd
 #include "GameLogic/GameLogic.h"
-#ifdef DUMP_PERF_STATS
-#include "GameLogic/PartitionManager.h"
-#endif
+#include "GameLogic/PartitionManager.h"	// isCellAlwaysShrouded, the Apocalypse fog ring's thin shroud
+#include "GameLogic/ApocalypseDirector.h"	// isWarnedCell, the gates the next wave gathers at
 
 #if defined(_WIN32)
 #include "WinMain.h"
@@ -490,6 +496,7 @@ static unsigned long long s_pacingPictures = 0;
 
 W3DDisplay::~W3DDisplay()
 {
+	freeModelPreviews();
 	W3DParticleSystemManager::releaseCloudResources();
 	W3DParticleSystemManager::releaseGpuResources();
 	// R1: how each captured model was treated per tick, for the snap rules' tuning.
@@ -532,6 +539,13 @@ W3DDisplay::~W3DDisplay()
 		DEBUG_LOG(("-ffshader: %u programs compiled, %u descriptions refused; %I64u draws shaded, "
 			"%I64u left on the fixed-function path\n",
 			compiled, refusedDescriptions, shadedDraws, refusedDraws));
+	}
+
+	// a 2D batch that went past one draw's room and was split, on either device (WW3D2 cannot log it)
+	{
+		int splitVertices, splitIndices;
+		if( Render2DClass::Get_First_Split( splitVertices, splitIndices ) )
+			DEBUG_LOG(("Render2D: batch split at %d vertices %d indices\n", splitVertices, splitIndices));
 	}
 
 	// Same reason as above: WW3D2 has no logging in a shipping build, and a -dx11 run that made no
@@ -858,9 +872,9 @@ static void sizeWindowToClient( Int mode, Int width, Int height )
 static void pushDirect3D11PostChain( void )
 {
 	// Classic graphics is the game's own picture, which is what -d3d9 draws: hard edged sprites.
-	Direct3D11_Allow_Soft_Particles( !TheGlobalData->m_classicGraphics );
+	RenderParticles::AllowEnhancements( !TheGlobalData->m_classicGraphics );
 	// and its own looks for the power outage, the EMP and the two stealth states
-	Direct3D11_Allow_Draw_Effects( !TheGlobalData->m_classicGraphics );
+	RenderEffects::AllowDrawEffects( !TheGlobalData->m_classicGraphics );
 	const AsciiString & requested = TheGlobalData->m_direct3D11PostChain;
 	if( !Direct3D11_Post_Chain( requested.str() ) && !requested.isEmpty() )
 	{
@@ -1210,37 +1224,95 @@ void W3DDisplay::init( void )
 		return;
 	}
 
-	if( WW3D::Set_Render_Device( 0,
-															 getWidth(),
-															 getHeight(),
-															 getBitDepth(),
-															 getWindowed(),
-															 true ) != WW3D_ERROR_OK )
+	/* The first try is the only one a working machine ever makes, and it is what it always was.  The
+		 rest run only after a refusal, in this order, each logged with what refused it and on which
+		 adapter the wrapper ended up (a refused CreateDevice on another adapter falls back to adapter 0
+		 inside the wrapper, so "the adapter of try 1" is whatever it left current):
+		   1. the preferred adapter, Direct3D 11 beside Direct3D 9 (or Direct3D 9 alone under -d3d9);
+		   2. Direct3D 11 released and turned off, everything as -d3d9 starts, and the adapter try 1 left
+		      current asked again, but only when Direct3D 11 had a device to release: the Direct3D 9 device
+		      then gets a window no flip chain holds (an RX 7900 GRE refused every start for twelve
+		      minutes with DEVICELOST while the chain was there, v4.2.0);
+		   3. every adapter Direct3D 9 lists (one per monitor) not yet left current by a try, adapter 0
+		      included, Direct3D 9 alone.
+		 Try 1 waits out a held display for up to 3 s as before; every later try for 0.5 s, and no new
+		 try starts past 15 s, so a machine that can make no device sees the message in about that.
+		 EA's second try at 16 bits is kept off Windows only: a windowed device takes the desktop's
+		 format, so on Windows it was the first try again, and every device here is windowed. */
+	const UnsignedInt deviceStart = Clock_Milliseconds();
+	enum { DEVICE_TRIES_MS = 15000, MAX_TRIED_ADAPTERS = 32 };
+	Bool adapterTried[MAX_TRIED_ADAPTERS] = { FALSE };
+	Int deviceTry = 1;
+	Bool haveDevice = WW3D::Set_Render_Device( 0, getWidth(), getHeight(), getBitDepth(), getWindowed(), true ) == WW3D_ERROR_OK;
+#if !defined(_WIN32)
+	if( !haveDevice )
 	{
 		// Getting the device at the default bit depth (32) didn't work, so try
 		// getting a 16 bit display.  (Voodoo 1-3 only supported 16 bit.) jba.
 		setBitDepth( 16 );
-		if( WW3D::Set_Render_Device( 0, 
-																 getWidth(), 
-																 getHeight(), 
-																 getBitDepth(), 
-																 getWindowed(), 
-																 true ) != WW3D_ERROR_OK ) 
+		haveDevice = WW3D::Set_Render_Device( 0, getWidth(), getHeight(), getBitDepth(), getWindowed(), true ) == WW3D_ERROR_OK;
+	}
+#endif
+	if( !haveDevice )
+	{
+		DX8Wrapper::Set_Device_Retries( 2 );
+		if( WW3D::Get_Render_Device() >= 0 && WW3D::Get_Render_Device() < MAX_TRIED_ADAPTERS )
+			adapterTried[ WW3D::Get_Render_Device() ] = TRUE;
+	}
+	if( !haveDevice && Direct3D11_Is_Enabled() )
+	{
+		const Bool hadDirect3D11 = Direct3D11_Is_Active();
+		DEBUG_LOG(("W3DDisplay::init - render device try %d refused (%s, adapter %d now current): %s\n",
+							 deviceTry, hadDirect3D11 ? "Direct3D 11" : "Direct3D 11 refused, Direct3D 9",
+							 WW3D::Get_Render_Device(), DX8Wrapper::Get_Device_Failures()));
+		DX8Wrapper::Clear_Device_Failures();
+		// Everything -d3d9 would have said, so nothing later asks for a frame that is not there and no
+		// later try makes a Direct3D 11 device again.
+		Direct3D11_Release();
+		Direct3D11_Enable( false );
+		Direct3D11_Present_Enable( false );
+		TheWritableGlobalData->m_direct3D11 = FALSE;
+		DX8Wrapper::Set_Requested_MultiSample_Level( msaaSamplesForLevel( TheGlobalData->m_msaaLevel ) );
+		if( hadDirect3D11 )
 		{
-			// WW3D2 logs nothing in a shipping build, so this line is all a crash report has to go on.
-			DEBUG_LOG(("W3DDisplay::init - no render device at %dx%d: %u adapters, %d usable; %s\n",
-								 getWidth(), getHeight(),
-								 DX8Wrapper::_Get_D3D() ? DX8Wrapper::_Get_D3D()->GetAdapterCount() : 0u,
-								 WW3D::Get_Render_Device_Count(), DX8Wrapper::Get_Device_Failures()));
-
-			WW3D::Shutdown();
-			WWMath::Shutdown();
-			throw ERROR_INVALID_D3D;	//failed to initialize.  User probably doesn't have DX 8.1
-			DEBUG_ASSERTCRASH( 0, ("Unable to set render device\n") );
-			return;
+			++deviceTry;
+			haveDevice = WW3D::Set_Render_Device( -1, getWidth(), getHeight(), getBitDepth(), getWindowed(), true ) == WW3D_ERROR_OK;
 		}
+	}
+	for( Int adapter = 0; !haveDevice && adapter < WW3D::Get_Render_Device_Count() && adapter < MAX_TRIED_ADAPTERS; ++adapter )
+	{
+		if( WW3D::Get_Render_Device() >= 0 && WW3D::Get_Render_Device() < MAX_TRIED_ADAPTERS )
+			adapterTried[ WW3D::Get_Render_Device() ] = TRUE;
+		if( adapterTried[ adapter ] )
+			continue;
+		if( Clock_Milliseconds() - deviceStart > DEVICE_TRIES_MS )
+			break;
+		DEBUG_LOG(("W3DDisplay::init - render device try %d refused (Direct3D 9, adapter %d now current): %s\n",
+							 deviceTry, WW3D::Get_Render_Device(), DX8Wrapper::Get_Device_Failures()));
+		DX8Wrapper::Clear_Device_Failures();
+		++deviceTry;
+		DX8Wrapper::Select_Render_Device( adapter );
+		haveDevice = WW3D::Set_Render_Device( -1, getWidth(), getHeight(), getBitDepth(), getWindowed(), true ) == WW3D_ERROR_OK;
+	}
+	DX8Wrapper::Set_Device_Retries( 12 );
+	if( !haveDevice )
+	{
+		// WW3D2 logs nothing in a shipping build, so this line is all a crash report has to go on.
+		DEBUG_LOG(("W3DDisplay::init - no render device at %dx%d: %u adapters, %d usable, %d tries in %u ms; %s\n",
+							 getWidth(), getHeight(),
+							 DX8Wrapper::_Get_D3D() ? DX8Wrapper::_Get_D3D()->GetAdapterCount() : 0u,
+							 WW3D::Get_Render_Device_Count(), deviceTry, Clock_Milliseconds() - deviceStart,
+							 DX8Wrapper::Get_Device_Failures()));
 
-	}  // end if
+		WW3D::Shutdown();
+		WWMath::Shutdown();
+		throw ERROR_INVALID_D3D;	// GameEngine::init shows ERROR:D3DFailureMessage, what the player can try
+	}
+	if( deviceTry > 1 )
+	{
+		DEBUG_LOG(("W3DDisplay::init - render device on try %d (adapter %d) after %u ms\n",
+							 deviceTry, WW3D::Get_Render_Device(), Clock_Milliseconds() - deviceStart));
+	}
 
 	// Which backend draws what is on screen.  d3d9.dll is loaded either way, because the Direct3D 9
 	// device is always made and the Direct3D 11 one mirrors it, so the loaded dll says nothing.
@@ -1390,6 +1462,9 @@ void W3DDisplay::reset( void )
 	m_3DScene->Destroy_Iterator(sceneIter);
 
 	m_isClippedEnabled = FALSE;
+
+	// a preview's models hold their prototypes; the next draw makes them again
+	freeModelPreviews();
 
 	// release any unused assets from W3D
 	/// @todo really need that "scene abstraction", having this stuff in the display is icky
@@ -2237,8 +2312,8 @@ extern UnsignedInt TheSceneDrawCalls;
 // one keeps its tick serial.  A picture with a tick beside it shows the state before that tick, which was due
 // when it was handed over, so it is a whole tick behind and blends nothing anyway.  A picture drawn again
 // beside it (phase 4) could only show that same state, since the next one is still being made, so while the
-// blend is on and the present waits for the refresh the window closes instead (drawAgainBesideTick): the
-// next pass's picture then blends toward the new tick on the refresh the held copy would have taken.
+// present waits for the refresh the window closes instead (drawAgainBesideTick): the next pass's picture
+// then shows, or blends toward, the new tick on the refresh the held copy would have taken.
 //=============================================================================
 bool TheSmoothMotionActive = false;
 float TheSmoothMotionAlpha = 1.0f;
@@ -2252,7 +2327,7 @@ static UnsignedInt s_pacingFrame = 0;
 /* Smooth motion's default: a blend only on a display that refreshes faster than the logic ticks.  A display
 	 at the logic's rate or slower shows a new tick every refresh already, and the blend would only draw each
 	 one a tick late.  The adapter's mode is asked once. */
-static Bool displayOutpacesLogic()
+static Int displayRefreshHz()
 {
 	static Int refresh = -1;
 	if (refresh < 0)
@@ -2264,7 +2339,12 @@ static Bool displayOutpacesLogic()
 		DEBUG_LOG(("smooth motion: the display refreshes at %d Hz, the logic ticks at %d: %s\n", refresh,
 			LOGICFRAMES_PER_SECOND, refresh > LOGICFRAMES_PER_SECOND ? "models drawn between ticks" : "no blend"));
 	}
-	return refresh > LOGICFRAMES_PER_SECOND;
+	return refresh;
+}
+
+static Bool displayOutpacesLogic()
+{
+	return displayRefreshHz() > LOGICFRAMES_PER_SECOND;
 }
 
 /* With ZH_SMOOTH_MOTION_STATS, how evenly the picture's game time follows the wall clock: per window of 120
@@ -2422,10 +2502,14 @@ static void smoothMotionDrawAgain()
 }
 
 /* Phase 4 asks whether to draw again while the tick runs on.  A picture drawn again holds the last tick's
-	 state, and with a present that waits for the refresh it holds it for a whole refresh.  While the blend is
-	 on, the pass that follows the tick shows a state between the last two ticks instead, so the window
-	 closes and waits for the tick.  On a display no faster than the logic the blend is off and nothing
-	 changes; nor does it without vsync, where the held copy costs no refresh of its own. */
+	 state, and with a present that waits for the refresh it holds it for a whole refresh, whatever its own
+	 length: the tick ends inside that refresh and its state waits for the next one, so with Smooth Motion
+	 off a vsynced screen showed one state a refresh too long and the next a refresh late.  With the blend
+	 on, the pass after the tick would show a state between the last two ticks instead.  Either way the
+	 window closes and waits for the tick.  With the blend off only while the last tick fitted in a
+	 refresh: a longer tick (a slow one, or 144 Hz and up) misses that refresh anyway, and the held copy
+	 gives it a fresh camera where waiting repeated the old picture and the scroll juddered at the tick's
+	 cadence.  Without vsync the held copy costs no refresh of its own and is still drawn. */
 static Bool drawAgainBesideTick( LogicThread::OverlapWindow &window, Real pictureMS )
 {
 #if defined(_WIN32)
@@ -2433,7 +2517,15 @@ static Bool drawAgainBesideTick( LogicThread::OverlapWindow &window, Real pictur
 #else
 	const Bool presentWaitsForRefresh = TRUE;	// the SDL GPU swapchain's VSYNC, whatever was asked for
 #endif
-	if (TheSmoothMotionActive && presentWaitsForRefresh && !GameEngine_videoBlends())
+	Bool tickFitsRefresh = TheSmoothMotionActive;
+	if (!tickFitsRefresh && presentWaitsForRefresh)
+	{
+		Real tickMS = 0.0f, waitMS = 0.0f;
+		LogicThread::takeOverlapTimes(tickMS, waitMS);	// a read: the last overlapped tick's length
+		const Int refresh = displayRefreshHz();
+		tickFitsRefresh = tickMS <= 1000.0f / (Real)(refresh > 0 ? refresh : 60);
+	}
+	if (presentWaitsForRefresh && tickFitsRefresh && !GameEngine_videoBlends())
 	{
 		window.close();
 		return FALSE;
@@ -2496,6 +2588,7 @@ static void takeReadsForRender( Bool renders )
 	// bar's painters ask
 	TheGameClient->takeFrameForDraw();
 	Drawable_flashOrderTargets();		// before the looks are taken, so a flash shows in this picture
+	Drawable::takeStealthClock();		// the stealth fades' clock, once for every look below
 	for( Drawable *draw = TheGameClient->firstDrawable(); draw; draw = draw->getNextDrawable() )
 	{
 		// flushes the conditions the client set; inside the window the scene's dirty walk is a no-op
@@ -2503,6 +2596,7 @@ static void takeReadsForRender( Bool renders )
 		draw->takeLookForDraw();
 	}
 	W3DControlBar_takeReadsForRender();
+	W3DFractureDraw::takeReadsForRender();		// a repaired structure's health, before the fragments step
 	if( !renders || TheGlobalData->m_breakTheMovie || TheGlobalData->m_disableRender )
 		return;
 	// the mobs' members for their health bars and selection rings, at the positions they are shown
@@ -2520,6 +2614,25 @@ static void takeReadsForRender( Bool renders )
 	if (TheWaterRenderObj) TheWaterRenderObj->takeReadsForRender();
 #endif
 	static_cast<W3DParticleSystemManager *>( TheParticleSystemManager )->takeReadsForRender();
+}
+
+CinematicAnimationClockMode CinematicCameraModeForClientUpdate()
+{
+	CinematicAnimationClockMode mode;
+	if (!TheGameLogic || !TheGlobalData) return mode;
+	mode.singlePlayer = TheGameLogic->isInGame() && TheGameLogic->isInSinglePlayerGame();
+	mode.network = TheNetwork != NULL || TheGameLogic->isInMultiplayerGame();
+	mode.replay = TheGameLogic->isInReplayGame()
+		|| (TheRecorder && TheRecorder->getMode() == RECORDERMODETYPE_PLAYBACK);
+	mode.headless = TheGlobalData->m_headless;
+	mode.shell = TheGameLogic->isInShellGame();
+	mode.loading = TheGlobalData->m_loadScreenRender || TheGameLogic->isLoadingMap()
+		|| TheGameLogic->isLoadingSave() || TheGameLogic->isClearingGameData();
+	mode.fast = TheGlobalData->m_turbo || (TheScriptEngine && TheScriptEngine->isTimeFast());
+	mode.video = TheGlobalData->m_videoEndFrame > 0 || GameEngine_isVideoFrame();
+	mode.capture = TheGlobalData->m_screenShotFrame > 0 || s_screenShotPending;
+	mode.pictureClock = GameEngine_videoPictures() > 1;
+	return mode;
 }
 
 void W3DDisplay::draw( void )
@@ -2648,7 +2761,11 @@ AGAIN:
 	// stands still on a pane's second draw of one
 	static UnsignedInt lastFrame = ~0;
 	const UnsignedInt picture = TheGameClient->getFrame() * GameEngine_videoPictures() + GameEngine_videoPicture();
-	freezeTime = freezeTime || (lastFrame == picture);
+	// Snapshot before opening the logic/render overlap. A normal repeated picture can
+	// advance its animation clock with the moving camera; real freezes and diagnostic
+	// recording/replay sessions retain their existing duplicate rule.
+	const CinematicAnimationClockMode animationClockMode = CinematicCameraModeForClientUpdate();
+	freezeTime = CinematicAnimationClockFrozen(freezeTime, lastFrame == picture, animationClockMode);
 	lastFrame = picture;
 
 	/// @todo: I'm assuming the first view is our main 3D view.
@@ -2899,6 +3016,9 @@ AGAIN:
 			if (primaryW3DView && primaryW3DView->get3DCamera())
 				W3DModelDraw::lightHeadlights(primaryW3DView->get3DCamera()->Get_Position());
 
+			// A fractured structure's fall and dust, seen or not, before any view draws it.
+			W3DFractureDraw::updateAll();
+
 			// Once a frame and before any view draws, so a script's blur or black and white filter
 			// does not cost the haze its levels and shroud the way pushing it from the default filter did.
 			W3DShaderManager::pushProtoHaze();
@@ -2961,6 +3081,7 @@ AGAIN:
 					continue;
 				}
 				couldRender = true;
+				W3DShaderManager::beginMainPostScene();
 				// add the number of verts/polygons drawn before the main scene
 				if (numRenderTargetPolygons || numRenderTargetVertices)
 					Debug_Statistics::Record_DX8_Polys_And_Vertices(numRenderTargetPolygons,numRenderTargetVertices,ShaderClass::_PresetOpaqueShader);
@@ -2979,10 +3100,11 @@ AGAIN:
 				// was finished and before the health bars went over it.  This is the frame that
 				// drew no view at all: without it the scene would sit in the offscreen texture with
 				// the command bar drawn over a black screen.
-				Direct3D11_Finish_Scene();
+				RenderPost::FinishFrame();
 
 				// draw the user interface
 				TheInGameUI->DRAW();
+
 #ifdef DEBUG_LOGGING
 				tUIEnd = Clock_Ticks();
 				TheSceneDrawMS = w3dElapsedMS( tSceneStart, tSceneEnd );
@@ -4118,6 +4240,82 @@ void W3DDisplay::drawImage( const Image *image, Int startX, Int startY,
 
 }  // end drawImage
 
+// W3DDisplay::drawImageWedge =================================================
+/** The part of an image fit in the box that a wedge from the box's centre covers: a fan of
+	* triangles from the centre to the box's edge, a point where the wedge starts, one at every box
+	* corner it passes and one where it ends, so each triangle's far side lies on one edge and the
+	* fan covers the wedge inside the box exactly.  The UVs are the image's at each point.  Plain
+	* alpha only, no clip region, and a rotated image is drawn whole. */
+//=============================================================================
+void W3DDisplay::drawImageWedge( const Image *image, Int startX, Int startY, Int endX, Int endY,
+																 Real fromDegrees, Real sweepDegrees, Color color )
+{
+	if( image == NULL || sweepDegrees == 0.0f || endX <= startX || endY <= startY )
+		return;
+	if( fabs( sweepDegrees ) >= 360.0f || BitTest( image->getStatus(), IMAGE_STATUS_ROTATED_90_CLOCKWISE ) )
+	{
+		drawImage( image, startX, startY, endX, endY, color );
+		return;
+	}
+	if( isRecording() ) { record( [=]() { drawImageWedge( image, startX, startY, endX, endY, fromDegrees, sweepDegrees, color ); } ); return; }
+
+	if( sweepDegrees < 0.0f )
+	{
+		fromDegrees += sweepDegrees;
+		sweepDegrees = -sweepDegrees;
+	}
+	const Real cx = 0.5f * ( startX + endX ), cy = 0.5f * ( startY + endY );
+	const Real hw = 0.5f * ( endX - startX ), hh = 0.5f * ( endY - startY );
+
+	// the angles to stop at: the wedge's ends and every corner between them, in order
+	const Real corner = atan2f( hw, hh ) * 180.0f / PI;
+	const Real CORNERS[ 4 ] = { corner, 180.0f - corner, 180.0f + corner, 360.0f - corner };
+	Real stops[ 2 + 12 ];
+	Int count = 0;
+	stops[ count++ ] = fromDegrees;
+	const Real base = 360.0f * floorf( fromDegrees / 360.0f );
+	for( Int turn = 0; turn < 3; ++turn )
+		for( Int k = 0; k < 4; ++k )
+		{
+			const Real at = base + 360.0f * turn + CORNERS[ k ];
+			if( at > fromDegrees && at < fromDegrees + sweepDegrees )
+				stops[ count++ ] = at;
+		}
+	stops[ count++ ] = fromDegrees + sweepDegrees;
+
+	if( setup2D( image, TRUE ) )
+	{
+		m_2DRender->Enable_Texturing( TRUE );
+		if( BitTest( image->getStatus(), IMAGE_STATUS_RAW_TEXTURE ) )
+			m_2DRender->Set_Texture( (TextureClass *)(image->getRawTextureData()) );
+		else
+			m_2DRender->Set_Texture( image->getFilename().str() );
+	}
+
+	const Region2D *uv = image->getUV();
+	const Vector2 centre( cx, cy );
+	const Vector2 centreUV( 0.5f * ( uv->lo.x + uv->hi.x ), 0.5f * ( uv->lo.y + uv->hi.y ) );
+	Vector2 last, lastUV;
+	for( Int i = 0; i < count; ++i )
+	{
+		// the box's edge along the angle, clockwise from 12 o'clock with y down the screen
+		const Real a = stops[ i ] * PI / 180.0f;
+		const Real dx = sinf( a ), dy = -cosf( a );
+		const Real reach = min( fabs( dx ) > 1.0e-6f ? hw / fabs( dx ) : 1.0e9f, fabs( dy ) > 1.0e-6f ? hh / fabs( dy ) : 1.0e9f );
+		const Vector2 point( cx + dx * reach, cy + dy * reach );
+		const Vector2 pointUV( uv->lo.x + ( uv->hi.x - uv->lo.x ) * ( point.X - startX ) / ( endX - startX ),
+			uv->lo.y + ( uv->hi.y - uv->lo.y ) * ( point.Y - startY ) / ( endY - startY ) );
+		// wound as drawImage's and drawRectClock's triangles are
+		if( i > 0 )
+			m_2DRender->Add_Tri( centre, point, last, centreUV, pointUV, lastUV, color );
+		last = point;
+		lastUV = pointUV;
+	}
+
+	finish2D();
+
+}  // end drawImageWedge
+
 //============================================================================
 // W3DDisplay::createVideoBuffer
 //============================================================================
@@ -4237,7 +4435,18 @@ void W3DDisplay::setShroudLevel( Int x, Int y, CellShroudStatus setting )
 		#ifdef INTENSE_DEBUG
 		TheTerrainRenderObject->getShroud()->setShroudFilter(false);
 		#endif
-		if( setting == CELLSHROUD_SHROUDED )
+		// the Apocalypse fog ring hides what is in it like shroud but draws as a thin fog, the ground
+		// showing through it: it is shroud nobody can lift, not ground nobody has seen
+		// and where the next wave gathers it heats up, brighter red: the gates' warning
+		// and over a gathering horde it glows: the thicker the dead stand, the brighter its red
+		if( setting == CELLSHROUD_SHROUDED && ThePartitionManager && ThePartitionManager->isCellAlwaysShrouded(x, y) )
+		{
+			const Int thin = TheApocalypseDirector->isWarnedCell(x, y)
+				? (Int)APOCALYPSE_WARN_GLOW : (Int)TheGlobalData->m_fogAlpha + (255 - (Int)TheGlobalData->m_fogAlpha) / 4;
+			const Int heat = Apocalypse_heatAt( x, y );
+			TheTerrainRenderObject->getShroud()->setShroudLevel(x, y, (W3DShroudLevel)( thin + ( APOCALYPSE_HEAT_GLOW - thin ) * heat / 255 ));
+		}
+		else if( setting == CELLSHROUD_SHROUDED )
 			TheTerrainRenderObject->getShroud()->setShroudLevel(x, y, (W3DShroudLevel)TheGlobalData->m_shroudAlpha );
 		else if( setting == CELLSHROUD_FOGGED )
 			TheTerrainRenderObject->getShroud()->setShroudLevel(x, y, (W3DShroudLevel)TheGlobalData->m_fogAlpha );///< @todo placeholder to get feedback on logic work while graphic side being decided
@@ -4531,6 +4740,11 @@ static void saveScreenShot(void)
 	}
 
 	if (!writeFrameBMP(pathname))
+		return;
+
+	// a -cinema list takes its shots back to back, and the note stays up for seconds, so with the
+	// HUD on every shot after the first carried the one before it in its picture
+	if (!TheGlobalData->m_cinemaScript.isEmpty())
 		return;
 
 	UnicodeString ufileName;
@@ -5417,4 +5631,14 @@ static void drawFramerateBar(void)
 
 	TheDisplay->drawFillRect(1, 1, width, 15, colorToUse);
 	prevTime = now;
+}
+
+Bool W3DDisplay::supportsPerPixelLighting(void) const
+{
+	return DX8Wrapper::Supports_Per_Pixel_Lighting();
+}
+
+Bool W3DDisplay::supportsHemisphericAmbient(void) const
+{
+	return DX8Wrapper::Supports_Hemispheric_Ambient();
 }

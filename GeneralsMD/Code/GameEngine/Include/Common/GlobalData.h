@@ -235,7 +235,7 @@ public:
 	Int m_waterReflectionDetail; // 0 = Low, 1 = High planar resolution
 	Int m_cloudStyle;					// "CloudStyle": 0 = Classic (default), 1 = Volumetric (when supported)
 	Bool m_explosionDebrisTrails;	// "DebrisTrails": blasts throw smoke-trailing fragments and burning shrapnel
-	Int m_shadowQuality;				// "ShadowQuality": the sun's depth map at 1024, 2048 or 4096 texels a side (Direct3D 11)
+	Int m_shadowQuality;				// "ShadowQuality": the sun's depth map at 1024, 2048 or 4096 texels a side, or 4096 and ray traced (Direct3D 11)
 	Int m_graphicsQuality;			// "GraphicsQuality": where the options menu's Performance / Quality slider stands; Custom takes the particle ring from the preset at or below it
 	Bool m_classicGraphics;				// "ClassicGraphics": the game's own art, tile, shadows and picture; read at startup
 	Bool m_detailedModels;				// "DetailedModels": the rebuilt models' archives mount under the Reforged look; read at startup by Win32BIGFileSystem, not from here
@@ -246,6 +246,7 @@ public:
 	Bool m_vertexTerrainSun;			// "-vertexTerrainSun": the ground keeps EA's per-vertex sun on Direct3D 11 too, the before half of a picture
 	Bool m_noTerrainSubdivide;		// "-noTerrainSubdivide": the ground keeps EA's two triangles a cell on Direct3D 11 too, the before half of a picture
 	Bool m_shadowMapOldCasters;		// "-shadowmapoldcasters": every caster through the mesh renderer, none instanced
+	Bool m_rtShadows;							// "-rtShadows": the sun's shadows traced on Direct3D 11, one ray a pixel, in place of the map
 	Bool m_shadowMapOnly;					// "-shadowmaponly": the map's shadows with the stencil volumes' own darkening off
 	Real m_shadowMapPenumbra;			// "-shadowtune": penumbra per world unit of gap under the caster, 0 for the built-in
 	Real m_shadowMapSkyFill;			// how much of a wide shadow the sky fills back in
@@ -388,7 +389,7 @@ public:
 	Bool m_showObjectHealth;			///< debug display object health
 	Int m_healthBarMode;					///< HealthBarModeType: which units wear a bar at all
 	Int m_healthBarColors;				///< 0 the green-to-red health ramp, 1 the owner's player colour (client only)
-	Int m_hudLayout;							///< "HudLayout": HUD_LAYOUT_CLASSIC or HUD_LAYOUT_SIDEBAR (OptionsCatalog.h, client only)
+	Int m_hudLayout;							///< "HudLayout": HUD_LAYOUT_CLASSIC, _SIDEBAR, _RETAIL or _PLAIN (OptionsCatalog.h, client only)
 	Int m_hudWidth;								///< "HudWidth": HUD_WIDTH_FULL, _21_9 or _16_9, the interface's centred area (client only)
 	Int m_hotkeyScheme;						///< HOTKEY_SCHEME_CLASSIC or _RED_ALERT, set from m_hudLayout (hotkeySchemeForHudLayout, client only)
 	Int m_mouseStyle;							///< MOUSE_STYLE_CLASSIC or MOUSE_STYLE_REFORGED, set by -mouse only (client only, never GameLogic)
@@ -497,6 +498,9 @@ public:
 	Bool m_showNetBox;					///< the player's own switch for the top right info strip (InGameUI::drawHudOverlay)
 	Int m_minimapSize;					///< percent of its own size the radar is drawn at, growing up from the bar's corner (ControlBar::fitRadarToMap); 100 = as the bar has it
 	Bool m_showEmptyBuildingPips;		///< the row of empty slots over a building nobody is in
+	Bool m_hitFlash;					///< a struck unit or building lights up for a blink (Drawable::updateDrawable); client only, logic never reads it
+	Bool m_damageNumbers;			///< the damage a hit did rises over the unit as a red figure (Drawable::updateDrawable); client only, logic never reads it
+	Bool m_idleWorkerCamera;		///< the idle worker key and buttons centre the camera on the worker on every layout (InGameUI::selectNextIdleWorker); client only
 	Bool m_workersReturnToSupply;		///< a worker that finishes a build job goes back to the dock it left
 	Bool m_archiveReplays;					///< keep a timestamped copy of every replay, instead of only the last one
 	Int m_bloomIntensity;				///< Glow strength in percent, 0 = off; the renderer derives the rest
@@ -520,6 +524,8 @@ public:
 	Int m_incomeSharing;						///< -incomesharing <n>: the lobby's income sharing, an IncomeSharing, for an -autoskirmish run
 	Int m_techRespawn;							///< -techrespawn <n>: the lobby's tech building respawn, in minutes, for an -autoskirmish run
 	Int m_supplyPileLimit;					///< -supplypilelimit <n>: the lobby's supply pile limit, in players a pile, for an -autoskirmish run
+	Bool m_startShrouded;						///< -startshrouded: the lobby's Hidden Map for an -autoskirmish run, ground never seen stays black
+	Bool m_dayNight;								///< -daynight: the lobby's day and night cycle for an -autoskirmish run; dead in a network game
 	Int m_autoSkirmishGameSpeedPercent;	///< -gamespeed <percent>: the skirmish lobby's game speed for an -autoskirmish run, PLAYER_GAME_SPEED_PERCENT_DEFAULT unless asked
 	Int m_superweapons;							///< -superweapons <n>: the lobby's superweapon rule, a SUPERWEAPONS_ mode, for an -autoskirmish run
 	Int m_startingCash;							///< -startingcash <n>: the lobby's starting cash for an -autoskirmish run (0 = DefaultStartingCash)
@@ -573,6 +579,9 @@ public:
 	Bool m_netGameStarted;						///< that -netgame passed its checks and StartAutomatedGame ran, so every seat has this command line
 	Int m_netGameLocalSlot;						///< -netslot <n>: which of those addresses this copy of the game is
 	Int m_netGameAISlots;							///< -netai <n>: that many AI seats after the addresses, at the -aidiff rung
+	AsciiString m_rejoinReplay;				///< -rejoin <file>: the -netgame match is already under way; play it from this replay a seat in it is writing, then join (empty = off)
+	Int m_rejoinFromSlot;							///< -rejoinfrom <slot>: the same, with the replay sent by that seat over the network (-1 = off)
+	Bool m_onlineAutoRejoin;						///< -onlinerejoin: press the online hub's Rejoin once its card offers a match
 	AsciiString m_lanPlayerName;			///< -lanname <name>: the name this copy takes in the LAN lobby (empty = the one in the preferences)
 	AsciiString m_relayHost;					///< -relay <host:port>: the LAN lobby and its games go through this UDP relay (empty = real LAN; Transport.cpp)
 	UnsignedShort m_relayPort;				///< the port of it, 0 when -relay named none
@@ -595,13 +604,18 @@ public:
 	Bool m_optionsMenuOnStart;				///< -optionsmenu: open the options screen over the main menu at startup
 	Bool m_mapLight;								///< "MapLight": warm low sun and a still ground haze (Direct3D 11, client only)
 	Bool m_teamGlow;								///< "TeamGlow": bright house colour glows (Direct3D 11, client only)
+	Bool m_mapAwareWaveHeading;			///< "MapAwareWaveHeading": swells follow shores and channels (SDL Modern water, client only)
+	Bool m_underwaterClarity;				///< "UnderwaterClarity": shallow shelves and ruins show through Modern water (SDL, client only)
 	Bool m_waterFoam;								///< "WaterFoam": foam, shore band and the sun's shadow on water (Direct3D 11, client only)
 	Bool m_groundFoliage;						///< "GroundFoliage": grass tufts on grass ground, swaying in the wind (client only; off under Classic graphics)
+	Bool m_ragdoll;									///< "Ragdoll": a dying soldier goes limp instead of playing his death animation (W3DRagdoll; client only, never read by the logic; off under Classic graphics)
 	Bool m_groundMarks;							///< "GroundMarks": craters, stains and longer treads that fade over minutes (Direct3D 11, client only)
 	Bool m_firelight;								///< "Firelight": flames light the ground, walls and units around them (Direct3D 11, client only)
 	Bool m_heatHaze;								///< "HeatHaze", "-heathaze": the air over fire, beams and exhausts shimmers (Direct3D 11, client only)
+	Bool m_fullDetailAtDistance;		///< "FullDetailAtDistance": a model with levels of detail draws its full one at every distance (client only)
 	Bool m_hemiAmbient;							///< "HemiAmbient": models take the ambient from the sky above and the ground below (Direct3D 11, client only)
 	Bool m_ambientOcclusion;				///< "AmbientOcclusion": corners and the ground under what stands on it darken, half size in world units (Direct3D 11, client only)
+	Int m_sunShafts;								///< "SunShafts": 0 off, 1 Low, 2 High; light shafts in a low dust layer and a glare toward the sun (Direct3D 11, client only)
 	Bool m_weatherEffects;					///< "Weather": rain, blowing sand or snow by the map's ground, and a wind on trees and smoke (Direct3D 11, client only)
 	Bool m_waterSplashes;						///< "WaterSplashes": a splash and rings where a blast or a falling body meets water (Direct3D 11, client only)
 	Bool m_atmosphere;							///< "Atmosphere": the far ground fades toward the horizon and an empty frame takes a sky (Direct3D 11, client only)

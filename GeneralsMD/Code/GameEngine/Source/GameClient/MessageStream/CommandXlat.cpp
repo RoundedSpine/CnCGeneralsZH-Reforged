@@ -96,6 +96,7 @@
 #include "GameLogic/Module/ContainModule.h"
 
 #include "GameNetwork/NetworkInterface.h"
+#include "GameClient/LaneHud.h"
 #include "GameNetwork/GameInfo.h"
 #include "GameNetwork/GameSpyOverlay.h"
 #include "GameNetwork/GameSpy/BuddyThread.h"
@@ -981,7 +982,11 @@ void findCommandCenterOrMostExpensiveBuilding(Object* obj, void* vccl)
 static void viewCommandCenter( void )
 {
 	Player* localPlayer = ThePlayerList->getLocalPlayer();
-	if (!localPlayer) 
+	if (!localPlayer)
+		return;
+
+	// Lane War has no base: home is the player's plot
+	if (LaneHud_viewHome())
 		return;
 
 	CommandCenterLocator ccl;
@@ -1094,6 +1099,8 @@ GameMessage::Type CommandTranslator::issueMoveToLocationCommand( const Coord3D *
 				const Real radius = TheInGameUI->getArmedGuardRadius();
 				if( radius > 0.0f )
 					movemsg->appendRealArgument( radius );
+				// the guard circle on the cursor snaps down where it was posted (W3DGroundMarkers)
+				TheInGameUI->noteGroundMarkerClick( *pos, NULL );
 			}
 
 		}  // end if
@@ -1299,6 +1306,9 @@ GameMessage::Type CommandTranslator::issueSpecialPowerCommand( const CommandButt
 			msg->appendObjectIDArgument( targetID );
 			msg->appendIntegerArgument( command->getOptions() );
 			msg->appendObjectIDArgument( specificSource );
+
+			// the aimed zone snaps down on the clicked point and follows what the power sends (W3DGroundMarkers)
+			TheInGameUI->noteGroundMarkerClick( *pos, command->getSpecialPowerTemplate() );
 
 			// say   something like " I think I'll put a timed charge on the ground, here."
 			PickAndPlayInfo info;
@@ -3785,6 +3795,10 @@ GameMessageDisposition CommandTranslator::translateGameMessage(const GameMessage
 
 			// the sidebar's sell or repair cursor
 			if( Sidebar_cancelCursorMode() )
+				cancelledSomething = TRUE;
+
+			// a Lane War unit armed, picked up or for sale, or the abilities panel
+			if( LaneHud_escape() )
 				cancelledSomething = TRUE;
 
 			// a watcher looking through one player's eyes gets the whole map back, menu shut first

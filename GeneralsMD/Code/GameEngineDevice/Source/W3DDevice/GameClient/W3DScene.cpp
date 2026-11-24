@@ -34,7 +34,10 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES ////////////////////////////////////////////////////////////
+#include "Platform/RenderPost.h"
+#include "Platform/RenderEffects.h"
 #include "Platform/SunShadow.h"
+#include "Platform/RenderLighting.h"
 #include <stdlib.h>
 #include "Lib/Clock.h"
 
@@ -44,6 +47,7 @@
 #include "Common/PerfTimer.h"
 #include "Common/Player.h"
 #include "Common/PlayerList.h"
+#include "Common/ThingTemplate.h"
 #include "GameLogic/Object.h"
 #include "GameLogic/GameLogic.h"
 #include "GameClient/Drawable.h"
@@ -56,6 +60,7 @@
 #include "W3DDevice/GameClient/W3DScene.h"
 #include "W3DDevice/GameClient/W3DWater.h"
 #include "W3DDevice/GameClient/W3DInGameUI.h"
+#include "W3DDevice/GameClient/W3DGroundMarkers.h"
 #include "W3DDevice/GameClient/W3DDynamicLight.h"
 #include "W3DDevice/GameClient/W3DParticleSys.h"
 #include "W3DDevice/GameClient/FireLights.h"
@@ -68,6 +73,8 @@
 #include "WW3D2/camera.h"
 #include "WW3D2/dx8renderer.h"
 #include "WW3D2/hlod.h"
+#include "WW3D2/mesh.h"
+#include "WW3D2/meshmdl.h"
 #include "WW3D2/sortingrenderer.h"
 #include "WW3D2/dx8wrapper.h"
 #include "WW3D2/light.h"
@@ -83,7 +90,10 @@
 #include "W3DDevice/GameClient/Module/W3DModelDraw.h"
 
 #include <algorithm>
+#include <map>
+#include <string>
 #include <vector>
+#include "GameLogic/DayNightCycle.h"
 
 /* A hint that a cache line is about to be read, as in PartitionManager.cpp: it reads nothing the
 	 program sees, so no result depends on it. */
@@ -109,7 +119,8 @@
 // DEFINITIONS ////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 ///@todo: Remove these globals since we no longer need W3D to call them for us.
-extern void DoTrees(RenderInfoClass & rinfo);
+extern void DoTrees(RenderInfoClass & rinfo, Bool grass);
+extern void DoGrass(RenderInfoClass & rinfo);
 extern void DoShadows(RenderInfoClass & rinfo, Bool stencilPass);
 extern void DoParticles(RenderInfoClass & rinfo);
 
@@ -121,21 +132,21 @@ static Bool theTranslucentPass = FALSE;
 
 static Bool wearsCloak( const Drawable *draw )
 {
-	if( !Direct3D11_Draw_Effects() )
+	if( !RenderEffects::DrawEffectsAvailable() )
 		return FALSE;
 	const StealthLookType look = draw->getStealthDrawnLook();
-	const Real fade = draw->getStealthFade();
 	if( look == STEALTHLOOK_VISIBLE_FRIENDLY || look == STEALTHLOOK_VISIBLE_FRIENDLY_DETECTED )
 	{
 		// mines force opacity 0 and must not become a lens on the ground
 		if( draw->isKindOf( KINDOF_MINE ) )
 			return FALSE;
 		// a frame that cannot draw the cloak (a screen filter holds the target) draws him by opacity
-		return Direct3D11_Takes_Draw_Effect( DRAW_EFFECT_CLOAK );
+		return RenderEffects::TakesDrawEffect( DRAW_EFFECT_CLOAK );
 	}
-	// revealed fades in the translucent pass so the heat can come up from nothing
-	if( look == STEALTHLOOK_VISIBLE_DETECTED && fade < 0.99f )
-		return Direct3D11_Takes_Draw_Effect( DRAW_EFFECT_REVEALED );
+	// The heat stays in the opaque world for its whole fade (its nothing end is clipped, not
+	// blended).  It used to fade in the translucent pass and move to the opaque one at the top,
+	// and that second program was compiled off the frame on first use: the unit was left out of
+	// the picture for the compile, a blink right after the heat came up.
 	return FALSE;
 }
 
@@ -485,6 +496,28 @@ void RTS3DScene::Add_Render_Object(RenderObjClass * obj)
 
 void RTS3DScene::Remove_Render_Object(RenderObjClass * obj)
 {
+	// Crash reports 4137 and 3839 drew a polygon renderer whose texture category was gone.  One way
+	// there is a robj leaving the scene mid-draw while the occluder arrays still point at it: they
+	// hold no reference, so the scene's was the last.  Said once a run, so the next report names it.
+	static Bool s_saidMidDraw = FALSE;
+	if (!s_saidMidDraw && m_camera != NULL)
+	{
+		const char *where = NULL;
+		Int i;
+		for (i = 0; where == NULL && i < m_numPotentialOccluders; ++i)
+			if (m_potentialOccluders[i] == obj) where = "occluders";
+		for (i = 0; where == NULL && i < m_numPotentialOccludees; ++i)
+			if (m_potentialOccludees[i] == obj) where = "occludees";
+		for (i = 0; where == NULL && i < m_numNonOccluderOrOccludee; ++i)
+			if (m_nonOccludersOrOccludees[i] == obj) where = "non-occluders";
+		if (where != NULL)
+		{
+			s_saidMidDraw = TRUE;
+			DEBUG_LOG(("RTS3DScene::Remove_Render_Object: '%s' left the scene mid-draw, still in the %s array "
+				"(refs %d, W3D frame %u)\n", obj->Get_Name() ? obj->Get_Name() : "?", where, obj->Num_Refs(),
+				WW3D::Get_Frame_Count()));
+		}
+	}
 	std::replace(m_visibleObjects.begin(), m_visibleObjects.end(), obj, (RenderObjClass *)NULL);
 	SimpleSceneClass::Remove_Render_Object(obj);
 }
@@ -523,7 +556,12 @@ static Bool posedPartsInView(RenderObjClass *robj, CameraClass *camera)
   * A model standing on a limit flipped as the camera only turned, so a level is left only past a
   * margin: a coarser one is taken once the area is LOD_SCREEN_SIZE_MARGIN under its limit, and the
   * level drawn is kept until the area is that much over the level's own, so a coarse level can
-  * draw 20% of area past the limit its art gives.  20% of the area is about 10% of the distance.  The level drawn, HLodClass::CurLod, is the only state. */
+  * draw 20% of area past the limit its art gives.  20% of the area is about 10% of the distance.  The level drawn, HLodClass::CurLod, is the only state
+  * per model.
+  *
+  * No level is drawn coarser than the coarsest that keeps the model whole (wholeLODFloor): a level the
+  * art kit built without the model's body would show a roof floating over the ground.  The Full Detail
+  * at Distance option draws the full model at every distance. */
 //=============================================================================
 static const Real LOD_SCREEN_SIZE_MARGIN = 0.2f;
 
@@ -535,6 +573,76 @@ static Int coarsestLODHolding(HLodClass *hlod, Int count, Real area)
 	return lod;
 }
 
+/** The triangle surface of one level's rigid meshes, in their own space, which a bone's turn does not
+  * change.  A skin's vertices sit in its bones' spaces, so skins are left out of every level alike. */
+static Real lodSurface(HLodClass *hlod, Int lod)
+{
+	Real surface = 0.0f;
+	for (Int i = 0; i < hlod->Get_Lod_Model_Count(lod); ++i) {
+		RenderObjClass *part = hlod->Peek_Lod_Model(lod, i);
+		if (part == NULL || part->Class_ID() != RenderObjClass::CLASSID_MESH)
+			continue;
+		MeshModelClass *model = ((MeshClass *)part)->Peek_Model();
+		if (model == NULL || model->Get_Flag(MeshGeometryClass::SKIN) || model->Get_Vertex_Count() <= 0)
+			continue;
+		const TriIndex *tris = model->Get_Polygon_Array();
+		const Vector3 *verts = model->Get_Vertex_Array();
+		const Int vertCount = model->Get_Vertex_Count();
+		if (tris == NULL || verts == NULL)
+			continue;
+		for (Int t = 0; t < model->Get_Polygon_Count(); ++t) {
+			if (tris[t].I >= vertCount || tris[t].J >= vertCount || tris[t].K >= vertCount)
+				continue;
+			Vector3 cross;
+			Vector3::Cross_Product(verts[tris[t].J] - verts[tris[t].I], verts[tris[t].K] - verts[tris[t].I], &cross);
+			surface += 0.5f * cross.Length();
+		}
+	}
+	return surface;
+}
+
+/** HLodClass::Whole_LOD_Floor for a model, measured once per model name: every copy of a name is made
+  * from the one prototype, and the archives a run mounts do not change under it.  Hidden parts count
+  * as the art has them, so the floor is the same for every copy.  A model with no name is one put
+  * together at run time, not the art kits', and keeps every level. */
+static Int wholeLODFloor(HLodClass *hlod, Int count)
+{
+	// ponytail: keyed by name, so a prototype reloaded under its name with other art keeps the old
+	// floor; no path does that within a run today
+	static std::map<std::string, Int, std::less<> > floors;
+	const char *name = hlod->Get_Name();
+	if (name == NULL || name[0] == 0)
+		return 0;
+	std::map<std::string, Int, std::less<> >::const_iterator found = floors.find(name);
+	if (found != floors.end())
+		return found->second;
+	std::vector<float> surfaces(count);
+	for (Int lod = 0; lod < count; ++lod)
+		surfaces[lod] = lodSurface(hlod, lod);
+	const Int lowest = HLodClass::Whole_LOD_Floor(&surfaces[0], count);
+	if (lowest > 0)
+		DEBUG_LOG(("LOD FLOOR %s draws level %d and finer: level %d keeps %.2f of the full surface\n", name,
+			lowest, lowest - 1, surfaces[lowest - 1] / surfaces[count - 1]));
+	floors[name] = lowest;
+	return lowest;
+}
+
+/** Every pass, on every model in the scene, seen or not: no level under the floor, and the full level
+  * under Full Detail at Distance.  The sun's map and the water's mirror draw models the main camera
+  * does not see, at the level they hold, and a new HLodClass holds its coarsest. */
+static void keepLODWhole(RenderObjClass *robj)
+{
+	if (robj->Class_ID() != RenderObjClass::CLASSID_HLOD)
+		return;
+	HLodClass *hlod = (HLodClass *)robj;
+	const Int count = hlod->Get_LOD_Count();
+	if (count < 2)
+		return;
+	const Int lowest = TheGlobalData->m_fullDetailAtDistance ? count - 1 : wholeLODFloor(hlod, count);
+	if (hlod->Get_LOD_Level() < lowest)
+		hlod->Set_LOD_Level(lowest);
+}
+
 static void chooseLODByScreenSize(RenderObjClass *robj, CameraClass &camera)
 {
 	if (robj->Class_ID() != RenderObjClass::CLASSID_HLOD)
@@ -543,12 +651,19 @@ static void chooseLODByScreenSize(RenderObjClass *robj, CameraClass &camera)
 	const Int count = hlod->Get_LOD_Count();
 	if (count < 2)
 		return;
+	// Options > Graphics, Full Detail at Distance: the full model at every distance
+	if (TheGlobalData->m_fullDetailAtDistance) {
+		hlod->Set_LOD_Level(count - 1);
+		return;
+	}
+	const Int lowest = wholeLODFloor(hlod, count);
 	const Real area = hlod->Get_Screen_Size(camera);
 	const Int drawn = hlod->Get_LOD_Level();
 	// the coarsest level with the margin to spare, and the coarsest one still holding the area
-	// stretched by the margin; the second is never finer than the first
-	const Int withRoom = coarsestLODHolding(hlod, count, area / (1.0f - LOD_SCREEN_SIZE_MARGIN));
-	const Int stretched = coarsestLODHolding(hlod, count, area / (1.0f + LOD_SCREEN_SIZE_MARGIN));
+	// stretched by the margin; the second is never finer than the first, and neither coarser than a
+	// level that keeps the model whole
+	const Int withRoom = std::max(lowest, coarsestLODHolding(hlod, count, area / (1.0f - LOD_SCREEN_SIZE_MARGIN)));
+	const Int stretched = std::max(lowest, coarsestLODHolding(hlod, count, area / (1.0f + LOD_SCREEN_SIZE_MARGIN)));
 	if (withRoom < drawn)
 		hlod->Set_LOD_Level(withRoom);
 	else if (stretched > drawn)
@@ -612,6 +727,7 @@ void RTS3DScene::Visibility_Check(CameraClass * camera)
 
 			robj = it.Peek_Obj();
 			prefetchAhead(it);
+			keepLODWhole(robj);
 
 			draw=NULL;
 			drawInfo = (DrawableInfo *)robj->Get_User_Data();
@@ -639,7 +755,9 @@ void RTS3DScene::Visibility_Check(CameraClass * camera)
 				} else {
 					// The same test the main pass hides a drawable by, or a unit under the fog of war,
 					// or a building standing in for its own ghost, shows up in the water and nowhere else.
-					Bool hidden = robj->Is_Hidden() || draw->isDrawableEffectivelyHidden() || draw->getFullyObscuredByShroud();
+					// An enemy going into its cloak is out of the water at once: the mirror draws no glass.
+					Bool hidden = robj->Is_Hidden() || draw->isDrawableEffectivelyHidden() || draw->getFullyObscuredByShroud()
+						|| draw->getStealthLook() == STEALTHLOOK_INVISIBLE;
 					robj->Set_Visible(!hidden && (modernFullMirror || draw->getDrawsInMirror()) && (!camera->Cull_Sphere(robj->Get_Bounding_Sphere()) || posedPartsInView(robj, camera)));
 				}
 			}
@@ -657,6 +775,9 @@ void RTS3DScene::Visibility_Check(CameraClass * camera)
 	}
 	else
 	{
+		// whether this frame can draw an own unit's glass, which an enemy fading into its cloak needs too
+		Drawable::noteStealthCloakDrawn( RenderEffects::DrawEffectsAvailable()
+			&& RenderEffects::TakesDrawEffect( DRAW_EFFECT_CLOAK ) );
 
 		// Loop over all top-level RenderObjects in this scene. If the bounding sphere is not in front
 		// of all the frustum planes, it is invisible.
@@ -664,6 +785,7 @@ void RTS3DScene::Visibility_Check(CameraClass * camera)
 
 			robj = it.Peek_Obj();
 			prefetchAhead(it);
+			keepLODWhole(robj);
 
 			if (robj->Is_Force_Visible()) {
 				robj->Set_Visible(true);
@@ -709,8 +831,12 @@ void RTS3DScene::Visibility_Check(CameraClass * camera)
 								drawInfo->m_flags |= DrawableInfo::ERF_POTENTIAL_OCCLUDER;
 							}
 							else
+							// Not a unit in the cloak's glass: a translucent occludee marks its pixels in the stencil
+							// with no depth, so every building behind it on the screen took it for hidden and the
+							// player colour went down under it, which the glass then showed as a solid block.
 							if (draw->getObjectForDraw().hasObject &&
 									(draw->isKindOf(KINDOF_SCORE) || draw->isKindOf(KINDOF_SCORE_CREATE) || draw->isKindOf(KINDOF_SCORE_DESTROY) || draw->isKindOf(KINDOF_MP_COUNT_FOR_VICTORY)) &&
+									!wearsCloak(draw) &&
 									draw->getObjectForDraw().safeOcclusionFrame <= currentFrame && m_numPotentialOccludees < TheGlobalData->m_maxVisibleOccludeeObjects)
 							{	//object which could be occluded but still needs to be visible.
 								//We process transucent units twice (also in m_translucentObjectsBuffer) because we need to see them when occluded.
@@ -789,8 +915,8 @@ void RTS3DScene::renderSpecificDrawables(RenderInfoClass &rinfo, Int numDrawable
 
 //=============================================================================
 /** Which of the Direct3D 11 frame's own looks a drawable wears this frame, and its four numbers
-	* (DRAW_EFFECT_SAMPLING in ffshader.h): seconds, strength, a seed from the drawable's id and the
-	* drawable's opacity.  The object's half is the sync point's copy (Drawable::getObjectForDraw);
+	* (DRAW_EFFECT_SAMPLING in ffshader.h): seconds, strength, a seed from the drawable's id and one;
+	* the two stealth looks take the foot and a pack in the last two instead.  The object's half is the sync point's copy (Drawable::getObjectForDraw);
 	* nothing here goes back into the logic.  None under -d3d9, -headless or Classic graphics, where the heat
 	* vision pass and the disabled tint draw what they always drew.
 	*
@@ -802,30 +928,29 @@ void RTS3DScene::renderSpecificDrawables(RenderInfoClass &rinfo, Int numDrawable
 //=============================================================================
 static unsigned chooseDrawEffect( const Drawable *draw, Bool translucentPass, float parameters[4] )
 {
-	if ( !Direct3D11_Draw_Effects() )
+	if ( !RenderEffects::DrawEffectsAvailable() )
 		return DRAW_EFFECT_NONE;
 
 	unsigned effect = DRAW_EFFECT_NONE;
 	const StealthLookType look = draw->getStealthDrawnLook();
 	const Real pulse = draw->getSecondMaterialPassOpacity();
 	const Real fade = draw->getStealthFade();
-	Real opacity = draw->getStealthSolid();
 	Real strength = 1.0f;
 
-	if ( look == STEALTHLOOK_VISIBLE_DETECTED && !draw->isKindOf( KINDOF_MINE )
-		&& ( translucentPass || fade >= 0.99f ) )
+	if ( look == STEALTHLOOK_VISIBLE_DETECTED && !draw->isKindOf( KINDOF_MINE ) )
 	{
 		effect = DRAW_EFFECT_REVEALED;
-		strength = pulse;
-		opacity = fade;
+		// a structure is asked with two more (effect_revealed): it keeps most of its paint
+		strength = pulse + ( draw->isKindOf( KINDOF_STRUCTURE ) ? 2.0f : 0.0f );
 	}
 	else if ( translucentPass && wearsCloak( draw )
 		&& look != STEALTHLOOK_VISIBLE_DETECTED )
 	{
-		// Detected, the amber stays on and the detector's sweep brightens it; on the pulse alone it
-		// showed for a few frames a sweep and was never seen.
+		// Detected, the amber stays on for as long as it lasts; on the pulse alone it showed for a few
+		// frames a sweep and was never seen.  It eases in and out (Drawable::getStealthAmber).  Four
+		// more for an enemy's cloak (effect_cloak): its fades go between paint and nothing, no glass.
 		effect = DRAW_EFFECT_CLOAK;
-		strength = ( look == STEALTHLOOK_VISIBLE_FRIENDLY_DETECTED ) ? MAX( 0.6f, pulse ) : 0.0f;
+		strength = draw->getStealthAmber() + ( draw->getStealthEnemy() ? 4.0f : 0.0f );
 	}
 	else if ( draw->getObjectForDraw().hasObject && !draw->isObjectDeadForDraw() )
 	{
@@ -837,7 +962,7 @@ static unsigned chooseDrawEffect( const Drawable *draw, Bool translucentPass, fl
 
 	// A frame the backend would draw the look in nowhere (a screen filter or a mirror holds the
 	// target, or the device made no copy for the cloak) keeps the heat vision and the tint instead.
-	if ( effect != DRAW_EFFECT_NONE && !Direct3D11_Takes_Draw_Effect( effect ) )
+	if ( effect != DRAW_EFFECT_NONE && !RenderEffects::TakesDrawEffect( effect ) )
 		return DRAW_EFFECT_NONE;
 
 	if ( effect != DRAW_EFFECT_NONE )
@@ -846,7 +971,30 @@ static unsigned chooseDrawEffect( const Drawable *draw, Bool translucentPass, fl
 		parameters[0] = (float)( WW3D::Get_Sync_Time() % 3600000u ) * 0.001f;
 		parameters[1] = strength;
 		parameters[2] = (float)fmod( (double)draw->getID() * 0.6180339887, 1.0 );
-		parameters[3] = opacity;
+		parameters[3] = 1.0f;
+	}
+	if ( effect == DRAW_EFFECT_CLOAK || effect == DRAW_EFFECT_REVEALED )
+	{
+		// stealth_unpack in ffshader.h: the foot in z, and in w the fade, the heat's far end being
+		// paint, the front and the height it climbs, the geometry's with a margin for roofs and masts
+		// over it, in whole units.  The heat sweeps; the cloak ripples going in and blows away in the
+		// wind coming out, which is also how an enemy firing out of hiding comes in.
+		const StealthLookType target = draw->getStealthLook();
+		Int front = STEALTH_FRONT_SWEEP;
+		if ( effect == DRAW_EFFECT_CLOAK )
+			front = ( target == STEALTHLOOK_VISIBLE_FRIENDLY || target == STEALTHLOOK_VISIBLE_FRIENDLY_DETECTED
+					|| target == STEALTHLOOK_INVISIBLE )
+				? STEALTH_FRONT_RIPPLE : STEALTH_FRONT_WIND;
+		const Real geometry = draw->getTemplate()->getTemplateGeometryInfo().getMaxHeightAbovePosition();
+		const Int height = clamp( 1, REAL_TO_INT_CEIL( geometry * 1.3f ), 4000 );
+		// The paint bit: for the heat, its far end is paint; for the cloak, a unit or building that keeps
+		// a ghost of its paint over the glass (effect_cloak), since its bend alone is a few pixels at play
+		// zoom.  A building as plain glass over flat sand was the sand: Camo Netting hid a base from its
+		// own player.  Not an enemy's, which has no glass to keep it over.
+		const Bool overPaint = effect == DRAW_EFFECT_REVEALED ? draw->getStealthOverPaint()
+			: !draw->getStealthEnemy();
+		parameters[2] = draw->getPositionForDraw()->z;
+		parameters[3] = CombinerShader_Pack_Stealth( height, front, overPaint != FALSE, (float)fade );
 	}
 	return effect;
 }
@@ -1058,6 +1206,9 @@ void RTS3DScene::renderOneObject(RenderInfoClass &rinfo, RenderObjClass *robj, I
     // added here as well they would light the model twice.
     if( draw && draw->getReceivesDynamicLights() && !Direct3D11_Lights_Per_Pixel() )
     {
+#if !defined(_WIN32)
+		if (DX8Wrapper::Supports_Per_Pixel_Lighting()) lightEnv.Capture_Static_Lighting();
+#endif
 		  // dynamic lights
 		  RefRenderObjListIterator dynaLightIt(&m_dynamicLightList);	
 		  for (dynaLightIt.First(); !dynaLightIt.Is_Done(); dynaLightIt.Next())
@@ -1159,8 +1310,23 @@ void RTS3DScene::Flush(RenderInfoClass & rinfo)
 	// (gth) CNC3 Flush the shader meshes	
 	SHD_FLUSH;
 
+	// The Ray Traced level's sun goes on before the batched trees, which no level's sun ever shadowed
+	// (their program receives none): traced over them, a pine took its own needles' shade and came
+	// out 21 to 30% darker than at High.  The grass does receive, so it goes down first, and ahead of
+	// the shadowed point lights too, which it drew under with none of its own.  The lights stay
+	// before the trees, which no level ever lit, and before the sun, whose dark pixel guard reads a
+	// lit scene.
+	const Bool defaultPass = m_customPassMode == SCENE_PASS_DEFAULT && Get_Extra_Pass_Polygon_Mode() == EXTRA_PASS_DISABLE;
+	const Bool raysBeforeTrees = defaultPass && Direct3D11_Ray_Shade_Waiting();
+	if (raysBeforeTrees)
+		DoGrass(rinfo);
+	if (defaultPass)
+		Direct3D11_Ray_Traced_Lights();
+	if (raysBeforeTrees)
+		Direct3D11_Ray_Traced_Shadows();
+
 	// Draw the trees last so they alpha blend onto everything correctly.
-	DoTrees(rinfo);
+	DoTrees(rinfo, !raysBeforeTrees);
 
 	//don't draw shadows in this mode because they interfere with destination alpha
 	if (m_customPassMode == SCENE_PASS_DEFAULT && Get_Extra_Pass_Polygon_Mode() == EXTRA_PASS_DISABLE && !modernFullMirror)
@@ -1168,13 +1334,38 @@ void RTS3DScene::Flush(RenderInfoClass & rinfo)
 
 	// The Ambient Occlusion option goes on under the water and every translucent draw, none of which
 	// writes depth: the water takes no corner's shade from its bed and only the bed's shows through it.
-	if (TheGlobalData->m_ambientOcclusion && !TheGlobalData->m_classicGraphics && m_customPassMode == SCENE_PASS_DEFAULT && Get_Extra_Pass_Polygon_Mode() == EXTRA_PASS_DISABLE)
-		Direct3D11_Ambient_Occlusion();
+	if (m_customPassMode == SCENE_PASS_DEFAULT && Get_Extra_Pass_Polygon_Mode() == EXTRA_PASS_DISABLE)
+		RenderPost::OpaqueScene(TheGlobalData->m_ambientOcclusion && !TheGlobalData->m_classicGraphics);
+
+	// the void past the land drawn round the map, under everything sorted
+	if (TheTerrainRenderObject && m_customPassMode == SCENE_PASS_DEFAULT && Get_Extra_Pass_Polygon_Mode() == EXTRA_PASS_DISABLE
+			&& !modernFullMirror && !ShaderClass::Is_Backface_Culling_Inverted())
+		TheTerrainRenderObject->drawSkirtBackdrop();
 
 	WW3D::Render_And_Clear_Static_Sort_Lists(rinfo);	//draws things like water
 
+	// the ground markers' quads that stand on water, at its surface: painted in the terrain pass they
+	// lay on the seabed under it (W3DGroundMarkers).  Not in a mirror, a custom pass or the wireframe
+	if (m_customPassMode == SCENE_PASS_DEFAULT && Get_Extra_Pass_Polygon_Mode() == EXTRA_PASS_DISABLE && !modernFullMirror)
+		W3DGroundMarkers_drawOnWater();
+
 	if (m_customPassMode == SCENE_PASS_DEFAULT && Get_Extra_Pass_Polygon_Mode() == EXTRA_PASS_DISABLE)
+	{
+		// The fog's memory look greys a pixel by the ground under it, so it goes down before the
+		// translucent meshes: drawn after them it drained the placement ghost's red over black shroud
+		// to grey, the one picture that has to say "not here".  So every translucent mesh in the fog
+		// keeps its full colour, on purpose.
+		Direct3D11_Shroud_Memory();
+		// The Direct3D 11 chain's ambient occlusion (and the haze and atmosphere with it) goes on
+		// here, over the world with every corner in its depth and under everything that blends:
+		// the fire and smoke, which write no depth, and the translucent meshes, which do.  Put on the
+		// finished frame it shaded a fireball by the chimneys and trees behind it; put after the
+		// translucent meshes it read a cloaked unit's glass as corners and drew a dark line round
+		// every ghillie strand and cut-out edge of it.  The glass shows this scene, so it shows the
+		// occlusion and the haze of the ground behind it.
+		RenderPost::BeforeTransparent();
 		flushTranslucentObjects(rinfo);	//draw all translucent meshes which don't need per-poly sorting.
+	}
 
 	{
 		USE_PERF_TIMER(translucentRender)
@@ -1192,10 +1383,6 @@ void RTS3DScene::Flush(RenderInfoClass & rinfo)
 		//don't draw transparent in this mode because they interfere with destination alpha
 		if (m_customPassMode == SCENE_PASS_DEFAULT && Get_Extra_Pass_Polygon_Mode() == EXTRA_PASS_DISABLE)
 		{
-			// The Direct3D 11 chain's ambient occlusion goes on here, over the world with every
-			// corner in its depth and under the fire and smoke, which write none: put on the
-			// finished frame it shaded a fireball by the chimneys and trees behind it.
-			Direct3D11_Occlude_Scene();
 			DoParticles(rinfo);	//queue up particles for rendering.
 		}
 
@@ -1229,7 +1416,8 @@ void RTS3DScene::updateFixedLightEnvironments(RenderInfoClass & rinfo)
 	if( TheGlobalData->m_scriptOverrideInfantryLightScale != -1.0f )
 		infantryLightScale = TheGlobalData->m_scriptOverrideInfantryLightScale;
 	else
-		infantryLightScale = TheGlobalData->m_infantryLightScale[TheGlobalData->m_timeOfDay];
+		// the map's own hour's, or under the day and night cycle the day's toward the night's by the light
+		infantryLightScale = DayNight_infantryLightScale(TheGlobalData->m_infantryLightScale);
 	
 	//Generate the default light environment
 	m_defaultLightEnv.Reset(Vector3(0,0,0), Get_Ambient_Light());
@@ -1299,6 +1487,11 @@ void RTS3DScene::updatePlayerColorPasses(void)
 DECLARE_PERF_TIMER(NonTerrainRender)
 void RTS3DScene::Render(RenderInfoClass & rinfo)
 {
+	float postNear, postFar;
+	rinfo.Camera.Get_Clip_Planes(postNear, postFar);
+	RenderPost::ViewScope postView(m_customPassMode == SCENE_PASS_DEFAULT &&
+		!ShaderClass::Is_Backface_Culling_Inverted() && Get_Extra_Pass_Polygon_Mode() == EXTRA_PASS_DISABLE,
+		postNear, postFar, ShaderClass::Is_Backface_Culling_Inverted());
 	// Covers both submission and Flush, including sorted draws. Nested reflections and
 	// custom passes cannot borrow the main view's map or its stencil ownership.
 	SunShadow::SceneScope sunScene(DX8Wrapper::_Get_D3D_Device(),
@@ -1437,7 +1630,7 @@ void RTS3DScene::Render(RenderInfoClass & rinfo)
 		too.  Client only: the lights are what FX lists put up and nothing in logic reads them. */
 static void handBlastLights(RefRenderObjListClass &dynamicLights, const Vector3 &camera)
 {
-	if (!Direct3D11_Lights_Per_Pixel())
+	if (!RenderLighting::LightsPerPixel())
 		return;
 
 	static std::vector< std::pair<Real, W3DDynamicLight*> > nearest;
@@ -1500,7 +1693,7 @@ static void handBlastLights(RefRenderObjListClass &dynamicLights, const Vector3 
 		slot[8] = lightAmbient.X / base[0]; slot[9] = lightAmbient.Y / base[1]; slot[10] = lightAmbient.Z / base[2];
 		slot[11] = 0.0f;
 	}
-	Direct3D11_Set_Blast_Lights(&lights[0][0], count);
+	RenderLighting::SetBlastLights(&lights[0][0], count);
 }
 
 void RTS3DScene::Customized_Render( RenderInfoClass &rinfo )
@@ -1532,7 +1725,7 @@ void RTS3DScene::Customized_Render( RenderInfoClass &rinfo )
 		// Before the frame for the same reason: it has to lie under all of it.  The pass above has just
 		// handed the backend the camera it needs.
 		if (TheGlobalData->m_atmosphere)
-			Direct3D11_Atmosphere_Sky();
+			RenderPost::Sky();
 	}
 
 	Int localPlayerIndex = ThePlayerList ? TheObserverCamera.getShroudPlayerIndex() : 0;
@@ -1566,7 +1759,7 @@ void RTS3DScene::Customized_Render( RenderInfoClass &rinfo )
 		}
 	}
 
-	Direct3D11_Set_Hemi_Ambient(TheGlobalData->m_hemiAmbient);
+	RenderLighting::SetHemiAmbient(TheGlobalData->m_hemiAmbient && !TheGlobalData->m_classicGraphics);
 
 	// After the lights' fade has stepped and before the terrain and the models are lit.
 	if (m_customPassMode == SCENE_PASS_DEFAULT && !ShaderClass::Is_Backface_Culling_Inverted())
@@ -2081,6 +2274,12 @@ void RTS3DScene::flushTranslucentObjects(RenderInfoClass & rinfo)
 			draw = ((DrawableInfo *)robj->Get_User_Data())->m_drawable;
 
 			rinfo.alphaOverride = draw->getEffectiveOpacity();
+			// The cloak writes alpha 1 over an opaque mesh, so the opacity only reaches the meshes it
+			// leaves out (additive glows) and an unsorted blended one, which keeps its own alpha
+			// (dx8renderer.cpp); at the stealth opacity they stood as a patch on the glass body, so
+			// they thin to a sixth with the fade, an enemy's to nothing.  A sorted mesh takes no opacity at all.
+			if ( wearsCloak( draw ) && draw->getStealthDrawnLook() != STEALTHLOOK_VISIBLE_DETECTED )
+				rinfo.alphaOverride *= 1.0f - ( draw->getStealthEnemy() ? 1.0f : 0.85f ) * draw->getStealthFade();
 
 			theTranslucentPass = TRUE;
 			renderOneObject(rinfo, robj, localPlayerIndex);//WW3D::Render(*robj,rinfo);
