@@ -2,6 +2,7 @@
 #include "SdlReachOverlayShader.h"
 #include "W3DDevice/GameClient/W3DReachOverlay.h"
 #include "sdl3shadercompile.h"
+#include "Platform/IOSLifecycle.h"
 #include <algorithm>
 #include <cmath>
 #include <cstdio>
@@ -71,9 +72,11 @@ bool programs() {
     SDL_GPUTransferBufferCreateInfo ti={};ti.usage=SDL_GPU_TRANSFERBUFFERUSAGE_UPLOAD;ti.size=16;auto *transfer=SDL_CreateGPUTransferBuffer(state.Device,&ti);
     if(!transfer) {state.Refused=true;return error(SDL_GetError());}void *bytes=SDL_MapGPUTransferBuffer(state.Device,transfer,false);
     if(!bytes){SDL_ReleaseGPUTransferBuffer(state.Device,transfer);state.Refused=true;return error(SDL_GetError());}memset(bytes,0,16);SDL_UnmapGPUTransferBuffer(state.Device,transfer);
+    ZH_IOS_WaitForForeground();
     auto *commands=SDL_AcquireGPUCommandBuffer(state.Device);if(!commands){SDL_ReleaseGPUTransferBuffer(state.Device,transfer);state.Refused=true;return error(SDL_GetError());}
     auto *copy=SDL_BeginGPUCopyPass(commands);if(!copy){SDL_CancelGPUCommandBuffer(commands);SDL_ReleaseGPUTransferBuffer(state.Device,transfer);state.Refused=true;return error(SDL_GetError());}
     SDL_GPUTransferBufferLocation source={transfer,0};SDL_GPUBufferRegion target={state.Dummy,0,16};SDL_UploadToGPUBuffer(copy,&source,&target,false);SDL_EndGPUCopyPass(copy);
+    ZH_IOS_WaitForForeground();
     bool ok=SDL_SubmitGPUCommandBuffer(commands);SDL_ReleaseGPUTransferBuffer(state.Device,transfer);if(!ok){state.Refused=true;return error(SDL_GetError());}return true;
 }
 SDL_GPUGraphicsPipeline *pipeline(unsigned format) {
@@ -104,9 +107,11 @@ bool upload(const Key &identity,const Field *const *fields,unsigned count,Cached
     // the shader only reads each layer's actual field extent.
     memset(mapped,0,size_t(bytes));
     for(unsigned layer=0;layer<count;++layer){const Field &field=*fields[layer];for(unsigned y=0;y<field.Height;++y)for(unsigned x=0;x<field.Width;++x){size_t src=size_t(y)*field.Width+x,dst=(size_t(layer)*width*height+size_t(y)*width+x)*2;mapped[dst]=field.Distance[src];mapped[dst+1]=src<field.HardnessCount && field.Hardness?field.Hardness[src]:1.0f;}}
+    ZH_IOS_WaitForForeground();
     SDL_UnmapGPUTransferBuffer(state.Device,transfer);auto *commands=SDL_AcquireGPUCommandBuffer(state.Device);if(!commands){SDL_ReleaseGPUTransferBuffer(state.Device,transfer);SDL_ReleaseGPUTexture(state.Device,texture);return error(SDL_GetError());}
     auto *pass=SDL_BeginGPUCopyPass(commands);if(!pass){SDL_CancelGPUCommandBuffer(commands);SDL_ReleaseGPUTransferBuffer(state.Device,transfer);SDL_ReleaseGPUTexture(state.Device,texture);return error(SDL_GetError());}
     for(unsigned layer=0;layer<count;++layer){SDL_GPUTextureTransferInfo source={};source.transfer_buffer=transfer;source.offset=uint32_t(uint64_t(layer)*width*height*8);source.pixels_per_row=width;source.rows_per_layer=height;SDL_GPUTextureRegion destination={};destination.texture=texture;destination.layer=layer;destination.w=fields[layer]->Width;destination.h=fields[layer]->Height;destination.d=1;SDL_UploadToGPUTexture(pass,&source,&destination,false);}
+    ZH_IOS_WaitForForeground();
     SDL_EndGPUCopyPass(pass);bool ok=SDL_SubmitGPUCommandBuffer(commands);SDL_ReleaseGPUTransferBuffer(state.Device,transfer);if(!ok){SDL_ReleaseGPUTexture(state.Device,texture);return error(SDL_GetError());}
     result={identity,texture,bytes,true};++state.Metrics.TextureAllocations;++state.Metrics.Uploads;for(unsigned i=0;i<count;++i)state.Metrics.UploadedBytes+=uint64_t(fields[i]->Width)*fields[i]->Height*8;state.Metrics.OwnedTextureBytes+=bytes;state.Metrics.PeakOwnedTextureBytes=(std::max)(state.Metrics.PeakOwnedTextureBytes,state.Metrics.OwnedTextureBytes);return true;
 }

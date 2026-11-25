@@ -3,6 +3,7 @@
 #include "SdlSunShadowDebug.h"
 #include "Platform/SunSmoke.h"
 #include "sdl3shadercompile.h"
+#include "Platform/IOSLifecycle.h"
 #include <SDL3/SDL.h>
 #include <cstring>
 #include <cstdio>
@@ -123,6 +124,7 @@ bool SdlGpuFrame::Fill_Sun_Smoke(const float *sun, const float *casters, unsigne
     const Uint32 bytes = splats * SunSmoke::SplatFloats * sizeof(float);
     std::memcpy(mapped,Smoke->Splats.data(),bytes);
     SDL_UnmapGPUTransferBuffer(GpuDevice,Smoke->Upload);
+    ZH_IOS_WaitForForeground();
     SDL_GPUCommandBuffer *commands = SDL_AcquireGPUCommandBuffer(GpuDevice);
     if (!commands) return Fail_Sun_Smoke(SDL_GetError());
     SDL_GPUCopyPass *copy = SDL_BeginGPUCopyPass(commands);
@@ -161,6 +163,7 @@ bool SdlGpuFrame::Read_Sun_Smoke(std::vector<float> &moments)
     info.size = SunSmoke::Texels * SunSmoke::Texels * 4 * sizeof(float);
     SDL_GPUTransferBuffer *transfer = SDL_CreateGPUTransferBuffer(GpuDevice,&info);
     if (!transfer) return false;
+    ZH_IOS_WaitForForeground();
     SDL_GPUCommandBuffer *commands = SDL_AcquireGPUCommandBuffer(GpuDevice);
     if (!commands) { SDL_ReleaseGPUTransferBuffer(GpuDevice,transfer); return false; }
     SDL_GPUCopyPass *copy = SDL_BeginGPUCopyPass(commands);
@@ -171,6 +174,7 @@ bool SdlGpuFrame::Read_Sun_Smoke(std::vector<float> &moments)
     target.pixels_per_row = target.rows_per_layer = SunSmoke::Texels;
     SDL_DownloadFromGPUTexture(copy,&region,&target);
     SDL_EndGPUCopyPass(copy);
+    ZH_IOS_WaitForForeground();
     SDL_GPUFence *fence = SDL_SubmitGPUCommandBufferAndAcquireFence(commands);
     bool ok = fence && SDL_WaitForGPUFences(GpuDevice,true,&fence,1);
     if (fence) SDL_ReleaseGPUFence(GpuDevice,fence);

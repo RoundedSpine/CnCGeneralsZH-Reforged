@@ -2,6 +2,7 @@
 #include "SdlGpuFrame.h"
 #include "SdlSunShadowDebug.h"
 #include "sdl3shadercompile.h"
+#include "Platform/IOSLifecycle.h"
 #include <SDL3/SDL.h>
 #include <cstdio>
 #include <cstring>
@@ -59,6 +60,7 @@ bool SdlGpuFrame::Read_Depth(SDL_GPUTexture *texture, unsigned width, unsigned h
     SDL_GPUTexture *resolved = SDL_CreateGPUTexture(GpuDevice, &info);
     if (!resolved) return false;
 
+    ZH_IOS_WaitForForeground();
     SDL_GPUCommandBuffer *commands = SDL_AcquireGPUCommandBuffer(GpuDevice);
     bool submitted = false;
     if (commands) {

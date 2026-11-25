@@ -27,6 +27,7 @@
 # is in place costs one directory check per library and nothing else.
 #
 #   --force   re-fetch even what is already there
+#   --skip-art   fetch build dependencies without the separately installed art archives
 #
 # What it cannot get is the game itself: the .big files from a Zero Hour install go next to the
 # executable in GeneralsMD/Run, and the base game's in Run/ZH_Generals. The game says so on startup
@@ -35,10 +36,12 @@
 set -euo pipefail
 
 force=
+skip_art=
 
 while [ $# -gt 0 ]; do
   case "$1" in
     --force|-f) force=1 ;;
+    --skip-art) skip_art=1 ;;
     -h|--help) sed -n '3,$p' "$0" | sed -n '/^[^#]/q; s/^#\{1\} \{0,1\}//p'; exit 0 ;;
     *) echo "[vendor] ERROR: unknown argument '$1' (try --force)" >&2; exit 1 ;;
   esac
@@ -72,7 +75,12 @@ get_file() { # url destination -> prints destination
   if [ -e "$destination" ]; then printf '%s\n' "$destination"; return 0; fi
   mkdir -p "$(dirname "$destination")"
   step "downloading $(basename "$destination")"
-  if ! curl -fsSL "$url" -o "$destination.part.$$"; then
+  # Hosted runners occasionally lose an otherwise permitted TLS connection.
+  # Retry transient transport failures as well as HTTP failures; keep partial
+  # files isolated and preserve each dependency's existing integrity checks.
+  if ! curl -fsSL --retry 3 --retry-all-errors --retry-delay 2 \
+      --retry-max-time 180 --connect-timeout 30 --max-time 300 \
+      "$url" -o "$destination.part.$$"; then
     rm -f "$destination.part.$$"
     echo "[vendor] ERROR: could not download $url" >&2
     return 1
@@ -472,6 +480,61 @@ install_sdl3_patch() {
   step "sdl3-metal-windowless.patch -> Libraries/Source/SDL3"
 }
 
+# Optional GPU elapsed-time diagnostic for the pinned SDL3 Metal backend.
+# Applied after the independent headless-Metal patch; it changes no non-Metal backend.
+install_sdl3_gpu_timing_patch() {
+  local destination="$libraries/Source/SDL3"
+  local source="$destination/src/gpu/metal/SDL_gpu_metal.m"
+  if grep -q 'ZH_SDL_Metal_TakeTiming' "$source" 2>/dev/null; then return 0; fi
+  local patch="$libraries/Source/sdl3-metal-gpu-timing.patch"
+  GIT_CEILING_DIRECTORIES="$libraries/Source" \
+    git -C "$destination" -c core.autocrlf=false apply "$patch" || {
+      echo "[vendor] sdl3-metal-gpu-timing.patch failed to apply" >&2
+      exit 1
+    }
+  if ! grep -q 'ZH_SDL_Metal_TakeTiming' "$source"; then
+    echo "[vendor] Metal timing hook missing after patch" >&2
+    exit 1
+  fi
+  step "sdl3-metal-gpu-timing.patch -> Libraries/Source/SDL3"
+}
+
+# MetalFX spatial upscaling for the iOS Metal backend.
+install_sdl3_metalfx_patch() {
+  local destination="$libraries/Source/SDL3"
+  local source="$destination/src/gpu/metal/SDL_gpu_metal.m"
+  if grep -q 'ZH_SDL_MetalFX_Encode' "$source" 2>/dev/null; then return 0; fi
+  local patch="$libraries/Source/sdl3-metalfx-spatial.patch"
+  GIT_CEILING_DIRECTORIES="$libraries/Source" \
+    git -C "$destination" -c core.autocrlf=false apply "$patch" || {
+      echo "[vendor] sdl3-metalfx-spatial.patch failed to apply" >&2
+      exit 1
+    }
+  grep -q 'ZH_SDL_MetalFX_Encode' "$source" || {
+    echo "[vendor] MetalFX spatial hook missing after patch" >&2
+    exit 1
+  }
+  step "sdl3-metalfx-spatial.patch -> Libraries/Source/SDL3"
+}
+
+# Stage-boundary Metal render-pass timestamps, opt-in and unsupported-device safe.
+install_sdl3_pass_timing_patch() {
+  local destination="$libraries/Source/SDL3"
+  local source="$destination/src/gpu/metal/SDL_gpu_metal.m"
+  if grep -q 'ZH_SDL_Metal_TakePassTiming' "$source" 2>/dev/null; then return 0; fi
+  local patch="$libraries/Source/sdl3-metal-pass-timing.patch"
+  GIT_CEILING_DIRECTORIES="$libraries/Source" \
+    git -C "$destination" -c core.autocrlf=false apply "$patch" || {
+      echo "[vendor] sdl3-metal-pass-timing.patch failed to apply" >&2
+      exit 1
+    }
+  grep -q 'ZH_SDL_Metal_TakePassTiming' "$source" || {
+    echo "[vendor] Metal render-pass timing hook missing" >&2
+    exit 1
+  }
+  step "sdl3-metal-pass-timing.patch -> Libraries/Source/SDL3"
+}
+
 # --- miniaudio 0.11.25, the one header and its one implementation file: audio beneath C4's port of
 # MilesAudioManager (decision 3). POSIX only, like SDL3. Copied file by file, so its
 # committed .gitignore is never disturbed; upstream's CMakeLists builds extras this does not want.
@@ -627,7 +690,14 @@ install_mbedtls() {
      && grep -q 'MBEDTLS_VERSION_STRING         "3.6.7"' "$destination/include/mbedtls/build_info.h"; then return 0; fi
   local sha='a7e8bcbec0e6f761b4af24f25677626b35f762f68eef79c08677a363212d11f6'
   local archive source hash
-  archive=$(get_file 'https://github.com/Mbed-TLS/mbedtls/releases/download/mbedtls-3.6.7/mbedtls-3.6.7.tar.bz2' "$work/mbedtls-3.6.7.tar.bz2")
+  # The release asset can return HTTP 504 from GitHub's asset CDN on hosted runners.
+  # MacPorts mirrors the same official release tarball, not GitHub's incomplete
+  # auto-generated source archive. The pinned SHA-256 check below applies to
+  # either source; an unexpected archive still fails closed.
+  if ! archive=$(get_file 'https://github.com/Mbed-TLS/mbedtls/releases/download/mbedtls-3.6.7/mbedtls-3.6.7.tar.bz2' "$work/mbedtls-3.6.7.tar.bz2"); then
+    step 'mbedTLS official release unavailable; trying MacPorts mirror'
+    archive=$(get_file 'https://mirror.math.princeton.edu/pub/macports/distfiles/mbedtls3/mbedtls-3.6.7.tar.bz2' "$work/mbedtls-3.6.7.tar.bz2")
+  fi
   hash=$(sha256_of "$archive")
   if [ "$hash" != "$sha" ]; then
     rm -f "$archive"
@@ -752,12 +822,18 @@ install_gamespy_patch
 install_gamespy_unix_patch
 install_sdl3
 install_sdl3_patch
+install_sdl3_gpu_timing_patch
+install_sdl3_metalfx_patch
+install_sdl3_pass_timing_patch
 install_miniaudio
 install_glslang
 install_spirv_cross
 install_shadercross
+if ! grep -q 'SPVC_MSL_PLATFORM_IOS' "$libraries/Source/SDL_shadercross/src/SDL_shadercross.c"; then
+  patch -d "$libraries/Source/SDL_shadercross" -p1 < "$tools_dir/sdl-shadercross-ios.patch"
+fi
 install_freetype
 install_ffmpeg
 install_mbedtls
-install_art
+if [ -z "$skip_art" ]; then install_art; fi
 step 'everything the build needs is in place'

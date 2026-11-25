@@ -1,0 +1,14 @@
+--- a/src/SDL_shadercross.c
++++ b/src/SDL_shadercross.c
+@@ -955,6 +955,11 @@
+             return NULL;
+         }
+         spvc_compiler_options_set_uint(options, SPVC_COMPILER_OPTION_MSL_VERSION, mslVersion);
++#if defined(SDL_PLATFORM_IOS)
++        /* Metal's platform is independent of its language version. The default
++         * is macOS, whose shader features and bindings differ from iOS. */
++        spvc_compiler_options_set_uint(options, SPVC_COMPILER_OPTION_MSL_PLATFORM, SPVC_MSL_PLATFORM_IOS);
++#endif
+     }
+ 
+     // MSL doesn't have descriptor sets, so we have to set up index remapping

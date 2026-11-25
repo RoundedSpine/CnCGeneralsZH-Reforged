@@ -190,7 +190,13 @@ void SdlMouse::update( void )
 		}
 
 		// Win32Mouse::update: ask where the pointer is rather than trust the last event, until one comes
+#if defined(ZH_PLATFORM_IOS)
+		// Touch uses the game's queue directly; SDL's mouse focus is a hardware-mouse state.
+		m_cursorInWindow = hasFocus && !SdlInput_hasIOSMultiTouch()
+			&& (SdlInput_hasIOSTouch() || SDL_GetMouseFocus() == window);
+#else
 		m_cursorInWindow = SDL_GetMouseFocus() == window;
+#endif
 		if (!m_positionReported && m_cursorInWindow)
 		{
 			float wx = 0, wy = 0;
@@ -200,6 +206,7 @@ void SdlMouse::update( void )
 			setPosition( x, y );
 		}
 
+#if !defined(ZH_PLATFORM_IOS)
 		// ...and hold the pointer in a window that covers its screen, which edge scrolling needs
 		const SDL_WindowFlags flags = SDL_GetWindowFlags( window );
 		Bool coversScreen = (flags & SDL_WINDOW_FULLSCREEN) != 0;
@@ -222,6 +229,7 @@ void SdlMouse::update( void )
 			SDL_SetWindowMouseGrab( window, false );
 			m_cursorConfined = FALSE;
 		}
+#endif
 	}
 	else if (SDL_GetHintBoolean( "ZH_OFFSCREEN_FRAMES", false ))
 	{

@@ -38,6 +38,14 @@
 union SDL_Event;
 struct SDL_Window;
 
+#if defined(ZH_PLATFORM_IOS)
+Bool SdlInput_dispatchIOSTouch( const SDL_Event &event );
+void SdlInput_cancelIOSTouch( void );
+Bool SdlInput_hasIOSTouch( void );
+Bool SdlInput_hasIOSMultiTouch( void );
+void SdlInput_flushIOSTouch( void );
+#endif
+
 /// One event; TRUE when it was input and was taken
 Bool SdlInput_dispatch( const SDL_Event &event );
 

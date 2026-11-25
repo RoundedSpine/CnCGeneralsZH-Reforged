@@ -3527,7 +3527,9 @@ void STLSpecialAlloc::deallocate(void* __p, size_t)
 	Conversely, a block from our global new must remain valid for a framework's system deallocator.
 	Named string allocations and explicit MemoryPoolObject operators still use their existing pools.
 */
-#if defined(ZH_SANITIZER_BUILD) || defined(__linux__) || defined(__APPLE__)
+// iOS and the macOS host both need 16-byte alignment from global new. Reuse the
+// zero-initialized system allocation path; explicit engine pools stay unchanged.
+#if defined(ZH_SANITIZER_BUILD) || defined(__linux__) || defined(ZH_PLATFORM_IOS) || defined(__APPLE__)
 #define ZH_SYSTEM_GLOBAL_NEW
 #endif
 #ifndef ZH_SYSTEM_GLOBAL_NEW

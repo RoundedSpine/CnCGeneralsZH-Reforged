@@ -1677,7 +1677,11 @@ void GlobalData::parseGameDataDefinition( INI* ini )
 	TheWritableGlobalData->m_xResolution = xres;
 	TheWritableGlobalData->m_yResolution = yres;
 	TheWritableGlobalData->m_monitor = optionPref["Monitor"];
-#if !defined(_WIN32)
+#if defined(ZH_PLATFORM_IOS)
+	// iOS has a fixed native output size; Resolution is no longer a render-quality control.
+	firstRunResolution( TheWritableGlobalData->m_monitor.str(),
+		&TheWritableGlobalData->m_xResolution, &TheWritableGlobalData->m_yResolution );
+#elif !defined(_WIN32)
 	// A first run: Options.ini names no resolution, so start at the monitor's own size (Monitors.h).
 	// The platform layer's displays are up by now: SdlGameEngine starts its video before this INI loads.
 	if (optionPref.find( "Resolution" ) == optionPref.end())

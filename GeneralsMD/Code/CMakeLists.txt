@@ -7,7 +7,11 @@ cmake_minimum_required(VERSION 3.20)
 # silicon Mac and Intel Macs from 2017 on run it, and nothing in the tree needs a newer one.  An explicit -DCMAKE_OSX_DEPLOYMENT_TARGET wins;
 # an empty one (as every earlier build cache holds) takes the default.
 if(CMAKE_HOST_APPLE AND "${CMAKE_OSX_DEPLOYMENT_TARGET}" STREQUAL "")
-  set(CMAKE_OSX_DEPLOYMENT_TARGET "13.0" CACHE STRING "The oldest macOS the build runs on (P2)" FORCE)
+  if(CMAKE_SYSTEM_NAME STREQUAL "iOS")
+    set(CMAKE_OSX_DEPLOYMENT_TARGET "16.0" CACHE STRING "Minimum iOS version" FORCE)
+  else()
+    set(CMAKE_OSX_DEPLOYMENT_TARGET "13.0" CACHE STRING "The oldest macOS the build runs on (P2)" FORCE)
+  endif()
 endif()
 
 project(GeneralsMD CXX C)
@@ -30,6 +34,10 @@ else()
   set(ZH_PLATFORM_POSIX TRUE)
   if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     set(ZH_PLATFORM_MACOS TRUE)
+  elseif(CMAKE_SYSTEM_NAME STREQUAL "iOS")
+    set(ZH_PLATFORM_IOS TRUE)
+    add_compile_definitions(ZH_PLATFORM_IOS=1)
+    enable_language(OBJC OBJCXX)
   elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     set(ZH_PLATFORM_LINUX TRUE)
   endif()
@@ -907,12 +915,27 @@ if(ZH_PLATFORM_POSIX)
   foreach(_sdl_on SDL_STATIC SDL_VIDEO SDL_GPU SDL_DIALOG)
     set(${_sdl_on} ON CACHE BOOL "" FORCE)
   endforeach()
+  if(ZH_PLATFORM_IOS)
+    set(SDL_DIALOG OFF CACHE BOOL "iOS uses its shared Documents folder" FORCE)
+  endif()
   add_subdirectory(${LIBSRC}/SDL3 ${CMAKE_CURRENT_BINARY_DIR}/SDL3)
 
   # miniaudio: one C file.  Its own CMakeLists builds extras and examples this does not want.
   # It opens the platform's audio libraries at run time by default, so the static library needs
   # nothing at link beyond threads, libm and libdl, which are its consumers' to carry.
   find_package(Threads REQUIRED)
+  if(ZH_PLATFORM_IOS)
+    # miniaudio's AVAudioSession integration imports Objective-C framework headers.
+    set_source_files_properties(${LIBSRC}/miniaudio/miniaudio.c PROPERTIES LANGUAGE OBJC)
+  endif()
+  if(ZH_PLATFORM_IOS)
+    add_library(iosstartup STATIC Platform/iOS/IOSStartup.cpp Platform/iOS/IOSLifecycle.cpp Platform/iOS/IOSMemoryDiagnostics.cpp
+      Platform/iOS/IOSAudioSession.mm Platform/iOS/IOSWindowDiagnostics.mm)
+    target_link_libraries(iosstartup PUBLIC SDL3::SDL3-static)
+    target_include_directories(iosstartup PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/Libraries/Include)
+    target_link_libraries(iosstartup PUBLIC "-framework UIKit" "-framework AVFoundation")
+    set_target_properties(iosstartup PROPERTIES CXX_STANDARD 17 OBJCXX_STANDARD 17)
+  endif()
   add_library(miniaudio STATIC ${LIBSRC}/miniaudio/miniaudio.c)
   target_include_directories(miniaudio PUBLIC ${LIBSRC}/miniaudio)
   # libm on every POSIX system: separate from libc on Linux and the BSDs, part of libSystem on macOS,
@@ -963,6 +986,9 @@ if(ZH_PLATFORM_POSIX)
   add_library(milesaudio STATIC ${WW}/Miles6/miniaudio/miles_miniaudio.cpp)
   target_include_directories(milesaudio PRIVATE ${WW}/Miles6/include ${WW}/WWLib)
   target_link_libraries(milesaudio PRIVATE miniaudio wwlib PUBLIC Threads::Threads)
+  if(ZH_PLATFORM_IOS)
+    target_link_libraries(milesaudio PRIVATE iosstartup)
+  endif()
 
   # What SDL3's GPU API can do on this machine: the evidence D2 and D5 need before the backend
   # interface is designed.  Needs a GPU and a display, so it is built but not registered with ctest.
@@ -1148,6 +1174,10 @@ if(MSVC)
   set_target_properties(gameengine PROPERTIES OUTPUT_NAME_DEBUG GameEngineDebug)
 endif()
 
+if(ZH_PLATFORM_IOS)
+  target_link_libraries(gameengine PRIVATE iosstartup)
+endif()
+
 set(ZH_ONLINE_LIBS ${LIBSRC}/online/vcpkg_installed/x64-windows-static)
 if(ZH_PLATFORM_WINDOWS AND EXISTS ${ZH_ONLINE_LIBS}/include/steam/steamnetworkingsockets.h AND CMAKE_GENERATOR_PLATFORM STREQUAL "x64")
   message(STATUS "Online: lobby service client on (${ZH_ONLINE_LIBS})")
@@ -1176,7 +1206,18 @@ endif()
 # the files BuildFingerprint.manifest lists (the tracked sources: Tools/fingerprint-manifest.sh writes it,
 # build_fingerprint_manifest checks it), line endings normalised.  The header is rewritten only when the
 # value changes, so a rebuild with nothing changed runs nothing and recompiles nothing.
-add_executable(build_fingerprint ${CMAKE_CURRENT_SOURCE_DIR}/Tools/fingerprint/build_fingerprint.cpp)
+if(ZH_PLATFORM_IOS)
+  # A generator runs on the build Mac, never on the phone. Do not cross-compile
+  # this executable with the engine or inherit the device SDK in its environment.
+  execute_process(COMMAND xcrun --sdk macosx --show-sdk-path
+    OUTPUT_VARIABLE ZH_HOST_SDK OUTPUT_STRIP_TRAILING_WHITESPACE COMMAND_ERROR_IS_FATAL ANY)
+  execute_process(COMMAND xcrun --sdk macosx --find clang++
+    OUTPUT_VARIABLE ZH_HOST_CXX OUTPUT_STRIP_TRAILING_WHITESPACE COMMAND_ERROR_IS_FATAL ANY)
+  include(${CMAKE_CURRENT_SOURCE_DIR}/CMake/HostTools.cmake)
+  zh_add_host_executable(build_fingerprint ${CMAKE_CURRENT_SOURCE_DIR}/Tools/fingerprint/build_fingerprint.cpp)
+else()
+  add_executable(build_fingerprint ${CMAKE_CURRENT_SOURCE_DIR}/Tools/fingerprint/build_fingerprint.cpp)
+endif()
 set(ZH_FINGERPRINT_MANIFEST ${CMAKE_CURRENT_SOURCE_DIR}/BuildFingerprint.manifest)
 set(ZH_FINGERPRINT_DIR ${CMAKE_CURRENT_BINARY_DIR}/generated/fingerprint)
 set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS ${ZH_FINGERPRINT_MANIFEST})
@@ -1186,7 +1227,7 @@ add_custom_command(
   OUTPUT ${ZH_FINGERPRINT_DIR}/BuildFingerprint.stamp
   BYPRODUCTS ${ZH_FINGERPRINT_DIR}/BuildFingerprint.h
   COMMAND ${CMAKE_COMMAND} -E make_directory ${ZH_FINGERPRINT_DIR}
-  COMMAND build_fingerprint ${CMAKE_CURRENT_SOURCE_DIR} ${ZH_FINGERPRINT_MANIFEST} ${ZH_FINGERPRINT_DIR}/BuildFingerprint.h
+  COMMAND $<TARGET_FILE:build_fingerprint> ${CMAKE_CURRENT_SOURCE_DIR} ${ZH_FINGERPRINT_MANIFEST} ${ZH_FINGERPRINT_DIR}/BuildFingerprint.h
   COMMAND ${CMAKE_COMMAND} -E touch ${ZH_FINGERPRINT_DIR}/BuildFingerprint.stamp
   DEPENDS build_fingerprint ${ZH_FINGERPRINT_MANIFEST} ${ZH_FINGERPRINT_FILES}
   COMMENT "Build fingerprint over the tracked sources (N1)" VERBATIM)
@@ -1798,7 +1839,7 @@ if(ZH_PLATFORM_POSIX)
   set(FFMPEG_POSIX_LIBS ${FFMPEG_POSIX}/lib/libavformat.a ${FFMPEG_POSIX}/lib/libavcodec.a
     ${FFMPEG_POSIX}/lib/libswscale.a ${FFMPEG_POSIX}/lib/libswresample.a ${FFMPEG_POSIX}/lib/libavutil.a)
   set(FFMPEG_POSIX_CFLAGS "")
-  if(APPLE AND CMAKE_OSX_DEPLOYMENT_TARGET)
+  if(ZH_PLATFORM_MACOS AND CMAKE_OSX_DEPLOYMENT_TARGET)
     set(FFMPEG_POSIX_CFLAGS "-mmacosx-version-min=${CMAKE_OSX_DEPLOYMENT_TARGET}")
   endif()
   # The SDK CMake gives our own targets.  Only /usr/bin/cc, the xcrun shim, finds one by itself; CMake may
@@ -1824,6 +1865,14 @@ if(ZH_PLATFORM_POSIX)
     else()
       set(FFMPEG_POSIX_ARCH ${CMAKE_OSX_ARCHITECTURES})
     endif()
+  endif()
+  if(ZH_PLATFORM_IOS)
+    # configure runs on macOS; only FFmpeg's target objects use the device SDK.
+    execute_process(COMMAND xcrun --sdk macosx --show-sdk-path
+      OUTPUT_VARIABLE FFMPEG_HOST_SDK OUTPUT_STRIP_TRAILING_WHITESPACE COMMAND_ERROR_IS_FATAL ANY)
+    set(FFMPEG_POSIX_CFLAGS "-target arm64-apple-ios${CMAKE_OSX_DEPLOYMENT_TARGET} -isysroot ${CMAKE_OSX_SYSROOT}")
+    list(APPEND FFMPEG_POSIX_ENV "ZH_FFMPEG_TARGET_OS=darwin"
+      "ZH_FFMPEG_HOST_CFLAGS=-isysroot ${FFMPEG_HOST_SDK}")
   endif()
   add_custom_command(
     OUTPUT ${FFMPEG_POSIX_LIBS} ${FFMPEG_POSIX}/include/libavcodec/avcodec.h
@@ -2193,6 +2242,18 @@ if(ZH_PLATFORM_POSIX)
   endif()
 
   add_executable(generals ${CMAKE_CURRENT_SOURCE_DIR}/Main/PosixMain.cpp)
+  if(ZH_PLATFORM_IOS)
+    target_sources(generals PRIVATE Platform/iOS/IOSBootstrap.mm)
+    execute_process(COMMAND git rev-parse --short=12 HEAD WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+      OUTPUT_VARIABLE ZH_IOS_REVISION OUTPUT_STRIP_TRAILING_WHITESPACE)
+    target_compile_definitions(generals PRIVATE ZH_IOS_REVISION="${ZH_IOS_REVISION}")
+    target_link_libraries(generals PRIVATE "-framework UIKit" "-framework Foundation"
+      "-framework Metal" "-framework QuartzCore" "-framework AVFoundation" "-framework AudioToolbox")
+    set_target_properties(generals PROPERTIES MACOSX_BUNDLE TRUE OBJCXX_STANDARD 17
+      MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/Platform/iOS/Info.plist.in"
+      XCODE_ATTRIBUTE_CODE_SIGNING_ALLOWED NO
+      XCODE_ATTRIBUTE_TARGETED_DEVICE_FAMILY "1,2")
+  endif()
   target_include_directories(generals PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/Main ${GENERATED})
   set_target_properties(generals PROPERTIES CXX_STANDARD 17)
   target_link_libraries(generals PRIVATE sdldevice installroot)
@@ -2308,7 +2369,7 @@ if(ZH_PLATFORM_POSIX)
   # the user data folder's ReforgedArt when something has put it there, the licences checked against generals'
   # link line, the HUD directive, an ad-hoc signature, verified).  Outside ALL: build it with `ninja macos_app`.
   # The bundle id belongs to whoever ships; the default is the project's home (the README's).
-  if(APPLE)
+  if(ZH_PLATFORM_MACOS)
     set(ZH_APP_BUNDLE_ID "io.github.olcayseygan.zero-hour-reforged" CACHE STRING "CFBundleIdentifier of the macOS app")
     set(ZH_APP_ARGS --generals $<TARGET_FILE:generals> --overlay ${CMAKE_BINARY_DIR}/overlay
         --build ${CMAKE_BINARY_DIR} --out "${CMAKE_BINARY_DIR}/Zero Hour Reforged.app" --bundle-id ${ZH_APP_BUNDLE_ID}
@@ -3109,6 +3170,12 @@ endif()  # ZH_PLATFORM_POSIX - shader generator checks
 # data - but it does need an interpreter, so it is only registered when one is present.
 find_package(Python3 COMPONENTS Interpreter QUIET)
 if(Python3_Interpreter_FOUND)
+  if(ZH_PLATFORM_POSIX)
+    foreach(_regression ios_lifecycle ios_network_permissions)
+      add_test(NAME ${_regression}_selfcheck
+               COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/Tests/test_${_regression}.py)
+    endforeach()
+  endif()
   # Every #include in the POSIX build must name its file in the file's own case.  Windows and a
   # default macOS volume fold case and Linux does not, so a miscased include builds on the first two
   # and is a missing header on the third; the first Linux build found 298.  This catches them on a

@@ -1,4 +1,5 @@
 #include "SdlGpuStorage.h"
+#include "Platform/IOSLifecycle.h"
 #include <algorithm>
 #include <cstring>
 #include <new>
@@ -140,6 +141,7 @@ bool SdlGpuStorage::Submit(SDL_GPUCommandBuffer *commands, SDL_GPUTransferBuffer
         if (transfer) SDL_ReleaseGPUTransferBuffer(Device,transfer);
         return fail(error,"storage submission tracking allocation failed");
     }
+    ZH_IOS_WaitForForeground();
     SDL_GPUFence *fence=SDL_SubmitGPUCommandBufferAndAcquireFence(commands);
     if (!fence) {
         if (transfer) SDL_ReleaseGPUTransferBuffer(Device,transfer);
@@ -166,6 +168,7 @@ bool SdlGpuStorage::Write(const Buffer &buffer, const SdlStorageUpdate *updates,
     for (const auto &update : owned) { memcpy(mapped+at,update.Data.data(),update.Data.size()); at+=update.Data.size(); }
     SDL_UnmapGPUTransferBuffer(Device,staging);
     if (!BeforeWrite(error)) { SDL_ReleaseGPUTransferBuffer(Device,staging); return false; }
+    ZH_IOS_WaitForForeground();
     SDL_GPUCommandBuffer *commands=SDL_AcquireGPUCommandBuffer(Device);
     if (!commands) { SDL_ReleaseGPUTransferBuffer(Device,staging); return fail(error,SDL_GetError()); }
     SDL_GPUCopyPass *copy=SDL_BeginGPUCopyPass(commands);
@@ -217,6 +220,7 @@ bool SdlGpuStorage::Dispatch(SDL_GPUComputePipeline *pipeline, const SDL3_Storag
         uniformMask|=1u<<uniform.Slot;
     }
     if (!BeforeWrite(error)) return false;
+    ZH_IOS_WaitForForeground();
     SDL_GPUCommandBuffer *commands=SDL_AcquireGPUCommandBuffer(Device);
     if (!commands) return fail(error,SDL_GetError());
     for (const Uniform &uniform : uniforms) SDL_PushGPUComputeUniformData(commands,uniform.Slot,uniform.Data,uniform.Size);
@@ -239,12 +243,14 @@ bool SdlGpuStorage::Read(const Buffer &buffer, std::vector<uint8_t> &bytes, std:
     SDL_GPUTransferBuffer *transfer=Allocate.Transfer(Device,&info);
     if (!transfer) return fail(error,SDL_GetError());
     if (!BeforeWrite(error)) { SDL_ReleaseGPUTransferBuffer(Device,transfer); return false; }
+    ZH_IOS_WaitForForeground();
     SDL_GPUCommandBuffer *commands=SDL_AcquireGPUCommandBuffer(Device);
     if (!commands) { SDL_ReleaseGPUTransferBuffer(Device,transfer); return fail(error,SDL_GetError()); }
     SDL_GPUCopyPass *copy=SDL_BeginGPUCopyPass(commands);
     if (!copy) { SDL_CancelGPUCommandBuffer(commands); SDL_ReleaseGPUTransferBuffer(Device,transfer); return fail(error,SDL_GetError()); }
     SDL_GPUBufferRegion source={native,0,buffer.Size}; SDL_GPUTransferBufferLocation target={transfer,0};
     SDL_DownloadFromGPUBuffer(copy,&source,&target); SDL_EndGPUCopyPass(copy);
+    ZH_IOS_WaitForForeground();
     SDL_GPUFence *fence=SDL_SubmitGPUCommandBufferAndAcquireFence(commands);
     if (!fence) { SDL_ReleaseGPUTransferBuffer(Device,transfer); return fail(error,SDL_GetError()); }
     const bool complete=SDL_WaitForGPUFences(Device,true,&fence,1);

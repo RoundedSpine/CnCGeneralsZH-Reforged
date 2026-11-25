@@ -2,6 +2,7 @@
 #include "SdlGpuStorage.h"
 #include "W3DDevice/GameClient/GpuParticles.h"
 #include "W3DDevice/GameClient/ParticleGpuShader.h"
+#include "Platform/IOSLifecycle.h"
 #include <array>
 #include <algorithm>
 #include <cmath>
@@ -42,6 +43,7 @@ bool submit_readers() {
     return state.Frame && (!state.Frame->Has_Pending_Work() || (state.Flush ? state.Flush(state.Frame) : state.Frame->Flush()));
 }
 bool submit(SDL_GPUCommandBuffer *commands,SDL_GPUTransferBuffer *staging=nullptr) {
+    ZH_IOS_WaitForForeground();
     const bool ok=SDL_SubmitGPUCommandBuffer(commands);
     // SDL retires released transfer resources after their submitted references;
     // each upload uses fresh staging and never cycles a persistent destination.
@@ -58,6 +60,7 @@ bool texture_upload(SDL_GPUTexture *texture,const void *data,unsigned width,unsi
     if(!mapped) {SDL_ReleaseGPUTransferBuffer(state.Device,staging);return fail(SDL_GetError());}
     memcpy(mapped,data,size);SDL_UnmapGPUTransferBuffer(state.Device,staging);
     if(!submit_readers()) {SDL_ReleaseGPUTransferBuffer(state.Device,staging);return fail("frame readers failed to submit before texture write");}
+    ZH_IOS_WaitForForeground();
     SDL_GPUCommandBuffer *commands=SDL_AcquireGPUCommandBuffer(state.Device);
     if(!commands) {SDL_ReleaseGPUTransferBuffer(state.Device,staging);return fail(SDL_GetError());}
     SDL_GPUCopyPass *pass=SDL_BeginGPUCopyPass(commands);
@@ -102,6 +105,7 @@ SDL_GPUGraphicsPipeline *pipeline(unsigned colour,unsigned depth,unsigned shader
 }
 bool clear_slices() {
     if(!submit_readers()) return fail("initial array clear reader submission failed");
+    ZH_IOS_WaitForForeground();
     SDL_GPUCommandBuffer *commands=SDL_AcquireGPUCommandBuffer(state.Device);if(!commands) return fail(SDL_GetError());
     for(unsigned layer=0;layer<GpuParticles::TEXTURE_SLICES;++layer) {
         SDL_GPUColorTargetInfo target={};target.texture=state.Sprites;target.layer_or_depth_plane=layer;target.load_op=SDL_GPU_LOADOP_CLEAR;target.store_op=SDL_GPU_STOREOP_STORE;target.cycle=false;
@@ -183,6 +187,7 @@ bool draw_slices(const SdlGpuParticlesContext &context) {
     }
     if(!any) {state.Asked.fill(false);return true;}
     if(!submit_readers()) return fail("sprite source uploads/readers failed to submit");
+    ZH_IOS_WaitForForeground();
     SDL_GPUCommandBuffer *commands=SDL_AcquireGPUCommandBuffer(state.Device);if(!commands) return fail(SDL_GetError());
     for(unsigned slice=0;slice<GpuParticles::TEXTURE_SLICES;++slice) if(changed[slice]) {
         SDL_GPUColorTargetInfo target={};target.texture=state.Sprites;target.layer_or_depth_plane=slice;target.load_op=SDL_GPU_LOADOP_CLEAR;target.store_op=SDL_GPU_STOREOP_STORE;target.cycle=false;
@@ -295,10 +300,12 @@ bool ReadSlice(unsigned slice,unsigned mip,std::vector<uint8_t> &bytes,std::stri
     const unsigned size=SliceSize>>mip;std::vector<uint8_t> result(size*size*4);
     if(!submit_readers()) {error="slice readback flush failed";return false;}
     SDL_GPUTransferBufferCreateInfo info={};info.usage=SDL_GPU_TRANSFERBUFFERUSAGE_DOWNLOAD;info.size=result.size();SDL_GPUTransferBuffer *transfer=SDL_CreateGPUTransferBuffer(state.Device,&info);
+    ZH_IOS_WaitForForeground();
     if(!transfer) {error=SDL_GetError();return false;}SDL_GPUCommandBuffer *commands=SDL_AcquireGPUCommandBuffer(state.Device);
     if(!commands) {SDL_ReleaseGPUTransferBuffer(state.Device,transfer);error=SDL_GetError();return false;}
     SDL_GPUCopyPass *copy=SDL_BeginGPUCopyPass(commands);SDL_GPUTextureRegion source={};source.texture=state.Sprites;source.layer=slice;source.mip_level=mip;source.w=source.h=size;source.d=1;
     SDL_GPUTextureTransferInfo destination={};destination.transfer_buffer=transfer;SDL_DownloadFromGPUTexture(copy,&source,&destination);SDL_EndGPUCopyPass(copy);
+    ZH_IOS_WaitForForeground();
     SDL_GPUFence *fence=SDL_SubmitGPUCommandBufferAndAcquireFence(commands);bool ok=fence && SDL_WaitForGPUFences(state.Device,true,&fence,1);
     void *mapped=ok ? SDL_MapGPUTransferBuffer(state.Device,transfer,false) : nullptr;
     if(mapped) {memcpy(result.data(),mapped,result.size());SDL_UnmapGPUTransferBuffer(state.Device,transfer);}else {ok=false;error=SDL_GetError();}

@@ -29,7 +29,7 @@ package_link_libraries() {
 	python3 - "$1" "$2" <<'LINK_EOF'
 import re, sys
 text = open(sys.argv[1]).read()
-m = re.search(r"^build generals: CXX_EXECUTABLE_LINKER.*?\n  LINK_LIBRARIES = (.*?)\n", text, re.S | re.M)
+m = re.search(r"^build (?:[^ :]*\.app/)?generals: CXX_EXECUTABLE_LINKER.*?\n  LINK_LIBRARIES = (.*?)\n", text, re.S | re.M)
 if not m:
     sys.exit("no generals link line in " + sys.argv[1])
 names = sorted(set(re.findall(r"(?:^|[\s/])lib([\w\-+]+)\.a(?=\s|$)", m.group(1))))

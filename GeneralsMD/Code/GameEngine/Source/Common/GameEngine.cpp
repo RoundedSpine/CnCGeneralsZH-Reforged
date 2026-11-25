@@ -29,6 +29,7 @@
 // Author: Michael S. Booth, April 2001
 
 #include "PreRTS.h"	// This must go first in EVERY cpp file in the GameEngine
+#include "Platform/IOSStartup.h"
 #include "zhio.h"
 #include "Common/MessageBoxFlags.h"	// MessageBoxWrapper and its flags
 #include "Platform/SleepMilliseconds.h"
@@ -235,8 +236,11 @@ void initSubsystem(SUBSYSTEM*& sysref, AsciiString name, SUBSYSTEM* sys, Xfer *p
 {
 	startupHeapCheck( "before", name );
 	sysref = sys;
+	ZH_IOS_StartupTrace( "subsystem.begin", name.str() );
 	TheSubsystemList->initSubsystem(sys, path1, path2, dirpath, pXfer, name);
 	startupHeapCheck( "after", name );
+	ZH_IOS_StartupTrace( "subsystem.ready", name.str() );
+	ZH_IOS_ServiceStartup();
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -1191,7 +1195,9 @@ void GameEngine::init( int argc, char *argv[] )
 		//We need to toast the latter in order for the game to patch properly.
 		// (C1: moved here from just after createFileSystem, to go through TheLocalFileSystem; nothing
 		// between the two places touched the file, and the archives still mount after it is gone.)
+#if !defined(ZH_PLATFORM_IOS)
 		TheLocalFileSystem->deleteFile( "Data\\INI\\INIZH.big" );
+#endif
 
 
     	#ifdef DUMP_PERF_STATS///////////////////////////////////////////////////////////////////////////
@@ -4082,6 +4088,11 @@ Bool GameEngine::isMultiplayerSession( void )
 
 void updateTGAtoDDS()
 {
+#if defined(ZH_PLATFORM_IOS)
+	// nvdxt is an offline Windows executable. UIKit apps cannot spawn tools;
+	// the renderer already loads TGA/DDS data without this development step.
+	DEBUG_LOG(("Offline texture conversion is unavailable on iOS.\n"));
+#else
 	// Here's the scoop. We're going to traverse through all of the files in the Art\Textures folder
 	// and determine if there are any .tga files that are newer than associated .dds files. If there 
 	// are, then we will re-run the compression tool on them.
@@ -4142,6 +4153,7 @@ void updateTGAtoDDS()
 	fp->close();
 
 	system(CONVERT_EXEC1);
+#endif
 }
 
 //-------------------------------------------------------------------------------------------------

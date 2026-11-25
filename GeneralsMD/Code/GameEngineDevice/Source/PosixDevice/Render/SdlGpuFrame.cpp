@@ -24,6 +24,7 @@
 #include "sdl3shadercompile.h"
 #include "Platform/WaterFftSpectrum.h"
 #include "Platform/WaterPerformanceSettings.h"
+#include "Platform/IOSLifecycle.h"
 
 #include <SDL3/SDL.h>
 #include <array>
@@ -187,6 +188,7 @@ SdlGpuFrame::SdlGpuFrame() :
 
 SdlGpuFrame * SdlGpuFrame::Create(RenderWindow window, unsigned int width, unsigned int height, std::string & error)
 {
+	ZH_IOS_WaitForForeground();
 	SdlGpuFrame * frame = new SdlGpuFrame();
 	// Debug validation only when asked: it is slow, and the game runs without it.
 	const bool debug = getenv("ZH_GPU_DEBUG") != NULL;
@@ -196,6 +198,7 @@ SdlGpuFrame * SdlGpuFrame::Create(RenderWindow window, unsigned int width, unsig
 		delete frame;
 		return NULL;
 	}
+	ZH_IOS_RegisterGPU(frame->GpuDevice);
 	// The one place a RenderWindow is taken back to what it is: C2 hands the device its SDL_Window.
 	frame->Window = reinterpret_cast<SDL_Window *>(window);
 	if (frame->Window != NULL && !SDL_ClaimWindowForGPUDevice(frame->GpuDevice, frame->Window)) {
@@ -248,6 +251,7 @@ bool SdlGpuFrame::Configure_Presentation(bool vsync)
 
 SdlGpuFrame::~SdlGpuFrame()
 {
+	ZH_IOS_UnregisterGPU(GpuDevice);
 	Release_Owner_Hooks_For_Teardown();
 	if (GpuDevice == NULL) {
 		return;
@@ -470,6 +474,7 @@ bool SdlGpuFrame::Create_Ocean(WaterFftSpectrum::Configuration configuration)
 	if(!mapped) {SDL_ReleaseGPUTransferBuffer(GpuDevice,transfer);return Fail_Ocean(SDL_GetError());}
 	memcpy(mapped,initial.data(),fieldBytes*3);memcpy((char*)mapped+fieldBytes*3,butterfly.data(),butterflyBytes);
 	SDL_UnmapGPUTransferBuffer(GpuDevice,transfer);
+	ZH_IOS_WaitForForeground();
 	SDL_GPUCommandBuffer *commands=SDL_AcquireGPUCommandBuffer(GpuDevice);
 	if(!commands) {SDL_ReleaseGPUTransferBuffer(GpuDevice,transfer);return Fail_Ocean(SDL_GetError());}
 	SDL_GPUCopyPass *copy=SDL_BeginGPUCopyPass(commands);
@@ -527,6 +532,7 @@ bool SdlGpuFrame::Prepare_Ocean(float time, unsigned resolution)
 	}
 	const unsigned Resolution = Ocean->Configuration.resolution, Phases = Ocean->Configuration.phases;
 	const Uint64 started=SDL_GetTicksNS();
+	ZH_IOS_WaitForForeground();
 	SDL_GPUCommandBuffer *commands=SDL_AcquireGPUCommandBuffer(GpuDevice);
 	if(!commands) return failure(SDL_GetError());
 	using namespace WaterFftSpectrum;
@@ -772,6 +778,7 @@ bool SdlGpuFrame::Capture_Scene_Colour(const SdlTarget &source, SDL_GPUTexture *
 	if (!source.Colour || !source.Width || !source.Height || !destination ||
 		destination == source.Colour || destination == source.Depth) return false;
 	if (Has_Pending_Work() && !Flush()) return false;
+	ZH_IOS_WaitForForeground();
 	SDL_GPUCommandBuffer *commands = SDL_AcquireGPUCommandBuffer(GpuDevice);
 	if (!commands) return false;
 	SDL_GPUCopyPass *copy = SDL_BeginGPUCopyPass(commands);
@@ -826,6 +833,7 @@ void SdlGpuFrame::Clear_Back_Buffer(bool colour, bool depth, bool stencil, uint3
 bool SdlGpuFrame::Flush()
 {
 	const Uint64 start = SDL_GetTicksNS();
+	ZH_IOS_WaitForForeground();
 	SDL_GPUCommandBuffer * commands = SDL_AcquireGPUCommandBuffer(GpuDevice);
 	if (commands == NULL) {
 		return false;
@@ -844,6 +852,7 @@ bool SdlGpuFrame::Flush()
 // flushes had no bound (a texture updated twice in one batch flushes, as does every restore after a reset).
 bool SdlGpuFrame::Submit_Flush(SDL_GPUCommandBuffer * commands)
 {
+	ZH_IOS_WaitForForeground();
 	SDL_GPUFence * fence = SDL_SubmitGPUCommandBufferAndAcquireFence(commands);
 	if (fence == NULL) {
 		return false;
@@ -876,8 +885,10 @@ bool SdlGpuFrame::Submit_Flush(SDL_GPUCommandBuffer * commands)
 bool SdlGpuFrame::Submit(SDL_GPUCommandBuffer * commands)
 {
 	if (!SerializeSubmits) {
+		ZH_IOS_WaitForForeground();
 		return SDL_SubmitGPUCommandBuffer(commands);
 	}
+	ZH_IOS_WaitForForeground();
 	SDL_GPUFence * fence = SDL_SubmitGPUCommandBufferAndAcquireFence(commands);
 	if (fence == NULL) {
 		return false;
@@ -903,6 +914,7 @@ bool SdlGpuFrame::Submit_Offscreen(SDL_GPUCommandBuffer * commands)
 	if (SerializeSubmits) {
 		return Submit(commands);		// ZH_GPU_TIMING_SYNC: every submit waits for its fence already
 	}
+	ZH_IOS_WaitForForeground();
 	SDL_GPUFence * fence = SDL_SubmitGPUCommandBufferAndAcquireFence(commands);
 	if (fence == NULL) {
 		return false;
@@ -1156,6 +1168,7 @@ bool SdlGpuFrame::Copy_To_Front(SDL_GPUCommandBuffer * commands)
 bool SdlGpuFrame::Present(const uint16_t (*ramp)[256])
 {
 	Refresh_Water_Snapshots();
+	ZH_IOS_WaitForForeground();
 	SDL_GPUCommandBuffer * commands = SDL_AcquireGPUCommandBuffer(GpuDevice);
 	if (commands == NULL) {
 		Finish_Ramp_Upload(false);
@@ -1225,6 +1238,7 @@ bool SdlGpuFrame::Present_To(SDL_GPUTexture * target, unsigned int width, unsign
 	const uint16_t (*ramp)[256])
 {
 	Refresh_Water_Snapshots();
+	ZH_IOS_WaitForForeground();
 	SDL_GPUCommandBuffer * commands = SDL_AcquireGPUCommandBuffer(GpuDevice);
 	if (commands == NULL) {
 		Finish_Ramp_Upload(false);
@@ -1259,6 +1273,7 @@ bool SdlGpuFrame::Upload_Back_Buffer(const std::vector<uint8_t> & bgra)
 	}
 	memcpy(mapped, &bgra[0], bytes);
 	SDL_UnmapGPUTransferBuffer(GpuDevice, transfer);
+	ZH_IOS_WaitForForeground();
 	SDL_GPUCommandBuffer * commands = SDL_AcquireGPUCommandBuffer(GpuDevice);
 	SDL_GPUCopyPass * copy = SDL_BeginGPUCopyPass(commands);
 	SDL_GPUTextureTransferInfo source;
@@ -1274,6 +1289,7 @@ bool SdlGpuFrame::Upload_Back_Buffer(const std::vector<uint8_t> & bgra)
 	region.d = 1;
 	SDL_UploadToGPUTexture(copy, &source, &region, false);
 	SDL_EndGPUCopyPass(copy);
+	ZH_IOS_WaitForForeground();
 	const bool ok = SDL_SubmitGPUCommandBuffer(commands);
 	SDL_ReleaseGPUTransferBuffer(GpuDevice, transfer);
 	return ok;
@@ -1293,6 +1309,7 @@ bool SdlGpuFrame::Read_Back(SDL_GPUTexture * texture, unsigned int width, unsign
 	if (transfer == NULL) {
 		return false;
 	}
+	ZH_IOS_WaitForForeground();
 	SDL_GPUCommandBuffer * commands = SDL_AcquireGPUCommandBuffer(GpuDevice);
 	SDL_GPUCopyPass * copy = SDL_BeginGPUCopyPass(commands);
 	SDL_GPUTextureRegion region;
@@ -1308,6 +1325,7 @@ bool SdlGpuFrame::Read_Back(SDL_GPUTexture * texture, unsigned int width, unsign
 	destination.rows_per_layer = height;
 	SDL_DownloadFromGPUTexture(copy, &region, &destination);
 	SDL_EndGPUCopyPass(copy);
+	ZH_IOS_WaitForForeground();
 	SDL_GPUFence * fence = SDL_SubmitGPUCommandBufferAndAcquireFence(commands);
 	bool ok = fence != NULL && SDL_WaitForGPUFences(GpuDevice, true, &fence, 1);
 	if (fence != NULL) {
@@ -1331,6 +1349,7 @@ bool SdlGpuFrame::Capture_Scene_Depth(const SdlTarget &source, SDL_GPUTexture *d
 		destination == source.Depth || destination == source.Colour || !Create_Scene_Depth_Pipeline())
 		return false;
 	if (Has_Pending_Work() && !Flush()) return false;
+	ZH_IOS_WaitForForeground();
 	SDL_GPUCommandBuffer *commands = SDL_AcquireGPUCommandBuffer(GpuDevice);
 	if (!commands) return false;
 	if (!Resolve_Scene_Depth(commands, source.Depth, destination, source.Width, source.Height)) {

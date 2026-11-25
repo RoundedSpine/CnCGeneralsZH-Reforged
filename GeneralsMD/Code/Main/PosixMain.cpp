@@ -84,7 +84,12 @@
 
 #include "posixpath.h"
 
-#include <SDL3/SDL.h>		// the folder dialog and the message box, before the engine exists (P1 step 4)
+#include <SDL3/SDL.h>
+#if defined(ZH_PLATFORM_IOS)
+#include <cstdlib>
+#include "Platform/IOSStartup.h"
+extern "C" bool ZH_IOS_Bootstrap();
+#endif
 #include <atomic>
 #include <mutex>
 
@@ -139,7 +144,7 @@ static void SDLCALL onFolderChosen( void *userdata, const char * const *filelist
 	}
 }
 
-#if defined(__APPLE__)
+#if defined(__APPLE__) && !defined(ZH_PLATFORM_IOS)
 /** Brings this app to the front.  The chooser runs before any window exists, and without one nothing
 	* activates the app (SDL does it when it shows a window, and not at launch on macOS 14 and later), so
 	* its message box and its folder panel - modal, owned by no window - would open behind whatever app
@@ -280,6 +285,10 @@ static bool chooseFolderFromScript( PosixInstallQuestion question, const std::st
 static Bool chooseInstallRoot( int argc, char *argv[], const std::vector<std::string> &overlays, char *out, size_t outSize )
 {
 	PosixInstallRequest request;
+#if defined(ZH_PLATFORM_IOS)
+	request.arguments.push_back( "-root" );
+	request.arguments.push_back( getenv( "ZH_IOS_GAME_DATA" ) );
+#endif
 	Bool unattended = FALSE;
 	for (int i = 1; i < argc; ++i)
 	{
@@ -296,14 +305,22 @@ static Bool chooseInstallRoot( int argc, char *argv[], const std::vector<std::st
 	request.insideAppBundle = isExecutablePackaged() != FALSE;		// a macOS app, or a Linux package (P3)
 	request.home = findHomeDirectory( buffer, sizeof( buffer ) ) ? buffer : "";
 	if (isExecutableInAppBundle())
-		request.forbidden.push_back( request.executableDirectory + "/../.." );	// the bundle
+#if defined(ZH_PLATFORM_IOS)
+		request.forbidden.push_back( request.executableDirectory );
+#else
+		request.forbidden.push_back( request.executableDirectory + "/../.." );
+#endif	// the bundle
 	else if (request.insideAppBundle)
 		request.forbidden.push_back( request.executableDirectory + "/.." );		// the Linux package
 	request.forbidden.insert( request.forbidden.end(), overlays.begin(), overlays.end() );
 	request.registryFile = findRegistryFile( buffer, sizeof( buffer ) ) ? buffer : "";
 	std::string dialogFailure;
 	const bool gameMode = inSteamGameMode();
+#if defined(ZH_PLATFORM_IOS)
+	request.chooser = NULL;
+#else
 	request.chooser = unattended || gameMode ? NULL : chooseFolderWithSdl;
+#endif
 	request.chooserContext = &dialogFailure;
 	ScriptedAnswers script;
 	const char *answers = getenv( "ZH_TEST_CHOOSER_ANSWERS" );
@@ -396,7 +413,11 @@ static Bool chooseOverlays( int argc, char *argv[], std::vector<std::string> &ov
 
 	char exe[ 4096 ];
 	getExecutableDirectory( exe, sizeof( exe ), FALSE );
-	static const char *const packaged[] = { "/../Resources/Overlay", "/../share/zero-hour-reforged/overlay" };
+	static const char *const packaged[] = {
+#if defined(ZH_PLATFORM_IOS)
+		"/Overlay",
+#endif
+		"/../Resources/Overlay", "/../share/zero-hour-reforged/overlay" };
 	for (size_t i = 0; exe[0] != 0 && i < sizeof( packaged ) / sizeof( packaged[0] ); ++i)
 	{
 		const std::string candidate = std::string( exe ) + packaged[i];
@@ -435,9 +456,17 @@ static Bool takeOneCopyLock( void )
 // main =======================================================================
 /** Application entry point */
 //=============================================================================
+#if defined(ZH_PLATFORM_IOS)
+static int runIOSGameMain( int argc, char *argv[] )
+#else
 int main( int argc, char *argv[] )
+#endif
 {
 	GameSpeed_markMainStarted();
+	TheUnicodeStringCriticalSection = &critSec2;
+	TheDmaCriticalSection = &critSec3;
+	TheMemoryPoolCriticalSection = &critSec4;
+	TheDebugLogCriticalSection = &critSec5;
 #if defined(_DEBUG) || defined(_INTERNAL)
 	{
 		// -initspeed <percent>: start at that game speed instead of the native one (WinMain.cpp has why)
@@ -445,6 +474,16 @@ int main( int argc, char *argv[] )
 		if( findEarlyCommandLineValue( L"-initspeed", initSpeed, sizeof( initSpeed ) ) )
 			GameSpeed_set( ClampPlayerGameSpeedPercent( atoi( initSpeed ) ) );
 	}
+#endif
+#if defined(ZH_PLATFORM_IOS)
+	// installCrashHandlers caches findUserDataDirectory: choose the sandbox first.
+	if (!ZH_IOS_Bootstrap())
+		return 1;
+	resetUserDataDirectoryForStartup();
+	char sandboxData[4096];
+	if(!findUserDataDirectory(sandboxData,sizeof(sandboxData)))return 1;
+	fprintf(stderr,"[IOS_USER_DATA] selected=%s\n",sandboxData);
+	setCrashLogDescriptor( STDERR_FILENO );
 #endif
 	// Before anything else, and before another thread exists: a crash from here on leaves
 	// ReleaseCrashInfo.txt, as WinMain's _set_se_translator and SetUnhandledExceptionFilter make it on Windows.
@@ -464,11 +503,6 @@ int main( int argc, char *argv[] )
 #endif
 
 	try {
-
-		TheUnicodeStringCriticalSection = &critSec2;
-		TheDmaCriticalSection = &critSec3;
-		TheMemoryPoolCriticalSection = &critSec4;
-		TheDebugLogCriticalSection = &critSec5;
 
 		std::vector<std::string> overlays;
 		if (!chooseOverlays( argc, argv, overlays ))
@@ -564,8 +598,15 @@ int main( int argc, char *argv[] )
 
 		// start the log
 		DEBUG_INIT(DEBUG_FLAGS_DEFAULT);
+#if defined(ZH_PLATFORM_IOS)
+		setCrashLogDescriptor( STDERR_FILENO );
+		ZH_IOS_StartupTrace( "memory.begin", "engine allocator initialization" );
+#endif
 		DEBUG_ASSERTCRASH( GameSpeed_readsBeforeMain() == 0, ( "%d reads of the game speed before main: a dynamic initialiser caches it", GameSpeed_readsBeforeMain() ) );
 		initMemoryManager();
+#if defined(ZH_PLATFORM_IOS)
+		ZH_IOS_StartupTrace( "memory.ready", "engine allocator initialized" );
+#endif
 
 		// Set up version info
 		TheVersion = NEW Version;
@@ -630,6 +671,22 @@ int main( int argc, char *argv[] )
 	return 0;
 
 }  // end main
+
+#if defined(ZH_PLATFORM_IOS)
+// IOS_MAIN_EXIT_BEGIN
+// SDL's UIKit delegate deliberately continues its event loop after SDL_main
+// returns. Reforged has already destroyed its window then, leaving a black app.
+// Exit only after the whole game function, including its local destructors,
+// has completed, so Quit returns to Home and releases the one-copy lock.
+int main( int argc, char *argv[] )
+{
+	const int status = runIOSGameMain( argc, argv );
+	fprintf( stderr, "[IOS_EXIT] engine cleanup completed status=%d; exiting UIKit process\n", status );
+	fflush( stderr );
+	std::exit( status );
+}
+// IOS_MAIN_EXIT_END
+#endif
 
 // CreateGameEngine ===========================================================
 /** Create the game engine we're going to use: SDL3's, over C1's POSIX one */

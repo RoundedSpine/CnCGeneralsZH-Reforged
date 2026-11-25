@@ -96,7 +96,11 @@ Bool isExecutableInAppBundle( void )
 {
 	char exe[ 4096 ];
 	getExecutableDirectory( exe, sizeof( exe ), FALSE );
+	#if defined(ZH_PLATFORM_IOS)
+	static const char bundled[] = ".app";
+#else
 	static const char bundled[] = ".app/Contents/MacOS";
+#endif
 	const size_t length = strlen( exe ), tail = sizeof( bundled ) - 1;
 	return length >= tail && strcmp( exe + length - tail, bundled ) == 0;
 }

@@ -19,6 +19,9 @@
 // SdlGameEngine.cpp: see SdlGameEngine.h.
 
 #include "PreRTS.h"
+#include "Platform/IOSStartup.h"
+#include "Platform/IOSLifecycle.h"
+#include "Platform/IOSWindowDiagnostics.h"
 
 #include "Common/MessageStream.h"
 #include "Common/PlayerList.h"
@@ -87,13 +90,16 @@ static void dressWindow( Int mode )
 	SDL_Window *window = s_titledWindow;
 	if (window == NULL)
 		return;
+	ZH_IOS_TraceWindow("window.frame.begin", window);
 	if (mode == WINDOW_MODE_FULLSCREEN)
 	{
 		SDL_SetWindowFullscreen( window, true );
+		ZH_IOS_TraceWindow("window.frame.end", window);
 		return;
 	}
 	SDL_SetWindowFullscreen( window, false );
 	SDL_SetWindowBordered( window, mode == WINDOW_MODE_WINDOWED );
+	ZH_IOS_TraceWindow("window.frame.end", window);
 }
 
 /** W3DDisplay's sizeWindowToClient, for SDL's window: a client area of the resolution, a plain window
@@ -109,6 +115,7 @@ static void sizeWindow( Int mode, Int width, Int height, const MonitorRect &scre
 	SDL_Window *window = s_titledWindow;
 	if (window == NULL)
 		return;
+	ZH_IOS_TraceWindow("window.size.begin", window);
 	const float density = SdlDisplays_densityOf( screen, window );
 	const int pointsWidth = (int)lround( width / density ), pointsHeight = (int)lround( height / density );
 	SDL_SetWindowSize( window, pointsWidth, pointsHeight );
@@ -122,6 +129,7 @@ static void sizeWindow( Int mode, Int width, Int height, const MonitorRect &scre
 
 	int pixelWidth = 0, pixelHeight = 0;
 	SDL_GetWindowSizeInPixels( window, &pixelWidth, &pixelHeight );
+	ZH_IOS_TraceWindow("window.size.end", window);
 	DEBUG_LOG(( "SdlGameEngine: mode %d at %dx%d, %dx%d points at a density of %.2f; the window is %dx%d pixels\n",
 		mode, width, height, pointsWidth, pointsHeight, density, pixelWidth, pixelHeight ));
 }
@@ -155,8 +163,13 @@ SdlGameEngine::~SdlGameEngine()
 // GameMain calls init( argc, argv ); the argument-less init is empty in GameEngine and nothing calls it.
 void SdlGameEngine::init( int argc, char *argv[] )
 {
+	ZH_IOS_StartupTrace( "window.begin", "SDL UIKit window" );
 	createWindow();
+	ZH_IOS_StartupTrace( "window.ready", "SDL window initialized" );
+	ZH_IOS_ServiceStartup();
 	GameEngine::init( argc, argv );
+	ZH_IOS_TraceWindow("engine.init.end", m_window);
+	ZH_IOS_StartupFinished();
 
 	// P1 step 3: "-dumpFileResolution <file>" writes where every path resolves, then ends the run
 	// (test_packaging_resolution compares two layouts' dumps).  A test switch, never a player's.
@@ -218,6 +231,7 @@ void SdlGameEngine::createWindow( void )
 		height = bounds.h;
 	}
 
+	ZH_IOS_TraceWindow("window.create.begin", nullptr);
 	m_window = SDL_CreateWindow( "Command and Conquer Generals Zero Hour", width, height, flags );
 	if (m_window == NULL)
 	{
@@ -226,6 +240,7 @@ void SdlGameEngine::createWindow( void )
 		RELEASE_CRASH( why );
 		return;
 	}
+	ZH_IOS_TraceWindow("window.create.end", m_window);
 #ifdef ZH_WINDOW_ICON
 	// a Linux executable carries no icon, so the window brings its own for the taskbar and alt-tab;
 	// GNOME on Wayland ignores it and takes zero-hour-reforged.desktop's, by the app id (PosixMain.cpp)
@@ -309,7 +324,9 @@ void SdlGameEngine_releaseWindow( void )
 		if (ApplicationHWnd == (RenderWindow)s_pendingWindow)
 			ApplicationHWnd = NULL;
 		setSdlMessageBoxOwner( NULL );
+		ZH_IOS_TraceWindow("window.destroy.begin", s_pendingWindow);
 		SDL_DestroyWindow( s_pendingWindow );
+		ZH_IOS_TraceWindow("window.destroy.end", nullptr);
 		s_pendingWindow = NULL;
 	}
 	if (s_pendingVideo)
@@ -330,6 +347,7 @@ void SdlGameEngine_releaseWindow( void )
 	 Headless there is no SDL and nothing to pump. */
 void SdlGameEngine::serviceWindowsOS( void )
 {
+	ZH_IOS_WaitForForeground();
 	if (!m_sdlVideoStarted)
 		return;
 
@@ -356,6 +374,9 @@ void SdlGameEngine::serviceWindowsOS( void )
 				break;
 
 			case SDL_EVENT_WINDOW_FOCUS_LOST:
+#if defined(ZH_PLATFORM_IOS)
+				SdlInput_cancelIOSTouch();
+#endif
 				// WinMain's WM_ACTIVATE rule: silent behind another window unless MuteInBackground is
 				// off, and never in a -wav run.  Once a loss, since loseFocus keeps one set of volumes.
 				if (TheAudio && isActive() && TheGlobalData->m_wavEndFrame <= 0 && TheGlobalData->m_muteInBackground)
@@ -368,6 +389,10 @@ void SdlGameEngine::serviceWindowsOS( void )
 				break;
 		}
 	}
+#if defined(ZH_PLATFORM_IOS)
+	SdlInput_flushIOSTouch();
+#endif
+	ZH_IOS_WaitForForeground();
 }
 
 // Win32GameEngine's factories, the same W3D classes (decision 8); the radar too: W3DRadar, and

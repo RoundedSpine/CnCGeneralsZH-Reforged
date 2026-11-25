@@ -271,7 +271,15 @@ bool resolve( const char *face, bool bold, std::string &path, bool &fileIsBold, 
 	metricsFace = s.gdiMetrics;
 	return fontconfigFile( s.linuxFamily, bold, path, fileIsBold );
 #else
+	#if defined(ZH_PLATFORM_IOS)
+	// Bundled Liberation faces need the same GDI line metrics as Linux substitutes.
+	metricsFace = s.gdiMetrics;
+	const char *directory = getenv( "ZH_IOS_FONTS" );
+	if (directory == NULL)
+		return false;
+#else
 	const char *directory = "/System/Library/Fonts/Supplemental/";
+#endif
 	if (bold && s.macBold != NULL && fileExists( (std::string( directory ) + s.macBold).c_str() ))
 	{
 		path = std::string( directory ) + s.macBold;

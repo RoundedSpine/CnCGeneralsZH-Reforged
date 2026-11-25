@@ -1,3 +1,4 @@
+CMake/HostTools.cmake
 CMakeLists.txt
 Data/Art/Textures/LWFort_Concrete.tga
 Data/Art/Textures/LWFort_ConcreteD.tga
@@ -1971,6 +1972,7 @@ GameEngine/Include/GameClient/RadiusDecal.h
 GameEngine/Include/GameClient/RayEffect.h
 GameEngine/Include/GameClient/ReachOverlay.h
 GameEngine/Include/GameClient/ScoreScreenLayout.h
+GameEngine/Include/GameClient/ScreenPan.h
 GameEngine/Include/GameClient/SelectionInfo.h
 GameEngine/Include/GameClient/SelectionPriority.h
 GameEngine/Include/GameClient/SelectionXlat.h
@@ -3048,6 +3050,7 @@ GameEngineDevice/Include/SdlDevice/Common/SdlGameEngine.h
 GameEngineDevice/Include/SdlDevice/Common/SdlMessageBox.h
 GameEngineDevice/Include/SdlDevice/Common/SdlPanel.h
 GameEngineDevice/Include/SdlDevice/GameClient/AniCursor.h
+GameEngineDevice/Include/SdlDevice/GameClient/IOSTouch.h
 GameEngineDevice/Include/SdlDevice/GameClient/SdlInput.h
 GameEngineDevice/Include/SdlDevice/GameClient/SdlKeyTable.h
 GameEngineDevice/Include/SdlDevice/GameClient/SdlKeyboard.h
@@ -3249,6 +3252,7 @@ GameEngineDevice/Source/SdlDevice/Common/SdlGameEngine.cpp
 GameEngineDevice/Source/SdlDevice/Common/SdlMessageBox.cpp
 GameEngineDevice/Source/SdlDevice/Common/SdlPanel.cpp
 GameEngineDevice/Source/SdlDevice/GameClient/AniCursor.cpp
+GameEngineDevice/Source/SdlDevice/GameClient/SdlIOSTouch.cpp
 GameEngineDevice/Source/SdlDevice/GameClient/SdlInput.cpp
 GameEngineDevice/Source/SdlDevice/GameClient/SdlKeyTable.cpp
 GameEngineDevice/Source/SdlDevice/GameClient/SdlKeyboard.cpp
@@ -3411,6 +3415,12 @@ Libraries/Include/Platform/HazardCloudFlow.h
 Libraries/Include/Platform/HazardCloudPolicy.h
 Libraries/Include/Platform/HazardCloudShared.h
 Libraries/Include/Platform/HazardCloudSharedModel.h
+Libraries/Include/Platform/IOSAudioSession.h
+Libraries/Include/Platform/IOSLifecycle.h
+Libraries/Include/Platform/IOSMemoryDiagnostics.h
+Libraries/Include/Platform/IOSStartup.h
+Libraries/Include/Platform/IOSStartupPump.h
+Libraries/Include/Platform/IOSWindowDiagnostics.h
 Libraries/Include/Platform/IsWindows9x.h
 Libraries/Include/Platform/LoadTiming.h
 Libraries/Include/Platform/MSVCCompat.h
@@ -4500,6 +4510,16 @@ Main/RTS.RC
 Main/WinMain.cpp
 Main/WinMain.h
 Main/resource.h
+Platform/iOS/IOSAudioSession.mm
+Platform/iOS/IOSBootstrap.mm
+Platform/iOS/IOSLifecycle.cpp
+Platform/iOS/IOSMemoryDiagnostics.cpp
+Platform/iOS/IOSStartup.cpp
+Platform/iOS/IOSUserDataMigration.h
+Platform/iOS/IOSWindowDiagnostics.mm
+Platform/iOS/Info.plist.in
+Platform/iOS/README.md
+Platform/iOS/Reforged.entitlements
 RTS.dsp
 RTS.dsw
 Stubs/NullAudioManager.h
@@ -4624,6 +4644,15 @@ Tests/test_hotkey_scheme_map.inc
 Tests/test_install_guard.sh
 Tests/test_install_root.cpp
 Tests/test_install_textures.cpp
+Tests/test_ios_camera_pan.cpp
+Tests/test_ios_global_new.py
+Tests/test_ios_lifecycle.py
+Tests/test_ios_main_exit.py
+Tests/test_ios_network_permissions.py
+Tests/test_ios_report.py
+Tests/test_ios_startup_pump.cpp
+Tests/test_ios_symbols.py
+Tests/test_ios_touch.cpp
 Tests/test_lan_broadcast.cpp
 Tests/test_lanehud.cpp
 Tests/test_linux_portable.sh
@@ -4634,6 +4663,7 @@ Tests/test_map_ini_rollback.inc
 Tests/test_miles_effects.cpp
 Tests/test_miles_miniaudio.cpp
 Tests/test_milesaudiomanager.cpp
+Tests/test_miniaudio_recovery.py
 Tests/test_minimap_input.inc
 Tests/test_model_preview.cpp
 Tests/test_modern_water_config.cpp
@@ -5510,6 +5540,7 @@ Tools/asan-check.sh
 Tools/assetcull/assetcull.cpp
 Tools/assetcull/assetcull.dsp
 Tools/bigfile.py
+Tools/build-ios.sh
 Tools/build-jobs.sh
 Tools/build-posix.sh
 Tools/buildVersionUpdate/buildVersionUpdate.cpp
@@ -5542,6 +5573,7 @@ Tools/hud_match_clock.py
 Tools/hud_sidebar.py
 Tools/include_case_check.py
 Tools/install-guard.sh
+Tools/ios-symbols.py
 Tools/license-headers.py
 Tools/linux-check.sh
 Tools/linux-menu-entry.sh
@@ -5558,6 +5590,7 @@ Tools/lobbysettings_layout.py
 Tools/lod-first-run-check.sh
 Tools/macos-app-licenses.txt
 Tools/mainmenu_layout.py
+Tools/make-ios-ipa.sh
 Tools/make-macos-app.sh
 Tools/mangler/Makefile
 Tools/mangler/crc.cpp
@@ -5683,6 +5716,7 @@ Tools/package-common.sh
 Tools/packaging-resolution-check.sh
 Tools/peacetime_layout.py
 Tools/pink_laser.py
+Tools/publish-ios-report.py
 Tools/radar_marks.py
 Tools/recon_marks.py
 Tools/record-dx11-shaders.ps1
@@ -5692,8 +5726,10 @@ Tools/relay/relay.js
 Tools/relay/test.js
 Tools/replay-check.sh
 Tools/root-readonly-check.sh
+Tools/sdl-shadercross-ios.patch
 Tools/signal_marks.py
 Tools/sprite_flipbook.py
+Tools/stage-ios-fonts.sh
 Tools/stage-overlay.sh
 Tools/sun-shadow-check.py
 Tools/syntax_sweep.py

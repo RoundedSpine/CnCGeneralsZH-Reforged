@@ -32,6 +32,9 @@
 #define _H_LookAtXlat
 
 #include "GameClient/InGameUI.h"
+#if defined(ZH_PLATFORM_IOS)
+#include "GameClient/ScreenPan.h"
+#endif
 
 //-----------------------------------------------------------------------------
 class LookAtTranslator : public GameMessageTranslator
@@ -46,14 +49,28 @@ public:
 	Bool isRightDragPanning( void ) const { return m_isScrolling && m_scrollType == SCROLL_RMB; }
 	Bool hasMouseMovedRecently( void );
 	/// scrolling, turning or tilting the camera by hand, with the mouse or the keys, right now
-	Bool isMovingCamera( void ) const { return m_isScrolling || m_isRotating || m_isPitching; }
+	Bool isMovingCamera( void ) const { return m_isScrolling || m_isRotating || m_isPitching
+#if defined(ZH_PLATFORM_IOS)
+		|| m_touchPanArmed || m_touchPan.hasMotion()
+#endif
+		; }
 	void setCurrentPos( const ICoord2D& pos );
 	/// one step of the held scroll; the frame tick's, and a picture's drawn beside a tick (LOGIC-THREAD.md phase 4)
 	void scrollView( void );
 
+#if defined(ZH_PLATFORM_IOS)
+	void beginTouchPan( ScreenPan::Point at );
+	void queueTouchPan( ScreenPan::Point from, ScreenPan::Point to );
+	void endTouchPan() { m_touchPanArmed = FALSE; }
+	void cancelTouchPan() { m_touchPanArmed = FALSE; m_touchPan.clear(); }
+#endif
 	void resetModes(); //Used when disabling input, so when we reenable it we aren't stuck in a mode.
 
 private:
+#if defined(ZH_PLATFORM_IOS)
+	ScreenPan::Pending m_touchPan;
+	Bool m_touchPanArmed = FALSE, m_touchPanFirst = FALSE;
+#endif
 	enum
 	{
 		MAX_VIEW_LOCS = 8
