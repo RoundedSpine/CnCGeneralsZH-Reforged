@@ -1,5 +1,0 @@
-[vendor] unpacking SDL3
-[vendor] SDL3 3.4.16 -> Libraries/Source/SDL3
-[vendor] sdl3-metal-windowless.patch -> Libraries/Source/SDL3
-error: can't open patch '/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/sdl3-metal-gpu-timing.patch': No such file or directory
-[vendor] sdl3-metal-gpu-timing.patch failed to apply
