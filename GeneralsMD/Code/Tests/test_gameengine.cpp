@@ -21219,7 +21219,9 @@ TEST(ai_persona_normal_row_is_neutral)
 		CHECK_EQ( normal.m_buy[ k ], 0 );
 	CHECK_EQ( aiPersonaEnemyCost( AIPERSONA_NORMAL, 12345.0f, 0.7f, TRUE ), 12345.0f );
 	// an unknown value plays Normal rather than reading past the table
-	CHECK( &aiPersonaWeights( (AIPersonality)99 ) == &normal );
+	// (through a variable: clang 16 and later reject an out-of-range enumerator in a constant expression)
+	volatile Int unknown = 99;
+	CHECK( &aiPersonaWeights( (AIPersonality)unknown ) == &normal );
 }
 
 TEST(ai_persona_names_round_trip)
