@@ -1,300 +1,300 @@
-  504 |         { "BaseRegenHealthPercentPerSecond", INI::parsePercentToReal, NULL,     offsetof( GlobalData, m_baseRegenHealthPercentPerSecond ) },
-      |                                                                                 ^                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/Thing/ThingTemplate.cpp:201:62: warning: offset of on non-standard-layout type 'ThingTemplate' [-Winvalid-offsetof]
+  201 |         { "VoiceAttack",                                        INI::parseDynamicAudioEventRTS, NULL,           offsetof( ThingTemplate, m_audioarray.m_audio[TTAUDIO_voiceAttack]) },
+      |                                                                                                                 ^                        ~~~~~~~~~~~~
 /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
    16 | #define offsetof(t, d) __builtin_offsetof(t, d)
       |                        ^                     ~
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/GlobalData.cpp:505:28: warning: offset of on non-standard-layout type 'GlobalData' [-Winvalid-offsetof]
-  505 |         { "BaseRegenDelay",                                                     SPEED_FIELD( GlobalData, m_baseRegenDelay ) },
-      |                                                                                 ^                        ~~~~~~~~~~~~~~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/Thing/ThingTemplate.cpp:202:62: warning: offset of on non-standard-layout type 'ThingTemplate' [-Winvalid-offsetof]
+  202 |         { "VoiceEnter",                                         INI::parseDynamicAudioEventRTS, NULL,           offsetof( ThingTemplate, m_audioarray.m_audio[TTAUDIO_voiceEnter ]) },
+      |                                                                                                                 ^                        ~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/Thing/ThingTemplate.cpp:203:61: warning: offset of on non-standard-layout type 'ThingTemplate' [-Winvalid-offsetof]
+  203 |         { "VoiceFear",                                          INI::parseDynamicAudioEventRTS, NULL,           offsetof( ThingTemplate, m_audioarray.m_audio[TTAUDIO_voiceFear ]) },
+      |                                                                                                                 ^                        ~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/Thing/ThingTemplate.cpp:204:65: warning: offset of on non-standard-layout type 'ThingTemplate' [-Winvalid-offsetof]
+  204 |         { "VoiceSelectElite",                   INI::parseDynamicAudioEventRTS, NULL,           offsetof( ThingTemplate, m_audioarray.m_audio[TTAUDIO_voiceSelectElite ]) },
+      |                                                                                                 ^                        ~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/Thing/ThingTemplate.cpp:205:63: warning: offset of on non-standard-layout type 'ThingTemplate' [-Winvalid-offsetof]
+  205 |         { "VoiceCreated",                                       INI::parseDynamicAudioEventRTS, NULL,           offsetof( ThingTemplate, m_audioarray.m_audio[TTAUDIO_voiceCreated]) },
+      |                                                                                                                 ^                        ~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/Thing/ThingTemplate.cpp:206:64: warning: offset of on non-standard-layout type 'ThingTemplate' [-Winvalid-offsetof]
+  206 |         { "VoiceTaskUnable",                    INI::parseDynamicAudioEventRTS, NULL,           offsetof( ThingTemplate, m_audioarray.m_audio[TTAUDIO_voiceTaskUnable ]) },
+      |                                                                                                 ^                        ~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/Thing/ThingTemplate.cpp:207:65: warning: offset of on non-standard-layout type 'ThingTemplate' [-Winvalid-offsetof]
+  207 |         { "VoiceTaskComplete",          INI::parseDynamicAudioEventRTS, NULL,           offsetof( ThingTemplate, m_audioarray.m_audio[TTAUDIO_voiceTaskComplete ]) },
+      |                                                                                         ^                        ~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/Thing/ThingTemplate.cpp:208:64: warning: offset of on non-standard-layout type 'ThingTemplate' [-Winvalid-offsetof]
+  208 |         { "VoiceMeetEnemy",                             INI::parseDynamicAudioEventRTS, NULL,           offsetof( ThingTemplate, m_audioarray.m_audio[TTAUDIO_voiceMeetEnemy]) },
+      |                                                                                                         ^                        ~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/Thing/ThingTemplate.cpp:209:63: warning: offset of on non-standard-layout type 'ThingTemplate' [-Winvalid-offsetof]
+  209 |         { "VoiceGarrison",                              INI::parseDynamicAudioEventRTS, NULL,           offsetof( ThingTemplate, m_audioarray.m_audio[TTAUDIO_voiceGarrison]) },
+      |                                                                                                         ^                        ~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/Thing/ThingTemplate.cpp:213:62: warning: offset of on non-standard-layout type 'ThingTemplate' [-Winvalid-offsetof]
+  213 |         { "VoiceDefect",                                        INI::parseDynamicAudioEventRTS, NULL,           offsetof( ThingTemplate, m_audioarray.m_audio[TTAUDIO_voiceDefect]) },
+      |                                                                                                                 ^                        ~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/Thing/ThingTemplate.cpp:214:66: warning: offset of on non-standard-layout type 'ThingTemplate' [-Winvalid-offsetof]
+  214 |         { "VoiceAttackSpecial",         INI::parseDynamicAudioEventRTS, NULL,           offsetof( ThingTemplate, m_audioarray.m_audio[TTAUDIO_voiceAttackSpecial ]) },  
+      |                                                                                         ^                        ~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/Thing/ThingTemplate.cpp:215:64: warning: offset of on non-standard-layout type 'ThingTemplate' [-Winvalid-offsetof]
+  215 |         { "VoiceAttackAir",                             INI::parseDynamicAudioEventRTS, NULL,           offsetof( ThingTemplate, m_audioarray.m_audio[TTAUDIO_voiceAttackAir ]) },      
+      |                                                                                                         ^                        ~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/Thing/ThingTemplate.cpp:216:62: warning: offset of on non-standard-layout type 'ThingTemplate' [-Winvalid-offsetof]
+  216 |         { "VoiceGuard",                                         INI::parseDynamicAudioEventRTS, NULL,           offsetof( ThingTemplate, m_audioarray.m_audio[TTAUDIO_voiceGuard ]) },  
+      |                                                                                                                 ^                        ~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/Thing/ThingTemplate.cpp:217:64: warning: offset of on non-standard-layout type 'ThingTemplate' [-Winvalid-offsetof]
+  217 |         { "SoundMoveStart",                             INI::parseDynamicAudioEventRTS, NULL,           offsetof( ThingTemplate, m_audioarray.m_audio[TTAUDIO_soundMoveStart]) },
+      |                                                                                                         ^                        ~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/Thing/ThingTemplate.cpp:218:67: warning: offset of on non-standard-layout type 'ThingTemplate' [-Winvalid-offsetof]
+  218 |         { "SoundMoveStartDamaged",INI::parseDynamicAudioEventRTS,       NULL,           offsetof( ThingTemplate, m_audioarray.m_audio[TTAUDIO_soundMoveStartDamaged]) },
+      |                                                                                         ^                        ~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/Thing/ThingTemplate.cpp:219:63: warning: offset of on non-standard-layout type 'ThingTemplate' [-Winvalid-offsetof]
+  219 |         { "SoundMoveLoop",                              INI::parseDynamicAudioEventRTS, NULL,           offsetof( ThingTemplate, m_audioarray.m_audio[TTAUDIO_soundMoveLoop]) },
+      |                                                                                                         ^                        ~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/Thing/ThingTemplate.cpp:220:67: warning: offset of on non-standard-layout type 'ThingTemplate' [-Winvalid-offsetof]
+  220 |         { "SoundMoveLoopDamaged",       INI::parseDynamicAudioEventRTS, NULL,           offsetof( ThingTemplate, m_audioarray.m_audio[TTAUDIO_soundMoveLoopDamaged]) },
+      |                                                                                         ^                        ~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/Thing/ThingTemplate.cpp:221:63: warning: offset of on non-standard-layout type 'ThingTemplate' [-Winvalid-offsetof]
+  221 |         { "SoundAmbient",                                       INI::parseDynamicAudioEventRTS, NULL,           offsetof( ThingTemplate, m_audioarray.m_audio[TTAUDIO_soundAmbient ]) },
+      |                                                                                                                 ^                        ~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/Thing/ThingTemplate.cpp:222:66: warning: offset of on non-standard-layout type 'ThingTemplate' [-Winvalid-offsetof]
+  222 |         { "SoundAmbientDamaged",        INI::parseDynamicAudioEventRTS, NULL,           offsetof( ThingTemplate, m_audioarray.m_audio[TTAUDIO_soundAmbientDamaged ]) },
+      |                                                                                         ^                        ~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/Thing/ThingTemplate.cpp:223:69: warning: offset of on non-standard-layout type 'ThingTemplate' [-Winvalid-offsetof]
+  223 |         { "SoundAmbientReallyDamaged",INI::parseDynamicAudioEventRTS,   NULL,offsetof( ThingTemplate, m_audioarray.m_audio[TTAUDIO_soundAmbientReallyDamaged ]) },
+      |                                                                              ^                        ~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/Thing/ThingTemplate.cpp:224:66: warning: offset of on non-standard-layout type 'ThingTemplate' [-Winvalid-offsetof]
+  224 |         { "SoundAmbientRubble",         INI::parseDynamicAudioEventRTS, NULL,           offsetof( ThingTemplate, m_audioarray.m_audio[TTAUDIO_soundAmbientRubble]) },
+      |                                                                                         ^                        ~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/Thing/ThingTemplate.cpp:225:68: warning: offset of on non-standard-layout type 'ThingTemplate' [-Winvalid-offsetof]
+  225 |         { "SoundStealthOn",       INI::parseDynamicAudioEventRTS,  NULL,  offsetof( ThingTemplate, m_audioarray.m_audio[TTAUDIO_soundStealthOn ]) },
+      |                                                                           ^                        ~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/Thing/ThingTemplate.cpp:226:68: warning: offset of on non-standard-layout type 'ThingTemplate' [-Winvalid-offsetof]
+  226 |         { "SoundStealthOff",      INI::parseDynamicAudioEventRTS,  NULL,  offsetof( ThingTemplate, m_audioarray.m_audio[TTAUDIO_soundStealthOff ]) },
+      |                                                                           ^                        ~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/Thing/ThingTemplate.cpp:227:63: warning: offset of on non-standard-layout type 'ThingTemplate' [-Winvalid-offsetof]
+  227 |         { "SoundCreated",                                       INI::parseDynamicAudioEventRTS, NULL,           offsetof( ThingTemplate, m_audioarray.m_audio[TTAUDIO_soundCreated ]) },
+      |                                                                                                                 ^                        ~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/Thing/ThingTemplate.cpp:228:64: warning: offset of on non-standard-layout type 'ThingTemplate' [-Winvalid-offsetof]
+  228 |         { "SoundOnDamaged",                             INI::parseDynamicAudioEventRTS, NULL,           offsetof( ThingTemplate, m_audioarray.m_audio[TTAUDIO_soundOnDamaged ]) },
+      |                                                                                                         ^                        ~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/Thing/ThingTemplate.cpp:229:67: warning: offset of on non-standard-layout type 'ThingTemplate' [-Winvalid-offsetof]
+  229 |         { "SoundOnReallyDamaged",       INI::parseDynamicAudioEventRTS, NULL,           offsetof( ThingTemplate, m_audioarray.m_audio[TTAUDIO_soundOnReallyDamaged ]) },
+      |                                                                                         ^                        ~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/Thing/ThingTemplate.cpp:230:62: warning: offset of on non-standard-layout type 'ThingTemplate' [-Winvalid-offsetof]
+  230 |         { "SoundEnter",                                         INI::parseDynamicAudioEventRTS, NULL,           offsetof( ThingTemplate, m_audioarray.m_audio[TTAUDIO_soundEnter ]) },
+      |                                                                                                                 ^                        ~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/Thing/ThingTemplate.cpp:231:61: warning: offset of on non-standard-layout type 'ThingTemplate' [-Winvalid-offsetof]
+  231 |         { "SoundExit",                                          INI::parseDynamicAudioEventRTS, NULL,           offsetof( ThingTemplate, m_audioarray.m_audio[TTAUDIO_soundExit ]) },
+      |                                                                                                                 ^                        ~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/Thing/ThingTemplate.cpp:232:67: warning: offset of on non-standard-layout type 'ThingTemplate' [-Winvalid-offsetof]
+  232 |         { "SoundPromotedVeteran",       INI::parseDynamicAudioEventRTS, NULL,           offsetof( ThingTemplate, m_audioarray.m_audio[TTAUDIO_soundPromotedVeteran ]) },
+      |                                                                                         ^                        ~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/Thing/ThingTemplate.cpp:233:66: warning: offset of on non-standard-layout type 'ThingTemplate' [-Winvalid-offsetof]
+  233 |         { "SoundPromotedElite",         INI::parseDynamicAudioEventRTS, NULL,           offsetof( ThingTemplate, m_audioarray.m_audio[TTAUDIO_soundPromotedElite ]) },
+      |                                                                                         ^                        ~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/Thing/ThingTemplate.cpp:234:65: warning: offset of on non-standard-layout type 'ThingTemplate' [-Winvalid-offsetof]
+  234 |         { "SoundPromotedHero",          INI::parseDynamicAudioEventRTS, NULL,           offsetof( ThingTemplate, m_audioarray.m_audio[TTAUDIO_soundPromotedHero ]) },
+      |                                                                                         ^                        ~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/Thing/ThingTemplate.cpp:235:67: warning: offset of on non-standard-layout type 'ThingTemplate' [-Winvalid-offsetof]
+  235 |         { "SoundFallingFromPlane",INI::parseDynamicAudioEventRTS, NULL,         offsetof( ThingTemplate, m_audioarray.m_audio[TTAUDIO_soundFalling ]) },
+      |                                                                                 ^                        ~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/Thing/ThingTemplate.cpp:237:68: warning: offset of on non-standard-layout type 'ThingTemplate' [-Winvalid-offsetof]
+  237 |         { "UnitSpecificSounds",         ThingTemplate::parsePerUnitSounds, NULL, offsetof(ThingTemplate, m_perUnitSounds) },
+      |                                                                                  ^                       ~~~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/Thing/ThingTemplate.cpp:238:62: warning: offset of on non-standard-layout type 'ThingTemplate' [-Winvalid-offsetof]
+  238 |         { "UnitSpecificFX",                             ThingTemplate::parsePerUnitFX, NULL, offsetof(ThingTemplate, m_perUnitFX) },
+      |                                                                                              ^                       ~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/Thing/ThingTemplate.cpp:239:48: warning: offset of on non-standard-layout type 'ThingTemplate' [-Winvalid-offsetof]
+  239 |         { "Scale",                                                              INI::parseReal,                                         NULL,           offsetof( ThingTemplate, m_assetScale ) },
+      |                                                                                                                                                         ^                        ~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/Thing/ThingTemplate.cpp:240:65: warning: offset of on non-standard-layout type 'ThingTemplate' [-Winvalid-offsetof]
+  240 |         { "Geometry",                                                   GeometryInfo::parseGeometryType,                                NULL,  offsetof( ThingTemplate, m_geometryInfo ) },
+      |                                                                                                                                                ^                        ~~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/Thing/ThingTemplate.cpp:241:74: warning: offset of on non-standard-layout type 'ThingTemplate' [-Winvalid-offsetof]
+  241 |         { "GeometryMajorRadius",        GeometryInfo::parseGeometryMajorRadius, NULL,           offsetof( ThingTemplate, m_geometryInfo ) },
+      |                                                                                                 ^                        ~~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/Thing/ThingTemplate.cpp:242:74: warning: offset of on non-standard-layout type 'ThingTemplate' [-Winvalid-offsetof]
+  242 |         { "GeometryMinorRadius",        GeometryInfo::parseGeometryMinorRadius, NULL,           offsetof( ThingTemplate, m_geometryInfo ) },
+      |                                                                                                 ^                        ~~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/Thing/ThingTemplate.cpp:243:69: warning: offset of on non-standard-layout type 'ThingTemplate' [-Winvalid-offsetof]
+  243 |         { "GeometryHeight",                             GeometryInfo::parseGeometryHeight,                      NULL,           offsetof( ThingTemplate, m_geometryInfo ) },
+      |                                                                                                                                 ^                        ~~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/Thing/ThingTemplate.cpp:244:70: warning: offset of on non-standard-layout type 'ThingTemplate' [-Winvalid-offsetof]
+  244 |         { "GeometryIsSmall",                    GeometryInfo::parseGeometryIsSmall,                     NULL,           offsetof( ThingTemplate, m_geometryInfo ) },
+      |                                                                                                                         ^                        ~~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/Thing/ThingTemplate.cpp:245:61: warning: offset of on non-standard-layout type 'ThingTemplate' [-Winvalid-offsetof]
+  245 |         { "Shadow",                                                             INI::parseBitString8,           TheShadowNames,         offsetof( ThingTemplate, m_shadowType ) },
+      |                                                                                                                                         ^                        ~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/Thing/ThingTemplate.cpp:246:50: warning: offset of on non-standard-layout type 'ThingTemplate' [-Winvalid-offsetof]
+  246 |         { "ShadowSizeX",                                        INI::parseReal,                                         NULL,   offsetof( ThingTemplate, m_shadowSizeX ) },
+      |                                                                                                                                 ^                        ~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/Thing/ThingTemplate.cpp:247:50: warning: offset of on non-standard-layout type 'ThingTemplate' [-Winvalid-offsetof]
+  247 |         { "ShadowSizeY",                                        INI::parseReal,                                         NULL,   offsetof( ThingTemplate, m_shadowSizeY ) },
+      |                                                                                                                                 ^                        ~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/Thing/ThingTemplate.cpp:248:51: warning: offset of on non-standard-layout type 'ThingTemplate' [-Winvalid-offsetof]
+  248 |         { "ShadowOffsetX",                              INI::parseReal,                                         NULL,   offsetof( ThingTemplate, m_shadowOffsetX ) },
+      |                                                                                                                         ^                        ~~~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/Thing/ThingTemplate.cpp:249:51: warning: offset of on non-standard-layout type 'ThingTemplate' [-Winvalid-offsetof]
+  249 |         { "ShadowOffsetY",                              INI::parseReal,                                         NULL,   offsetof( ThingTemplate, m_shadowOffsetY ) },
+      |                                                                                                                         ^                        ~~~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/Thing/ThingTemplate.cpp:250:54: warning: offset of on non-standard-layout type 'ThingTemplate' [-Winvalid-offsetof]
+  250 |         { "ShadowTexture",                              INI::parseAsciiString,          NULL,   offsetof( ThingTemplate, m_shadowTextureName ) },
+      |                                                                                                 ^                        ~~~~~~~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/Thing/ThingTemplate.cpp:251:26: warning: offset of on non-standard-layout type 'ThingTemplate' [-Winvalid-offsetof]
+  251 |         { "OcclusionDelay",                                     SPEED_FIELD( ThingTemplate, m_occlusionDelay ) },
+      |                                                                 ^                           ~~~~~~~~~~~~~~~~
 /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameCommon.h:557:78: note: expanded from macro 'SPEED_FIELD'
   557 |         std::remove_reference< decltype( ((cls *)0)->member ) >::type::parse, NULL, offsetof( cls, member )
       |                                                                                     ^              ~~~~~~
 /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
    16 | #define offsetof(t, d) __builtin_offsetof(t, d)
       |                        ^                     ~
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/GlobalData.cpp:512:63: warning: offset of on non-standard-layout type 'GlobalData' [-Winvalid-offsetof]
-  512 |         { "SpecialPowerViewObject",                     INI::parseAsciiString,  NULL,                   offsetof( GlobalData, m_specialPowerViewObjectName ) },
-      |                                                                                                         ^                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/Thing/ThingTemplate.cpp:260:56: warning: offset of on non-standard-layout type 'ThingTemplate' [-Winvalid-offsetof]
+  260 |         { "InstanceScaleFuzziness",     INI::parseReal,                                 NULL, offsetof(ThingTemplate, m_instanceScaleFuzziness ) },
+      |                                                                                               ^                       ~~~~~~~~~~~~~~~~~~~~~~~~
 /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
    16 | #define offsetof(t, d) __builtin_offsetof(t, d)
       |                        ^                     ~
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/GlobalData.cpp:514:67: warning: offset of on non-standard-layout type 'GlobalData' [-Winvalid-offsetof]
-  514 |         { "StandardPublicBone", INI::parseAsciiStringVectorAppend, NULL, offsetof(GlobalData, m_standardPublicBones) },
-      |                                                                          ^                    ~~~~~~~~~~~~~~~~~~~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/Thing/ThingTemplate.cpp:261:63: warning: offset of on non-standard-layout type 'ThingTemplate' [-Winvalid-offsetof]
+  261 |         { "StructureRubbleHeight",      INI::parseUnsignedByte,                                 NULL, offsetof(ThingTemplate, m_structureRubbleHeight ) },
+      |                                                                                                       ^                       ~~~~~~~~~~~~~~~~~~~~~~~
 /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
    16 | #define offsetof(t, d) __builtin_offsetof(t, d)
       |                        ^                     ~
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/GlobalData.cpp:515:55: warning: offset of on non-standard-layout type 'GlobalData' [-Winvalid-offsetof]
-  515 |         { "ShowMetrics",                                                                INI::parseBool,                            NULL,                offsetof( GlobalData, m_showMetrics ) },
-      |                                                                                                                                                         ^                     ~~~~~~~~~~~~~
-/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
-   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
-      |                        ^                     ~
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/GlobalData.cpp:516:63: warning: offset of on non-standard-layout type 'GlobalData' [-Winvalid-offsetof]
-  516 |   { "DefaultStartingCash",                              Money::parseMoneyAmount, NULL,          offsetof( GlobalData, m_defaultStartingCash ) },
-      |                                                                                                 ^                     ~~~~~~~~~~~~~~~~~~~~~
-/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
-   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
-      |                        ^                     ~
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/GlobalData.cpp:517:58: warning: offset of on non-standard-layout type 'GlobalData' [-Winvalid-offsetof]
-  517 |         { "PeaceTimeBaseRadius",                                INI::parseReal, NULL,                                                   offsetof( GlobalData, m_peaceTimeBaseRadius ) },
-      |                                                                                                                                         ^                     ~~~~~~~~~~~~~~~~~~~~~
-/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
-   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
-      |                        ^                     ~
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/GlobalData.cpp:518:58: warning: offset of on non-standard-layout type 'GlobalData' [-Winvalid-offsetof]
-  518 |         { "PeaceTimeBaseDamage",                                INI::parseReal, NULL,                                                   offsetof( GlobalData, m_peaceTimeBaseDamage ) },
-      |                                                                                                                                         ^                     ~~~~~~~~~~~~~~~~~~~~~
-/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
-   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
-      |                        ^                     ~
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/GlobalData.cpp:523:51: warning: offset of on non-standard-layout type 'GlobalData' [-Winvalid-offsetof]
-  523 |         { "ShroudColor",                INI::parseRGBColor,                                             NULL,   offsetof( GlobalData, m_shroudColor) },
-      |                                                                                                                 ^                     ~~~~~~~~~~~~~
-/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
-   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
-      |                        ^                     ~
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/GlobalData.cpp:524:53: warning: offset of on non-standard-layout type 'GlobalData' [-Winvalid-offsetof]
-  524 |         { "ClearAlpha",                 INI::parseUnsignedByte,                         NULL,   offsetof( GlobalData, m_clearAlpha) },
-      |                                                                                                 ^                     ~~~~~~~~~~~~
-/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
-   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
-      |                        ^                     ~
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/GlobalData.cpp:525:52: warning: offset of on non-standard-layout type 'GlobalData' [-Winvalid-offsetof]
-  525 |         { "FogAlpha",                           INI::parseUnsignedByte,                         NULL,   offsetof( GlobalData, m_fogAlpha) },
-      |                                                                                                         ^                     ~~~~~~~~~~
-/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
-   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
-      |                        ^                     ~
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/GlobalData.cpp:526:53: warning: offset of on non-standard-layout type 'GlobalData' [-Winvalid-offsetof]
-  526 |         { "ShroudAlpha",                INI::parseUnsignedByte,                         NULL,   offsetof( GlobalData, m_shroudAlpha) },
-      |                                                                                                 ^                     ~~~~~~~~~~~~~
-/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
-   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
-      |                        ^                     ~
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/GlobalData.cpp:528:62: warning: offset of on non-standard-layout type 'GlobalData' [-Winvalid-offsetof]
-  528 |         { "HotKeyTextColor",                                                                            INI::parseColorInt,                                     NULL,   offsetof( GlobalData, m_hotKeyTextColor ) },
-      |                                                                                                                                                                         ^                     ~~~~~~~~~~~~~~~~~
-/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
-   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
-      |                        ^                     ~
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/GlobalData.cpp:530:58: warning: offset of on non-standard-layout type 'GlobalData' [-Winvalid-offsetof]
-  530 |         { "PowerBarBase",                                                                                               INI::parseInt,                                                  NULL,   offsetof( GlobalData, m_powerBarBase) },
-      |                                                                                                                                                                                                 ^                     ~~~~~~~~~~~~~~
-/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
-   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
-      |                        ^                     ~
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/GlobalData.cpp:531:61: warning: offset of on non-standard-layout type 'GlobalData' [-Winvalid-offsetof]
-  531 |         { "PowerBarIntervals",                                                                  INI::parseReal,                                                 NULL,   offsetof( GlobalData, m_powerBarIntervals) },
-      |                                                                                                                                                                         ^                     ~~~~~~~~~~~~~~~~~~~
-/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
-   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
-      |                        ^                     ~
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/GlobalData.cpp:532:61: warning: offset of on non-standard-layout type 'GlobalData' [-Winvalid-offsetof]
-  532 |         { "PowerBarYellowRange",                                                                INI::parseInt,                                                  NULL,   offsetof( GlobalData, m_powerBarYellowRange) },
-      |                                                                                                                                                                         ^                     ~~~~~~~~~~~~~~~~~~~~~
-/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
-   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
-      |                        ^                     ~
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/GlobalData.cpp:533:35: warning: offset of on non-standard-layout type 'GlobalData' [-Winvalid-offsetof]
-  533 |         { "UnlookPersistDuration",                                                      SPEED_FIELD( GlobalData, m_unlookPersistDuration ) },
-      |                                                                                         ^                        ~~~~~~~~~~~~~~~~~~~~~~~
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameCommon.h:557:78: note: expanded from macro 'SPEED_FIELD'
-  557 |         std::remove_reference< decltype( ((cls *)0)->member ) >::type::parse, NULL, offsetof( cls, member )
-      |                                                                                     ^              ~~~~~~
-/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
-   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
-      |                        ^                     ~
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/GlobalData.cpp:535:52: warning: offset of on non-standard-layout type 'GlobalData' [-Winvalid-offsetof]
-  535 |         { "NetworkFPSHistoryLength", INI::parseInt, NULL, offsetof(GlobalData, m_networkFPSHistoryLength) },
-      |                                                           ^                    ~~~~~~~~~~~~~~~~~~~~~~~~~
-/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
-   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
-      |                        ^                     ~
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/GlobalData.cpp:536:56: warning: offset of on non-standard-layout type 'GlobalData' [-Winvalid-offsetof]
-  536 |         { "NetworkLatencyHistoryLength", INI::parseInt, NULL, offsetof(GlobalData, m_networkLatencyHistoryLength) },
-      |                                                               ^                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
-   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
-      |                        ^                     ~
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/GlobalData.cpp:537:55: warning: offset of on non-standard-layout type 'GlobalData' [-Winvalid-offsetof]
-  537 |         { "NetworkRunAheadMetricsTime", INI::parseInt, NULL, offsetof(GlobalData, m_networkRunAheadMetricsTime) },
-      |                                                              ^                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
-   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
-      |                        ^                     ~
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/GlobalData.cpp:538:56: warning: offset of on non-standard-layout type 'GlobalData' [-Winvalid-offsetof]
-  538 |         { "NetworkCushionHistoryLength", INI::parseInt, NULL, offsetof(GlobalData, m_networkCushionHistoryLength) },
-      |                                                               ^                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
-   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
-      |                        ^                     ~
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/GlobalData.cpp:539:49: warning: offset of on non-standard-layout type 'GlobalData' [-Winvalid-offsetof]
-  539 |         { "NetworkRunAheadSlack", INI::parseInt, NULL, offsetof(GlobalData, m_networkRunAheadSlack) },
-      |                                                        ^                    ~~~~~~~~~~~~~~~~~~~~~~
-/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
-   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
-      |                        ^                     ~
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/GlobalData.cpp:540:50: warning: offset of on non-standard-layout type 'GlobalData' [-Winvalid-offsetof]
-  540 |         { "NetworkKeepAliveDelay", INI::parseInt, NULL, offsetof(GlobalData, m_networkKeepAliveDelay) },
-      |                                                         ^                    ~~~~~~~~~~~~~~~~~~~~~~~
-/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
-   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
-      |                        ^                     ~
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/GlobalData.cpp:541:50: warning: offset of on non-standard-layout type 'GlobalData' [-Winvalid-offsetof]
-  541 |         { "NetworkDisconnectTime", INI::parseInt, NULL, offsetof(GlobalData, m_networkDisconnectTime) },
-      |                                                         ^                    ~~~~~~~~~~~~~~~~~~~~~~~
-/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
-   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
-      |                        ^                     ~
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/GlobalData.cpp:542:53: warning: offset of on non-standard-layout type 'GlobalData' [-Winvalid-offsetof]
-  542 |         { "NetworkPlayerSilenceTime", INI::parseInt, NULL, offsetof(GlobalData, m_networkPlayerSilenceTime) },
-      |                                                            ^                    ~~~~~~~~~~~~~~~~~~~~~~~~~~
-/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
-   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
-      |                        ^                     ~
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/GlobalData.cpp:543:52: warning: offset of on non-standard-layout type 'GlobalData' [-Winvalid-offsetof]
-  543 |         { "NetworkStallCeilingTime", INI::parseInt, NULL, offsetof(GlobalData, m_networkStallCeilingTime) },
-      |                                                           ^                    ~~~~~~~~~~~~~~~~~~~~~~~~~
-/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
-   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
-      |                        ^                     ~
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/GlobalData.cpp:544:53: warning: offset of on non-standard-layout type 'GlobalData' [-Winvalid-offsetof]
-  544 |         { "NetworkPlayerTimeoutTime", INI::parseInt, NULL, offsetof(GlobalData, m_networkPlayerTimeoutTime) },
-      |                                                            ^                    ~~~~~~~~~~~~~~~~~~~~~~~~~~
-/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
-   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
-      |                        ^                     ~
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/GlobalData.cpp:545:56: warning: offset of on non-standard-layout type 'GlobalData' [-Winvalid-offsetof]
-  545 |         { "NetworkSilentPlayerDropTime", INI::parseInt, NULL, offsetof(GlobalData, m_networkSilentPlayerDropTime) },
-      |                                                               ^                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
-   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
-      |                        ^                     ~
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/GlobalData.cpp:546:62: warning: offset of on non-standard-layout type 'GlobalData' [-Winvalid-offsetof]
-  546 |         { "NetworkDisconnectScreenNotifyTime", INI::parseInt, NULL, offsetof(GlobalData, m_networkDisconnectScreenNotifyTime) },
-      |                                                                     ^                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
-   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
-      |                        ^                     ~
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/GlobalData.cpp:548:55: warning: offset of on non-standard-layout type 'GlobalData' [-Winvalid-offsetof]
-  548 |         { "KeyboardCameraRotateSpeed", INI::parseReal, NULL, offsetof( GlobalData, m_keyboardCameraRotateSpeed ) },
-      |                                                              ^                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~
-/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
-   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
-      |                        ^                     ~
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/GlobalData.cpp:549:51: warning: offset of on non-standard-layout type 'GlobalData' [-Winvalid-offsetof]
-  549 |         { "PlayStats",                                                                  INI::parseInt,                          NULL,                   offsetof( GlobalData, m_playStats ) },
-      |                                                                                                                                                         ^                     ~~~~~~~~~~~
-/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
-   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
-      |                        ^                     ~
-384 warnings generated.
-[768/1675] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/INI/INI.cpp.o
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/INI/INI.cpp:33:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Precompiled/PreRTS.h:139:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/STLTypedefs.h:62:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:767:7: warning: 'this' pointer cannot be null in well-defined C++ code; pointer may be assumed to always convert to true [-Wundefined-bool-conversion]
-  767 |                 if (this)
-      |                 ~~  ^~~~
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/INI/INI.cpp:40:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/DamageFX.h:39:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:123:10: warning: 35 enumeration values not handled in switch: 'DAMAGE_EXPLOSION', 'DAMAGE_CRUSH', 'DAMAGE_ARMOR_PIERCING'... [-Wswitch]
-  123 |         switch( type )
-      |                 ^~~~
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:123:10: note: add missing switch cases
-  123 |         switch( type )
-      |                 ^
-  124 |         {
-  125 |                 case DAMAGE_SUBDUAL_MISSILE:
-  126 |                 case DAMAGE_SUBDUAL_VEHICLE:
-  127 |                 case DAMAGE_SUBDUAL_BUILDING:
-  128 |                 case DAMAGE_SUBDUAL_UNRESISTABLE:
-  129 |                         return TRUE;
-  130 |         }
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:140:10: warning: 32 enumeration values not handled in switch: 'DAMAGE_EXPLOSION', 'DAMAGE_CRUSH', 'DAMAGE_ARMOR_PIERCING'... [-Wswitch]
-  140 |         switch( type )
-      |                 ^~~~
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:140:10: note: add missing switch cases
-  140 |         switch( type )
-      |                 ^
-  141 |         {
-  142 |                 case DAMAGE_STATUS:
-  143 |                 case DAMAGE_SUBDUAL_MISSILE:
-  144 |                 case DAMAGE_SUBDUAL_VEHICLE:
-  145 |                 case DAMAGE_SUBDUAL_BUILDING:
-  146 |                 case DAMAGE_SUBDUAL_UNRESISTABLE:
-  147 |                 case DAMAGE_KILLPILOT:
-  148 |                 case DAMAGE_KILL_GARRISONED:
-  149 |                         return FALSE;
-  150 |         }
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/INI/INI.cpp:48:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/ThingFactory.h:43:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Object.h:50:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/WeaponSet.h:246:160: warning: implicit conversion of NULL constant to 'UnsignedInt' (aka 'unsigned int') [-Wnull-conversion]
-  246 |         inline UnsignedInt getNthCommandSourceMask( WeaponSlotType n ) const { return m_curWeaponTemplateSet ? m_curWeaponTemplateSet->getNthCommandSourceMask( n ) : NULL; }
-      |                                                                                ~~~~~~                                                                                 ^~~~
-      |                                                                                                                                                                       0
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/INI/INI.cpp:33:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Precompiled/PreRTS.h:153:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/KindOf.h:39:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BitFlags.h:280:12: warning: instantiation of variable 'BitFlags<38, 8>::s_bitNameList' required here, but no definition is available [-Wundefined-var-template]
-  280 |     return s_bitNameList;
-      |            ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/INI/INI.cpp:2037:72: note: in instantiation of member function 'BitFlags<38, 8>::getBitNames' requested here
- 2037 |                         DamageType dt = (DamageType)scanIndexList(token+1, DamageTypeFlags::getBitNames());
-      |                                                                                             ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BitFlags.h:70:25: note: forward declaration of template entity is here
-   70 |         static const char*                                      s_bitNameList[];
-      |                                                                 ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BitFlags.h:280:12: note: add an explicit instantiation declaration to suppress this warning if 'BitFlags<38, 8>::s_bitNameList' is explicitly instantiated in another translation unit
-  280 |     return s_bitNameList;
-      |            ^
-5 warnings generated.
-[769/1675] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/INI/INIAiData.cpp.o
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/INI/INIAiData.cpp:31:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Precompiled/PreRTS.h:139:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/STLTypedefs.h:62:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:767:7: warning: 'this' pointer cannot be null in well-defined C++ code; pointer may be assumed to always convert to true [-Wundefined-bool-conversion]
-  767 |                 if (this)
-      |                 ~~  ^~~~
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/INI/INIAiData.cpp:34:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/AI.h:41:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:123:10: warning: 35 enumeration values not handled in switch: 'DAMAGE_EXPLOSION', 'DAMAGE_CRUSH', 'DAMAGE_ARMOR_PIERCING'... [-Wswitch]
-  123 |         switch( type )
-      |                 ^~~~
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:123:10: note: add missing switch cases
-  123 |         switch( type )
-      |                 ^
-  124 |         {
-  125 |                 case DAMAGE_SUBDUAL_MISSILE:
-  126 |                 case DAMAGE_SUBDUAL_VEHICLE:
-  127 |                 case DAMAGE_SUBDUAL_BUILDING:
-  128 |                 case DAMAGE_SUBDUAL_UNRESISTABLE:
-  129 |                         return TRUE;
-  130 |         }
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:140:10: warning: 32 enumeration values not handled in switch: 'DAMAGE_EXPLOSION', 'DAMAGE_CRUSH', 'DAMAGE_ARMOR_PIERCING'... [-Wswitch]
-  140 |         switch( type )
-      |                 ^~~~
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:140:10: note: add missing switch cases
-  140 |         switch( type )
-      |                 ^
-  141 |         {
-  142 |                 case DAMAGE_STATUS:
-  143 |                 case DAMAGE_SUBDUAL_MISSILE:
-  144 |                 case DAMAGE_SUBDUAL_VEHICLE:
-  145 |                 case DAMAGE_SUBDUAL_BUILDING:
-  146 |                 case DAMAGE_SUBDUAL_UNRESISTABLE:
-  147 |                 case DAMAGE_KILLPILOT:
-  148 |                 case DAMAGE_KILL_GARRISONED:
-  149 |                         return FALSE;
-  150 |         }
-3 warnings generated.
-[770/1675] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/INI/INIAnimation.cpp.o
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/INI/INIAnimation.cpp:31:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Precompiled/PreRTS.h:139:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/STLTypedefs.h:62:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:767:7: warning: 'this' pointer cannot be null in well-defined C++ code; pointer may be assumed to always convert to true [-Wundefined-bool-conversion]
-  767 |                 if (this)
-      |                 ~~  ^~~~
-1 warning generated.
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforge
