@@ -1,242 +1,37 @@
-   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
-      |                        ^                     ~
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Update/BoneFXUpdate.cpp:47:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/BoneFXUpdate.h:180:88: warning: offset of on non-standard-layout type 'BoneFXUpdateModuleData' [-Winvalid-offsetof]
-  180 |                         { "PristineParticleSystem2",                    BoneFXUpdateModuleData::parseParticleSystem,                    NULL, offsetof( BoneFXUpdateModuleData, m_particleSystem[ BODY_PRISTINE ][ 1 ] ) },
-      |                                                                                                                                               ^                                 ~~~~~~~~~~~~~~~~
+      |                                                                                                                                                       ^                                  ~~~~~~~~~~~~~~
 /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
    16 | #define offsetof(t, d) __builtin_offsetof(t, d)
       |                        ^                     ~
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Update/BoneFXUpdate.cpp:47:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/BoneFXUpdate.h:181:88: warning: offset of on non-standard-layout type 'BoneFXUpdateModuleData' [-Winvalid-offsetof]
-  181 |                         { "PristineParticleSystem3",                    BoneFXUpdateModuleData::parseParticleSystem,                    NULL, offsetof( BoneFXUpdateModuleData, m_particleSystem[ BODY_PRISTINE ][ 2 ] ) },
-      |                                                                                                                                               ^                                 ~~~~~~~~~~~~~~~~
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Upgrade/StealthUpgrade.cpp:35:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/SpawnBehavior.h:102:62: warning: offset of on non-standard-layout type 'SpawnBehaviorModuleData' [-Winvalid-offsetof]
+  102 |                         { "SlavesHaveFreeWill",                         INI::parseBool,                                                                         NULL, offsetof( SpawnBehaviorModuleData, m_slavesHaveFreeWill ) },
+      |                                                                                                                                                                       ^                                  ~~~~~~~~~~~~~~~~~~~~
 /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
    16 | #define offsetof(t, d) __builtin_offsetof(t, d)
       |                        ^                     ~
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Update/BoneFXUpdate.cpp:47:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/BoneFXUpdate.h:182:88: warning: offset of on non-standard-layout type 'BoneFXUpdateModuleData' [-Winvalid-offsetof]
-  182 |                         { "PristineParticleSystem4",                    BoneFXUpdateModuleData::parseParticleSystem,                    NULL, offsetof( BoneFXUpdateModuleData, m_particleSystem[ BODY_PRISTINE ][ 3 ] ) },
-      |                                                                                                                                               ^                                 ~~~~~~~~~~~~~~~~
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Upgrade/StealthUpgrade.cpp:35:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/SpawnBehavior.h:107:38: warning: offset of on non-standard-layout type 'SpawnBehaviorModuleData' [-Winvalid-offsetof]
+  107 |                 p.add(DieMuxData::getFieldParse(), offsetof( SpawnBehaviorModuleData, m_dieMuxData ));
+      |                                                    ^                                  ~~~~~~~~~~~~
 /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
    16 | #define offsetof(t, d) __builtin_offsetof(t, d)
       |                        ^                     ~
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Update/BoneFXUpdate.cpp:47:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/BoneFXUpdate.h:183:88: warning: offset of on non-standard-layout type 'BoneFXUpdateModuleData' [-Winvalid-offsetof]
-  183 |                         { "PristineParticleSystem5",                    BoneFXUpdateModuleData::parseParticleSystem,                    NULL, offsetof( BoneFXUpdateModuleData, m_particleSystem[ BODY_PRISTINE ][ 4 ] ) },
-      |                                                                                                                                               ^                                 ~~~~~~~~~~~~~~~~
-/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
-   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
-      |                        ^                     ~
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Update/BoneFXUpdate.cpp:47:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/BoneFXUpdate.h:184:88: warning: offset of on non-standard-layout type 'BoneFXUpdateModuleData' [-Winvalid-offsetof]
-  184 |                         { "PristineParticleSystem6",                    BoneFXUpdateModuleData::parseParticleSystem,                    NULL, offsetof( BoneFXUpdateModuleData, m_particleSystem[ BODY_PRISTINE ][ 5 ] ) },
-      |                                                                                                                                               ^                                 ~~~~~~~~~~~~~~~~
-/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
-   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
-      |                        ^                     ~
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Update/BoneFXUpdate.cpp:47:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/BoneFXUpdate.h:185:88: warning: offset of on non-standard-layout type 'BoneFXUpdateModuleData' [-Winvalid-offsetof]
-  185 |                         { "PristineParticleSystem7",                    BoneFXUpdateModuleData::parseParticleSystem,                    NULL, offsetof( BoneFXUpdateModuleData, m_particleSystem[ BODY_PRISTINE ][ 6 ] ) },
-      |                                                                                                                                               ^                                 ~~~~~~~~~~~~~~~~
-/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
-   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
-      |                        ^                     ~
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Update/BoneFXUpdate.cpp:47:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/BoneFXUpdate.h:186:88: warning: offset of on non-standard-layout type 'BoneFXUpdateModuleData' [-Winvalid-offsetof]
-  186 |                         { "PristineParticleSystem8",                    BoneFXUpdateModuleData::parseParticleSystem,                    NULL, offsetof( BoneFXUpdateModuleData, m_particleSystem[ BODY_PRISTINE ][ 7 ] ) },
-      |                                                                                                                                               ^                                 ~~~~~~~~~~~~~~~~
-/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
-   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
-      |                        ^                     ~
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Update/BoneFXUpdate.cpp:47:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/BoneFXUpdate.h:187:88: warning: offset of on non-standard-layout type 'BoneFXUpdateModuleData' [-Winvalid-offsetof]
-  187 |                         { "DamagedParticleSystem1",                             BoneFXUpdateModuleData::parseParticleSystem,                    NULL, offsetof( BoneFXUpdateModuleData, m_particleSystem[ BODY_DAMAGED ][ 0 ] ) },
-      |                                                                                                                                                       ^                                 ~~~~~~~~~~~~~~~~
-/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
-   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
-      |                        ^                     ~
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Update/BoneFXUpdate.cpp:47:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/BoneFXUpdate.h:188:88: warning: offset of on non-standard-layout type 'BoneFXUpdateModuleData' [-Winvalid-offsetof]
-  188 |                         { "DamagedParticleSystem2",                             BoneFXUpdateModuleData::parseParticleSystem,                    NULL, offsetof( BoneFXUpdateModuleData, m_particleSystem[ BODY_DAMAGED ][ 1 ] ) },
-      |                                                                                                                                                       ^                                 ~~~~~~~~~~~~~~~~
-/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
-   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
-      |                        ^                     ~
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Update/BoneFXUpdate.cpp:47:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/BoneFXUpdate.h:189:88: warning: offset of on non-standard-layout type 'BoneFXUpdateModuleData' [-Winvalid-offsetof]
-  189 |                         { "DamagedParticleSystem3",                             BoneFXUpdateModuleData::parseParticleSystem,                    NULL, offsetof( BoneFXUpdateModuleData, m_particleSystem[ BODY_DAMAGED ][ 2 ] ) },
-      |                                                                                                                                                       ^                                 ~~~~~~~~~~~~~~~~
-/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
-   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
-      |                        ^                     ~
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Update/BoneFXUpdate.cpp:47:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/BoneFXUpdate.h:190:88: warning: offset of on non-standard-layout type 'BoneFXUpdateModuleData' [-Winvalid-offsetof]
-  190 |                         { "DamagedParticleSystem4",                             BoneFXUpdateModuleData::parseParticleSystem,                    NULL, offsetof( BoneFXUpdateModuleData, m_particleSystem[ BODY_DAMAGED ][ 3 ] ) },
-      |                                                                                                                                                       ^                                 ~~~~~~~~~~~~~~~~
-/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
-   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
-      |                        ^                     ~
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Update/BoneFXUpdate.cpp:47:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/BoneFXUpdate.h:191:88: warning: offset of on non-standard-layout type 'BoneFXUpdateModuleData' [-Winvalid-offsetof]
-  191 |                         { "DamagedParticleSystem5",                             BoneFXUpdateModuleData::parseParticleSystem,                    NULL, offsetof( BoneFXUpdateModuleData, m_particleSystem[ BODY_DAMAGED ][ 4 ] ) },
-      |                                                                                                                                                       ^                                 ~~~~~~~~~~~~~~~~
-/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
-   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
-      |                        ^                     ~
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Update/BoneFXUpdate.cpp:47:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/BoneFXUpdate.h:192:88: warning: offset of on non-standard-layout type 'BoneFXUpdateModuleData' [-Winvalid-offsetof]
-  192 |                         { "DamagedParticleSystem6",                             BoneFXUpdateModuleData::parseParticleSystem,                    NULL, offsetof( BoneFXUpdateModuleData, m_particleSystem[ BODY_DAMAGED ][ 5 ] ) },
-      |                                                                                                                                                       ^                                 ~~~~~~~~~~~~~~~~
-/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
-   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
-      |                        ^                     ~
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Update/BoneFXUpdate.cpp:47:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/BoneFXUpdate.h:193:88: warning: offset of on non-standard-layout type 'BoneFXUpdateModuleData' [-Winvalid-offsetof]
-  193 |                         { "DamagedParticleSystem7",                             BoneFXUpdateModuleData::parseParticleSystem,                    NULL, offsetof( BoneFXUpdateModuleData, m_particleSystem[ BODY_DAMAGED ][ 6 ] ) },
-      |                                                                                                                                                       ^                                 ~~~~~~~~~~~~~~~~
-/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
-   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
-      |                        ^                     ~
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Update/BoneFXUpdate.cpp:47:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/BoneFXUpdate.h:194:88: warning: offset of on non-standard-layout type 'BoneFXUpdateModuleData' [-Winvalid-offsetof]
-  194 |                         { "DamagedParticleSystem8",                             BoneFXUpdateModuleData::parseParticleSystem,                    NULL, offsetof( BoneFXUpdateModuleData, m_particleSystem[ BODY_DAMAGED ][ 7 ] ) },
-      |                                                                                                                                                       ^                                 ~~~~~~~~~~~~~~~~
-/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
-   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
-      |                        ^                     ~
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Update/BoneFXUpdate.cpp:47:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/BoneFXUpdate.h:195:91: warning: offset of on non-standard-layout type 'BoneFXUpdateModuleData' [-Winvalid-offsetof]
-  195 |                         { "ReallyDamagedParticleSystem1",       BoneFXUpdateModuleData::parseParticleSystem,                    NULL, offsetof( BoneFXUpdateModuleData, m_particleSystem[ BODY_REALLYDAMAGED ][ 0 ] ) },
-      |                                                                                                                                       ^                                 ~~~~~~~~~~~~~~~~
-/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
-   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
-      |                        ^                     ~
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Update/BoneFXUpdate.cpp:47:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/BoneFXUpdate.h:196:91: warning: offset of on non-standard-layout type 'BoneFXUpdateModuleData' [-Winvalid-offsetof]
-  196 |                         { "ReallyDamagedParticleSystem2",       BoneFXUpdateModuleData::parseParticleSystem,                    NULL, offsetof( BoneFXUpdateModuleData, m_particleSystem[ BODY_REALLYDAMAGED ][ 1 ] ) },
-      |                                                                                                                                       ^                                 ~~~~~~~~~~~~~~~~
-/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
-   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
-      |                        ^                     ~
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Update/BoneFXUpdate.cpp:47:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/BoneFXUpdate.h:197:91: warning: offset of on non-standard-layout type 'BoneFXUpdateModuleData' [-Winvalid-offsetof]
-  197 |                         { "ReallyDamagedParticleSystem3",       BoneFXUpdateModuleData::parseParticleSystem,                    NULL, offsetof( BoneFXUpdateModuleData, m_particleSystem[ BODY_REALLYDAMAGED ][ 2 ] ) },
-      |                                                                                                                                       ^                                 ~~~~~~~~~~~~~~~~
-/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
-   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
-      |                        ^                     ~
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Update/BoneFXUpdate.cpp:47:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/BoneFXUpdate.h:198:91: warning: offset of on non-standard-layout type 'BoneFXUpdateModuleData' [-Winvalid-offsetof]
-  198 |                         { "ReallyDamagedParticleSystem4",       BoneFXUpdateModuleData::parseParticleSystem,                    NULL, offsetof( BoneFXUpdateModuleData, m_particleSystem[ BODY_REALLYDAMAGED ][ 3 ] ) },
-      |                                                                                                                                       ^                                 ~~~~~~~~~~~~~~~~
-/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
-   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
-      |                        ^                     ~
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Update/BoneFXUpdate.cpp:47:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/BoneFXUpdate.h:199:91: warning: offset of on non-standard-layout type 'BoneFXUpdateModuleData' [-Winvalid-offsetof]
-  199 |                         { "ReallyDamagedParticleSystem5",       BoneFXUpdateModuleData::parseParticleSystem,                    NULL, offsetof( BoneFXUpdateModuleData, m_particleSystem[ BODY_REALLYDAMAGED ][ 4 ] ) },
-      |                                                                                                                                       ^                                 ~~~~~~~~~~~~~~~~
-/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
-   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
-      |                        ^                     ~
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Update/BoneFXUpdate.cpp:47:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/BoneFXUpdate.h:200:91: warning: offset of on non-standard-layout type 'BoneFXUpdateModuleData' [-Winvalid-offsetof]
-  200 |                         { "ReallyDamagedParticleSystem6",       BoneFXUpdateModuleData::parseParticleSystem,                    NULL, offsetof( BoneFXUpdateModuleData, m_particleSystem[ BODY_REALLYDAMAGED ][ 5 ] ) },
-      |                                                                                                                                       ^                                 ~~~~~~~~~~~~~~~~
-/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
-   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
-      |                        ^                     ~
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Update/BoneFXUpdate.cpp:47:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/BoneFXUpdate.h:201:91: warning: offset of on non-standard-layout type 'BoneFXUpdateModuleData' [-Winvalid-offsetof]
-  201 |                         { "ReallyDamagedParticleSystem7",       BoneFXUpdateModuleData::parseParticleSystem,                    NULL, offsetof( BoneFXUpdateModuleData, m_particleSystem[ BODY_REALLYDAMAGED ][ 6 ] ) },
-      |                                                                                                                                       ^                                 ~~~~~~~~~~~~~~~~
-/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
-   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
-      |                        ^                     ~
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Update/BoneFXUpdate.cpp:47:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/BoneFXUpdate.h:202:91: warning: offset of on non-standard-layout type 'BoneFXUpdateModuleData' [-Winvalid-offsetof]
-  202 |                         { "ReallyDamagedParticleSystem8",       BoneFXUpdateModuleData::parseParticleSystem,                    NULL, offsetof( BoneFXUpdateModuleData, m_particleSystem[ BODY_REALLYDAMAGED ][ 7 ] ) },
-      |                                                                                                                                       ^                                 ~~~~~~~~~~~~~~~~
-/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
-   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
-      |                        ^                     ~
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Update/BoneFXUpdate.cpp:47:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/BoneFXUpdate.h:203:87: warning: offset of on non-standard-layout type 'BoneFXUpdateModuleData' [-Winvalid-offsetof]
-  203 |                         { "RubbleParticleSystem1",                              BoneFXUpdateModuleData::parseParticleSystem,                    NULL, offsetof( BoneFXUpdateModuleData, m_particleSystem[ BODY_RUBBLE ][ 0 ] ) },
-      |                                                                                                                                                       ^                                 ~~~~~~~~~~~~~~~~
-/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
-   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
-      |                        ^                     ~
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Update/BoneFXUpdate.cpp:47:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/BoneFXUpdate.h:204:87: warning: offset of on non-standard-layout type 'BoneFXUpdateModuleData' [-Winvalid-offsetof]
-  204 |                         { "RubbleParticleSystem2",                              BoneFXUpdateModuleData::parseParticleSystem,                    NULL, offsetof( BoneFXUpdateModuleData, m_particleSystem[ BODY_RUBBLE ][ 1 ] ) },
-      |                                                                                                                                                       ^                                 ~~~~~~~~~~~~~~~~
-/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
-   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
-      |                        ^                     ~
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Update/BoneFXUpdate.cpp:47:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/BoneFXUpdate.h:205:87: warning: offset of on non-standard-layout type 'BoneFXUpdateModuleData' [-Winvalid-offsetof]
-  205 |                         { "RubbleParticleSystem3",                              BoneFXUpdateModuleData::parseParticleSystem,                    NULL, offsetof( BoneFXUpdateModuleData, m_particleSystem[ BODY_RUBBLE ][ 2 ] ) },
-      |                                                                                                                                                       ^                                 ~~~~~~~~~~~~~~~~
-/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
-   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
-      |                        ^                     ~
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Update/BoneFXUpdate.cpp:47:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/BoneFXUpdate.h:206:87: warning: offset of on non-standard-layout type 'BoneFXUpdateModuleData' [-Winvalid-offsetof]
-  206 |                         { "RubbleParticleSystem4",                              BoneFXUpdateModuleData::parseParticleSystem,                    NULL, offsetof( BoneFXUpdateModuleData, m_particleSystem[ BODY_RUBBLE ][ 3 ] ) },
-      |                                                                                                                                                       ^                                 ~~~~~~~~~~~~~~~~
-/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
-   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
-      |                        ^                     ~
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Update/BoneFXUpdate.cpp:47:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/BoneFXUpdate.h:207:87: warning: offset of on non-standard-layout type 'BoneFXUpdateModuleData' [-Winvalid-offsetof]
-  207 |                         { "RubbleParticleSystem5",                              BoneFXUpdateModuleData::parseParticleSystem,                    NULL, offsetof( BoneFXUpdateModuleData, m_particleSystem[ BODY_RUBBLE ][ 4 ] ) },
-      |                                                                                                                                                       ^                                 ~~~~~~~~~~~~~~~~
-/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
-   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
-      |                        ^                     ~
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Update/BoneFXUpdate.cpp:47:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/BoneFXUpdate.h:208:87: warning: offset of on non-standard-layout type 'BoneFXUpdateModuleData' [-Winvalid-offsetof]
-  208 |                         { "RubbleParticleSystem6",                              BoneFXUpdateModuleData::parseParticleSystem,                    NULL, offsetof( BoneFXUpdateModuleData, m_particleSystem[ BODY_RUBBLE ][ 5 ] ) },
-      |                                                                                                                                                       ^                                 ~~~~~~~~~~~~~~~~
-/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
-   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
-      |                        ^                     ~
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Update/BoneFXUpdate.cpp:47:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/BoneFXUpdate.h:209:87: warning: offset of on non-standard-layout type 'BoneFXUpdateModuleData' [-Winvalid-offsetof]
-  209 |                         { "RubbleParticleSystem7",                              BoneFXUpdateModuleData::parseParticleSystem,                    NULL, offsetof( BoneFXUpdateModuleData, m_particleSystem[ BODY_RUBBLE ][ 6 ] ) },
-      |                                                                                                                                                       ^                                 ~~~~~~~~~~~~~~~~
-/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
-   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
-      |                        ^                     ~
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Update/BoneFXUpdate.cpp:47:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/BoneFXUpdate.h:210:87: warning: offset of on non-standard-layout type 'BoneFXUpdateModuleData' [-Winvalid-offsetof]
-  210 |                         { "RubbleParticleSystem8",                              BoneFXUpdateModuleData::parseParticleSystem,                    NULL, offsetof( BoneFXUpdateModuleData, m_particleSystem[ BODY_RUBBLE ][ 7 ] ) },
-      |                                                                                                                                                       ^                                 ~~~~~~~~~~~~~~~~
-/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
-   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
-      |                        ^                     ~
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Update/BoneFXUpdate.cpp:373:10: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
-  373 |                         idx = GameLogicRandomValue(0, range-1);
-      |                               ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/LogicRandomValue.h:55:73: note: expanded from macro 'GameLogicRandomValue'
-   55 | #define GameLogicRandomValue( lo, hi ) GetGameLogicRandomValue( lo, hi, __FILE__, __LINE__ )
-      |                                                                         ^
-<scratch space>:133:1: note: expanded from here
-  133 | "/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Update/BoneFXUpdate.cpp"
-      | ^
-105 warnings generated.
-[1232/1675] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Update/CheckpointUpdate.cpp.o
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Update/CheckpointUpdate.cpp:31:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Upgrade/StealthUpgrade.cpp:36:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Object.h:50:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/WeaponSet.h:246:160: warning: implicit conversion of NULL constant to 'UnsignedInt' (aka 'unsigned int') [-Wnull-conversion]
+  246 |         inline UnsignedInt getNthCommandSourceMask( WeaponSlotType n ) const { return m_curWeaponTemplateSet ? m_curWeaponTemplateSet->getNthCommandSourceMask( n ) : NULL; }
+      |                                                                                ~~~~~~                                                                                 ^~~~
+      |                                                                                                                                                                       0
+18 warnings generated.
+[1315/1675] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Upgrade/UnpauseSpecialPowerUpgrade.cpp.o
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Upgrade/UnpauseSpecialPowerUpgrade.cpp:33:
 In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Precompiled/PreRTS.h:139:
 In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/STLTypedefs.h:62:
 /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:767:7: warning: 'this' pointer cannot be null in well-defined C++ code; pointer may be assumed to always convert to true [-Wundefined-bool-conversion]
   767 |                 if (this)
       |                 ~~  ^~~~
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Update/CheckpointUpdate.cpp:34:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/ThingTemplate.h:52:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/WeaponSet.h:40:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Upgrade/UnpauseSpecialPowerUpgrade.cpp:36:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Object.h:48:
 /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:123:10: warning: 35 enumeration values not handled in switch: 'DAMAGE_EXPLOSION', 'DAMAGE_CRUSH', 'DAMAGE_ARMOR_PIERCING'... [-Wswitch]
   123 |         switch( type )
       |                 ^~~~
@@ -266,35 +61,240 @@ In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Re
   148 |                 case DAMAGE_KILL_GARRISONED:
   149 |                         return FALSE;
   150 |         }
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Update/CheckpointUpdate.cpp:34:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/ThingTemplate.h:52:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Upgrade/UnpauseSpecialPowerUpgrade.cpp:36:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Object.h:50:
 /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/WeaponSet.h:246:160: warning: implicit conversion of NULL constant to 'UnsignedInt' (aka 'unsigned int') [-Wnull-conversion]
   246 |         inline UnsignedInt getNthCommandSourceMask( WeaponSlotType n ) const { return m_curWeaponTemplateSet ? m_curWeaponTemplateSet->getNthCommandSourceMask( n ) : NULL; }
       |                                                                                ~~~~~~                                                                                 ^~~~
       |                                                                                                                                                                       0
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Update/CheckpointUpdate.cpp:36:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/CheckpointUpdate.h:60:24: warning: offset of on non-standard-layout type 'CheckpointUpdateModuleData' [-Winvalid-offsetof]
-   60 |                         { "ScanDelayTime",              SPEED_FIELD( CheckpointUpdateModuleData, m_enemyScanDelayTime ) },
-      |                                                         ^                                        ~~~~~~~~~~~~~~~~~~~~
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameCommon.h:557:78: note: expanded from macro 'SPEED_FIELD'
-  557 |         std::remove_reference< decltype( ((cls *)0)->member ) >::type::parse, NULL, offsetof( cls, member )
-      |                                                                                     ^              ~~~~~~
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Upgrade/UnpauseSpecialPowerUpgrade.cpp:38:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/UnpauseSpecialPowerUpgrade.h:38:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/UpgradeModule.h:168:42: warning: offset of on non-standard-layout type 'UpgradeModuleData' [-Winvalid-offsetof]
+  168 |                 p.add(UpgradeMuxData::getFieldParse(), offsetof( UpgradeModuleData, m_upgradeMuxData ));
+      |                                                        ^                            ~~~~~~~~~~~~~~~~
 /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
    16 | #define offsetof(t, d) __builtin_offsetof(t, d)
       |                        ^                     ~
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Update/CheckpointUpdate.cpp:40:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/AIUpdate.h:38:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/AIStateMachine.h:40:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/StateMachine.h:357:7: warning: 'this' pointer cannot be null in well-defined C++ code; pointer may be assumed to always convert to true [-Wundefined-bool-conversion]
-  357 |                 if (this)
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Upgrade/UnpauseSpecialPowerUpgrade.cpp:55:67: warning: offset of on non-standard-layout type 'UnpauseSpecialPowerUpgradeModuleData' [-Winvalid-offsetof]
+   55 |                 { "SpecialPowerTemplate", INI::parseSpecialPowerTemplate, NULL, offsetof( UnpauseSpecialPowerUpgradeModuleData, m_specialPower ) },
+      |                                                                                 ^                                               ~~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+6 warnings generated.
+[1316/1675] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Upgrade/SubObjectsUpgrade.cpp.o
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Upgrade/SubObjectsUpgrade.cpp:47:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Precompiled/PreRTS.h:139:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/STLTypedefs.h:62:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:767:7: warning: 'this' pointer cannot be null in well-defined C++ code; pointer may be assumed to always convert to true [-Wundefined-bool-conversion]
+  767 |                 if (this)
       |                 ~~  ^~~~
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Update/CheckpointUpdate.cpp:55:22: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
-   55 |         m_enemyScanDelay += GameLogicRandomValue(0, getCheckpointUpdateModuleData()->m_enemyScanDelayTime);
-      |                             ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/LogicRandomValue.h:55:73: note: expanded from macro 'GameLogicRandomValue'
-   55 | #define GameLogicRandomValue( lo, hi ) GetGameLogicRandomValue( lo, hi, __FILE__, __LINE__ )
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Upgrade/SubObjectsUpgrade.cpp:50:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Player.h:62:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/AI.h:41:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:123:10: warning: 35 enumeration values not handled in switch: 'DAMAGE_EXPLOSION', 'DAMAGE_CRUSH', 'DAMAGE_ARMOR_PIERCING'... [-Wswitch]
+  123 |         switch( type )
+      |                 ^~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:123:10: note: add missing switch cases
+  123 |         switch( type )
+      |                 ^
+  124 |         {
+  125 |                 case DAMAGE_SUBDUAL_MISSILE:
+  126 |                 case DAMAGE_SUBDUAL_VEHICLE:
+  127 |                 case DAMAGE_SUBDUAL_BUILDING:
+  128 |                 case DAMAGE_SUBDUAL_UNRESISTABLE:
+  129 |                         return TRUE;
+  130 |         }
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:140:10: warning: 32 enumeration values not handled in switch: 'DAMAGE_EXPLOSION', 'DAMAGE_CRUSH', 'DAMAGE_ARMOR_PIERCING'... [-Wswitch]
+  140 |         switch( type )
+      |                 ^~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:140:10: note: add missing switch cases
+  140 |         switch( type )
+      |                 ^
+  141 |         {
+  142 |                 case DAMAGE_STATUS:
+  143 |                 case DAMAGE_SUBDUAL_MISSILE:
+  144 |                 case DAMAGE_SUBDUAL_VEHICLE:
+  145 |                 case DAMAGE_SUBDUAL_BUILDING:
+  146 |                 case DAMAGE_SUBDUAL_UNRESISTABLE:
+  147 |                 case DAMAGE_KILLPILOT:
+  148 |                 case DAMAGE_KILL_GARRISONED:
+  149 |                         return FALSE;
+  150 |         }
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Upgrade/SubObjectsUpgrade.cpp:50:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Player.h:69:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Team.h:38:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Object.h:50:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/WeaponSet.h:246:160: warning: implicit conversion of NULL constant to 'UnsignedInt' (aka 'unsigned int') [-Wnull-conversion]
+  246 |         inline UnsignedInt getNthCommandSourceMask( WeaponSlotType n ) const { return m_curWeaponTemplateSet ? m_curWeaponTemplateSet->getNthCommandSourceMask( n ) : NULL; }
+      |                                                                                ~~~~~~                                                                                 ^~~~
+      |                                                                                                                                                                       0
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Upgrade/SubObjectsUpgrade.cpp:54:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/SubObjectsUpgrade.h:55:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/UpgradeModule.h:168:42: warning: offset of on non-standard-layout type 'UpgradeModuleData' [-Winvalid-offsetof]
+  168 |                 p.add(UpgradeMuxData::getFieldParse(), offsetof( UpgradeModuleData, m_upgradeMuxData ));
+      |                                                        ^                            ~~~~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Upgrade/SubObjectsUpgrade.cpp:64:64: warning: offset of on non-standard-layout type 'SubObjectsUpgradeModuleData' [-Winvalid-offsetof]
+   64 |                 { "ShowSubObjects", INI::parseAsciiStringVectorAppend, NULL, offsetof( SubObjectsUpgradeModuleData, m_showSubObjectNames ) },
+      |                                                                              ^                                      ~~~~~~~~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Upgrade/SubObjectsUpgrade.cpp:65:64: warning: offset of on non-standard-layout type 'SubObjectsUpgradeModuleData' [-Winvalid-offsetof]
+   65 |                 { "HideSubObjects", INI::parseAsciiStringVectorAppend, NULL, offsetof( SubObjectsUpgradeModuleData, m_hideSubObjectNames ) },
+      |                                                                              ^                                      ~~~~~~~~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Upgrade/SubObjectsUpgrade.cpp:66:43: warning: offset of on non-standard-layout type 'SubObjectsUpgradeModuleData' [-Winvalid-offsetof]
+   66 |                 { "FollowsOwner", INI::parseBool, NULL, offsetof( SubObjectsUpgradeModuleData, m_followsOwner ) },
+      |                                                         ^                                      ~~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+8 warnings generated.
+[1317/1675] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Upgrade/UpgradeModule.cpp.o
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Upgrade/UpgradeModule.cpp:31:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Precompiled/PreRTS.h:139:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/STLTypedefs.h:62:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:767:7: warning: 'this' pointer cannot be null in well-defined C++ code; pointer may be assumed to always convert to true [-Wundefined-bool-conversion]
+  767 |                 if (this)
+      |                 ~~  ^~~~
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Upgrade/UpgradeModule.cpp:33:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/UpgradeModule.h:168:42: warning: offset of on non-standard-layout type 'UpgradeModuleData' [-Winvalid-offsetof]
+  168 |                 p.add(UpgradeMuxData::getFieldParse(), offsetof( UpgradeModuleData, m_upgradeMuxData ));
+      |                                                        ^                            ~~~~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+2 warnings generated.
+[1318/1675] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Upgrade/WeaponBonusUpgrade.cpp.o
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Upgrade/WeaponBonusUpgrade.cpp:53:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Precompiled/PreRTS.h:139:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/STLTypedefs.h:62:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:767:7: warning: 'this' pointer cannot be null in well-defined C++ code; pointer may be assumed to always convert to true [-Wundefined-bool-conversion]
+  767 |                 if (this)
+      |                 ~~  ^~~~
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Upgrade/WeaponBonusUpgrade.cpp:56:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Object.h:48:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:123:10: warning: 35 enumeration values not handled in switch: 'DAMAGE_EXPLOSION', 'DAMAGE_CRUSH', 'DAMAGE_ARMOR_PIERCING'... [-Wswitch]
+  123 |         switch( type )
+      |                 ^~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:123:10: note: add missing switch cases
+  123 |         switch( type )
+      |                 ^
+  124 |         {
+  125 |                 case DAMAGE_SUBDUAL_MISSILE:
+  126 |                 case DAMAGE_SUBDUAL_VEHICLE:
+  127 |                 case DAMAGE_SUBDUAL_BUILDING:
+  128 |                 case DAMAGE_SUBDUAL_UNRESISTABLE:
+  129 |                         return TRUE;
+  130 |         }
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:140:10: warning: 32 enumeration values not handled in switch: 'DAMAGE_EXPLOSION', 'DAMAGE_CRUSH', 'DAMAGE_ARMOR_PIERCING'... [-Wswitch]
+  140 |         switch( type )
+      |                 ^~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:140:10: note: add missing switch cases
+  140 |         switch( type )
+      |                 ^
+  141 |         {
+  142 |                 case DAMAGE_STATUS:
+  143 |                 case DAMAGE_SUBDUAL_MISSILE:
+  144 |                 case DAMAGE_SUBDUAL_VEHICLE:
+  145 |                 case DAMAGE_SUBDUAL_BUILDING:
+  146 |                 case DAMAGE_SUBDUAL_UNRESISTABLE:
+  147 |                 case DAMAGE_KILLPILOT:
+  148 |                 case DAMAGE_KILL_GARRISONED:
+  149 |                         return FALSE;
+  150 |         }
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Upgrade/WeaponBonusUpgrade.cpp:56:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Object.h:50:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/WeaponSet.h:246:160: warning: implicit conversion of NULL constant to 'UnsignedInt' (aka 'unsigned int') [-Wnull-conversion]
+  246 |         inline UnsignedInt getNthCommandSourceMask( WeaponSlotType n ) const { return m_curWeaponTemplateSet ? m_curWeaponTemplateSet->getNthCommandSourceMask( n ) : NULL; }
+      |                                                                                ~~~~~~                                                                                 ^~~~
+      |                                                                                                                                                                       0
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Upgrade/WeaponBonusUpgrade.cpp:57:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/WeaponBonusUpgrade.h:58:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/UpgradeModule.h:168:42: warning: offset of on non-standard-layout type 'UpgradeModuleData' [-Winvalid-offsetof]
+  168 |                 p.add(UpgradeMuxData::getFieldParse(), offsetof( UpgradeModuleData, m_upgradeMuxData ));
+      |                                                        ^                            ~~~~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+5 warnings generated.
+[1319/1675] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Upgrade/WeaponSetUpgrade.cpp.o
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Upgrade/WeaponSetUpgrade.cpp:31:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Precompiled/PreRTS.h:139:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/STLTypedefs.h:62:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:767:7: warning: 'this' pointer cannot be null in well-defined C++ code; pointer may be assumed to always convert to true [-Wundefined-bool-conversion]
+  767 |                 if (this)
+      |                 ~~  ^~~~
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Upgrade/WeaponSetUpgrade.cpp:34:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Object.h:48:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:123:10: warning: 35 enumeration values not handled in switch: 'DAMAGE_EXPLOSION', 'DAMAGE_CRUSH', 'DAMAGE_ARMOR_PIERCING'... [-Wswitch]
+  123 |         switch( type )
+      |                 ^~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:123:10: note: add missing switch cases
+  123 |         switch( type )
+      |                 ^
+  124 |         {
+  125 |                 case DAMAGE_SUBDUAL_MISSILE:
+  126 |                 case DAMAGE_SUBDUAL_VEHICLE:
+  127 |                 case DAMAGE_SUBDUAL_BUILDING:
+  128 |                 case DAMAGE_SUBDUAL_UNRESISTABLE:
+  129 |                         return TRUE;
+  130 |         }
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:140:10: warning: 32 enumeration values not handled in switch: 'DAMAGE_EXPLOSION', 'DAMAGE_CRUSH', 'DAMAGE_ARMOR_PIERCING'... [-Wswitch]
+  140 |         switch( type )
+      |                 ^~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:140:10: note: add missing switch cases
+  140 |         switch( type )
+      |                 ^
+  141 |         {
+  142 |                 case DAMAGE_STATUS:
+  143 |                 case DAMAGE_SUBDUAL_MISSILE:
+  144 |                 case DAMAGE_SUBDUAL_VEHICLE:
+  145 |                 case DAMAGE_SUBDUAL_BUILDING:
+  146 |                 case DAMAGE_SUBDUAL_UNRESISTABLE:
+  147 |                 case DAMAGE_KILLPILOT:
+  148 |                 case DAMAGE_KILL_GARRISONED:
+  149 |                         return FALSE;
+  150 |         }
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Upgrade/WeaponSetUpgrade.cpp:34:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Object.h:50:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/WeaponSet.h:246:160: warning: implicit conversion of NULL constant to 'UnsignedInt' (aka 'unsigned int') [-Wnull-conversion]
+  246 |         inline UnsignedInt getNthCommandSourceMask( WeaponSlotType n ) const { return m_curWeaponTemplateSet ? m_curWeaponTemplateSet->getNthCommandSourceMask( n ) : NULL; }
+      |                                                                                ~~~~~~                                                                                 ^~~~
+      |                                                                                                                                                                       0
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Upgrade/WeaponSetUpgrade.cpp:35:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/WeaponSetUpgrade.h:36:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/UpgradeModule.h:168:42: warning: offset of on non-standard-layout type 'UpgradeModuleData' [-Winvalid-offsetof]
+  168 |                 p.add(UpgradeMuxData::getFieldParse(), offsetof( UpgradeModuleData, m_upgradeMuxData ));
+      |                                                        ^                            ~~~~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Upgrade/WeaponSetUpgrade.cpp:45:74: warning: offset of on non-standard-layout type 'WeaponSetUpgradeModuleData' [-Winvalid-offsetof]
+   45 |                 { "WeaponSetFlag", INI::parseIndexList, WeaponSetFlags::getBitNames(), offsetof( WeaponSetUpgradeModuleData, m_weaponSetFlag ) },
+      |                                                                                        ^                                     ~~~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Upgrade/WeaponSetUpgrade.cpp:31:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Precompiled/PreRTS.h:153:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/KindOf.h:39:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BitFlags.h:280:12: warning: instantiation of variable 'BitFlags<17, 9>::s_bitNameList' required here, but no definition is available [-Wundefined-var-template]
+  280 |     return s_bitNameList;
+      |            ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Upgrade/WeaponSetUpgrade.cpp:45:59: note: in instantiation of member function 'BitFlags<17, 9>::getBitNames' requested here
+   45 |                 { "WeaponSetFlag", INI::parseIndexList, WeaponSetFlags::getBitNames(), offsetof( WeaponSetUpgradeModuleData, m_weaponSetFlag ) },
       |                                                                         ^
-<scratch space>:37:1: note: expanded from here
-   37 | "/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Update/CheckpointUpdate.cpp"
-      | ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BitFlags.h:70:25: note: forward declaration of template entity is here
+   70 |         static const char*                                      s_bitNameList[];
+      |                                                                 ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BitFlags.h:280:12: note: add an explicit instantiation declaration to suppress this warning if 'BitFlags<17, 9>::s_bitNameList' is explicitly instantiated in another translation unit
+  280 |     return s_bitNameList;
+      |            ^
 7 warnings generated.
