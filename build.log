@@ -1,300 +1,300 @@
-      |                       ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/pk.cpp:219:14: note: in instantiation of function template specialization 'Generate_Prime<Int<64>>' requested here
-  219 |                 BigInt p = Generate_Prime(random, bits, &p);
-      |                            ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/int.h:188:14: note: forward declaration of template entity is here
-  188 |                 static int Error;
-      |                            ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/int.h:130:55: note: add an explicit instantiation declaration to suppress this warning if 'Int<64>::Error' is explicitly instantiated in another translation unit
-  130 |                 Int operator * (unsigned short b) const {Int result;Error=XMP_Unsigned_Mult_Int(result, &reg[0], b, PRECISION);return(result);}
-      |                                                                     ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/int.h:126:55: warning: instantiation of variable 'Int<64>::Carry' required here, but no definition is available [-Wundefined-var-template]
-  126 |                 Int operator + (unsigned short b) const {Int result;Carry=XMP_Add_Int(result, &reg[0], b, 0, PRECISION);return(result);}
-      |                                                                     ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/int.h:280:13: note: in instantiation of member function 'Int<64>::operator+' requested here
-  280 |                 p = (q*2) + (unsigned short)1;
-      |                           ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/pk.cpp:219:14: note: in instantiation of function template specialization 'Generate_Prime<Int<64>>' requested here
-  219 |                 BigInt p = Generate_Prime(random, bits, &p);
-      |                            ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/int.h:191:15: note: forward declaration of template entity is here
-  191 |                 static bool Carry;
-      |                             ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/int.h:126:55: note: add an explicit instantiation declaration to suppress this warning if 'Int<64>::Carry' is explicitly instantiated in another translation unit
-  126 |                 Int operator + (unsigned short b) const {Int result;Carry=XMP_Add_Int(result, &reg[0], b, 0, PRECISION);return(result);}
-      |                                                                     ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/int.h:136:89: warning: instantiation of variable 'Int<64>::Remainder' required here, but no definition is available [-Wundefined-var-template]
-  136 |                 unsigned short operator % (unsigned short divisor) const {return(XMP_Unsigned_Div_Int(Remainder, &reg[0], divisor, PRECISION));}
-      |                                                                                                       ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/int.h:212:17: note: in instantiation of member function 'Int<64>::operator%' requested here
-  212 |                         table[i] = p % primetable[i];
-      |                                      ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/int.h:282:21: note: in instantiation of member function 'RemainderTable<Int<64>>::RemainderTable' requested here
-  282 |                 RemainderTable<T> rtQ(q);
-      |                                   ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/pk.cpp:219:14: note: in instantiation of function template specialization 'Generate_Prime<Int<64>>' requested here
-  219 |                 BigInt p = Generate_Prime(random, bits, &p);
-      |                            ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/int.h:197:14: note: forward declaration of template entity is here
-  197 |                 static Int Remainder;
-      |                            ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/int.h:136:89: note: add an explicit instantiation declaration to suppress this warning if 'Int<64>::Remainder' is explicitly instantiated in another translation unit
-  136 |                 unsigned short operator % (unsigned short divisor) const {return(XMP_Unsigned_Div_Int(Remainder, &reg[0], divisor, PRECISION));}
-      |                                                                                                       ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/int.h:128:55: warning: instantiation of variable 'Int<64>::Borrow' required here, but no definition is available [-Wundefined-var-template]
-  128 |                 Int operator - (unsigned short b) const {Int result;Borrow = XMP_Sub_Int(result, &reg[0], b, 0, PRECISION);return(result);}
-      |                                                                     ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/pk.cpp:227:20: note: in instantiation of member function 'Int<64>::operator-' requested here
-  227 |                 BigInt pqmin = (p-(unsigned short)1)*(q-(unsigned short)1);
-      |                                  ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/int.h:194:15: note: forward declaration of template entity is here
-  194 |                 static bool Borrow;
-      |                             ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/int.h:128:55: note: add an explicit instantiation declaration to suppress this warning if 'Int<64>::Borrow' is explicitly instantiated in another translation unit
-  128 |                 Int operator - (unsigned short b) const {Int result;Borrow = XMP_Sub_Int(result, &reg[0], b, 0, PRECISION);return(result);}
-      |                                                                     ^
-4 warnings generated.
-[353/1655] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/random.cpp.o
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/random.cpp:124:45: warning: shifting a negative signed value is undefined [-Wshift-negative-value]
-  124 |         return((Seed >> THROW_AWAY_BITS) & (~((~0) << SIGNIFICANT_BITS)));
-      |                                               ~~~~ ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:767:7: warning: 'this' pointer cannot be null in well-defined C++ code; pointer may be assumed to always convert to true [-Wundefined-bool-conversion]
+  767 |                 if (this)
+      |                 ~~  ^~~~
 1 warning generated.
-[354/1655] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/rc4.cpp.o
-[355/1655] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/realcrc.cpp.o
-[356/1655] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/readline.cpp.o
-[357/1655] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/refcount.cpp.o
-[358/1655] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/rgb.cpp.o
-[359/1655] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/rle.cpp.o
-[360/1655] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/sampler.cpp.o
-[361/1655] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/rawfile.cpp.o
-[362/1655] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/sha.cpp.o
-[363/1655] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/sha256.cpp.o
-[364/1655] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/stimer.cpp.o
-[365/1655] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/rndstrng.cpp.o
-[366/1655] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/strtok_r.cpp.o
-[367/1655] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/straw.cpp.o
-[368/1655] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/systimer.cpp.o
-[369/1655] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/slnode.cpp.o
-[370/1655] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/tagblock.cpp.o
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/tagblock.cpp:56:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/tagblock.h:46:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/slist.h:61:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/slnode.h:46:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/mempool.h:364:18: warning: instantiation of variable 'AutoPoolClass<GenericSLNode, 256>::Allocator' required here, but no definition is available [-Wundefined-var-template]
-  364 |         return (void *)(Allocator.Allocate_Object_Memory());
-      |                         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/slist.h:462:23: note: in instantiation of member function 'AutoPoolClass<GenericSLNode, 256>::operator new' requested here
-  462 |                 SLNode<T> *temp   = new SLNode<T>(cur->Data());
-      |                                     ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/slist.h:79:3: note: in instantiation of member function 'SList<TagBlockIndex>::Add_Head' requested here
-   79 |                 SList(void)
+[780/1655] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/INI/INIAudioEventInfo.cpp.o
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/INI/INIAudioEventInfo.cpp:31:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Precompiled/PreRTS.h:139:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/STLTypedefs.h:62:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:767:7: warning: 'this' pointer cannot be null in well-defined C++ code; pointer may be assumed to always convert to true [-Wundefined-bool-conversion]
+  767 |                 if (this)
+      |                 ~~  ^~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/INI/INIAudioEventInfo.cpp:148:59: warning: offset of on non-standard-layout type 'AudioEventInfo' [-Winvalid-offsetof]
+  148 |         { "Filename",                                                   INI::parseAsciiString,          NULL,                                                           offsetof( AudioEventInfo, m_filename) },
+      |                                                                                                                                                                         ^                         ~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/INI/INIAudioEventInfo.cpp:149:59: warning: offset of on non-standard-layout type 'AudioEventInfo' [-Winvalid-offsetof]
+  149 |         { "Volume",                                                             INI::parsePercentToReal,        NULL,                                                           offsetof( AudioEventInfo, m_volume ) },
+      |                                                                                                                                                                                 ^                         ~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/INI/INIAudioEventInfo.cpp:150:61: warning: offset of on non-standard-layout type 'AudioEventInfo' [-Winvalid-offsetof]
+  150 |         { "VolumeShift",                                        INI::parsePercentToReal,        NULL,                                                           offsetof( AudioEventInfo, m_volumeShift ) },
+      |                                                                                                                                                                 ^                         ~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/INI/INIAudioEventInfo.cpp:151:60: warning: offset of on non-standard-layout type 'AudioEventInfo' [-Winvalid-offsetof]
+  151 |         { "MinVolume",                                          INI::parsePercentToReal,        NULL,                                                           offsetof( AudioEventInfo, m_minVolume ) },
+      |                                                                                                                                                                 ^                         ~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/INI/INIAudioEventInfo.cpp:154:53: warning: offset of on non-standard-layout type 'AudioEventInfo' [-Winvalid-offsetof]
+  154 |         { "Limit",                                                              INI::parseInt,                                          NULL,                                                           offsetof( AudioEventInfo, m_limit ) },
+      |                                                                                                                                                                                                         ^                         ~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/INI/INIAudioEventInfo.cpp:155:55: warning: offset of on non-standard-layout type 'AudioEventInfo' [-Winvalid-offsetof]
+  155 |         { "LoopCount",                                          INI::parseInt,                                          NULL,                                                           offsetof( AudioEventInfo, m_loopCount ) },
+      |                                                                                                                                                                                         ^                         ~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/INI/INIAudioEventInfo.cpp:156:68: warning: offset of on non-standard-layout type 'AudioEventInfo' [-Winvalid-offsetof]
+  156 |         { "Priority",                                                   INI::parseIndexList,                    theAudioPriorityNames,  offsetof( AudioEventInfo, m_priority ) },
+      |                                                                                                                                         ^                         ~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/INI/INIAudioEventInfo.cpp:157:65: warning: offset of on non-standard-layout type 'AudioEventInfo' [-Winvalid-offsetof]
+  157 |         { "Type",                                                                       INI::parseBitString32,          theSoundTypeNames,                      offsetof( AudioEventInfo, m_type ) },
+      |                                                                                                                                                                 ^                         ~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/INI/INIAudioEventInfo.cpp:158:67: warning: offset of on non-standard-layout type 'AudioEventInfo' [-Winvalid-offsetof]
+  158 |         { "Control",                                                    INI::parseBitString32,          theAudioControlNames,   offsetof( AudioEventInfo, m_control ) },
+      |                                                                                                                                 ^                         ~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/INI/INIAudioEventInfo.cpp:159:58: warning: offset of on non-standard-layout type 'AudioEventInfo' [-Winvalid-offsetof]
+  159 |         { "Sounds",                                                             INI::parseSoundsList,                   NULL,                                                           offsetof( AudioEventInfo, m_sounds ) },
+      |                                                                                                                                                                                         ^                         ~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/INI/INIAudioEventInfo.cpp:160:60: warning: offset of on non-standard-layout type 'AudioEventInfo' [-Winvalid-offsetof]
+  160 |         { "SoundsNight",                                        INI::parseSoundsList,                   NULL,                                                           offsetof( AudioEventInfo, m_soundsNight ) },
+      |                                                                                                                                                                         ^                         ~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/INI/INIAudioEventInfo.cpp:161:61: warning: offset of on non-standard-layout type 'AudioEventInfo' [-Winvalid-offsetof]
+  161 |         { "SoundsEvening",                              INI::parseSoundsList,                   NULL,                                                           offsetof( AudioEventInfo, m_soundsEvening ) },
+      |                                                                                                                                                                 ^                         ~~~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/INI/INIAudioEventInfo.cpp:162:61: warning: offset of on non-standard-layout type 'AudioEventInfo' [-Winvalid-offsetof]
+  162 |         { "SoundsMorning",                              INI::parseSoundsList,                   NULL,                                                           offsetof( AudioEventInfo, m_soundsMorning ) },
+      |                                                                                                                                                                 ^                         ~~~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/INI/INIAudioEventInfo.cpp:163:58: warning: offset of on non-standard-layout type 'AudioEventInfo' [-Winvalid-offsetof]
+  163 |         { "Attack",                                                             INI::parseSoundsList,                   NULL,                                                           offsetof( AudioEventInfo, m_attackSounds ) },
+      |                                                                                                                                                                                         ^                         ~~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/INI/INIAudioEventInfo.cpp:164:57: warning: offset of on non-standard-layout type 'AudioEventInfo' [-Winvalid-offsetof]
+  164 |         { "Decay",                                                              INI::parseSoundsList,                   NULL,                                                           offsetof( AudioEventInfo, m_decaySounds ) },
+      |                                                                                                                                                                                         ^                         ~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/INI/INIAudioEventInfo.cpp:165:56: warning: offset of on non-standard-layout type 'AudioEventInfo' [-Winvalid-offsetof]
+  165 |         { "MinRange",                                                   INI::parseReal,                                         NULL,                                                           offsetof( AudioEventInfo, m_minDistance) },
+      |                                                                                                                                                                                                 ^                         ~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/INI/INIAudioEventInfo.cpp:166:56: warning: offset of on non-standard-layout type 'AudioEventInfo' [-Winvalid-offsetof]
+  166 |         { "MaxRange",                                                   INI::parseReal,                                         NULL,                                                           offsetof( AudioEventInfo, m_maxDistance) },
+      |                                                                                                                                                                                                 ^                         ~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/INI/INIAudioEventInfo.cpp:167:62: warning: offset of on non-standard-layout type 'AudioEventInfo' [-Winvalid-offsetof]
+  167 |         { "LowPassCutoff",                              INI::parsePercentToReal,        NULL,                                                           offsetof( AudioEventInfo, m_lowPassFreq) },
+      |                                                                                                                                                         ^                         ~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/INI/INIAudioEventInfo.cpp:168:64: warning: offset of on non-standard-layout type 'AudioEventInfo' [-Winvalid-offsetof]
+  168 |         { "MusicMood",                                          INI::parseIndexList,                    TheMusicMoodNames,      offsetof( AudioEventInfo, m_musicMood) },
+      |                                                                                                                                 ^                         ~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/INI/INIAudioEventInfo.cpp:169:59: warning: offset of on non-standard-layout type 'AudioEventInfo' [-Winvalid-offsetof]
+  169 |         { "MusicSide",                                          INI::parseAsciiString,          NULL,                                                           offsetof( AudioEventInfo, m_musicSide) },
+      |                                                                                                                                                                 ^                         ~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/INI/INIAudioEventInfo.cpp:203:2: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
+  203 |         "LOWEST",
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/INI/INIAudioEventInfo.cpp:204:2: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
+  204 |         "LOW",
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/INI/INIAudioEventInfo.cpp:205:2: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
+  205 |         "NORMAL",
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/INI/INIAudioEventInfo.cpp:206:2: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
+  206 |         "HIGH",
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/INI/INIAudioEventInfo.cpp:207:2: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
+  207 |         "CRITICAL",
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/INI/INIAudioEventInfo.cpp:213:2: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
+  213 |         "UI",
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/INI/INIAudioEventInfo.cpp:214:2: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
+  214 |         "WORLD",
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/INI/INIAudioEventInfo.cpp:215:2: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
+  215 |         "SHROUDED",
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/INI/INIAudioEventInfo.cpp:216:2: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
+  216 |         "GLOBAL",
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/INI/INIAudioEventInfo.cpp:217:2: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
+  217 |         "VOICE",
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/INI/INIAudioEventInfo.cpp:218:2: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
+  218 |         "PLAYER",
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/INI/INIAudioEventInfo.cpp:219:2: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
+  219 |         "ALLIES",
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/INI/INIAudioEventInfo.cpp:220:2: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
+  220 |         "ENEMIES",
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/INI/INIAudioEventInfo.cpp:221:2: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
+  221 |         "EVERYONE",
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/INI/INIAudioEventInfo.cpp:227:2: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
+  227 |         "LOOP",
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/INI/INIAudioEventInfo.cpp:228:2: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
+  228 |         "RANDOM",
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/INI/INIAudioEventInfo.cpp:229:2: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
+  229 |         "ALL",
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/INI/INIAudioEventInfo.cpp:230:2: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
+  230 |         "POSTDELAY",
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/INI/INIAudioEventInfo.cpp:231:2: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
+  231 |         "INTERRUPT",
+      |         ^
+40 warnings generated.
+[781/1655] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/INI/INICommandButton.cpp.o
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/INI/INICommandButton.cpp:33:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Precompiled/PreRTS.h:139:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/STLTypedefs.h:62:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:767:7: warning: 'this' pointer cannot be null in well-defined C++ code; pointer may be assumed to always convert to true [-Wundefined-bool-conversion]
+  767 |                 if (this)
+      |                 ~~  ^~~~
+1 warning generated.
+[782/1655] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/INI/INICommandSet.cpp.o
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/INI/INICommandSet.cpp:33:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Precompiled/PreRTS.h:139:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/STLTypedefs.h:62:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:767:7: warning: 'this' pointer cannot be null in well-defined C++ code; pointer may be assumed to always convert to true [-Wundefined-bool-conversion]
+  767 |                 if (this)
+      |                 ~~  ^~~~
+1 warning generated.
+[783/1655] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/INI/INIControlBarScheme.cpp.o
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/INI/INIControlBarScheme.cpp:54:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Precompiled/PreRTS.h:139:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/STLTypedefs.h:62:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:767:7: warning: 'this' pointer cannot be null in well-defined C++ code; pointer may be assumed to always convert to true [-Wundefined-bool-conversion]
+  767 |                 if (this)
+      |                 ~~  ^~~~
+1 warning generated.
+[784/1655] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/INI/INICrate.cpp.o
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/INI/INICrate.cpp:31:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Precompiled/PreRTS.h:139:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/STLTypedefs.h:62:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:767:7: warning: 'this' pointer cannot be null in well-defined C++ code; pointer may be assumed to always convert to true [-Wundefined-bool-conversion]
+  767 |                 if (this)
+      |                 ~~  ^~~~
+1 warning generated.
+[785/1655] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/INI/INIDamageFX.cpp.o
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/INI/INIDamageFX.cpp:31:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Precompiled/PreRTS.h:139:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/STLTypedefs.h:62:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:767:7: warning: 'this' pointer cannot be null in well-defined C++ code; pointer may be assumed to always convert to true [-Wundefined-bool-conversion]
+  767 |                 if (this)
+      |                 ~~  ^~~~
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/INI/INIDamageFX.cpp:34:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/DamageFX.h:39:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:123:10: warning: 35 enumeration values not handled in switch: 'DAMAGE_EXPLOSION', 'DAMAGE_CRUSH', 'DAMAGE_ARMOR_PIERCING'... [-Wswitch]
+  123 |         switch( type )
+      |                 ^~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:123:10: note: add missing switch cases
+  123 |         switch( type )
       |                 ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/tagblock.cpp:129:2: note: in instantiation of member function 'SList<TagBlockIndex>::SList' requested here
-  129 |         IndexList()
-      |         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/mempool.h:156:39: note: forward declaration of template entity is here
-  156 |         static ObjectPoolClass<T,BLOCK_SIZE>    Allocator;
-      |                                                 ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/mempool.h:364:18: note: add an explicit instantiation declaration to suppress this warning if 'AutoPoolClass<GenericSLNode, 256>::Allocator' is explicitly instantiated in another translation unit
-  364 |         return (void *)(Allocator.Allocate_Object_Memory());
-      |                         ^
-1 warning generated.
-[371/1655] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/tgatodxt.cpp.o
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/tgatodxt.cpp:38:9: warning: (gth) disabling TGAtoDXTClass temporarily so I can test the WW libs merge... [-W#pragma-messages]
-   38 | #pragma message ("(gth) disabling TGAtoDXTClass temporarily so I can test the WW libs merge...")
-      |         ^
-1 warning generated.
-[372/1655] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/TARGA.CPP.o
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/TARGA.CPP:367:31: warning: comparison between NULL and non-pointer ('long' and NULL) [-Wnull-arithmetic]
-  367 |         if (Open(name, TGA_READMODE) == NULL) {
-      |             ~~~~~~~~~~~~~~~~~~~~~~~~ ^  ~~~~
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/TARGA.CPP:429:34: warning: comparison between NULL and non-pointer ('long' and NULL) [-Wnull-arithmetic]
-  429 |                                         if ((error = DecodeImage()) == NULL) {
-      |                                             ~~~~~~~~~~~~~~~~~~~~~~~ ^  ~~~~
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/TARGA.CPP:605:32: warning: comparison between NULL and non-pointer ('long' and NULL) [-Wnull-arithmetic]
-  605 |         if (Open(name, TGA_WRITEMODE) == NULL)
-      |             ~~~~~~~~~~~~~~~~~~~~~~~~~ ^  ~~~~
+  124 |         {
+  125 |                 case DAMAGE_SUBDUAL_MISSILE:
+  126 |                 case DAMAGE_SUBDUAL_VEHICLE:
+  127 |                 case DAMAGE_SUBDUAL_BUILDING:
+  128 |                 case DAMAGE_SUBDUAL_UNRESISTABLE:
+  129 |                         return TRUE;
+  130 |         }
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:140:10: warning: 32 enumeration values not handled in switch: 'DAMAGE_EXPLOSION', 'DAMAGE_CRUSH', 'DAMAGE_ARMOR_PIERCING'... [-Wswitch]
+  140 |         switch( type )
+      |                 ^~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:140:10: note: add missing switch cases
+  140 |         switch( type )
+      |                 ^
+  141 |         {
+  142 |                 case DAMAGE_STATUS:
+  143 |                 case DAMAGE_SUBDUAL_MISSILE:
+  144 |                 case DAMAGE_SUBDUAL_VEHICLE:
+  145 |                 case DAMAGE_SUBDUAL_BUILDING:
+  146 |                 case DAMAGE_SUBDUAL_UNRESISTABLE:
+  147 |                 case DAMAGE_KILLPILOT:
+  148 |                 case DAMAGE_KILL_GARRISONED:
+  149 |                         return FALSE;
+  150 |         }
 3 warnings generated.
-[373/1655] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/textfile.cpp.o
-[374/1655] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/trim.cpp.o
-[375/1655] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/vector.cpp.o
-[376/1655] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/wwfile.cpp.o
-[377/1655] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/wwfont.cpp.o
-[378/1655] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/thread.cpp.o
-[379/1655] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/xpipe.cpp.o
-[380/1655] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/widestring.cpp.o
-[381/1655] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/xstraw.cpp.o
-[382/1655] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/xsurface.cpp.o
-[383/1655] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/wwstring.cpp.o
-[384/1655] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/aes.c.o
-[385/1655] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/aesce.c.o
-[386/1655] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/aesni.c.o
-[387/1655] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/asn1parse.c.o
-[388/1655] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/aria.c.o
-[389/1655] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/base64.c.o
-[390/1655] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/asn1write.c.o
-[391/1655] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/bignum_core.c.o
-[392/1655] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/bignum.c.o
-[393/1655] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/bignum_mod.c.o
-[394/1655] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/bignum_mod_raw.c.o
-[395/1655] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/block_cipher.c.o
-[396/1655] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/camellia.c.o
-[397/1655] Building CXX object CMakeFiles/wwlib.dir/Libraries/Source/WWVegas/WWLib/posixpath.cpp.o
-[398/1655] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/ccm.c.o
-[399/1655] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/chachapoly.c.o
-[400/1655] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/chacha20.c.o
-[401/1655] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/cipher.c.o
-[402/1655] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/cipher_wrap.c.o
-[403/1655] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/cmac.c.o
-[404/1655] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/constant_time.c.o
-[405/1655] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/ctr_drbg.c.o
-[406/1655] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/debug.c.o
-[407/1655] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/des.c.o
-[408/1655] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/dhm.c.o
-[409/1655] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/ecdh.c.o
-[410/1655] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/ecdsa.c.o
-[411/1655] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/ecjpake.c.o
-[412/1655] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/ecp_curves_new.c.o
-[413/1655] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/ecp.c.o
-[414/1655] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/entropy.c.o
-[415/1655] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/ecp_curves.c.o
-[416/1655] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/entropy_poll.c.o
-[417/1655] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/error.c.o
-[418/1655] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/hkdf.c.o
-[419/1655] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/gcm.c.o
-[420/1655] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/hmac_drbg.c.o
-[421/1655] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/lms.c.o
-[422/1655] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/lmots.c.o
-[423/1655] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/md.c.o
-[424/1655] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/memory_buffer_alloc.c.o
-[425/1655] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/md5.c.o
-[426/1655] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/mps_reader.c.o
-[427/1655] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/mps_trace.c.o
-[428/1655] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/net_sockets.c.o
-[429/1655] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/nist_kw.c.o
-[430/1655] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/oid.c.o
-[431/1655] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/padlock.c.o
-[432/1655] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/pem.c.o
-[433/1655] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/pk_ecc.c.o
-[434/1655] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/pk.c.o
-[435/1655] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/pk_wrap.c.o
-[436/1655] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/pkcs12.c.o
-[437/1655] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/pkcs5.c.o
-[438/1655] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/pkcs7.c.o
-[439/1655] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/pkwrite.c.o
-[440/1655] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/pkparse.c.o
-[441/1655] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/platform.c.o
-[442/1655] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/platform_util.c.o
-[443/1655] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/poly1305.c.o
-[444/1655] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/psa_crypto_aead.c.o
-[445/1655] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/psa_crypto_cipher.c.o
-[446/1655] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/psa_crypto_client.c.o
-[447/1655] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/psa_crypto_driver_wrappers_no_static.c.o
-[448/1655] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/psa_crypto.c.o
-[449/1655] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/psa_crypto_ecp.c.o
-[450/1655] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/psa_crypto_ffdh.c.o
-[451/1655] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/psa_crypto_hash.c.o
-[452/1655] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/psa_crypto_mac.c.o
-[453/1655] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/psa_crypto_pake.c.o
-[454/1655] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/psa_crypto_random.c.o
-[455/1655] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/psa_crypto_se.c.o
-[456/1655] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/psa_crypto_rsa.c.o
-[457/1655] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/psa_crypto_slot_management.c.o
-[458/1655] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/psa_its_file.c.o
-[459/1655] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/psa_crypto_storage.c.o
-[460/1655] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/psa_util.c.o
-[461/1655] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/ripemd160.c.o
-[462/1655] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/rsa.c.o
-[463/1655] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/rsa_alt_helpers.c.o
-[464/1655] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/sha1.c.o
-[465/1655] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/sha256.c.o
-[466/1655] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/sha3.c.o
-[467/1655] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/sha512.c.o
-[468/1655] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/ssl_cache.c.o
-[469/1655] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/ssl_ciphersuites.c.o
-[470/1655] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/ssl_client.c.o
-[471/1655] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/ssl_cookie.c.o
-[472/1655] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/ssl_debug_helpers_generated.c.o
-[473/1655] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/ssl_ticket.c.o
-[474/1655] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/ssl_tls12_client.c.o
-[475/1655] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/ssl_msg.c.o
-[476/1655] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/ssl_tls.c.o
-[477/1655] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/ssl_tls12_server.c.o
-[478/1655] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/ssl_tls13_client.c.o
-[479/1655] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/ssl_tls13_generic.c.o
-[480/1655] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/ssl_tls13_keys.c.o
-[481/1655] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/threading.c.o
-[482/1655] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/ssl_tls13_server.c.o
-[483/1655] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/timing.c.o
-[484/1655] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/version.c.o
-[485/1655] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/version_features.c.o
-[486/1655] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/x509.c.o
-[487/1655] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/x509_create.c.o
-[488/1655] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/x509_crl.c.o
-[489/1655] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/x509_csr.c.o
-[490/1655] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/x509write.c.o
-[491/1655] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/x509_crt.c.o
-[492/1655] Linking CXX static library libffshader.a
-[493/1655] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/x509write_crt.c.o
-[494/1655] Building C object CMakeFiles/mbedtls.dir/Libraries/Source/mbedtls/library/x509write_csr.c.o
-[495/1655] Linking CXX static library libsdl3_shadercross.a
-[496/1655] Building CXX object CMakeFiles/sdl3shadercompile.dir/Libraries/Source/WWVegas/WW3D2/sdl3shadercompile.cpp.o
-[497/1655] Building CXX object CMakeFiles/ffvertex.dir/Libraries/Source/WWVegas/WW3D2/ffvertex.cpp.o
-[498/1655] Building CXX object CMakeFiles/postprocess.dir/Libraries/Source/WWVegas/WW3D2/postprocess.cpp.o
-[499/1655] Building CXX object CMakeFiles/engineshader.dir/Libraries/Source/WWVegas/WW3D2/engineshader.cpp.o
-[500/1655] Building CXX object CMakeFiles/sdl3shadercompile.dir/Libraries/Source/WWVegas/WW3D2/sdl3storage.cpp.o
-[501/1655] Building CXX object CMakeFiles/postprocess.dir/Libraries/Source/WWVegas/WW3D2/postshader.cpp.o
-[502/1655] Generating host-tools/build_fingerprint.stamp
-[503/1655] Building C object freetype/CMakeFiles/freetype.dir/src/base/ftbbox.c.o
-[504/1655] Building C object freetype/CMakeFiles/freetype.dir/src/base/ftbdf.c.o
-[505/1655] Building C object freetype/CMakeFiles/freetype.dir/src/autofit/autofit.c.o
-[506/1655] Building C object freetype/CMakeFiles/freetype.dir/src/base/ftcid.c.o
-[507/1655] Building C object freetype/CMakeFiles/freetype.dir/src/base/ftbitmap.c.o
-[508/1655] Building C object freetype/CMakeFiles/freetype.dir/src/base/ftbase.c.o
-[509/1655] Building C object freetype/CMakeFiles/freetype.dir/src/base/ftfstype.c.o
-[510/1655] Building C object freetype/CMakeFiles/freetype.dir/src/base/ftgasp.c.o
-[511/1655] Building C object freetype/CMakeFiles/freetype.dir/src/base/ftglyph.c.o
-[512/1655] Building C object freetype/CMakeFiles/freetype.dir/src/base/ftinit.c.o
-[513/1655] Building C object freetype/CMakeFiles/freetype.dir/src/base/ftgxval.c.o
-[514/1655] Building C object freetype/CMakeFiles/freetype.dir/src/base/ftotval.c.o
-[515/1655] Building C object freetype/CMakeFiles/freetype.dir/src/base/ftpatent.c.o
-[516/1655] Building C object freetype/CMakeFiles/freetype.dir/src/base/ftmm.c.o
-[517/1655] Building C object freetype/CMakeFiles/freetype.dir/src/base/ftpfr.c.o
-[518/1655] Building C object freetype/CMakeFiles/freetype.dir/src/base/ftsynth.c.o
-[519/1655] Building C object freetype/CMakeFiles/freetype.dir/src/base/fttype1.c.o
-[520/1655] Building C object freetype/CMakeFiles/freetype.dir/src/base/ftwinfnt.c.o
-[521/1655] Building C object freetype/CMakeFiles/freetype.dir/src/base/ftstroke.c.o
-[522/1655] Building C object freetype/CMakeFiles/freetype.dir/src/bzip2/ftbzip2.c.o
-[523/1655] Building C object freetype/CMakeFiles/freetype.dir/src/bdf/bdf.c.o
-[524/1655] Building C object freetype/CMakeFiles/freetype.dir/src/cache/ftcache.c.o
-[525/1655] Building C object freetype/CMakeFiles/freetype.dir/src/cid/type1cid.c.o
-[526/1655] Building C object freetype/CMakeFiles/freetype.dir/src/cff/cff.c.o
-[527/1655] Building C object freetype/CMakeFiles/freetype.dir/src/lzw/ftlzw.c.o
-[528/1655] Building C object freetype/CMakeFiles/freetype.dir/src/gzip/ftgzip.c.o
-[529/1655] Building C object freetype/CMakeFiles/freetype.dir/src/pcf/pcf.c.o
-[530/1655] Building C object freetype/CMakeFiles/freetype.dir/src/pfr/pfr.c.o
-[531/1655] Building C object freetype/CMakeFiles/freetype.dir/src/psnames/psnames.c.o
-[532/1655] Building C object freetype/CMakeFiles/freetype.dir/src/pshinter/pshinter.c.o
-[533/1655] Building C object freetype/CMakeFiles/freetype.dir/src/raster/raster.c.o
-[534/1655] Building C object freetype/CMakeFiles/freetype.dir/src/sdf/sdf.c.o
-[535/1655] Building C object freetype/CMakeFiles/freetype.dir/src/psaux/psaux.c.o
-[536/1655] Building C object freetype/CMakeFiles/freetype.dir/src/smooth/smooth.c.o
-[537/1655] Building C object freetype/CMakeFiles/freetype.dir/src/svg/svg.c.o
-[538/1655] Building C object freetype/CMakeFiles/freetype.dir/src/type1/type1.c.o
-[539/1655] Building C object freetype/CMakeFiles/freetype.dir/src/type42/type42.c.o
-[540/1655] Building C object freetype/CMakeFiles/freetype.dir/src/sfnt/sfnt.c.o
-[541/1655] Building C object freetype/CMakeFiles/freetype.dir/builds/unix/ftsystem.c.o
-[542/1655] Building C object freetype/CMakeFiles/freetype.dir/src/winfonts/winfnt.c.o
-[543/1655] Building C object freetype/CMakeFiles/freetype.dir/src/base/ftdebug.c.o
-[544/1655] Linking CXX static library glslang/glslang/libglslang-default-resource-limits.a
-[545/1655] Building C object freetype/CMakeFiles/freetype.dir/src/truetype/truetype.c.o
-[546/1655] Linking CXX static library glslang/glslang/libglslang.a
-[547/1655] Linking CXX static library libwwmath.a
-[548/1655] Building CXX object CMakeFiles/wwutil.dir/Libraries/Source/WWVegas/Wwutil/mathutil.cpp.o
-[549/1655] Building CXX object CMakeFiles/compression.dir/Libraries/Source/Compression/EAC/btreeabout.cpp.o
-[550/1655] Building CXX object CMakeFiles/compression.dir/Libraries/Source/Compression/EAC/btreedecode.cpp.o
-[551/1655] Building CXX object CMakeFiles/wwutil.dir/Libraries/Source/WWVegas/Wwutil/miscutil.cpp.o
-[552/1655] Building CXX object CMakeFiles/compression.dir/Libraries/Source/Compression/EAC/huffabout.cpp.o
-[553/1655] Building CXX object CMakeFiles/compression.dir/Libraries/Source/Compression/EAC/huffdecode.cpp.o
-[554/1655] Building CXX object CMakeFiles/compression.dir/Libraries/Source/Compression/EAC/btreeencode.cpp.o
-[555/1655] Building CXX object CMakeFiles/compression.dir/Libraries/Source/Compression/EAC/refabout.cpp.o
+[786/1655] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/INI/INIDrawGroupInfo.cpp.o
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/INI/INIDrawGroupInfo.cpp:31:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Precompiled/PreRTS.h:139:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/STLTypedefs.h:62:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:767:7: warning: 'this' pointer cannot be null in well-defined C++ code; pointer may be assumed to always convert to true [-Wundefined-bool-conversion]
+  767 |                 if (this)
+      |                 ~~  ^~~~
+1 warning generated.
+[787/1655] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/INI/INIGameData.cpp.o
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/INI/INIGameData.cpp:31:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Precompiled/PreRTS.h:139:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/STLTypedefs.h:62:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:767:7: warning: 'this' pointer cannot be null in well-defined C++ code; pointer may be assumed to always convert to true [-Wundefined-bool-conversion]
+  767 |                 if (this)
+      |                 ~~  ^~~~
+1 warning generated.
+[788/1655] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/INI/INIMapCache.cpp.o
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/INI/INIMapCache.cpp:32:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Precompiled/PreRTS.h:139:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/STLTypedefs.h:62:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:767:7: warning: 'this' pointer cannot be null in well-defined C++ code; pointer may be assumed to always convert to true [-Wundefined-bool-conversion]
+  767 |                 if (this)
+      |                 ~~  ^~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/INI/INIMapCache.cpp:107:58: warning: implicit conversion of NULL constant to 'Int' (aka 'int') [-Wnull-conversion]
+  107 |         { "techPosition",                                               parseTechPositionsCoord3D,      NULL, NULL },
+      |         ~                                                                                                     ^~~~
+      |                                                                                                               0
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/INI/INIMapCache.cpp:106:60: warning: implicit conversion of NULL constant to 'Int' (aka 'int') [-Wnull-conversion]
+  106 |         { "supplyPosition",                                     parseSupplyPositionCoord3D,     NULL, NULL },
+      |         ~                                                                                             ^~~~
+      |                                                                                                       0
+3 warnings generated.
+[789/1655] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/INI/INIMapData.cpp.o
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/INI/INIMapData.cpp:31:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Precompiled/PreRTS.h:139:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/STLTypedefs.h:62:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:767:7: warning: 'this' pointer cannot be null in well-defined C++ code; pointer may be assumed to always convert to true [-Wundefined-bool-conversion]
+  767 |                 if (this)
+      |                 ~~  ^~~~
+1 warning generated.
