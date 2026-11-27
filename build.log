@@ -1,163 +1,11 @@
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Precompiled/PreRTS.h:139:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/STLTypedefs.h:62:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:767:7: warning: 'this' pointer cannot be null in well-defined C++ code; pointer may be assumed to always convert to true [-Wundefined-bool-conversion]
-  767 |                 if (this)
-      |                 ~~  ^~~~
-1 warning generated.
-[1508/1675] Building CXX object CMakeFiles/sdlinput.dir/GameEngineDevice/Source/SdlDevice/GameClient/SdlIOSTouch.cpp.o
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/SdlDevice/GameClient/SdlIOSTouch.cpp:1:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Precompiled/PreRTS.h:139:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/STLTypedefs.h:62:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:767:7: warning: 'this' pointer cannot be null in well-defined C++ code; pointer may be assumed to always convert to true [-Wundefined-bool-conversion]
-  767 |                 if (this)
-      |                 ~~  ^~~~
-1 warning generated.
-[1509/1675] Building CXX object CMakeFiles/sdlinput.dir/GameEngineDevice/Source/SdlDevice/GameClient/SdlInput.cpp.o
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/SdlDevice/GameClient/SdlInput.cpp:21:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Precompiled/PreRTS.h:139:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/STLTypedefs.h:62:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:767:7: warning: 'this' pointer cannot be null in well-defined C++ code; pointer may be assumed to always convert to true [-Wundefined-bool-conversion]
-  767 |                 if (this)
-      |                 ~~  ^~~~
-1 warning generated.
-[1510/1675] Building CXX object CMakeFiles/sdlinput.dir/GameEngineDevice/Source/SdlDevice/GameClient/SdlKeyTable.cpp.o
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/SdlDevice/GameClient/SdlKeyTable.cpp:21:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Precompiled/PreRTS.h:139:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/STLTypedefs.h:62:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:767:7: warning: 'this' pointer cannot be null in well-defined C++ code; pointer may be assumed to always convert to true [-Wundefined-bool-conversion]
-  767 |                 if (this)
-      |                 ~~  ^~~~
-1 warning generated.
-[1511/1675] Building CXX object CMakeFiles/sdlinput.dir/GameEngineDevice/Source/SdlDevice/GameClient/SdlKeyboard.cpp.o
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/SdlDevice/GameClient/SdlKeyboard.cpp:21:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Precompiled/PreRTS.h:139:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/STLTypedefs.h:62:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:767:7: warning: 'this' pointer cannot be null in well-defined C++ code; pointer may be assumed to always convert to true [-Wundefined-bool-conversion]
-  767 |                 if (this)
-      |                 ~~  ^~~~
-1 warning generated.
-[1512/1675] Building CXX object CMakeFiles/sdlinput.dir/GameEngineDevice/Source/SdlDevice/GameClient/SdlMouse.cpp.o
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/SdlDevice/GameClient/SdlMouse.cpp:22:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Precompiled/PreRTS.h:139:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/STLTypedefs.h:62:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:767:7: warning: 'this' pointer cannot be null in well-defined C++ code; pointer may be assumed to always convert to true [-Wundefined-bool-conversion]
-  767 |                 if (this)
-      |                 ~~  ^~~~
-1 warning generated.
-[1513/1675] Building CXX object CMakeFiles/posixdevice.dir/GameEngineDevice/Source/PosixDevice/Common/PosixCDManager.cpp.o
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/PosixDevice/Common/PosixCDManager.cpp:30:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Precompiled/PreRTS.h:139:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/STLTypedefs.h:62:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:767:7: warning: 'this' pointer cannot be null in well-defined C++ code; pointer may be assumed to always convert to true [-Wundefined-bool-conversion]
-  767 |                 if (this)
-      |                 ~~  ^~~~
-1 warning generated.
-[1514/1675] Building CXX object CMakeFiles/posixdevice.dir/GameEngineDevice/Source/PosixDevice/Common/PosixFileResolutionDump.cpp.o
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/PosixDevice/Common/PosixFileResolutionDump.cpp:21:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Precompiled/PreRTS.h:139:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/STLTypedefs.h:62:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:767:7: warning: 'this' pointer cannot be null in well-defined C++ code; pointer may be assumed to always convert to true [-Wundefined-bool-conversion]
-  767 |                 if (this)
-      |                 ~~  ^~~~
-1 warning generated.
-[1515/1675] Building CXX object CMakeFiles/posixdevice.dir/GameEngineDevice/Source/PosixDevice/Common/PosixGameEngine.cpp.o
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/PosixDevice/Common/PosixGameEngine.cpp:19:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Precompiled/PreRTS.h:139:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/STLTypedefs.h:62:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:767:7: warning: 'this' pointer cannot be null in well-defined C++ code; pointer may be assumed to always convert to true [-Wundefined-bool-conversion]
-  767 |                 if (this)
-      |                 ~~  ^~~~
-1 warning generated.
-[1516/1675] Building CXX object CMakeFiles/posixdevice.dir/GameEngineDevice/Source/PosixDevice/Common/PosixLocalFile.cpp.o
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/PosixDevice/Common/PosixLocalFile.cpp:19:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Include/PosixDevice/Common/PosixLocalFile.h:27:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/LocalFile.h:56:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/file.h:58:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:767:7: warning: 'this' pointer cannot be null in well-defined C++ code; pointer may be assumed to always convert to true [-Wundefined-bool-conversion]
-  767 |                 if (this)
-      |                 ~~  ^~~~
-1 warning generated.
-[1517/1675] Building CXX object CMakeFiles/posixdevice.dir/GameEngineDevice/Source/PosixDevice/Common/PosixLocalFileSystem.cpp.o
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/PosixDevice/Common/PosixLocalFileSystem.cpp:21:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:767:7: warning: 'this' pointer cannot be null in well-defined C++ code; pointer may be assumed to always convert to true [-Wundefined-bool-conversion]
-  767 |                 if (this)
-      |                 ~~  ^~~~
-1 warning generated.
-[1518/1675] Building CXX object CMakeFiles/posixdevice.dir/GameEngineDevice/Source/Win32Device/Common/Win32BIGFile.cpp.o
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/Win32Device/Common/Win32BIGFile.cpp:30:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/LocalFile.h:56:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/file.h:58:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:767:7: warning: 'this' pointer cannot be null in well-defined C++ code; pointer may be assumed to always convert to true [-Wundefined-bool-conversion]
-  767 |                 if (this)
-      |                 ~~  ^~~~
-1 warning generated.
-[1519/1675] Building CXX object CMakeFiles/posixdevice.dir/GameEngineDevice/Source/Win32Device/Common/Win32BIGFileSystem.cpp.o
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/Win32Device/Common/Win32BIGFileSystem.cpp:41:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/ArchiveFile.h:36:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/ArchiveFileSystem.h:56:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/SubsystemInterface.h:35:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/INI.h:39:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/STLTypedefs.h:62:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:767:7: warning: 'this' pointer cannot be null in well-defined C++ code; pointer may be assumed to always convert to true [-Wundefined-bool-conversion]
-  767 |                 if (this)
-      |                 ~~  ^~~~
-1 warning generated.
-[1520/1675] Linking CXX static library libww3d2.a
-[1521/1675] Building CXX object CMakeFiles/test_harness.dir/Tests/test_main.cpp.o
-[1522/1675] Building CXX object CMakeFiles/test_sdl_post.dir/Tests/test_sdl_post.cpp.o
-[1523/1675] Building CXX object CMakeFiles/test_sdl_ao.dir/Tests/test_sdl_ao.cpp.o
-[1524/1675] Building CXX object CMakeFiles/posix_gpu_draw_selfcheck.dir/Tests/test_posix_gpu_draw.cpp.o
-[1525/1675] Linking CXX static library libtest_harness.a
-[1526/1675] Linking CXX static library libgameengine.a
-[1527/1675] Linking CXX static library libsdlinput.a
-[1528/1675] Linking CXX static library libposixdevice.a
-[1529/1675] Building CXX object CMakeFiles/test_hazard_cloud_bake.dir/Tests/test_user_data_guard.cpp.o
-[1530/1675] Building CXX object CMakeFiles/test_hazard_cloud_bake.dir/Tests/test_hazard_cloud_bake.cpp.o
-[1531/1675] Building CXX object CMakeFiles/test_hazard_cloud_shared.dir/Tests/test_hazard_cloud_shared.cpp.o
-[1532/1675] Building CXX object CMakeFiles/test_hazard_cloud_shared.dir/GameEngineDevice/Source/W3DDevice/GameClient/HazardCloudSharedModel.cpp.o
-[1533/1675] Building CXX object CMakeFiles/test_hazard_cloud_shared.dir/GameEngineDevice/Source/W3DDevice/GameClient/HazardCloud.cpp.o
-[1534/1675] Building CXX object CMakeFiles/test_hazard_cloud_shared.dir/GameEngineDevice/Source/W3DDevice/GameClient/HazardCloudCore.cpp.o
-[1535/1675] Building CXX object CMakeFiles/test_hazard_cloud_shared.dir/GameEngineDevice/Source/W3DDevice/GameClient/HazardCloudFlow.cpp.o
-[1536/1675] Building CXX object CMakeFiles/test_hazard_cloud_shared.dir/GameEngineDevice/Source/W3DDevice/GameClient/HazardCloudShader.cpp.o
-[1537/1675] Building CXX object CMakeFiles/test_hazard_cloud_shared.dir/Tests/test_user_data_guard.cpp.o
-[1538/1675] Building CXX object CMakeFiles/test_hazard_cloud_shared.dir/GameEngineDevice/Source/W3DDevice/GameClient/HazardCloudUnsupported.cpp.o
-[1539/1675] Building CXX object CMakeFiles/test_userfolders.dir/Tests/test_userfolders.cpp.o
-[1540/1675] Building CXX object CMakeFiles/test_userfolders.dir/Tests/test_user_data_guard.cpp.o
-[1541/1675] Building CXX object CMakeFiles/test_shader_sdl.dir/GameEngineDevice/Source/W3DDevice/GameClient/HazardCloudShader.cpp.o
-[1542/1675] Building CXX object CMakeFiles/test_shader_sdl.dir/GameEngineDevice/Source/PosixDevice/Render/SdlHazardCloudSharedShader.cpp.o
-[1543/1675] Building CXX object CMakeFiles/test_shader_sdl.dir/Tests/test_user_data_guard.cpp.o
-[1544/1675] Linking CXX executable test_sdl_post
-ld: warning: ignoring duplicate libraries: 'SDL3/libSDL3.a'
-[1545/1675] Linking CXX executable test_sdl_ao
-ld: warning: ignoring duplicate libraries: 'SDL3/libSDL3.a'
-[1546/1675] Linking CXX executable posix_gpu_draw_selfcheck
-ld: warning: ignoring duplicate libraries: 'SDL3/libSDL3.a'
-[1547/1675] Linking CXX executable test_hazard_cloud_bake
-[1548/1675] Linking CXX executable test_hazard_cloud_shared
-[1549/1675] Linking CXX executable test_userfolders
-[1550/1675] Building CXX object CMakeFiles/test_shader_sdl.dir/Tests/test_shader_sdl.cpp.o
-[1551/1675] Linking CXX executable test_shader_sdl
-[1552/1675] Building FFmpeg 8.1.2's Bink decoders for the movies (V1)
-ffmpeg-build-posix: FFmpeg 8.1.2 installed into /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/build/ios/host-graphics/ffmpeg
-[1553/1675] Building CXX object CMakeFiles/binkvideo.dir/Libraries/Source/WWVegas/Bink/ffmpeg/bink_ffmpeg.cpp.o
-[1554/1675] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/Common/System/W3DFunctionLexicon.cpp.o
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/Common/System/W3DFunctionLexicon.cpp:33:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameClient/GameWindow.h:57:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:767:7: warning: 'this' pointer cannot be null in well-defined C++ code; pointer may be assumed to always convert to true [-Wundefined-bool-conversion]
-  767 |                 if (this)
-      |                 ~~  ^~~~
-1 warning generated.
-[1555/1675] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/Common/System/W3DRadar.cpp.o
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/Common/System/W3DRadar.cpp:34:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/AudioEventRTS.h:36:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameAudio.h:51:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/STLTypedefs.h:62:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:767:7: warning: 'this' pointer cannot be null in well-defined C++ code; pointer may be assumed to always convert to true [-Wundefined-bool-conversion]
-  767 |                 if (this)
-      |                 ~~  ^~~~
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/Common/System/W3DRadar.cpp:38:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Player.h:62:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/AI.h:41:
+  121 | #define __volatile      volatile
+      |         ^
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/W3DTreeBuffer.cpp:72:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Include/W3DDevice/GameClient/BaseHeightMap.h:46:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Include/W3DDevice/GameClient/WorldHeightMap.h:41:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Include/../../GameEngine/Include/Common/MapObject.h:38:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameClient/TerrainRoads.h:40:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/BodyModule.h:37:
 /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:123:10: warning: 35 enumeration values not handled in switch: 'DAMAGE_EXPLOSION', 'DAMAGE_CRUSH', 'DAMAGE_ARMOR_PIERCING'... [-Wswitch]
   123 |         switch( type )
       |                 ^~~~
@@ -187,7 +35,7 @@ In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Re
   148 |                 case DAMAGE_KILL_GARRISONED:
   149 |                         return FALSE;
   150 |         }
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/Common/System/W3DRadar.cpp:38:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/W3DTreeBuffer.cpp:76:
 In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Player.h:69:
 In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Team.h:38:
 In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Object.h:50:
@@ -195,70 +43,76 @@ In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Re
   246 |         inline UnsignedInt getNthCommandSourceMask( WeaponSlotType n ) const { return m_curWeaponTemplateSet ? m_curWeaponTemplateSet->getNthCommandSourceMask( n ) : NULL; }
       |                                                                                ~~~~~~                                                                                 ^~~~
       |                                                                                                                                                                       0
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/Common/System/W3DRadar.cpp:67:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Include/W3DDevice/GameClient/HeightMap.h:39:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WW3D2/dx8wrapper.h:68:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WW3D2/texture.h:54:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/chunkio.h:380:8: warning: extra tokens at end of #endif directive [-Wextra-tokens]
-  380 | #endif CHUNKIO_H
-      |        ^
-      |        //
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/Common/System/W3DRadar.cpp:67:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Include/W3DDevice/GameClient/HeightMap.h:39:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WW3D2/dx8wrapper.h:108:9: warning: '__volatile' macro redefined [-Wmacro-redefined]
-  108 | #define __volatile unsigned
-      |         ^
-/Applications/Xcode_16.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk/usr/include/sys/cdefs.h:121:9: note: previous definition is here
-  121 | #define __volatile      volatile
-      |         ^
-6 warnings generated.
-[1556/1675] Linking CXX static library libbinkvideo.a
-[1557/1675] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/Common/Thing/W3DModuleFactory.cpp.o
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/Common/Thing/W3DModuleFactory.cpp:31:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Include/W3DDevice/Common/W3DModuleFactory.h:39:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/ModuleFactory.h:45:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:767:7: warning: 'this' pointer cannot be null in well-defined C++ code; pointer may be assumed to always convert to true [-Wundefined-bool-conversion]
-  767 |                 if (this)
-      |                 ~~  ^~~~
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/Common/Thing/W3DModuleFactory.cpp:38:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Include/W3DDevice/GameClient/Module/W3DOverlordTankDraw.h:37:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Include/W3DDevice/GameClient/Module/W3DTankDraw.h:42:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WW3D2/part_emt.h:45:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WW3D2/part_buf.h:45:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WW3D2/seglinerenderer.h:44:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WW3D2/texture.h:54:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/chunkio.h:380:8: warning: extra tokens at end of #endif directive [-Wextra-tokens]
-  380 | #endif CHUNKIO_H
-      |        ^
-      |        //
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/Common/Thing/W3DModuleFactory.cpp:38:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Include/W3DDevice/GameClient/Module/W3DOverlordTankDraw.h:37:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Include/W3DDevice/GameClient/Module/W3DTankDraw.h:42:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WW3D2/part_emt.h:49:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWMath/v3_rnd.h:133:84: warning: expression result unused [-Wunused-value]
-  133 |                 Vector3SolidBoxRandomizer & operator = (const Vector3SolidBoxRandomizer &that) { that; return *this; }
-      |                                                                                                  ^~~~
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWMath/v3_rnd.h:164:90: warning: expression result unused [-Wunused-value]
-  164 |                 Vector3SolidSphereRandomizer & operator = (const Vector3SolidSphereRandomizer &that) { that; return *this; }
-      |                                                                                                        ^~~~
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWMath/v3_rnd.h:195:92: warning: expression result unused [-Wunused-value]
-  195 |                 Vector3HollowSphereRandomizer & operator = (const Vector3HollowSphereRandomizer &that) { that; return *this; }
-      |                                                                                                          ^~~~
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWMath/v3_rnd.h:227:94: warning: expression result unused [-Wunused-value]
-  227 |                 Vector3SolidCylinderRandomizer & operator = (const Vector3SolidCylinderRandomizer &that) { that; return *this; }
-      |                                                                                                            ^~~~
-6 warnings generated.
-[1558/1675] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/Common/Thing/W3DThingFactory.cpp.o
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/Common/Thing/W3DThingFactory.cpp:33:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Include/W3DDevice/Common/W3DThingFactory.h:38:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/ThingFactory.h:38:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/W3DTreeBuffer.cpp:102:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WW3D2/meshmdl.h:139:60: warning: non-void function does not return a value [-Wreturn-type]
+  139 |         GapFillerClass& operator = (const GapFillerClass & that) {}
+      |                                                                   ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/W3DTreeBuffer.cpp:556:27: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
+  556 |                 m_trees[i].swayType = 1+GameClientRandomValue(0, MAX_SWAY_TYPES-1);
+      |                                         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameClient/ClientRandomValue.h:42:75: note: expanded from macro 'GameClientRandomValue'
+   42 | #define GameClientRandomValue( lo, hi ) GetGameClientRandomValue( lo, hi, __FILE__, __LINE__ )
+      |                                                                           ^
+<scratch space>:122:1: note: expanded from here
+  122 | "/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/W3DTreeBuffer.cpp"
+      | ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/W3DTreeBuffer.cpp:560:23: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
+  560 |                 m_curSwayStep[i]        *= GameClientRandomValueReal(1.0f-delta, 1.0f+delta);
+      |                                            ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameClient/ClientRandomValue.h:43:83: note: expanded from macro 'GameClientRandomValueReal'
+   43 | #define GameClientRandomValueReal( lo, hi ) GetGameClientRandomValueReal( lo, hi, __FILE__, __LINE__ )
+      |                                                                                   ^
+<scratch space>:124:1: note: expanded from here
+  124 | "/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/W3DTreeBuffer.cpp"
+      | ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/W3DTreeBuffer.cpp:565:24: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
+  565 |                 m_curSwayFactor[i] = GameClientRandomValueReal(1.0f-delta, 1.0f+delta);
+      |                                      ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameClient/ClientRandomValue.h:43:83: note: expanded from macro 'GameClientRandomValueReal'
+   43 | #define GameClientRandomValueReal( lo, hi ) GetGameClientRandomValueReal( lo, hi, __FILE__, __LINE__ )
+      |                                                                                   ^
+<scratch space>:126:1: note: expanded from here
+  126 | "/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/W3DTreeBuffer.cpp"
+      | ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/W3DTreeBuffer.cpp:1454:38: warning: 'size' argument to memset is '0'; did you mean to transpose the last two arguments? [-Wmemset-transposed-args]
+ 1454 |         memset(this, sizeof(W3DTreeBuffer), 0);
+      |                                             ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/W3DTreeBuffer.cpp:1454:38: note: parenthesize the third argument to silence
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/W3DTreeBuffer.cpp:1454:9: warning: destination for this 'memset' call is a pointer to dynamic class 'W3DTreeBuffer'; vtable pointer will be overwritten [-Wdynamic-class-memaccess]
+ 1454 |         memset(this, sizeof(W3DTreeBuffer), 0);
+      |         ~~~~~~ ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/W3DTreeBuffer.cpp:1454:9: note: explicitly cast the pointer to silence this warning
+ 1454 |         memset(this, sizeof(W3DTreeBuffer), 0);
+      |                ^
+      |                (void*)
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/W3DTreeBuffer.cpp:1818:21: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
+ 1818 |         Real randomScale = GameClientRandomValueReal( 1.0f - randomScaleAmount, 1.0f+ randomScaleAmount );
+      |                            ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameClient/ClientRandomValue.h:43:83: note: expanded from macro 'GameClientRandomValueReal'
+   43 | #define GameClientRandomValueReal( lo, hi ) GetGameClientRandomValueReal( lo, hi, __FILE__, __LINE__ )
+      |                                                                                   ^
+<scratch space>:128:1: note: expanded from here
+  128 | "/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/W3DTreeBuffer.cpp"
+      | ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/W3DTreeBuffer.cpp:1829:25: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
+ 1829 |         const Int swayType = 1+GameClientRandomValue(0, MAX_SWAY_TYPES-1);
+      |                                ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameClient/ClientRandomValue.h:42:75: note: expanded from macro 'GameClientRandomValue'
+   42 | #define GameClientRandomValue( lo, hi ) GetGameClientRandomValue( lo, hi, __FILE__, __LINE__ )
+      |                                                                           ^
+<scratch space>:130:1: note: expanded from here
+  130 | "/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/W3DTreeBuffer.cpp"
+      | ^
+14 warnings generated.
+[1649/1675] Building CXX object CMakeFiles/w3ddevice.dir/GameEngineDevice/Source/W3DDevice/GameClient/W3DView.cpp.o
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/W3DView.cpp:49:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BuildAssistant.h:39:
 In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/STLTypedefs.h:62:
 /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:767:7: warning: 'this' pointer cannot be null in well-defined C++ code; pointer may be assumed to always convert to true [-Wundefined-bool-conversion]
   767 |                 if (this)
       |                 ~~  ^~~~
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/Common/Thing/W3DThingFactory.cpp:33:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Include/W3DDevice/Common/W3DThingFactory.h:38:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/ThingFactory.h:43:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/W3DView.cpp:49:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BuildAssistant.h:42:
 In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Object.h:48:
 /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:123:10: warning: 35 enumeration values not handled in switch: 'DAMAGE_EXPLOSION', 'DAMAGE_CRUSH', 'DAMAGE_ARMOR_PIERCING'... [-Wswitch]
   123 |         switch( type )
@@ -289,12 +143,158 @@ In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Re
   148 |                 case DAMAGE_KILL_GARRISONED:
   149 |                         return FALSE;
   150 |         }
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/Common/Thing/W3DThingFactory.cpp:33:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Include/W3DDevice/Common/W3DThingFactory.h:38:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/ThingFactory.h:43:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/W3DView.cpp:49:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BuildAssistant.h:42:
 In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Object.h:50:
 /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/WeaponSet.h:246:160: warning: implicit conversion of NULL constant to 'UnsignedInt' (aka 'unsigned int') [-Wnull-conversion]
   246 |         inline UnsignedInt getNthCommandSourceMask( WeaponSlotType n ) const { return m_curWeaponTemplateSet ? m_curWeaponTemplateSet->getNthCommandSourceMask( n ) : NULL; }
       |                                                                                ~~~~~~                                                                                 ^~~~
       |                                                                                                                                                                       0
-4 warnings generated.
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/W3DView.cpp:84:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/AIUpdate.h:38:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/AIStateMachine.h:40:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/StateMachine.h:357:7: warning: 'this' pointer cannot be null in well-defined C++ code; pointer may be assumed to always convert to true [-Wundefined-bool-conversion]
+  357 |                 if (this)
+      |                 ~~  ^~~~
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/W3DView.cpp:87:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/OpenContain.h:44:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/DieModule.h:79:38: warning: offset of on non-standard-layout type 'DieModuleData' [-Winvalid-offsetof]
+   79 |                 p.add(DieMuxData::getFieldParse(), offsetof( DieModuleData, m_dieMuxData ));
+      |                                                    ^                        ~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/W3DView.cpp:94:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Include/W3DDevice/GameClient/HeightMap.h:39:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WW3D2/dx8wrapper.h:68:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WW3D2/texture.h:54:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WWLib/chunkio.h:380:8: warning: extra tokens at end of #endif directive [-Wextra-tokens]
+  380 | #endif CHUNKIO_H
+      |        ^
+      |        //
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/W3DView.cpp:94:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Include/W3DDevice/GameClient/HeightMap.h:39:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/WWVegas/WW3D2/dx8wrapper.h:108:9: warning: '__volatile' macro redefined [-Wmacro-redefined]
+  108 | #define __volatile unsigned
+      |         ^
+/Applications/Xcode_16.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.5.sdk/usr/include/sys/cdefs.h:121:9: note: previous definition is here
+  121 | #define __volatile      volatile
+      |         ^
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/W3DView.cpp:98:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Include/W3DDevice/GameClient/W3DView.h:146:15: warning: 'init' overrides a member function but is not marked 'override' [-Winconsistent-missing-override]
+  146 |         virtual void init( void );  ///< init/re-init the W3DView
+      |                      ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameClient/View.h:122:15: note: overridden virtual function is here
+  122 |         virtual void init( void );
+      |                      ^
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/W3DView.cpp:98:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Include/W3DDevice/GameClient/W3DView.h:147:15: warning: 'reset' overrides a member function but is not marked 'override' [-Winconsistent-missing-override]
+  147 |         virtual void reset( void );
+      |                      ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameClient/View.h:123:15: note: overridden virtual function is here
+  123 |         virtual void reset( void );
+      |                      ^
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/W3DView.cpp:98:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Include/W3DDevice/GameClient/W3DView.h:148:15: warning: 'drawView' overrides a member function but is not marked 'override' [-Winconsistent-missing-override]
+  148 |         virtual void drawView( void );  ///< draw this view
+      |                      ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameClient/View.h:244:15: note: overridden virtual function is here
+  244 |         virtual void drawView( void ) = 0;                                                                                                                      ///< Render the world visible in this view.
+      |                      ^
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/W3DView.cpp:98:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Include/W3DDevice/GameClient/W3DView.h:149:15: warning: 'updateView' overrides a member function but is not marked 'override' [-Winconsistent-missing-override]
+  149 |         virtual void updateView(void);  ///<called once per frame to determine the final camera and object transforms
+      |                      ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameClient/View.h:245:15: note: overridden virtual function is here
+  245 |         virtual void updateView(void) = 0;                                      ///<called once per frame to determine the final camera and object transforms
+      |                      ^
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/W3DView.cpp:98:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Include/W3DDevice/GameClient/W3DView.h:151:15: warning: 'draw' overrides a member function but is not marked 'override' [-Winconsistent-missing-override]
+  151 |         virtual void draw( );  ///< draw this view
+      |                      ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/SubsystemInterface.h:113:15: note: overridden virtual function is here
+  113 |         virtual void draw( void ){DEBUG_CRASH(("Shouldn't call base class.  jba."));}
+      |                      ^
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/W3DView.cpp:98:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Include/W3DDevice/GameClient/W3DView.h:265:15: warning: 'forceCameraConstraintRecalc' overrides a member function but is not marked 'override' [-Winconsistent-missing-override]
+  265 |         virtual void forceCameraConstraintRecalc(void) { calcCameraConstraints(); }
+      |                      ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameClient/View.h:272:15: note: overridden virtual function is here
+  272 |         virtual void forceCameraConstraintRecalc(void) {}
+      |                      ^
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/W3DView.cpp:98:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Include/W3DDevice/GameClient/W3DView.h:266:15: warning: 'applyCameraConstraint' overrides a member function but is not marked 'override' [-Winconsistent-missing-override]
+  266 |         virtual void applyCameraConstraint( void );
+      |                      ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameClient/View.h:273:15: note: overridden virtual function is here
+  273 |         virtual void applyCameraConstraint( void ) {}                                                                           ///< move the look point inside the camera constraint now, where the next draw would
+      |                      ^
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/W3DView.cpp:98:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Include/W3DDevice/GameClient/W3DView.h:268:15: warning: 'setGuardBandBias' overrides a member function but is not marked 'override' [-Winconsistent-missing-override]
+  268 |         virtual void setGuardBandBias( const Coord2D *gb ) { m_guardBandBias.x = gb->x; m_guardBandBias.y = gb->y; }
+      |                      ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameClient/View.h:274:15: note: overridden virtual function is here
+  274 |         virtual void setGuardBandBias( const Coord2D *gb ) = 0;
+      |                      ^
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/W3DView.cpp:98:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Include/W3DDevice/GameClient/W3DView.h:270:15: warning: 'setFreeCamera' overrides a member function but is not marked 'override' [-Winconsistent-missing-override]
+  270 |         virtual void setFreeCamera( Bool on );
+      |                      ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameClient/View.h:289:15: note: overridden virtual function is here
+  289 |         virtual void setFreeCamera( Bool on ) { }
+      |                      ^
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/W3DView.cpp:98:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Include/W3DDevice/GameClient/W3DView.h:271:15: warning: 'isFreeCamera' overrides a member function but is not marked 'override' [-Winconsistent-missing-override]
+  271 |         virtual Bool isFreeCamera( void ) const { return m_freeCamera; }
+      |                      ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameClient/View.h:290:15: note: overridden virtual function is here
+  290 |         virtual Bool isFreeCamera( void ) const { return FALSE; }
+      |                      ^
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/W3DView.cpp:98:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Include/W3DDevice/GameClient/W3DView.h:272:15: warning: 'setFreeCameraPose' overrides a member function but is not marked 'override' [-Winconsistent-missing-override]
+  272 |         virtual void setFreeCameraPose( const Coord3D *eye, Real heading, Real tilt, Real roll = 0.0f );
+      |                      ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameClient/View.h:293:15: note: overridden virtual function is here
+  293 |         virtual void setFreeCameraPose( const Coord3D *eye, Real heading, Real tilt, Real roll = 0.0f ) { }
+      |                      ^
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/W3DView.cpp:98:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Include/W3DDevice/GameClient/W3DView.h:273:15: warning: 'setFreeCameraScripted' overrides a member function but is not marked 'override' [-Winconsistent-missing-override]
+  273 |         virtual void setFreeCameraScripted( Bool scripted ) { m_freeCameraScripted = scripted; }
+      |                      ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameClient/View.h:295:15: note: overridden virtual function is here
+  295 |         virtual void setFreeCameraScripted( Bool scripted ) { }
+      |                      ^
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/W3DView.cpp:98:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Include/W3DDevice/GameClient/W3DView.h:274:15: warning: 'getFreeCameraPose' overrides a member function but is not marked 'override' [-Winconsistent-missing-override]
+  274 |         virtual void getFreeCameraPose( Coord3D *eye, Real *heading, Real *tilt ) const;
+      |                      ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameClient/View.h:296:15: note: overridden virtual function is here
+  296 |         virtual void getFreeCameraPose( Coord3D *eye, Real *heading, Real *tilt ) const { }
+      |                      ^
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/W3DView.cpp:98:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Include/W3DDevice/GameClient/W3DView.h:275:15: warning: 'setFreeCameraKeys' overrides a member function but is not marked 'override' [-Winconsistent-missing-override]
+  275 |         virtual void setFreeCameraKeys( UnsignedInt keys ) { m_freeCameraKeys = keys; }
+      |                      ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameClient/View.h:298:15: note: overridden virtual function is here
+  298 |         virtual void setFreeCameraKeys( UnsignedInt keys ) { }
+      |                      ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/W3DView.cpp:4227:10: warning: MBL: Clearing variable after polling - for scripting - see Adam.
+ [-W#pragma-messages]
+ 4227 |         #pragma message( "MBL: Clearing variable after polling - for scripting - see Adam.\n" )
+      |                 ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/W3DView.cpp:4648:15: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
+ 4648 |         Real angle = GameClientRandomValueReal( 0, 2*PI );
+      |                      ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameClient/ClientRandomValue.h:43:83: note: expanded from macro 'GameClientRandomValueReal'
+   43 | #define GameClientRandomValueReal( lo, hi ) GetGameClientRandomValueReal( lo, hi, __FILE__, __LINE__ )
+      |                                                                                   ^
+<scratch space>:116:1: note: expanded from here
+  116 | "/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/W3DView.cpp"
+      | ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/W3DView.cpp:4654:10: warning: enumeration value 'SHAKE_COUNT' not handled in switch [-Wswitch]
+ 4654 |         switch( shakeType )
+      |                 ^~~~~~~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngineDevice/Source/W3DDevice/GameClient/W3DView.cpp:4654:10: note: add missing switch cases
+ 4654 |         switch( shakeType )
+      |                 ^
+25 warnings generated.
