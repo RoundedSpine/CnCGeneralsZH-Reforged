@@ -16,7 +16,8 @@ find "$app/Overlay" -maxdepth 1 -name 'Reforged*.big' -delete
 mkdir -p "$app/Licenses"
 . "$CODE/Tools/package-common.sh"
 linked=$(package_link_libraries "$BUILD/build.ninja" "$BUILD/linked-libraries.txt")
-entries=$(package_license_entries "$CODE/Tools/macos-app-licenses.txt" $linked)
+entries=$(package_license_entries "$CODE/Tools/macos-app-licenses.txt" $linked) ||
+  { echo "[ios-ipa] refused: generals links libraries macos-app-licenses.txt does not cover:$entries" >&2; exit 1; }
 for entry in $entries; do license_entry "$entry" "$app/Licenses"; done
 cp "$REPO/NOTICE.md" "$app/Licenses/NOTICE.md"
 cp "$CODE/Platform/iOS/Reforged.entitlements" "$BUILD/Reforged.entitlements"
