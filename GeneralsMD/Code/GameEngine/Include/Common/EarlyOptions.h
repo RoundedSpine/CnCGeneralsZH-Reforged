@@ -326,29 +326,42 @@ inline bool composeUserDataDirectory( UserFolderConvention convention, const cha
 	return true;
 }
 
+struct UserDataDirectoryCache
+{
+	char chosen[4096] = {};
+	bool decided = false;
+};
+inline UserDataDirectoryCache &userDataDirectoryCache()
+{
+	static UserDataDirectoryCache cache;
+	return cache;
+}
+// Startup only, before engine threads/consumers: UIKit bootstrap selects its sandbox
+// after C++ static initialization may have asked for the desktop default.
+inline void resetUserDataDirectoryForStartup()
+{
+	userDataDirectoryCache() = UserDataDirectoryCache();
+}
 inline bool findUserDataDirectory( char *out, size_t outSize )
 {
 	if (outSize == 0)
 		return false;
 	out[0] = 0;
-
-	// Worked out once a process, as on Windows: WinMain, GlobalData and registry.cpp all ask.
-	static char s_chosen[4096] = "";
-	static bool s_decided = false;
-	if (!s_decided)
+	auto &cache = userDataDirectoryCache();
+	if (!cache.decided)
 	{
-		s_decided = true;
+		cache.decided = true;
 		char home[4096];
 		char directory[4096];
 		if (composeUserDataDirectory( PLATFORM_USER_FOLDERS, ::getenv( "ZH_USER_DATA_DIR" ),
 					findHomeDirectory( home, sizeof( home ) ) ? home : NULL,
 					::getenv( "XDG_DATA_HOME" ), directory, sizeof( directory ) )
-				&& ::strlen( directory ) + 2 <= sizeof( s_chosen ) && makeDirectoryPath( directory ))
-			::snprintf( s_chosen, sizeof( s_chosen ), "%s\\", directory );
+				&& ::strlen( directory ) + 2 <= sizeof( cache.chosen ) && makeDirectoryPath( directory ))
+			::snprintf( cache.chosen, sizeof( cache.chosen ), "%s\\", directory );
 	}
-	if (s_chosen[0] == 0 || ::strlen( s_chosen ) + 1 > outSize)
+	if (cache.chosen[0] == 0 || ::strlen( cache.chosen ) + 1 > outSize)
 		return false;
-	::strcpy( out, s_chosen );
+	::strcpy( out, cache.chosen );
 	return true;
 }
 

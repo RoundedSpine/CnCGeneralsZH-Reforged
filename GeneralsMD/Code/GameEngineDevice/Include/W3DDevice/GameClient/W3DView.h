@@ -172,9 +172,6 @@ public:
 #if defined(ZH_PLATFORM_IOS)
 	virtual void panByScreenPoints(Real fromX, Real fromY, Real toX, Real toY) override;
 #endif
-#if defined(ZH_PLATFORM_IOS)
-	virtual void panByScreenPoints(Real fromX, Real fromY, Real toX, Real toY) override;
-#endif
 	virtual void scrollBy( Coord2D *delta ) override;  ///< Shift the view by the given delta
 
 	virtual void forceRedraw() override;
