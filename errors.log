@@ -1,0 +1,38 @@
+ 2390 |                 case SERIAL_NONEXISTENT:
+ 2391 |                         resp.discon.reason = DISCONNECT_SERIAL_NOT_PRESENT;
+ 2392 |                         break;
+ 2393 |                 case SERIAL_AUTHFAILED:
+ 2394 |                         resp.discon.reason = DISCONNECT_SERIAL_INVALID;
+ 2395 |                         break;
+ 2396 |                 case SERIAL_BANNED:
+ 2397 |                         resp.discon.reason = DISCONNECT_SERIAL_BANNED;
+ 2398 |                         break;
+ 2399 |         }
+15 warnings generated.
+[1379/1675] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameNetwork/GameSpy/Thread/PersistentStorageThread.cpp.o
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameNetwork/GameSpy/Thread/PersistentStorageThread.cpp:34:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Precompiled/PreRTS.h:139:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/STLTypedefs.h:62:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:767:7: warning: 'this' pointer cannot be null in well-defined C++ code; pointer may be assumed to always convert to true [-Wundefined-bool-conversion]
+  767 |                 if (this)
+      |                 ~~  ^~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameNetwork/GameSpy/Thread/PersistentStorageThread.cpp:842:2: warning: '/*' within block comment [-Wcomment]
+ 2390 |                 case SERIAL_NONEXISTENT:
+ 2391 |                         resp.discon.reason = DISCONNECT_SERIAL_NOT_PRESENT;
+ 2392 |                         break;
+ 2393 |                 case SERIAL_AUTHFAILED:
+ 2394 |                         resp.discon.reason = DISCONNECT_SERIAL_INVALID;
+ 2395 |                         break;
+ 2396 |                 case SERIAL_BANNED:
+ 2397 |                         resp.discon.reason = DISCONNECT_SERIAL_BANNED;
+ 2398 |                         break;
+ 2399 |         }
+15 warnings generated.
+[1486/1655] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameNetwork/GameSpy/Thread/PersistentStorageThread.cpp.o
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameNetwork/GameSpy/Thread/PersistentStorageThread.cpp:34:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Precompiled/PreRTS.h:139:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/STLTypedefs.h:62:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:767:7: warning: 'this' pointer cannot be null in well-defined C++ code; pointer may be assumed to always convert to true [-Wundefined-bool-conversion]
+  767 |                 if (this)
+      |                 ~~  ^~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameNetwork/GameSpy/Thread/PersistentStorageThread.cpp:842:2: warning: '/*' within block comment [-Wcomment]
