@@ -1,300 +1,300 @@
-   86 |                 { "FreeFallDamagePercent",      INI::parsePercentToReal,                NULL, offsetof( ParachuteContainModuleData, m_freeFallDamagePercent ) },
-      |                                                                                               ^                                     ~~~~~~~~~~~~~~~~~~~~~~~
+  135 |                 { "Blast5OuterRadius", INI::parseReal, NULL, offsetof( NeutronMissileSlowDeathBehaviorModuleData, m_blastInfo[ NEUTRON_BLAST_5 ].outerRadius ) },       
+      |                                                              ^                                                    ~~~~~~~~~~~
 /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
    16 | #define offsetof(t, d) __builtin_offsetof(t, d)
       |                        ^                     ~
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Contain/ParachuteContain.cpp:87:58: warning: offset of on non-standard-layout type 'ParachuteContainModuleData' [-Winvalid-offsetof]
-   87 |                 { "ParachuteOpenSound", INI::parseAudioEventRTS, NULL, offsetof( ParachuteContainModuleData, m_parachuteOpenSound ) },
-      |                                                                        ^                                     ~~~~~~~~~~~~~~~~~~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Update/NeutronMissileSlowDeathUpdate.cpp:136:46: warning: offset of on non-standard-layout type 'NeutronMissileSlowDeathBehaviorModuleData' [-Winvalid-offsetof]
+  136 |                 { "Blast5MaxDamage", INI::parseReal, NULL, offsetof( NeutronMissileSlowDeathBehaviorModuleData, m_blastInfo[ NEUTRON_BLAST_5 ].maxDamage ) },   
+      |                                                            ^                                                    ~~~~~~~~~~~
 /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
    16 | #define offsetof(t, d) __builtin_offsetof(t, d)
       |                        ^                     ~
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Contain/ParachuteContain.cpp:125:17: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
-  125 |                 m_pitchRate = GameLogicRandomValueReal(-d->m_pitchRateMax, d->m_pitchRateMax);
-      |                               ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/LogicRandomValue.h:56:81: note: expanded from macro 'GameLogicRandomValueReal'
-   56 | #define GameLogicRandomValueReal( lo, hi ) GetGameLogicRandomValueReal( lo, hi, __FILE__, __LINE__ )
-      |                                                                                 ^
-<scratch space>:164:1: note: expanded from here
-  164 | "/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Contain/ParachuteContain.cpp"
-      | ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Contain/ParachuteContain.cpp:126:16: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
-  126 |                 m_rollRate = GameLogicRandomValueReal(-d->m_rollRateMax, d->m_rollRateMax);
-      |                              ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/LogicRandomValue.h:56:81: note: expanded from macro 'GameLogicRandomValueReal'
-   56 | #define GameLogicRandomValueReal( lo, hi ) GetGameLogicRandomValueReal( lo, hi, __FILE__, __LINE__ )
-      |                                                                                 ^
-<scratch space>:166:1: note: expanded from here
-  166 | "/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Contain/ParachuteContain.cpp"
-      | ^
-15 warnings generated.
-[1160/1655] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Contain/OpenContain.cpp.o
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Contain/OpenContain.cpp:36:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Precompiled/PreRTS.h:139:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/STLTypedefs.h:62:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:767:7: warning: 'this' pointer cannot be null in well-defined C++ code; pointer may be assumed to always convert to true [-Wundefined-bool-conversion]
-  767 |                 if (this)
-      |                 ~~  ^~~~
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Contain/OpenContain.cpp:42:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Player.h:62:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/AI.h:41:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:123:10: warning: 35 enumeration values not handled in switch: 'DAMAGE_EXPLOSION', 'DAMAGE_CRUSH', 'DAMAGE_ARMOR_PIERCING'... [-Wswitch]
-  123 |         switch( type )
-      |                 ^~~~
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:123:10: note: add missing switch cases
-  123 |         switch( type )
-      |                 ^
-  124 |         {
-  125 |                 case DAMAGE_SUBDUAL_MISSILE:
-  126 |                 case DAMAGE_SUBDUAL_VEHICLE:
-  127 |                 case DAMAGE_SUBDUAL_BUILDING:
-  128 |                 case DAMAGE_SUBDUAL_UNRESISTABLE:
-  129 |                         return TRUE;
-  130 |         }
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:140:10: warning: 32 enumeration values not handled in switch: 'DAMAGE_EXPLOSION', 'DAMAGE_CRUSH', 'DAMAGE_ARMOR_PIERCING'... [-Wswitch]
-  140 |         switch( type )
-      |                 ^~~~
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:140:10: note: add missing switch cases
-  140 |         switch( type )
-      |                 ^
-  141 |         {
-  142 |                 case DAMAGE_STATUS:
-  143 |                 case DAMAGE_SUBDUAL_MISSILE:
-  144 |                 case DAMAGE_SUBDUAL_VEHICLE:
-  145 |                 case DAMAGE_SUBDUAL_BUILDING:
-  146 |                 case DAMAGE_SUBDUAL_UNRESISTABLE:
-  147 |                 case DAMAGE_KILLPILOT:
-  148 |                 case DAMAGE_KILL_GARRISONED:
-  149 |                         return FALSE;
-  150 |         }
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Contain/OpenContain.cpp:42:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Player.h:69:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Team.h:38:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Object.h:50:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/WeaponSet.h:246:160: warning: implicit conversion of NULL constant to 'UnsignedInt' (aka 'unsigned int') [-Wnull-conversion]
-  246 |         inline UnsignedInt getNthCommandSourceMask( WeaponSlotType n ) const { return m_curWeaponTemplateSet ? m_curWeaponTemplateSet->getNthCommandSourceMask( n ) : NULL; }
-      |                                                                                ~~~~~~                                                                                 ^~~~
-      |                                                                                                                                                                       0
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Contain/OpenContain.cpp:53:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/OpenContain.h:44:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/DieModule.h:79:38: warning: offset of on non-standard-layout type 'DieModuleData' [-Winvalid-offsetof]
-   79 |                 p.add(DieMuxData::getFieldParse(), offsetof( DieModuleData, m_dieMuxData ));
-      |                                                    ^                        ~~~~~~~~~~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Update/NeutronMissileSlowDeathUpdate.cpp:137:46: warning: offset of on non-standard-layout type 'NeutronMissileSlowDeathBehaviorModuleData' [-Winvalid-offsetof]
+  137 |                 { "Blast5MinDamage", INI::parseReal, NULL, offsetof( NeutronMissileSlowDeathBehaviorModuleData, m_blastInfo[ NEUTRON_BLAST_5 ].minDamage ) },   
+      |                                                            ^                                                    ~~~~~~~~~~~
 /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
    16 | #define offsetof(t, d) __builtin_offsetof(t, d)
       |                        ^                     ~
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Contain/OpenContain.cpp:54:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/AIUpdate.h:38:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/AIStateMachine.h:40:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/StateMachine.h:357:7: warning: 'this' pointer cannot be null in well-defined C++ code; pointer may be assumed to always convert to true [-Wundefined-bool-conversion]
-  357 |                 if (this)
-      |                 ~~  ^~~~
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Contain/OpenContain.cpp:100:47: warning: offset of on non-standard-layout type 'OpenContainModuleData' [-Winvalid-offsetof]
-  100 |                 { "ContainMax",                                                         INI::parseInt, NULL, offsetof( OpenContainModuleData, m_containMax ) },
-      |                                                                                                              ^                                ~~~~~~~~~~~~
-/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
-   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
-      |                        ^                     ~
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Contain/OpenContain.cpp:101:58: warning: offset of on non-standard-layout type 'OpenContainModuleData' [-Winvalid-offsetof]
-  101 |                 { "EnterSound",                                                         INI::parseAudioEventRTS,                NULL, offsetof( OpenContainModuleData, m_enterSound ) },
-      |                                                                                                                                       ^                                ~~~~~~~~~~~~
-/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
-   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
-      |                        ^                     ~
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Contain/OpenContain.cpp:102:57: warning: offset of on non-standard-layout type 'OpenContainModuleData' [-Winvalid-offsetof]
-  102 |                 { "ExitSound",                                                          INI::parseAudioEventRTS,                NULL, offsetof( OpenContainModuleData, m_exitSound ) },
-      |                                                                                                                                       ^                                ~~~~~~~~~~~
-/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
-   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
-      |                        ^                     ~
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Contain/OpenContain.cpp:103:63: warning: offset of on non-standard-layout type 'OpenContainModuleData' [-Winvalid-offsetof]
-  103 |                 { "DamagePercentToUnits",                       INI::parsePercentToReal,                NULL, offsetof( OpenContainModuleData, m_damagePercentageToUnits ) },
-      |                                                                                                               ^                                ~~~~~~~~~~~~~~~~~~~~~~~~~
-/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
-   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
-      |                        ^                     ~
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Contain/OpenContain.cpp:104:58: warning: offset of on non-standard-layout type 'OpenContainModuleData' [-Winvalid-offsetof]
-  104 |                 { "BurnedDeathToUnits",                         INI::parseBool,                                                 NULL, offsetof( OpenContainModuleData, m_isBurnedDeathToUnits ) },
-      |                                                                                                                                       ^                                ~~~~~~~~~~~~~~~~~~~~~~
-/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
-   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
-      |                        ^                     ~
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Contain/OpenContain.cpp:105:65: warning: offset of on non-standard-layout type 'OpenContainModuleData' [-Winvalid-offsetof]
-  105 |                 { "AllowInsideKindOf",                          KindOfMaskType::parseFromINI, NULL, offsetof( OpenContainModuleData, m_allowInsideKindOf ) },
-      |                                                                                                     ^                                ~~~~~~~~~~~~~~~~~~~
-/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
-   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
-      |                        ^                     ~
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Contain/OpenContain.cpp:106:66: warning: offset of on non-standard-layout type 'OpenContainModuleData' [-Winvalid-offsetof]
-  106 |                 { "ForbidInsideKindOf",                         KindOfMaskType::parseFromINI, NULL, offsetof( OpenContainModuleData, m_forbidInsideKindOf ) },
-      |                                                                                                     ^                                ~~~~~~~~~~~~~~~~~~~~
-/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
-   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
-      |                        ^                     ~
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Contain/OpenContain.cpp:107:54: warning: offset of on non-standard-layout type 'OpenContainModuleData' [-Winvalid-offsetof]
-  107 |                 { "PassengersAllowedToFire",    INI::parseBool, NULL, offsetof( OpenContainModuleData, m_passengersAllowedToFire ) },
-      |                                                                       ^                                ~~~~~~~~~~~~~~~~~~~~~~~~~
-/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
-   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
-      |                        ^                     ~
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Contain/OpenContain.cpp:108:52: warning: offset of on non-standard-layout type 'OpenContainModuleData' [-Winvalid-offsetof]
-  108 |                 { "PassengersInTurret",                         INI::parseBool, NULL, offsetof( OpenContainModuleData, m_passengersInTurret ) },
-      |                                                                                       ^                                ~~~~~~~~~~~~~~~~~~~~
-/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
-   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
-      |                        ^                     ~
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Contain/OpenContain.cpp:109:50: warning: offset of on non-standard-layout type 'OpenContainModuleData' [-Winvalid-offsetof]
-  109 |                 { "NumberOfExitPaths",                          INI::parseInt, NULL, offsetof( OpenContainModuleData, m_numberOfExitPaths ) },
-      |                                                                                      ^                                ~~~~~~~~~~~~~~~~~~~
-/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
-   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
-      |                        ^                     ~
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Contain/OpenContain.cpp:110:27: warning: offset of on non-standard-layout type 'OpenContainModuleData' [-Winvalid-offsetof]
-  110 |                 { "DoorOpenTime",                                                       SPEED_FIELD( OpenContainModuleData, m_doorOpenTime ) },
-      |                                                                                         ^                                   ~~~~~~~~~~~~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Update/NeutronMissileSlowDeathUpdate.cpp:138:26: warning: offset of on non-standard-layout type 'NeutronMissileSlowDeathBehaviorModuleData' [-Winvalid-offsetof]
+  138 |                 { "Blast5ToppleSpeed", SPEED_FIELD( NeutronMissileSlowDeathBehaviorModuleData, m_blastInfo[ NEUTRON_BLAST_5 ].toppleSpeed ) },
+      |                                        ^                                                       ~~~~~~~~~~~
 /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameCommon.h:557:78: note: expanded from macro 'SPEED_FIELD'
   557 |         std::remove_reference< decltype( ((cls *)0)->member ) >::type::parse, NULL, offsetof( cls, member )
       |                                                                                     ^              ~~~~~~
 /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
    16 | #define offsetof(t, d) __builtin_offsetof(t, d)
       |                        ^                     ~
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Contain/OpenContain.cpp:111:61: warning: offset of on non-standard-layout type 'OpenContainModuleData' [-Winvalid-offsetof]
-  111 |                 { "WeaponBonusPassedToPassengers", INI::parseBool,      NULL, offsetof( OpenContainModuleData, m_weaponBonusPassedToPassengers ) },
-      |                                                                               ^                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Update/NeutronMissileSlowDeathUpdate.cpp:139:24: warning: offset of on non-standard-layout type 'NeutronMissileSlowDeathBehaviorModuleData' [-Winvalid-offsetof]
+  139 |                 { "Blast5PushForce", SPEED_FIELD( NeutronMissileSlowDeathBehaviorModuleData, m_blastInfo[ NEUTRON_BLAST_5 ].pushForceMag ) },
+      |                                      ^                                                       ~~~~~~~~~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameCommon.h:557:78: note: expanded from macro 'SPEED_FIELD'
+  557 |         std::remove_reference< decltype( ((cls *)0)->member ) >::type::parse, NULL, offsetof( cls, member )
+      |                                                                                     ^              ~~~~~~
 /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
    16 | #define offsetof(t, d) __builtin_offsetof(t, d)
       |                        ^                     ~
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Contain/OpenContain.cpp:112:52: warning: offset of on non-standard-layout type 'OpenContainModuleData' [-Winvalid-offsetof]
-  112 |                 { "AllowAlliesInside",                          INI::parseBool, NULL, offsetof( OpenContainModuleData, m_allowAlliesInside ) },
-      |                                                                                       ^                                ~~~~~~~~~~~~~~~~~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Update/NeutronMissileSlowDeathUpdate.cpp:141:44: warning: offset of on non-standard-layout type 'NeutronMissileSlowDeathBehaviorModuleData' [-Winvalid-offsetof]
+  141 |                 { "Blast6Enabled", INI::parseBool, NULL, offsetof( NeutronMissileSlowDeathBehaviorModuleData, m_blastInfo[ NEUTRON_BLAST_6 ].enabled ) },       
+      |                                                          ^                                                    ~~~~~~~~~~~
 /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
    16 | #define offsetof(t, d) __builtin_offsetof(t, d)
       |                        ^                     ~
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Contain/OpenContain.cpp:113:53: warning: offset of on non-standard-layout type 'OpenContainModuleData' [-Winvalid-offsetof]
-  113 |                 { "AllowEnemiesInside",                         INI::parseBool, NULL, offsetof( OpenContainModuleData, m_allowEnemiesInside ) },
-      |                                                                                       ^                                ~~~~~~~~~~~~~~~~~~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Update/NeutronMissileSlowDeathUpdate.cpp:142:20: warning: offset of on non-standard-layout type 'NeutronMissileSlowDeathBehaviorModuleData' [-Winvalid-offsetof]
+  142 |                 { "Blast6Delay", SPEED_FIELD( NeutronMissileSlowDeathBehaviorModuleData, m_blastInfo[ NEUTRON_BLAST_6 ].delay ) },      
+      |                                  ^                                                       ~~~~~~~~~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameCommon.h:557:78: note: expanded from macro 'SPEED_FIELD'
+  557 |         std::remove_reference< decltype( ((cls *)0)->member ) >::type::parse, NULL, offsetof( cls, member )
+      |                                                                                     ^              ~~~~~~
 /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
    16 | #define offsetof(t, d) __builtin_offsetof(t, d)
       |                        ^                     ~
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Contain/OpenContain.cpp:114:53: warning: offset of on non-standard-layout type 'OpenContainModuleData' [-Winvalid-offsetof]
-  114 |                 { "AllowNeutralInside",                         INI::parseBool, NULL, offsetof( OpenContainModuleData, m_allowNeutralInside ) },
-      |                                                                                       ^                                ~~~~~~~~~~~~~~~~~~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Update/NeutronMissileSlowDeathUpdate.cpp:143:26: warning: offset of on non-standard-layout type 'NeutronMissileSlowDeathBehaviorModuleData' [-Winvalid-offsetof]
+  143 |                 { "Blast6ScorchDelay", SPEED_FIELD( NeutronMissileSlowDeathBehaviorModuleData, m_blastInfo[ NEUTRON_BLAST_6 ].scorchDelay ) },                  
+      |                                        ^                                                       ~~~~~~~~~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameCommon.h:557:78: note: expanded from macro 'SPEED_FIELD'
+  557 |         std::remove_reference< decltype( ((cls *)0)->member ) >::type::parse, NULL, offsetof( cls, member )
+      |                                                                                     ^              ~~~~~~
 /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
    16 | #define offsetof(t, d) __builtin_offsetof(t, d)
       |                        ^                     ~
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Contain/OpenContain.cpp:118:37: warning: offset of on non-standard-layout type 'OpenContainModuleData' [-Winvalid-offsetof]
-  118 |         p.add(DieMuxData::getFieldParse(), offsetof( OpenContainModuleData, m_dieMuxData ));
-      |                                            ^                                ~~~~~~~~~~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Update/NeutronMissileSlowDeathUpdate.cpp:144:48: warning: offset of on non-standard-layout type 'NeutronMissileSlowDeathBehaviorModuleData' [-Winvalid-offsetof]
+  144 |                 { "Blast6InnerRadius", INI::parseReal, NULL, offsetof( NeutronMissileSlowDeathBehaviorModuleData, m_blastInfo[ NEUTRON_BLAST_6 ].innerRadius ) },       
+      |                                                              ^                                                    ~~~~~~~~~~~
 /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
    16 | #define offsetof(t, d) __builtin_offsetof(t, d)
       |                        ^                     ~
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Contain/OpenContain.cpp:768:15: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
-  768 |         Real angle = GameLogicRandomValueReal( 0.0f, 2.0f * PI );
-      |                      ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/LogicRandomValue.h:56:81: note: expanded from macro 'GameLogicRandomValueReal'
-   56 | #define GameLogicRandomValueReal( lo, hi ) GetGameLogicRandomValueReal( lo, hi, __FILE__, __LINE__ )
-      |                                                                                 ^
-<scratch space>:103:1: note: expanded from here
-  103 | "/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Contain/OpenContain.cpp"
-      | ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Contain/OpenContain.cpp:775:14: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
-  775 |         Real dist = GameLogicRandomValueReal( minRadius, maxRadius );
-      |                     ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/LogicRandomValue.h:56:81: note: expanded from macro 'GameLogicRandomValueReal'
-   56 | #define GameLogicRandomValueReal( lo, hi ) GetGameLogicRandomValueReal( lo, hi, __FILE__, __LINE__ )
-      |                                                                                 ^
-<scratch space>:105:1: note: expanded from here
-  105 | "/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Contain/OpenContain.cpp"
-      | ^
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Contain/OpenContain.cpp:36:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Precompiled/PreRTS.h:153:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/KindOf.h:40:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BitFlagsIO.h:102:47: warning: instantiation of variable 'BitFlags<117, 2>::s_bitNameList' required here, but no definition is available [-Wundefined-var-template]
-  102 |                         Int bitIndex = INI::scanIndexList(token+1, s_bitNameList);      // this throws if the token is not found
-      |                                                                    ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BitFlagsIO.h:140:22: note: in instantiation of member function 'BitFlags<117, 2>::parse' requested here
-  140 |         ((BitFlags*)store)->parse(ini, NULL);
-      |                             ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Contain/OpenContain.cpp:105:45: note: in instantiation of member function 'BitFlags<117, 2>::parseFromINI' requested here
-  105 |                 { "AllowInsideKindOf",                          KindOfMaskType::parseFromINI, NULL, offsetof( OpenContainModuleData, m_allowInsideKindOf ) },
-      |                                                                                 ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BitFlags.h:70:25: note: forward declaration of template entity is here
-   70 |         static const char*                                      s_bitNameList[];
-      |                                                                 ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BitFlagsIO.h:102:47: note: add an explicit instantiation declaration to suppress this warning if 'BitFlags<117, 2>::s_bitNameList' is explicitly instantiated in another translation unit
-  102 |                         Int bitIndex = INI::scanIndexList(token+1, s_bitNameList);      // this throws if the token is not found
-      |                                                                    ^
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Contain/OpenContain.cpp:36:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Precompiled/PreRTS.h:153:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/KindOf.h:39:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BitFlags.h:303:22: warning: instantiation of variable 'BitFlags<117, 3>::s_bitNameList' required here, but no definition is available [-Wundefined-var-template]
-  303 |     return test(i) ? s_bitNameList[i] : NULL;
-      |                      ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BitFlagsIO.h:177:26: note: in instantiation of member function 'BitFlags<117, 3>::getBitNameIfSet' requested here
-  177 |                         const char* bitName = getBitNameIfSet(i);
-      |                                               ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Contain/OpenContain.cpp:1820:19: note: in instantiation of member function 'BitFlags<117, 3>::xfer' requested here
- 1820 |         m_conditionState.xfer( xfer );
-      |                          ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BitFlags.h:70:25: note: forward declaration of template entity is here
-   70 |         static const char*                                      s_bitNameList[];
-      |                                                                 ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/BitFlags.h:303:22: note: add an explicit instantiation declaration to suppress this warning if 'BitFlags<117, 3>::s_bitNameList' is explicitly instantiated in another translation unit
-  303 |     return test(i) ? s_bitNameList[i] : NULL;
-      |                      ^
-26 warnings generated.
-[1161/1655] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/Object/Contain/RailedTransportContain.cpp.o
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Contain/RailedTransportContain.cpp:31:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Precompiled/PreRTS.h:139:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/STLTypedefs.h:62:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:767:7: warning: 'this' pointer cannot be null in well-defined C++ code; pointer may be assumed to always convert to true [-Wundefined-bool-conversion]
-  767 |                 if (this)
-      |                 ~~  ^~~~
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Contain/RailedTransportContain.cpp:33:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Object.h:48:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:123:10: warning: 35 enumeration values not handled in switch: 'DAMAGE_EXPLOSION', 'DAMAGE_CRUSH', 'DAMAGE_ARMOR_PIERCING'... [-Wswitch]
-  123 |         switch( type )
-      |                 ^~~~
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:123:10: note: add missing switch cases
-  123 |         switch( type )
-      |                 ^
-  124 |         {
-  125 |                 case DAMAGE_SUBDUAL_MISSILE:
-  126 |                 case DAMAGE_SUBDUAL_VEHICLE:
-  127 |                 case DAMAGE_SUBDUAL_BUILDING:
-  128 |                 case DAMAGE_SUBDUAL_UNRESISTABLE:
-  129 |                         return TRUE;
-  130 |         }
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:140:10: warning: 32 enumeration values not handled in switch: 'DAMAGE_EXPLOSION', 'DAMAGE_CRUSH', 'DAMAGE_ARMOR_PIERCING'... [-Wswitch]
-  140 |         switch( type )
-      |                 ^~~~
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:140:10: note: add missing switch cases
-  140 |         switch( type )
-      |                 ^
-  141 |         {
-  142 |                 case DAMAGE_STATUS:
-  143 |                 case DAMAGE_SUBDUAL_MISSILE:
-  144 |                 case DAMAGE_SUBDUAL_VEHICLE:
-  145 |                 case DAMAGE_SUBDUAL_BUILDING:
-  146 |                 case DAMAGE_SUBDUAL_UNRESISTABLE:
-  147 |                 case DAMAGE_KILLPILOT:
-  148 |                 case DAMAGE_KILL_GARRISONED:
-  149 |                         return FALSE;
-  150 |         }
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Contain/RailedTransportContain.cpp:33:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Object.h:50:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/WeaponSet.h:246:160: warning: implicit conversion of NULL constant to 'UnsignedInt' (aka 'unsigned int') [-Wnull-conversion]
-  246 |         inline UnsignedInt getNthCommandSourceMask( WeaponSlotType n ) const { return m_curWeaponTemplateSet ? m_curWeaponTemplateSet->getNthCommandSourceMask( n ) : NULL; }
-      |                                                                                ~~~~~~                                                                                 ^~~~
-      |                                                                                                                                                                       0
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Contain/RailedTransportContain.cpp:34:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/RailedTransportContain.h:36:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/TransportContain.h:36:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/OpenContain.h:44:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/DieModule.h:79:38: warning: offset of on non-standard-layout type 'DieModuleData' [-Winvalid-offsetof]
-   79 |                 p.add(DieMuxData::getFieldParse(), offsetof( DieModuleData, m_dieMuxData ));
-      |                                                    ^                        ~~~~~~~~~~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Update/NeutronMissileSlowDeathUpdate.cpp:145:48: warning: offset of on non-standard-layout type 'NeutronMissileSlowDeathBehaviorModuleData' [-Winvalid-offsetof]
+  145 |                 { "Blast6OuterRadius", INI::parseReal, NULL, offsetof( NeutronMissileSlowDeathBehaviorModuleData, m_blastInfo[ NEUTRON_BLAST_6 ].outerRadius ) },       
+      |                                                              ^                                                    ~~~~~~~~~~~
 /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
    16 | #define offsetof(t, d) __builtin_offsetof(t, d)
       |                        ^                     ~
-5 warnings generated.
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Update/NeutronMissileSlowDeathUpdate.cpp:146:46: warning: offset of on non-standard-layout type 'NeutronMissileSlowDeathBehaviorModuleData' [-Winvalid-offsetof]
+  146 |                 { "Blast6MaxDamage", INI::parseReal, NULL, offsetof( NeutronMissileSlowDeathBehaviorModuleData, m_blastInfo[ NEUTRON_BLAST_6 ].maxDamage ) },   
+      |                                                            ^                                                    ~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Update/NeutronMissileSlowDeathUpdate.cpp:147:46: warning: offset of on non-standard-layout type 'NeutronMissileSlowDeathBehaviorModuleData' [-Winvalid-offsetof]
+  147 |                 { "Blast6MinDamage", INI::parseReal, NULL, offsetof( NeutronMissileSlowDeathBehaviorModuleData, m_blastInfo[ NEUTRON_BLAST_6 ].minDamage ) },   
+      |                                                            ^                                                    ~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Update/NeutronMissileSlowDeathUpdate.cpp:148:26: warning: offset of on non-standard-layout type 'NeutronMissileSlowDeathBehaviorModuleData' [-Winvalid-offsetof]
+  148 |                 { "Blast6ToppleSpeed", SPEED_FIELD( NeutronMissileSlowDeathBehaviorModuleData, m_blastInfo[ NEUTRON_BLAST_6 ].toppleSpeed ) },
+      |                                        ^                                                       ~~~~~~~~~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameCommon.h:557:78: note: expanded from macro 'SPEED_FIELD'
+  557 |         std::remove_reference< decltype( ((cls *)0)->member ) >::type::parse, NULL, offsetof( cls, member )
+      |                                                                                     ^              ~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Update/NeutronMissileSlowDeathUpdate.cpp:149:24: warning: offset of on non-standard-layout type 'NeutronMissileSlowDeathBehaviorModuleData' [-Winvalid-offsetof]
+  149 |                 { "Blast6PushForce", SPEED_FIELD( NeutronMissileSlowDeathBehaviorModuleData, m_blastInfo[ NEUTRON_BLAST_6 ].pushForceMag ) },
+      |                                      ^                                                       ~~~~~~~~~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameCommon.h:557:78: note: expanded from macro 'SPEED_FIELD'
+  557 |         std::remove_reference< decltype( ((cls *)0)->member ) >::type::parse, NULL, offsetof( cls, member )
+      |                                                                                     ^              ~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Update/NeutronMissileSlowDeathUpdate.cpp:151:44: warning: offset of on non-standard-layout type 'NeutronMissileSlowDeathBehaviorModuleData' [-Winvalid-offsetof]
+  151 |                 { "Blast7Enabled", INI::parseBool, NULL, offsetof( NeutronMissileSlowDeathBehaviorModuleData, m_blastInfo[ NEUTRON_BLAST_7 ].enabled ) },       
+      |                                                          ^                                                    ~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Update/NeutronMissileSlowDeathUpdate.cpp:152:20: warning: offset of on non-standard-layout type 'NeutronMissileSlowDeathBehaviorModuleData' [-Winvalid-offsetof]
+  152 |                 { "Blast7Delay", SPEED_FIELD( NeutronMissileSlowDeathBehaviorModuleData, m_blastInfo[ NEUTRON_BLAST_7 ].delay ) },      
+      |                                  ^                                                       ~~~~~~~~~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameCommon.h:557:78: note: expanded from macro 'SPEED_FIELD'
+  557 |         std::remove_reference< decltype( ((cls *)0)->member ) >::type::parse, NULL, offsetof( cls, member )
+      |                                                                                     ^              ~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Update/NeutronMissileSlowDeathUpdate.cpp:153:26: warning: offset of on non-standard-layout type 'NeutronMissileSlowDeathBehaviorModuleData' [-Winvalid-offsetof]
+  153 |                 { "Blast7ScorchDelay", SPEED_FIELD( NeutronMissileSlowDeathBehaviorModuleData, m_blastInfo[ NEUTRON_BLAST_7 ].scorchDelay ) },                  
+      |                                        ^                                                       ~~~~~~~~~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameCommon.h:557:78: note: expanded from macro 'SPEED_FIELD'
+  557 |         std::remove_reference< decltype( ((cls *)0)->member ) >::type::parse, NULL, offsetof( cls, member )
+      |                                                                                     ^              ~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Update/NeutronMissileSlowDeathUpdate.cpp:154:48: warning: offset of on non-standard-layout type 'NeutronMissileSlowDeathBehaviorModuleData' [-Winvalid-offsetof]
+  154 |                 { "Blast7InnerRadius", INI::parseReal, NULL, offsetof( NeutronMissileSlowDeathBehaviorModuleData, m_blastInfo[ NEUTRON_BLAST_7 ].innerRadius ) },       
+      |                                                              ^                                                    ~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Update/NeutronMissileSlowDeathUpdate.cpp:155:48: warning: offset of on non-standard-layout type 'NeutronMissileSlowDeathBehaviorModuleData' [-Winvalid-offsetof]
+  155 |                 { "Blast7OuterRadius", INI::parseReal, NULL, offsetof( NeutronMissileSlowDeathBehaviorModuleData, m_blastInfo[ NEUTRON_BLAST_7 ].outerRadius ) },       
+      |                                                              ^                                                    ~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Update/NeutronMissileSlowDeathUpdate.cpp:156:46: warning: offset of on non-standard-layout type 'NeutronMissileSlowDeathBehaviorModuleData' [-Winvalid-offsetof]
+  156 |                 { "Blast7MaxDamage", INI::parseReal, NULL, offsetof( NeutronMissileSlowDeathBehaviorModuleData, m_blastInfo[ NEUTRON_BLAST_7 ].maxDamage ) },   
+      |                                                            ^                                                    ~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Update/NeutronMissileSlowDeathUpdate.cpp:157:46: warning: offset of on non-standard-layout type 'NeutronMissileSlowDeathBehaviorModuleData' [-Winvalid-offsetof]
+  157 |                 { "Blast7MinDamage", INI::parseReal, NULL, offsetof( NeutronMissileSlowDeathBehaviorModuleData, m_blastInfo[ NEUTRON_BLAST_7 ].minDamage ) },   
+      |                                                            ^                                                    ~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Update/NeutronMissileSlowDeathUpdate.cpp:158:26: warning: offset of on non-standard-layout type 'NeutronMissileSlowDeathBehaviorModuleData' [-Winvalid-offsetof]
+  158 |                 { "Blast7ToppleSpeed", SPEED_FIELD( NeutronMissileSlowDeathBehaviorModuleData, m_blastInfo[ NEUTRON_BLAST_7 ].toppleSpeed ) },
+      |                                        ^                                                       ~~~~~~~~~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameCommon.h:557:78: note: expanded from macro 'SPEED_FIELD'
+  557 |         std::remove_reference< decltype( ((cls *)0)->member ) >::type::parse, NULL, offsetof( cls, member )
+      |                                                                                     ^              ~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Update/NeutronMissileSlowDeathUpdate.cpp:159:24: warning: offset of on non-standard-layout type 'NeutronMissileSlowDeathBehaviorModuleData' [-Winvalid-offsetof]
+  159 |                 { "Blast7PushForce", SPEED_FIELD( NeutronMissileSlowDeathBehaviorModuleData, m_blastInfo[ NEUTRON_BLAST_7 ].pushForceMag ) },
+      |                                      ^                                                       ~~~~~~~~~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameCommon.h:557:78: note: expanded from macro 'SPEED_FIELD'
+  557 |         std::remove_reference< decltype( ((cls *)0)->member ) >::type::parse, NULL, offsetof( cls, member )
+      |                                                                                     ^              ~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Update/NeutronMissileSlowDeathUpdate.cpp:161:44: warning: offset of on non-standard-layout type 'NeutronMissileSlowDeathBehaviorModuleData' [-Winvalid-offsetof]
+  161 |                 { "Blast8Enabled", INI::parseBool, NULL, offsetof( NeutronMissileSlowDeathBehaviorModuleData, m_blastInfo[ NEUTRON_BLAST_8 ].enabled ) },       
+      |                                                          ^                                                    ~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Update/NeutronMissileSlowDeathUpdate.cpp:162:20: warning: offset of on non-standard-layout type 'NeutronMissileSlowDeathBehaviorModuleData' [-Winvalid-offsetof]
+  162 |                 { "Blast8Delay", SPEED_FIELD( NeutronMissileSlowDeathBehaviorModuleData, m_blastInfo[ NEUTRON_BLAST_8 ].delay ) },      
+      |                                  ^                                                       ~~~~~~~~~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameCommon.h:557:78: note: expanded from macro 'SPEED_FIELD'
+  557 |         std::remove_reference< decltype( ((cls *)0)->member ) >::type::parse, NULL, offsetof( cls, member )
+      |                                                                                     ^              ~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Update/NeutronMissileSlowDeathUpdate.cpp:163:26: warning: offset of on non-standard-layout type 'NeutronMissileSlowDeathBehaviorModuleData' [-Winvalid-offsetof]
+  163 |                 { "Blast8ScorchDelay", SPEED_FIELD( NeutronMissileSlowDeathBehaviorModuleData, m_blastInfo[ NEUTRON_BLAST_8 ].scorchDelay ) },                  
+      |                                        ^                                                       ~~~~~~~~~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameCommon.h:557:78: note: expanded from macro 'SPEED_FIELD'
+  557 |         std::remove_reference< decltype( ((cls *)0)->member ) >::type::parse, NULL, offsetof( cls, member )
+      |                                                                                     ^              ~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Update/NeutronMissileSlowDeathUpdate.cpp:164:48: warning: offset of on non-standard-layout type 'NeutronMissileSlowDeathBehaviorModuleData' [-Winvalid-offsetof]
+  164 |                 { "Blast8InnerRadius", INI::parseReal, NULL, offsetof( NeutronMissileSlowDeathBehaviorModuleData, m_blastInfo[ NEUTRON_BLAST_8 ].innerRadius ) },       
+      |                                                              ^                                                    ~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Update/NeutronMissileSlowDeathUpdate.cpp:165:48: warning: offset of on non-standard-layout type 'NeutronMissileSlowDeathBehaviorModuleData' [-Winvalid-offsetof]
+  165 |                 { "Blast8OuterRadius", INI::parseReal, NULL, offsetof( NeutronMissileSlowDeathBehaviorModuleData, m_blastInfo[ NEUTRON_BLAST_8 ].outerRadius ) },       
+      |                                                              ^                                                    ~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Update/NeutronMissileSlowDeathUpdate.cpp:166:46: warning: offset of on non-standard-layout type 'NeutronMissileSlowDeathBehaviorModuleData' [-Winvalid-offsetof]
+  166 |                 { "Blast8MaxDamage", INI::parseReal, NULL, offsetof( NeutronMissileSlowDeathBehaviorModuleData, m_blastInfo[ NEUTRON_BLAST_8 ].maxDamage ) },   
+      |                                                            ^                                                    ~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Update/NeutronMissileSlowDeathUpdate.cpp:167:46: warning: offset of on non-standard-layout type 'NeutronMissileSlowDeathBehaviorModuleData' [-Winvalid-offsetof]
+  167 |                 { "Blast8MinDamage", INI::parseReal, NULL, offsetof( NeutronMissileSlowDeathBehaviorModuleData, m_blastInfo[ NEUTRON_BLAST_8 ].minDamage ) },   
+      |                                                            ^                                                    ~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Update/NeutronMissileSlowDeathUpdate.cpp:168:26: warning: offset of on non-standard-layout type 'NeutronMissileSlowDeathBehaviorModuleData' [-Winvalid-offsetof]
+  168 |                 { "Blast8ToppleSpeed", SPEED_FIELD( NeutronMissileSlowDeathBehaviorModuleData, m_blastInfo[ NEUTRON_BLAST_8 ].toppleSpeed ) },
+      |                                        ^                                                       ~~~~~~~~~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameCommon.h:557:78: note: expanded from macro 'SPEED_FIELD'
+  557 |         std::remove_reference< decltype( ((cls *)0)->member ) >::type::parse, NULL, offsetof( cls, member )
+      |                                                                                     ^              ~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Update/NeutronMissileSlowDeathUpdate.cpp:169:24: warning: offset of on non-standard-layout type 'NeutronMissileSlowDeathBehaviorModuleData' [-Winvalid-offsetof]
+  169 |                 { "Blast8PushForce", SPEED_FIELD( NeutronMissileSlowDeathBehaviorModuleData, m_blastInfo[ NEUTRON_BLAST_8 ].pushForceMag ) },
+      |                                      ^                                                       ~~~~~~~~~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameCommon.h:557:78: note: expanded from macro 'SPEED_FIELD'
+  557 |         std::remove_reference< decltype( ((cls *)0)->member ) >::type::parse, NULL, offsetof( cls, member )
+      |                                                                                     ^              ~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Update/NeutronMissileSlowDeathUpdate.cpp:171:44: warning: offset of on non-standard-layout type 'NeutronMissileSlowDeathBehaviorModuleData' [-Winvalid-offsetof]
+  171 |                 { "Blast9Enabled", INI::parseBool, NULL, offsetof( NeutronMissileSlowDeathBehaviorModuleData, m_blastInfo[ NEUTRON_BLAST_9 ].enabled ) },       
+      |                                                          ^                                                    ~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Update/NeutronMissileSlowDeathUpdate.cpp:172:20: warning: offset of on non-standard-layout type 'NeutronMissileSlowDeathBehaviorModuleData' [-Winvalid-offsetof]
+  172 |                 { "Blast9Delay", SPEED_FIELD( NeutronMissileSlowDeathBehaviorModuleData, m_blastInfo[ NEUTRON_BLAST_9 ].delay ) },      
+      |                                  ^                                                       ~~~~~~~~~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameCommon.h:557:78: note: expanded from macro 'SPEED_FIELD'
+  557 |         std::remove_reference< decltype( ((cls *)0)->member ) >::type::parse, NULL, offsetof( cls, member )
+      |                                                                                     ^              ~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Update/NeutronMissileSlowDeathUpdate.cpp:173:26: warning: offset of on non-standard-layout type 'NeutronMissileSlowDeathBehaviorModuleData' [-Winvalid-offsetof]
+  173 |                 { "Blast9ScorchDelay", SPEED_FIELD( NeutronMissileSlowDeathBehaviorModuleData, m_blastInfo[ NEUTRON_BLAST_9 ].scorchDelay ) },                  
+      |                                        ^                                                       ~~~~~~~~~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameCommon.h:557:78: note: expanded from macro 'SPEED_FIELD'
+  557 |         std::remove_reference< decltype( ((cls *)0)->member ) >::type::parse, NULL, offsetof( cls, member )
+      |                                                                                     ^              ~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Update/NeutronMissileSlowDeathUpdate.cpp:174:48: warning: offset of on non-standard-layout type 'NeutronMissileSlowDeathBehaviorModuleData' [-Winvalid-offsetof]
+  174 |                 { "Blast9InnerRadius", INI::parseReal, NULL, offsetof( NeutronMissileSlowDeathBehaviorModuleData, m_blastInfo[ NEUTRON_BLAST_9 ].innerRadius ) },       
+      |                                                              ^                                                    ~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Update/NeutronMissileSlowDeathUpdate.cpp:175:48: warning: offset of on non-standard-layout type 'NeutronMissileSlowDeathBehaviorModuleData' [-Winvalid-offsetof]
+  175 |                 { "Blast9OuterRadius", INI::parseReal, NULL, offsetof( NeutronMissileSlowDeathBehaviorModuleData, m_blastInfo[ NEUTRON_BLAST_9 ].outerRadius ) },       
+      |                                                              ^                                                    ~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Update/NeutronMissileSlowDeathUpdate.cpp:176:46: warning: offset of on non-standard-layout type 'NeutronMissileSlowDeathBehaviorModuleData' [-Winvalid-offsetof]
+  176 |                 { "Blast9MaxDamage", INI::parseReal, NULL, offsetof( NeutronMissileSlowDeathBehaviorModuleData, m_blastInfo[ NEUTRON_BLAST_9 ].maxDamage ) },   
+      |                                                            ^                                                    ~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Update/NeutronMissileSlowDeathUpdate.cpp:177:46: warning: offset of on non-standard-layout type 'NeutronMissileSlowDeathBehaviorModuleData' [-Winvalid-offsetof]
+  177 |                 { "Blast9MinDamage", INI::parseReal, NULL, offsetof( NeutronMissileSlowDeathBehaviorModuleData, m_blastInfo[ NEUTRON_BLAST_9 ].minDamage ) },   
+      |                                                            ^                                                    ~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Update/NeutronMissileSlowDeathUpdate.cpp:178:26: warning: offset of on non-standard-layout type 'NeutronMissileSlowDeathBehaviorModuleData' [-Winvalid-offsetof]
+  178 |                 { "Blast9ToppleSpeed", SPEED_FIELD( NeutronMissileSlowDeathBehaviorModuleData, m_blastInfo[ NEUTRON_BLAST_9 ].toppleSpeed ) },
+      |                                        ^                                                       ~~~~~~~~~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameCommon.h:557:78: note: expanded from macro 'SPEED_FIELD'
+  557 |         std::remove_reference< decltype( ((cls *)0)->member ) >::type::parse, NULL, offsetof( cls, member )
+      |                                                                                     ^              ~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/Object/Update/NeutronMissileSlowDeathUpdate.cpp:179:24: warning: offset of on non-standard-layout type 'NeutronMissileSlowDeathBehaviorModuleData' [-Winvalid-offsetof]
+  179 |                 { "Blast9PushForce", SPEED_FIELD( NeutronMissileSlowDeathBehaviorModuleData, m_blastInfo[ NEUTRON_BLAST_9 ].pushForceMag ) },
+      |                                      ^                                                       ~~~~~~~~~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameCommon.h:557:78: note: expanded from macro 'SPEED_FIELD'
+  557 |         std::remove_reference< decltype( ((cls *)0)->member ) >::type::parse, NULL, offsetof( cls, member )
+      |                                                                                     ^              ~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+89 warnings generated.
