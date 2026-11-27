@@ -1382,6 +1382,7 @@ TEST(authored_surf_wrapper_compiles_with_original_fixed_function_fog_and_alpha)
 // Keep BaseType.h's legacy min/max macros out of the independent shader cases above.
 #include "Platform/HazardCloudCore.h"
 #include "../GameEngineDevice/Source/PosixDevice/Render/SdlHazardCloudSharedShader.h"
+#include "Platform/ModernWaterBuild.h"
 // Shared clouds must retain SDL descriptor bindings on Vulkan and Metal.
 TEST(shared_cloud_programs_compile_validate_and_translate)
 {
@@ -1516,6 +1517,7 @@ TEST(screen_reflection_modes_are_bounded_and_selected_per_draw)
 }
 #endif // __linux__
 
+#if ZH_MODERN_WATER  // Modern water is compiled in on Linux and Windows only (ModernWaterBuild.h); macOS and iOS keep Classic water
 TEST(sdl_clarity_uses_only_terrain_and_skips_deep_samples)
 {
 	PixelPipelineDescription pipeline = {}; std::string source;
@@ -1546,3 +1548,4 @@ TEST(direct3d11_modern_water_source_matches_the_upstream_baseline)
 		CHECK(hash == expected[index++]);
 	}
 }
+#endif // ZH_MODERN_WATER
