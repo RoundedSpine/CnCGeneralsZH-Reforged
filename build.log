@@ -1,32 +1,28 @@
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:767:7: warning: 'this' pointer cannot be null in well-defined C++ code; pointer may be assumed to always convert to true [-Wundefined-bool-conversion]
-  767 |                 if (this)
-      |                 ~~  ^~~~
-1 warning generated.
-[988/1655] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/GUICallbacks/Menus/WOLStatusMenu.cpp.o
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/GUICallbacks/Menus/WOLStatusMenu.cpp:32:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/LogicRandomValue.h:55:73: note: expanded from macro 'GameLogicRandomValue'
+   55 | #define GameLogicRandomValue( lo, hi ) GetGameLogicRandomValue( lo, hi, __FILE__, __LINE__ )
+      |                                                                         ^
+<scratch space>:151:1: note: expanded from here
+  151 | "/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/AI/AIGuardRetaliate.cpp"
+      | ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/AI/AIGuardRetaliate.cpp:708:30: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
+  708 |         m_nextEnemyScanTime = now + GameLogicRandomValue(0, TheAI->getAiData()->m_guardEnemyScanRate);
+      |                                     ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/LogicRandomValue.h:55:73: note: expanded from macro 'GameLogicRandomValue'
+   55 | #define GameLogicRandomValue( lo, hi ) GetGameLogicRandomValue( lo, hi, __FILE__, __LINE__ )
+      |                                                                         ^
+<scratch space>:153:1: note: expanded from here
+  153 | "/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/AI/AIGuardRetaliate.cpp"
+      | ^
+8 warnings generated.
+[1075/1655] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/AI/AIInfluenceMap.cpp.o
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/AI/AIInfluenceMap.cpp:21:
 In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Precompiled/PreRTS.h:139:
 In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/STLTypedefs.h:62:
 /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:767:7: warning: 'this' pointer cannot be null in well-defined C++ code; pointer may be assumed to always convert to true [-Wundefined-bool-conversion]
   767 |                 if (this)
       |                 ~~  ^~~~
-1 warning generated.
-[989/1655] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/GUICallbacks/MessageBox.cpp.o
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/GUICallbacks/MessageBox.cpp:49:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Precompiled/PreRTS.h:139:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/STLTypedefs.h:62:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:767:7: warning: 'this' pointer cannot be null in well-defined C++ code; pointer may be assumed to always convert to true [-Wundefined-bool-conversion]
-  767 |                 if (this)
-      |                 ~~  ^~~~
-1 warning generated.
-[990/1655] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/GUICallbacks/Menus/WOLWelcomeMenu.cpp.o
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/GUICallbacks/Menus/WOLWelcomeMenu.cpp:34:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Precompiled/PreRTS.h:139:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/STLTypedefs.h:62:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:767:7: warning: 'this' pointer cannot be null in well-defined C++ code; pointer may be assumed to always convert to true [-Wundefined-bool-conversion]
-  767 |                 if (this)
-      |                 ~~  ^~~~
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/GUICallbacks/Menus/WOLWelcomeMenu.cpp:46:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/AI.h:41:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/AI/AIInfluenceMap.cpp:27:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Weapon.h:41:
 /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:123:10: warning: 35 enumeration values not handled in switch: 'DAMAGE_EXPLOSION', 'DAMAGE_CRUSH', 'DAMAGE_ARMOR_PIERCING'... [-Wswitch]
   123 |         switch( type )
       |                 ^~~~
@@ -56,190 +52,15 @@ In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Re
   148 |                 case DAMAGE_KILL_GARRISONED:
   149 |                         return FALSE;
   150 |         }
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/GUICallbacks/Menus/WOLWelcomeMenu.cpp:1427:12: warning: 18 enumeration values not handled in switch: 'PEERRESPONSE_LOGIN', 'PEERRESPONSE_MESSAGE', 'PEERRESPONSE_STAGINGROOM'... [-Wswitch]
- 1427 |                         switch (resp.peerResponseType)
-      |                                 ^~~~~~~~~~~~~~~~~~~~~
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/GUICallbacks/Menus/WOLWelcomeMenu.cpp:1427:12: note: add missing switch cases
- 1427 |                         switch (resp.peerResponseType)
-      |                                 ^
-4 warnings generated.
-[991/1655] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/GUICallbacks/Menus/WOLQuickMatchMenu.cpp.o
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/GUICallbacks/Menus/WOLQuickMatchMenu.cpp:33:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Precompiled/PreRTS.h:139:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/STLTypedefs.h:62:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:767:7: warning: 'this' pointer cannot be null in well-defined C++ code; pointer may be assumed to always convert to true [-Wundefined-bool-conversion]
-  767 |                 if (this)
-      |                 ~~  ^~~~
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/GUICallbacks/Menus/WOLQuickMatchMenu.cpp:57:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameClient/ShellHooks.h:86:8: warning: extra tokens at end of #endif directive [-Wextra-tokens]
-   86 | #endif SHELLHOOKS_H
-      |        ^
-      |        //
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/GUICallbacks/Menus/WOLQuickMatchMenu.cpp:2309:13: warning: 20 enumeration values not handled in switch: 'PEERRESPONSE_LOGIN', 'PEERRESPONSE_MESSAGE', 'PEERRESPONSE_GROUPROOM'... [-Wswitch]
- 2309 |                                 switch (resp.peerResponseType)
-      |                                         ^~~~~~~~~~~~~~~~~~~~~
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/GUICallbacks/Menus/WOLQuickMatchMenu.cpp:2309:13: note: add missing switch cases
- 2309 |                                 switch (resp.peerResponseType)
-      |                                         ^
- 2310 |                                 {
- 2311 |                                 case PeerResponse::PEERRESPONSE_DISCONNECT:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/GUICallbacks/Menus/WOLQuickMatchMenu.cpp:2393:12: warning: 11 enumeration values not handled in switch: 'PEERRESPONSE_LOGIN', 'PEERRESPONSE_GROUPROOM', 'PEERRESPONSE_STAGINGROOMLISTCOMPLETE'... [-Wswitch]
- 2393 |                         switch (resp.peerResponseType)
-      |                                 ^~~~~~~~~~~~~~~~~~~~~
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/GUICallbacks/Menus/WOLQuickMatchMenu.cpp:2393:12: note: add missing switch cases
- 2393 |                         switch (resp.peerResponseType)
-      |                                 ^
-4 warnings generated.
-[992/1655] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/GUICallbacks/ReplayControls.cpp.o
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/GUICallbacks/ReplayControls.cpp:31:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Precompiled/PreRTS.h:139:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/STLTypedefs.h:62:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:767:7: warning: 'this' pointer cannot be null in well-defined C++ code; pointer may be assumed to always convert to true [-Wundefined-bool-conversion]
-  767 |                 if (this)
-      |                 ~~  ^~~~
-1 warning generated.
-[993/1655] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/Gadget/GadgetCheckBox.cpp.o
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/Gadget/GadgetCheckBox.cpp:47:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Precompiled/PreRTS.h:139:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/STLTypedefs.h:62:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:767:7: warning: 'this' pointer cannot be null in well-defined C++ code; pointer may be assumed to always convert to true [-Wundefined-bool-conversion]
-  767 |                 if (this)
-      |                 ~~  ^~~~
-1 warning generated.
-[994/1655] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/Gadget/GadgetComboBox.cpp.o
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/Gadget/GadgetComboBox.cpp:49:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Precompiled/PreRTS.h:139:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/STLTypedefs.h:62:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:767:7: warning: 'this' pointer cannot be null in well-defined C++ code; pointer may be assumed to always convert to true [-Wundefined-bool-conversion]
-  767 |                 if (this)
-      |                 ~~  ^~~~
-1 warning generated.
-[995/1655] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/Gadget/GadgetHorizontalSlider.cpp.o
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/Gadget/GadgetHorizontalSlider.cpp:49:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Precompiled/PreRTS.h:139:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/STLTypedefs.h:62:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:767:7: warning: 'this' pointer cannot be null in well-defined C++ code; pointer may be assumed to always convert to true [-Wundefined-bool-conversion]
-  767 |                 if (this)
-      |                 ~~  ^~~~
-1 warning generated.
-[996/1655] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/Gadget/GadgetProgressBar.cpp.o
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/Gadget/GadgetProgressBar.cpp:47:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Precompiled/PreRTS.h:139:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/STLTypedefs.h:62:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:767:7: warning: 'this' pointer cannot be null in well-defined C++ code; pointer may be assumed to always convert to true [-Wundefined-bool-conversion]
-  767 |                 if (this)
-      |                 ~~  ^~~~
-1 warning generated.
-[997/1655] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/Gadget/GadgetListBox.cpp.o
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/Gadget/GadgetListBox.cpp:52:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Precompiled/PreRTS.h:139:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/STLTypedefs.h:62:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:767:7: warning: 'this' pointer cannot be null in well-defined C++ code; pointer may be assumed to always convert to true [-Wundefined-bool-conversion]
-  767 |                 if (this)
-      |                 ~~  ^~~~
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/Gadget/GadgetListBox.cpp:411:2: warning: 'delete' applied to a pointer that was allocated with 'new[]'; did you mean 'delete[]'? [-Wmismatched-new-delete]
-  411 |         delete buf;
-      |         ^
-      |               []
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/Gadget/GadgetListBox.cpp:408:14: note: allocated with 'new[]' here
-  408 |         char *buf = NEW char[copyLen];
-      |                     ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:909:19: note: expanded from macro 'NEW'
-  909 |         #define NEW                                             new
-      |                                                                 ^
-2 warnings generated.
-[998/1655] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/Gadget/GadgetPushButton.cpp.o
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/Gadget/GadgetPushButton.cpp:48:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Precompiled/PreRTS.h:139:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/STLTypedefs.h:62:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:767:7: warning: 'this' pointer cannot be null in well-defined C++ code; pointer may be assumed to always convert to true [-Wundefined-bool-conversion]
-  767 |                 if (this)
-      |                 ~~  ^~~~
-1 warning generated.
-[999/1655] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/Gadget/GadgetRadioButton.cpp.o
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/Gadget/GadgetRadioButton.cpp:48:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Precompiled/PreRTS.h:139:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/STLTypedefs.h:62:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:767:7: warning: 'this' pointer cannot be null in well-defined C++ code; pointer may be assumed to always convert to true [-Wundefined-bool-conversion]
-  767 |                 if (this)
-      |                 ~~  ^~~~
-1 warning generated.
-[1000/1655] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/Gadget/GadgetStaticText.cpp.o
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/Gadget/GadgetStaticText.cpp:47:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Precompiled/PreRTS.h:139:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/STLTypedefs.h:62:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:767:7: warning: 'this' pointer cannot be null in well-defined C++ code; pointer may be assumed to always convert to true [-Wundefined-bool-conversion]
-  767 |                 if (this)
-      |                 ~~  ^~~~
-1 warning generated.
-[1001/1655] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/Gadget/GadgetVerticalSlider.cpp.o
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/Gadget/GadgetVerticalSlider.cpp:49:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Precompiled/PreRTS.h:139:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/STLTypedefs.h:62:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:767:7: warning: 'this' pointer cannot be null in well-defined C++ code; pointer may be assumed to always convert to true [-Wundefined-bool-conversion]
-  767 |                 if (this)
-      |                 ~~  ^~~~
-1 warning generated.
-[1002/1655] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/Gadget/GadgetTextEntry.cpp.o
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/Gadget/GadgetTextEntry.cpp:49:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Precompiled/PreRTS.h:139:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/STLTypedefs.h:62:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:767:7: warning: 'this' pointer cannot be null in well-defined C++ code; pointer may be assumed to always convert to true [-Wundefined-bool-conversion]
-  767 |                 if (this)
-      |                 ~~  ^~~~
-1 warning generated.
-[1003/1655] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/Gadget/GadgetTabControl.cpp.o
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/Gadget/GadgetTabControl.cpp:49:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Precompiled/PreRTS.h:139:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/STLTypedefs.h:62:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:767:7: warning: 'this' pointer cannot be null in well-defined C++ code; pointer may be assumed to always convert to true [-Wundefined-bool-conversion]
-  767 |                 if (this)
-      |                 ~~  ^~~~
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/Gadget/GadgetTabControl.cpp:342:37: warning: equality comparison with extraneous parentheses [-Wparentheses-equality]
-  342 |                 if( (tabData->subPanes[paneIndex] == NULL) )//This one is blank
-      |                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/Gadget/GadgetTabControl.cpp:342:37: note: remove extraneous parentheses around the comparison to silence this warning
-  342 |                 if( (tabData->subPanes[paneIndex] == NULL) )//This one is blank
-      |                     ~                             ^      ~
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/Gadget/GadgetTabControl.cpp:342:37: note: use '=' to turn this equality comparison into an assignment
-  342 |                 if( (tabData->subPanes[paneIndex] == NULL) )//This one is blank
-      |                                                   ^~
-      |                                                   =
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/Gadget/GadgetTabControl.cpp:352:4: warning: 'sprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead. [-Wdeprecated-declarations]
-  352 |                         sprintf( buffer, "Pane %d", paneIndex );
-      |                         ^
-/Applications/Xcode_16.4.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.5.sdk/usr/include/_stdio.h:278:1: note: 'sprintf' has been explicitly marked deprecated here
-  278 | __deprecated_msg("This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead.")
-      | ^
-/Applications/Xcode_16.4.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.5.sdk/usr/include/sys/cdefs.h:218:48: note: expanded from macro '__deprecated_msg'
-  218 |         #define __deprecated_msg(_msg) __attribute__((__deprecated__(_msg)))
-      |                                                       ^
 3 warnings generated.
-[1004/1655] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/GameFont.cpp.o
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/GameFont.cpp:30:
+[1076/1655] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/AI/AISkirmishPlayer.cpp.o
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/AI/AISkirmishPlayer.cpp:30:
 In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Precompiled/PreRTS.h:139:
 In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/STLTypedefs.h:62:
 /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:767:7: warning: 'this' pointer cannot be null in well-defined C++ code; pointer may be assumed to always convert to true [-Wundefined-bool-conversion]
   767 |                 if (this)
       |                 ~~  ^~~~
-1 warning generated.
-[1005/1655] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/GameWindowGlobal.cpp.o
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/GameWindowGlobal.cpp:48:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Precompiled/PreRTS.h:139:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/STLTypedefs.h:62:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:767:7: warning: 'this' pointer cannot be null in well-defined C++ code; pointer may be assumed to always convert to true [-Wundefined-bool-conversion]
-  767 |                 if (this)
-      |                 ~~  ^~~~
-1 warning generated.
-[1006/1655] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/GameWindow.cpp.o
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/GameWindow.cpp:49:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Precompiled/PreRTS.h:139:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/STLTypedefs.h:62:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:767:7: warning: 'this' pointer cannot be null in well-defined C++ code; pointer may be assumed to always convert to true [-Wundefined-bool-conversion]
-  767 |                 if (this)
-      |                 ~~  ^~~~
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/GameWindow.cpp:65:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameClient/SelectionXlat.h:35:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/AI/AISkirmishPlayer.cpp:35:
 In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Player.h:62:
 In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/AI.h:41:
 /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:123:10: warning: 35 enumeration values not handled in switch: 'DAMAGE_EXPLOSION', 'DAMAGE_CRUSH', 'DAMAGE_ARMOR_PIERCING'... [-Wswitch]
@@ -271,8 +92,7 @@ In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Re
   148 |                 case DAMAGE_KILL_GARRISONED:
   149 |                         return FALSE;
   150 |         }
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/GameWindow.cpp:65:
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameClient/SelectionXlat.h:35:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/AI/AISkirmishPlayer.cpp:35:
 In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Player.h:69:
 In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Team.h:38:
 In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Object.h:50:
@@ -280,21 +100,201 @@ In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Re
   246 |         inline UnsignedInt getNthCommandSourceMask( WeaponSlotType n ) const { return m_curWeaponTemplateSet ? m_curWeaponTemplateSet->getNthCommandSourceMask( n ) : NULL; }
       |                                                                                ~~~~~~                                                                                 ^~~~
       |                                                                                                                                                                       0
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/GameWindow.cpp:134:3: warning: cannot delete expression with pointer-to-'void' type 'void *' [-Wdelete-incomplete]
-  134 |                 delete m_inputData;
-      |                 ^      ~~~~~~~~~~~
-5 warnings generated.
-[1007/1655] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameClient/GUI/GameWindowManager.cpp.o
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/GameWindowManager.cpp:34:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/AI/AISkirmishPlayer.cpp:56:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/AIUpdate.h:38:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/AIStateMachine.h:40:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/StateMachine.h:357:7: warning: 'this' pointer cannot be null in well-defined C++ code; pointer may be assumed to always convert to true [-Wundefined-bool-conversion]
+  357 |                 if (this)
+      |                 ~~  ^~~~
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/AI/AISkirmishPlayer.cpp:58:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/RebuildHoleBehavior.h:37:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/DieModule.h:79:38: warning: offset of on non-standard-layout type 'DieModuleData' [-Winvalid-offsetof]
+   79 |                 p.add(DieMuxData::getFieldParse(), offsetof( DieModuleData, m_dieMuxData ));
+      |                                                    ^                        ~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/AI/AISkirmishPlayer.cpp:109:13: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
+  109 |                 m_role = (GameLogicRandomValue( 0, AIROLE_COUNT - 1 ) == 0) ? AIROLE_AGGRESSIVE : AIROLE_DEFENSIVE;
+      |                           ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/LogicRandomValue.h:55:73: note: expanded from macro 'GameLogicRandomValue'
+   55 | #define GameLogicRandomValue( lo, hi ) GetGameLogicRandomValue( lo, hi, __FILE__, __LINE__ )
+      |                                                                         ^
+<scratch space>:2:1: note: expanded from here
+    2 | "/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/AI/AISkirmishPlayer.cpp"
+      | ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/AI/AISkirmishPlayer.cpp:1297:43: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
+ 1297 |                 const ScienceType pick = talents[ row + GameLogicRandomValue( 0, 1 ) ];
+      |                                                         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/LogicRandomValue.h:55:73: note: expanded from macro 'GameLogicRandomValue'
+   55 | #define GameLogicRandomValue( lo, hi ) GetGameLogicRandomValue( lo, hi, __FILE__, __LINE__ )
+      |                                                                         ^
+<scratch space>:5:1: note: expanded from here
+    5 | "/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/AI/AISkirmishPlayer.cpp"
+      | ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/AI/AISkirmishPlayer.cpp:1663:14: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
+ 1663 |                 Int mode = GameLogicRandomValue(0, 2);
+      |                            ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/LogicRandomValue.h:55:73: note: expanded from macro 'GameLogicRandomValue'
+   55 | #define GameLogicRandomValue( lo, hi ) GetGameLogicRandomValue( lo, hi, __FILE__, __LINE__ )
+      |                                                                         ^
+<scratch space>:7:1: note: expanded from here
+    7 | "/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/AI/AISkirmishPlayer.cpp"
+      | ^
+9 warnings generated.
+[1077/1655] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/GameLogic/AI/AIPathfind.cpp.o
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/AI/AIPathfind.cpp:30:
 In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Precompiled/PreRTS.h:139:
 In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/STLTypedefs.h:62:
 /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:767:7: warning: 'this' pointer cannot be null in well-defined C++ code; pointer may be assumed to always convert to true [-Wundefined-bool-conversion]
   767 |                 if (this)
       |                 ~~  ^~~~
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/GameWindowManager.cpp:956:12: warning: 24 enumeration values not handled in switch: 'GWM_CREATE', 'GWM_DESTROY', 'GWM_ACTIVATE'... [-Wswitch]
-  956 |                         switch( msg )
-      |                                 ^~~
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameClient/GUI/GameWindowManager.cpp:956:12: note: add missing switch cases
-  956 |                         switch( msg )
-      |                                 ^
-2 warnings generated.
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/AI/AIPathfind.cpp:36:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Player.h:62:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/AI.h:41:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:123:10: warning: 35 enumeration values not handled in switch: 'DAMAGE_EXPLOSION', 'DAMAGE_CRUSH', 'DAMAGE_ARMOR_PIERCING'... [-Wswitch]
+  123 |         switch( type )
+      |                 ^~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:123:10: note: add missing switch cases
+  123 |         switch( type )
+      |                 ^
+  124 |         {
+  125 |                 case DAMAGE_SUBDUAL_MISSILE:
+  126 |                 case DAMAGE_SUBDUAL_VEHICLE:
+  127 |                 case DAMAGE_SUBDUAL_BUILDING:
+  128 |                 case DAMAGE_SUBDUAL_UNRESISTABLE:
+  129 |                         return TRUE;
+  130 |         }
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:140:10: warning: 32 enumeration values not handled in switch: 'DAMAGE_EXPLOSION', 'DAMAGE_CRUSH', 'DAMAGE_ARMOR_PIERCING'... [-Wswitch]
+  140 |         switch( type )
+      |                 ^~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:140:10: note: add missing switch cases
+  140 |         switch( type )
+      |                 ^
+  141 |         {
+  142 |                 case DAMAGE_STATUS:
+  143 |                 case DAMAGE_SUBDUAL_MISSILE:
+  144 |                 case DAMAGE_SUBDUAL_VEHICLE:
+  145 |                 case DAMAGE_SUBDUAL_BUILDING:
+  146 |                 case DAMAGE_SUBDUAL_UNRESISTABLE:
+  147 |                 case DAMAGE_KILLPILOT:
+  148 |                 case DAMAGE_KILL_GARRISONED:
+  149 |                         return FALSE;
+  150 |         }
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/AI/AIPathfind.cpp:36:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Player.h:69:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/Team.h:38:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Object.h:50:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/WeaponSet.h:246:160: warning: implicit conversion of NULL constant to 'UnsignedInt' (aka 'unsigned int') [-Wnull-conversion]
+  246 |         inline UnsignedInt getNthCommandSourceMask( WeaponSlotType n ) const { return m_curWeaponTemplateSet ? m_curWeaponTemplateSet->getNthCommandSourceMask( n ) : NULL; }
+      |                                                                                ~~~~~~                                                                                 ^~~~
+      |                                                                                                                                                                       0
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/AI/AIPathfind.cpp:50:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Module/AIUpdate.h:38:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/AIStateMachine.h:40:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/StateMachine.h:357:7: warning: 'this' pointer cannot be null in well-defined C++ code; pointer may be assumed to always convert to true [-Wundefined-bool-conversion]
+  357 |                 if (this)
+      |                 ~~  ^~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/AI/AIPathfind.cpp:5553:4: warning: 'sprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead. [-Wdeprecated-declarations]
+ 5553 |                         sprintf( one, "%s %dx ", thePFSlotName[ i ], thePFMatchCalls[ i ] );
+      |                         ^
+/Applications/Xcode_16.4.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.5.sdk/usr/include/_stdio.h:278:1: note: 'sprintf' has been explicitly marked deprecated here
+  278 | __deprecated_msg("This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead.")
+      | ^
+/Applications/Xcode_16.4.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.5.sdk/usr/include/sys/cdefs.h:218:48: note: expanded from macro '__deprecated_msg'
+  218 |         #define __deprecated_msg(_msg) __attribute__((__deprecated__(_msg)))
+      |                                                       ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/AI/AIPathfind.cpp:5555:4: warning: 'sprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead. [-Wdeprecated-declarations]
+ 5555 |                         sprintf( one, "%s %dx/%.0f ", thePFSlotName[ i ], thePFMatchCalls[ i ], ms );
+      |                         ^
+/Applications/Xcode_16.4.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.5.sdk/usr/include/_stdio.h:278:1: note: 'sprintf' has been explicitly marked deprecated here
+  278 | __deprecated_msg("This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead.")
+      | ^
+/Applications/Xcode_16.4.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.5.sdk/usr/include/sys/cdefs.h:218:48: note: expanded from macro '__deprecated_msg'
+  218 |         #define __deprecated_msg(_msg) __attribute__((__deprecated__(_msg)))
+      |                                                       ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/AI/AIPathfind.cpp:5563:3: warning: 'sprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead. [-Wdeprecated-declarations]
+ 5563 |                 sprintf( thePFMatchReport + len,
+      |                 ^
+/Applications/Xcode_16.4.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.5.sdk/usr/include/_stdio.h:278:1: note: 'sprintf' has been explicitly marked deprecated here
+  278 | __deprecated_msg("This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead.")
+      | ^
+/Applications/Xcode_16.4.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.5.sdk/usr/include/sys/cdefs.h:218:48: note: expanded from macro '__deprecated_msg'
+  218 |         #define __deprecated_msg(_msg) __attribute__((__deprecated__(_msg)))
+      |                                                       ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/AI/AIPathfind.cpp:5570:3: warning: 'sprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead. [-Wdeprecated-declarations]
+ 5570 |                 sprintf( thePFMatchReport + len,
+      |                 ^
+/Applications/Xcode_16.4.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.5.sdk/usr/include/_stdio.h:278:1: note: 'sprintf' has been explicitly marked deprecated here
+  278 | __deprecated_msg("This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead.")
+      | ^
+/Applications/Xcode_16.4.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.5.sdk/usr/include/sys/cdefs.h:218:48: note: expanded from macro '__deprecated_msg'
+  218 |         #define __deprecated_msg(_msg) __attribute__((__deprecated__(_msg)))
+      |                                                       ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/AI/AIPathfind.cpp:5576:3: warning: 'sprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead. [-Wdeprecated-declarations]
+ 5576 |                 sprintf( thePFMatchReport + len, " human %d humanlongest %d", thePFQHumanServed, thePFQHumanWaitMax );
+      |                 ^
+/Applications/Xcode_16.4.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.5.sdk/usr/include/_stdio.h:278:1: note: 'sprintf' has been explicitly marked deprecated here
+  278 | __deprecated_msg("This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead.")
+      | ^
+/Applications/Xcode_16.4.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.5.sdk/usr/include/sys/cdefs.h:218:48: note: expanded from macro '__deprecated_msg'
+  218 |         #define __deprecated_msg(_msg) __attribute__((__deprecated__(_msg)))
+      |                                                       ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/AI/AIPathfind.cpp:5593:4: warning: 'sprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead. [-Wdeprecated-declarations]
+ 5593 |                         sprintf( one, "%s %dx ", thePFSlotName[ i ], thePFCalls[ i ] );
+      |                         ^
+/Applications/Xcode_16.4.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.5.sdk/usr/include/_stdio.h:278:1: note: 'sprintf' has been explicitly marked deprecated here
+  278 | __deprecated_msg("This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead.")
+      | ^
+/Applications/Xcode_16.4.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.5.sdk/usr/include/sys/cdefs.h:218:48: note: expanded from macro '__deprecated_msg'
+  218 |         #define __deprecated_msg(_msg) __attribute__((__deprecated__(_msg)))
+      |                                                       ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/AI/AIPathfind.cpp:5595:4: warning: 'sprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead. [-Wdeprecated-declarations]
+ 5595 |                         sprintf( one, "%s %dx/%.1f ", thePFSlotName[ i ], thePFCalls[ i ], ms );
+      |                         ^
+/Applications/Xcode_16.4.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.5.sdk/usr/include/_stdio.h:278:1: note: 'sprintf' has been explicitly marked deprecated here
+  278 | __deprecated_msg("This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead.")
+      | ^
+/Applications/Xcode_16.4.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.5.sdk/usr/include/sys/cdefs.h:218:48: note: expanded from macro '__deprecated_msg'
+  218 |         #define __deprecated_msg(_msg) __attribute__((__deprecated__(_msg)))
+      |                                                       ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/AI/AIPathfind.cpp:5992:9: warning: enumeration value 'GEOMETRY_NUM_TYPES' not handled in switch [-Wswitch]
+ 5992 |         switch(obj->getGeometryInfo().getGeomType())
+      |                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/AI/AIPathfind.cpp:5992:9: note: add missing switch cases
+ 5992 |         switch(obj->getGeometryInfo().getGeomType())
+      |                ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/AI/AIPathfind.cpp:6571:10: warning: equality comparison with extraneous parentheses [-Wparentheses-equality]
+ 6571 |         if ( (t == PathfindCell::CELL_CLIFF) ) {
+      |               ~~^~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/AI/AIPathfind.cpp:6571:10: note: remove extraneous parentheses around the comparison to silence this warning
+ 6571 |         if ( (t == PathfindCell::CELL_CLIFF) ) {
+      |              ~  ^                          ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/AI/AIPathfind.cpp:6571:10: note: use '=' to turn this equality comparison into an assignment
+ 6571 |         if ( (t == PathfindCell::CELL_CLIFF) ) {
+      |                 ^~
+      |                 =
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/AI/AIPathfind.cpp:6592:61: warning: comparison of different enumeration types ('PathfindLayerEnum' and 'PathfindCell::CellType') [-Wenum-compare]
+ 6592 |         if (toCell->getLayer()!=LAYER_GROUND && toCell->getLayer() == PathfindCell::CELL_CLEAR) {
+      |                                                 ~~~~~~~~~~~~~~~~~~ ^  ~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/AI/AIPathfind.cpp:7183:10: warning: 4 enumeration values not handled in switch: 'CELL_CLEAR', 'CELL_RUBBLE', 'CELL_OBSTACLE'... [-Wswitch]
+ 7183 |         switch (cellP->getType())
+      |                 ^~~~~~~~~~~~~~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/AI/AIPathfind.cpp:7183:10: note: add missing switch cases
+ 7183 |         switch (cellP->getType())
+      |                 ^
+ 7184 |         {
+ 7185 |                 case PathfindCell::CELL_CLIFF:
+ 7186 |                 case PathfindCell::CELL_WATER:
+ 7187 |                 case PathfindCell::CELL_IMPASSABLE:
+ 7188 |                         return false;  // no final destinations on cliffs, water, etc.
+ 7189 |         }
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/AI/AIPathfind.cpp:11077:36: warning: implicit conversion of NULL constant to 'Bool' (aka 'bool') [-Wnull-conversion]
+ 11077 |         if (m_isMapReady == false) return NULL;
+       |                                    ~~~~~~ ^~~~
+       |                                           false
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/GameLogic/AI/AIPathfind.cpp:11365:36: warning: implicit conversion of NULL constant to 'Int' (aka 'int') [-Wnull-conversion]
+ 11365 |         if (m_isMapReady == false) return NULL;
+       |                                    ~~~~~~ ^~~~
+       |                                           0
+18 warnings generated.
