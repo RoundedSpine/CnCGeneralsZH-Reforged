@@ -1,300 +1,300 @@
-  570 | int ZEXPORT deflateEnd (strm)
-      |             ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/zconf.h:18:22: note: expanded from macro 'deflateEnd'
-   18 | #  define deflateEnd    z_deflateEnd
-      |                         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/deflate.c:600:13: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  600 | int ZEXPORT deflateCopy (dest, source)
-      |             ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/zconf.h:24:23: note: expanded from macro 'deflateCopy'
-   24 | #  define deflateCopy   z_deflateCopy
-      |                         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/deflate.c:662:11: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  662 | local int read_buf(strm, buf, size)
-      |           ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/deflate.c:687:12: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  687 | local void lm_init (s)
-      |            ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/deflate.c:726:12: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  726 | local uInt longest_match(s, cur_match)
-      |            ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/deflate.c:961:12: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  961 | local void fill_window(s)
-      |            ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/deflate.c:1081:19: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
- 1081 | local block_state deflate_stored(s, flush)
-      |                   ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/deflate.c:1139:19: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
- 1139 | local block_state deflate_fast(s, flush)
-      |                   ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/deflate.c:1235:19: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
- 1235 | local block_state deflate_slow(s, flush)
-      |                   ^
-17 warnings generated.
-[567/1655] Building C object CMakeFiles/compression.dir/Libraries/Source/Compression/ZLib/gzio.c.o
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/gzio.c:73:14: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-   73 | local gzFile gz_open (path, mode, fd)
-      |              ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/gzio.c:183:16: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  183 | gzFile ZEXPORT gzopen (path, mode)
-      |                ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/gzio.c:194:16: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  194 | gzFile ZEXPORT gzdopen (fd, mode)
-      |                ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/gzio.c:209:13: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  209 | int ZEXPORT gzsetparams (file, level, strategy)
-      |             ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/gzio.c:236:11: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  236 | local int get_byte(s)
-      |           ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/gzio.c:263:12: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  263 | local void check_header(s)
-      |            ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/gzio.c:316:11: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  316 | local int destroy (s)
-      |           ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/gzio.c:355:13: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  355 | int ZEXPORT gzread (file, buf, len)
-      |             ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/gzio.c:449:13: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  449 | int ZEXPORT gzgetc(file)
-      |             ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/gzio.c:467:16: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  467 | char * ZEXPORT gzgets(file, buf, len)
-      |                ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/gzio.c:486:13: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  486 | int ZEXPORT gzwrite (file, buf, len)
-      |             ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/gzio.c:573:13: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  573 | int ZEXPORT gzputc(file, c)
-      |             ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/gzio.c:588:13: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  588 | int ZEXPORT gzputs(file, s)
-      |             ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/gzio.c:600:11: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  600 | local int do_flush (file, flush)
-      |           ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/gzio.c:639:13: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  639 | int ZEXPORT gzflush (file, flush)
-      |             ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/gzio.c:660:17: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  660 | z_off_t ZEXPORT gzseek (file, offset, whence)
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/STLTypedefs.h:62:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:767:7: warning: 'this' pointer cannot be null in well-defined C++ code; pointer may be assumed to always convert to true [-Wundefined-bool-conversion]
+  767 |                 if (this)
+      |                 ~~  ^~~~
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/INI/INIAiData.cpp:34:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/AI.h:41:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:123:10: warning: 35 enumeration values not handled in switch: 'DAMAGE_EXPLOSION', 'DAMAGE_CRUSH', 'DAMAGE_ARMOR_PIERCING'... [-Wswitch]
+  123 |         switch( type )
+      |                 ^~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:123:10: note: add missing switch cases
+  123 |         switch( type )
       |                 ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/gzio.c:741:13: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  741 | int ZEXPORT gzrewind (file)
-      |             ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/gzio.c:768:17: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  768 | z_off_t ZEXPORT gztell (file)
+  124 |         {
+  125 |                 case DAMAGE_SUBDUAL_MISSILE:
+  126 |                 case DAMAGE_SUBDUAL_VEHICLE:
+  127 |                 case DAMAGE_SUBDUAL_BUILDING:
+  128 |                 case DAMAGE_SUBDUAL_UNRESISTABLE:
+  129 |                         return TRUE;
+  130 |         }
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:140:10: warning: 32 enumeration values not handled in switch: 'DAMAGE_EXPLOSION', 'DAMAGE_CRUSH', 'DAMAGE_ARMOR_PIERCING'... [-Wswitch]
+  140 |         switch( type )
+      |                 ^~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:140:10: note: add missing switch cases
+  140 |         switch( type )
       |                 ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/gzio.c:778:13: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  778 | int ZEXPORT gzeof (file)
-      |             ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/gzio.c:789:12: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  789 | local void putLong (file, x)
-      |            ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/gzio.c:804:13: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  804 | local uLong getLong (s)
-      |             ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/gzio.c:822:13: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  822 | int ZEXPORT gzclose (file)
-      |             ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/gzio.c:851:22: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  851 | const char*  ZEXPORT gzerror (file, errnum)
-      |                      ^
-23 warnings generated.
-[568/1655] Building C object CMakeFiles/compression.dir/Libraries/Source/Compression/ZLib/infcodes.c.o
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/infcodes.c:59:23: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-   59 | inflate_codes_statef *inflate_codes_new(bl, bd, tl, td, z)
-      |                       ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/infcodes.c:81:5: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-   81 | int inflate_codes(s, z, r)
-      |     ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/infcodes.c:245:6: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  245 | void inflate_codes_free(c, z)
-      |      ^
+  141 |         {
+  142 |                 case DAMAGE_STATUS:
+  143 |                 case DAMAGE_SUBDUAL_MISSILE:
+  144 |                 case DAMAGE_SUBDUAL_VEHICLE:
+  145 |                 case DAMAGE_SUBDUAL_BUILDING:
+  146 |                 case DAMAGE_SUBDUAL_UNRESISTABLE:
+  147 |                 case DAMAGE_KILLPILOT:
+  148 |                 case DAMAGE_KILL_GARRISONED:
+  149 |                         return FALSE;
+  150 |         }
 3 warnings generated.
-[569/1655] Building C object CMakeFiles/compression.dir/Libraries/Source/Compression/ZLib/infblock.c.o
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/infblock.c:68:6: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-   68 | void inflate_blocks_reset(s, z, c)
-      |      ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/infblock.c:89:24: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-   89 | inflate_blocks_statef *inflate_blocks_new(z, c, w)
-      |                        ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/infblock.c:120:5: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  120 | int inflate_blocks(s, z, r)
-      |     ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/infblock.c:372:5: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  372 | int inflate_blocks_free(s, z)
-      |     ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/infblock.c:385:6: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  385 | void inflate_set_dictionary(s, d, n)
-      |      ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/infblock.c:399:5: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  399 | int inflate_blocks_sync_point(s)
-      |     ^
-6 warnings generated.
-[570/1655] Building CXX object CMakeFiles/compression.dir/Libraries/Source/Compression/LZHCompress/NoxCompress.cpp.o
-In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/LZHCompress/NoxCompress.cpp:29:
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/LZHCompress/NoxCompress.h:40:8: warning: extra tokens at end of #endif directive [-Wextra-tokens]
-   40 | #endif __compress_h
-      |        ^
-      |        //
+[778/1655] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/INI/INIAnimation.cpp.o
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/INI/INIAnimation.cpp:31:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Precompiled/PreRTS.h:139:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/STLTypedefs.h:62:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:767:7: warning: 'this' pointer cannot be null in well-defined C++ code; pointer may be assumed to always convert to true [-Wundefined-bool-conversion]
+  767 |                 if (this)
+      |                 ~~  ^~~~
 1 warning generated.
-[571/1655] Building C object CMakeFiles/compression.dir/Libraries/Source/Compression/ZLib/inflate.c.o
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/inflate.c:53:13: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-   53 | int ZEXPORT inflateReset(z)
-      |             ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/zconf.h:31:24: note: expanded from macro 'inflateReset'
-   31 | #  define inflateReset  z_inflateReset
-      |                         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/inflate.c:67:13: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-   67 | int ZEXPORT inflateEnd(z)
-      |             ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/zconf.h:21:22: note: expanded from macro 'inflateEnd'
-   21 | #  define inflateEnd    z_inflateEnd
-      |                         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/inflate.c:81:13: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-   81 | int ZEXPORT inflateInit2_(z, w, version, stream_size)
-      |             ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/zconf.h:27:25: note: expanded from macro 'inflateInit2_'
-   27 | #  define inflateInit2_ z_inflateInit2_
-      |                         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/inflate.c:138:13: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  138 | int ZEXPORT inflateInit_(z, version, stream_size)
-      |             ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/zconf.h:19:25: note: expanded from macro 'inflateInit_'
-   19 | #  define inflateInit_  z_inflateInit_
-      |                         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/inflate.c:150:13: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  150 | int ZEXPORT inflate(z, f)
-      |             ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/zconf.h:20:19: note: expanded from macro 'inflate'
-   20 | #  define inflate       z_inflate
-      |                         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/inflate.c:278:13: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  278 | int ZEXPORT inflateSetDictionary(z, dictionary, dictLength)
-      |             ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/zconf.h:28:32: note: expanded from macro 'inflateSetDictionary'
-   28 | #  define inflateSetDictionary z_inflateSetDictionary
-      |                                ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/inflate.c:302:13: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  302 | int ZEXPORT inflateSync(z)
-      |             ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/zconf.h:29:23: note: expanded from macro 'inflateSync'
-   29 | #  define inflateSync   z_inflateSync
-      |                         ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/inflate.c:360:13: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  360 | int ZEXPORT inflateSyncPoint(z)
-      |             ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/zconf.h:30:28: note: expanded from macro 'inflateSyncPoint'
-   30 | #  define inflateSyncPoint z_inflateSyncPoint
-      |                            ^
-8 warnings generated.
-[572/1655] Building C object CMakeFiles/compression.dir/Libraries/Source/Compression/ZLib/inftrees.c.o
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/inftrees.c:93:11: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-   93 | local int huft_build(b, n, s, d, e, t, m, hp, hn, v)
-      |           ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/inftrees.c:293:5: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  293 | int inflate_trees_bits(c, bb, tb, hp, z)
-      |     ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/inftrees.c:320:5: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  320 | int inflate_trees_dynamic(nl, nd, c, bl, bd, tl, td, hp, z)
-      |     ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/inftrees.c:398:5: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  398 | int inflate_trees_fixed(bl, bd, tl, td, z)
-      |     ^
-4 warnings generated.
-[573/1655] Building C object CMakeFiles/compression.dir/Libraries/Source/Compression/ZLib/infutil.c.o
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/infutil.c:23:5: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-   23 | int inflate_flush(s, z, r)
-      |     ^
+[779/1655] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/INI/INIAudioEventInfo.cpp.o
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/INI/INIAudioEventInfo.cpp:31:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Precompiled/PreRTS.h:139:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/STLTypedefs.h:62:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:767:7: warning: 'this' pointer cannot be null in well-defined C++ code; pointer may be assumed to always convert to true [-Wundefined-bool-conversion]
+  767 |                 if (this)
+      |                 ~~  ^~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/INI/INIAudioEventInfo.cpp:148:59: warning: offset of on non-standard-layout type 'AudioEventInfo' [-Winvalid-offsetof]
+  148 |         { "Filename",                                                   INI::parseAsciiString,          NULL,                                                           offsetof( AudioEventInfo, m_filename) },
+      |                                                                                                                                                                         ^                         ~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/INI/INIAudioEventInfo.cpp:149:59: warning: offset of on non-standard-layout type 'AudioEventInfo' [-Winvalid-offsetof]
+  149 |         { "Volume",                                                             INI::parsePercentToReal,        NULL,                                                           offsetof( AudioEventInfo, m_volume ) },
+      |                                                                                                                                                                                 ^                         ~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/INI/INIAudioEventInfo.cpp:150:61: warning: offset of on non-standard-layout type 'AudioEventInfo' [-Winvalid-offsetof]
+  150 |         { "VolumeShift",                                        INI::parsePercentToReal,        NULL,                                                           offsetof( AudioEventInfo, m_volumeShift ) },
+      |                                                                                                                                                                 ^                         ~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/INI/INIAudioEventInfo.cpp:151:60: warning: offset of on non-standard-layout type 'AudioEventInfo' [-Winvalid-offsetof]
+  151 |         { "MinVolume",                                          INI::parsePercentToReal,        NULL,                                                           offsetof( AudioEventInfo, m_minVolume ) },
+      |                                                                                                                                                                 ^                         ~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/INI/INIAudioEventInfo.cpp:154:53: warning: offset of on non-standard-layout type 'AudioEventInfo' [-Winvalid-offsetof]
+  154 |         { "Limit",                                                              INI::parseInt,                                          NULL,                                                           offsetof( AudioEventInfo, m_limit ) },
+      |                                                                                                                                                                                                         ^                         ~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/INI/INIAudioEventInfo.cpp:155:55: warning: offset of on non-standard-layout type 'AudioEventInfo' [-Winvalid-offsetof]
+  155 |         { "LoopCount",                                          INI::parseInt,                                          NULL,                                                           offsetof( AudioEventInfo, m_loopCount ) },
+      |                                                                                                                                                                                         ^                         ~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/INI/INIAudioEventInfo.cpp:156:68: warning: offset of on non-standard-layout type 'AudioEventInfo' [-Winvalid-offsetof]
+  156 |         { "Priority",                                                   INI::parseIndexList,                    theAudioPriorityNames,  offsetof( AudioEventInfo, m_priority ) },
+      |                                                                                                                                         ^                         ~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/INI/INIAudioEventInfo.cpp:157:65: warning: offset of on non-standard-layout type 'AudioEventInfo' [-Winvalid-offsetof]
+  157 |         { "Type",                                                                       INI::parseBitString32,          theSoundTypeNames,                      offsetof( AudioEventInfo, m_type ) },
+      |                                                                                                                                                                 ^                         ~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/INI/INIAudioEventInfo.cpp:158:67: warning: offset of on non-standard-layout type 'AudioEventInfo' [-Winvalid-offsetof]
+  158 |         { "Control",                                                    INI::parseBitString32,          theAudioControlNames,   offsetof( AudioEventInfo, m_control ) },
+      |                                                                                                                                 ^                         ~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/INI/INIAudioEventInfo.cpp:159:58: warning: offset of on non-standard-layout type 'AudioEventInfo' [-Winvalid-offsetof]
+  159 |         { "Sounds",                                                             INI::parseSoundsList,                   NULL,                                                           offsetof( AudioEventInfo, m_sounds ) },
+      |                                                                                                                                                                                         ^                         ~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/INI/INIAudioEventInfo.cpp:160:60: warning: offset of on non-standard-layout type 'AudioEventInfo' [-Winvalid-offsetof]
+  160 |         { "SoundsNight",                                        INI::parseSoundsList,                   NULL,                                                           offsetof( AudioEventInfo, m_soundsNight ) },
+      |                                                                                                                                                                         ^                         ~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/INI/INIAudioEventInfo.cpp:161:61: warning: offset of on non-standard-layout type 'AudioEventInfo' [-Winvalid-offsetof]
+  161 |         { "SoundsEvening",                              INI::parseSoundsList,                   NULL,                                                           offsetof( AudioEventInfo, m_soundsEvening ) },
+      |                                                                                                                                                                 ^                         ~~~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/INI/INIAudioEventInfo.cpp:162:61: warning: offset of on non-standard-layout type 'AudioEventInfo' [-Winvalid-offsetof]
+  162 |         { "SoundsMorning",                              INI::parseSoundsList,                   NULL,                                                           offsetof( AudioEventInfo, m_soundsMorning ) },
+      |                                                                                                                                                                 ^                         ~~~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/INI/INIAudioEventInfo.cpp:163:58: warning: offset of on non-standard-layout type 'AudioEventInfo' [-Winvalid-offsetof]
+  163 |         { "Attack",                                                             INI::parseSoundsList,                   NULL,                                                           offsetof( AudioEventInfo, m_attackSounds ) },
+      |                                                                                                                                                                                         ^                         ~~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/INI/INIAudioEventInfo.cpp:164:57: warning: offset of on non-standard-layout type 'AudioEventInfo' [-Winvalid-offsetof]
+  164 |         { "Decay",                                                              INI::parseSoundsList,                   NULL,                                                           offsetof( AudioEventInfo, m_decaySounds ) },
+      |                                                                                                                                                                                         ^                         ~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/INI/INIAudioEventInfo.cpp:165:56: warning: offset of on non-standard-layout type 'AudioEventInfo' [-Winvalid-offsetof]
+  165 |         { "MinRange",                                                   INI::parseReal,                                         NULL,                                                           offsetof( AudioEventInfo, m_minDistance) },
+      |                                                                                                                                                                                                 ^                         ~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/INI/INIAudioEventInfo.cpp:166:56: warning: offset of on non-standard-layout type 'AudioEventInfo' [-Winvalid-offsetof]
+  166 |         { "MaxRange",                                                   INI::parseReal,                                         NULL,                                                           offsetof( AudioEventInfo, m_maxDistance) },
+      |                                                                                                                                                                                                 ^                         ~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/INI/INIAudioEventInfo.cpp:167:62: warning: offset of on non-standard-layout type 'AudioEventInfo' [-Winvalid-offsetof]
+  167 |         { "LowPassCutoff",                              INI::parsePercentToReal,        NULL,                                                           offsetof( AudioEventInfo, m_lowPassFreq) },
+      |                                                                                                                                                         ^                         ~~~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/INI/INIAudioEventInfo.cpp:168:64: warning: offset of on non-standard-layout type 'AudioEventInfo' [-Winvalid-offsetof]
+  168 |         { "MusicMood",                                          INI::parseIndexList,                    TheMusicMoodNames,      offsetof( AudioEventInfo, m_musicMood) },
+      |                                                                                                                                 ^                         ~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/INI/INIAudioEventInfo.cpp:169:59: warning: offset of on non-standard-layout type 'AudioEventInfo' [-Winvalid-offsetof]
+  169 |         { "MusicSide",                                          INI::parseAsciiString,          NULL,                                                           offsetof( AudioEventInfo, m_musicSide) },
+      |                                                                                                                                                                 ^                         ~~~~~~~~~~~
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'
+   16 | #define offsetof(t, d) __builtin_offsetof(t, d)
+      |                        ^                     ~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/INI/INIAudioEventInfo.cpp:203:2: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
+  203 |         "LOWEST",
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/INI/INIAudioEventInfo.cpp:204:2: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
+  204 |         "LOW",
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/INI/INIAudioEventInfo.cpp:205:2: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
+  205 |         "NORMAL",
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/INI/INIAudioEventInfo.cpp:206:2: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
+  206 |         "HIGH",
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/INI/INIAudioEventInfo.cpp:207:2: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
+  207 |         "CRITICAL",
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/INI/INIAudioEventInfo.cpp:213:2: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
+  213 |         "UI",
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/INI/INIAudioEventInfo.cpp:214:2: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
+  214 |         "WORLD",
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/INI/INIAudioEventInfo.cpp:215:2: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
+  215 |         "SHROUDED",
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/INI/INIAudioEventInfo.cpp:216:2: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
+  216 |         "GLOBAL",
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/INI/INIAudioEventInfo.cpp:217:2: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
+  217 |         "VOICE",
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/INI/INIAudioEventInfo.cpp:218:2: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
+  218 |         "PLAYER",
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/INI/INIAudioEventInfo.cpp:219:2: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
+  219 |         "ALLIES",
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/INI/INIAudioEventInfo.cpp:220:2: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
+  220 |         "ENEMIES",
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/INI/INIAudioEventInfo.cpp:221:2: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
+  221 |         "EVERYONE",
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/INI/INIAudioEventInfo.cpp:227:2: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
+  227 |         "LOOP",
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/INI/INIAudioEventInfo.cpp:228:2: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
+  228 |         "RANDOM",
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/INI/INIAudioEventInfo.cpp:229:2: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
+  229 |         "ALL",
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/INI/INIAudioEventInfo.cpp:230:2: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
+  230 |         "POSTDELAY",
+      |         ^
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/INI/INIAudioEventInfo.cpp:231:2: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
+  231 |         "INTERRUPT",
+      |         ^
+40 warnings generated.
+[780/1655] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/INI/INICommandButton.cpp.o
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/INI/INICommandButton.cpp:33:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Precompiled/PreRTS.h:139:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/STLTypedefs.h:62:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:767:7: warning: 'this' pointer cannot be null in well-defined C++ code; pointer may be assumed to always convert to true [-Wundefined-bool-conversion]
+  767 |                 if (this)
+      |                 ~~  ^~~~
 1 warning generated.
-[574/1655] Building C object CMakeFiles/compression.dir/Libraries/Source/Compression/ZLib/inffast.c.o
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/inffast.c:28:5: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-   28 | int inflate_fast(bl, bd, tl, td, s, z)
-      |     ^
+[781/1655] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/INI/INICommandSet.cpp.o
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/INI/INICommandSet.cpp:33:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Precompiled/PreRTS.h:139:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/STLTypedefs.h:62:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:767:7: warning: 'this' pointer cannot be null in well-defined C++ code; pointer may be assumed to always convert to true [-Wundefined-bool-conversion]
+  767 |                 if (this)
+      |                 ~~  ^~~~
 1 warning generated.
-[575/1655] Building C object CMakeFiles/compression.dir/Libraries/Source/Compression/ZLib/uncompr.c.o
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/uncompr.c:25:13: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-   25 | int ZEXPORT uncompress (dest, destLen, source, sourceLen)
-      |             ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/zconf.h:34:22: note: expanded from macro 'uncompress'
-   34 | #  define uncompress    z_uncompress
-      |                         ^
+[782/1655] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/INI/INIControlBarScheme.cpp.o
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/INI/INIControlBarScheme.cpp:54:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Precompiled/PreRTS.h:139:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/STLTypedefs.h:62:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:767:7: warning: 'this' pointer cannot be null in well-defined C++ code; pointer may be assumed to always convert to true [-Wundefined-bool-conversion]
+  767 |                 if (this)
+      |                 ~~  ^~~~
 1 warning generated.
-[576/1655] Building C object CMakeFiles/compression.dir/Libraries/Source/Compression/ZLib/zutil.c.o
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/zutil.c:52:22: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-   52 | const char * ZEXPORT zError(err)
-      |                      ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/zutil.c:208:8: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  208 | voidpf zcalloc (opaque, items, size)
-      |        ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/zutil.c:217:7: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  217 | void  zcfree (opaque, ptr)
-      |       ^
+[783/1655] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/INI/INICrate.cpp.o
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/INI/INICrate.cpp:31:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Precompiled/PreRTS.h:139:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/STLTypedefs.h:62:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:767:7: warning: 'this' pointer cannot be null in well-defined C++ code; pointer may be assumed to always convert to true [-Wundefined-bool-conversion]
+  767 |                 if (this)
+      |                 ~~  ^~~~
+1 warning generated.
+[784/1655] Building CXX object CMakeFiles/gameengine.dir/GameEngine/Source/Common/INI/INIDamageFX.cpp.o
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/INI/INIDamageFX.cpp:31:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Precompiled/PreRTS.h:139:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/STLTypedefs.h:62:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/GameMemory.h:767:7: warning: 'this' pointer cannot be null in well-defined C++ code; pointer may be assumed to always convert to true [-Wundefined-bool-conversion]
+  767 |                 if (this)
+      |                 ~~  ^~~~
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Source/Common/INI/INIDamageFX.cpp:34:
+In file included from /Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/Common/DamageFX.h:39:
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:123:10: warning: 35 enumeration values not handled in switch: 'DAMAGE_EXPLOSION', 'DAMAGE_CRUSH', 'DAMAGE_ARMOR_PIERCING'... [-Wswitch]
+  123 |         switch( type )
+      |                 ^~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:123:10: note: add missing switch cases
+  123 |         switch( type )
+      |                 ^
+  124 |         {
+  125 |                 case DAMAGE_SUBDUAL_MISSILE:
+  126 |                 case DAMAGE_SUBDUAL_VEHICLE:
+  127 |                 case DAMAGE_SUBDUAL_BUILDING:
+  128 |                 case DAMAGE_SUBDUAL_UNRESISTABLE:
+  129 |                         return TRUE;
+  130 |         }
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:140:10: warning: 32 enumeration values not handled in switch: 'DAMAGE_EXPLOSION', 'DAMAGE_CRUSH', 'DAMAGE_ARMOR_PIERCING'... [-Wswitch]
+  140 |         switch( type )
+      |                 ^~~~
+/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/GameEngine/Include/GameLogic/Damage.h:140:10: note: add missing switch cases
+  140 |         switch( type )
+      |                 ^
+  141 |         {
+  142 |                 case DAMAGE_STATUS:
+  143 |                 case DAMAGE_SUBDUAL_MISSILE:
+  144 |                 case DAMAGE_SUBDUAL_VEHICLE:
+  145 |                 case DAMAGE_SUBDUAL_BUILDING:
+  146 |                 case DAMAGE_SUBDUAL_UNRESISTABLE:
+  147 |                 case DAMAGE_KILLPILOT:
+  148 |                 case DAMAGE_KILL_GARRISONED:
+  149 |                         return FALSE;
+  150 |         }
 3 warnings generated.
-[577/1655] Linking CXX static library libwwlib.a
-[578/1655] Building C object CMakeFiles/compression.dir/Libraries/Source/Compression/ZLib/trees.c.o
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/trees.c:383:6: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  383 | void _tr_init(s)
-      |      ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/trees.c:412:12: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  412 | local void init_block(s)
-      |            ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/trees.c:456:12: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  456 | local void pqdownheap(s, tree, k)
-      |            ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/trees.c:491:12: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  491 | local void gen_bitlen(s, desc)
-      |            ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/trees.c:578:12: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  578 | local void gen_codes (tree, max_code, bl_count)
-      |            ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/trees.c:620:12: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  620 | local void build_tree(s, desc)
-      |            ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/trees.c:707:12: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  707 | local void scan_tree (s, tree, max_code)
-      |            ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/trees.c:752:12: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  752 | local void send_tree (s, tree, max_code)
-      |            ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/trees.c:803:11: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  803 | local int build_bl_tree(s)
-      |           ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/trees.c:838:12: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  838 | local void send_all_trees(s, lcodes, dcodes, blcodes)
-      |            ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/trees.c:867:6: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  867 | void _tr_stored_block(s, buf, stored_len, eof)
-      |      ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/trees.c:892:6: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  892 | void _tr_align(s)
-      |      ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/trees.c:921:6: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
-  921 | void _tr_flush_block(s, buf, stored_len, eof)
-      |      ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/trees.c:1021:5: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
- 1021 | int _tr_tally (s, dist, lc)
-      |     ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/trees.c:1071:12: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
- 1071 | local void compress_block(s, ltree, dtree)
-      |            ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/trees.c:1124:12: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
- 1124 | local void set_data_type(s)
-      |            ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/trees.c:1141:16: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
- 1141 | local unsigned bi_reverse(code, len)
-      |                ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/trees.c:1156:12: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
- 1156 | local void bi_flush(s)
-      |            ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/trees.c:1173:12: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
- 1173 | local void bi_windup(s)
-      |            ^
-/Users/runner/work/CnCGeneralsZH-Reforged/CnCGeneralsZH-Reforged/GeneralsMD/Code/Libraries/Source/Compression/ZLib/trees.c:1192:12: warning: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
- 1192 | local void copy_block(s, buf, len, header)
-      |            ^
-20 warnings generated.
-[579/1655] Building CXX object CMakeFiles/wwsaveload.dir/Libraries/Source/WWVegas/WWSaveLoad/definitionfactory.cpp.o
-[580/1655] Building CXX object CMakeFiles/wwsaveload.dir/Libraries/Source/WWVegas/WWSaveLoad/definitionfactorymgr.cpp.o
